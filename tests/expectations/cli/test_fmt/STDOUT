@@ -1,5 +1,3 @@
-
-🟢 A new version is available! Run `leo update` to update to v3.5.0.
 Diff in SOURCE_DIRECTORY/main.leo:1:
 -struct Coordinates{
 -      x:u64,
@@ -33,7 +31,3 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 +    @noupgrade
 +    constructor() {}
  }
-
-🟢 A new version is available! Run `leo update` to update to v3.5.0.
-
-🟢 A new version is available! Run `leo update` to update to v3.5.0.

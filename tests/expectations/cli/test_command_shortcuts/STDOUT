@@ -1,5 +1,3 @@
-
-🟢 A new version is available! Run `leo update` to update to v3.5.0.
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
@@ -10,8 +8,6 @@
        Leo     Program size: 0.19 KB / 500.00 KB
        Leo ✅ Compiled 'test_shortcuts.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
-
-🟢 A new version is available! Run `leo update` to update to v3.5.0.
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
