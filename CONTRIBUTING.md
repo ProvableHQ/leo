@@ -11,6 +11,43 @@ Please follow the instructions below when filing pull requests:
 - Run `cargo fmt` before you commit; we use the `nightly` version of `rustfmt` to format the code, so you'll need to have the `nightly` toolchain installed on your machine; there's a [git hook](https://git-scm.com/docs/githooks) that ensures proper formatting before any commits can be made, and [`rustfmt.toml`](https://github.com/AleoHQ/Leo/blob/mainnet/rustfmt.toml) specifies some of the formatting conventions.
 - Run `cargo clippy` to ensure that popular correctness and performance pitfalls are avoided.
 
+## Testing
+
+Tests live in `tests/tests/{category}/` with expectations in `tests/expectations/{category}/`.
+
+```bash
+cargo test                                      # Run all workspace tests
+cargo test -p leo-parser                        # Run a single crate's tests
+UPDATE_EXPECT=1 cargo test -p leo-parser        # Update parser expectations
+TEST_FILTER=loop cargo test                     # Filter by name
+```
+
+CI uses `cargo nextest run`, which also works locally:
+
+```bash
+cargo nextest run                               # Run all workspace tests
+cargo nextest run -p leo-parser                 # Run a single crate's tests
+```
+
+### CLI integration tests
+
+- Tests in `tests/tests/cli/` with scripts that run `leo` subcommands end-to-end.
+- Integration test runner in `leo/tests/integration.rs` spins up `leo devnode`.
+- 17 test cases cover build, run, deploy, add, and related commands.
+- These tests require a running devnode and are gated by environment (not run in standard `cargo test`).
+
+## Validation
+
+Run in order:
+```bash
+cargo check
+cargo clippy -- -D warnings
+cargo +nightly fmt --check
+cargo test
+```
+
+Clippy warnings are errors. Formatting requires nightly (`cargo +nightly fmt --all` to fix).
+
 ## Style
 
 These guidelines ensure consistent readable rust code within the Leo repository.
@@ -86,3 +123,27 @@ Leo is a big project, so (non-)adherence to best practices related to performanc
   * `&str` instead of `&String`
   * `&Path` instead of `&PathBuf`
 - For `struct`s that can be compared/discerned based on some specific field(s), consider hand-written implementations of `PartialEq` **and** `Hash` ([they must match](https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq)) for faster comparison and hashing.
+
+## Review checklist
+
+### Correctness
+- [ ] Boundary conditions handled: zero, empty, max, off-by-one.
+- [ ] Error handling correct; no panics in production paths.
+- [ ] AST transformations preserve semantics.
+
+### Compiler-specific
+- [ ] Spans preserved through transformations for error reporting.
+- [ ] NodeIDs assigned correctly for new nodes.
+- [ ] Pass ordering dependencies respected.
+- [ ] Generated Aleo instructions are valid.
+
+### Memory & performance
+- [ ] No unnecessary allocations in hot paths.
+- [ ] Pre-allocation with `with_capacity` where size known.
+- [ ] No unnecessary `.clone()` - prefer references.
+- [ ] Iterators used efficiently; no intermediate collections.
+
+### Security
+- [ ] Input validation at trust boundaries.
+- [ ] No information leakage in error messages.
+- [ ] Fail-closed (reject on uncertainty).

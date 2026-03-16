@@ -72,19 +72,20 @@ commands:
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
-
   install-snarkos:
-    description: "Download latest stable snarkOS release binary"
+    description: "Download specific snarkOS release binary"
     steps:
       - run:
           name: Install snarkOS
           command: |
-            TAG=$(curl -sSf https://api.github.com/repos/ProvableHQ/snarkOS/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+            TAG="v4.5.2"
+
             case "$(uname -s)-$(uname -m)" in
               Linux-x86_64)  TRIPLE="x86_64-unknown-linux-gnu" ;;
               Darwin-*)      TRIPLE="aarch64-apple-darwin" ;;
               *) echo "Unsupported platform, skipping"; exit 0 ;;
             esac
+
             mkdir -p "$HOME/.local/bin"
             curl -sSfL "https://github.com/ProvableHQ/snarkOS/releases/download/${TAG}/aleo-${TAG}-${TRIPLE}.zip" -o /tmp/snarkos.zip
             unzip -o /tmp/snarkos.zip -d "$HOME/.local/bin"
