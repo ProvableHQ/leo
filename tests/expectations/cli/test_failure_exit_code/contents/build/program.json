@@ -1,0 +1,9 @@
+{
+  "program": "test_failure_exit_code.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "",
+  "leo": "3.5.0",
+  "dependencies": null,
+  "dev_dependencies": null
+}

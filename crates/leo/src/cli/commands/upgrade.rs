@@ -271,21 +271,20 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
             continue;
         };
-
         let ProgramData::Bytecode(bytecode) = program.data else {
             panic!("Expected bytecode when fetching a remote program");
         };
         // Parse the program bytecode.
         let bytecode =
             Program::<N>::from_str(&bytecode).map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
-        // Append the bytecode and edition.
         // Program::fetch should always set the edition after a successful fetch.
         let edition = program.edition.expect("Edition should be set after successful fetch");
         programs_and_editions.push((bytecode, edition));
     }
+
     // Check for programs that violate edition/constructor requirements.
     check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
-    // Add the programs to the VM.
+
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
 
     // Print the programs and their editions in the VM.

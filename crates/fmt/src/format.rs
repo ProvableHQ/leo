@@ -116,6 +116,13 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
 // =============================================================================
 
 fn format_root(node: &SyntaxNode, out: &mut Output) {
+    if node.children().any(|child| {
+        !matches!(child.kind(), IMPORT | PROGRAM_DECL | ANNOTATION | ERROR) && !is_program_item(child.kind())
+    }) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     let mut prev_was_import = false;
     let mut prev_was_block_item = false;
     let mut had_output = false;
@@ -189,6 +196,9 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     had_output = true;
                     linebreak_count = 0;
                 } else if kind == ERROR {
+                    if should_inline_adjacent_error(&n) {
+                        continue;
+                    }
                     let text = n.text().to_string();
                     let text = text.trim();
                     if !text.is_empty() {
@@ -299,6 +309,9 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                             || linebreak_count >= 2
                             || has_blank_line_in_leading_trivia(n));
                     if kind == ERROR {
+                        if should_inline_adjacent_error(n) {
+                            continue;
+                        }
                         let text = n.text().to_string();
                         let text = text.trim();
                         if !text.is_empty() {
@@ -358,6 +371,12 @@ fn is_block_item(kind: SyntaxKind) -> bool {
 // =============================================================================
 
 fn format_function(node: &SyntaxNode, out: &mut Output) {
+    if write_node_with_inline_error_verbatim(node, out) {
+        out.set_mark();
+        out.ensure_newline();
+        return;
+    }
+
     // Emit leading comments (trivia that appears before the first keyword)
     emit_leading_comments(node, out);
 
@@ -422,6 +441,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
     if let Some(next) = node.next_sibling() {
         emit_stolen_trailing_comments(&next, out);
     }
+    emit_inline_error_suffix(node, out);
     out.set_mark();
     out.ensure_newline();
 }
@@ -591,6 +611,7 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
     if let Some(next) = node.next_sibling() {
         emit_stolen_trailing_comments(&next, out);
     }
+    emit_inline_error_suffix(node, out);
     out.set_mark();
     out.ensure_newline();
 }
@@ -644,7 +665,7 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => match n.kind() {
                 PARENT_LIST => format_parent_list(n, out),
-                FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF => {
+                FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF | MAPPING_DEF | STORAGE_DEF => {
                     out.indented(|out| format_node(n, out));
                     out.newline();
                 }
@@ -752,6 +773,17 @@ fn format_parent_list(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_member(node: &SyntaxNode, out: &mut Output) {
+    let ident_count = node
+        .children_with_tokens()
+        .filter(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == IDENT))
+        .count();
+    let type_count = node.children().filter(|child| child.kind().is_type()).count();
+
+    if has_error_descendant(node) || ident_count != 1 || type_count != 1 {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     // Emit leading comments (the parser attaches comments as leading trivia
     // of the next token, so STRUCT_MEMBER may start with comments).
     emit_leading_comments(node, out);
@@ -815,6 +847,49 @@ fn format_import(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_mapping(node: &SyntaxNode, out: &mut Output) {
+    if write_node_with_inline_error_verbatim(node, out) {
+        out.ensure_newline();
+        return;
+    }
+
+    let ident_count = node
+        .children_with_tokens()
+        .filter(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == IDENT))
+        .count();
+    let type_count = node.children().filter(|child| child.kind().is_type()).count();
+    let colon_count = node
+        .children_with_tokens()
+        .filter(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == COLON))
+        .count();
+    let fat_arrow_count = node
+        .children_with_tokens()
+        .filter(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == FAT_ARROW))
+        .count();
+    let has_nested_mapping_syntax = node.children().filter(|child| child.kind().is_type()).any(|child| {
+        let text = child.text().to_string();
+        text.contains("=>") || text.contains("->")
+    });
+    let has_unsupported_tokens = node.children_with_tokens().any(|elem| match elem {
+        SyntaxElement::Token(tok) => !matches!(
+            tok.kind(),
+            KW_MAPPING | IDENT | COLON | FAT_ARROW | SEMICOLON | WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK
+        ),
+        SyntaxElement::Node(n) => !n.kind().is_type() && n.kind() != ERROR,
+    });
+
+    if has_error_descendant(node)
+        || ident_count != 1
+        || type_count != 2
+        || colon_count != 1
+        || fat_arrow_count != 1
+        || has_nested_mapping_syntax
+        || has_unsupported_tokens
+    {
+        write_node_verbatim(node, out);
+        out.ensure_newline();
+        return;
+    }
+
     emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         match elem {
@@ -880,6 +955,12 @@ fn format_storage(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_global_const(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) {
+        write_node_verbatim(node, out);
+        out.ensure_newline();
+        return;
+    }
+
     emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         match elem {
@@ -911,8 +992,10 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
                 let k = n.kind();
                 if k.is_type() {
                     format_type(&n, out);
-                } else if k.is_expression() {
+                } else if k.is_expression() || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN) {
                     format_node(&n, out);
+                } else if k == ERROR {
+                    write_node_verbatim(&n, out);
                 }
             }
         }
@@ -929,8 +1012,22 @@ fn format_parameter_list(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix_width: usize) {
-    let params: Vec<_> =
-        node.children().filter(|c| matches!(c.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT)).collect();
+    let has_direct_non_list_tokens = node.children_with_tokens().any(|elem| match elem {
+        SyntaxElement::Token(tok) => {
+            !matches!(tok.kind(), L_PAREN | R_PAREN | COMMA | WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK)
+        }
+        SyntaxElement::Node(n) => !matches!(n.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR),
+    });
+
+    if has_error_descendant(node) || has_direct_non_list_tokens {
+        write_node_verbatim(node, out);
+        return;
+    }
+
+    let params: Vec<_> = node
+        .children()
+        .filter(|c| matches!(c.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR))
+        .collect();
 
     if params.is_empty() {
         out.write("()");
@@ -952,7 +1049,11 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
         // Single-line: (param1, param2)
         out.write("(");
         for (i, param) in params.iter().enumerate() {
-            format_parameter(param, out);
+            if matches!(param.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT) {
+                format_parameter(param, out);
+            } else {
+                format_node(param, out);
+            }
             if i < params.len() - 1 {
                 out.write(",");
                 out.space();
@@ -966,7 +1067,11 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
         out.indented(|out| {
             for (i, param) in params.iter().enumerate() {
                 emit_leading_comments_inner(param, out, i == 0);
-                format_parameter(param, out);
+                if matches!(param.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT) {
+                    format_parameter(param, out);
+                } else {
+                    format_node(param, out);
+                }
                 out.write(",");
                 emit_node_trailing_comments(param, out);
                 if i < params.len() - 1 {
@@ -982,6 +1087,19 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
 }
 
 fn format_parameter(node: &SyntaxNode, out: &mut Output) {
+    let ident_count = node
+        .children_with_tokens()
+        .filter(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == IDENT))
+        .count();
+    let has_mut_ident = node
+        .children_with_tokens()
+        .any(|elem| matches!(elem, SyntaxElement::Token(tok) if tok.kind() == IDENT && tok.text() == "mut"));
+
+    if has_error_descendant(node) || ident_count != 1 || has_mut_ident {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1001,12 +1119,18 @@ fn format_parameter(node: &SyntaxNode, out: &mut Output) {
                 }
             }
             SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
+            SyntaxElement::Node(n) if n.kind() == ERROR => write_node_verbatim(&n, out),
             _ => {}
         }
     }
 }
 
 fn format_return_type(node: &SyntaxNode, out: &mut Output) {
+    if has_deep_comment(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     // First try single-line
     let single_line = format_return_type_to_string(node);
     let col = out.current_column();
@@ -1238,6 +1362,11 @@ fn format_type_path(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_type_array(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) || has_token(node, COMMA) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     out.write("[");
     for elem in node.children_with_tokens() {
         match elem {
@@ -1403,6 +1532,9 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         saw_linebreak = false;
                     }
                     SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
+                        if should_inline_adjacent_error(n) {
+                            continue;
+                        }
                         let text = n.text().to_string();
                         let text = text.trim();
                         if !text.is_empty() {
@@ -1439,6 +1571,21 @@ fn format_return(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_definition(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node)
+        || node.children_with_tokens().any(|elem| match elem {
+            SyntaxElement::Token(tok) => {
+                !matches!(tok.kind(), KW_LET | WHITESPACE | LINEBREAK | COLON | EQ | SEMICOLON)
+            }
+            SyntaxElement::Node(n) => {
+                let k = n.kind();
+                !(k.is_type() || k.is_expression() || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN))
+            }
+        })
+    {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     out.write("let");
     out.space();
 
@@ -1476,6 +1623,11 @@ fn format_definition(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1506,8 +1658,10 @@ fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
                 let k = n.kind();
                 if k.is_type() {
                     format_type(&n, out);
-                } else if k.is_expression() {
+                } else if k.is_expression() || matches!(k, IDENT_PATTERN | TUPLE_PATTERN | WILDCARD_PATTERN) {
                     format_node(&n, out);
+                } else if k == ERROR {
+                    write_node_verbatim(&n, out);
                 }
             }
         }
@@ -1515,6 +1669,11 @@ fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_assign(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1538,6 +1697,11 @@ fn format_assign(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_conditional(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     let mut first_block = true;
     for elem in node.children_with_tokens() {
         match elem {
@@ -1576,6 +1740,11 @@ fn format_conditional(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_iteration(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1621,6 +1790,11 @@ fn format_iteration(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_assert(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) || node.children().filter(|child| child.kind().is_expression()).count() != 1 {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     out.write("assert(");
 
     for child in node.children() {
@@ -1635,6 +1809,11 @@ fn format_assert(node: &SyntaxNode, out: &mut Output) {
 
 fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
     let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
+
+    if has_error_descendant(node) || exprs.len() != 2 {
+        write_node_verbatim(node, out);
+        return;
+    }
     let expr_strings: Vec<String> = exprs.iter().map(format_node_to_string).collect();
 
     out.write(keyword);
@@ -1667,6 +1846,11 @@ fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
 }
 
 fn format_expr_stmt(node: &SyntaxNode, out: &mut Output) {
+    if has_error_descendant(node) || node.children().filter(|child| child.kind().is_expression()).count() != 1 {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     for child in node.children() {
         if child.kind().is_expression() {
             format_node(&child, out);
@@ -2135,6 +2319,60 @@ fn format_ident_pattern(node: &SyntaxNode, out: &mut Output) {
             }
         }
     }
+}
+
+fn write_node_verbatim(node: &SyntaxNode, out: &mut Output) {
+    let text = node.text().to_string();
+    let text = text.trim();
+    let base_indent = out.current_indent_width();
+
+    for (idx, line) in text.split('\n').enumerate() {
+        if idx > 0 {
+            out.newline();
+        }
+        let line = line.trim_end();
+        if idx == 0 {
+            out.write(line);
+            continue;
+        }
+
+        let mut stripped = line;
+        let mut to_trim = base_indent;
+        while to_trim > 0 && stripped.starts_with(' ') {
+            stripped = &stripped[1..];
+            to_trim -= 1;
+        }
+        out.write(stripped);
+    }
+}
+
+fn write_node_with_inline_error_verbatim(node: &SyntaxNode, out: &mut Output) -> bool {
+    if let Some(next) = node.next_sibling()
+        && should_inline_adjacent_error(&next)
+    {
+        out.write(format!("{}{}", node.text(), next.text()).trim());
+        return true;
+    }
+    false
+}
+
+fn emit_inline_error_suffix(node: &SyntaxNode, out: &mut Output) {
+    if let Some(next) = node.next_sibling()
+        && should_inline_adjacent_error(&next)
+    {
+        out.write(next.text().to_string().trim_end());
+    }
+}
+
+fn should_inline_adjacent_error(node: &SyntaxNode) -> bool {
+    let text = node.text().to_string();
+    let Some(prev) = node.prev_sibling() else {
+        return false;
+    };
+
+    node.kind() == ERROR
+        && text.chars().next().is_some_and(|ch| !ch.is_whitespace())
+        && matches!(prev.kind(), FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF)
 }
 
 fn format_tuple_pattern(node: &SyntaxNode, out: &mut Output) {
@@ -2658,4 +2896,8 @@ fn has_deep_comment(node: &SyntaxNode) -> bool {
         }
     }
     false
+}
+
+fn has_error_descendant(node: &SyntaxNode) -> bool {
+    node.kind() == ERROR || node.children().any(|child| has_error_descendant(&child))
 }

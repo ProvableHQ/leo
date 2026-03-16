@@ -17,26 +17,26 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au10f2eeg7nj9p32xwet4lyuaka3z63pgxl94x3v2q4ttu6dkvldy8snx7wxf",
+      "id": "au1c535edcem6s6h4mdr2v4edkfjp8sfanqfau97ue3uvayyln05yps0d337a",
       "program": "test.aleo",
       "function": "check_starting_height",
       "inputs": [
         {
           "type": "private",
-          "id": "7266181235968515526232255053859616637045898605588357734379957850649725631108field",
-          "value": "ciphertext1qyqfkfcj664d972wzeuedct4v7gfvfwjts5qpnkzc5jwup2jwy436qqjxt2lm"
+          "id": "3237785092006464053539536334165804588726287803896204169757533870227385422989field",
+          "value": "ciphertext1qyq8qcje8h94pyxzj3sjax7ddmvy23myh2cavryanu7ldg05fxwajyghq6zwq"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "4874338573973771117743422190998605625448764023928946420297679700977353493847field",
+          "id": "2244067008838965585206475376544327521420402497776151152468050155049940015828field",
           "value": "{\n  program_id: test.aleo,\n  function_name: check_starting_height,\n  arguments: [\n    23u32\n  ]\n}"
         }
       ],
-      "tpk": "410312082418983177952340890568716977279336513915223864248377466261214644718group",
-      "tcm": "4161669613640689392695874276746874456729068964471891861799508724999147781005field",
-      "scm": "5752956183842778687307138441293170024967226063804006590926336571895854558757field"
+      "tpk": "7348638653789945440347298392860761299324841608537156465619966374045725863559group",
+      "tcm": "8147531172971723077752371987188066558081351809752149227839848595654941617221field",
+      "scm": "7429404758539727932759142252686075680707401112946045401267229900006909605658field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

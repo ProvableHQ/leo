@@ -22,7 +22,7 @@ use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
-#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version)]
+#[clap(name = "leo", author = "The Leo Team <leo@provable.com>", version, long_version = env!("LEO_VERSION_STRING"))]
 pub struct CLI {
     #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
@@ -258,9 +258,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 
     if let Some(json_output_arg) = cli.json_output
-        && let Some(output) = command_output
+        && let Some(output) = &command_output
     {
-        let json = serde_json::to_string_pretty(&output).expect("JSON serialization failed");
+        let json = serde_json::to_string_pretty(output).expect("JSON serialization failed");
 
         // Use provided path or default to build/json-outputs/<command>.json
         let path = if json_output_arg.is_empty() {
@@ -279,6 +279,12 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         std::fs::write(&path, json)
             .map_err(|e| CliError::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
+    }
+
+    if let Some(JsonOutput::Test(output)) = &command_output
+        && output.failed > 0
+    {
+        return Err(CliError::tests_failed(output.failed, output.tests.len()).into());
     }
 
     Ok(())

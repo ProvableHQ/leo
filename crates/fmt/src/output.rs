@@ -139,6 +139,11 @@ impl Output {
         }
     }
 
+    /// Return the current automatic indentation width in spaces.
+    pub fn current_indent_width(&self) -> usize {
+        self.depth * INDENT.len()
+    }
+
     /// Consume the buffer and return the raw string without trailing-newline
     /// normalization. Used by measurement helpers.
     pub fn into_raw(self) -> String {

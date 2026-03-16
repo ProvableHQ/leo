@@ -1,0 +1,8 @@
+{
+  "program": "test_failure_exit_code.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

@@ -3,11 +3,13 @@ Error [ETYC0372031]: A mapping's value cannot be a record
      |
    9 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here
+Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here.
     --> compiler-test:12:47
      |
   12 |         return final { finalize_decrease_self(self.caller, amount); };
      |                                               ^^^^^^^^^^^
+     |
+     = Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`
 Error [ETYC0372006]: Call expected `2` args, but got `3`
     --> compiler-test:17:5
      |

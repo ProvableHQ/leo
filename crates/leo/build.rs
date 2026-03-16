@@ -136,11 +136,47 @@ fn {fn_name}() {{
     fs::write(out_dir.join("cli_tests.rs"), out).unwrap();
 }
 
+/// Captures git metadata and emits a composite version string as a cargo env var.
+///
+/// Emits:
+/// - `LEO_VERSION_STRING`: full version string for `--version` output and panic hook
+fn set_version_env_vars() {
+    // Re-run if HEAD changes (new commit or branch switch).
+    println!("cargo:rerun-if-changed=../../.git/HEAD");
+
+    let git_cmd = |args: &[&str]| -> String {
+        std::process::Command::new("git")
+            .args(args)
+            .output()
+            .ok()
+            .filter(|o| o.status.success())
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+            .unwrap_or_else(|| "unknown".to_string())
+    };
+
+    let hash = git_cmd(&["rev-parse", "--short", "HEAD"]);
+    let branch = git_cmd(&["rev-parse", "--abbrev-ref", "HEAD"]);
+
+    // Collect enabled cargo features (cargo sets CARGO_FEATURE_<NAME>=1).
+    let mut features: Vec<String> = env::vars()
+        .filter_map(|(k, _)| k.strip_prefix("CARGO_FEATURE_").map(|f| f.to_lowercase()))
+        .filter(|f| f != "default")
+        .collect();
+    features.sort();
+
+    let version = env::var("CARGO_PKG_VERSION").unwrap();
+    let features_str = features.join(",");
+
+    println!("cargo:rustc-env=LEO_VERSION_STRING={version} ({hash} {branch}) features=[{features_str}]");
+}
+
 // The build script; it currently:
 // 1. Auto-generate e2e CLI tests as individual Rust unit tests (i.e. `[test]`).
 // 2. Checks the licenses.
+// 3. Captures git metadata for detailed version output.
 fn main() {
     generate_cli_tests();
+    set_version_env_vars();
 
     // Check licenses at the workspace root.
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());

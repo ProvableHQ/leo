@@ -142,8 +142,9 @@ mod validate {
     use leo_ast::{NetworkName, NodeBuilder};
     use leo_compiler::Compiler;
     use leo_errors::Handler;
+    use leo_parser_rowan::{SyntaxElement, SyntaxNode, parse_file};
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
-    use std::rc::Rc;
+    use std::{process::Command, rc::Rc};
 
     /// Files that are expected to fail type checking (error recovery tests,
     /// import tests, empty programs, annotated functions).
@@ -156,14 +157,31 @@ mod validate {
         "empty_program",
         "function_annotated",
         "comment_before_program",
+        "wrap_binary_chain",
     ];
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    enum ValidationMode {
+        CompilerAst,
+        RowanFallback,
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    enum ValidationSnapshot {
+        CompilerAst(serde_json::Value),
+        Rowan(RowanSnapshot),
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct RowanSnapshot {
+        tree: Vec<String>,
+        parse_errors: Vec<String>,
+        lex_errors: Vec<String>,
+    }
 
     /// Parse a Leo source string and return a normalized AST JSON value
     /// with spans and node IDs stripped, suitable for semantic comparison.
-    ///
-    /// Returns `None` if parsing fails (some source files have intentionally
-    /// malformed whitespace that the compiler's parser rejects).
-    fn source_to_ast_json(name: &str, source: &str) -> Option<serde_json::Value> {
+    fn try_source_to_ast_json(name: &str, source: &str) -> Result<serde_json::Value, String> {
         let (handler, _) = Handler::new_with_buf();
         let mut compiler = Compiler::new(
             None,
@@ -175,12 +193,97 @@ mod validate {
             Default::default(),
             NetworkName::TestnetV0,
         );
-        let program = compiler.parse_and_return_ast(source, FileName::Custom(name.into()), &[]).ok()?;
-        let mut json = serde_json::to_value(&program).unwrap();
+        let program =
+            compiler.parse_and_return_ast(source, FileName::Custom(name.into()), &[]).map_err(|e| e.to_string())?;
+        let mut json =
+            serde_json::to_value(&program).expect("serializing the compiler AST to JSON should always succeed");
         for key in ["span", "_span", "id", "lo", "hi"] {
             json = leo_ast::remove_key_from_json(json, key);
         }
-        Some(leo_ast::normalize_json_value(json))
+        Ok(leo_ast::normalize_json_value(json))
+    }
+
+    fn comparison_label(mode: ValidationMode) -> &'static str {
+        match mode {
+            ValidationMode::CompilerAst => "AST",
+            ValidationMode::RowanFallback => "rowan parse tree",
+        }
+    }
+
+    fn snapshot_for_source(name: &str, source: &str) -> (ValidationMode, ValidationSnapshot, Option<String>) {
+        match try_source_to_ast_json(name, source) {
+            Ok(ast) => (ValidationMode::CompilerAst, ValidationSnapshot::CompilerAst(ast), None),
+            Err(error) => {
+                (ValidationMode::RowanFallback, ValidationSnapshot::Rowan(rowan_snapshot(source)), Some(error))
+            }
+        }
+    }
+
+    fn snapshot_in_mode(mode: ValidationMode, name: &str, source: &str) -> Result<ValidationSnapshot, String> {
+        match mode {
+            ValidationMode::CompilerAst => try_source_to_ast_json(name, source).map(ValidationSnapshot::CompilerAst),
+            ValidationMode::RowanFallback => Ok(ValidationSnapshot::Rowan(rowan_snapshot(source))),
+        }
+    }
+
+    fn rowan_snapshot(source: &str) -> RowanSnapshot {
+        let parse = parse_file(source);
+        RowanSnapshot {
+            tree: normalize_rowan_tree(&parse.syntax()),
+            parse_errors: parse
+                .errors()
+                .iter()
+                .map(|error| format!("{}|found={:?}|expected={:?}", error.message, error.found, error.expected))
+                .collect(),
+            lex_errors: parse.lex_errors().iter().map(|error| format!("{:?}", error.kind)).collect(),
+        }
+    }
+
+    fn normalize_rowan_tree(node: &SyntaxNode) -> Vec<String> {
+        fn visit(node: &SyntaxNode, out: &mut Vec<String>) {
+            out.push(format!("ENTER:{:?}", node.kind()));
+            for child in node.children_with_tokens() {
+                match child {
+                    SyntaxElement::Node(child) => visit(&child, out),
+                    SyntaxElement::Token(token) if !token.kind().is_trivia() => {
+                        out.push(format!("TOKEN:{:?}:{:?}", token.kind(), token.text()));
+                    }
+                    SyntaxElement::Token(_) => {}
+                }
+            }
+            out.push(format!("EXIT:{:?}", node.kind()));
+        }
+
+        let mut out = Vec::new();
+        visit(node, &mut out);
+        out
+    }
+
+    /// Get the repository workspace root.
+    fn workspace_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
+    }
+
+    /// Collect tracked workspace `.leo` files, excluding formatter fixtures.
+    fn collect_workspace_leo_files() -> Vec<PathBuf> {
+        let root = workspace_root();
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&root)
+            .args(["ls-files", "-z", "--", "*.leo", ":(exclude)crates/fmt/tests/*"])
+            .output()
+            .expect("failed to run git ls-files");
+        assert!(output.status.success(), "git ls-files failed for {}", root.display());
+
+        output
+            .stdout
+            .split(|byte| *byte == 0)
+            .filter(|entry| !entry.is_empty())
+            .map(|entry| {
+                let path = std::str::from_utf8(entry).expect("git ls-files should return UTF-8 paths");
+                root.join(path)
+            })
+            .collect()
     }
 
     /// Validate that target files pass Leo type checking.
@@ -261,22 +364,92 @@ mod validate {
                 let source = std::fs::read_to_string(source_path)
                     .unwrap_or_else(|_| panic!("Failed to read: {}", source_path.display()));
 
-                // Skip files whose source can't be parsed by the compiler
-                // (e.g. files with intentionally exaggerated whitespace in paths).
-                let Some(before) = source_to_ast_json(name, &source) else {
-                    continue;
-                };
-                let after = source_to_ast_json(name, &format_source(&source))
-                    .unwrap_or_else(|| panic!("Formatted output of {name} failed to parse"));
+                let (mode, before, _) = snapshot_for_source(name, &source);
+                let label = comparison_label(mode);
+                let after = snapshot_in_mode(mode, name, &format_source(&source))
+                    .unwrap_or_else(|error| panic!("Formatted output of {name} failed {label} validation: {error}"));
 
                 if before != after {
                     println!("\n=== AST MISMATCH: {} ===", source_path.display());
-                    println!("ASTs differ after formatting (ignoring spans/IDs)");
+                    println!("{label} differs after formatting");
                     println!("=== END ===\n");
                     failures.push(source_path.clone());
                 }
             }
 
+            assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
+        });
+    }
+
+    /// Validate AST equivalence across tracked workspace `.leo` files.
+    ///
+    /// Uses the same tracked-file scope as the CI `leo-fmt --check` step:
+    /// all tracked `.leo` files excluding `crates/fmt/tests/*`.
+    ///
+    /// Files that cannot be lowered into the compiler AST fall back to a
+    /// normalized rowan parse-tree comparison, which still validates the exact
+    /// parser structure the formatter sees.
+    ///
+    /// Run with: `cargo test -p leo-fmt --features validate -- validate_workspace_ast_equivalence`
+    #[test]
+    fn validate_workspace_ast_equivalence() {
+        let leo_files = collect_workspace_leo_files();
+
+        create_session_if_not_set_then(|_| {
+            let mut failures = Vec::new();
+            let mut compiler_ast_tested = 0;
+            let mut rowan_tested = 0;
+
+            for file_path in &leo_files {
+                let name = file_path.file_stem().unwrap().to_str().unwrap();
+                let source = std::fs::read_to_string(file_path)
+                    .unwrap_or_else(|_| panic!("Failed to read: {}", file_path.display()));
+                let (mode, before, ast_error) = snapshot_for_source(name, &source);
+                let label = comparison_label(mode);
+
+                match mode {
+                    ValidationMode::CompilerAst => compiler_ast_tested += 1,
+                    ValidationMode::RowanFallback => {
+                        rowan_tested += 1;
+                        if std::env::var_os("LEO_FMT_PRINT_FALLBACKS").is_some() {
+                            println!("\n=== ROWAN FALLBACK: {} ===", file_path.display());
+                            println!(
+                                "{}",
+                                ast_error.expect("rowan fallback should always carry the compiler AST error"),
+                            );
+                            println!("=== END ===\n");
+                        }
+                    }
+                }
+
+                let formatted = format_source(&source);
+                let Ok(after) = snapshot_in_mode(mode, name, &formatted) else {
+                    println!("\n=== FORMAT BROKE PARSING: {} ===", file_path.display());
+                    println!("Original source passed {label} validation but formatted output did not");
+                    println!("=== END ===\n");
+                    failures.push(file_path.clone());
+                    continue;
+                };
+
+                if before != after {
+                    println!("\n=== AST MISMATCH: {} ===", file_path.display());
+                    println!("{label} differs after formatting");
+                    println!("=== END ===\n");
+                    failures.push(file_path.clone());
+                }
+            }
+
+            println!(
+                "\nWorkspace files: {} tested ({} compiler AST, {} rowan fallback)",
+                leo_files.len(),
+                compiler_ast_tested,
+                rowan_tested
+            );
+            assert_eq!(
+                compiler_ast_tested + rowan_tested,
+                leo_files.len(),
+                "every tracked workspace .leo file should use either compiler AST or rowan fallback validation"
+            );
             assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
         });
     }
@@ -344,16 +517,17 @@ mod validate {
     /// Validate AST equivalence against real-world Leo repositories.
     ///
     /// Clones external repos (cached in `target/test-repos/`), formats every
-    /// `.leo` file, and asserts the AST is unchanged. Files that can't be parsed
-    /// by the compiler (e.g. due to unresolved imports) are skipped.
+    /// `.leo` file, and asserts the compiler AST is unchanged when available.
+    /// Files the compiler AST cannot represent fall back to normalized rowan
+    /// parse-tree comparison instead of being skipped.
     ///
     /// Run with: `cargo test -p leo-fmt --features validate -- validate_ast_equivalence_repos`
     #[test]
     fn validate_ast_equivalence_repos() {
         create_session_if_not_set_then(|_| {
             let mut failures = Vec::new();
-            let mut tested = 0;
-            let mut skipped = 0;
+            let mut compiler_ast_tested = 0;
+            let mut rowan_tested = 0;
 
             for (name, url, rev) in EXTERNAL_REPOS {
                 let repo_dir = ensure_repo(name, url, rev);
@@ -364,18 +538,18 @@ mod validate {
                     let file_name = file_path.file_stem().unwrap().to_str().unwrap();
                     let source = std::fs::read_to_string(file_path)
                         .unwrap_or_else(|_| panic!("Failed to read: {}", file_path.display()));
+                    let (mode, before, _) = snapshot_for_source(file_name, &source);
+                    let label = comparison_label(mode);
 
-                    // Skip files the compiler can't parse (e.g. unresolved imports).
-                    let Some(before) = source_to_ast_json(file_name, &source) else {
-                        skipped += 1;
-                        continue;
-                    };
+                    match mode {
+                        ValidationMode::CompilerAst => compiler_ast_tested += 1,
+                        ValidationMode::RowanFallback => rowan_tested += 1,
+                    }
 
                     let formatted = format_source(&source);
-                    let Some(after) = source_to_ast_json(file_name, &formatted) else {
-                        // Original parsed OK but formatted output didn't — formatter broke something.
+                    let Ok(after) = snapshot_in_mode(mode, file_name, &formatted) else {
                         println!("\n=== FORMAT BROKE PARSING: {} ===", file_path.display());
-                        println!("Original parsed OK but formatted output failed to parse");
+                        println!("Original source passed {label} validation but formatted output did not");
                         println!("=== END ===\n");
                         failures.push(file_path.clone());
                         continue;
@@ -383,16 +557,19 @@ mod validate {
 
                     if before != after {
                         println!("\n=== AST MISMATCH: {} ===", file_path.display());
-                        println!("ASTs differ after formatting (ignoring spans/IDs)");
+                        println!("{label} differs after formatting");
                         println!("=== END ===\n");
                         failures.push(file_path.clone());
                     }
-
-                    tested += 1;
                 }
             }
 
-            println!("\nExternal repos: {tested} files tested, {skipped} skipped (unparseable)");
+            println!(
+                "\nExternal repos: {} files tested ({} compiler AST, {} rowan fallback)",
+                compiler_ast_tested + rowan_tested,
+                compiler_ast_tested,
+                rowan_tested
+            );
             assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
         });
     }

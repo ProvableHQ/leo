@@ -566,6 +566,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             BlockToFunctionRewriter::new(self.state, self.scope_state.program_name.unwrap());
         let (new_function, _) =
             block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::Finalize);
+
+        // Check that no captured variable is a record type.
+        for func_input in &new_function.input {
+            if let Type::Composite(composite) = &func_input.type_
+                && let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
+                && comp.is_record
+            {
+                self.emit_err(TypeCheckerError::record_captured_by_final_block(func_input.identifier.name, input.span));
+            }
+        }
+
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
             Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(

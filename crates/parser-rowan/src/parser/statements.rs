@@ -32,6 +32,24 @@ impl Parser<'_, '_> {
     /// Recovery tokens for pattern parsing.
     const PATTERN_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, COLON, EQ];
 
+    /// Recover trailing junk in a semicolon-terminated statement.
+    fn recover_statement_terminator(&mut self) {
+        if self.eat(SEMICOLON) {
+            return;
+        }
+
+        // Preserve the original missing-semicolon diagnostic at the first
+        // unexpected token, then optionally recover trailing junk afterwards.
+        self.expect(SEMICOLON);
+
+        if self.at(R_BRACE) || self.at_eof() {
+            return;
+        }
+
+        self.recover(&[SEMICOLON, R_BRACE]);
+        self.eat(SEMICOLON);
+    }
+
     /// Parse a statement.
     pub fn parse_stmt(&mut self) -> Option<CompletedMarker> {
         self.skip_trivia();
@@ -69,7 +87,7 @@ impl Parser<'_, '_> {
             self.error_recover("expected expression", EXPR_RECOVERY);
         }
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, LET_STMT))
     }
 
@@ -102,7 +120,7 @@ impl Parser<'_, '_> {
             self.error_recover("expected expression", EXPR_RECOVERY);
         }
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, CONST_STMT))
     }
 
@@ -117,7 +135,7 @@ impl Parser<'_, '_> {
             self.error_recover("expected expression or ';'", EXPR_RECOVERY);
         }
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, RETURN_STMT))
     }
 
@@ -210,7 +228,7 @@ impl Parser<'_, '_> {
         }
         self.expect(R_PAREN);
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, ASSERT_STMT))
     }
 
@@ -229,7 +247,7 @@ impl Parser<'_, '_> {
         }
         self.expect(R_PAREN);
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, ASSERT_EQ_STMT))
     }
 
@@ -248,7 +266,7 @@ impl Parser<'_, '_> {
         }
         self.expect(R_PAREN);
 
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, ASSERT_NEQ_STMT))
     }
 
@@ -273,10 +291,13 @@ impl Parser<'_, '_> {
                 self.error_recover("expected statement", STMT_RECOVERY);
             } else if self.erroring && !had_error {
                 // The statement parsed but encountered errors and left
-                // unconsumed tokens. Skip to the next semicolon or
-                // statement boundary to prevent cascading errors.
-                self.recover(&[SEMICOLON, R_BRACE]);
-                self.eat(SEMICOLON);
+                // unconsumed tokens. Preserve a trailing `}` marker for the
+                // existing tree shape, but leave other statement boundaries
+                // alone so the next valid statement can still parse.
+                if self.at(R_BRACE) || !self.at_any(STMT_RECOVERY) {
+                    self.recover(STMT_RECOVERY);
+                    self.eat(SEMICOLON);
+                }
             }
         }
 
@@ -300,12 +321,12 @@ impl Parser<'_, '_> {
             if self.parse_expr().is_none() {
                 self.error_recover("expected expression after assignment operator", EXPR_RECOVERY);
             }
-            self.expect(SEMICOLON);
+            self.recover_statement_terminator();
             return Some(m.complete(self, assign_kind));
         }
 
         // Expression statement
-        self.expect(SEMICOLON);
+        self.recover_statement_terminator();
         Some(m.complete(self, EXPR_STMT))
     }
 

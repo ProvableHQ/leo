@@ -1180,8 +1180,8 @@ create_messages!(
     @formatted
     invalid_operation_inside_final_block {
         args: (operation: impl Display),
-        msg: format!("Invalid expression in a final block. `{operation}` cannot be used directly here"),
-        help: None,
+        msg: format!("Invalid expression in a final block. `{operation}` cannot be used directly here."),
+        help: Some(format!("Bind `{operation}` to a variable before the `final` block: `let val = {operation};`")),
     }
 
     @formatted
@@ -1423,5 +1423,12 @@ create_messages!(
         args: (),
         msg: format!("`@no_inline` is not allowed on `final fn` functions because they must always be inlined."),
         help: None,
+    }
+
+    @formatted
+    record_captured_by_final_block {
+        args: (var_name: impl Display),
+        msg: format!("A `final` block cannot capture the record variable `{var_name}`. Records cannot be used in on-chain code."),
+        help: Some(format!("Extract the needed fields before the `final` block. For example: `let val = {var_name}.field_name;`")),
     }
 );

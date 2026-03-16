@@ -2,6 +2,6 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} fmt --check || true
-${LEO_BIN} fmt
-${LEO_BIN} fmt --check
+${LEO_BIN} --disable-update-check fmt --check || true
+${LEO_BIN} --disable-update-check fmt
+${LEO_BIN} --disable-update-check fmt --check

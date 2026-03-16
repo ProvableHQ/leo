@@ -192,6 +192,11 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     let stderr_utf8 = std::str::from_utf8(&output.stderr).expect("stderr should be utf8");
     fs::write(&stderr_path, filter_stderr(stderr_utf8).as_bytes()).expect("Failed to write STDERR");
 
+    let exitcode_path = test_context_directory.path().join("EXITCODE");
+    if let Some(code) = output.status.code() {
+        fs::write(&exitcode_path, code.to_string().as_bytes()).expect("Failed to write EXITCODE");
+    }
+
     if force_rewrite {
         // Remove stale expectation directory so files deleted between runs don't linger.
         if test.expectation_directory.exists() {
@@ -238,6 +243,11 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(r"- Circuit ID: [a-zA-Z0-9]+").unwrap(), "- Circuit ID: XXXXXX"),
         // These are filtered out since the cache can frequently differ between local and CI runs.
         (Regex::new("Warning: The cached file.*\n").unwrap(), ""),
+        // snarkVM prints parameter download progress to STDOUT on fresh runners,
+        // sometimes followed by whitespace-only lines from progress bar artifacts.
+        (Regex::new(r"(Installation - .*\n)([ \t\r]+\n)*").unwrap(), ""),
+        // snarkVM progress bar artifacts leave whitespace-only lines during deployment transaction creation.
+        (Regex::new(r"(📦 Creating deployment transaction for '[^']*'\.\.\.\n\n)([ \t\r]+\n)+").unwrap(), "$1\n"),
         (
             Regex::new(r"  • The program '[A-Za-z0-9_]+\.aleo' on the network does not match the local copy.*\n")
                 .unwrap(),
@@ -250,6 +260,11 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(r"Diff in .*?([^/]+\.leo)").unwrap(), "Diff in SOURCE_DIRECTORY/$1"),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
+        // Normalize `leo --version` output: replace commit hash, branch, and features with placeholders.
+        (
+            Regex::new(r"(leo \d+\.\d+\.\d+) \([a-f0-9]+ [^\)]+\) features=\[[^\]]*\]").unwrap(),
+            "$1 (HASH BRANCH) features=[FEATURES]",
+        ),
     ];
 
     let mut cow = Cow::Borrowed(data);
@@ -272,6 +287,12 @@ fn filter_stderr(data: &str) -> String {
         (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
+        // snarkVM prints parameter download warnings to stderr on fresh runners.
+        (
+            Regex::new(r#"[\r\n]*⚠️  ".*" does not exist\. Downloading and storing it \(in ".*"\)\.[\r\n \t]+"#)
+                .unwrap(),
+            "",
+        ),
     ];
 
     let mut cow = Cow::Borrowed(data);

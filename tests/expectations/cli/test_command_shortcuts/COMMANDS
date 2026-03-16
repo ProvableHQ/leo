@@ -2,5 +2,5 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} b
-${LEO_BIN} r main 1u32 2u32
+${LEO_BIN} --disable-update-check b
+${LEO_BIN} --disable-update-check r main 1u32 2u32

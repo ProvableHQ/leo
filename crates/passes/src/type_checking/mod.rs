@@ -48,21 +48,21 @@ impl TypeCheckingInput {
     pub fn new(network: NetworkName) -> Self {
         let (max_array_elements, max_mappings, max_functions, max_inputs, max_outputs) = match network {
             NetworkName::MainnetV0 => (
-                MainnetV0::MAX_ARRAY_ELEMENTS,
+                MainnetV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 MainnetV0::MAX_MAPPINGS,
                 MainnetV0::MAX_FUNCTIONS,
                 MainnetV0::MAX_INPUTS,
                 MainnetV0::MAX_OUTPUTS,
             ),
             NetworkName::TestnetV0 => (
-                TestnetV0::MAX_ARRAY_ELEMENTS,
+                TestnetV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 TestnetV0::MAX_MAPPINGS,
                 TestnetV0::MAX_FUNCTIONS,
                 TestnetV0::MAX_INPUTS,
                 TestnetV0::MAX_OUTPUTS,
             ),
             NetworkName::CanaryV0 => (
-                CanaryV0::MAX_ARRAY_ELEMENTS,
+                CanaryV0::LATEST_MAX_ARRAY_ELEMENTS(),
                 CanaryV0::MAX_MAPPINGS,
                 CanaryV0::MAX_FUNCTIONS,
                 CanaryV0::MAX_INPUTS,

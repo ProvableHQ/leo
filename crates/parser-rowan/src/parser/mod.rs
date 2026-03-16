@@ -1139,6 +1139,34 @@ mod tests {
     }
 
     #[test]
+    fn recover_valid_statement_after_malformed_assert_eq_in_block() {
+        let parse = parse_file(
+            r#"program test.aleo {
+                fn main(a: bool) -> bool {
+                    assert_eq(a == 1u8);
+                    assert(1u8);
+                    return a;
+                }
+            }"#,
+        );
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("ASSERT_EQ_STMT"), "tree should have ASSERT_EQ_STMT");
+        assert_eq!(tree.matches("ASSERT_STMT@").count(), 1, "should preserve the valid assert statement");
+        assert!(tree.contains("RETURN_STMT"), "tree should preserve the following return statement");
+    }
+
+    #[test]
+    fn recover_trailing_tokens_inside_expression_statement() {
+        let parse = parse_stmt_result("final finalize_foo(a);");
+        assert!(!parse.errors().is_empty(), "should have errors");
+        let tree = format!("{:#?}", parse.syntax());
+        assert!(tree.contains("EXPR_STMT"), "tree should have EXPR_STMT");
+        assert!(tree.contains("ERROR"), "tree should capture trailing junk in an ERROR node");
+        assert!(tree.contains("\"finalize_foo\""), "tree should preserve the trailing call tokens");
+    }
+
+    #[test]
     fn recover_missing_assignment_rhs() {
         let parse = parse_stmt_result("x = ;");
         assert!(!parse.errors().is_empty(), "should have errors");

@@ -267,6 +267,12 @@ jobs:
           no_output_timeout: 35m
           command: cargo +nightly fmt --all -- --check
       - run:
+          name: Validate Leo formatter semantics
+          no_output_timeout: 35m
+          command: |
+            cargo nextest run -p leo-fmt --locked --cargo-profile ci --features validate \
+              -E 'test(/validate_/) - test(validate_ast_equivalence_repos) - test(validate_workspace_ast_equivalence)'
+      - run:
           name: Clippy
           no_output_timeout: 35m
           command: |

@@ -1,0 +1,21 @@
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_failure_exit_code.leo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[221u8, 98u8, 184u8, 91u8, 106u8, 23u8, 100u8, 225u8, 172u8, 241u8, 136u8, 60u8, 210u8, 232u8, 121u8, 251u8, 30u8, 86u8, 109u8, 166u8, 1u8, 21u8, 133u8, 255u8, 216u8, 171u8, 227u8, 187u8, 160u8, 103u8, 226u8, 24u8]'.
+       Leo     Program size: 0.20 KB / 500.00 KB
+       Leo ✅ Compiled 'test_failure_exit_code.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+       Leo 🔨 Compiling 'test_test_failure_exit_code.leo'
+       Leo     5 statements before dead code elimination.
+       Leo     5 statements after dead code elimination.
+       Leo     The program checksum is: '[185u8, 33u8, 18u8, 122u8, 175u8, 186u8, 59u8, 143u8, 75u8, 65u8, 116u8, 16u8, 136u8, 225u8, 79u8, 51u8, 200u8, 205u8, 183u8, 214u8, 13u8, 103u8, 165u8, 115u8, 97u8, 193u8, 12u8, 172u8, 191u8, 3u8, 30u8, 36u8]'.
+       Leo     Program size: 0.17 KB / 500.00 KB
+       Leo ✅ Compiled 'test_test_failure_exit_code.aleo' into Aleo instructions.
+       Leo     Import 'test_failure_exit_code.aleo': checksum = '[221u8, 98u8, 184u8, 91u8, 106u8, 23u8, 100u8, 225u8, 172u8, 241u8, 136u8, 60u8, 210u8, 232u8, 121u8, 251u8, 30u8, 86u8, 109u8, 166u8, 1u8, 21u8, 133u8, 255u8, 216u8, 171u8, 227u8, 187u8, 160u8, 103u8, 226u8, 24u8]'
+       Leo Loading the ledger from storage...
+0 / 1 tests passed.
+FAILED: test_test_failure_exit_code.aleo/test_deliberate_failure | none -- "Failed to extract output: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq 1u8 2u8;) at index 0 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1"

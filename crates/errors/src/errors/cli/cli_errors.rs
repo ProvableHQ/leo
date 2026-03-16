@@ -354,4 +354,27 @@ create_messages!(
         msg: format!("{msg}"),
         help: None,
     }
+
+    @backtraced
+    tests_failed {
+        args: (failed: impl Display, total: impl Display),
+        msg: format!("{failed} out of {total} tests failed"),
+        help: None,
+    }
+
+    /// For when the Leo compiler generates invalid Aleo bytecode.
+    @backtraced
+    generated_invalid_bytecode {
+        args: (name: impl Display, path: impl Display, checksum: impl Display, error: impl Display),
+        msg: format!(
+            "Leo generated invalid Aleo bytecode for program '{name}'. This is a compiler bug.\n\n  \
+             Please report this issue at https://github.com/ProvableHQ/leo/issues\n\n  \
+             Leo version:  {}\n  \
+             Bytecode:     {path}\n  \
+             Checksum:     [{checksum}]\n\n  \
+             snarkVM diagnostic:\n    {error}",
+            env!("CARGO_PKG_VERSION")
+        ),
+        help: Some("Include the bytecode file and this full error message in your bug report.".to_string()),
+    }
 );

@@ -1,10 +1,10 @@
-Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
+Error [ETYC0372077]: An array cannot have more than 2048 elements, found one with 2049 elements
     --> compiler-test:3:12
      |
-   3 |     fn foo(a: [bool; 513]) -> bool {
-     |            ^^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 512 elements, found one with 513 elements
+   3 |     fn foo(a: [bool; 2049]) -> bool {
+     |            ^^^^^^^^^^^^^^^
+Error [ETYC0372077]: An array cannot have more than 2048 elements, found one with 2049 elements
     --> compiler-test:4:19
      |
-   4 |         let bar = [false; 513];
-     |                   ^^^^^^^^^^^^
+   4 |         let bar = [false; 2049];
+     |                   ^^^^^^^^^^^^^
