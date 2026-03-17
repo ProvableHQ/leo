@@ -233,6 +233,9 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::DynamicCall(dc) => {
                 self.try_atom(&mut dc.target)?;
+                if let Some(ref mut network) = dc.network {
+                    self.try_atom(network)?;
+                }
                 for arg in &mut dc.arguments {
                     self.try_atom(arg)?;
                 }

@@ -31,6 +31,8 @@ pub struct DynamicCallExpression {
     pub interface: Identifier,
     /// The target expression.
     pub target: Expression,
+    /// The optional network expression (defaults to 'aleo' if None).
+    pub network: Option<Expression>,
     /// The function to call.
     pub function: Identifier,
     /// The arguments to the function.
@@ -43,7 +45,19 @@ pub struct DynamicCallExpression {
 
 impl fmt::Display for DynamicCallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}@({})/{}({})", self.interface, self.target, self.function, self.arguments.iter().format(", "))
+        if let Some(network) = &self.network {
+            write!(
+                f,
+                "{}@({}, {})/{}({})",
+                self.interface,
+                self.target,
+                network,
+                self.function,
+                self.arguments.iter().format(", ")
+            )
+        } else {
+            write!(f, "{}@({})/{}({})", self.interface, self.target, self.function, self.arguments.iter().format(", "))
+        }
     }
 }
 

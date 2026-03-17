@@ -394,6 +394,7 @@ impl Parser<'_, '_> {
             INTEGER => self.parse_integer_literal(),
             STRING => self.parse_string_literal(),
             ADDRESS_LIT => self.parse_address_literal(),
+            IDENT_LIT => self.parse_identifier_literal(),
             KW_TRUE | KW_FALSE => self.parse_bool_literal(),
             KW_NONE => self.parse_none_literal(),
 
@@ -464,6 +465,13 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any();
         Some(m.complete(self, LITERAL_STRING))
+    }
+
+    /// Parse an identifier literal: `'foo'`.
+    fn parse_identifier_literal(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any();
+        Some(m.complete(self, LITERAL_IDENT))
     }
 
     /// Parse an address literal.
@@ -570,11 +578,15 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
-        // Check for dynamic call: Interface @ ( target ) / function ( args )
+        // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
         if self.at(AT) {
             self.bump_any(); // @
             self.expect(L_PAREN);
             self.parse_expr(); // target expression
+            // Optional network argument
+            if self.eat(COMMA) {
+                self.parse_expr(); // network expression
+            }
             self.expect(R_PAREN);
             self.expect(SLASH);
             if self.at(IDENT) {

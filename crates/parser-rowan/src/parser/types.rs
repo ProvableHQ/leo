@@ -53,6 +53,7 @@ impl Parser<'_, '_> {
         KW_SCALAR,
         KW_SIGNATURE,
         KW_STRING,
+        KW_IDENTIFIER,
         KW_I8,
         KW_I16,
         KW_I32,

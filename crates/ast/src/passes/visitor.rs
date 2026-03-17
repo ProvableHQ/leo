@@ -181,6 +181,9 @@ pub trait AstVisitor {
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
         self.visit_expression(&input.target, &Default::default());
+        if let Some(ref network) = input.network {
+            self.visit_expression(network, &Default::default());
+        }
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, &Default::default());
         });

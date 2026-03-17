@@ -495,6 +495,7 @@ impl<'a> ConversionContext<'a> {
             LITERAL_ADDRESS => self.address_literal_to_expression(node)?,
             LITERAL_BOOL => self.bool_literal_to_expression(node)?,
             LITERAL_NONE => leo_ast::Literal::none(span, self.builder.next_id()).into(),
+            LITERAL_IDENT => self.identifier_literal_to_expression(node)?,
             BINARY_EXPR => self.binary_expr_to_expression(node)?,
             UNARY_EXPR => self.unary_expr_to_expression(node)?,
             CALL_EXPR => self.call_expr_to_expression(node)?,
@@ -574,6 +575,17 @@ impl<'a> ConversionContext<'a> {
         let id = self.builder.next_id();
         let token = tokens(node).next().expect("LITERAL_STRING should have a token");
         Ok(leo_ast::Literal::string(token.text().to_string(), span, id).into())
+    }
+
+    /// Convert a LITERAL_IDENT node to an expression.
+    fn identifier_literal_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
+        let span = self.content_span(node);
+        let id = self.builder.next_id();
+        let token = tokens(node).next().expect("LITERAL_IDENT should have a token");
+        // Strip the surrounding single quotes.
+        let text = token.text();
+        let content = &text[1..text.len() - 1];
+        Ok(leo_ast::Literal::identifier(content.to_string(), span, id).into())
     }
 
     /// Convert a LITERAL_ADDRESS node to an expression.
@@ -772,18 +784,42 @@ impl<'a> ConversionContext<'a> {
         let function =
             if let Some(token) = ident_tokens.get(1) { self.to_identifier(token) } else { self.error_identifier(span) };
 
-        // Collect expression children: first is target, rest are arguments.
+        // Collect expression children: first is target, optional second is network
+        // (if inside the @(...) before the /), rest are arguments.
+        // We detect which expressions are "inside the parens" vs "arguments" by
+        // looking at the SLASH token position. Expressions before SLASH are
+        // target/network, expressions after are arguments.
+        let slash_offset = tokens(node).find(|t| t.kind() == SLASH).map(|t| t.text_range().start());
+
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
 
-        let target = if let Some(target_node) = expr_children.first() {
+        let mut pre_slash = Vec::new();
+        let mut post_slash = Vec::new();
+        for child in &expr_children {
+            if let Some(slash_off) = slash_offset {
+                if child.text_range().start() < slash_off {
+                    pre_slash.push(child);
+                } else {
+                    post_slash.push(child);
+                }
+            } else {
+                // No slash found (error recovery), treat all as pre-slash
+                pre_slash.push(child);
+            }
+        }
+
+        let target = if let Some(target_node) = pre_slash.first() {
             self.to_expression(target_node)?
         } else {
             self.error_expression(span)
         };
 
-        let arguments = expr_children[1..].iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
+        let network =
+            if let Some(network_node) = pre_slash.get(1) { Some(self.to_expression(network_node)?) } else { None };
 
-        Ok(leo_ast::DynamicCallExpression { interface, target, function, arguments, span, id }.into())
+        let arguments = post_slash.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
+
+        Ok(leo_ast::DynamicCallExpression { interface, target, network, function, arguments, span, id }.into())
     }
 
     /// Convert a METHOD_CALL_EXPR node to the appropriate expression.
@@ -2808,6 +2844,7 @@ fn keyword_to_primitive_type(kind: SyntaxKind) -> Option<leo_ast::Type> {
         KW_SCALAR => leo_ast::Type::Scalar,
         KW_SIGNATURE => leo_ast::Type::Signature,
         KW_STRING => leo_ast::Type::String,
+        KW_IDENTIFIER => leo_ast::Type::Identifier,
         KW_U8 => leo_ast::Type::Integer(leo_ast::IntegerType::U8),
         KW_U16 => leo_ast::Type::Integer(leo_ast::IntegerType::U16),
         KW_U32 => leo_ast::Type::Integer(leo_ast::IntegerType::U32),

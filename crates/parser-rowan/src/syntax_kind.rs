@@ -86,6 +86,8 @@ define_syntax_kinds! {
     STRING,
     /// Address literal: aleo1...
     ADDRESS_LIT,
+    /// Identifier literal: 'foo'
+    IDENT_LIT,
 
     // ==========================================================================
     // Identifiers
@@ -125,6 +127,8 @@ define_syntax_kinds! {
     KW_STRING,
     /// `record`
     KW_RECORD,
+    /// `identifier`
+    KW_IDENTIFIER,
     /// `Final`
     KW_FINAL_UPPER,
     /// `i8`
@@ -531,6 +535,8 @@ define_syntax_kinds! {
     LITERAL_BOOL,
     /// None literal: `none`
     LITERAL_NONE,
+    /// Identifier literal: `'foo'`
+    LITERAL_IDENT,
     /// Repeat expression: `[0u8; 32]`
     REPEAT_EXPR,
     /// Async expression: `async foo()`
@@ -590,6 +596,7 @@ impl SyntaxKind {
                 | KW_SIGNATURE
                 | KW_STRING
                 | KW_RECORD
+                | KW_IDENTIFIER
                 | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
@@ -644,6 +651,7 @@ impl SyntaxKind {
                 | KW_SCALAR
                 | KW_SIGNATURE
                 | KW_STRING
+                | KW_IDENTIFIER
                 | KW_FINAL_UPPER
                 | KW_I8
                 | KW_I16
@@ -660,7 +668,7 @@ impl SyntaxKind {
 
     /// Check if this is a literal token.
     pub fn is_literal(self) -> bool {
-        matches!(self, INTEGER | STRING | ADDRESS_LIT | KW_TRUE | KW_FALSE | KW_NONE)
+        matches!(self, INTEGER | STRING | ADDRESS_LIT | IDENT_LIT | KW_TRUE | KW_FALSE | KW_NONE)
     }
 
     /// Check if this is a literal node kind.
@@ -675,6 +683,7 @@ impl SyntaxKind {
                 | LITERAL_ADDRESS
                 | LITERAL_BOOL
                 | LITERAL_NONE
+                | LITERAL_IDENT
         )
     }
 
@@ -825,6 +834,7 @@ impl SyntaxKind {
             INTEGER => "an integer literal",
             STRING => "a static string",
             ADDRESS_LIT => "an address literal",
+            IDENT_LIT => "an identifier literal",
 
             // Identifiers
             IDENT => "an identifier",
@@ -843,6 +853,7 @@ impl SyntaxKind {
             KW_SIGNATURE => "'signature'",
             KW_STRING => "'string'",
             KW_RECORD => "'record'",
+            KW_IDENTIFIER => "'identifier'",
             KW_FINAL_UPPER => "'Final'",
             KW_I8 => "'i8'",
             KW_I16 => "'i16'",

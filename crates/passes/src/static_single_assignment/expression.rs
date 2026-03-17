@@ -145,6 +145,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         let (target, mut target_stmts) = self.consume_expression_and_define(input.target);
         statements.append(&mut target_stmts);
 
+        let network = input.network.map(|n| {
+            let (n, mut stmts) = self.consume_expression_and_define(n);
+            statements.append(&mut stmts);
+            n
+        });
+
         let arguments = input
             .arguments
             .into_iter()
@@ -155,7 +161,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             })
             .collect();
 
-        (DynamicCallExpression { target, arguments, ..input }.into(), statements)
+        (DynamicCallExpression { target, network, arguments, ..input }.into(), statements)
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.

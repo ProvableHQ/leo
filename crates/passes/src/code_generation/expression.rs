@@ -560,8 +560,14 @@ impl CodeGeneratingVisitor<'_> {
         instructions.extend(target_instructions);
         let prog = target_expr.expect("Target must produce a value.");
 
-        // NET operand: hardcoded to 'aleo'.
-        let net = AleoExpr::RawName("'aleo'".to_string());
+        // NET operand: use provided network or default to 'aleo'.
+        let net = if let Some(network) = &input.network {
+            let (net_expr, net_instructions) = self.visit_expression(network);
+            instructions.extend(net_instructions);
+            net_expr.expect("Network must produce a value.")
+        } else {
+            AleoExpr::RawName("'aleo'".to_string())
+        };
 
         // FUN operand: the function name as an identifier literal.
         let fun = AleoExpr::RawName(format!("'{}'", input.function.name));

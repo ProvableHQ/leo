@@ -293,6 +293,7 @@ pub trait AstReconstructor {
         (
             DynamicCallExpression {
                 target: self.reconstruct_expression(input.target, &Default::default()).0,
+                network: input.network.map(|n| self.reconstruct_expression(n, &Default::default()).0),
                 arguments: input
                     .arguments
                     .into_iter()

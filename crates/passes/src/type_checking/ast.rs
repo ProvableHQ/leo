@@ -1031,9 +1031,20 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", input.span));
         }
 
-        // Check target type: must be field.
-        // TODO: support identifier values
-        self.visit_expression(&input.target, &Some(Type::Field));
+        // Check target type: must be field or identifier.
+        let target_type = self.visit_expression(&input.target, &None);
+        if !matches!(target_type, Type::Field | Type::Identifier | Type::Err) {
+            self.emit_err(TypeCheckerError::type_should_be2(
+                &target_type,
+                "`field` or `identifier`",
+                input.target.span(),
+            ));
+        }
+
+        // If network is provided, check it's an identifier.
+        if let Some(ref network) = input.network {
+            self.visit_expression(network, &Some(Type::Identifier));
+        }
 
         // Check argument count.
         if func_proto.input.len() != input.arguments.len() {

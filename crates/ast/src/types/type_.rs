@@ -112,6 +112,8 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
+            | (Type::Identifier, Type::Identifier)
+            | (Type::DynRecord, Type::DynRecord)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
                 (match (left.length.as_u32(), right.length.as_u32()) {
@@ -176,6 +178,8 @@ impl Type {
             | (Type::Scalar, Type::Scalar)
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
+            | (Type::Identifier, Type::Identifier)
+            | (Type::DynRecord, Type::DynRecord)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
                 // Two arrays are equal if their element types are the same and if their lengths
