@@ -17,21 +17,8 @@
 use super::*;
 
 use leo_ast::{
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    DefinitionPlace,
-    DefinitionStatement,
-    Expression,
-    ExpressionStatement,
-    IterationStatement,
-    Mode,
-    Output,
-    ReturnStatement,
-    Statement,
-    Type,
+    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, DefinitionPlace, DefinitionStatement,
+    Expression, ExpressionStatement, IterationStatement, Mode, Output, ReturnStatement, Statement, Type,
 };
 
 use indexmap::IndexMap;
@@ -171,7 +158,7 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 expression_instructions
             }
-            (DefinitionPlace::Multiple(identifiers), Expression::Call(_)) => {
+            (DefinitionPlace::Multiple(identifiers), Expression::Call(_) | Expression::DynamicCall(_)) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 let Some(AleoExpr::Tuple(elems)) = operand else {
                     panic!("Definition with multiple identifiers should yield a tuple")

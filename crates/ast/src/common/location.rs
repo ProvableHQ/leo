@@ -33,6 +33,16 @@ impl Location {
     pub fn new(program: Symbol, path: Vec<Symbol>) -> Location {
         Location { program, path }
     }
+
+    /// Create a sentinel location representing a dynamic call's future.
+    pub fn dynamic() -> Location {
+        Location { program: Symbol::intern("__dynamic__"), path: vec![Symbol::intern("__dynamic__")] }
+    }
+
+    /// Check whether this location is the dynamic sentinel.
+    pub fn is_dynamic(&self) -> bool {
+        self.program == Symbol::intern("__dynamic__")
+    }
 }
 
 impl Display for Location {

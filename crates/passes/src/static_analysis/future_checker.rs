@@ -57,7 +57,7 @@ impl AstVisitor for FutureChecker<'_> {
 
     fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         use Position::*;
-        let is_call = matches!(input, Expression::Call(..));
+        let is_call = matches!(input, Expression::Call(..) | Expression::DynamicCall(..));
         let is_async_block = matches!(input, Expression::Async(..));
         match self.type_table.get(&input.id()) {
             Some(Type::Future(..)) if is_call | is_async_block => {

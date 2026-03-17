@@ -582,12 +582,17 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine output types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
+        // Future outputs are mapped to DynamicFuture.
         let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
             .output
             .iter()
             .map(|out| {
-                let viz = AleoVisibility::maybe_from(out.mode).or(Some(AleoVisibility::Private));
-                self.visit_type_with_visibility(&out.type_, viz)
+                if matches!(out.type_, Type::Future(..)) {
+                    (AleoType::DynamicFuture, None)
+                } else {
+                    let viz = AleoVisibility::maybe_from(out.mode).or(Some(AleoVisibility::Private));
+                    self.visit_type_with_visibility(&out.type_, viz)
+                }
             })
             .collect();
 

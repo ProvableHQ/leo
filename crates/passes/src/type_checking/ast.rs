@@ -1049,8 +1049,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.visit_expression(argument, &Some(expected_input.type_().clone()));
         }
 
+        // If the output type contains a Future, mark it as coming from a dynamic call.
+        let output_type = func_proto.output_type.clone();
+        let contains_future = match &output_type {
+            Type::Future(..) => true,
+            Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
+            _ => false,
+        };
+        if contains_future {
+            self.scope_state.call_location = Some(Location::dynamic());
+        }
+
         // Return the function prototype's output type.
-        self.assert_and_return_type(func_proto.output_type.clone(), expected, input.span())
+        self.assert_and_return_type(output_type, expected, input.span())
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {

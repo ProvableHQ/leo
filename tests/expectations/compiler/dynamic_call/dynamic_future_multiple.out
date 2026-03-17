@@ -1,0 +1,32 @@
+program test.aleo;
+
+mapping results:
+    key as u32.public;
+    value as u32.public;
+
+function work:
+    input r0 as u32.private;
+    async work r0 into r1;
+    output r0 as u32.private;
+    output r1 as test.aleo/work.future;
+
+finalize work:
+    input r0 as u32.public;
+    set r0 into results[r0];
+
+function main:
+    input r0 as field.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    call.dynamic r0 'aleo' 'work' with r1 (as u32.private) into r3 r4 (as u32.private dynamic.future);
+    call.dynamic r0 'aleo' 'work' with r2 (as u32.private) into r5 r6 (as u32.private dynamic.future);
+    add r3 r5 into r7;
+    async main r4 r6 into r8;
+    output r7 as u32.private;
+    output r8 as test.aleo/main.future;
+
+finalize main:
+    input r0 as dynamic.future;
+    input r1 as dynamic.future;
+    await r0;
+    await r1;
