@@ -187,8 +187,10 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         | ast::Type::Vector(_)
         | ast::Type::String
         | ast::Type::Unit
-        | ast::Type::Identifier(_)
+        | ast::Type::Ident(_)
         | ast::Type::Numeric
+        | ast::Type::Identifier
+        | ast::Type::DynRecord
         | ast::Type::Err => {
             unreachable!("unexpected type in plaintext context: {ty}")
         }

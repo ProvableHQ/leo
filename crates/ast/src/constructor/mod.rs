@@ -146,5 +146,6 @@ fn get_type_from_snarkvm_literal<N: Network>(literal: &Literal<N>) -> Type {
         Literal::U64(_) => Type::Integer(IntegerType::U64),
         Literal::U128(_) => Type::Integer(IntegerType::U128),
         Literal::Signature(_) => Type::Signature,
+        Literal::Identifier(_) => Type::Identifier,
     }
 }

@@ -31,22 +31,9 @@ use snarkvm::{
         store::helpers::memory::BlockMemory,
     },
     prelude::{
-        Certificate,
-        ConsensusVersion,
-        Deployment,
-        Fee,
-        Program,
-        ProgramID,
-        ProgramOwner,
-        Rng,
-        TestnetV0,
-        VM,
-        VerifyingKey,
-        cost_in_microcredits_v1,
-        cost_in_microcredits_v2,
-        cost_in_microcredits_v3,
-        deployment_cost,
-        execution_cost_for_authorization,
+        Certificate, ConsensusVersion, Deployment, Fee, Program, ProgramID, ProgramOwner, Rng, TestnetV0, VM,
+        VerifyingKey, deployment_cost, execution_cost_for_authorization, minimum_cost_in_microcredits_v1,
+        minimum_cost_in_microcredits_v2, minimum_cost_in_microcredits_v3,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
     synthesizer::program::StackTrait,
@@ -819,11 +806,11 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
 
         // Compute the finalize cost based on the consensus version.
         let finalize_cost = if consensus_version >= ConsensusVersion::V10 {
-            cost_in_microcredits_v3(&stack, function_name)?
+            minimum_cost_in_microcredits_v3(&stack, function_name)?
         } else if consensus_version >= ConsensusVersion::V2 {
-            cost_in_microcredits_v2(&stack, function_name)?
+            minimum_cost_in_microcredits_v2(&stack, function_name)?
         } else {
-            cost_in_microcredits_v1(&stack, function_name)?
+            minimum_cost_in_microcredits_v1(&stack, function_name)?
         };
 
         // Sample inputs and attempt authorization to estimate execution cost (best-effort).

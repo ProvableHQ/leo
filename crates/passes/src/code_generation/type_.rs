@@ -27,6 +27,8 @@ impl CodeGeneratingVisitor<'_> {
             Type::Scalar => AleoType::Scalar,
             Type::Signature => AleoType::Signature,
             Type::String => AleoType::String,
+            Type::Identifier => AleoType::Identifier,
+            Type::DynRecord => AleoType::DynamicRecord,
 
             Type::Integer(int) => match int {
                 IntegerType::U8 => AleoType::U8,
@@ -40,7 +42,7 @@ impl CodeGeneratingVisitor<'_> {
                 IntegerType::I64 => AleoType::I64,
                 IntegerType::I128 => AleoType::I128,
             },
-            Type::Identifier(id) => AleoType::Ident { name: id.to_string() },
+            Type::Ident(id) => AleoType::Ident { name: id.to_string() },
             Type::Composite(composite) => {
                 let composite_location = composite.path.expect_global_location();
                 let this_program_name = self.program_id.unwrap().name.name;

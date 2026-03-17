@@ -39,8 +39,10 @@ pub trait AstReconstructor {
             | Type::Boolean
             | Type::Field
             | Type::Group
-            | Type::Identifier(_)
+            | Type::Ident(_)
             | Type::Integer(_)
+            | Type::Identifier
+            | Type::DynRecord
             | Type::Scalar
             | Type::Signature
             | Type::String

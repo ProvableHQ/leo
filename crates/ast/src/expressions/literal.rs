@@ -41,6 +41,8 @@ pub enum LiteralVariant {
     Integer(IntegerType, String),
     /// A literal `None` for optional types.
     None,
+    /// An identifier literal such as `'foo'`
+    Identifier(String),
     /// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
     Scalar(String),
@@ -61,6 +63,7 @@ impl fmt::Display for LiteralVariant {
             Self::Group(group) => write!(f, "{group}group"),
             Self::Integer(type_, value) => write!(f, "{value}{type_}"),
             Self::None => write!(f, "none"),
+            Self::Identifier(string) => write!(f, "'{string}'"),
             Self::Scalar(scalar) => write!(f, "{scalar}scalar"),
             Self::Signature(signature) => write!(f, "{signature}"),
             Self::String(string) => write!(f, "\"{string}\""),
@@ -100,6 +103,10 @@ impl Literal {
 
     pub fn none(span: Span, id: NodeID) -> Self {
         Literal { variant: LiteralVariant::None, span, id }
+    }
+
+    pub fn identifier(s: String, span: Span, id: NodeID) -> Self {
+        Literal { variant: LiteralVariant::Identifier(s), span, id }
     }
 
     pub fn scalar(s: String, span: Span, id: NodeID) -> Self {

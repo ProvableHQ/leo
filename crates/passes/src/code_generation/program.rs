@@ -17,19 +17,8 @@
 use super::*;
 
 use leo_ast::{
-    Composite,
-    Constructor,
-    Function,
-    Location,
-    Mapping,
-    Member,
-    Mode,
-    NetworkName,
-    Program,
-    ProgramScope,
-    Type,
-    UpgradeVariant,
-    Variant,
+    Composite, Constructor, Function, Location, Mapping, Member, Mode, NetworkName, Program, ProgramScope, Type,
+    UpgradeVariant, Variant,
 };
 use leo_span::{Symbol, sym};
 
@@ -187,11 +176,15 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
-                        Mode::Constant => AleoVisibility::Constant,
-                        Mode::Public => AleoVisibility::Public,
-                        Mode::None | Mode::Private => AleoVisibility::Private,
-                    }))
+                    Some((
+                        var.identifier.to_string(),
+                        self.visit_type(&var.type_),
+                        match var.mode {
+                            Mode::Constant => AleoVisibility::Constant,
+                            Mode::Public => AleoVisibility::Public,
+                            Mode::None | Mode::Private => AleoVisibility::Private,
+                        },
+                    ))
                 }
             })
             .collect();
@@ -390,7 +383,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let create_type = |type_: &Type| {
             match type_ {
                 Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
-                Type::Identifier(identifier) => {
+                Type::Ident(identifier) => {
                     // Lookup the type in the composite mapping.
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
                     let is_record = self.composite_mapping.get(&Location::new(program, vec![identifier.name])).unwrap();

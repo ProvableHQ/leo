@@ -27,13 +27,8 @@ use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
     synthesizer::program::{
-        CommitVariant,
-        DeserializeVariant,
-        ECDSAVerifyVariant,
-        HashVariant,
-        MAX_SNARK_VERIFY_CIRCUITS,
-        MAX_SNARK_VERIFY_INSTANCES,
-        SerializeVariant,
+        CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, MAX_SNARK_VERIFY_CIRCUITS,
+        MAX_SNARK_VERIFY_INSTANCES, SerializeVariant,
     },
 };
 use std::ops::Deref;
@@ -1568,7 +1563,9 @@ impl TypeCheckingVisitor<'_> {
             | Type::Field
             | Type::Future(_)
             | Type::Group
-            | Type::Identifier(_)
+            | Type::DynRecord
+            | Type::Identifier
+            | Type::Ident(_)
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
@@ -1584,10 +1581,12 @@ impl TypeCheckingVisitor<'_> {
             Type::Unit
             | Type::Err
             | Type::Future(_)
-            | Type::Identifier(_)
+            | Type::Ident(_)
             | Type::Mapping(_)
             | Type::Optional(_)
             | Type::String
+            | Type::Identifier
+            | Type::DynRecord
             | Type::Tuple(_)
             | Type::Vector(_) => true,
 
@@ -1646,6 +1645,12 @@ impl TypeCheckingVisitor<'_> {
             Type::String => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("string", span));
             }
+            Type::Identifier => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("identifier", span));
+            }
+            Type::DynRecord => {
+                self.emit_err(TypeCheckerError::invalid_storage_type("dyn record", span));
+            }
             Type::Signature => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("signature", span));
             }
@@ -1703,7 +1708,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Boolean
             | Type::Field
             | Type::Group
-            | Type::Identifier(_)
+            | Type::Ident(_)
             | Type::Integer(_)
             | Type::Scalar
             | Type::Numeric

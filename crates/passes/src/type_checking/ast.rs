@@ -579,10 +579,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
-            Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(
-                "finalize/{}",
-                self.scope_state.function.unwrap(),
-            ))]),
+            Location::new(
+                self.scope_state.program_name.unwrap(),
+                vec![Symbol::intern(&format!("finalize/{}", self.scope_state.function.unwrap(),))],
+            ),
             input_types,
         );
 
@@ -1034,12 +1034,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
         } else if func.variant == Variant::EntryPoint && func.has_final_output() {
             // Fully infer future type.
-            let Some(inputs) =
-                self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
-                    "finalize/{}",
-                    input.function.identifier().name
-                ))]))
-            else {
+            let Some(inputs) = self.async_function_input_types.get(&Location::new(
+                callee_program,
+                vec![Symbol::intern(&format!("finalize/{}", input.function.identifier().name))],
+            )) else {
                 panic!("Finalization not found: {} {}", input.function.clone(), input.span);
             };
 
@@ -1233,10 +1231,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
 
             self.async_function_input_types.insert(
-                Location::new(callee_program, vec![Symbol::intern(&format!(
-                    "finalize/{}",
-                    caller_path.last().unwrap()
-                ))]),
+                Location::new(
+                    callee_program,
+                    vec![Symbol::intern(&format!("finalize/{}", caller_path.last().unwrap()))],
+                ),
                 inferred_finalize_inputs.clone(),
             );
 
@@ -1432,6 +1430,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             LiteralVariant::Address(..) => Type::Address,
             LiteralVariant::Boolean(..) => Type::Boolean,
             LiteralVariant::Field(..) => Type::Field,
+            LiteralVariant::Identifier(..) => Type::Identifier,
             LiteralVariant::Group(s) => {
                 let trimmed = s.trim_start_matches('-').trim_start_matches('0');
                 if !trimmed.is_empty()

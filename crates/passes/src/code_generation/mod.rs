@@ -34,12 +34,7 @@ mod visitor;
 use snarkvm::{
     prelude::{ArrayType, LiteralType, Network, PlaintextType},
     synthesizer::program::{
-        CommitVariant,
-        DeserializeVariant,
-        ECDSAVerifyVariant,
-        HashVariant,
-        SerializeVariant,
-        SnarkVerifyVariant,
+        CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, SerializeVariant, SnarkVerifyVariant,
     },
 };
 use visitor::*;
@@ -162,11 +157,15 @@ impl AleoVisibility {
 
 impl Display for AleoVisibility {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Constant => "constant",
-            Self::Public => "public",
-            Self::Private => "private",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Constant => "constant",
+                Self::Public => "public",
+                Self::Private => "private",
+            }
+        )
     }
 }
 
@@ -328,6 +327,7 @@ pub enum AleoExpr {
     RawName(String),
     // Literals
     Address(String),
+    Identifier(String),
     Bool(bool),
     Field(String),
     Group(String),
@@ -354,6 +354,7 @@ impl Display for AleoExpr {
             Self::MemberAccess(comp, member) => write!(f, "{comp}.{member}"),
             Self::RawName(n) => write!(f, "{n}"),
             // Literals
+            Self::Identifier(val) => write!(f, "'{val}'"),
             Self::Address(val) => write!(f, "{val}"),
             Self::Bool(val) => write!(f, "{val}"),
             Self::Field(val) => write!(f, "{val}field"),
@@ -571,6 +572,8 @@ pub enum AleoType {
     GroupX,
     GroupY,
     Address,
+    Identifier,
+    DynamicRecord,
     Boolean,
     Field,
     Group,
@@ -598,6 +601,8 @@ impl Display for AleoType {
             Self::GroupY => write!(f, "group.y"),
             Self::Ident { name } => write!(f, "{name}"),
             Self::Location { program, name } => write!(f, "{program}.aleo/{name}"),
+            Self::Identifier => write!(f, "identifier"),
+            Self::DynamicRecord => write!(f, "dynamic.record"),
             Self::Address => write!(f, "address"),
             Self::Boolean => write!(f, "boolean"),
             Self::Field => write!(f, "field"),
@@ -634,6 +639,7 @@ impl<N: Network> From<PlaintextType<N>> for AleoType {
 impl From<LiteralType> for AleoType {
     fn from(value: LiteralType) -> Self {
         match value {
+            LiteralType::Identifier => Self::Identifier,
             LiteralType::Address => Self::Address,
             LiteralType::Boolean => Self::Boolean,
             LiteralType::Field => Self::Field,

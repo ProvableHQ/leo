@@ -20,17 +20,8 @@ use leo_errors::{ConstEvalError, Result};
 use leo_span::Span;
 
 use crate::{
-    BinaryOperation,
-    FromStrRadix as _,
-    IntegerType,
-    Literal,
-    LiteralVariant,
-    Type,
-    UnaryOperation,
-    fail2,
-    halt_no_span2,
-    halt2,
-    tc_fail2,
+    BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVariant, Type, UnaryOperation, fail2,
+    halt_no_span2, halt2, tc_fail2,
 };
 
 use super::*;
@@ -153,6 +144,11 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
         }
         LiteralVariant::Group(s) => {
             SvmLiteralParam::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span)?).into()
+        }
+
+        LiteralVariant::Identifier(s) => {
+            let identifier = SvmIdentifierLiteral::new(s).expect_tc(literal.span)?;
+            SvmLiteralParam::Identifier(Box::new(identifier)).into()
         }
         LiteralVariant::Integer(IntegerType::U8, s, ..) => {
             let s = s.replace("_", "");

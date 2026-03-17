@@ -17,33 +17,10 @@
 use super::*;
 
 use leo_ast::{
-    ArrayAccess,
-    ArrayExpression,
-    BinaryExpression,
-    BinaryOperation,
-    CallExpression,
-    CastExpression,
-    CompositeExpression,
-    Expression,
-    FromStrRadix,
-    IntegerType,
-    Intrinsic,
-    IntrinsicExpression,
-    Literal,
-    LiteralVariant,
-    MemberAccess,
-    NetworkName,
-    Node,
-    NodeID,
-    Path,
-    ProgramId,
-    RepeatExpression,
-    TernaryExpression,
-    TupleExpression,
-    Type,
-    UnaryExpression,
-    UnaryOperation,
-    Variant,
+    ArrayAccess, ArrayExpression, BinaryExpression, BinaryOperation, CallExpression, CastExpression,
+    CompositeExpression, Expression, FromStrRadix, IntegerType, Intrinsic, IntrinsicExpression, Literal,
+    LiteralVariant, MemberAccess, NetworkName, Node, NodeID, Path, ProgramId, RepeatExpression, TernaryExpression,
+    TupleExpression, Type, UnaryExpression, UnaryOperation, Variant,
 };
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
@@ -158,6 +135,7 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         match literal.variant.clone() {
+            LiteralVariant::Identifier(val) => AleoExpr::Identifier(val),
             LiteralVariant::Address(val) => AleoExpr::Address(prepare_literal(&val)),
             LiteralVariant::Boolean(val) => AleoExpr::Bool(val),
             LiteralVariant::Field(val) => AleoExpr::Field(prepare_literal(&val)),
@@ -808,19 +786,31 @@ impl CodeGeneratingVisitor<'_> {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Signature);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
+            Type::DynRecord => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::DynamicRecord);
+                (AleoExpr::Reg(new_reg), vec![ins])
+            }
+            Type::Identifier => {
+                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Identifier);
+                (AleoExpr::Reg(new_reg), vec![ins])
+            }
             Type::Integer(int) => {
-                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), match int {
-                    IntegerType::U8 => AleoType::U8,
-                    IntegerType::U16 => AleoType::U16,
-                    IntegerType::U32 => AleoType::U32,
-                    IntegerType::U64 => AleoType::U64,
-                    IntegerType::U128 => AleoType::U128,
-                    IntegerType::I8 => AleoType::I8,
-                    IntegerType::I16 => AleoType::I16,
-                    IntegerType::I32 => AleoType::I32,
-                    IntegerType::I64 => AleoType::I64,
-                    IntegerType::I128 => AleoType::I128,
-                });
+                let ins = AleoStmt::Cast(
+                    register.clone(),
+                    new_reg.clone(),
+                    match int {
+                        IntegerType::U8 => AleoType::U8,
+                        IntegerType::U16 => AleoType::U16,
+                        IntegerType::U32 => AleoType::U32,
+                        IntegerType::U64 => AleoType::U64,
+                        IntegerType::U128 => AleoType::U128,
+                        IntegerType::I8 => AleoType::I8,
+                        IntegerType::I16 => AleoType::I16,
+                        IntegerType::I32 => AleoType::I32,
+                        IntegerType::I64 => AleoType::I64,
+                        IntegerType::I128 => AleoType::I128,
+                    },
+                );
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
@@ -866,7 +856,7 @@ impl CodeGeneratingVisitor<'_> {
             Type::Mapping(..)
             | Type::Future(..)
             | Type::Tuple(..)
-            | Type::Identifier(..)
+            | Type::Ident(..)
             | Type::String
             | Type::Unit
             | Type::Numeric

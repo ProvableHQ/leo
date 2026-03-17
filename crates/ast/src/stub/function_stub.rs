@@ -15,33 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Annotation,
-    CompositeType,
-    Function,
-    FutureType,
-    Identifier,
-    Input,
-    Location,
-    Mode,
-    Node,
-    NodeID,
-    Output,
-    Path,
-    ProgramId,
-    TupleType,
-    Type,
-    Variant,
+    Annotation, CompositeType, Function, FutureType, Identifier, Input, Location, Mode, Node, NodeID, Output, Path,
+    ProgramId, TupleType, Type, Variant,
 };
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
-    console::program::{
-        FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
-        RegisterType::{ExternalRecord, Future, Plaintext, Record},
-    },
-    prelude::{Network, ValueType},
+    console::program::RegisterType,
+    prelude::{FinalizeType, Network, ValueType},
     synthesizer::program::{ClosureCore, FunctionCore},
 };
 use std::fmt;
@@ -198,6 +181,22 @@ impl FunctionStub {
                         false,
                     )),
                 }],
+                ValueType::DynamicRecord => vec![Output {
+                    mode: Mode::None,
+                    span: Default::default(),
+                    id: Default::default(),
+                    type_: Type::DynRecord,
+                }],
+                ValueType::DynamicFuture => vec![Output {
+                    mode: Mode::None,
+                    span: Default::default(),
+                    id: Default::default(),
+                    type_: Type::Future(FutureType::new(
+                        Vec::new(),
+                        Some(Location::new(program, vec![Symbol::intern(&function.name().to_string())])),
+                        false,
+                    )),
+                }],
             })
             .collect_vec()
             .concat();
@@ -273,7 +272,17 @@ impl FunctionStub {
                                 }),
                             }
                         }
-                        ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
+                        ValueType::Future(_) | ValueType::DynamicFuture => {
+                            panic!("Functions do not contain futures as inputs")
+                        }
+
+                        ValueType::DynamicRecord => Input {
+                            identifier: arg_name,
+                            mode: Mode::None,
+                            span: Default::default(),
+                            id: Default::default(),
+                            type_: Type::DynRecord,
+                        },
                     }
                 })
                 .collect_vec(),
@@ -299,14 +308,16 @@ impl FunctionStub {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
                     type_: match input.finalize_type() {
-                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, program),
-                        FutureFinalizeType(val) => Type::Future(FutureType::new(
+                        FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program),
+                        FinalizeType::Future(val) => Type::Future(FutureType::new(
                             Vec::new(),
-                            Some(Location::new(Identifier::from(val.program_id().name()).name, vec![Symbol::intern(
-                                &format!("finalize/{}", val.resource()),
-                            )])),
+                            Some(Location::new(
+                                Identifier::from(val.program_id().name()).name,
+                                vec![Symbol::intern(&format!("finalize/{}", val.resource()))],
+                            )),
                             false,
                         )),
+                        FinalizeType::DynamicFuture => Type::Future(FutureType::new(Vec::new(), None, false)),
                     },
                     span: Default::default(),
                     id: Default::default(),
@@ -324,15 +335,15 @@ impl FunctionStub {
             .outputs()
             .iter()
             .map(|output| match output.register_type() {
-                Plaintext(val) => Output {
+                RegisterType::Plaintext(val) => Output {
                     mode: Mode::None,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 },
-                Record(_) => panic!("Closures do not return records"),
-                ExternalRecord(_) => panic!("Closures do not return external records"),
-                Future(_) => panic!("Closures do not return futures"),
+                RegisterType::Record(_) | RegisterType::DynamicRecord => panic!("Closures do not return records"),
+                RegisterType::ExternalRecord(_) => panic!("Closures do not return external records"),
+                RegisterType::Future(_) | RegisterType::DynamicFuture => panic!("Closures do not return futures"),
             })
             .collect_vec();
         let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
@@ -352,16 +363,20 @@ impl FunctionStub {
                 .map(|(index, input)| {
                     let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.register_type() {
-                        Plaintext(val) => Input {
+                        RegisterType::Plaintext(val) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
                             type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
                         },
-                        Record(_) => panic!("Closures do not contain records as inputs"),
-                        ExternalRecord(_) => panic!("Closures do not contain external records as inputs"),
-                        Future(_) => panic!("Closures do not contain futures as inputs"),
+                        RegisterType::Record(_) | RegisterType::DynamicRecord => {
+                            panic!("Closures do not contain records as inputs")
+                        }
+                        RegisterType::ExternalRecord(_) => panic!("Closures do not contain external records as inputs"),
+                        RegisterType::Future(_) | RegisterType::DynamicFuture => {
+                            panic!("Closures do not contain futures as inputs")
+                        }
                     }
                 })
                 .collect_vec(),

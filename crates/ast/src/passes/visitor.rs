@@ -58,7 +58,9 @@ pub trait AstVisitor {
             | Type::Boolean
             | Type::Field
             | Type::Group
-            | Type::Identifier(_)
+            | Type::Identifier
+            | Type::DynRecord
+            | Type::Ident(_)
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature

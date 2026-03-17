@@ -15,26 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ArrayType,
-    CompositeType,
-    FutureType,
-    Identifier,
-    IntegerType,
-    Location,
-    MappingType,
-    OptionalType,
-    Path,
-    TupleType,
-    VectorType,
+    ArrayType, CompositeType, FutureType, Identifier, IntegerType, Location, MappingType, OptionalType, Path,
+    TupleType, VectorType,
 };
 
 use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
-    LiteralType,
-    Network,
-    PlaintextType,
+    LiteralType, Network, PlaintextType,
     PlaintextType::{Array, ExternalStruct, Literal, Struct},
 };
 use std::fmt;
@@ -56,8 +45,12 @@ pub enum Type {
     Future(FutureType),
     /// The `group` type.
     Group,
+    /// The `identifier` type.
+    Identifier,
+    /// The `dyn record` type.
+    DynRecord,
     /// A reference to a built in type.
-    Identifier(Identifier),
+    Ident(Identifier),
     /// An integer type.
     Integer(IntegerType),
     /// A mapping type.
@@ -119,7 +112,7 @@ impl Type {
                     }
                 }) && left.element_type().eq_user(right.element_type())
             }
-            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
+            (Type::Ident(left), Type::Ident(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left == right,
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
@@ -185,7 +178,7 @@ impl Type {
                     }
                 }) && left.element_type().eq_flat_relaxed(right.element_type())
             }
-            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
+            (Type::Ident(left), Type::Ident(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
@@ -364,6 +357,7 @@ impl Type {
 impl From<LiteralType> for Type {
     fn from(value: LiteralType) -> Self {
         match value {
+            LiteralType::Identifier => Type::Identifier,
             LiteralType::Address => Type::Address,
             LiteralType::Boolean => Type::Boolean,
             LiteralType::Field => Type::Field,
@@ -389,12 +383,14 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::Address => write!(f, "address"),
+            Type::Identifier => write!(f, "identifier"),
+            Type::DynRecord => write!(f, "dyn record"),
             Type::Array(ref array_type) => write!(f, "{array_type}"),
             Type::Boolean => write!(f, "bool"),
             Type::Field => write!(f, "field"),
             Type::Future(ref future_type) => write!(f, "{future_type}"),
             Type::Group => write!(f, "group"),
-            Type::Identifier(ref variable) => write!(f, "{variable}"),
+            Type::Ident(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
             Type::Optional(ref optional_type) => write!(f, "{optional_type}"),

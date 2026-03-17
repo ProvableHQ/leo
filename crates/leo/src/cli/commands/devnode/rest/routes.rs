@@ -265,7 +265,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
     fn return_program_with_metadata(&self, program: Program<N>, edition: u16) -> Result<ErasedJson, RestError> {
         let id = program.id();
         // Get the transaction ID associated with the program and edition.
-        let tx_id = self.ledger.find_transaction_id_from_program_id_and_edition(id, edition)?;
+        let tx_id = self.ledger.find_latest_transaction_id_from_program_id_and_edition(id, edition)?;
         // Get the optional program owner associated with the program.
         // Note: The owner is only available after `ConsensusVersion::V9`.
         let program_owner = match &tx_id {
@@ -445,7 +445,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         State(rest): State<Self>,
         Path((program_id, edition)): Path<(ProgramID<N>, u16)>,
     ) -> Result<ErasedJson, RestError> {
-        Ok(ErasedJson::new(rest.ledger.find_transaction_id_from_program_id_and_edition(&program_id, edition)?))
+        Ok(ErasedJson::new(rest.ledger.find_latest_transaction_id_from_program_id_and_edition(&program_id, edition)?))
     }
 
     /// GET /<network>/find/transactionID/{transitionID}
