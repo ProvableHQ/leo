@@ -17,8 +17,21 @@
 use super::*;
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, DefinitionPlace, DefinitionStatement,
-    Expression, ExpressionStatement, IterationStatement, Mode, Output, ReturnStatement, Statement, Type,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    DefinitionPlace,
+    DefinitionStatement,
+    Expression,
+    ExpressionStatement,
+    IterationStatement,
+    Mode,
+    Output,
+    ReturnStatement,
+    Statement,
+    Type,
 };
 
 use indexmap::IndexMap;

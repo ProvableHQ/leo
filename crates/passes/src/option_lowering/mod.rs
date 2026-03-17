@@ -58,7 +58,13 @@
 //! as structs with `is_some` and `val` fields.
 
 use crate::{
-    GlobalItemsCollection, GlobalVarsCollection, Pass, PathResolution, SymbolTable, TypeChecking, TypeCheckingInput,
+    GlobalItemsCollection,
+    GlobalVarsCollection,
+    Pass,
+    PathResolution,
+    SymbolTable,
+    TypeChecking,
+    TypeCheckingInput,
 };
 
 use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};

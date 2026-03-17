@@ -27,8 +27,13 @@ use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
     synthesizer::program::{
-        CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, MAX_SNARK_VERIFY_CIRCUITS,
-        MAX_SNARK_VERIFY_INSTANCES, SerializeVariant,
+        CommitVariant,
+        DeserializeVariant,
+        ECDSAVerifyVariant,
+        HashVariant,
+        MAX_SNARK_VERIFY_CIRCUITS,
+        MAX_SNARK_VERIFY_INSTANCES,
+        SerializeVariant,
     },
 };
 use std::ops::Deref;

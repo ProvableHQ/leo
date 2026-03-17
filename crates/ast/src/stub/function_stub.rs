@@ -15,8 +15,22 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Annotation, CompositeType, Function, FutureType, Identifier, Input, Location, Mode, Node, NodeID, Output, Path,
-    ProgramId, TupleType, Type, Variant,
+    Annotation,
+    CompositeType,
+    Function,
+    FutureType,
+    Identifier,
+    Input,
+    Location,
+    Mode,
+    Node,
+    NodeID,
+    Output,
+    Path,
+    ProgramId,
+    TupleType,
+    Type,
+    Variant,
 };
 use leo_span::{Span, Symbol, sym};
 
@@ -311,10 +325,9 @@ impl FunctionStub {
                         FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program),
                         FinalizeType::Future(val) => Type::Future(FutureType::new(
                             Vec::new(),
-                            Some(Location::new(
-                                Identifier::from(val.program_id().name()).name,
-                                vec![Symbol::intern(&format!("finalize/{}", val.resource()))],
-                            )),
+                            Some(Location::new(Identifier::from(val.program_id().name()).name, vec![Symbol::intern(
+                                &format!("finalize/{}", val.resource()),
+                            )])),
                             false,
                         )),
                         FinalizeType::DynamicFuture => Type::Future(FutureType::new(Vec::new(), None, false)),

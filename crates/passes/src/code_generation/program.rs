@@ -17,8 +17,19 @@
 use super::*;
 
 use leo_ast::{
-    Composite, Constructor, Function, Location, Mapping, Member, Mode, NetworkName, Program, ProgramScope, Type,
-    UpgradeVariant, Variant,
+    Composite,
+    Constructor,
+    Function,
+    Location,
+    Mapping,
+    Member,
+    Mode,
+    NetworkName,
+    Program,
+    ProgramScope,
+    Type,
+    UpgradeVariant,
+    Variant,
 };
 use leo_span::{Symbol, sym};
 
@@ -176,15 +187,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 if var.type_.is_empty() {
                     None
                 } else {
-                    Some((
-                        var.identifier.to_string(),
-                        self.visit_type(&var.type_),
-                        match var.mode {
-                            Mode::Constant => AleoVisibility::Constant,
-                            Mode::Public => AleoVisibility::Public,
-                            Mode::None | Mode::Private => AleoVisibility::Private,
-                        },
-                    ))
+                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
+                        Mode::Constant => AleoVisibility::Constant,
+                        Mode::Public => AleoVisibility::Public,
+                        Mode::None | Mode::Private => AleoVisibility::Private,
+                    }))
                 }
             })
             .collect();

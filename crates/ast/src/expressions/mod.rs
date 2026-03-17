@@ -268,8 +268,7 @@ impl Expression {
             Cast(_) => 12,
             Ternary(_) => 0,
             Array(_) | ArrayAccess(_) | Async(_) | Call(_) | DynamicCall(_) | Composite(_) | Err(_) | Intrinsic(_)
-            | Path(_) | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_)
-            | Unit(_) => 20,
+            | Path(_) | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => 20,
         }
     }
 

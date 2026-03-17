@@ -769,11 +769,8 @@ impl<'a> ConversionContext<'a> {
             self.error_identifier(span)
         };
 
-        let function = if let Some(token) = ident_tokens.get(1) {
-            self.to_identifier(token)
-        } else {
-            self.error_identifier(span)
-        };
+        let function =
+            if let Some(token) = ident_tokens.get(1) { self.to_identifier(token) } else { self.error_identifier(span) };
 
         // Collect expression children: first is target, rest are arguments.
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
@@ -784,10 +781,7 @@ impl<'a> ConversionContext<'a> {
             self.error_expression(span)
         };
 
-        let arguments = expr_children[1..]
-            .iter()
-            .map(|n| self.to_expression(n))
-            .collect::<Result<Vec<_>>>()?;
+        let arguments = expr_children[1..].iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
         Ok(leo_ast::DynamicCallExpression { interface, target, function, arguments, span, id }.into())
     }

@@ -15,15 +15,26 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ArrayType, CompositeType, FutureType, Identifier, IntegerType, Location, MappingType, OptionalType, Path,
-    TupleType, VectorType,
+    ArrayType,
+    CompositeType,
+    FutureType,
+    Identifier,
+    IntegerType,
+    Location,
+    MappingType,
+    OptionalType,
+    Path,
+    TupleType,
+    VectorType,
 };
 
 use itertools::Itertools;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
-    LiteralType, Network, PlaintextType,
+    LiteralType,
+    Network,
+    PlaintextType,
     PlaintextType::{Array, ExternalStruct, Literal, Struct},
 };
 use std::fmt;
