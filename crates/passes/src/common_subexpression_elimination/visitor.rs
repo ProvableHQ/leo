@@ -113,7 +113,8 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::Tuple(_)
             | Expression::TupleAccess(_)
             | Expression::Unary(_)
-            | Expression::Unit(_) => return None,
+            | Expression::Unit(_)
+            | Expression::DynamicCall(_) => return None,
         };
 
         Some(value)
@@ -229,6 +230,14 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             }
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
+
+            Expression::DynamicCall(dc) => {
+                self.try_atom(&mut dc.target)?;
+                for arg in &mut dc.arguments {
+                    self.try_atom(arg)?;
+                }
+                return Some((expression, false));
+            }
 
             Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
                 return Some((expression, false));

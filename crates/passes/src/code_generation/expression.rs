@@ -60,6 +60,9 @@ impl CodeGeneratingVisitor<'_> {
 
             Expression::Intrinsic(expr) => self.visit_intrinsic(expr),
 
+            Expression::DynamicCall(..) => {
+                panic!("`DynamicCallExpression`s are not yet supported in code generation.")
+            }
             Expression::Async(..) => {
                 panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
             }

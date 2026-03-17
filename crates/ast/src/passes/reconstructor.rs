@@ -128,6 +128,7 @@ pub trait AstReconstructor {
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, additional),
             Expression::Call(call) => self.reconstruct_call(*call, additional),
+            Expression::DynamicCall(dc) => self.reconstruct_dynamic_call(*dc, additional),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, additional),
             Expression::Composite(composite_) => self.reconstruct_composite_init(composite_, additional),
             Expression::Err(err) => self.reconstruct_err(err, additional),
@@ -272,6 +273,26 @@ pub trait AstReconstructor {
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
+                ..input
+            }
+            .into(),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_dynamic_call(
+        &mut self,
+        input: DynamicCallExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            DynamicCallExpression {
+                target: self.reconstruct_expression(input.target, &Default::default()).0,
                 arguments: input
                     .arguments
                     .into_iter()

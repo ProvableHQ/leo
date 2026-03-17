@@ -379,6 +379,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
+            Expression::DynamicCall(dc) => self.visit_dynamic_call(dc, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
             Expression::Composite(composite) => self.visit_composite_init(composite, additional),
             Expression::Err(err) => self.visit_err(err, additional),
@@ -2016,7 +2017,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_) | Expression::Intrinsic(_) | Expression::Unit(_)) {
+        if !matches!(
+            input.expression,
+            Expression::Call(_) | Expression::DynamicCall(_) | Expression::Intrinsic(_) | Expression::Unit(_)
+        ) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.

@@ -537,6 +537,8 @@ define_syntax_kinds! {
     FINAL_EXPR,
     /// Tuple access: `a.0`
     TUPLE_ACCESS_EXPR,
+    /// Dynamic call: `Interface @ (target) / function(args)`
+    DYNAMIC_CALL_EXPR,
 
     // ==========================================================================
     // Composite Nodes - Types
@@ -719,6 +721,7 @@ impl SyntaxKind {
                     | NETWORK_KW_EXPR
                     | PAREN_EXPR
                     | FINAL_EXPR
+                    | DYNAMIC_CALL_EXPR
             )
     }
 

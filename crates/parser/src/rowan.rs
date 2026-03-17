@@ -498,6 +498,7 @@ impl<'a> ConversionContext<'a> {
             BINARY_EXPR => self.binary_expr_to_expression(node)?,
             UNARY_EXPR => self.unary_expr_to_expression(node)?,
             CALL_EXPR => self.call_expr_to_expression(node)?,
+            DYNAMIC_CALL_EXPR => self.dynamic_call_expr_to_expression(node)?,
             METHOD_CALL_EXPR => self.method_call_expr_to_expression(node)?,
             FIELD_EXPR => self.field_expr_to_expression(node)?,
             TUPLE_ACCESS_EXPR => self.tuple_access_expr_to_expression(node)?,
@@ -749,6 +750,46 @@ impl<'a> ConversionContext<'a> {
         }
 
         Ok(leo_ast::CallExpression { function, const_arguments, arguments, span, id }.into())
+    }
+
+    /// Convert a DYNAMIC_CALL_EXPR node to an expression.
+    ///
+    /// Structure: `IDENT AT L_PAREN expr R_PAREN SLASH IDENT L_PAREN args R_PAREN`
+    fn dynamic_call_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
+        debug_assert_eq!(node.kind(), DYNAMIC_CALL_EXPR);
+        let span = self.content_span(node);
+        let id = self.builder.next_id();
+
+        // Collect IDENT tokens (interface name and function name).
+        let ident_tokens: Vec<_> = tokens(node).filter(|t| t.kind() == IDENT).collect();
+
+        let interface = if let Some(token) = ident_tokens.first() {
+            self.to_identifier(token)
+        } else {
+            self.error_identifier(span)
+        };
+
+        let function = if let Some(token) = ident_tokens.get(1) {
+            self.to_identifier(token)
+        } else {
+            self.error_identifier(span)
+        };
+
+        // Collect expression children: first is target, rest are arguments.
+        let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
+
+        let target = if let Some(target_node) = expr_children.first() {
+            self.to_expression(target_node)?
+        } else {
+            self.error_expression(span)
+        };
+
+        let arguments = expr_children[1..]
+            .iter()
+            .map(|n| self.to_expression(n))
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(leo_ast::DynamicCallExpression { interface, target, function, arguments, span, id }.into())
     }
 
     /// Convert a METHOD_CALL_EXPR node to the appropriate expression.

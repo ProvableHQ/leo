@@ -21,6 +21,7 @@ use leo_ast::{
     ArrayExpression,
     BinaryExpression,
     CallExpression,
+    DynamicCallExpression,
     CastExpression,
     Composite,
     CompositeExpression,
@@ -136,6 +137,25 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .into(),
             statements,
         )
+    }
+
+    fn consume_dynamic_call(&mut self, input: DynamicCallExpression) -> Self::Output {
+        let mut statements = Vec::new();
+
+        let (target, mut target_stmts) = self.consume_expression_and_define(input.target);
+        statements.append(&mut target_stmts);
+
+        let arguments = input
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                let (argument, mut stmts) = self.consume_expression_and_define(argument);
+                statements.append(&mut stmts);
+                argument
+            })
+            .collect();
+
+        (DynamicCallExpression { target, arguments, ..input }.into(), statements)
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.

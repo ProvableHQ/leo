@@ -570,6 +570,31 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
+        // Check for dynamic call: Interface @ ( target ) / function ( args )
+        if self.at(AT) {
+            self.bump_any(); // @
+            self.expect(L_PAREN);
+            self.parse_expr(); // target expression
+            self.expect(R_PAREN);
+            self.expect(SLASH);
+            if self.at(IDENT) {
+                self.bump_any(); // function name
+            }
+            // parse call arguments
+            self.expect(L_PAREN);
+            if !self.at(R_PAREN) {
+                self.parse_expr();
+                while self.eat(COMMA) {
+                    if self.at(R_PAREN) {
+                        break;
+                    }
+                    self.parse_expr();
+                }
+            }
+            self.expect(R_PAREN);
+            return Some(m.complete(self, DYNAMIC_CALL_EXPR));
+        }
+
         // Check for locator: name.aleo/path
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             self.bump_any(); // .

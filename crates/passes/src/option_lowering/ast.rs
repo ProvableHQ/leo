@@ -92,6 +92,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::ArrayAccess(e) => self.reconstruct_array_access(*e, additional),
             Expression::Binary(e) => self.reconstruct_binary(*e, additional),
             Expression::Call(e) => self.reconstruct_call(*e, additional),
+            Expression::DynamicCall(e) => self.reconstruct_dynamic_call(*e, additional),
             Expression::Cast(e) => self.reconstruct_cast(*e, additional),
             Expression::Composite(e) => self.reconstruct_composite_init(e, additional),
             Expression::Err(e) => self.reconstruct_err(e, additional),
