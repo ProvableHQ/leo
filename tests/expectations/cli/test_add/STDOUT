@@ -78,7 +78,7 @@ Attempting to determine the consensus version from the latest block height at ht
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
-📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,4294967294,4294967295
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,14906000,4294967295
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at https://api.explorer.provable.com/v1...
@@ -90,7 +90,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           https://api.explorer.provable.com/v1
   Network:            testnet
-  Consensus Version:  12
+  Consensus Version:  13
 
 🎯 Execution Target:
   Program:        some_sample_leo_program.aleo
