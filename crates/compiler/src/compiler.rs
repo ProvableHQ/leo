@@ -208,7 +208,6 @@ impl Compiler {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.frontend_passes()?;
-        dbg!(&self.state.ast);
 
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 

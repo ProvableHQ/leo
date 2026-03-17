@@ -1431,4 +1431,11 @@ create_messages!(
         msg: format!("A `final` block cannot capture the record variable `{var_name}`. Records cannot be used in on-chain code."),
         help: Some(format!("Extract the needed fields before the `final` block. For example: `let val = {var_name}.field_name;`")),
     }
+
+    @formatted
+    dynamic_call_not_allowed_here {
+        args: (context: impl Display),
+        msg: format!("Dynamic calls can only be made from an entry point, but found one in {context}."),
+        help: None,
+    }
 );

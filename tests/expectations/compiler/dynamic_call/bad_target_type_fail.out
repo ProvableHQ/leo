@@ -1,0 +1,5 @@
+Error [ETYC0372117]: Expected type `field` but type `u32` was found.
+    --> compiler-test:11:21
+     |
+  11 |         return Foo@(target)/bar();
+     |                     ^^^^^^

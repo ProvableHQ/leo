@@ -1,0 +1,5 @@
+Error [ETYC0372005]: Unknown function `Foo::baz`
+    --> compiler-test:11:29
+     |
+  11 |         return Foo@(target)/baz(1u32);
+     |                             ^^^

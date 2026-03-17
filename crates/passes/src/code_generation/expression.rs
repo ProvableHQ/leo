@@ -18,9 +18,9 @@ use super::*;
 
 use leo_ast::{
     ArrayAccess, ArrayExpression, BinaryExpression, BinaryOperation, CallExpression, CastExpression,
-    CompositeExpression, Expression, FromStrRadix, IntegerType, Intrinsic, IntrinsicExpression, Literal,
-    LiteralVariant, MemberAccess, NetworkName, Node, NodeID, Path, ProgramId, RepeatExpression, TernaryExpression,
-    TupleExpression, Type, UnaryExpression, UnaryOperation, Variant,
+    CompositeExpression, DynamicCallExpression, Expression, FromStrRadix, IntegerType, Intrinsic,
+    IntrinsicExpression, Literal, LiteralVariant, Location, MemberAccess, NetworkName, Node, NodeID, Path,
+    ProgramId, RepeatExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, Variant,
 };
 use snarkvm::{
     prelude::{CanaryV0, MainnetV0, TestnetV0},
@@ -60,9 +60,7 @@ impl CodeGeneratingVisitor<'_> {
 
             Expression::Intrinsic(expr) => self.visit_intrinsic(expr),
 
-            Expression::DynamicCall(..) => {
-                panic!("`DynamicCallExpression`s are not yet supported in code generation.")
-            }
+            Expression::DynamicCall(expr) => some_expr(self.visit_dynamic_call(expr)),
             Expression::Async(..) => {
                 panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
             }
@@ -508,6 +506,102 @@ impl CodeGeneratingVisitor<'_> {
         instructions.push(call_instruction);
 
         // Return the output operands and the instructions.
+        (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
+    }
+
+    fn visit_dynamic_call(&mut self, input: &DynamicCallExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let caller_program = self.program_id.expect("Dynamic calls only appear within programs.").name.name;
+
+        // Look up the interface and function prototype from the symbol table.
+        let interface_location = Location::new(caller_program, vec![input.interface.name]);
+        let interface = self
+            .state
+            .symbol_table
+            .lookup_interface(caller_program, &interface_location)
+            .expect("Type checking guarantees interfaces exist")
+            .clone();
+
+        let (_, func_proto) = interface
+            .functions
+            .iter()
+            .find(|(name, _)| *name == input.function.name)
+            .expect("Type checking guarantees function exists in interface");
+        let func_proto = func_proto.clone();
+
+        let mut instructions = vec![];
+
+        // Codegen the target expression → PROG operand (a field value in a register).
+        let (target_expr, target_instructions) = self.visit_expression(&input.target);
+        instructions.extend(target_instructions);
+        let prog = target_expr.expect("Target must produce a value.");
+
+        // NET operand: hardcoded to 'aleo'.
+        let net = AleoExpr::RawName("'aleo'".to_string());
+
+        // FUN operand: the function name as an identifier literal.
+        let fun = AleoExpr::RawName(format!("'{}'", input.function.name));
+
+        // Codegen arguments.
+        let arguments: Vec<AleoExpr> = input
+            .arguments
+            .iter()
+            .filter_map(|argument| {
+                let (argument, argument_instructions) = self.visit_expression(argument);
+                instructions.extend(argument_instructions);
+                argument
+            })
+            .collect();
+
+        // Determine input types from the function prototype.
+        // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
+        let input_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
+            .input
+            .iter()
+            .map(|inp| {
+                let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
+                self.visit_type_with_visibility(&inp.type_, viz)
+            })
+            .collect();
+
+        // Allocate output registers.
+        let mut destinations = Vec::new();
+        match func_proto.output_type.clone() {
+            t if t.is_empty() => {}
+            Type::Tuple(tuple) => match tuple.length() {
+                0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
+                len => {
+                    for _ in 0..len {
+                        destinations.push(self.next_register());
+                    }
+                }
+            },
+            _ => {
+                destinations.push(self.next_register());
+            }
+        }
+
+        // Determine output types from the function prototype.
+        // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
+            .output
+            .iter()
+            .map(|out| {
+                let viz = AleoVisibility::maybe_from(out.mode).or(Some(AleoVisibility::Private));
+                self.visit_type_with_visibility(&out.type_, viz)
+            })
+            .collect();
+
+        // Emit CallDynamic instruction.
+        instructions.push(AleoStmt::CallDynamic(
+            prog,
+            net,
+            fun,
+            arguments,
+            input_types,
+            destinations.clone(),
+            output_types,
+        ));
+
         (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
     }
 

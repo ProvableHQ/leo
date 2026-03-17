@@ -991,6 +991,68 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
     }
 
+    fn visit_dynamic_call(&mut self, input: &DynamicCallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        let current_program = self.scope_state.program_name.unwrap();
+
+        // Look up the interface in the symbol table.
+        let interface_location = Location::new(current_program, vec![input.interface.name]);
+        let Some(interface) = self.state.symbol_table.lookup_interface(current_program, &interface_location) else {
+            self.emit_err(TypeCheckerError::unknown_sym("interface", input.interface, input.interface.span));
+            return Type::Err;
+        };
+        let interface = interface.clone();
+
+        // Find the function prototype in the interface.
+        let Some((_, func_proto)) = interface.functions.iter().find(|(name, _)| *name == input.function.name) else {
+            self.emit_err(TypeCheckerError::unknown_sym(
+                "function",
+                format!("{}::{}", input.interface, input.function),
+                input.function.span,
+            ));
+            return Type::Err;
+        };
+        let func_proto = func_proto.clone();
+
+        // Dynamic calls are only allowed from transitions.
+        match self.scope_state.variant.unwrap() {
+            Variant::Finalize => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", input.span));
+            }
+            Variant::FinalFn => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", input.span));
+            }
+            Variant::Fn => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", input.span));
+            }
+            Variant::EntryPoint => {}
+        }
+
+        if self.async_block_id.is_some() {
+            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", input.span));
+        }
+
+        // Check target type: must be field.
+        // TODO: support identifier values
+        self.visit_expression(&input.target, &Some(Type::Field));
+
+        // Check argument count.
+        if func_proto.input.len() != input.arguments.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                func_proto.input.len(),
+                input.arguments.len(),
+                input.span(),
+            ));
+        }
+
+        // Check argument types.
+        for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
+            self.visit_expression(argument, &Some(expected_input.type_().clone()));
+        }
+
+        // Return the function prototype's output type.
+        self.assert_and_return_type(func_proto.output_type.clone(), expected, input.span())
+    }
+
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         let current_program = self.scope_state.program_name.unwrap();
         let callee_location = input.function.expect_global_location();
