@@ -86,13 +86,28 @@ impl MonomorphizationVisitor<'_> {
             const_arguments.iter().format(", ")
         )));
 
+        let original_loc = path.expect_global_location();
+
+        // Library composites are inlined into the consuming program. The monomorphized version must
+        // live under the consuming program so that:
+        //   1. The output-collection filter (`loc.program == self.program`) picks it up and puts it
+        //      in the consuming program's `ProgramScope`.
+        //   2. After the symbol-table rebuild, TypeChecking finds the definition under the consuming
+        //      program.
+        // For program-local composites the storage location is unchanged.
+        let storage_loc = if original_loc.program != self.program {
+            Location::new(self.program, new_composite_path.expect_global_location().path.clone())
+        } else {
+            new_composite_path.expect_global_location().clone()
+        };
+
         // Check if the new composite name is not already present in `reconstructed_composites`. This ensures that we do not
         // add a duplicate definition for the same composite.
-        if self.reconstructed_composites.get(new_composite_path.expect_global_location()).is_none() {
+        if self.reconstructed_composites.get(&storage_loc).is_none() {
             // Look up the already reconstructed composite by name.
             let composite = self
                 .reconstructed_composites
-                .get(path.expect_global_location())
+                .get(original_loc)
                 .expect("Composite should already be reconstructed (post-order traversal).");
 
             // Build mapping from const parameters to const argument values.
@@ -128,12 +143,15 @@ impl MonomorphizationVisitor<'_> {
             composite.id = self.state.node_builder.next_id();
 
             // Keep track of the new composite in case other composites need it.
-            self.reconstructed_composites.insert(new_composite_path.expect_global_location().clone(), composite);
+            self.reconstructed_composites.insert(storage_loc.clone(), composite);
 
             // Now keep track of the composite we just monomorphized
-            self.monomorphized_composites.insert(path.expect_global_location().clone());
+            self.monomorphized_composites.insert(original_loc.clone());
         }
 
-        new_composite_path
+        // Return a path pointing to the storage location. For library composites this means the
+        // program field is remapped to the consuming program, so all downstream passes (TypeChecking,
+        // codegen) find the struct in the consuming program's scope.
+        new_composite_path.to_global(storage_loc)
     }
 }

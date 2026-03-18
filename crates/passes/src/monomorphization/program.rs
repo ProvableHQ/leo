@@ -15,10 +15,51 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{AstReconstructor, Location, Module, Program, ProgramReconstructor, ProgramScope, Statement, Variant};
+use leo_ast::{
+    AstReconstructor,
+    Library,
+    Location,
+    Module,
+    Program,
+    ProgramReconstructor,
+    ProgramScope,
+    Statement,
+    Stub,
+    Variant,
+};
 use leo_span::sym;
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        // Collect the (re-)constructed versions of library composites that were processed
+        // during reconstruct_program_scope. We filter by the library's program name so that
+        // only composites belonging to this library are included.
+        //
+        // This ensures the library stub is updated with correct field types after monomorphization
+        // (e.g., `Bar.f` pointing to the consuming program's monomorphized `Foo::[42u32]`).
+        Library {
+            name: input.name,
+            structs: self
+                .reconstructed_composites
+                .iter()
+                .filter_map(|(loc, c)| {
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
+                        .map(|(last, _)| (*last, c.clone()))
+                })
+                .collect(),
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+        }
+    }
+
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the current program name from the input.
         self.program = input.program_id.as_symbol();
@@ -32,14 +73,23 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             if let Some(composite) = self.composite_map.swap_remove(loc) {
                 // Perform monomorphization or other reconstruction logic.
                 let reconstructed_composite = self.reconstruct_composite(composite);
-                // Store the reconstructed composite for inclusion in the output scope.
-                self.reconstructed_composites
-                    .insert(Location::new(self.program, loc.path.clone()), reconstructed_composite);
+                // Store the reconstructed composite under its original location.
+                // For library composites loc.program != self.program; preserving the library
+                // program name here is what allows monomorphize_composite to find them later.
+                // Both the program-scope and module output-collection loops filter by
+                // `loc.program == self.program`, so library entries stay invisible to the output.
+                self.reconstructed_composites.insert(loc.clone(), reconstructed_composite);
             }
         }
 
-        // If there are some composites left in `composite_map`, that means these are dead composites since they do not show up
-        // in `composite_graph`. Therefore, they won't be reconstructed, implying a change in the reconstructed program.
+        // Remove library composites from composite_map before checking for dead composites.
+        // Library composites not in composite_order were pruned as unused by TypeChecking's
+        // retain_nodes - they should not cause `changed = true` (that would prevent convergence).
+        self.composite_map.retain(|loc, _| loc.program == self.program);
+
+        // If there are some local composites left in `composite_map`, that means these are dead
+        // composites since they do not show up in `composite_graph`. Therefore, they won't be
+        // reconstructed, implying a change in the reconstructed program.
         if !self.composite_map.is_empty() {
             self.changed = true;
         }
@@ -64,16 +114,15 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map
                     .get(location)
                     .map(|f| {
-                        matches!(
-                            f.variant,
-                             Variant::EntryPoint
-                        ) | (f.variant == Variant::Fn && f.const_parameters.is_empty())
+                        matches!(f.variant, Variant::EntryPoint)
+                            | (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)
             })
             .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
             .into_iter()
-            .filter(|location| location.program == self.program).collect::<Vec<_>>();
+            .filter(|location| location.program == self.program)
+            .collect::<Vec<_>>();
 
         for function_name in &order {
             // Reconstruct functions in post-order.
@@ -157,8 +206,6 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
-        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
-
         // Set up for the next program.
         // This is likely to change when we support cross-program monomorphization.
         self.composite_map.clear();
@@ -205,15 +252,36 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 self.composite_map.insert(Location::new(self.program, full_name), f);
             });
 
-        // Reconstruct prrogram scopes first then reconstruct the modules after `self.reconstructed_composites`
-        // and `self.reconstructed_functions` have been populated.
+        // Add library composites to composite_map under their library location. This allows them
+        // to be processed in the composite_order loop (reconstruct_program_scope), where their
+        // field types get updated (e.g., generic fields like `f: Foo::[42]` become concrete).
+        // After processing, reconstruct_library collects them from reconstructed_composites.
+        //
+        // Unused library composites (not in composite_order) are silently removed in
+        // reconstruct_program_scope without triggering `changed = true`.
+        input.stubs.iter().for_each(|(_, stub)| {
+            if let Stub::FromLibrary { library, .. } = stub {
+                library.structs.iter().for_each(|(name, c)| {
+                    self.composite_map.insert(Location::new(library.name, vec![*name]), c.clone());
+                });
+            }
+        });
+
+        // Process program_scopes BEFORE stubs so that reconstructed_composites is populated
+        // (with processed library and local composites) before reconstruct_stub →
+        // reconstruct_library tries to collect from it.
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
+
+        // Reconstruct stubs after program_scopes. reconstruct_library will read from
+        // reconstructed_composites which is now fully populated.
+        let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
+
+        // Reconstruct modules after `self.reconstructed_composites` and `self.reconstructed_functions`
+        // have been populated.
         Program {
             stubs,
-            program_scopes: input
-                .program_scopes
-                .into_iter()
-                .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
-                .collect(),
+            program_scopes,
             modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
             ..input
         }
@@ -221,7 +289,9 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
         // Here we're reconstructing composites and functions from `reconstructed_functions` and
-        // `reconstructed_composites` based on their paths and whether they match the module path
+        // `reconstructed_composites` based on their paths and whether they match the module path.
+        // Use `input.program_name` rather than `self.program` since `self.program` may have been
+        // updated by a nested reconstruct_program call (e.g., for a Stub::FromLeo dependency).
         Module {
             composites: self
                 .reconstructed_composites
@@ -229,7 +299,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 .filter_map(|(loc, c)| {
                     loc.path
                         .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == self.program)
+                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
                         .map(|(last, _)| (*last, c.clone()))
                 })
                 .collect(),
@@ -240,7 +310,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 .filter_map(|(loc, f)| {
                     loc.path
                         .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == self.program)
+                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
                         .map(|(last, _)| (*last, f.clone()))
                 })
                 .collect(),

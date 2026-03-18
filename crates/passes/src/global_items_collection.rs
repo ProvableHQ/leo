@@ -205,6 +205,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_library(&mut self, input: &Library) {
         self.program_name = input.name;
 
+        input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
     }
 

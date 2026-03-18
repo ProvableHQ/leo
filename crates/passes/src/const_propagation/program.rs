@@ -84,6 +84,14 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_library(&mut self, mut input: Library) -> Library {
         self.program = input.name;
 
+        // Skip generic structs (those with const parameters): their types cannot be fully
+        // evaluated until they are monomorphized into the consuming program's scope.
+        input.structs = input
+            .structs
+            .into_iter()
+            .map(|(i, s)| if s.const_parameters.is_empty() { (i, self.reconstruct_composite(s)) } else { (i, s) })
+            .collect();
+
         for (_sym, c) in input.consts.iter_mut() {
             let Statement::Const(declaration) = self.reconstruct_const(std::mem::take(c)).0 else {
                 panic!("`reconstruct_const` always returns `Statement::Const`");

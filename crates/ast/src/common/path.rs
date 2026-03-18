@@ -294,15 +294,12 @@ impl Path {
 
 impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Determine the effective program symbol
-        let program: Option<Symbol> = self
-            .user_program
-            .as_ref()
-            .map(|id| id.as_symbol()) // Convert Identifier -> Symbol
-            .or_else(|| self.try_global_location().map(|global| global.program));
-
-        // Program prefix
-        if let Some(program) = program {
+        // Only print a program prefix when the user explicitly wrote one (e.g. `credits.aleo/Foo`).
+        // Non-library external programs always have `user_program = Some(...)` because the user
+        // must have written `prog.aleo/item` explicitly. Library references have `user_program =
+        // None` and the library name already appears as the first qualifier segment, so no `/`
+        // prefix is needed for them.
+        if let Some(program) = self.user_program.as_ref().map(|id| id.as_symbol()) {
             write!(f, "{}/", program)?;
         }
 

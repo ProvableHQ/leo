@@ -34,7 +34,6 @@ use leo_ast::{
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
-use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 impl<'a> CodeGeneratingVisitor<'a> {
@@ -67,14 +66,30 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     .lookup_struct(this_program, loc)
                     .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
             } else {
-                None
+                // Library composites are inlined into the consuming program.
+                // Libraries cannot contain records, so only look up structs.
+                self.state.symbol_table.lookup_struct(loc.program, loc)
             }
         };
 
         // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
+        // Library structs are inlined: their definitions are emitted into the consuming program,
+        // keyed in composite_mapping under the original library location so that expression
+        // and type-reference sites (which use the original location) resolve correctly.
         let data_types = order
             .into_iter()
-            .filter_map(|loc| lookup(&loc).map(|composite| self.visit_struct_or_record(composite, &loc)))
+            .filter_map(|loc| {
+                lookup(&loc).and_then(|composite| {
+                    // Skip generic (un-monomorphized) composites — they are template definitions
+                    // that still carry const_parameters. Only their concrete monomorphized
+                    // instances (which have no const_parameters) should be emitted.
+                    if composite.const_parameters.is_empty() {
+                        Some(self.visit_struct_or_record(composite, &loc))
+                    } else {
+                        None
+                    }
+                })
+            })
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
@@ -144,12 +159,14 @@ impl<'a> CodeGeneratingVisitor<'a> {
     }
 
     fn visit_struct(&mut self, struct_: &'a Composite, loc: &Location) -> AleoStruct {
-        // Add private symbol to composite types.
-        self.composite_mapping.insert(loc.clone(), false); // todo: private by default here.
+        // Register this struct in composite_mapping under its location.
+        // Library structs are stored under their original (library) location so that
+        // expression and type-reference sites, which use the original location, resolve correctly.
+        self.composite_mapping.insert(loc.clone(), false);
 
-        // todo: check if this is safe from name conflicts.
-        let name = Self::legalize_path(&loc.path)
-            .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc.path.iter().join("::")));
+        // Emit the struct name: for library structs, prefix with the library name so the
+        // generated identifier is unique and cannot collide with a local struct of the same base name.
+        let name = self.legalize_composite_name(loc);
 
         // Construct and append the record variables.
         let fields = struct_

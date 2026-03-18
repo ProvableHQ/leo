@@ -357,6 +357,7 @@ impl Compiler {
         self.add_import_stubs()?;
         // Run the intermediate compiler stages, which also generates ABIs.
         let (primary_abi, import_abis) = self.intermediate_passes()?;
+        println!("before codegen: {}", self.state.ast);
         // Run code generation.
         let bytecodes = CodeGenerating::do_pass((), &mut self.state)?;
 

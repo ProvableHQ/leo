@@ -1731,15 +1731,23 @@ impl<'a> ConversionContext<'a> {
         &self,
         item: &SyntaxNode,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
+        structs: &mut Vec<(Symbol, leo_ast::Composite)>,
     ) -> Result<()> {
         if item.kind() == GLOBAL_CONST {
             let global_const = self.to_global_const(item)?;
             consts.push((global_const.place.name, global_const));
+        } else if item.kind() == STRUCT_DEF {
+            let composite = self.to_composite(item)?;
+            if composite.is_record {
+                let span = self.to_span(item);
+                self.handler.emit_err(ParserError::custom("Records are not allowed in a library.", span));
+            } else {
+                structs.push((composite.identifier.name, composite));
+            }
         } else if matches!(
             item.kind(),
             FUNCTION_DEF
                 | FINAL_FN_DEF
-                | STRUCT_DEF
                 | RECORD_DEF
                 | INTERFACE_DEF
                 | MAPPING_DEF
@@ -1749,7 +1757,10 @@ impl<'a> ConversionContext<'a> {
                 | IMPORT
         ) {
             let span = self.to_span(item);
-            self.handler.emit_err(ParserError::custom("Only `const` declarations are allowed in a library.", span));
+            self.handler.emit_err(ParserError::custom(
+                "Only `const` declarations and `struct` definitions are allowed in a library.",
+                span,
+            ));
         } else {
             // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
             // already reported by the rowan parser; nothing to do here.
@@ -1904,14 +1915,14 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a syntax node to a library (`lib.leo` file).
     fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
-        // A library file contains only top-level `const` declarations.
         let mut consts = Vec::new();
+        let mut structs = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts)?;
+            self.collect_library_item(&child, &mut consts, &mut structs)?;
         }
 
-        Ok(leo_ast::Library { name, consts })
+        Ok(leo_ast::Library { name, consts, structs })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.

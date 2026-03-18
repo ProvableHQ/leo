@@ -45,12 +45,15 @@ impl CodeGeneratingVisitor<'_> {
                 let composite_location = composite.path.expect_global_location();
                 let this_program_name = self.program_id.unwrap().as_symbol();
                 let program_name = composite_location.program;
-                let composite_name = Self::legalize_path(&composite_location.path)
-                    .expect("path format cannot be legalized at this point");
-                if program_name == this_program_name {
-                    AleoType::Ident { name: composite_name.to_string() }
+                // Use legalize_composite_name so library types get a unique, collision-free name
+                // (prefixed with the library name), while local types use the path directly.
+                let composite_name = self.legalize_composite_name(composite_location);
+                if program_name == this_program_name || self.state.symbol_table.is_library(program_name) {
+                    // Library composites are inlined into the consuming program, so they
+                    // are emitted without a program qualifier, just like local types.
+                    AleoType::Ident { name: composite_name }
                 } else {
-                    AleoType::Location { program: program_name.to_string(), name: composite_name.to_string() }
+                    AleoType::Location { program: program_name.to_string(), name: composite_name }
                 }
             }
             Type::Boolean => AleoType::Boolean,
