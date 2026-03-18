@@ -135,6 +135,23 @@ impl CodeGeneratingVisitor<'_> {
         AleoReg::R(self.next_register - 1)
     }
 
+    /// Returns the legalized Aleo name for a composite at the given location.
+    ///
+    /// For local composites the path alone is used (e.g. `[Foo]` → `"Foo"`).
+    /// For library composites the library name is prepended so that the resulting
+    /// identifier is unique and cannot collide with a local type of the same base
+    /// name (e.g. `[math_lib, Foo]` → `"Foo__<hash>"`).
+    pub(crate) fn legalize_composite_name(&self, loc: &Location) -> String {
+        if self.state.symbol_table.is_library(loc.program) {
+            let full_path: Vec<Symbol> = std::iter::once(loc.program).chain(loc.path.iter().copied()).collect();
+            Self::legalize_path(&full_path)
+                .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc))
+        } else {
+            Self::legalize_path(&loc.path)
+                .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc))
+        }
+    }
+
     /// Converts a path into a legal Aleo identifier, if possible.
     ///
     /// # Behavior

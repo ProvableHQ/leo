@@ -1,0 +1,81 @@
+program helper.aleo;
+
+struct Foo__23hLlpkr7IV:
+    x as [u32; 43u32];
+
+struct Bar__8bgR37XBVQ5:
+    f as Foo__23hLlpkr7IV;
+
+struct Foo__DW5CFNFqCBH:
+    x as [u32; 100u32];
+
+struct Foo__KZDH7kc0tn0:
+    x as [u32; 44u32];
+
+function add_offset:
+    input r0 as u32.private;
+    cast 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 12u32 into r1 as [u32; 100u32];
+    cast r1 into r2 as Foo__DW5CFNFqCBH;
+    cast 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 4u32 into r3 as [u32; 43u32];
+    cast r3 into r4 as Foo__23hLlpkr7IV;
+    cast r4 into r5 as Bar__8bgR37XBVQ5;
+    add r0 15u32 into r6;
+    add r6 10u32 into r7;
+    add r7 r2.x[42u32] into r8;
+    add r8 r5.f.x[3u32] into r9;
+    output r9 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import helper.aleo;
+program main.aleo;
+
+struct Foo:
+    y as u32;
+
+struct Foo__23hLlpkr7IV:
+    x as [u32; 43u32];
+
+struct Bar__8bgR37XBVQ5:
+    f as Foo__23hLlpkr7IV;
+
+struct Foo__DW5CFNFqCBH:
+    x as [u32; 100u32];
+
+struct Foo__KZDH7kc0tn0:
+    x as [u32; 44u32];
+
+function compute:
+    input r0 as u32.private;
+    call helper.aleo/add_offset r0 into r1;
+    cast 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 1000u32 into r2 as [u32; 43u32];
+    cast r2 into r3 as Foo__23hLlpkr7IV;
+    cast r3 into r4 as Bar__8bgR37XBVQ5;
+    add r4.f.x[0u32] r1 into r5;
+    add r5 35u32 into r6;
+    add r6 20u32 into r7;
+    cast 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 99u32 into r8 as [u32; 44u32];
+    cast r8 into r9 as Foo__KZDH7kc0tn0;
+    cast 199u32 into r10 as Foo;
+    output r7 as u32.private;
+    output r9 as Foo__KZDH7kc0tn0.private;
+    output r10 as Foo.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown variable `math_lib::OFFSET`
+    --> compiler-test:1:19
+     |
+   1 | const BASE: u32 = math_lib::OFFSET + 5u32;
+     |                   ^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown variable `math_lib::SCALE`
+    --> compiler-test:2:21
+     |
+   2 | const FACTOR: u32 = math_lib::SCALE + BASE;
+     |                     ^^^^^^^^^^^^^^^

@@ -1731,21 +1731,28 @@ impl<'a> ConversionContext<'a> {
         &self,
         item: &SyntaxNode,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
+        structs: &mut Vec<(Symbol, leo_ast::Composite)>,
     ) -> Result<()> {
         if is_library_item(item.kind()) {
-            #[allow(clippy::single_match)]
             match item.kind() {
                 GLOBAL_CONST => {
                     let global_const = self.to_global_const(item)?;
                     consts.push((global_const.place.name, global_const));
                 }
-                // Future library items (structs, functions, etc.) will be handled here.
+                STRUCT_DEF => {
+                    let composite = self.to_composite(item)?;
+                    structs.push((composite.identifier.name, composite));
+                }
+                // Future library items (functions, etc.) will be handled here.
                 _ => {}
             }
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
-            self.handler.emit_err(ParserError::custom("Only `const` declarations are allowed in a library.", span));
+            self.handler.emit_err(ParserError::custom(
+                "Only `const` declarations and `struct` definitions are allowed in a library.",
+                span,
+            ));
         }
         // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
         // already reported by the rowan parser; nothing to do here.
@@ -1899,14 +1906,14 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a syntax node to a library (`lib.leo` file).
     fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
-        // A library file contains only top-level `const` declarations.
         let mut consts = Vec::new();
+        let mut structs = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts)?;
+            self.collect_library_item(&child, &mut consts, &mut structs)?;
         }
 
-        Ok(leo_ast::Library { name, consts })
+        Ok(leo_ast::Library { name, consts, structs })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -2974,10 +2981,10 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
 
 /// Returns `true` for syntax node kinds that are valid inside a library (`lib.leo`).
 ///
-/// Currently only `const` declarations are allowed; this list will grow as library support
-/// expands to include structs and functions.
+/// Currently `const` declarations and `struct` definitions are allowed; this list will grow
+/// as library support expands to include functions and other items.
 fn is_library_item(kind: SyntaxKind) -> bool {
-    matches!(kind, GLOBAL_CONST)
+    matches!(kind, GLOBAL_CONST | STRUCT_DEF)
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).

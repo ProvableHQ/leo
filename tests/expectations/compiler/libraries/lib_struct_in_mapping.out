@@ -1,0 +1,15 @@
+program store.aleo;
+
+struct Entry__7dD9zrVBcrI:
+    size as u32;
+
+mapping store:
+    key as address.public;
+    value as Entry__7dD9zrVBcrI.public;
+
+function get_size:
+    input r0 as Entry__7dD9zrVBcrI.private;
+    output r0.size as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

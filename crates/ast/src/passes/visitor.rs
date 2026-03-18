@@ -325,6 +325,7 @@ pub trait ProgramVisitor: AstVisitor {
 
     fn visit_library(&mut self, input: &Library) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
     }
 
     fn visit_stub(&mut self, input: &Stub) {

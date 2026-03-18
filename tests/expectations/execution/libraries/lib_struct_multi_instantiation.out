@@ -1,0 +1,18 @@
+program main.aleo;
+
+struct Tag__EC5wxurBkvd:
+    id as u32;
+
+struct Tag__4mJSZ48wg4H:
+    id as u32;
+
+function sum_tags:
+    cast 10u32 into r0 as Tag__EC5wxurBkvd;
+    cast 20u32 into r1 as Tag__4mJSZ48wg4H;
+    add r0.id r1.id into r2;
+    output r2 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 30u32

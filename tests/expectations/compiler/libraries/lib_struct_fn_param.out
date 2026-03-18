@@ -1,0 +1,31 @@
+program main.aleo;
+
+struct Vec2__EfrQi4S1ZpD:
+    x as u32;
+    y as u32;
+
+struct VecN__BSuA4MDO6tz:
+    len as u32;
+
+struct VecN__5bpuWKU620J:
+    len as u32;
+
+function scale:
+    input r0 as Vec2__EfrQi4S1ZpD.private;
+    input r1 as u32.private;
+    mul r0.x r1 into r2;
+    mul r0.y r1 into r3;
+    cast r2 r3 into r4 as Vec2__EfrQi4S1ZpD;
+    output r4 as Vec2__EfrQi4S1ZpD.private;
+
+function make_vec3:
+    input r0 as Vec2__EfrQi4S1ZpD.private;
+    cast 3u32 into r1 as VecN__BSuA4MDO6tz;
+    output r1 as VecN__BSuA4MDO6tz.private;
+
+function get_len:
+    input r0 as VecN__5bpuWKU620J.private;
+    output r0.len as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -3,8 +3,6 @@ fn foo() {}
 
 final fn bar() {}
 
-struct Foo { x: u32 }
-
 record Bar { owner: address }
 
 mapping my_map: u32 => u32;

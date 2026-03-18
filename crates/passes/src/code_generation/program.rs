@@ -34,7 +34,6 @@ use leo_ast::{
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
-use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 impl<'a> CodeGeneratingVisitor<'a> {
@@ -66,7 +65,12 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     .symbol_table
                     .lookup_struct(this_program, loc)
                     .or_else(|| self.state.symbol_table.lookup_record(this_program, loc))
+            } else if self.state.symbol_table.is_library(loc.program) {
+                // Library composites are inlined into the consuming program.
+                // Libraries cannot contain records, so only look up structs.
+                self.state.symbol_table.lookup_struct(loc.program, loc)
             } else {
+                // Regular program dependencies own their composites; don't emit them here.
                 None
             }
         };
@@ -144,12 +148,14 @@ impl<'a> CodeGeneratingVisitor<'a> {
     }
 
     fn visit_struct(&mut self, struct_: &'a Composite, loc: &Location) -> AleoStruct {
-        // Add private symbol to composite types.
-        self.composite_mapping.insert(loc.clone(), false); // todo: private by default here.
+        // Register this struct in composite_mapping under its location.
+        // Library structs are stored under their original (library) location so that
+        // expression and type-reference sites, which use the original location, resolve correctly.
+        self.composite_mapping.insert(loc.clone(), false);
 
-        // todo: check if this is safe from name conflicts.
-        let name = Self::legalize_path(&loc.path)
-            .unwrap_or_else(|| panic!("path format cannot be legalized at this point: {}", loc.path.iter().join("::")));
+        // Emit the struct name: for library structs, prefix with the library name so the
+        // generated identifier is unique and cannot collide with a local struct of the same base name.
+        let name = self.legalize_composite_name(loc);
 
         // Construct and append the record variables.
         let fields = struct_
@@ -396,7 +402,11 @@ impl<'a> CodeGeneratingVisitor<'a> {
                 Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
                 Type::Identifier(identifier) => {
                     // Lookup the type in the composite mapping.
-                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+                    // Invariant: `Type::Identifier` in a mapping position refers to a locally-defined
+                    // composite (struct or record). Library composites arrive as `Type::Composite` with
+                    // a qualified locator and are handled by the `type_` arm below; they never reach
+                    // here as `Type::Identifier`. The unwrap is therefore safe because all local
+                    // composites are registered in `composite_mapping` during codegen setup.
                     let is_record = self.composite_mapping.get(&Location::new(program, vec![identifier.name])).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))

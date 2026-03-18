@@ -339,12 +339,12 @@ impl CodeGeneratingVisitor<'_> {
                 AleoType::Record { name: record_name.to_string(), program: None }
             } else {
                 // foo; // no visibility for structs
-                let struct_name = Self::legalize_path(&composite_location.path)
-                    .expect("path format cannot be legalized at this point");
-                if program == this_program_name {
-                    AleoType::Ident { name: struct_name.to_string() }
+                let struct_name = self.legalize_composite_name(composite_location);
+                if program == this_program_name || self.state.symbol_table.is_library(program) {
+                    // Library composites are inlined, so emit without program qualifier.
+                    AleoType::Ident { name: struct_name }
                 } else {
-                    AleoType::Location { program: program.to_string(), name: struct_name.to_string() }
+                    AleoType::Location { program: program.to_string(), name: struct_name }
                 }
             }
         } else {

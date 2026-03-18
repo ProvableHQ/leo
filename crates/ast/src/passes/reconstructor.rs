@@ -581,6 +581,7 @@ pub trait ProgramReconstructor: AstReconstructor {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
         }
     }
 

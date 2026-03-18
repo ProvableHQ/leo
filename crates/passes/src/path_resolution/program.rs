@@ -53,6 +53,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
 
         Library {
             name: input.name,
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
             consts: input
                 .consts
                 .into_iter()

@@ -16,7 +16,7 @@
 
 use crate::{Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
 
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, with_session_globals};
 
 use indexmap::IndexSet;
 use itertools::Itertools;
@@ -294,19 +294,28 @@ impl Path {
 
 impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Determine the effective program symbol
-        let program: Option<Symbol> = self
-            .user_program
-            .as_ref()
-            .map(|id| id.as_symbol()) // Convert Identifier -> Symbol
-            .or_else(|| self.try_global_location().map(|global| global.program));
-
-        // Program prefix
-        if let Some(program) = program {
-            write!(f, "{}/", program)?;
+        // Determine the program prefix and separator:
+        //
+        // 1. If the user explicitly wrote a program (e.g. `credits.aleo/Foo`), always use it
+        //    with a `/` separator.
+        //
+        // 2. Otherwise fall back to the resolved global location's program, but only when it is
+        //    an `.aleo` program.  `.aleo` programs never appear in the qualifier, so we must
+        //    reconstruct the prefix here to produce readable error messages like
+        //    `parent.aleo/Foo` vs `child.aleo/Foo`.
+        //
+        // 3. Library programs (no `.aleo` suffix) already have their name as the first qualifier
+        //    segment (e.g. `math_lib::Foo`), so adding a prefix here would double-print it.
+        if let Some(pid) = &self.user_program {
+            write!(f, "{}/", pid.as_symbol())?;
+        } else if let Some(loc) = self.try_global_location() {
+            // Use the global program as prefix only for .aleo programs.
+            if with_session_globals(|sg| loc.program.as_str(sg, |s| s.ends_with(".aleo"))) {
+                write!(f, "{}/", loc.program)?;
+            }
         }
 
-        // Qualifiers
+        // Qualifiers (always `::` separator, covers library names like `math_lib::Foo`).
         if !self.qualifier.is_empty() {
             write!(f, "{}::", self.qualifier.iter().map(|id| &id.name).format("::"))?;
         }
