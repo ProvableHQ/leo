@@ -53,7 +53,7 @@
 //! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
 //! ```
 //! This will read the manifest and keep their data in `package.manifest`.
-//! It will also process dependencies and store them in topological order in `package.programs`. This processing
+//! It will also process dependencies and store them in topological order in `package.compilation_units`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
 //! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
 //! The endpoint and network are optional and are only needed if the package has network dependencies.
@@ -61,9 +61,9 @@
 //! If you want to simply read the manifest file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
 //!
-//! `Program` generally doesn't need to be created directly, as `Package` will create `Program`s
+//! `CompilationUnit` generally doesn't need to be created directly, as `Package` will create `CompilationUnit`s
 //! for the main program and all dependencies. However, if you'd like to fetch bytecode for
-//! a program, you can use `Program::fetch`.
+//! a program, you can use `CompilationUnit::fetch`.
 
 #![forbid(unsafe_code)]
 
@@ -85,8 +85,8 @@ pub use manifest::*;
 mod package;
 pub use package::*;
 
-mod program;
-pub use program::*;
+mod compilation_unit;
+pub use compilation_unit::*;
 
 pub const SOURCE_DIRECTORY: &str = "src";
 
@@ -233,7 +233,7 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
-// TODO (@d0cd) Unify with `leo_package::Program::fetch`.
+// TODO (@d0cd) Unify with `leo_package::CompilationUnit::fetch`.
 pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;

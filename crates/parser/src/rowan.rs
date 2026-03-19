@@ -1726,34 +1726,29 @@ impl<'a> ConversionContext<'a> {
         Ok(())
     }
 
-    /// Collect a single library item (just a const for now) into the given vectors.
+    /// Collect a single library item into the given vectors.
     fn collect_library_item(
         &self,
         item: &SyntaxNode,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
     ) -> Result<()> {
-        if item.kind() == GLOBAL_CONST {
-            let global_const = self.to_global_const(item)?;
-            consts.push((global_const.place.name, global_const));
-        } else if matches!(
-            item.kind(),
-            FUNCTION_DEF
-                | FINAL_FN_DEF
-                | STRUCT_DEF
-                | RECORD_DEF
-                | INTERFACE_DEF
-                | MAPPING_DEF
-                | STORAGE_DEF
-                | CONSTRUCTOR_DEF
-                | PROGRAM_DECL
-                | IMPORT
-        ) {
+        if is_library_item(item.kind()) {
+            #[allow(clippy::single_match)]
+            match item.kind() {
+                GLOBAL_CONST => {
+                    let global_const = self.to_global_const(item)?;
+                    consts.push((global_const.place.name, global_const));
+                }
+                // Future library items (structs, functions, etc.) will be handled here.
+                _ => {}
+            }
+        } else if is_program_item(item.kind()) {
+            // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
             self.handler.emit_err(ParserError::custom("Only `const` declarations are allowed in a library.", span));
-        } else {
-            // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
-            // already reported by the rowan parser; nothing to do here.
         }
+        // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
+        // already reported by the rowan parser; nothing to do here.
         Ok(())
     }
 
@@ -2975,4 +2970,30 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
     }
 
     Some(key)
+}
+
+/// Returns `true` for syntax node kinds that are valid inside a library (`lib.leo`).
+///
+/// Currently only `const` declarations are allowed; this list will grow as library support
+/// expands to include structs and functions.
+fn is_library_item(kind: SyntaxKind) -> bool {
+    matches!(kind, GLOBAL_CONST)
+}
+
+/// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).
+fn is_program_item(kind: SyntaxKind) -> bool {
+    matches!(
+        kind,
+        GLOBAL_CONST
+            | FUNCTION_DEF
+            | FINAL_FN_DEF
+            | STRUCT_DEF
+            | RECORD_DEF
+            | INTERFACE_DEF
+            | MAPPING_DEF
+            | STORAGE_DEF
+            | CONSTRUCTOR_DEF
+            | PROGRAM_DECL
+            | IMPORT
+    )
 }

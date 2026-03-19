@@ -681,7 +681,51 @@ mod tests {
     use indexmap::IndexMap;
 
     #[test]
-    fn parse_from_directory_in_memory_with_module() {
+    fn parse_library_from_directory_in_memory() {
+        create_session_if_not_set_then(|_| {
+            let mut source = InMemoryFileSource::new();
+            source.set(
+                PathBuf::from("/mylib/src/lib.leo"),
+                concat!("const SCALE: u32 = 10u32;\n", "const OFFSET: u32 = SCALE + 1u32;\n",).into(),
+            );
+
+            let handler = Handler::default();
+            let node_builder = Rc::new(NodeBuilder::default());
+            let mut compiler = Compiler::new(
+                None,
+                false,
+                handler,
+                node_builder,
+                PathBuf::from("/unused"),
+                None,
+                IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+
+            let library = compiler
+                .parse_library_from_directory_with_file_source(
+                    Symbol::intern("mylib"),
+                    "/mylib/src/lib.leo",
+                    "/mylib/src",
+                    &source,
+                )
+                .unwrap_or_else(|err| panic!("parsing library from in-memory file source failed: {err}"));
+
+            assert_eq!(library.name, Symbol::intern("mylib"));
+            assert_eq!(library.consts.len(), 2, "expected 2 consts, got {}", library.consts.len());
+            assert!(
+                library.consts.iter().any(|(name, _)| *name == Symbol::intern("SCALE")),
+                "expected const `SCALE` in library"
+            );
+            assert!(
+                library.consts.iter().any(|(name, _)| *name == Symbol::intern("OFFSET")),
+                "expected const `OFFSET` in library"
+            );
+        });
+    }
+
+    #[test]
+    fn parse_program_from_directory_in_memory_with_module() {
         create_session_if_not_set_then(|_| {
             let mut source = InMemoryFileSource::new();
             source.set(
@@ -700,7 +744,7 @@ mod tests {
             let handler = Handler::default();
             let node_builder = Rc::new(NodeBuilder::default());
             let mut compiler = Compiler::new(
-                Some("test".into()),
+                Some("test.aleo".into()),
                 false,
                 handler,
                 node_builder,
@@ -711,7 +755,7 @@ mod tests {
             );
 
             let ast = compiler
-                .parse_from_directory_with_file_source("/project/src/main.leo", "/project/src", &source)
+                .parse_program_from_directory_with_file_source("/project/src/main.leo", "/project/src", &source)
                 .unwrap_or_else(|err| panic!("parsing from in-memory file source failed: {err}"));
             let utils_key = vec![Symbol::intern("utils")];
 

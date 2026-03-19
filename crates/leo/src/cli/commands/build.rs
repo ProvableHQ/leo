@@ -144,7 +144,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     // Use the flag already computed by Package during dependency resolution rather than
     // re-checking the filesystem. The main program is always last in topological order.
-    let is_library = package.programs.last().map(|p| p.is_library).unwrap_or(false);
+    let is_library = package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false);
     if !is_library {
         for dir in [&outputs_directory, &build_directory, &imports_directory] {
             std::fs::create_dir_all(dir).map_err(|err| {
@@ -163,29 +163,25 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // (imports must be loaded before the programs that depend on them).
     let mut compiled_programs: IndexMap<String, ProgramForValidation> = IndexMap::new();
 
-    for program in &package.programs {
-        match &program.data {
+    for unit in &package.compilation_units {
+        match &unit.data {
             leo_package::ProgramData::Bytecode(bytecode) => {
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
-                let build_path = imports_directory.join(format!("{}", program.name));
+                let build_path = imports_directory.join(format!("{}", unit.name));
 
                 // Write the .aleo file.
                 std::fs::write(&build_path, bytecode).map_err(CliError::failed_to_load_instructions)?;
 
                 // Track the stub.
                 let stub = match network {
-                    NetworkName::MainnetV0 => {
-                        leo_disassembler::disassemble_from_str::<MainnetV0>(program.name, bytecode)
-                    }
-                    NetworkName::TestnetV0 => {
-                        leo_disassembler::disassemble_from_str::<TestnetV0>(program.name, bytecode)
-                    }
-                    NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program.name, bytecode),
+                    NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(unit.name, bytecode),
+                    NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(unit.name, bytecode),
+                    NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(unit.name, bytecode),
                 }?;
 
-                stubs.insert(program.name, stub.into());
+                stubs.insert(unit.name, stub.into());
 
-                compiled_programs.entry(program.name.to_string()).or_insert(ProgramForValidation {
+                compiled_programs.entry(unit.name.to_string()).or_insert(ProgramForValidation {
                     bytecode: bytecode.clone(),
                     path: build_path,
                     is_leo_compiled: false,
@@ -194,7 +190,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
             leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile or parse it.
-                let source_dir = if program.is_test {
+                let source_dir = if unit.kind.is_test() {
                     source
                         .parent()
                         .ok_or_else(|| {
@@ -208,13 +204,13 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     directory.join("src")
                 };
 
-                if source == &main_source_path || program.is_test {
+                if source == &main_source_path || unit.kind.is_test() {
                     // Compile the program (main or test).
                     let compiled = compile_leo_source_directory(
                         source, // entry file
                         &source_dir,
-                        program.name,
-                        program.is_test,
+                        unit.name,
+                        unit.kind.is_test(),
                         &outputs_directory,
                         &handler,
                         &node_builder,
@@ -227,7 +223,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     let primary_path = if source == &main_source_path {
                         build_directory.join("main.aleo")
                     } else {
-                        imports_directory.join(format!("{}", program.name))
+                        imports_directory.join(format!("{}", unit.name))
                     };
 
                     // Write the primary program bytecode.
@@ -253,7 +249,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         });
                     }
                     // Queue the primary program.
-                    compiled_programs.entry(program.name.to_string()).or_insert(ProgramForValidation {
+                    compiled_programs.entry(unit.name.to_string()).or_insert(ProgramForValidation {
                         bytecode: compiled.primary.bytecode.clone(),
                         path: primary_path,
                         is_leo_compiled: true,
@@ -269,12 +265,12 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     }
                 }
 
-                if program.is_library {
+                if unit.kind.is_library() {
                     // Just parse the library for now. TODO: we should run a few frontend passes to validate semantics.
                     let library = parse_leo_source_directory_library(
                         source,
                         &source_dir,
-                        program.name,
+                        unit.name,
                         &handler,
                         &node_builder,
                         command.options.clone(),
@@ -286,24 +282,24 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     // Compute parents from dep_graph
                     let mut library_stub: Stub = library.into();
                     for node in package.dep_graph.nodes() {
-                        if package.dep_graph.neighbors(node).any(|dep| dep == &program.name) {
+                        if package.dep_graph.neighbors(node).any(|dep| dep == &unit.name) {
                             library_stub.add_parent(*node);
                         }
                     }
-                    stubs.insert(program.name, library_stub);
+                    stubs.insert(unit.name, library_stub);
                 } else {
                     // Parse intermediate dependencies only.
                     let leo_program = parse_leo_source_directory(
                         source,
                         &source_dir,
-                        program.name,
+                        unit.name,
                         &handler,
                         &node_builder,
                         command.options.clone(),
                         network,
                     )?;
 
-                    stubs.insert(program.name, leo_program.into());
+                    stubs.insert(unit.name, leo_program.into());
                 }
             }
         }

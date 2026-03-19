@@ -43,13 +43,13 @@ pub struct Package {
     /// The directory on the filesystem where the package is located, canonicalized.
     pub base_directory: PathBuf,
 
-    /// A topologically sorted list of all programs in this package, whether
+    /// A topologically sorted list of all compilation units in this package, whether
     /// dependencies or the main program.
     ///
-    /// Any program's dependent program will appear before it, so that compiling
+    /// Any unit's dependent unit will appear before it, so that compiling
     /// them in order should give access to all stubs necessary to compile each
-    /// program.
-    pub programs: Vec<Program>,
+    /// compilation unit.
+    pub compilation_units: Vec<CompilationUnit>,
 
     /// The manifest file of this package.
     pub manifest: Manifest,
@@ -293,10 +293,10 @@ impl Package {
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
-        let (programs, digraph) = if build_graph {
+        let (compilation_units, digraph) = if build_graph {
             let home_path = home_path.canonicalize().map_err(|err| map_err(home_path, err))?;
 
-            let mut map: IndexMap<Symbol, (Dependency, Program)> = IndexMap::new();
+            let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
@@ -351,7 +351,7 @@ impl Package {
             (Vec::new(), DiGraph::default())
         };
 
-        Ok(Package { base_directory: path, programs, manifest, dep_graph: digraph })
+        Ok(Package { base_directory: path, compilation_units, manifest, dep_graph: digraph })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -361,7 +361,7 @@ impl Package {
         endpoint: Option<&str>,
         main_program: &Dependency,
         new: Dependency,
-        map: &mut IndexMap<Symbol, (Dependency, Program)>,
+        map: &mut IndexMap<Symbol, (Dependency, CompilationUnit)>,
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
         no_local: bool,
@@ -371,7 +371,7 @@ impl Package {
         // Get the existing dependencies.
         let dependencies = map.clone().into_iter().map(|(name, (dep, _))| (name, dep)).collect();
 
-        let program = match map.entry(name_symbol) {
+        let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
                 // We've already visited this dependency. Just make sure it's compatible with
                 // the one we already have.
@@ -386,19 +386,19 @@ impl Package {
                 return Ok(());
             }
             Entry::Vacant(vacant) => {
-                let program = match (new.path.as_ref(), new.location) {
+                let unit = match (new.path.as_ref(), new.location) {
                     (Some(path), Location::Local) if !no_local => {
                         // It's a local dependency.
                         if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
-                            Program::from_aleo_path(name_symbol, path, &dependencies)?
+                            CompilationUnit::from_aleo_path(name_symbol, path, &dependencies)?
                         } else {
-                            Program::from_package_path(name_symbol, path)?
+                            CompilationUnit::from_package_path(name_symbol, path)?
                         }
                     }
                     (Some(path), Location::Test) => {
                         // It's a test dependency - the path points to the source file,
                         // not a package.
-                        Program::from_test_path(path, main_program.clone())?
+                        CompilationUnit::from_test_path(path, main_program.clone())?
                     }
                     (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
@@ -408,20 +408,20 @@ impl Package {
                         let Some(network) = network else {
                             return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
                         };
-                        Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
+                        CompilationUnit::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
 
-                vacant.insert((new, program.clone()));
+                vacant.insert((new, unit.clone()));
 
-                program
+                unit
             }
         };
 
         graph.add_node(name_symbol);
 
-        for dependency in program.dependencies.iter() {
+        for dependency in unit.dependencies.iter() {
             let dependency_symbol = symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
             Self::graph_build(

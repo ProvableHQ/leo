@@ -44,9 +44,34 @@ fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
         .max()
 }
 
-/// Information about an Aleo program.
+/// The kind of a Leo compilation unit: a deployable program, a library, or a test.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PackageKind {
+    /// A deployable program with a `main.leo` entry point.
+    Program,
+    /// A library with a `lib.leo` entry point; not directly deployable.
+    Library,
+    /// A test file; compiled only during `leo test`.
+    Test,
+}
+
+impl PackageKind {
+    pub fn is_program(&self) -> bool {
+        matches!(self, Self::Program)
+    }
+
+    pub fn is_library(&self) -> bool {
+        matches!(self, Self::Library)
+    }
+
+    pub fn is_test(&self) -> bool {
+        matches!(self, Self::Test)
+    }
+}
+
+/// Information about a single Leo compilation unit.
 #[derive(Clone, Debug)]
-pub struct Program {
+pub struct CompilationUnit {
     // The name of the program. For local packages this is the bare name (no ".aleo" suffix,
     // e.g. `my_program` or `my_lib`). For network-fetched programs this includes the ".aleo"
     // suffix (e.g. `credits.aleo`). TODO: unify the invariant so the suffix is always absent.
@@ -55,13 +80,12 @@ pub struct Program {
     pub edition: Option<u16>,
     pub dependencies: IndexSet<Dependency>,
     pub is_local: bool,
-    pub is_test: bool,
-    pub is_library: bool,
+    pub kind: PackageKind,
 }
 
-impl Program {
+impl CompilationUnit {
     /// Given the location `path` of a `.aleo` file, read the filesystem
-    /// to obtain a `Program`.
+    /// to obtain a `CompilationUnit`.
     pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
         Self::from_aleo_path_impl(name, path.as_ref(), map)
     }
@@ -73,19 +97,18 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
 
-        Ok(Program {
+        Ok(CompilationUnit {
             name,
             data: ProgramData::Bytecode(bytecode),
             edition: None,
             dependencies,
             is_local: true,
-            is_test: false,
-            is_library: false,
+            kind: PackageKind::Program,
         })
     }
 
     /// Given the location `path` of a local Leo package, read the filesystem
-    /// to obtain a `Program`.
+    /// to obtain a `CompilationUnit`.
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
         Self::from_package_path_impl(name, path.as_ref())
     }
@@ -106,7 +129,7 @@ impl Program {
         let main_path = source_directory.join(MAIN_FILENAME);
         let lib_path = source_directory.join(LIB_FILENAME);
 
-        let (source_path, is_library) = match (main_path.exists(), lib_path.exists()) {
+        let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
             (true, true) => {
                 return Err(PackageError::ambiguous_entry_file(
                     source_directory.display(),
@@ -115,8 +138,8 @@ impl Program {
                 )
                 .into());
             }
-            (true, false) => (main_path, false),
-            (false, true) => (lib_path, true),
+            (true, false) => (main_path, PackageKind::Program),
+            (false, true) => (lib_path, PackageKind::Library),
             (false, false) => {
                 return Err(
                     PackageError::invalid_entry_file(source_directory.display(), MAIN_FILENAME, LIB_FILENAME).into()
@@ -124,7 +147,7 @@ impl Program {
             }
         };
 
-        Ok(Program {
+        Ok(CompilationUnit {
             name,
             data: ProgramData::SourcePath { directory: path.to_path_buf(), source: source_path },
             edition: None,
@@ -135,14 +158,13 @@ impl Program {
                 .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
-            is_test: false,
-            is_library,
+            kind,
         })
     }
 
-    /// Given the path to the source file of a test, create a `Program`.
+    /// Given the path to the source file of a test, create a `CompilationUnit`.
     ///
-    /// Unlike `Program::from_package_path`, the path is to the source file,
+    /// Unlike `CompilationUnit::from_package_path`, the path is to the source file,
     /// and the name of the program is determined from the filename.
     ///
     /// `main_program` must be provided since every test is dependent on it.
@@ -168,7 +190,7 @@ impl Program {
             .collect::<Result<IndexSet<_>, _>>()?;
         dependencies.insert(main_program);
 
-        Ok(Program {
+        Ok(CompilationUnit {
             name: Symbol::intern(&(name.to_owned() + ".aleo")),
             edition: None,
             data: ProgramData::SourcePath {
@@ -177,12 +199,11 @@ impl Program {
             },
             dependencies,
             is_local: true,
-            is_test: true,
-            is_library: false,
+            kind: PackageKind::Test,
         })
     }
 
-    /// Given an Aleo program on a network, fetch it to build a `Program`.
+    /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
     /// If no edition is found, the latest edition is pulled from the network.
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
@@ -298,7 +319,7 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
 
-        Ok(Program {
+        Ok(CompilationUnit {
             // Network programs store the name with the ".aleo" suffix (unlike local packages).
             // TODO: unify the invariant so the suffix is always absent.
             name: Symbol::intern(&(name.to_string() + ".aleo")),
@@ -306,8 +327,7 @@ impl Program {
             edition: Some(edition),
             dependencies,
             is_local: false,
-            is_test: false,
-            is_library: false,
+            kind: PackageKind::Program,
         })
     }
 }

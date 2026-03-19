@@ -107,7 +107,7 @@ impl Command for LeoDeploy {
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Libraries cannot be deployed.
-        if input.programs.last().is_some_and(|p| p.is_library) {
+        if input.compilation_units.last().is_some_and(|p| p.kind.is_library()) {
             return Err(CliError::custom("Cannot deploy a library package. Only programs can be deployed.").into());
         }
 
@@ -175,9 +175,9 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
     }
 
     // Get all the programs but tests and libraries (libraries have no AVM bytecode).
-    let programs = package.programs.iter().filter(|program| !program.is_test && !program.is_library).cloned();
+    let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
-    let programs_and_bytecode: Vec<(leo_package::Program, String)> = programs
+    let programs_and_bytecode: Vec<(leo_package::CompilationUnit, String)> = programs
         .into_iter()
         .map(|program| {
             let bytecode = match &program.data {

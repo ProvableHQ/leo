@@ -213,18 +213,18 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
 
     let mut import_stubs = IndexMap::new();
 
-    for program in &package.programs {
-        match &program.data {
+    for unit in &package.compilation_units {
+        match &unit.data {
             ProgramData::Bytecode(bytecode) => {
-                let stub = disassemble_bytecode(program.name, bytecode)?;
-                import_stubs.insert(program.name, stub);
+                let stub = disassemble_bytecode(unit.name, bytecode)?;
+                import_stubs.insert(unit.name, stub);
             }
             ProgramData::SourcePath { directory, source } => {
                 let source_dir =
                     if source.starts_with(directory.join("src")) { directory.join("src") } else { directory.clone() };
 
-                let stub = parse_interface_stub(program.name, source, &source_dir)?;
-                import_stubs.insert(program.name, stub);
+                let stub = parse_interface_stub(unit.name, source, &source_dir)?;
+                import_stubs.insert(unit.name, stub);
             }
         }
     }

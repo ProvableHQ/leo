@@ -115,7 +115,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     network: NetworkName,
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
-    if package.programs.last().map(|p| p.is_library).unwrap_or(false) {
+    if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
         return Err(CliError::custom("`leo upgrade` is not supported for library packages.").into());
     }
 
@@ -155,9 +155,9 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     }
 
     // Get all the programs but tests and libraries (libraries have no AVM bytecode).
-    let programs = package.programs.iter().filter(|program| !program.is_test && !program.is_library).cloned();
+    let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
-    let programs_and_bytecode: Vec<(leo_package::Program, String)> = programs
+    let programs_and_bytecode: Vec<(leo_package::CompilationUnit, String)> = programs
         .into_iter()
         .map(|program| {
             let bytecode = match &program.data {
@@ -264,7 +264,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let mut programs_and_editions = Vec::with_capacity(program_ids.len());
     for id in &program_ids {
         // Load the program from the network.
-        let Ok(program) = leo_package::Program::fetch(
+        let Ok(program) = leo_package::CompilationUnit::fetch(
             Symbol::intern(&id.name().to_string()),
             None,
             context.home()?,

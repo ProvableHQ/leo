@@ -89,7 +89,7 @@ impl Command for LeoRun {
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Libraries cannot be run.
         if let Some(package) = &input
-            && package.programs.last().is_some_and(|p| p.is_library)
+            && package.compilation_units.last().is_some_and(|p| p.kind.is_library())
         {
             return Err(CliError::custom("Cannot run a library package. Only programs can be run.").into());
         }
@@ -144,7 +144,12 @@ fn handle_run<A: Aleo>(
         Some((program_name, function_name)) => (program_name.to_string(), function_name.to_string()),
         None => match &package {
             Some(package) => (
-                package.programs.last().expect("There must be at least one program in a Leo package").name.to_string(),
+                package
+                    .compilation_units
+                    .last()
+                    .expect("There must be at least one program in a Leo package")
+                    .name
+                    .to_string(),
                 command.name,
             ),
             None => {
@@ -172,28 +177,28 @@ fn handle_run<A: Aleo>(
         let source_directory = package.source_directory();
         // Get the program names and their bytecode.
         package
-            .programs
+            .compilation_units
             .iter()
             .clone()
-            .filter(|program| !program.is_library)
-            .map(|program| {
-                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", program.name))
+            .filter(|unit| !unit.kind.is_library())
+            .map(|unit| {
+                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", unit.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
-                match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
+                match &unit.data {
+                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
                     ProgramData::SourcePath { source, .. } => {
                         // Get the path to the built bytecode.
                         let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
-                            imports_directory.join(format!("{}", program.name))
+                            imports_directory.join(format!("{}", unit.name))
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
                             CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
                         })?;
                         // Return the bytecode and the manifest.
-                        Ok((program_id, bytecode, program.edition))
+                        Ok((program_id, bytecode, unit.edition))
                     }
                 }
             })

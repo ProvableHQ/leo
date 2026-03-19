@@ -85,19 +85,20 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
     let private_key_symbol = Symbol::intern("private_key");
     let mut test_functions = Vec::new();
 
-    for program in &package.programs {
-        let ProgramData::SourcePath { directory, source } = &program.data else {
+    for unit in &package.compilation_units {
+        let ProgramData::SourcePath { directory, source } = &unit.data else {
             continue;
         };
 
-        let source_dir = if program.is_test { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
+        let source_dir =
+            if unit.kind.is_test() { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
 
         let handler = Handler::default();
         let node_builder = Rc::new(NodeBuilder::default());
 
         let mut compiler = Compiler::new(
             None,
-            program.is_test,
+            unit.kind.is_test(),
             handler,
             node_builder,
             "/unused".into(),
@@ -152,7 +153,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
 }
 
 fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
-    if package.programs.last().map(|p| p.is_library).unwrap_or(false) {
+    if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
         return Err(CliError::custom("`leo test` is not supported for library packages.").into());
     }
 
@@ -169,31 +170,31 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
 
     // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
     let programs: Vec<run::Program> = package
-        .programs
+        .compilation_units
         .iter()
-        .filter_map(|program| {
+        .filter_map(|unit| {
             // Skip credits.aleo so we don't try to deploy it again.
-            if program.name == credits {
+            if unit.name == credits {
                 return None;
             }
             // Libraries have no bytecode — their consts are inlined into the main program.
-            if program.is_library {
+            if unit.kind.is_library() {
                 return None;
             }
-            let bytecode = match &program.data {
+            let bytecode = match &unit.data {
                 ProgramData::Bytecode(c) => c.clone(),
                 ProgramData::SourcePath { .. } => {
                     // This was not a network dependency, so get its bytecode from the filesystem.
-                    let aleo_path = if program.name == program_name_symbol {
+                    let aleo_path = if unit.name == program_name_symbol {
                         build_directory.join("main.aleo")
                     } else {
-                        package.imports_directory().join(format!("{}", program.name))
+                        package.imports_directory().join(format!("{}", unit.name))
                     };
                     fs::read_to_string(&aleo_path)
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
                 }
             };
-            Some(run::Program { bytecode, name: program.name.to_string() })
+            Some(run::Program { bytecode, name: unit.name.to_string() })
         })
         .collect();
 
