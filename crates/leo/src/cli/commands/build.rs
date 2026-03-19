@@ -189,7 +189,19 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
             leo_package::ProgramData::SourcePath { directory, source } => {
                 // This is a local dependency, so we must compile or parse it.
-                let source_dir = directory.join("src");
+                let source_dir = if program.is_test {
+                    source
+                        .parent()
+                        .ok_or_else(|| {
+                            UtilError::failed_to_open_file(format_args!(
+                                "Failed to find directory for test {}",
+                                source.display()
+                            ))
+                        })?
+                        .to_path_buf()
+                } else {
+                    directory.join("src")
+                };
 
                 if source == &main_source_path || program.is_test {
                     // Compile the program (main or test).
