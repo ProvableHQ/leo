@@ -26,7 +26,6 @@ validate = [
   "dep:leo-compiler",
   "dep:leo-ast",
   "dep:leo-errors",
-  "dep:leo-span",
   "dep:serde_json",
 ]
 
@@ -37,7 +36,7 @@ leo-ast             = { workspace = true, optional = true }
 leo-compiler        = { workspace = true, optional = true }
 leo-errors          = { workspace = true, optional = true }
 leo-parser-rowan    = { workspace = true }
-leo-span            = { workspace = true, optional = true }
+leo-span            = { workspace = true }
 serde_json          = { workspace = true, optional = true }
 similar             = { workspace = true }
 walkdir             = { workspace = true }

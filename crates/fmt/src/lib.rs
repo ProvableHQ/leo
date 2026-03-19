@@ -35,6 +35,7 @@ mod output;
 use clap::{Args, Parser};
 use colored::Colorize;
 use leo_parser_rowan::parse_main;
+use leo_span::file_source::{DiskFileSource, FileSource};
 use similar::{ChangeTag, TextDiff};
 use std::{
     fs,
@@ -81,12 +82,25 @@ pub struct LeoFmtCli {
 
 /// Run filesystem formatting/checking for CLI callers.
 pub fn run_format_cli(args: &FormatCliArgs, base_dir: &Path) -> io::Result<bool> {
+    run_format_with_file_source(args, base_dir, &DiskFileSource)
+}
+
+/// Run formatting/checking using a custom file source for reading.
+///
+/// File discovery still uses the filesystem via [`collect_leo_files`]. The
+/// provided [`FileSource`] controls how file contents are read once the CLI
+/// paths have been resolved.
+pub fn run_format_with_file_source(
+    args: &FormatCliArgs,
+    base_dir: &Path,
+    file_source: &impl FileSource,
+) -> io::Result<bool> {
     let paths = resolve_paths(&args.paths, base_dir);
     let leo_files = collect_leo_files(&paths)?;
     let mut has_unformatted = false;
 
     for file_path in leo_files {
-        let source = fs::read_to_string(&file_path).map_err(|error| {
+        let source = file_source.read_file(&file_path).map_err(|error| {
             io::Error::new(error.kind(), format!("failed to read {}: {error}", file_path.display()))
         })?;
         let formatted = format_source(&source);

@@ -24,17 +24,20 @@ pub use leo_ast::{Ast, Program};
 use leo_ast::{NetworkName, NodeBuilder, Stub};
 use leo_errors::{CompilerError, Handler, Result};
 use leo_passes::*;
-use leo_span::{Symbol, source_map::FileName, with_session_globals};
+use leo_span::{
+    Symbol,
+    file_source::{DiskFileSource, FileSource},
+    source_map::FileName,
+    with_session_globals,
+};
 
 use std::{
-    ffi::OsStr,
     fs,
     path::{Path, PathBuf},
     rc::Rc,
 };
 
 use indexmap::{IndexMap, IndexSet};
-use walkdir::WalkDir;
 
 /// A single compiled program with its bytecode and ABI.
 pub struct CompiledProgram {
@@ -336,30 +339,28 @@ impl Compiler {
     ///
     /// Returns `Err(CompilerError)` if reading any file fails.
     fn read_sources_and_modules(
+        file_source: &impl FileSource,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
     ) -> Result<(String, Vec<(String, FileName)>)> {
+        let entry_file_path = entry_file_path.as_ref();
+        let source_directory = source_directory.as_ref();
+
         // Read the contents of the main source file.
-        let source = fs::read_to_string(&entry_file_path)
-            .map_err(|e| CompilerError::file_read_error(entry_file_path.as_ref().display().to_string(), e))?;
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| CompilerError::file_read_error(entry_file_path.display().to_string(), e))?;
 
-        // Walk all files under source_directory recursively, excluding the main source file itself.
-        let files = WalkDir::new(source_directory)
-            .into_iter()
-            .filter_map(Result::ok)
-            .filter(|e| {
-                e.file_type().is_file()
-                    && e.path() != entry_file_path.as_ref()
-                    && e.path().extension() == Some(OsStr::new("leo"))
-            })
-            .collect::<Vec<_>>();
+        let files = file_source
+            .list_leo_files(source_directory, entry_file_path)
+            .map_err(|e| CompilerError::file_read_error(source_directory.display().to_string(), e))?;
 
-        // Read all module files and pair with FileName immediately
-        let mut modules = Vec::new();
-        for file in &files {
-            let module_source = fs::read_to_string(file.path())
-                .map_err(|e| CompilerError::file_read_error(file.path().display().to_string(), e))?;
-            modules.push((module_source, FileName::Real(file.path().into())));
+        let mut modules = Vec::with_capacity(files.len());
+        for path in files {
+            let module_source = file_source
+                .read_file(&path)
+                .map_err(|e| CompilerError::file_read_error(path.display().to_string(), e))?;
+            modules.push((module_source, FileName::Real(path)));
         }
 
         Ok((source, modules))
@@ -371,7 +372,17 @@ impl Compiler {
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
     ) -> Result<Compiled> {
-        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+        self.compile_from_directory_with_file_source(entry_file_path, source_directory, &DiskFileSource)
+    }
+
+    /// Compiles a program from a source file using the given file source.
+    pub fn compile_from_directory_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Compiled> {
+        let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
         // Convert owned module sources into temporary (&str, FileName) tuples.
         let module_refs: Vec<(&str, FileName)> =
@@ -387,7 +398,17 @@ impl Compiler {
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
     ) -> Result<Program> {
-        let (source, modules_owned) = Self::read_sources_and_modules(&entry_file_path, &source_directory)?;
+        self.parse_from_directory_with_file_source(entry_file_path, source_directory, &DiskFileSource)
+    }
+
+    /// Parses a program from a source file using the given file source.
+    pub fn parse_from_directory_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Program> {
+        let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
         // Convert owned module sources into temporary (&str, FileName) tuples.
         let module_refs: Vec<(&str, FileName)> =
@@ -493,5 +514,61 @@ impl Compiler {
             .map(|(symbol, stub)| (*symbol, stub.clone()))
             .collect();
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Compiler;
+
+    use leo_ast::{NetworkName, NodeBuilder};
+    use leo_errors::Handler;
+    use leo_span::{Symbol, create_session_if_not_set_then, file_source::InMemoryFileSource};
+
+    use std::{path::PathBuf, rc::Rc};
+
+    use indexmap::IndexMap;
+
+    #[test]
+    fn parse_from_directory_in_memory_with_module() {
+        create_session_if_not_set_then(|_| {
+            let mut source = InMemoryFileSource::new();
+            source.set(
+                PathBuf::from("/project/src/main.leo"),
+                concat!(
+                    "program test.aleo {\n",
+                    "  fn main() -> u32 {\n",
+                    "    return utils::helper();\n",
+                    "  }\n",
+                    "}\n",
+                )
+                .into(),
+            );
+            source.set(PathBuf::from("/project/src/utils.leo"), "fn helper() -> u32 {\n  return 42u32;\n}\n".into());
+
+            let handler = Handler::default();
+            let node_builder = Rc::new(NodeBuilder::default());
+            let mut compiler = Compiler::new(
+                Some("test".into()),
+                false,
+                handler,
+                node_builder,
+                PathBuf::from("/unused"),
+                None,
+                IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+
+            let ast = compiler
+                .parse_from_directory_with_file_source("/project/src/main.leo", "/project/src", &source)
+                .unwrap_or_else(|err| panic!("parsing from in-memory file source failed: {err}"));
+            let utils_key = vec![Symbol::intern("utils")];
+
+            assert!(
+                ast.modules.contains_key(&utils_key),
+                "module `utils` should be loaded from the in-memory file source; found keys: {:?}",
+                ast.modules.keys().collect::<Vec<_>>()
+            );
+        });
     }
 }

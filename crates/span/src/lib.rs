@@ -23,4 +23,5 @@ pub use symbol::{Symbol, create_session_if_not_set_then, sym, with_session_globa
 mod span;
 pub use span::Span;
 
+pub mod file_source;
 pub mod source_map;

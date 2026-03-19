@@ -26,14 +26,7 @@
 
 use crate::span::Span;
 
-use std::{
-    cell::RefCell,
-    fmt,
-    fs,
-    io,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::{cell::RefCell, fmt, path::PathBuf, rc::Rc};
 
 /// The source map containing all recorded sources,
 /// methods to register new ones,
@@ -59,11 +52,6 @@ struct SourceMapInner {
 }
 
 impl SourceMap {
-    /// Loads the given `path` and returns a `SourceFile` for it.
-    pub fn load_file(&self, path: &Path) -> io::Result<Rc<SourceFile>> {
-        Ok(self.new_source(&fs::read_to_string(path)?, FileName::Real(path.to_owned())))
-    }
-
     /// Registers `source` under the given file `name`, returning a `SourceFile` back.
     pub fn new_source(&self, source: &str, name: FileName) -> Rc<SourceFile> {
         let len = u32::try_from(source.len()).unwrap();
