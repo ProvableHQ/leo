@@ -16,17 +16,10 @@ program test.aleo {
         u8,
         u8,
         u8,
-        Final,
+        u8,
     ) {
         return (
-            0u8, 1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u8, 9u8, 10u8, 11u8, 12u8, 13u8, 14u8, 15u8,
-            final {
-                baz_finalize();
-            },
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         );
     }
-}
-
-final fn baz_finalize() {
-    return;
 }

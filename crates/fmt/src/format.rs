@@ -24,6 +24,13 @@ use leo_parser_rowan::{
     SyntaxToken,
 };
 
+const MAX_INLINE_TUPLE_ITEMS: usize = 12;
+
+struct ReturnTypeEntry {
+    visibility: Vec<String>,
+    ty: Option<SyntaxNode>,
+}
+
 /// Format any syntax node.
 pub fn format_node(node: &SyntaxNode, out: &mut Output) {
     match node.kind() {
@@ -1231,34 +1238,49 @@ fn format_return_type(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
-    // First try single-line
-    let single_line = format_return_type_to_string(node);
-    let col = out.current_column();
+    if has_token(node, L_PAREN) {
+        let entries = collect_return_type_entries(node);
+        let entry_strings: Vec<_> = entries.iter().map(format_return_type_entry_to_string).collect();
+        let should_wrap = entries.len() > MAX_INLINE_TUPLE_ITEMS
+            || entry_strings.iter().any(|entry| entry.contains('\n'))
+            || !fits_on_one_line(out.current_column(), "(", ")", &entry_strings);
 
-    if col + single_line.len() <= LINE_WIDTH {
-        out.write(&single_line);
-    } else {
-        // Multi-line: wrap tuple return type entries
-        // Only tuple return types (with L_PAREN) get wrapped
-        if has_token(node, L_PAREN) {
-            // Collect return type entries: each is a sequence of visibility + type tokens/nodes
-            // between commas. We format them individually.
-            let entries = collect_return_type_entries(node);
-
+        if !should_wrap {
             out.write("(");
-            out.newline();
-            out.indented(|out| {
-                for entry in &entries {
-                    out.write(entry);
+            for (i, entry) in entries.iter().enumerate() {
+                format_return_type_entry(entry, out);
+                if i < entries.len() - 1 {
                     out.write(",");
-                    out.newline();
+                    out.space();
                 }
-            });
+            }
             out.write(")");
-        } else {
-            // Non-tuple — just emit inline
-            out.write(&single_line);
+            return;
         }
+
+        out.write("(");
+        out.newline();
+        out.indented(|out| {
+            for entry in &entries {
+                format_return_type_entry(entry, out);
+                out.write(",");
+                out.newline();
+            }
+        });
+        out.write(")");
+        return;
+    }
+
+    let formatted = format_return_type_to_string(node);
+    if !formatted.contains('\n') && out.current_column() + formatted.len() <= LINE_WIDTH {
+        out.write(&formatted);
+        return;
+    }
+
+    if let Some(ty) = node.children().find(|child| child.kind().is_type()) {
+        format_type(&ty, out);
+    } else {
+        out.write(&formatted);
     }
 }
 
@@ -1294,11 +1316,11 @@ fn format_return_type_inline(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
-/// Collect the entries of a tuple return type as formatted strings.
-/// Each entry is e.g. "public u64" or "field".
-fn collect_return_type_entries(node: &SyntaxNode) -> Vec<String> {
+/// Collect the entries of a tuple return type.
+fn collect_return_type_entries(node: &SyntaxNode) -> Vec<ReturnTypeEntry> {
     let mut entries = Vec::new();
-    let mut current = String::new();
+    let mut current_visibility = Vec::new();
+    let mut current_type = None;
     let mut in_tuple = false;
 
     for elem in node.children_with_tokens() {
@@ -1310,40 +1332,48 @@ fn collect_return_type_entries(node: &SyntaxNode) -> Vec<String> {
                         in_tuple = true;
                     }
                     R_PAREN => {
-                        let trimmed = current.trim().to_string();
-                        if !trimmed.is_empty() {
-                            entries.push(trimmed);
+                        if current_type.is_some() || !current_visibility.is_empty() {
+                            entries.push(ReturnTypeEntry { visibility: current_visibility, ty: current_type });
                         }
-                        current.clear();
+                        break;
                     }
                     COMMA if in_tuple => {
-                        let trimmed = current.trim().to_string();
-                        if !trimmed.is_empty() {
-                            entries.push(trimmed);
+                        if current_type.is_some() || !current_visibility.is_empty() {
+                            entries.push(ReturnTypeEntry { visibility: current_visibility, ty: current_type });
+                            current_visibility = Vec::new();
+                            current_type = None;
                         }
-                        current.clear();
                     }
                     KW_PUBLIC | KW_PRIVATE | KW_CONSTANT if in_tuple => {
-                        current.push_str(tok.text());
-                        current.push(' ');
+                        current_visibility.push(tok.text().to_string());
                     }
                     WHITESPACE | LINEBREAK => {}
-                    _ if in_tuple => {
-                        current.push_str(tok.text());
-                    }
                     _ => {}
                 }
             }
-            SyntaxElement::Node(n) if n.kind().is_type() && in_tuple => {
-                let mut tmp = Output::new();
-                format_type(&n, &mut tmp);
-                current.push_str(&tmp.into_raw());
-            }
+            SyntaxElement::Node(n) if n.kind().is_type() && in_tuple => current_type = Some(n),
             _ => {}
         }
     }
 
     entries
+}
+
+fn format_return_type_entry(entry: &ReturnTypeEntry, out: &mut Output) {
+    for visibility in &entry.visibility {
+        out.write(visibility);
+        out.space();
+    }
+
+    if let Some(ty) = &entry.ty {
+        format_type(ty, out);
+    }
+}
+
+fn format_return_type_entry_to_string(entry: &ReturnTypeEntry) -> String {
+    let mut out = Output::new();
+    format_return_type_entry(entry, &mut out);
+    out.into_raw()
 }
 
 fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
@@ -1494,32 +1524,145 @@ fn format_type_vector(node: &SyntaxNode, out: &mut Output) {
 
 fn format_type_tuple(node: &SyntaxNode, out: &mut Output) {
     let types: Vec<_> = node.children().filter(|c| c.kind().is_type()).collect();
+    let type_strings: Vec<_> = types.iter().map(format_node_to_string).collect();
+
+    if types.is_empty() {
+        out.write("()");
+        return;
+    }
+
+    let should_wrap = types.len() > MAX_INLINE_TUPLE_ITEMS
+        || type_strings.iter().any(|ty| ty.contains('\n'))
+        || !fits_on_one_line(out.current_column(), "(", ")", &type_strings);
+
+    if !should_wrap {
+        out.write("(");
+        for (i, ty) in types.iter().enumerate() {
+            format_type(ty, out);
+            if i < types.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(")");
+        return;
+    }
 
     out.write("(");
-    for (i, ty) in types.iter().enumerate() {
-        format_type(ty, out);
-        if i < types.len() - 1 {
+    out.newline();
+    out.indented(|out| {
+        for ty in &types {
+            format_type(ty, out);
             out.write(",");
-            out.space();
+            out.newline();
         }
-    }
+    });
     out.write(")");
 }
 
 fn format_type_final(node: &SyntaxNode, out: &mut Output) {
-    // Final or Final<Fn(...) -> ...>
+    if !has_token(node, LT) {
+        out.write("Final");
+        return;
+    }
+
+    let (params, return_type) = collect_final_signature(node);
+    let param_strings: Vec<_> = params.iter().map(format_node_to_string).collect();
+    let return_string = return_type.as_ref().map(format_node_to_string);
+    let inline_param_len = if param_strings.is_empty() {
+        0
+    } else {
+        param_strings.iter().map(String::len).sum::<usize>() + (param_strings.len() - 1) * 2
+    };
+    let inline_return_len = return_string.as_ref().map_or(0, |ret| " -> ".len() + ret.len());
+    let inline_len = "Final<Fn(".len() + inline_param_len + ")".len() + inline_return_len + ">".len();
+    let should_wrap = params.len() > MAX_INLINE_TUPLE_ITEMS
+        || param_strings.iter().any(|param| param.contains('\n'))
+        || return_string.as_ref().is_some_and(|ret| ret.contains('\n'))
+        || out.current_column() + inline_len > LINE_WIDTH;
+
+    if !should_wrap {
+        out.write("Final<Fn(");
+        for (i, param) in params.iter().enumerate() {
+            format_type(param, out);
+            if i < params.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(")");
+        if let Some(ret) = &return_type {
+            out.space();
+            out.write("->");
+            out.space();
+            format_type(ret, out);
+        }
+        out.write(">");
+        return;
+    }
+
+    out.write("Final<Fn(");
+    if params.is_empty() {
+        out.write(")");
+    } else {
+        out.newline();
+        out.indented(|out| {
+            for param in &params {
+                format_type(param, out);
+                out.write(",");
+                out.newline();
+            }
+        });
+        out.write(")");
+    }
+
+    if let Some(ret) = &return_type {
+        let return_fits_inline = return_string
+            .as_ref()
+            .is_some_and(|ret| !ret.contains('\n') && out.current_column() + " -> ".len() + ret.len() <= LINE_WIDTH);
+        if return_fits_inline {
+            out.space();
+            out.write("->");
+            out.space();
+            format_type(ret, out);
+        } else {
+            out.space();
+            out.write("->");
+            out.newline();
+            out.indented(|out| format_type(ret, out));
+        }
+    }
+
+    out.write(">");
+}
+
+fn collect_final_signature(node: &SyntaxNode) -> (Vec<SyntaxNode>, Option<SyntaxNode>) {
+    let mut params = Vec::new();
+    let mut return_type = None;
+    let mut in_params = false;
+    let mut saw_arrow = false;
+
     for elem in node.children_with_tokens() {
         match elem {
-            SyntaxElement::Token(tok) => {
-                let k = tok.kind();
-                if k != WHITESPACE && k != LINEBREAK {
-                    out.write(tok.text());
+            SyntaxElement::Token(tok) => match tok.kind() {
+                L_PAREN => in_params = true,
+                R_PAREN => in_params = false,
+                ARROW => saw_arrow = true,
+                _ => {}
+            },
+            SyntaxElement::Node(n) if n.kind().is_type() => {
+                if in_params {
+                    params.push(n);
+                } else if saw_arrow {
+                    return_type = Some(n);
+                    saw_arrow = false;
                 }
             }
-            SyntaxElement::Node(n) if n.kind().is_type() => format_type(&n, out),
             _ => {}
         }
     }
+
+    (params, return_type)
 }
 
 fn format_type_mapping(node: &SyntaxNode, out: &mut Output) {
@@ -2091,6 +2234,10 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_method_call(node: &SyntaxNode, out: &mut Output) {
+    if try_format_postfix_chain(node, out) {
+        return;
+    }
+
     // METHOD_CALL_EXPR: receiver, DOT, method_name, L_PAREN, [args], R_PAREN
     for elem in node.children_with_tokens() {
         match elem {
@@ -2266,6 +2413,10 @@ fn format_ternary(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_field_expr(node: &SyntaxNode, out: &mut Output) {
+    if try_format_postfix_chain(node, out) {
+        return;
+    }
+
     // FIELD_EXPR: base_node, DOT, IDENT|keyword
     for elem in node.children_with_tokens() {
         match elem {
@@ -2281,6 +2432,10 @@ fn format_field_expr(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_tuple_access(node: &SyntaxNode, out: &mut Output) {
+    if try_format_postfix_chain(node, out) {
+        return;
+    }
+
     // TUPLE_ACCESS_EXPR: base_node, DOT, INTEGER
     for elem in node.children_with_tokens() {
         match elem {
@@ -2296,6 +2451,10 @@ fn format_tuple_access(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_index_expr(node: &SyntaxNode, out: &mut Output) {
+    if try_format_postfix_chain(node, out) {
+        return;
+    }
+
     // INDEX_EXPR: base_node, L_BRACKET, index_expr, R_BRACKET
     for elem in node.children_with_tokens() {
         match elem {
@@ -2309,6 +2468,112 @@ fn format_index_expr(node: &SyntaxNode, out: &mut Output) {
             _ => {}
         }
     }
+}
+
+fn try_format_postfix_chain(node: &SyntaxNode, out: &mut Output) -> bool {
+    if !is_postfix_chain_root(node) || has_deep_comment(node) {
+        return false;
+    }
+
+    let Some((base, segments)) = collect_postfix_chain(node) else {
+        return false;
+    };
+    if segments.is_empty() {
+        return false;
+    }
+
+    let base_string = format_node_to_string(&base);
+    if base_string.contains('\n') || segments.iter().any(|segment| segment.contains('\n')) {
+        return false;
+    }
+
+    let total_len = base_string.len() + segments.iter().map(String::len).sum::<usize>();
+    if out.current_column() + total_len <= LINE_WIDTH {
+        return false;
+    }
+
+    out.write(&base_string);
+    out.indented(|out| {
+        let mut on_continuation_line = false;
+        for segment in segments {
+            if segment.starts_with('.') {
+                out.newline();
+                out.write(&segment);
+                on_continuation_line = true;
+            } else if !on_continuation_line && out.current_column() + segment.len() <= LINE_WIDTH {
+                out.write(&segment);
+                on_continuation_line = true;
+            } else if on_continuation_line && out.current_column() + segment.len() <= LINE_WIDTH {
+                out.write(&segment);
+            } else {
+                out.newline();
+                out.write(&segment);
+                on_continuation_line = true;
+            }
+        }
+    });
+
+    true
+}
+
+fn is_postfix_chain_root(node: &SyntaxNode) -> bool {
+    match node.kind() {
+        METHOD_CALL_EXPR | FIELD_EXPR | TUPLE_ACCESS_EXPR | INDEX_EXPR => node.parent().is_none_or(|parent| {
+            !matches!(parent.kind(), METHOD_CALL_EXPR | FIELD_EXPR | TUPLE_ACCESS_EXPR | INDEX_EXPR)
+        }),
+        _ => false,
+    }
+}
+
+fn collect_postfix_chain(node: &SyntaxNode) -> Option<(SyntaxNode, Vec<String>)> {
+    match node.kind() {
+        METHOD_CALL_EXPR | FIELD_EXPR | TUPLE_ACCESS_EXPR | INDEX_EXPR => {
+            let receiver = node.children().find(|child| child.kind().is_expression())?;
+            let (base, mut segments) =
+                if matches!(receiver.kind(), METHOD_CALL_EXPR | FIELD_EXPR | TUPLE_ACCESS_EXPR | INDEX_EXPR) {
+                    collect_postfix_chain(&receiver)?
+                } else {
+                    (receiver.clone(), Vec::new())
+                };
+            segments.push(format_postfix_suffix(node, &receiver)?);
+            Some((base, segments))
+        }
+        _ => Some((node.clone(), Vec::new())),
+    }
+}
+
+fn format_postfix_suffix(node: &SyntaxNode, receiver: &SyntaxNode) -> Option<String> {
+    let mut suffix = String::new();
+    let mut past_receiver = false;
+
+    for elem in node.children_with_tokens() {
+        if !past_receiver {
+            if let SyntaxElement::Node(n) = &elem
+                && n.text_range() == receiver.text_range()
+            {
+                past_receiver = true;
+            }
+            continue;
+        }
+
+        match elem {
+            SyntaxElement::Token(tok) => {
+                if !is_trivia(tok.kind()) {
+                    suffix.push_str(tok.text());
+                }
+            }
+            SyntaxElement::Node(n) if n.kind().is_expression() => {
+                let formatted = format_node_to_string(&n);
+                if formatted.contains('\n') {
+                    return None;
+                }
+                suffix.push_str(&formatted);
+            }
+            SyntaxElement::Node(_) => {}
+        }
+    }
+
+    (!suffix.is_empty()).then_some(suffix)
 }
 
 fn format_cast(node: &SyntaxNode, out: &mut Output) {
@@ -2378,7 +2643,34 @@ fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
             out.write(")");
         }
     } else {
-        format_wrapping_list(node, out, "(", ")", &exprs, true, true);
+        let expr_strings: Vec<_> = exprs.iter().map(format_node_to_string).collect();
+        let has_multiline_item = expr_strings.iter().any(|expr| expr.contains('\n'));
+        let has_comment = exprs.iter().any(has_deep_comment)
+            || node.children_with_tokens().any(
+                |elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)),
+            );
+
+        if !has_comment && !has_multiline_item && exprs.len() <= MAX_INLINE_TUPLE_ITEMS {
+            let col = out.current_column();
+            if fits_on_one_line(col, "(", ")", &expr_strings) {
+                out.write("(");
+                for (i, expr) in exprs.iter().enumerate() {
+                    format_node(expr, out);
+                    if i < exprs.len() - 1 {
+                        out.write(",");
+                        out.space();
+                    }
+                }
+                out.write(")");
+                return;
+            }
+        }
+
+        if !has_comment && (has_multiline_item || exprs.len() > MAX_INLINE_TUPLE_ITEMS) {
+            format_wrapping_list_with_dense_simple_items(out, "(", ")", &exprs, &expr_strings, true);
+        } else {
+            format_wrapping_list(node, out, "(", ")", &exprs, true, true);
+        }
     }
 }
 
