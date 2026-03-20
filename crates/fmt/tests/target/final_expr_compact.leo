@@ -4,7 +4,12 @@ program test.aleo {
     }
 
     fn tuple(value: u64) -> (u64, Final) {
-        return (value, final { finalize(value); });
+        return (
+            value,
+            final {
+                finalize(value);
+            },
+        );
     }
 
     fn commented(value: u64) -> Final {

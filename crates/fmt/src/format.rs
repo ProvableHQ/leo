@@ -2425,13 +2425,28 @@ fn format_final_expr(node: &SyntaxNode, out: &mut Output) {
     out.space();
     for child in node.children() {
         if child.kind() == BLOCK {
-            if let Some(compact) = compact_final_block_string(&child, out.current_column()) {
+            if final_expr_supports_compact_layout(node)
+                && let Some(compact) = compact_final_block_string(&child, out.current_column())
+            {
                 out.write(&compact);
             } else {
                 format_block(&child, out);
             }
         }
     }
+}
+
+fn final_expr_supports_compact_layout(node: &SyntaxNode) -> bool {
+    let mut parent = node.parent();
+    while let Some(current) = parent {
+        match current.kind() {
+            PAREN_EXPR => parent = current.parent(),
+            RETURN_STMT | LET_STMT | CONST_STMT | ASSIGN_STMT | COMPOUND_ASSIGN_STMT | EXPR_STMT => return true,
+            _ => return false,
+        }
+    }
+
+    false
 }
 
 fn compact_final_block_string(block: &SyntaxNode, col: usize) -> Option<String> {
@@ -2817,6 +2832,7 @@ fn format_wrapping_list(
 ) {
     let item_strings: Vec<String> = items.iter().map(format_node_to_string).collect();
     let col = out.current_column();
+    let has_multiline_item = item_strings.iter().any(|s| s.contains('\n'));
 
     // Force multi-line when any comment exists: either deeply nested inside an
     // item's subtree, or as a direct child of the parent node (between items or
@@ -2827,7 +2843,7 @@ fn format_wrapping_list(
             |elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)),
         );
 
-    if !has_comment && fits_on_one_line(col, open, close, &item_strings) {
+    if !has_comment && !has_multiline_item && fits_on_one_line(col, open, close, &item_strings) {
         out.write(open);
         for (i, item) in items.iter().enumerate() {
             format_node(item, out);
