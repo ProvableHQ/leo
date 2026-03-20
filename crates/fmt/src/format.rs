@@ -353,8 +353,10 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
         }
     }
 
-    out.write("}");
-    out.newline();
+    if has_token(node, R_BRACE) {
+        out.write("}");
+        out.newline();
+    }
 }
 
 fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
@@ -663,10 +665,12 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
         }
         idx += 1;
     }
-    out.write("}");
-    // Emit comments after closing brace
-    if let Some(idx) = rbrace_idx {
-        emit_comments_after(&elems, idx, out);
+    if has_token(node, R_BRACE) {
+        out.write("}");
+        // Emit comments after closing brace
+        if let Some(idx) = rbrace_idx {
+            emit_comments_after(&elems, idx, out);
+        }
     }
     // Check next sibling for stolen trailing comments
     if let Some(next) = node.next_sibling() {
@@ -750,9 +754,11 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
         }
     }
 
-    out.write("}");
-    if let Some(idx) = rbrace_idx {
-        emit_comments_after(&elems, idx, out);
+    if has_token(node, R_BRACE) {
+        out.write("}");
+        if let Some(idx) = rbrace_idx {
+            emit_comments_after(&elems, idx, out);
+        }
     }
     if let Some(next) = node.next_sibling() {
         emit_stolen_trailing_comments(&next, out);
@@ -1655,11 +1661,13 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
             out.ensure_newline();
         });
     }
-    out.write("}");
-    out.set_mark();
-    // Emit comments after closing brace (at parent level)
-    if let Some(idx) = find_last_token_index(&elems, R_BRACE) {
-        emit_comments_after(&elems, idx, out);
+    if has_token(node, R_BRACE) {
+        out.write("}");
+        out.set_mark();
+        // Emit comments after closing brace (at parent level)
+        if let Some(idx) = find_last_token_index(&elems, R_BRACE) {
+            emit_comments_after(&elems, idx, out);
+        }
     }
 }
 
