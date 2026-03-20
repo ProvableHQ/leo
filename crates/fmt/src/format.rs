@@ -2301,7 +2301,7 @@ fn format_cast(node: &SyntaxNode, out: &mut Output) {
 
 fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
-    format_wrapping_list(node, out, "[", "]", &exprs, true);
+        format_wrapping_list(node, out, "[", "]", &exprs, true, false);
 }
 
 fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
@@ -2339,7 +2339,7 @@ fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
             out.write(")");
         }
     } else {
-        format_wrapping_list(node, out, "(", ")", &exprs, true);
+        format_wrapping_list(node, out, "(", ")", &exprs, true, true);
     }
 }
 
@@ -2389,7 +2389,7 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
-    format_wrapping_list(node, out, " { ", " }", &inits, true);
+    format_wrapping_list(node, out, " { ", " }", &inits, true, false);
 }
 
 fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
@@ -2829,6 +2829,7 @@ fn format_wrapping_list(
     close: &str,
     items: &[SyntaxNode],
     multi_trailing_comma: bool,
+    dense_simple_items: bool,
 ) {
     let item_strings: Vec<String> = items.iter().map(format_node_to_string).collect();
     let col = out.current_column();
@@ -2853,6 +2854,8 @@ fn format_wrapping_list(
             }
         }
         out.write(close);
+    } else if !has_comment && dense_simple_items && has_multiline_item {
+        format_wrapping_list_with_dense_simple_items(out, open, close, items, &item_strings, multi_trailing_comma);
     } else {
         out.write(open.trim_end());
         out.newline();
@@ -2876,6 +2879,61 @@ fn format_wrapping_list(
         });
         out.write(close.trim_start());
     }
+}
+
+fn format_wrapping_list_with_dense_simple_items(
+    out: &mut Output,
+    open: &str,
+    close: &str,
+    items: &[SyntaxNode],
+    item_strings: &[String],
+    multi_trailing_comma: bool,
+) {
+    out.write(open.trim_end());
+    out.newline();
+    out.indented(|out| {
+        let mut line_has_simple_items = false;
+
+        for (i, item) in items.iter().enumerate() {
+            let item_string = &item_strings[i];
+            let needs_comma = multi_trailing_comma || i < items.len() - 1;
+
+            if item_string.contains('\n') {
+                if line_has_simple_items {
+                    out.newline();
+                    line_has_simple_items = false;
+                }
+                format_node(item, out);
+                if needs_comma {
+                    out.write(",");
+                }
+                out.newline();
+                continue;
+            }
+
+            let line_start = out.current_column() == out.current_indent_width();
+            let fragment_len = item_string.len() + usize::from(needs_comma);
+
+            if !line_start {
+                if out.current_column() + 1 + fragment_len > LINE_WIDTH {
+                    out.newline();
+                } else {
+                    out.space();
+                }
+            }
+
+            out.write(item_string);
+            if needs_comma {
+                out.write(",");
+            }
+            line_has_simple_items = true;
+        }
+
+        if line_has_simple_items {
+            out.newline();
+        }
+    });
+    out.write(close.trim_start());
 }
 
 /// Format a node into a temporary buffer and return the result as a string.
