@@ -555,12 +555,17 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                     }
                     IDENT if !after_lbrace => {
                         out.write(tok.text());
-                        out.space();
+                        if !next_significant_is_colon_colon(&elems, idx) {
+                            out.space();
+                        }
                     }
                     COLON_COLON => {
                         out.write("::");
                     }
                     L_BRACE => {
+                        if previous_significant_is_const_params(&elems, idx) {
+                            out.space();
+                        }
                         out.write("{");
                         idx += 1;
                         while idx < elems.len() {
@@ -2946,6 +2951,22 @@ fn find_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> 
 /// Find the last index of a token with a given kind.
 fn find_last_token_index(elems: &[SyntaxElement], kind: SyntaxKind) -> Option<usize> {
     elems.iter().rposition(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == kind))
+}
+
+fn next_significant_is_colon_colon(elems: &[SyntaxElement], idx: usize) -> bool {
+    elems[idx + 1..].iter().find_map(|elem| match elem {
+        SyntaxElement::Token(tok) if is_trivia(tok.kind()) => None,
+        SyntaxElement::Token(tok) => Some(tok.kind() == COLON_COLON),
+        SyntaxElement::Node(_) => Some(false),
+    }) == Some(true)
+}
+
+fn previous_significant_is_const_params(elems: &[SyntaxElement], idx: usize) -> bool {
+    elems[..idx].iter().rev().find_map(|elem| match elem {
+        SyntaxElement::Token(tok) if is_trivia(tok.kind()) => None,
+        SyntaxElement::Token(_) => Some(false),
+        SyntaxElement::Node(n) => Some(n.kind() == CONST_PARAM_LIST),
+    }) == Some(true)
 }
 
 /// Check if a node's leading trivia contains a blank line (>= 2 LINEBREAK tokens).
