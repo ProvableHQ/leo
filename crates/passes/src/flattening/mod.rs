@@ -73,7 +73,8 @@ impl Pass for Flattening {
     const NAME: &str = "Flattening";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
+
         let mut visitor = FlatteningVisitor {
             state,
             condition_stack: Vec::new(),
@@ -81,9 +82,15 @@ impl Pass for Flattening {
             program: Symbol::intern(""),
             is_onchain: false,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
+
         Ok(())
     }
 }

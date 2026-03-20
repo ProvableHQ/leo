@@ -1,0 +1,39 @@
+================
+Patterns
+================
+
+fn patterns() {
+    let value = 1u32;
+    let (_, pair, name) = (0u32, 1u32, value);
+    let _ = pair;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (tuple_pattern
+          (wildcard_pattern
+            (underscore))
+          (identifier_pattern
+            (identifier))
+          (identifier_pattern
+            (identifier)))
+        (tuple_expression
+          (integer_literal)
+          (integer_literal)
+          (path_expression
+            (identifier))))
+      (let_statement
+        (wildcard_pattern
+          (underscore))
+        (path_expression
+          (identifier))))))

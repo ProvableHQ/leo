@@ -43,16 +43,19 @@ pub struct Package {
     /// The directory on the filesystem where the package is located, canonicalized.
     pub base_directory: PathBuf,
 
-    /// A topologically sorted list of all programs in this package, whether
+    /// A topologically sorted list of all compilation units in this package, whether
     /// dependencies or the main program.
     ///
-    /// Any program's dependent program will appear before it, so that compiling
+    /// Any unit's dependent unit will appear before it, so that compiling
     /// them in order should give access to all stubs necessary to compile each
-    /// program.
-    pub programs: Vec<Program>,
+    /// compilation unit.
+    pub compilation_units: Vec<CompilationUnit>,
 
     /// The manifest file of this package.
     pub manifest: Manifest,
+
+    /// The dependency graph of the package.
+    pub dep_graph: DiGraph<Symbol>,
 }
 
 impl Package {
@@ -77,20 +80,30 @@ impl Package {
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
-    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P) -> Result<PathBuf> {
-        Self::initialize_impl(package_name, path.as_ref())
+    pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P, is_library: bool) -> Result<PathBuf> {
+        Self::initialize_impl(package_name, path.as_ref(), is_library)
     }
 
-    fn initialize_impl(package_name: &str, path: &Path) -> Result<PathBuf> {
-        let package_name =
-            if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
+    fn initialize_impl(package_name: &str, path: &Path, is_library: bool) -> Result<PathBuf> {
+        let package_name = if is_library {
+            if !crate::is_valid_library_name(package_name) {
+                return Err(CliError::invalid_package_name("library", package_name).into());
+            }
 
-        if !crate::is_valid_aleo_name(&package_name) {
-            return Err(CliError::invalid_program_name(package_name).into());
-        }
+            package_name.to_string()
+        } else {
+            let program_name =
+                if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
+
+            if !crate::is_valid_program_name(&program_name) {
+                return Err(CliError::invalid_package_name("program", &program_name).into());
+            }
+
+            program_name
+        };
 
         let path = path.canonicalize().map_err(|e| PackageError::failed_path(path.display(), e))?;
-        let full_path = path.join(package_name.strip_suffix(".aleo").unwrap());
+        let full_path = path.join(package_name.strip_suffix(".aleo").unwrap_or(&package_name));
 
         // Verify that there is no existing directory at the path.
         if full_path.exists() {
@@ -107,16 +120,14 @@ impl Package {
         std::env::set_current_dir(&full_path)
             .map_err(|e| PackageError::failed_to_initialize_package(&package_name, &full_path, e))?;
 
-        // Create the gitignore file.
+        // Create .gitignore
         const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n";
-
         const GITIGNORE_FILENAME: &str = ".gitignore";
 
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);
-
         std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
 
-        // Create the manifest.
+        // Create manifest
         let manifest = Manifest {
             program: package_name.clone(),
             version: "0.1.0".to_string(),
@@ -128,33 +139,43 @@ impl Package {
         };
 
         let manifest_path = full_path.join(MANIFEST_FILENAME);
-
         manifest.write_to_file(manifest_path)?;
 
-        // Create the source directory.
+        // Create src/
         let source_path = full_path.join(SOURCE_DIRECTORY);
 
         std::fs::create_dir(&source_path)
             .map_err(|e| PackageError::failed_to_create_source_directory(source_path.display(), e))?;
 
-        // Create the main.leo file.
-        let main_path = source_path.join(MAIN_FILENAME);
+        let name_no_aleo = package_name.strip_suffix(".aleo").unwrap_or(&package_name);
 
-        let name_no_aleo = package_name.strip_suffix(".aleo").unwrap();
+        if is_library {
+            // Create empty lib.leo
+            let lib_path = source_path.join("lib.leo");
 
-        std::fs::write(&main_path, main_template(name_no_aleo))
-            .map_err(|e| UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e))?;
+            std::fs::write(&lib_path, "").map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", lib_path.display()), e)
+            })?;
+        } else {
+            // Create main.leo
+            let main_path = source_path.join(MAIN_FILENAME);
 
-        // Create the tests directory.
-        let tests_path = full_path.join(TESTS_DIRECTORY);
+            std::fs::write(&main_path, main_template(name_no_aleo)).map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e)
+            })?;
 
-        std::fs::create_dir(&tests_path)
-            .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+            // Create tests directory
+            let tests_path = full_path.join(TESTS_DIRECTORY);
 
-        let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
-        std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
-            UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
-        })?;
+            std::fs::create_dir(&tests_path)
+                .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+
+            let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
+
+            std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+            })?;
+        }
 
         Ok(full_path)
     }
@@ -272,10 +293,10 @@ impl Package {
 
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
-        let programs: Vec<Program> = if build_graph {
+        let (compilation_units, digraph) = if build_graph {
             let home_path = home_path.canonicalize().map_err(|err| map_err(home_path, err))?;
 
-            let mut map: IndexMap<Symbol, (Dependency, Program)> = IndexMap::new();
+            let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
 
@@ -322,12 +343,15 @@ impl Package {
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| UtilError::circular_dependency_error())?;
 
-            ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect()
+            (
+                ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
+                digraph,
+            )
         } else {
-            Vec::new()
+            (Vec::new(), DiGraph::default())
         };
 
-        Ok(Package { base_directory: path, programs, manifest })
+        Ok(Package { base_directory: path, compilation_units, manifest, dep_graph: digraph })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -337,7 +361,7 @@ impl Package {
         endpoint: Option<&str>,
         main_program: &Dependency,
         new: Dependency,
-        map: &mut IndexMap<Symbol, (Dependency, Program)>,
+        map: &mut IndexMap<Symbol, (Dependency, CompilationUnit)>,
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
         no_local: bool,
@@ -347,7 +371,7 @@ impl Package {
         // Get the existing dependencies.
         let dependencies = map.clone().into_iter().map(|(name, (dep, _))| (name, dep)).collect();
 
-        let program = match map.entry(name_symbol) {
+        let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
                 // We've already visited this dependency. Just make sure it's compatible with
                 // the one we already have.
@@ -362,19 +386,19 @@ impl Package {
                 return Ok(());
             }
             Entry::Vacant(vacant) => {
-                let program = match (new.path.as_ref(), new.location) {
+                let unit = match (new.path.as_ref(), new.location) {
                     (Some(path), Location::Local) if !no_local => {
                         // It's a local dependency.
                         if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
-                            Program::from_aleo_path(name_symbol, path, &dependencies)?
+                            CompilationUnit::from_aleo_path(name_symbol, path, &dependencies)?
                         } else {
-                            Program::from_package_path(name_symbol, path)?
+                            CompilationUnit::from_package_path(name_symbol, path)?
                         }
                     }
                     (Some(path), Location::Test) => {
                         // It's a test dependency - the path points to the source file,
                         // not a package.
-                        Program::from_test_path(path, main_program.clone())?
+                        CompilationUnit::from_test_path(path, main_program.clone())?
                     }
                     (_, Location::Network) | (Some(_), Location::Local) => {
                         // It's a network dependency.
@@ -384,20 +408,20 @@ impl Package {
                         let Some(network) = network else {
                             return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
                         };
-                        Program::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
+                        CompilationUnit::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
 
-                vacant.insert((new, program.clone()));
+                vacant.insert((new, unit.clone()));
 
-                program
+                unit
             }
         };
 
         graph.add_node(name_symbol);
 
-        for dependency in program.dependencies.iter() {
+        for dependency in unit.dependencies.iter() {
             let dependency_symbol = symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
             Self::graph_build(

@@ -241,6 +241,8 @@ fn filter_stdout(data: &str) -> String {
         (Regex::new(r#""prover_size":[0-9]+"#).unwrap(), r#""prover_size":0"#),
         (Regex::new(r#""verifier_size":[0-9]+"#).unwrap(), r#""verifier_size":0"#),
         (Regex::new(r"- Circuit ID: [a-zA-Z0-9]+").unwrap(), "- Circuit ID: XXXXXX"),
+        // `leo clean` output contains absolute temp directory paths; strip the path portion.
+        (Regex::new(r"🧹 Cleaned the (build|outputs) directory.*\n").unwrap(), ""),
         // These are filtered out since the cache can frequently differ between local and CI runs.
         (Regex::new("Warning: The cached file.*\n").unwrap(), ""),
         // snarkVM prints parameter download progress to STDOUT on fresh runners,
@@ -285,6 +287,9 @@ fn filter_stderr(data: &str) -> String {
     let regexes = [
         // Match `-->` followed by any path, capture only the filename with line/col
         (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
+        // Normalize temp directory paths so expectations are stable across machines and OSes.
+        // e.g. '/private/var/folders/.../contents/' or '/tmp/.tmpXXX/contents/' → 'TMPDIR/contents/'
+        (Regex::new(r"'[^']*?/contents/").unwrap(), "'TMPDIR/contents/"),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
         // snarkVM prints parameter download warnings to stderr on fresh runners.

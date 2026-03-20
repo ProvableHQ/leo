@@ -1,0 +1,4 @@
+--- leo add actual_lib.aleo --local (should fail: dep is a library, not a program) ---
+add exit code: 213
+--- leo add actual_lib --local (should succeed: auto-detected as library) ---
+       Leo ✅ Added local dependency `actual_lib` at path `../actual_lib`.

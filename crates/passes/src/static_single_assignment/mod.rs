@@ -79,14 +79,19 @@ impl Pass for SsaForming {
     const NAME: &str = "SsaForming";
 
     fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor = SsaFormingVisitor {
             state,
             rename_table: RenameTable::new(None),
             program: Symbol::intern(""),
             rename_defs: input.rename_defs,
         };
-        ast.ast = visitor.consume_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.consume_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())

@@ -44,7 +44,12 @@ pub struct LeoAdd {
 #[derive(Parser, Debug)]
 #[group(required = true, multiple = false)]
 pub struct DependencySource {
-    #[clap(short = 'l', long, help = "Whether the dependency is local to the machine.", group = "source")]
+    #[clap(
+        short = 'l',
+        long,
+        help = "Local path for the dependency (program or library, auto-detected).",
+        group = "source"
+    )]
     pub(crate) local: Option<PathBuf>,
 
     #[clap(short = 'n', long, help = "Whether the dependency is on a live network.", group = "source")]
@@ -77,39 +82,98 @@ impl Command for LeoAdd {
         let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
         let mut manifest = Manifest::read_from_file(&manifest_path)?;
 
-        // Make sure the program name is valid.
-        // Allow both `credits.aleo` and `credits` syntax.
-        let name = if self.name.ends_with(".aleo") { self.name.clone() } else { format!("{}.aleo", self.name) };
+        let current_is_library = !manifest.program.ends_with(".aleo");
 
-        if !leo_package::is_valid_aleo_name(&name) {
-            return Err(CliError::invalid_program_name(name).into());
-        }
-
-        let new_dependency = Dependency {
-            name: name.clone(),
-            location: if self.source.local.is_some() { Location::Local } else { Location::Network },
-            path: self.source.local.clone(),
-            edition: self.source.edition,
+        // Normalize a program dep name to always carry the `.aleo` suffix, and validate it.
+        let normalize_program_name = |raw: &str| -> Result<String> {
+            let name = if raw.ends_with(".aleo") { raw.to_string() } else { format!("{raw}.aleo") };
+            if !leo_package::is_valid_program_name(&name) {
+                return Err(CliError::invalid_package_name("program", name).into());
+            }
+            Ok(name)
         };
 
+        // Determine dependency name, location, and path.
+        let (name, location, dep_path) = if let Some(local_path) = &self.source.local {
+            // Auto-detect whether the local dep is a library or a program by reading its manifest.
+            let dep_manifest_path = local_path.join(leo_package::MANIFEST_FILENAME);
+            let dep_manifest = Manifest::read_from_file(&dep_manifest_path).map_err(|_| {
+                CliError::custom(format!(
+                    "Could not read `{}` — is `{}` a valid Leo package?",
+                    dep_manifest_path.display(),
+                    local_path.display()
+                ))
+            })?;
+
+            let dep_is_library = !dep_manifest.program.ends_with(".aleo");
+
+            // Libraries can only depend on other libraries.
+            if current_is_library && !dep_is_library {
+                return Err(CliError::custom("A library package can only depend on other libraries.").into());
+            }
+
+            if dep_is_library {
+                // The dep is a library: the name must not carry a `.aleo` suffix.
+                if self.name.ends_with(".aleo") {
+                    return Err(CliError::custom(format!(
+                        "`{}` ends with `.aleo` but the package at `{}` is a library, not a program.",
+                        self.name,
+                        local_path.display()
+                    ))
+                    .into());
+                }
+                if !leo_package::is_valid_library_name(&self.name) {
+                    return Err(CliError::invalid_package_name("library", &self.name).into());
+                }
+                // Confirm that src/lib.leo exists — the manifest says it's a library,
+                // so a missing lib.leo means the package is incomplete.
+                let lib_leo = local_path.join("src").join(leo_package::LIB_FILENAME);
+                if !lib_leo.exists() {
+                    return Err(CliError::custom(format!(
+                        "The package at `{}` has a library manifest but is missing `src/{}`.",
+                        local_path.display(),
+                        leo_package::LIB_FILENAME,
+                    ))
+                    .into());
+                }
+                (self.name.clone(), Location::Local, Some(local_path.clone()))
+            } else {
+                // The dep is a program: normalize the name to include `.aleo`.
+                (normalize_program_name(&self.name)?, Location::Local, Some(local_path.clone()))
+            }
+        } else {
+            // Network or edition dependency — must be a program, not a library.
+            if current_is_library {
+                return Err(CliError::custom(
+                    "A library package can only depend on other libraries. Use `--local <path>` to add a library dependency.",
+                )
+                .into());
+            }
+            (normalize_program_name(&self.name)?, Location::Network, None)
+        };
+
+        let new_dependency =
+            Dependency { name: name.clone(), location, path: dep_path.clone(), edition: self.source.edition };
+
+        // Choose dev or normal dependencies.
         let deps = if self.dev { &mut manifest.dev_dependencies } else { &mut manifest.dependencies };
 
-        if let Some(matched_dep) = deps.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name) {
-            if let Some(path) = &matched_dep.path {
+        if let Some(existing) = deps.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name) {
+            if let Some(existing_path) = &existing.path {
                 tracing::warn!(
-                    "⚠️ Program `{name}` already exists as a local dependency at `{}`. Overwriting.",
-                    path.display()
+                    "⚠️ Dependency `{name}` already exists as a local dependency at `{}`. Overwriting.",
+                    existing_path.display()
                 );
             } else {
-                tracing::warn!("⚠️ Program `{name}` already exists as a network dependency. Overwriting.");
+                tracing::warn!("⚠️ Dependency `{name}` already exists as a network dependency. Overwriting.");
             }
-            *matched_dep = new_dependency;
+            *existing = new_dependency;
         } else {
             deps.as_mut().unwrap().push(new_dependency);
-            if let Some(path) = self.source.local.as_ref() {
-                tracing::info!("✅ Added local dependency to program `{name}` at path `{}`.", path.display());
-            } else {
-                tracing::info!("✅ Added network dependency `{name}` from network `{}`.", self.source.network);
+
+            match dep_path {
+                Some(p) => tracing::info!("✅ Added local dependency `{name}` at path `{}`.", p.display()),
+                None => tracing::info!("✅ Added network dependency `{name}`."),
             }
         }
 

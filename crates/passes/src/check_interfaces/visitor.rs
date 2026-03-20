@@ -254,7 +254,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
         interface_location: &Location,
         interface_span: Span,
     ) {
-        let program_name = program_scope.program_id.name.name;
+        let program_name = program_scope.program_id.as_symbol();
 
         // Get the flattened interface (with all inherited members).
         let flattened = match self.flatten_interface(interface_location, interface_span) {
@@ -600,7 +600,7 @@ impl AstVisitor for CheckInterfacesVisitor<'_> {
 
 impl ProgramVisitor for CheckInterfacesVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        self.current_program = input.program_id.name.name;
+        self.current_program = input.program_id.as_symbol();
 
         self.build_inheritance_graph(input);
 

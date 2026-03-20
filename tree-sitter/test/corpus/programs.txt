@@ -1,0 +1,62 @@
+================
+Minimal program
+================
+
+program hello.aleo {
+    fn main() -> u32 {
+        return 1u32;
+    }
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (parameter_list)
+      (return_type
+        (return_type_item
+          (primitive_type)))
+      (block
+        (return_statement
+          (integer_literal))))))
+
+================
+Program with parents and items
+================
+
+program token.aleo: Ledger + Mintable {
+    const NAME: string = "token";
+
+    fn id() -> field {
+        return 1field;
+    }
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (parent_list
+      (path_type
+        (identifier))
+      (path_type
+        (identifier)))
+    (const_declaration
+      (identifier)
+      (primitive_type)
+      (string_literal))
+    (function_definition
+      (identifier)
+      (parameter_list)
+      (return_type
+        (return_type_item
+          (primitive_type)))
+      (block
+        (return_statement
+          (field_literal))))))

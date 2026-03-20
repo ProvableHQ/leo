@@ -1,0 +1,81 @@
+================
+Const generics
+================
+
+fn sum::[N: u32]() -> u32 {
+    let s = 0u32;
+    for i in 0u32..N {
+        s += i;
+    }
+    return s;
+}
+
+fn use_generics() {
+    let x = Array::[u32, 32u32] { data: [0u32; 32u32] };
+    let y = Matrix::<ROWS, 4>;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (const_param_list
+      (const_param
+        (identifier)
+        (primitive_type)))
+    (parameter_list)
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (for_statement
+        (identifier)
+        (integer_literal)
+        (path_expression
+          (identifier))
+        (block
+          (compound_assignment_statement
+            (path_expression
+              (identifier))
+            (compound_assign_op)
+            (path_expression
+              (identifier)))))
+      (return_statement
+        (path_expression
+          (identifier)))))
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_expression
+          (path_expression
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket
+                (const_arg
+                  (primitive_type))
+                (const_arg
+                  (integer_literal)))))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (repeat_expression
+                (integer_literal)
+                (integer_literal))))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (identifier)
+          (const_arg_list
+            (const_arg_list_angle
+              (identifier)
+              (integer_literal))))))))

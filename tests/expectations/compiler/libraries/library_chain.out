@@ -1,0 +1,7 @@
+program chain.aleo;
+
+function foo:
+    output 11u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -2,6 +2,13 @@
 
 LEO_BIN=${1}
 
+echo "--- fmt program ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check fmt --check || true
+${LEO_BIN} --disable-update-check fmt
+${LEO_BIN} --disable-update-check fmt --check
+
+echo "--- fmt library ---" | tee /dev/stderr
+cd ugly_lib || exit 1
 ${LEO_BIN} --disable-update-check fmt --check || true
 ${LEO_BIN} --disable-update-check fmt
 ${LEO_BIN} --disable-update-check fmt --check

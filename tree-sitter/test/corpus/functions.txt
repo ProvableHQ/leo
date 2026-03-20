@@ -1,0 +1,73 @@
+================
+Functions, final functions, constructors, and annotations
+================
+
+@program(address = "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7x0l")
+fn main(public caller: address) -> u32 {
+    return 1u32;
+}
+
+@test(mapping = "account")
+final fn finalize(receiver: address, amount: u64) -> Final {
+    return final {
+        assert(amount > 0u64);
+    };
+}
+
+program token.aleo {
+    @noupgrade
+    constructor() {}
+}
+
+---
+
+(source_file
+  (function_definition
+    (annotation
+      (annotation_pair
+        (string_literal)))
+    (identifier)
+    (parameter_list
+      (parameter
+        (visibility)
+        (identifier)
+        (primitive_type)))
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (return_statement
+        (integer_literal))))
+  (final_function_definition
+    (annotation
+      (identifier)
+      (annotation_pair
+        (string_literal)))
+    (identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (primitive_type))
+      (parameter
+        (identifier)
+        (primitive_type)))
+    (return_type
+      (return_type_item
+        (final_type)))
+    (block
+      (return_statement
+        (final_expression
+          (block
+            (assert_statement
+              (binary_expression
+                (path_expression
+                  (identifier))
+                (integer_literal))))))))
+  (program_declaration
+    (program_id
+      (identifier))
+    (constructor_definition
+      (annotation
+        (identifier))
+      (parameter_list)
+      (block))))

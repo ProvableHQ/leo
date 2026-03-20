@@ -1,0 +1,281 @@
+================
+All expression types
+================
+
+fn exprs() -> u32 {
+    let a = 1u32 + 2u32 * 3u32;
+    let b = a ** 2u32;
+    let c = a << 2u32;
+    let d = true && false || true;
+    let e = a == b;
+    let f = a | b & c ^ a;
+    let g = !true;
+    let h = -1i32;
+    let i = a as u64;
+    let j = true ? 1u32 : 2u32;
+    let point = Point { x: 1field, y: 2field };
+    let arr = [1u32, 2u32, 3u32];
+    let repeated = [0u8; 32u32];
+    let tup = (1u32, 2u32);
+    let field_access = point.x;
+    let keyword_fields = obj.script + obj.assert + obj.self + obj.field + obj.block;
+    let method = hash.to_field();
+    let tuple_field = tup.0;
+    let index = arr[0u32];
+    let locator = credits.aleo/transfer;
+    let located = credits.aleo/Point { x: 1field, y: 2field };
+    let paren_call = (f)();
+    let indexed_call = arr[0u32]();
+    let nested = Foo::Bar::[u32, 1u32](point.x);
+    let s = self.caller;
+    let b1 = block.height;
+    let n1 = network.id;
+    return 0u32;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (integer_literal)
+          (binary_expression
+            (integer_literal)
+            (integer_literal))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (path_expression
+            (identifier))
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (path_expression
+            (identifier))
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (binary_expression
+            (boolean_literal)
+            (boolean_literal))
+          (boolean_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (path_expression
+            (identifier))
+          (path_expression
+            (identifier))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (path_expression
+            (identifier))
+          (binary_expression
+            (binary_expression
+              (path_expression
+                (identifier))
+              (path_expression
+                (identifier)))
+            (path_expression
+              (identifier)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (unary_expression
+          (boolean_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (unary_expression
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (cast_expression
+          (path_expression
+            (identifier))
+          (primitive_type)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (ternary_expression
+          (boolean_literal)
+          (integer_literal)
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_expression
+          (path_expression
+            (identifier))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (field_literal))
+            (struct_field_init
+              (identifier)
+              (field_literal)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (array_expression
+          (integer_literal)
+          (integer_literal)
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (repeat_expression
+          (integer_literal)
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (tuple_expression
+          (integer_literal)
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (field_expression
+          (path_expression
+            (identifier))
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (field_expression
+                  (path_expression
+                    (identifier)))
+                (field_expression
+                  (path_expression
+                    (identifier))))
+              (field_expression
+                (path_expression
+                  (identifier))))
+            (field_expression
+              (path_expression
+                (identifier))))
+          (field_expression
+            (path_expression
+              (identifier)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (method_call_expression
+          (path_expression
+            (identifier))
+          (identifier)
+          (argument_list)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (tuple_access_expression
+          (path_expression
+            (identifier))
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (index_expression
+          (path_expression
+            (identifier))
+          (integer_literal)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_locator_expression
+          (program_id
+            (identifier))
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_locator_expression
+          (path_locator_expression
+            (program_id
+              (identifier))
+            (identifier))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (field_literal))
+            (struct_field_init
+              (identifier)
+              (field_literal)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (call_expression
+          (parenthesized_expression
+            (path_expression
+              (identifier)))
+          (argument_list)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (call_expression
+          (index_expression
+            (path_expression
+              (identifier))
+            (integer_literal))
+          (argument_list)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (call_expression
+          (path_expression
+            (identifier)
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket
+                (const_arg
+                  (primitive_type))
+                (const_arg
+                  (integer_literal)))))
+          (argument_list
+            (field_expression
+              (path_expression
+                (identifier))
+              (identifier)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (field_expression
+          (self_expression)
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (field_expression
+          (block_keyword_expression)
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (field_expression
+          (network_keyword_expression)
+          (identifier)))
+      (return_statement
+        (integer_literal)))))

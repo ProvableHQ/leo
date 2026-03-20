@@ -41,7 +41,7 @@ impl ProgramReconstructor for WriteTransformingVisitor<'_> {
     }
 
     fn reconstruct_program_scope(&mut self, input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
         leo_ast::ProgramScope {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),

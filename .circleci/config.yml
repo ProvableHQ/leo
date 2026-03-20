@@ -250,7 +250,8 @@ jobs:
 #            - ~/.aleo/resources
 
   check-style-clippy-docs:
-    executor: linux-executor
+    docker:
+      - image: "cimg/rust:1.93.1-node"  # Rust image with Node.js for tree-sitter CLI checks.
     resource_class: large
     steps:
       - checkout
@@ -273,6 +274,12 @@ jobs:
           command: |
             cargo nextest run -p leo-fmt --locked --cargo-profile ci --features validate \
               -E 'test(/validate_/) - test(validate_ast_equivalence_repos) - test(validate_workspace_ast_equivalence)'
+      - run:
+          name: Validate tree-sitter corpus
+          no_output_timeout: 35m
+          command: |
+            cd tree-sitter
+            npx --yes tree-sitter-cli@0.25.10 test
       - run:
           name: Clippy
           no_output_timeout: 35m

@@ -1,4 +1,4 @@
-Error [ECHI03712012]: Record `Token` in program `test` is missing required field `amount` specified by interface `test.aleo/TokenInterface`.
+Error [ECHI03712012]: Record `Token` in program `test.aleo` is missing required field `amount` specified by interface `test.aleo/TokenInterface`.
     --> compiler-test:10:5
      |
    4 |           amount: u64,

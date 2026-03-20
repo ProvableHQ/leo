@@ -35,33 +35,31 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
             program
                 .structs()
                 .iter()
-                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id.name.name)))
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id)))
                 .collect_vec(),
             program
                 .records()
                 .iter()
-                .map(|(id, s)| (Identifier::from(id).name, Composite::from_external_record(s, program_id.name.name)))
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_external_record(s, program_id)))
                 .collect_vec(),
         ]
         .concat(),
         mappings: program
             .mappings()
             .into_iter()
-            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id.name.name)))
+            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id)))
             .collect(),
         functions: [
             program
                 .closures()
                 .iter()
-                .map(|(id, closure)| {
-                    (Identifier::from(id).name, FunctionStub::from_closure(closure, program_id.name.name))
-                })
+                .map(|(id, closure)| (Identifier::from(id).name, FunctionStub::from_closure(closure, program_id)))
                 .collect_vec(),
             program
                 .functions()
                 .iter()
                 .map(|(id, function)| {
-                    (Identifier::from(id).name, FunctionStub::from_function_core(function, program_id.name.name))
+                    (Identifier::from(id).name, FunctionStub::from_function_core(function, program_id))
                 })
                 .collect_vec(),
             program
@@ -73,7 +71,7 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
                             "finalize/{}",
                             Symbol::intern(&Identifier::from(id).name.to_string())
                         ));
-                        Some((key_name, FunctionStub::from_finalize(function, key_name, program_id.name.name)))
+                        Some((key_name, FunctionStub::from_finalize(function, key_name, program_id)))
                     }
                     None => None,
                 })

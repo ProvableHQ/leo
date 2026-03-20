@@ -27,6 +27,7 @@ pub use options::*;
 
 // Re-export types from leo_passes for convenience
 pub use leo_passes::{Bytecode, CompiledPrograms};
+pub use leo_span::file_source::{DiskFileSource, FileSource, InMemoryFileSource};
 
 pub mod run;
 

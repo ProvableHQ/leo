@@ -1,0 +1,42 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "leo",
+      "camelcase": "Leo",
+      "title": "Leo",
+      "scope": "source.leo",
+      "file-types": [
+        "leo"
+      ],
+      "highlights": "queries/highlights.scm",
+      "locals": "queries/locals.scm",
+      "folds": "queries/folds.scm",
+      "indents": "queries/indents.scm",
+      "injection-regex": "^leo$",
+      "class-name": "TreeSitterLeo"
+    }
+  ],
+  "metadata": {
+    "version": "4.0.0",
+    "license": "GPL-3.0-only",
+    "description": "Leo grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Provable"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/ProvableHQ/leo/tree/master/tree-sitter"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}

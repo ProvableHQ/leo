@@ -1,0 +1,45 @@
+================
+Struct definitions
+================
+
+struct Point {
+    public x: field,
+    private y: field,
+    constant z: field,
+}
+
+struct Buffer::[N: u32] {
+    data: [u8; N],
+}
+
+---
+
+(source_file
+  (struct_definition
+    (identifier)
+    (struct_field_list
+      (struct_field
+        (visibility)
+        (identifier)
+        (primitive_type))
+      (struct_field
+        (visibility)
+        (identifier)
+        (primitive_type))
+      (struct_field
+        (visibility)
+        (identifier)
+        (primitive_type))))
+  (struct_definition
+    (identifier)
+    (const_param_list
+      (const_param
+        (identifier)
+        (primitive_type)))
+    (struct_field_list
+      (struct_field
+        (identifier)
+        (array_type
+          (primitive_type)
+          (path_expression
+            (identifier)))))))

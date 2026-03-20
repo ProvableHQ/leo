@@ -194,7 +194,7 @@ mod validate {
             NetworkName::TestnetV0,
         );
         let program =
-            compiler.parse_and_return_ast(source, FileName::Custom(name.into()), &[]).map_err(|e| e.to_string())?;
+            compiler.parse_and_return_program(source, FileName::Custom(name.into()), &[]).map_err(|e| e.to_string())?;
         let mut json =
             serde_json::to_value(&program).expect("serializing the compiler AST to JSON should always succeed");
         for key in ["span", "_span", "id", "lo", "hi"] {
@@ -325,7 +325,7 @@ mod validate {
                 );
 
                 let result = compiler
-                    .parse(&source, FileName::Custom(name.into()), &[])
+                    .parse_program(&source, FileName::Custom(name.into()), &[])
                     .and_then(|_| compiler.intermediate_passes().map(|_| ()));
 
                 if let Err(e) = result {

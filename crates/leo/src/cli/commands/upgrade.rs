@@ -115,6 +115,10 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     network: NetworkName,
     package: Package,
 ) -> Result<<LeoDeploy as Command>::Output> {
+    if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
+        return Err(CliError::custom("`leo upgrade` is not supported for library packages.").into());
+    }
+
     // Get the private key and associated address, accounting for overrides.
     let private_key = get_private_key(&command.env_override.private_key)?;
     let address =
@@ -150,17 +154,17 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
     }
 
-    // Get all the programs but tests.
-    let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
+    // Get all the programs but tests and libraries (libraries have no AVM bytecode).
+    let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
-    let programs_and_bytecode: Vec<(leo_package::Program, String)> = programs
+    let programs_and_bytecode: Vec<(leo_package::CompilationUnit, String)> = programs
         .into_iter()
         .map(|program| {
             let bytecode = match &program.data {
                 ProgramData::Bytecode(s) => s.clone(),
                 ProgramData::SourcePath { .. } => {
                     // We need to read the bytecode from the filesystem.
-                    let aleo_name = format!("{}.aleo", program.name);
+                    let aleo_name = format!("{}", program.name);
                     let aleo_path = if package.manifest.program == aleo_name {
                         // The main program in the package, so its .aleo file
                         // will be in the build directory.
@@ -185,7 +189,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         .into_iter()
         .zip(fee_options)
         .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
-            let id_str = format!("{}.aleo", program.name);
+            let id_str = format!("{}", program.name);
             let id =
                 id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
             let bytecode_size = bytecode.len();
@@ -260,7 +264,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let mut programs_and_editions = Vec::with_capacity(program_ids.len());
     for id in &program_ids {
         // Load the program from the network.
-        let Ok(program) = leo_package::Program::fetch(
+        let Ok(program) = leo_package::CompilationUnit::fetch(
             Symbol::intern(&id.name().to_string()),
             None,
             context.home()?,

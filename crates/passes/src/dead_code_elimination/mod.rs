@@ -75,7 +75,8 @@ impl Pass for DeadCodeEliminating {
     const NAME: &str = "DeadCodeEliminating";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
+
         let mut visitor = DeadCodeEliminatingVisitor {
             state,
             used_variables: Default::default(),
@@ -83,9 +84,15 @@ impl Pass for DeadCodeEliminating {
             statements_before: 0,
             statements_after: 0,
         };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
+
         Ok(DeadCodeEliminatingOutput {
             statements_before: visitor.statements_before,
             statements_after: visitor.statements_after,

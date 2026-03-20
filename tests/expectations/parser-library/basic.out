@@ -1,0 +1,19 @@
+library test_lib {
+    const X: u32 = 5;
+}
+
+
+library test_lib {
+    const A: u32 = 1;
+    const B: u64 = 2;
+    const C: field = 3field;
+}
+
+
+library test_lib {
+    const OFFSET: u32 = 10;
+    const SCALE: u32 = OFFSET + 5u32;
+    const RESULT: u32 = SCALE * 2u32;
+}
+
+

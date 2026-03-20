@@ -7,6 +7,10 @@ xxx::xxx
 
 XXX::YYY::ZZZ
 
-self::y
-
 Self::pp::qq
+
+foo.aleo/bar 
+
+foo/bar
+
+self::y

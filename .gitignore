@@ -33,3 +33,8 @@ sccache*/
 
 # tests
 tests/mismatches/
+
+# tree-sitter grammar artifacts
+tree-sitter/node_modules/
+tree-sitter/build/
+tree-sitter/result

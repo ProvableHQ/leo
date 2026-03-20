@@ -118,7 +118,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -133,7 +133,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -152,7 +152,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"
@@ -165,7 +165,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"
@@ -296,7 +296,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -311,7 +311,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "simple"
+                "program": "simple.aleo"
               }
             }
           },
@@ -330,7 +330,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"
@@ -343,7 +343,7 @@
               "path": [
                 "Token"
               ],
-              "program": "simple"
+              "program": "simple.aleo"
             }
           },
           "mode": "None"
@@ -508,7 +508,7 @@
               "path": [
                 "Point"
               ],
-              "program": "comprehensive"
+              "program": "comprehensive.aleo"
             }
           }
         },
@@ -519,7 +519,7 @@
               "path": [
                 "Point"
               ],
-              "program": "comprehensive"
+              "program": "comprehensive.aleo"
             }
           }
         }
@@ -580,7 +580,7 @@
           "path": [
             "Point"
           ],
-          "program": "comprehensive"
+          "program": "comprehensive.aleo"
         }
       }
     },
@@ -785,7 +785,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },
@@ -800,7 +800,7 @@
                 "path": [
                   "Point"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },
@@ -820,7 +820,7 @@
                 "path": [
                   "Rectangle"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },
@@ -835,7 +835,7 @@
                 "path": [
                   "Rectangle"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },
@@ -942,7 +942,7 @@
               "path": [
                 "Token"
               ],
-              "program": "comprehensive"
+              "program": "comprehensive.aleo"
             }
           },
           "mode": "None"
@@ -1002,7 +1002,7 @@
               "path": [
                 "Token"
               ],
-              "program": "comprehensive"
+              "program": "comprehensive.aleo"
             }
           },
           "mode": "None"
@@ -1021,7 +1021,7 @@
                 "path": [
                   "AllPrimitives"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },
@@ -1036,7 +1036,7 @@
                 "path": [
                   "AllPrimitives"
                 ],
-                "program": "comprehensive"
+                "program": "comprehensive.aleo"
               }
             }
           },

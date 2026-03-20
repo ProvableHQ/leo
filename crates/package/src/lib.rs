@@ -53,7 +53,7 @@
 //! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
 //! ```
 //! This will read the manifest and keep their data in `package.manifest`.
-//! It will also process dependencies and store them in topological order in `package.programs`. This processing
+//! It will also process dependencies and store them in topological order in `package.compilation_units`. This processing
 //! will involve fetching bytecode from the network for network dependencies.
 //! If the `no_cache` option (3rd parameter) is set to `true`, the package will not use the dependency cache.
 //! The endpoint and network are optional and are only needed if the package has network dependencies.
@@ -61,9 +61,9 @@
 //! If you want to simply read the manifest file without processing dependencies, use
 //! `Package::from_directory_no_graph`.
 //!
-//! `Program` generally doesn't need to be created directly, as `Package` will create `Program`s
+//! `CompilationUnit` generally doesn't need to be created directly, as `Package` will create `CompilationUnit`s
 //! for the main program and all dependencies. However, if you'd like to fetch bytecode for
-//! a program, you can use `Program::fetch`.
+//! a program, you can use `CompilationUnit::fetch`.
 
 #![forbid(unsafe_code)]
 
@@ -85,12 +85,14 @@ pub use manifest::*;
 mod package;
 pub use package::*;
 
-mod program;
-pub use program::*;
+mod compilation_unit;
+pub use compilation_unit::*;
 
 pub const SOURCE_DIRECTORY: &str = "src";
 
 pub const MAIN_FILENAME: &str = "main.leo";
+
+pub const LIB_FILENAME: &str = "lib.leo";
 
 pub const IMPORTS_DIRECTORY: &str = "build/imports";
 
@@ -110,27 +112,50 @@ pub const MAX_PROGRAM_SIZE: usize =
 /// Edition 0 is the initial deployment, and increments with each upgrade.
 pub type Edition = u16;
 
+/// Converts a valid program or library name into a `Symbol`.
+///
+/// Names must either end with `.aleo` or contain no periods; otherwise an error is returned.
 fn symbol(name: &str) -> Result<Symbol> {
-    name.strip_suffix(".aleo").map(Symbol::intern).ok_or_else(|| PackageError::invalid_network_name(name).into())
+    if name.ends_with(".aleo") || !name.contains('.') {
+        Ok(Symbol::intern(name))
+    } else {
+        Err(PackageError::invalid_network_name(name).into())
+    }
 }
 
-/// Is this a valid name for an Aleo program?
+/// Checks whether a string is a valid Aleo program name.
 ///
-/// Namely, it must be of the format "xxx.aleo" where `xxx` is nonempty,
-/// consist solely of ASCII alphanumeric characters and underscore, and
-/// begin with a letter.
-pub fn is_valid_aleo_name(name: &str) -> bool {
+/// A valid program name must end with `.aleo` and the base name (without the
+/// suffix) must satisfy Aleo package naming rules.
+pub fn is_valid_program_name(name: &str) -> bool {
     let Some(rest) = name.strip_suffix(".aleo") else {
+        tracing::error!("Program names must end with `.aleo`.");
         return false;
     };
 
+    is_valid_package_name(rest)
+}
+
+/// Checks whether a string is a valid Aleo library name.
+///
+/// Library names must satisfy Aleo package naming rules but do not require
+/// a `.aleo` suffix.
+pub fn is_valid_library_name(name: &str) -> bool {
+    is_valid_package_name(name)
+}
+
+/// Checks whether a string satisfies general Aleo package naming rules.
+///
+/// Names must be nonempty, start with a letter, contain only ASCII alphanumeric
+/// characters or underscores, avoid reserved keywords, and not contain "aleo".
+fn is_valid_package_name(name: &str) -> bool {
     // Check that the name is nonempty.
-    if rest.is_empty() {
+    if name.is_empty() {
         tracing::error!("Aleo names must be nonempty");
         return false;
     }
 
-    let first = rest.chars().next().unwrap();
+    let first = name.chars().next().unwrap();
 
     // Check that the first character is not an underscore.
     if first == '_' {
@@ -144,14 +169,14 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
-    // Iterate and check that the name is valid.
-    if rest.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
-        tracing::error!("Aleo names must can only contain ASCII alphanumeric characters and underscores.");
+    // Check valid characters.
+    if name.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
+        tracing::error!("Aleo names can only contain ASCII alphanumeric characters and underscores.");
         return false;
     }
 
-    // Check that the name is not a SnarkVM reserved keyword
-    if reserved_keywords().any(|kw| kw == rest) {
+    // Check reserved keywords.
+    if reserved_keywords().any(|kw| kw == name) {
         tracing::error!(
             "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
             reserved_keywords().collect::<Vec<_>>().join(", ")
@@ -159,9 +184,9 @@ pub fn is_valid_aleo_name(name: &str) -> bool {
         return false;
     }
 
-    // Check that the name does not contain `aleo`
-    if rest.contains("aleo") {
-        tracing::error!("Aleo names cannot contain the keyword `aleo`.",);
+    // Disallow "aleo"
+    if name.contains("aleo") {
+        tracing::error!("Aleo names cannot contain the keyword `aleo`.");
         return false;
     }
 
@@ -208,7 +233,7 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
 }
 
 /// Fetch the given program from the network and return the program as a string.
-// TODO (@d0cd) Unify with `leo_package::Program::fetch`.
+// TODO (@d0cd) Unify with `leo_package::CompilationUnit::fetch`.
 pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
     let program = fetch_from_network(&url)?;

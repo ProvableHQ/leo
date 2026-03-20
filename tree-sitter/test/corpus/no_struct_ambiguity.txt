@@ -1,0 +1,61 @@
+================
+No-struct ambiguity handling
+================
+
+fn disambiguation(x: u32) {
+    if x {}
+    if x == 1u32 {}
+    for i in 0u32..10u32 {}
+    let y = Foo { value: 1u32 };
+    if (Foo { value: 1u32 }.value == 1u32) {}
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (primitive_type)))
+    (block
+      (if_statement
+        (path_expression
+          (identifier))
+        (block))
+      (if_statement
+        (binary_expression
+          (path_expression
+            (identifier))
+          (integer_literal))
+        (block))
+      (for_statement
+        (identifier)
+        (integer_literal)
+        (integer_literal)
+        (block))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_expression
+          (path_expression
+            (identifier))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (integer_literal)))))
+      (if_statement
+        (parenthesized_expression
+          (binary_expression
+            (field_expression
+              (struct_expression
+                (path_expression
+                  (identifier))
+                (struct_field_init_list
+                  (struct_field_init
+                    (identifier)
+                    (integer_literal))))
+              (identifier))
+            (integer_literal)))
+        (block)))))

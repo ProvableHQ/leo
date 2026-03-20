@@ -1,0 +1,28 @@
+[package]
+name = "tree-sitter-leo"
+description = "Rust bindings and tests for the Leo tree-sitter grammar"
+version = "4.0.0"
+authors = ["Provable"]
+license = "GPL-3.0-only"
+readme = "README.md"
+keywords = ["incremental", "parsing", "tree-sitter", "leo"]
+categories = ["parser-implementations", "parsing", "text-editors"]
+repository = "https://github.com/ProvableHQ/leo"
+edition = "2021"
+autoexamples = false
+publish = false
+
+build = "bindings/rust/build.rs"
+
+[lib]
+path = "bindings/rust/lib.rs"
+
+[dependencies]
+tree-sitter-language = { workspace = true }
+
+[build-dependencies]
+cc = "1.2"
+
+[dev-dependencies]
+leo-parser-rowan = { workspace = true }
+tree-sitter = { workspace = true }

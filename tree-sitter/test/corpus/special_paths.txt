@@ -1,0 +1,59 @@
+================
+Special paths
+================
+
+fn specials() {
+    let a = group::GEN;
+    let b = signature::verify;
+    let c = Future::await;
+    let d = Foo::bar;
+}
+
+---
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (special_path)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (special_path)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (special_path)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (identifier)
+          (identifier))))))
+
+================
+Invalid special path
+================
+
+fn invalid() {
+    let a = group::;
+}
+
+---
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (identifier))
+        (ERROR)))))

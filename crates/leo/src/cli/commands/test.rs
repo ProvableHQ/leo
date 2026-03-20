@@ -85,19 +85,20 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
     let private_key_symbol = Symbol::intern("private_key");
     let mut test_functions = Vec::new();
 
-    for program in &package.programs {
-        let ProgramData::SourcePath { directory, source } = &program.data else {
+    for unit in &package.compilation_units {
+        let ProgramData::SourcePath { directory, source } = &unit.data else {
             continue;
         };
 
-        let source_dir = if program.is_test { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
+        let source_dir =
+            if unit.kind.is_test() { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
 
         let handler = Handler::default();
         let node_builder = Rc::new(NodeBuilder::default());
 
         let mut compiler = Compiler::new(
             None,
-            program.is_test,
+            unit.kind.is_test(),
             handler,
             node_builder,
             "/unused".into(),
@@ -106,7 +107,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             network,
         );
 
-        let ast = compiler.parse_from_directory(source, &source_dir);
+        let ast = compiler.parse_program_from_directory(source, &source_dir);
         let ast = match ast {
             Ok(ast) => ast,
             Err(_) => continue,
@@ -125,7 +126,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
                     continue;
                 }
 
-                let qualified = format!("{program_name}.aleo/{}", function.identifier);
+                let qualified = format!("{program_name}/{}", function.identifier);
                 if !match_str.is_empty() && !qualified.contains(match_str) {
                     continue;
                 }
@@ -152,41 +153,48 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
 }
 
 fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
+    if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
+        return Err(CliError::custom("`leo test` is not supported for library packages.").into());
+    }
+
     // Get the private key.
     let _private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
 
     let network = command.env_override.network.unwrap_or(NetworkName::TestnetV0);
     let test_functions = discover_test_functions(&package, &command.test_name, network)?;
 
-    let program_name = package.manifest.program.strip_suffix(".aleo").unwrap();
-    let program_name_symbol = Symbol::intern(program_name);
+    let program_name_symbol = Symbol::intern(&package.manifest.program);
     let build_directory = package.build_directory();
 
-    let credits = Symbol::intern("credits");
+    let credits = Symbol::intern("credits.aleo");
 
     // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
     let programs: Vec<run::Program> = package
-        .programs
+        .compilation_units
         .iter()
-        .filter_map(|program| {
+        .filter_map(|unit| {
             // Skip credits.aleo so we don't try to deploy it again.
-            if program.name == credits {
+            if unit.name == credits {
                 return None;
             }
-            let bytecode = match &program.data {
+            // Libraries have no bytecode — their consts are inlined into the main program.
+            if unit.kind.is_library() {
+                return None;
+            }
+            let bytecode = match &unit.data {
                 ProgramData::Bytecode(c) => c.clone(),
                 ProgramData::SourcePath { .. } => {
                     // This was not a network dependency, so get its bytecode from the filesystem.
-                    let aleo_path = if program.name == program_name_symbol {
+                    let aleo_path = if unit.name == program_name_symbol {
                         build_directory.join("main.aleo")
                     } else {
-                        package.imports_directory().join(format!("{}.aleo", program.name))
+                        package.imports_directory().join(format!("{}", unit.name))
                     };
                     fs::read_to_string(&aleo_path)
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
                 }
             };
-            Some(run::Program { bytecode, name: program.name.to_string() })
+            Some(run::Program { bytecode, name: unit.name.to_string() })
         })
         .collect();
 

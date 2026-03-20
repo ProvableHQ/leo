@@ -42,6 +42,7 @@ use leo_ast::{
     Function,
     FunctionStub,
     Interface,
+    Library,
     Location,
     Mapping,
     MappingType,
@@ -69,7 +70,15 @@ impl Pass for GlobalItemsCollection {
     fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = GlobalItemsCollectionVisitor { state, program_name: Symbol::intern(""), module: vec![] };
-        visitor.visit_program(ast.as_repr());
+
+        ast.visit(
+            |program| visitor.visit_program(program),
+            |library| {
+                // no-op for libraries
+                let _ = library;
+            },
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
         Ok(())
@@ -110,7 +119,7 @@ impl AstVisitor for GlobalItemsCollectionVisitor<'_> {
 impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
-        self.program_name = input.program_id.name.name;
+        self.program_name = input.program_id.as_symbol();
 
         // Visit the program scope
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -193,8 +202,14 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         }
     }
 
+    fn visit_library(&mut self, input: &Library) {
+        self.program_name = input.name;
+
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
-        self.program_name = input.stub_id.name.name;
+        self.program_name = input.stub_id.as_symbol();
 
         input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite_stub(c));

@@ -67,6 +67,8 @@ snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = 
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"
+tree-sitter        = "0.25.10"
+tree-sitter-language = "0.1"
 tokio              = { version = "1", features = [ "full" ] }
 tower-http         = { version = "0.6.0", features = [ "cors", "trace" ] }
 tower_governor     = "0.8"

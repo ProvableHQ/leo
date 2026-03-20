@@ -131,26 +131,26 @@ impl FunctionStub {
     }
 
     /// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
-    pub fn from_function_core<N: Network>(function: &FunctionCore<N>, program: Symbol) -> Self {
+    pub fn from_function_core<N: Network>(function: &FunctionCore<N>, program_id: ProgramId) -> Self {
         let outputs = function
             .outputs()
             .iter()
             .map(|output| match output.value_type() {
                 ValueType::Constant(val) => vec![Output {
                     mode: Mode::Constant,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, program_id),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Public(val) => vec![Output {
                     mode: Mode::Public,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, program_id),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Private(val) => vec![Output {
                     mode: Mode::Private,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, program_id),
                     span: Default::default(),
                     id: Default::default(),
                 }],
@@ -160,8 +160,8 @@ impl FunctionStub {
                         path: {
                             let ident = Identifier::from(id);
                             Path::from(ident)
-                                .to_global(Location::new(program, vec![ident.name]))
-                                .with_user_program(Identifier::new(program, Default::default()))
+                                .to_global(Location::new(program_id.as_symbol(), vec![ident.name]))
+                                .with_user_program(program_id)
                         },
                         const_arguments: Vec::new(),
                     }),
@@ -169,7 +169,7 @@ impl FunctionStub {
                     id: Default::default(),
                 }],
                 ValueType::ExternalRecord(loc) => {
-                    let external_program = ProgramId::from(loc.program_id()).name.name;
+                    let external_program_id = ProgramId::from(loc.program_id());
                     vec![Output {
                         mode: Mode::None,
                         span: Default::default(),
@@ -178,8 +178,8 @@ impl FunctionStub {
                             path: {
                                 let ident = Identifier::from(loc.resource());
                                 Path::from(ident)
-                                    .to_global(Location::new(external_program, vec![ident.name]))
-                                    .with_user_program(Identifier::new(external_program, Default::default()))
+                                    .to_global(Location::new(external_program_id.as_symbol(), vec![ident.name]))
+                                    .with_user_program(external_program_id)
                             },
                             const_arguments: Vec::new(),
                         }),
@@ -191,7 +191,7 @@ impl FunctionStub {
                     id: Default::default(),
                     type_: Type::Future(FutureType::new(
                         Vec::new(),
-                        Some(Location::new(program, vec![Symbol::intern(&function.name().to_string())])),
+                        Some(Location::new(program_id.as_symbol(), vec![Symbol::intern(&function.name().to_string())])),
                         false,
                     )),
                 }],
@@ -207,7 +207,7 @@ impl FunctionStub {
                     id: Default::default(),
                     type_: Type::Future(FutureType::new(
                         Vec::new(),
-                        Some(Location::new(program, vec![Symbol::intern(&function.name().to_string())])),
+                        Some(Location::new(program_id.as_symbol(), vec![Symbol::intern(&function.name().to_string())])),
                         false,
                     )),
                 }],
@@ -235,21 +235,21 @@ impl FunctionStub {
                         ValueType::Constant(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Constant,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, program_id),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Public(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Public,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, program_id),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Private(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Private,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, program_id),
                             span: Default::default(),
                             id: Default::default(),
                         },
@@ -260,8 +260,8 @@ impl FunctionStub {
                                 path: {
                                     let ident = Identifier::from(id);
                                     Path::from(ident)
-                                        .to_global(Location::new(program, vec![ident.name]))
-                                        .with_user_program(Identifier::new(program, Default::default()))
+                                        .to_global(Location::new(program_id.as_symbol(), vec![ident.name]))
+                                        .with_user_program(program_id)
                                 },
                                 const_arguments: Vec::new(),
                             }),
@@ -269,7 +269,7 @@ impl FunctionStub {
                             id: Default::default(),
                         },
                         ValueType::ExternalRecord(loc) => {
-                            let external_program = ProgramId::from(loc.program_id()).name.name;
+                            let external_program = ProgramId::from(loc.program_id());
                             Input {
                                 identifier: arg_name,
                                 mode: Mode::None,
@@ -279,8 +279,8 @@ impl FunctionStub {
                                     path: {
                                         let ident = Identifier::from(loc.resource());
                                         Path::from(ident)
-                                            .to_global(Location::new(external_program, vec![ident.name]))
-                                            .with_user_program(Identifier::new(external_program, Default::default()))
+                                            .to_global(Location::new(external_program.as_symbol(), vec![ident.name]))
+                                            .with_user_program(external_program)
                                     },
                                     const_arguments: Vec::new(),
                                 }),
@@ -307,7 +307,7 @@ impl FunctionStub {
         }
     }
 
-    pub fn from_finalize<N: Network>(function: &FunctionCore<N>, key_name: Symbol, program: Symbol) -> Self {
+    pub fn from_finalize<N: Network>(function: &FunctionCore<N>, key_name: Symbol, program_id: ProgramId) -> Self {
         Self {
             annotations: Vec::new(),
             variant: Variant::Finalize,
@@ -322,10 +322,10 @@ impl FunctionStub {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
                     type_: match input.finalize_type() {
-                        FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program),
+                        FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program_id),
                         FinalizeType::Future(val) => Type::Future(FutureType::new(
                             Vec::new(),
-                            Some(Location::new(Identifier::from(val.program_id().name()).name, vec![Symbol::intern(
+                            Some(Location::new(ProgramId::from(val.program_id()).as_symbol(), vec![Symbol::intern(
                                 &format!("finalize/{}", val.resource()),
                             )])),
                             false,
@@ -343,14 +343,14 @@ impl FunctionStub {
         }
     }
 
-    pub fn from_closure<N: Network>(closure: &ClosureCore<N>, program: Symbol) -> Self {
+    pub fn from_closure<N: Network>(closure: &ClosureCore<N>, program_id: ProgramId) -> Self {
         let outputs = closure
             .outputs()
             .iter()
             .map(|output| match output.register_type() {
                 RegisterType::Plaintext(val) => Output {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, program_id),
                     span: Default::default(),
                     id: Default::default(),
                 },
@@ -379,7 +379,7 @@ impl FunctionStub {
                         RegisterType::Plaintext(val) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, program_id),
                             span: Default::default(),
                             id: Default::default(),
                         },

@@ -17,7 +17,7 @@
 use crate::{Identifier, NetworkName};
 
 use core::fmt;
-use leo_span::Symbol;
+use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use snarkvm::{
     console::program::ProgramID,
@@ -35,6 +35,14 @@ pub struct ProgramId {
 }
 
 impl ProgramId {
+    pub fn span(&self) -> Span {
+        Span::new(self.name.span.lo, self.network.span.hi)
+    }
+
+    pub fn as_symbol(&self) -> Symbol {
+        Symbol::intern(&self.to_string())
+    }
+
     /// Initializes a new `ProgramId` from a string, using a network parameter to validate using snarkVM.
     pub fn from_str_with_network(string: &str, network: NetworkName) -> Result<Self> {
         match network {

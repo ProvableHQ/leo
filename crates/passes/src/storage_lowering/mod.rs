@@ -127,9 +127,14 @@ impl Pass for StorageLowering {
     const NAME: &str = "StorageLowering";
 
     fn do_pass(input: TypeCheckingInput, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
+        let ast = std::mem::take(&mut state.ast);
         let mut visitor = StorageLoweringVisitor { state, program: Symbol::intern(""), new_mappings: IndexMap::new() };
-        ast.ast = visitor.reconstruct_program(ast.ast);
+
+        let ast = ast.map(
+            |program| visitor.reconstruct_program(program),
+            |library| library, // no-op for libraries
+        );
+
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 

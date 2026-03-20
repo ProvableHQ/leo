@@ -17,7 +17,7 @@
 pub mod member;
 pub use member::*;
 
-use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, Type};
+use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, ProgramId, Type};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
@@ -68,7 +68,7 @@ impl Composite {
         self.identifier.name
     }
 
-    pub fn from_external_record<N: Network>(input: &RecordType<N>, program: Symbol) -> Self {
+    pub fn from_external_record<N: Network>(input: &RecordType<N>, program_id: ProgramId) -> Self {
         let mut members = Vec::with_capacity(input.entries().len() + 1);
         members.push(Member {
             mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
@@ -81,9 +81,9 @@ impl Composite {
             mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
             identifier: Identifier::from(id),
             type_: match entry {
-                Public(t) => Type::from_snarkvm(t, program),
-                Private(t) => Type::from_snarkvm(t, program),
-                Constant(t) => Type::from_snarkvm(t, program),
+                Public(t) => Type::from_snarkvm(t, program_id),
+                Private(t) => Type::from_snarkvm(t, program_id),
+                Constant(t) => Type::from_snarkvm(t, program_id),
             },
             span: Default::default(),
             id: Default::default(),
@@ -98,7 +98,7 @@ impl Composite {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: ProgramId) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),

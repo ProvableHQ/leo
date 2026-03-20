@@ -140,27 +140,28 @@ fn handle_synthesize<A: Aleo>(
         let source_directory = package.source_directory();
         // Get the program names and their bytecode.
         package
-            .programs
+            .compilation_units
             .iter()
             .clone()
-            .map(|program| {
-                let program_id = ProgramID::<A::Network>::from_str(&format!("{}.aleo", program.name))
+            .filter(|unit| !unit.kind.is_library())
+            .map(|unit| {
+                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", unit.name))
                     .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
-                match &program.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), program.edition)),
+                match &unit.data {
+                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
                     ProgramData::SourcePath { source, .. } => {
                         // Get the path to the built bytecode.
                         let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
                             build_directory.join("main.aleo")
                         } else {
-                            imports_directory.join(format!("{}.aleo", program.name))
+                            imports_directory.join(format!("{}", unit.name))
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
                             CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
                         })?;
                         // Return the bytecode and the manifest.
-                        Ok((program_id, bytecode, program.edition))
+                        Ok((program_id, bytecode, unit.edition))
                     }
                 }
             })

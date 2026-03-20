@@ -117,14 +117,57 @@ fn parse_statement_tests() {
     leo_test_framework::run_tests("parser-statement", runner_statement_test);
 }
 
+// Parse library tests.
+
+fn runner_library_test(test: &str) -> String {
+    let test_cases: Vec<String> = test
+        .lines()
+        .map(str::trim)
+        .collect::<Vec<_>>()
+        .split(|line| line.is_empty())
+        .map(|paragraph| paragraph.join("\n"))
+        .filter(|s| !s.trim().is_empty())
+        .collect();
+
+    create_session_if_not_set_then(|_| {
+        let mut output = String::new();
+        let buf = BufferEmitter::new();
+        let handler = Handler::new(buf.clone());
+
+        for (i, test_case) in test_cases.iter().enumerate() {
+            let source_file =
+                with_session_globals(|s| s.source_map.new_source(test_case, FileName::Custom(format!("test_{i}"))));
+            let result = crate::parse_library(
+                handler.clone(),
+                &Default::default(),
+                Symbol::intern("test_lib"),
+                &source_file,
+                NetworkName::TestnetV0,
+            );
+            match handler.extend_if_error(result) {
+                Ok(library) => writeln!(output, "{library}\n").unwrap(),
+                Err(()) => write!(output, "{}{}", buf.extract_errs(), buf.extract_warnings()).unwrap(),
+            }
+        }
+
+        output
+    })
+}
+
+#[test]
+#[serial]
+fn parse_library_tests() {
+    leo_test_framework::run_tests("parser-library", runner_library_test);
+}
+
 // Full parser tests.
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
     let result =
-        crate::parse_ast(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
+        crate::parse_program(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
     let ast = handler.extend_if_error(result)?;
-    Ok(format!("{}\n", ast.ast))
+    Ok(format!("{}\n", ast))
 }
 
 fn runner_parser_test(test: &str) -> String {

@@ -22,6 +22,7 @@ use leo_ast::{
     Constructor,
     Function,
     Input,
+    Library,
     Module,
     Node,
     Output,
@@ -32,7 +33,7 @@ use leo_ast::{
 
 impl ProgramReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
-        self.program = input.program_id.name.name;
+        self.program = input.program_id.as_symbol();
 
         for (_sym, c) in input.consts.iter_mut() {
             let Statement::Const(declaration) = self.reconstruct_const(std::mem::take(c)).0 else {
@@ -78,6 +79,19 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
                 interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
             }
         })
+    }
+
+    fn reconstruct_library(&mut self, mut input: Library) -> Library {
+        self.program = input.name;
+
+        for (_sym, c) in input.consts.iter_mut() {
+            let Statement::Const(declaration) = self.reconstruct_const(std::mem::take(c)).0 else {
+                panic!("`reconstruct_const` always returns `Statement::Const`");
+            };
+            *c = declaration;
+        }
+
+        input
     }
 
     fn reconstruct_function(&mut self, mut function: Function) -> Function {

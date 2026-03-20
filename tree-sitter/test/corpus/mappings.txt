@@ -1,0 +1,25 @@
+================
+Mapping definitions
+================
+
+program mapping_test.aleo {
+    mapping account: address => u64;
+    mapping nested: address => mapping field => scalar;
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (mapping_definition
+      (identifier)
+      (primitive_type)
+      (primitive_type))
+    (mapping_definition
+      (identifier)
+      (primitive_type)
+      (mapping_type
+        (primitive_type)
+        (primitive_type)))))

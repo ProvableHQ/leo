@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, IntegerType, Literal, LiteralVariant, Type};
+use crate::{Expression, IntegerType, Literal, LiteralVariant, ProgramId, Type};
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::Network;
 use std::fmt;
@@ -60,9 +60,9 @@ impl ArrayType {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program_id: ProgramId) -> Self {
         Self {
-            element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
+            element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program_id)),
             length: Box::new(Expression::Literal(Literal {
                 variant: LiteralVariant::Integer(IntegerType::U32, array_type.length().to_string().replace("u32", "")),
                 id: Default::default(),

@@ -1,0 +1,79 @@
+================
+Literal forms
+================
+
+fn literals() {
+    let a = 1;
+    let b = 42u32;
+    let c = 0xffu8;
+    let d = 0o77u16;
+    let e = 0b1010u32;
+    let f = 123field;
+    let g = 456group;
+    let h = 789scalar;
+    let i = "hello";
+    let j = aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqp7x0l;
+    let k = true;
+    let l = false;
+    let m = none;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (field_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (group_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (scalar_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (string_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (address_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (boolean_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (boolean_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (none_literal)))))

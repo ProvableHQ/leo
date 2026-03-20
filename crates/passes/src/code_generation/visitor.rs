@@ -17,7 +17,7 @@
 use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
 
 use crate::{Bytecode, CompiledPrograms};
-use leo_ast::{Function, Location, Program, ProgramId, Variant};
+use leo_ast::{Ast, Function, Location, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
 use snarkvm::prelude::Network;
@@ -71,54 +71,61 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) ->
 
 impl CodeGeneratingVisitor<'_> {
     pub(crate) fn visit_package(&mut self) -> CompiledPrograms {
-        let import_bytecodes = self
-            .state
-            .ast
-            .as_repr()
-            .stubs
-            .values()
-            .filter_map(|stub| {
-                match stub {
-                    leo_ast::Stub::FromLeo { program, .. } => {
-                        let program_name = program
-                            .program_scopes
-                            .first()
-                            .expect("programs must have a single program scope at this time.")
-                            .0;
+        let mut import_bytecodes = Vec::new();
 
-                        // Get transitive imports for this program
-                        let transitive_imports = self
-                            .state
-                            .symbol_table
-                            .get_transitive_imports(program_name)
-                            .into_iter()
-                            .map(|sym| sym.to_string())
-                            .collect::<Vec<_>>();
+        match &self.state.ast {
+            Ast::Program(program) => {
+                for stub in program.stubs.values() {
+                    match stub {
+                        leo_ast::Stub::FromLeo { program, .. } => {
+                            let program_name = program
+                                .program_scopes
+                                .first()
+                                .expect("programs must have a single program scope at this time.")
+                                .0;
 
-                        // Generate this stub’s Aleo program text
-                        let mut bytecode = self.visit_program(program);
-                        bytecode.imports.extend(transitive_imports);
+                            let transitive_imports = self
+                                .state
+                                .symbol_table
+                                .get_transitive_imports(program_name)
+                                .into_iter()
+                                .map(|sym| sym.to_string())
+                                .collect::<Vec<_>>();
 
-                        Some(Bytecode { program_name: program_name.to_string(), bytecode: bytecode.to_string() })
-                    }
-                    leo_ast::Stub::FromAleo { program, .. } => {
-                        // Nothing to return here because the bytecode is already computed.
-                        // However, we still need to collect global items into the appropriate mappings.
-                        for (name, _) in &program.mappings {
-                            self.global_mapping
-                                .insert(Location::new(program.stub_id.name.name, vec![*name]), name.to_string());
+                            let mut bytecode = self.visit_program(program);
+                            bytecode.imports.extend(transitive_imports);
+
+                            import_bytecodes.push(Bytecode {
+                                program_name: program_name.to_string(),
+                                bytecode: bytecode.to_string(),
+                            });
                         }
-                        for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
-                            self.composite_mapping
-                                .insert(Location::new(program.stub_id.name.name, vec![*name]), *is_record);
+                        leo_ast::Stub::FromAleo { program, .. } => {
+                            for (name, _) in &program.mappings {
+                                self.global_mapping
+                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), name.to_string());
+                            }
+                            for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
+                                self.composite_mapping
+                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), *is_record);
+                            }
                         }
-                        None
+                        leo_ast::Stub::FromLibrary { .. } => {
+                            // no-op
+                        }
                     }
                 }
-            })
-            .collect();
+            }
+            Ast::Library(_) => {
+                // no-op for libraries
+            }
+        }
 
-        let primary_bytecode = self.visit_program(self.state.ast.as_repr()).to_string();
+        // Generate primary bytecode
+        let primary_bytecode = match &self.state.ast {
+            Ast::Program(program) => self.visit_program(program).to_string(),
+            Ast::Library(_) => String::new(),
+        };
 
         CompiledPrograms { primary_bytecode, import_bytecodes }
     }

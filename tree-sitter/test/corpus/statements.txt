@@ -1,0 +1,91 @@
+================
+Statements
+================
+
+fn statements() {
+    let value: u32 = 1u32;
+    let (_, pair) = (1u32, 2u32);
+    const LIMIT: u32 = 10u32;
+    if value == 1u32 {
+        assert(true);
+    } else if value == 2u32 {
+        assert_eq(value, 2u32);
+    } else {
+        assert_neq(value, 3u32);
+    }
+    for i: u32 in 0u32..=LIMIT {
+        value += i;
+    }
+    value = value - 1u32;
+    return;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (primitive_type)
+        (integer_literal))
+      (let_statement
+        (tuple_pattern
+          (wildcard_pattern
+            (underscore))
+          (identifier_pattern
+            (identifier)))
+        (tuple_expression
+          (integer_literal)
+          (integer_literal)))
+      (const_statement
+        (identifier)
+        (primitive_type)
+        (integer_literal))
+      (if_statement
+        (binary_expression
+          (path_expression
+            (identifier))
+          (integer_literal))
+        (block
+          (assert_statement
+            (boolean_literal)))
+        (if_statement
+          (binary_expression
+            (path_expression
+              (identifier))
+            (integer_literal))
+          (block
+            (assert_eq_statement
+              (path_expression
+                (identifier))
+              (integer_literal)))
+          (block
+            (assert_neq_statement
+              (path_expression
+                (identifier))
+              (integer_literal)))))
+      (for_statement
+        (identifier)
+        (primitive_type)
+        (integer_literal)
+        (path_expression
+          (identifier))
+        (block
+          (compound_assignment_statement
+            (path_expression
+              (identifier))
+            (compound_assign_op)
+            (path_expression
+              (identifier)))))
+      (assignment_statement
+        (path_expression
+          (identifier))
+        (binary_expression
+          (path_expression
+            (identifier))
+          (integer_literal)))
+      (return_statement))))

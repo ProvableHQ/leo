@@ -24,7 +24,7 @@ use leo_ast::{AleoProgram, FunctionStub, Identifier, NetworkName, NodeBuilder, P
 use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::Handler;
 use leo_package::{Package, ProgramData};
-use leo_parser::parse_ast;
+use leo_parser::parse_program;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
@@ -105,17 +105,17 @@ fn parse_interface_stub(program_name: Symbol, source: &Path, source_dir: &Path) 
         .collect::<Vec<_>>();
     let node_builder = NodeBuilder::default();
 
-    let program = match parse_ast(Handler::default(), &node_builder, &source_file, &module_source_files, BENCH_NETWORK)
-    {
-        Ok(ast) => ast.ast,
-        Err(err) => {
-            return Err(format!(
-                "failed to parse dependency {}.aleo interface source {}: {err}",
-                program_name,
-                source.display()
-            ));
-        }
-    };
+    let program =
+        match parse_program(Handler::default(), &node_builder, &source_file, &module_source_files, BENCH_NETWORK) {
+            Ok(ast) => ast,
+            Err(err) => {
+                return Err(format!(
+                    "failed to parse dependency {}.aleo interface source {}: {err}",
+                    program_name,
+                    source.display()
+                ));
+            }
+        };
 
     // Extract the single program scope.
     let scope = match program.program_scopes.values().next() {
@@ -146,9 +146,15 @@ fn parse_interface_stub(program_name: Symbol, source: &Path, source_dir: &Path) 
     let imports = program
         .imports
         .keys()
-        .map(|sym| ProgramId {
-            name: Identifier { name: *sym, span: Default::default(), id: Default::default() },
-            network: Identifier { name: Symbol::intern("aleo"), span: Default::default(), id: Default::default() },
+        .map(|sym| {
+            // program.imports keys are full ProgramId symbols (e.g. "bench_policy.aleo").
+            // ProgramId.name must be just the bare name; the network suffix is stored separately.
+            let sym_str = sym.to_string();
+            let name_only = sym_str.strip_suffix(".aleo").unwrap_or(&sym_str);
+            ProgramId {
+                name: Identifier { name: Symbol::intern(name_only), span: Default::default(), id: Default::default() },
+                network: Identifier { name: Symbol::intern("aleo"), span: Default::default(), id: Default::default() },
+            }
         })
         .collect();
 
@@ -207,18 +213,18 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
 
     let mut import_stubs = IndexMap::new();
 
-    for program in &package.programs {
-        match &program.data {
+    for unit in &package.compilation_units {
+        match &unit.data {
             ProgramData::Bytecode(bytecode) => {
-                let stub = disassemble_bytecode(program.name, bytecode)?;
-                import_stubs.insert(program.name, stub);
+                let stub = disassemble_bytecode(unit.name, bytecode)?;
+                import_stubs.insert(unit.name, stub);
             }
             ProgramData::SourcePath { directory, source } => {
                 let source_dir =
                     if source.starts_with(directory.join("src")) { directory.join("src") } else { directory.clone() };
 
-                let stub = parse_interface_stub(program.name, source, &source_dir)?;
-                import_stubs.insert(program.name, stub);
+                let stub = parse_interface_stub(unit.name, source, &source_dir)?;
+                import_stubs.insert(unit.name, stub);
             }
         }
     }
@@ -231,7 +237,7 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
         }
     };
     let modules = read_modules(&package_dir.join("src"), &entry)?;
-    let program_name = package.manifest.program.trim_end_matches(".aleo").to_string();
+    let program_name = package.manifest.program.clone();
 
     Ok(FixtureData {
         program_name,

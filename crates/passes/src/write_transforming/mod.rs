@@ -68,11 +68,17 @@ impl Pass for WriteTransforming {
     const NAME: &str = "WriteTransforming";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
-        let mut ast = std::mem::take(&mut state.ast);
-        let mut visitor = WriteTransformingVisitor::new(state, ast.as_repr());
-        ast.ast = visitor.reconstruct_program(ast.ast);
-        visitor.state.handler.last_err()?;
-        visitor.state.ast = ast;
+        let ast = std::mem::take(&mut state.ast);
+
+        state.ast = ast.try_map(
+            |program| -> Result<_> {
+                let mut visitor = WriteTransformingVisitor::new(state, &program);
+                let program = visitor.reconstruct_program(program);
+                visitor.state.handler.last_err()?;
+                Ok(program)
+            },
+            |library| -> Result<_> { Ok(library) },
+        )?;
         Ok(())
     }
 }

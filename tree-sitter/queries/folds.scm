@@ -1,0 +1,11 @@
+(block) @fold
+(struct_definition) @fold
+(record_definition) @fold
+(function_definition) @fold
+(final_function_definition) @fold
+(constructor_definition) @fold
+(program_declaration) @fold
+(interface_declaration) @fold
+(if_statement) @fold
+(for_statement) @fold
+(block_comment) @fold

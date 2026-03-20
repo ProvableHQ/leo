@@ -1,0 +1,16 @@
+================
+Import declarations
+================
+
+import credits.aleo;
+import token.aleo;
+
+---
+
+(source_file
+  (import_declaration
+    (program_id
+      (identifier)))
+  (import_declaration
+    (program_id
+      (identifier))))

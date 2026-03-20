@@ -1,0 +1,91 @@
+================
+Chained comparisons
+================
+
+fn f() { let x = 1u32 == 2u32 == 3u32; }
+
+---
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (binary_expression
+          (binary_expression
+            (integer_literal)
+            (integer_literal))
+          (integer_literal))))))
+
+================
+Deprecated script keyword
+================
+
+script fn foo() {}
+
+---
+(source_file
+  (ERROR
+    (identifier))
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block)))
+
+================
+Struct literal in if condition
+================
+
+fn bad() {
+    if Foo { x: 1u32 } {}
+}
+
+---
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (ERROR
+        (struct_expression
+          (path_expression
+            (identifier))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (integer_literal)))))
+      (block))))
+
+================
+Missing semicolon
+================
+
+fn missing() {
+    let x = 1u32
+}
+
+---
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal)
+        (MISSING ";")))))
+
+================
+Unterminated block comment
+================
+
+/* no end
+
+---
+(source_file
+  (ERROR
+    (identifier)
+    (identifier)))

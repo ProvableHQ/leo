@@ -1,0 +1,47 @@
+================
+Record definitions
+================
+
+program records.aleo {
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+
+    record Ticket::[N: u32] {
+        holder: address,
+        payload: [u8; N],
+    }
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (record_definition
+      (identifier)
+      (struct_field_list
+        (struct_field
+          (identifier)
+          (primitive_type))
+        (struct_field
+          (identifier)
+          (primitive_type))))
+    (record_definition
+      (identifier)
+      (const_param_list
+        (const_param
+          (identifier)
+          (primitive_type)))
+      (struct_field_list
+        (struct_field
+          (identifier)
+          (primitive_type))
+        (struct_field
+          (identifier)
+          (array_type
+            (primitive_type)
+            (path_expression
+              (identifier))))))))

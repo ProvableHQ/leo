@@ -1,0 +1,95 @@
+================
+Type forms
+================
+
+const ZERO: mapping address => u64 = none as address;
+
+fn types(
+    a: address,
+    b: Foo,
+    c: credits.aleo/Token,
+    d: [u8; 32u32],
+    e: [u8],
+    f: (u8, u16, u32),
+    g: u64?,
+    h: Final,
+    i: Final<Fn(u32, address) -> field>,
+    j: mapping address => u64
+) -> (public u32, private Token) {
+    return (1u32, token);
+}
+
+---
+
+(source_file
+  (const_declaration
+    (identifier)
+    (mapping_type
+      (primitive_type)
+      (primitive_type))
+    (cast_expression
+      (none_literal)
+      (primitive_type)))
+  (function_definition
+    (identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (primitive_type))
+      (parameter
+        (identifier)
+        (path_type
+          (identifier)))
+      (parameter
+        (identifier)
+        (locator_type
+          (program_id
+            (identifier))
+          (identifier)))
+      (parameter
+        (identifier)
+        (array_type
+          (primitive_type)
+          (integer_literal)))
+      (parameter
+        (identifier)
+        (vector_type
+          (primitive_type)))
+      (parameter
+        (identifier)
+        (tuple_type
+          (primitive_type)
+          (primitive_type)
+          (primitive_type)))
+      (parameter
+        (identifier)
+        (optional_type
+          (primitive_type)))
+      (parameter
+        (identifier)
+        (final_type))
+      (parameter
+        (identifier)
+        (final_type
+          (primitive_type)
+          (primitive_type)
+          (primitive_type)))
+      (parameter
+        (identifier)
+        (mapping_type
+          (primitive_type)
+          (primitive_type))))
+    (return_type
+      (return_type_item
+        (visibility)
+        (primitive_type))
+      (return_type_item
+        (visibility)
+        (path_type
+          (identifier))))
+    (block
+      (return_statement
+        (tuple_expression
+          (integer_literal)
+          (path_expression
+            (identifier)))))))

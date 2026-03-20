@@ -44,21 +44,48 @@ fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
         .max()
 }
 
-/// Information about an Aleo program.
+/// The kind of a Leo compilation unit: a deployable program, a library, or a test.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PackageKind {
+    /// A deployable program with a `main.leo` entry point.
+    Program,
+    /// A library with a `lib.leo` entry point; not directly deployable.
+    Library,
+    /// A test file; compiled only during `leo test`.
+    Test,
+}
+
+impl PackageKind {
+    pub fn is_program(&self) -> bool {
+        matches!(self, Self::Program)
+    }
+
+    pub fn is_library(&self) -> bool {
+        matches!(self, Self::Library)
+    }
+
+    pub fn is_test(&self) -> bool {
+        matches!(self, Self::Test)
+    }
+}
+
+/// Information about a single Leo compilation unit.
 #[derive(Clone, Debug)]
-pub struct Program {
-    // The name of the program (no ".aleo" suffix).
+pub struct CompilationUnit {
+    // The name of the program. For local packages this is the bare name (no ".aleo" suffix,
+    // e.g. `my_program` or `my_lib`). For network-fetched programs this includes the ".aleo"
+    // suffix (e.g. `credits.aleo`). TODO: unify the invariant so the suffix is always absent.
     pub name: Symbol,
     pub data: ProgramData,
     pub edition: Option<u16>,
     pub dependencies: IndexSet<Dependency>,
     pub is_local: bool,
-    pub is_test: bool,
+    pub kind: PackageKind,
 }
 
-impl Program {
+impl CompilationUnit {
     /// Given the location `path` of a `.aleo` file, read the filesystem
-    /// to obtain a `Program`.
+    /// to obtain a `CompilationUnit`.
     pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
         Self::from_aleo_path_impl(name, path.as_ref(), map)
     }
@@ -70,18 +97,18 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
 
-        Ok(Program {
+        Ok(CompilationUnit {
             name,
             data: ProgramData::Bytecode(bytecode),
             edition: None,
             dependencies,
             is_local: true,
-            is_test: false,
+            kind: PackageKind::Program,
         })
     }
 
     /// Given the location `path` of a local Leo package, read the filesystem
-    /// to obtain a `Program`.
+    /// to obtain a `CompilationUnit`.
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
         Self::from_package_path_impl(name, path.as_ref())
     }
@@ -90,20 +117,37 @@ impl Program {
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
-            return Err(PackageError::conflicting_manifest(
-                format_args!("{name}.aleo"),
-                format_args!("{manifest_symbol}.aleo"),
-            )
-            .into());
+            return Err(
+                PackageError::conflicting_manifest(format_args!("{name}"), format_args!("{manifest_symbol}")).into()
+            );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
         source_directory.read_dir().map_err(|e| {
             UtilError::util_file_io_error(format_args!("Failed to read directory {}", source_directory.display()), e)
         })?;
 
-        let source_path = source_directory.join(MAIN_FILENAME);
+        let main_path = source_directory.join(MAIN_FILENAME);
+        let lib_path = source_directory.join(LIB_FILENAME);
 
-        Ok(Program {
+        let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
+            (true, true) => {
+                return Err(PackageError::ambiguous_entry_file(
+                    source_directory.display(),
+                    MAIN_FILENAME,
+                    LIB_FILENAME,
+                )
+                .into());
+            }
+            (true, false) => (main_path, PackageKind::Program),
+            (false, true) => (lib_path, PackageKind::Library),
+            (false, false) => {
+                return Err(
+                    PackageError::invalid_entry_file(source_directory.display(), MAIN_FILENAME, LIB_FILENAME).into()
+                );
+            }
+        };
+
+        Ok(CompilationUnit {
             name,
             data: ProgramData::SourcePath { directory: path.to_path_buf(), source: source_path },
             edition: None,
@@ -114,13 +158,13 @@ impl Program {
                 .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
-            is_test: false,
+            kind,
         })
     }
 
-    /// Given the path to the source file of a test, create a `Program`.
+    /// Given the path to the source file of a test, create a `CompilationUnit`.
     ///
-    /// Unlike `Program::from_package_path`, the path is to the source file,
+    /// Unlike `CompilationUnit::from_package_path`, the path is to the source file,
     /// and the name of the program is determined from the filename.
     ///
     /// `main_program` must be provided since every test is dependent on it.
@@ -146,8 +190,8 @@ impl Program {
             .collect::<Result<IndexSet<_>, _>>()?;
         dependencies.insert(main_program);
 
-        Ok(Program {
-            name: Symbol::intern(name),
+        Ok(CompilationUnit {
+            name: Symbol::intern(&(name.to_owned() + ".aleo")),
             edition: None,
             data: ProgramData::SourcePath {
                 directory: test_directory.to_path_buf(),
@@ -155,11 +199,11 @@ impl Program {
             },
             dependencies,
             is_local: true,
-            is_test: true,
+            kind: PackageKind::Test,
         })
     }
 
-    /// Given an Aleo program on a network, fetch it to build a `Program`.
+    /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
     /// If no edition is found, the latest edition is pulled from the network.
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
@@ -180,6 +224,10 @@ impl Program {
         endpoint: &str,
         no_cache: bool,
     ) -> Result<Self> {
+        // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
+        // here so cache paths and network URLs are constructed consistently.
+        let name = Symbol::intern(name.to_string().strip_suffix(".aleo").unwrap_or(&name.to_string()));
+
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
 
@@ -201,6 +249,8 @@ impl Program {
         };
 
         // Define the full cache path for the program.
+
+        // Build cache paths.
         let cache_directory = cache_directory.join(format!("{name}/{edition}"));
         let full_cache_path = cache_directory.join(format!("{name}.aleo"));
         if !cache_directory.exists() {
@@ -269,13 +319,15 @@ impl Program {
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
 
-        Ok(Program {
-            name,
+        Ok(CompilationUnit {
+            // Network programs store the name with the ".aleo" suffix (unlike local packages).
+            // TODO: unify the invariant so the suffix is always absent.
+            name: Symbol::intern(&(name.to_string() + ".aleo")),
             data: ProgramData::Bytecode(bytecode),
             edition: Some(edition),
             dependencies,
             is_local: false,
-            is_test: false,
+            kind: PackageKind::Program,
         })
     }
 }

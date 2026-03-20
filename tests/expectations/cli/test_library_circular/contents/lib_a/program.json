@@ -1,0 +1,16 @@
+{
+  "program": "lib_a",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "lib_b",
+      "location": "local",
+      "path": "../lib_b",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

@@ -1,0 +1,25 @@
+================
+Comments
+================
+
+/* seed: 1
+case: metadata */
+fn comments() {
+    // line comment
+    let value = 1u32; /* trailing block */
+}
+
+---
+
+(source_file
+  (block_comment)
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (line_comment)
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (integer_literal))
+      (block_comment))))

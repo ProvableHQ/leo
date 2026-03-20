@@ -106,6 +106,11 @@ impl Command for LeoDeploy {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        // Libraries cannot be deployed.
+        if input.compilation_units.last().is_some_and(|p| p.kind.is_library()) {
+            return Err(CliError::custom("Cannot deploy a library package. Only programs can be deployed.").into());
+        }
+
         // Get the network, accounting for overrides.
         let network = get_network(&self.env_override.network)?;
         // Handle each network with the appropriate parameterization.
@@ -169,17 +174,17 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
     }
 
-    // Get all the programs but tests.
-    let programs = package.programs.iter().filter(|program| !program.is_test).cloned();
+    // Get all the programs but tests and libraries (libraries have no AVM bytecode).
+    let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
-    let programs_and_bytecode: Vec<(leo_package::Program, String)> = programs
+    let programs_and_bytecode: Vec<(leo_package::CompilationUnit, String)> = programs
         .into_iter()
         .map(|program| {
             let bytecode = match &program.data {
                 ProgramData::Bytecode(s) => s.clone(),
                 ProgramData::SourcePath { .. } => {
                     // We need to read the bytecode from the filesystem.
-                    let aleo_name = format!("{}.aleo", program.name);
+                    let aleo_name = format!("{}", program.name);
                     let aleo_path = if package.manifest.program == aleo_name {
                         // The main program in the package, so its .aleo file
                         // will be in the build directory.
@@ -204,7 +209,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         .into_iter()
         .zip(fee_options)
         .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
-            let id_str = format!("{}.aleo", program.name);
+            let id_str = format!("{}", program.name);
             let id =
                 id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
             let bytecode_size = bytecode.len();

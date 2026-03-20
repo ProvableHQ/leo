@@ -1,0 +1,23 @@
+================
+Storage definitions
+================
+
+program test.aleo {
+    storage counter: u32;
+    storage data: [u8; 32u32];
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (storage_definition
+      (identifier)
+      (primitive_type))
+    (storage_definition
+      (identifier)
+      (array_type
+        (primitive_type)
+        (integer_literal)))))

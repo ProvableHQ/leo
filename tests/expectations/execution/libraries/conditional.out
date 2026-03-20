@@ -1,0 +1,24 @@
+program test.aleo;
+
+function classify:
+    input r0 as u32.private;
+    lt r0 10u32 into r1;
+    lt r0 25u32 into r2;
+    lt r0 75u32 into r3;
+    ternary r3 110u32 110u32 into r4;
+    ternary r2 35u32 r4 into r5;
+    ternary r1 1u32 r5 into r6;
+    assert.eq true true;
+    assert.eq true true;
+    output r6 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 1u32
+status: success
+output: 35u32
+status: success
+output: 110u32
+status: success
+output: 110u32

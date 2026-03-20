@@ -1,0 +1,58 @@
+================
+Program locators
+================
+
+fn locators(x: credits.aleo/Token::[u32]) {
+    let a = credits.aleo;
+    let b = credits.aleo/transfer;
+    let c = credits.aleo/Record::[u32, 1u32] { value: 1u32 };
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (locator_type
+          (program_id
+            (identifier))
+          (identifier)
+          (const_arg_list
+            (const_arg_list_bracket
+              (const_arg
+                (primitive_type)))))))
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (program_ref_expression
+          (program_id
+            (identifier))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_locator_expression
+          (program_id
+            (identifier))
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_locator_expression
+          (path_locator_expression
+            (program_id
+              (identifier))
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket
+                (const_arg
+                  (primitive_type))
+                (const_arg
+                  (integer_literal)))))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (integer_literal))))))))
