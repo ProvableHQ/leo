@@ -125,6 +125,7 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
 
     let mut prev_was_import = false;
     let mut prev_was_block_item = false;
+    let mut prev_was_comment = false;
     let mut had_output = false;
     let mut linebreak_count: usize = 0;
     for elem in node.children_with_tokens() {
@@ -141,13 +142,14 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     // or if the source had a blank line.
                     if prev_was_import || prev_was_block_item || (had_output && linebreak_count >= 2) {
                         out.newline();
-                        prev_was_import = false;
                     }
                     let text = if tok.kind() == COMMENT_LINE { tok.text().trim_end() } else { tok.text() };
                     out.write(text);
                     out.newline();
                     had_output = true;
+                    prev_was_import = false;
                     prev_was_block_item = false;
+                    prev_was_comment = true;
                     linebreak_count = 0;
                 }
                 _ => {} // skip WHITESPACE, etc.
@@ -158,6 +160,7 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     format_import(&n, out);
                     prev_was_import = true;
                     prev_was_block_item = false;
+                    prev_was_comment = false;
                     had_output = true;
                     linebreak_count = 0;
                 } else if kind == PROGRAM_DECL {
@@ -168,6 +171,7 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     format_program(&n, out);
                     prev_was_import = false;
                     prev_was_block_item = true;
+                    prev_was_comment = false;
                     had_output = true;
                     linebreak_count = 0;
                 } else if kind == ANNOTATION {
@@ -177,22 +181,22 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     format_annotation(&n, out);
                     prev_was_import = false;
                     // Don't set prev_was_block_item here; the annotated item will set it.
+                    prev_was_comment = false;
                     had_output = true;
                     linebreak_count = 0;
                 } else if is_program_item(kind) {
                     let is_block = is_block_item(kind);
                     let wants_blank = had_output
-                        && (prev_was_import
-                            || is_block
-                            || prev_was_block_item
-                            || linebreak_count >= 2
-                            || has_blank_line_in_leading_trivia(&n));
+                        && (linebreak_count >= 2
+                            || has_blank_line_in_leading_trivia(&n)
+                            || (!prev_was_comment && (prev_was_import || is_block || prev_was_block_item)));
                     if wants_blank {
                         out.newline();
                     }
                     format_node(&n, out);
                     prev_was_import = false;
                     prev_was_block_item = is_block;
+                    prev_was_comment = false;
                     had_output = true;
                     linebreak_count = 0;
                 } else if kind == ERROR {
@@ -209,6 +213,7 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                         out.newline();
                         prev_was_import = false;
                         prev_was_block_item = false;
+                        prev_was_comment = false;
                         had_output = true;
                         linebreak_count = 0;
                     }
@@ -251,6 +256,9 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
     out.space();
     out.write("{");
     if has_items {
+        if let Some(first_item) = node.children().find(|child| is_program_item(child.kind()) || child.kind() == ERROR) {
+            emit_stolen_trailing_comments(&first_item, out);
+        }
         out.newline();
     }
 
@@ -263,6 +271,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
     let mut linebreak_count: usize = 0;
     let mut had_item = false;
     let mut prev_was_block_item = false;
+    let mut prev_was_comment = false;
 
     for elem in &elems {
         match elem {
@@ -293,6 +302,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                     out.newline();
                     had_item = true;
                     prev_was_block_item = false;
+                    prev_was_comment = true;
                     saw_linebreak = false;
                     linebreak_count = 0;
                 }
@@ -304,10 +314,9 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                 if is_content {
                     let is_block = is_block_item(kind);
                     let wants_blank = had_item
-                        && (is_block
-                            || prev_was_block_item
-                            || linebreak_count >= 2
-                            || has_blank_line_in_leading_trivia(n));
+                        && (linebreak_count >= 2
+                            || has_blank_line_in_leading_trivia(n)
+                            || (!prev_was_comment && (is_block || prev_was_block_item)));
                     if kind == ERROR {
                         if should_inline_adjacent_error(n) {
                             continue;
@@ -325,6 +334,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                             });
                             had_item = true;
                             prev_was_block_item = false;
+                            prev_was_comment = false;
                         }
                     } else {
                         if wants_blank {
@@ -333,6 +343,7 @@ fn format_program(node: &SyntaxNode, out: &mut Output) {
                         out.indented(|out| format_node(n, out));
                         had_item = true;
                         prev_was_block_item = is_block;
+                        prev_was_comment = false;
                     }
                     saw_linebreak = false;
                     linebreak_count = 0;
@@ -531,8 +542,10 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
 
     // Write keyword, name, and body
     let mut after_lbrace = false;
-    for elem in &elems {
-        match elem {
+    let mut had_member = false;
+    let mut idx = 0;
+    while idx < elems.len() {
+        match &elems[idx] {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
@@ -549,20 +562,57 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                     }
                     L_BRACE => {
                         out.write("{");
+                        idx += 1;
+                        while idx < elems.len() {
+                            match &elems[idx] {
+                                SyntaxElement::Token(tok) => match tok.kind() {
+                                    WHITESPACE => {
+                                        idx += 1;
+                                    }
+                                    COMMENT_LINE => {
+                                        out.space();
+                                        out.write(tok.text().trim_end());
+                                        idx += 1;
+                                    }
+                                    COMMENT_BLOCK => {
+                                        out.space();
+                                        out.write(tok.text());
+                                        idx += 1;
+                                    }
+                                    LINEBREAK => {
+                                        idx += 1;
+                                        break;
+                                    }
+                                    _ => break,
+                                },
+                                _ => break,
+                            }
+                        }
+                        if let Some(first_member) = node.children().find(|child| {
+                            matches!(
+                                child.kind(),
+                                STRUCT_MEMBER
+                                    | STRUCT_MEMBER_PUBLIC
+                                    | STRUCT_MEMBER_PRIVATE
+                                    | STRUCT_MEMBER_CONSTANT
+                                    | ERROR
+                            )
+                        }) {
+                            emit_stolen_trailing_comments(&first_member, out);
+                        }
                         out.newline();
                         after_lbrace = true;
+                        continue;
                     }
                     R_BRACE => {}
                     COMMA => {}
-                    // Emit comments that are direct children of the struct body
-                    // (e.g. block comments after the last member's comma).
-                    COMMENT_LINE if after_lbrace => {
+                    COMMENT_LINE if after_lbrace && !had_member => {
                         out.indented(|out| {
                             out.write(tok.text().trim_end());
                         });
                         out.newline();
                     }
-                    COMMENT_BLOCK if after_lbrace => {
+                    COMMENT_BLOCK if after_lbrace && !had_member => {
                         out.indented(|out| {
                             out.write(tok.text());
                         });
@@ -577,17 +627,22 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                 match k {
                     CONST_PARAM_LIST => format_const_parameter_list(n, out),
                     STRUCT_MEMBER | STRUCT_MEMBER_PUBLIC | STRUCT_MEMBER_PRIVATE | STRUCT_MEMBER_CONSTANT => {
+                        had_member = true;
                         out.indented(|out| {
                             format_struct_member(n, out);
                             out.write(",");
-                            // Emit stolen trailing comments from next member
+                            let trailing_comment_on_newline = emit_node_trailing_comments(n, out);
+                            emit_trailing_list_comments(node, n, out);
                             if let Some(next) = n.next_sibling() {
                                 emit_stolen_trailing_comments(&next, out);
                             }
+                            if !trailing_comment_on_newline {
+                                out.ensure_newline();
+                            }
                         });
-                        out.newline();
                     }
                     ERROR => {
+                        had_member = true;
                         let text = n.text().to_string();
                         let text = text.trim();
                         if !text.is_empty() {
@@ -601,6 +656,7 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
                 }
             }
         }
+        idx += 1;
     }
     out.write("}");
     // Emit comments after closing brace
@@ -642,6 +698,11 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
                     L_BRACE => {
                         out.space();
                         out.write("{");
+                        if let Some(first_item) = node.children().find(|child| {
+                            matches!(child.kind(), FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF | MAPPING_DEF | STORAGE_DEF | ERROR)
+                        }) {
+                            emit_stolen_trailing_comments(&first_item, out);
+                        }
                         out.newline();
                         after_lbrace = true;
                     }
@@ -1073,12 +1134,14 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
                     format_node(param, out);
                 }
                 out.write(",");
-                emit_node_trailing_comments(param, out);
+                let trailing_comment_on_newline = emit_node_trailing_comments(param, out);
                 if i < params.len() - 1 {
                     emit_comments_after_list_item(node, param, out);
                     emit_stolen_trailing_comments(&params[i + 1], out);
                 }
-                out.ensure_newline();
+                if !trailing_comment_on_newline {
+                    out.ensure_newline();
+                }
             }
             emit_trailing_list_comments(node, params.last().unwrap(), out);
         });
@@ -1476,6 +1539,7 @@ fn format_type_optional(node: &SyntaxNode, out: &mut Output) {
 
 fn format_block(node: &SyntaxNode, out: &mut Output) {
     let elems = elements(node);
+    let lbrace_idx = find_token_index(&elems, L_BRACE).unwrap_or(0);
 
     // Check if block has any statements or comments (content worth indenting)
     let has_content = elems.iter().any(|e| match e {
@@ -1485,16 +1549,52 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
 
     out.write("{");
     if has_content {
+        let mut start_idx = lbrace_idx + 1;
+        while start_idx < elems.len() {
+            match &elems[start_idx] {
+                SyntaxElement::Token(tok) => match tok.kind() {
+                    WHITESPACE => {
+                        start_idx += 1;
+                    }
+                    COMMENT_LINE => {
+                        out.space();
+                        out.write(tok.text().trim_end());
+                        start_idx += 1;
+                    }
+                    COMMENT_BLOCK => {
+                        out.space();
+                        out.write(tok.text());
+                        start_idx += 1;
+                    }
+                    LINEBREAK => {
+                        start_idx += 1;
+                        break;
+                    }
+                    _ => break,
+                },
+                _ => break,
+            }
+        }
+
+        if let Some(first_item) =
+            elems[start_idx..].iter().find_map(|elem| match elem {
+                SyntaxElement::Node(n) if n.kind().is_statement() || n.kind() == ERROR => Some(n.clone()),
+                _ => None,
+            })
+        {
+            emit_stolen_trailing_comments(&first_item, out);
+        }
+
         out.newline();
         out.indented(|out| {
             // Iterate all children_with_tokens to emit statements and comments.
             // Comments appear as sibling tokens in rowan. We use LINEBREAK to
             // determine if a comment is trailing (same line as previous stmt)
             // or standalone (own line).
-            let mut after_lbrace = false;
+            let mut after_lbrace = true;
             let mut saw_linebreak = false;
 
-            for elem in &elems {
+            for elem in &elems[start_idx..] {
                 match elem {
                     SyntaxElement::Token(tok) => match tok.kind() {
                         L_BRACE => {
@@ -1529,6 +1629,7 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                     SyntaxElement::Node(n) if after_lbrace && n.kind().is_statement() => {
                         out.ensure_newline();
                         format_node(n, out);
+                        emit_node_trailing_comments(n, out);
                         saw_linebreak = false;
                     }
                     SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
@@ -1558,6 +1659,7 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_return(node: &SyntaxNode, out: &mut Output) {
+    emit_leading_comments(node, out);
     out.write("return");
 
     for child in node.children() {
@@ -1586,6 +1688,7 @@ fn format_definition(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     out.write("let");
     out.space();
 
@@ -1628,6 +1731,7 @@ fn format_const_stmt(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1674,6 +1778,7 @@ fn format_assign(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1702,6 +1807,7 @@ fn format_conditional(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     let mut first_block = true;
     for elem in node.children_with_tokens() {
         match elem {
@@ -1745,6 +1851,7 @@ fn format_iteration(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         match elem {
             SyntaxElement::Token(tok) => {
@@ -1795,6 +1902,7 @@ fn format_assert(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     out.write("assert(");
 
     for child in node.children() {
@@ -1816,6 +1924,7 @@ fn format_assert_pair(node: &SyntaxNode, out: &mut Output, keyword: &str) {
     }
     let expr_strings: Vec<String> = exprs.iter().map(format_node_to_string).collect();
 
+    emit_leading_comments(node, out);
     out.write(keyword);
     out.write("(");
     let col = out.current_column();
@@ -1851,6 +1960,7 @@ fn format_expr_stmt(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    emit_leading_comments(node, out);
     for child in node.children() {
         if child.kind().is_expression() {
             format_node(&child, out);
@@ -1941,12 +2051,14 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
             emit_leading_comments_inner(arg, out, i == 0);
             format_node(arg, out);
             out.write(",");
-            emit_node_trailing_comments(arg, out);
+            let trailing_comment_on_newline = emit_node_trailing_comments(arg, out);
             if i < args.len() - 1 {
                 emit_comments_after_list_item(node, arg, out);
                 emit_stolen_trailing_comments(&args[i + 1], out);
             }
-            out.ensure_newline();
+            if !trailing_comment_on_newline {
+                out.ensure_newline();
+            }
         }
         emit_trailing_list_comments(node, args.last().unwrap(), out);
     });
@@ -1977,6 +2089,13 @@ fn format_method_call(node: &SyntaxNode, out: &mut Output) {
 
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
     // BINARY_EXPR: lhs, operator_token, rhs (with trivia interleaved)
+    if has_internal_binary_comment(node) {
+        // Flattening removes clause-attached comments, so keep the original
+        // layout for comment-bearing binary expressions.
+        write_node_verbatim(node, out);
+        return;
+    }
+
     let children: Vec<_> = node.children().collect();
     if children.len() != 2 {
         // Malformed binary expression — emit children verbatim.
@@ -2446,34 +2565,46 @@ fn emit_leading_comments(node: &SyntaxNode, out: &mut Output) {
     emit_leading_comments_inner(node, out, false);
 }
 
-/// Like `emit_leading_comments`, but when `is_first` is true, treats all
-/// leading comments as genuine (not stolen) because there is no previous item
-/// to steal from. This prevents dropping comments on the first item in a list.
-fn emit_leading_comments_inner(node: &SyntaxNode, out: &mut Output, is_first: bool) {
-    let mut saw_linebreak = is_first;
+/// Like `emit_leading_comments`, but uses the token stream to distinguish
+/// genuine leading comments from same-line comments that belong to the
+/// previous item.
+fn emit_leading_comments_inner(node: &SyntaxNode, out: &mut Output, _is_first: bool) {
     for elem in node.children_with_tokens() {
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
-                LINEBREAK => {
-                    saw_linebreak = true;
-                }
-                COMMENT_LINE if saw_linebreak => {
+                COMMENT_LINE if comment_starts_own_line(tok) => {
                     out.write(tok.text().trim_end());
                     out.newline();
                 }
-                COMMENT_BLOCK if saw_linebreak => {
+                COMMENT_BLOCK if comment_starts_own_line(tok) => {
                     out.write(tok.text());
                     out.newline();
                 }
-                // Inline comment before any linebreak — stolen trailing comment
-                // from the previous item. Skip it here.
-                COMMENT_LINE | COMMENT_BLOCK => {}
-                WHITESPACE => {}
+                COMMENT_LINE | COMMENT_BLOCK | WHITESPACE | LINEBREAK => {}
                 _ => break, // Stop at first structural token
             },
             SyntaxElement::Node(_) => break, // Stop at first child node
         }
     }
+}
+
+/// Returns true when the comment token starts on its own source line.
+///
+/// We inspect the real token stream rather than node boundaries because rowan
+/// often attaches leading trivia to the following item node.
+fn comment_starts_own_line(token: &SyntaxToken) -> bool {
+    let mut prev = token.prev_token();
+    while let Some(tok) = prev {
+        match tok.kind() {
+            WHITESPACE | COMMENT_LINE | COMMENT_BLOCK => {
+                prev = tok.prev_token();
+            }
+            LINEBREAK => return true,
+            _ => return false,
+        }
+    }
+
+    true
 }
 
 /// Emit "stolen" trailing comments from a node's leading trivia.
@@ -2486,15 +2617,15 @@ fn emit_stolen_trailing_comments(node: &SyntaxNode, out: &mut Output) {
     for elem in node.children_with_tokens() {
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
-                LINEBREAK => break,
-                COMMENT_LINE => {
+                COMMENT_LINE if !comment_starts_own_line(tok) => {
                     out.space();
                     out.write(tok.text().trim_end());
                 }
-                COMMENT_BLOCK => {
+                COMMENT_BLOCK if !comment_starts_own_line(tok) => {
                     out.space();
                     out.write(tok.text());
                 }
+                LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => break,
                 WHITESPACE => {}
                 _ => break,
             },
@@ -2572,6 +2703,7 @@ fn emit_comments_after_list_item(parent: &SyntaxNode, child: &SyntaxNode, out: &
 /// and emits any comments found before the next structural token or node.
 fn emit_trailing_list_comments(parent: &SyntaxNode, last_item: &SyntaxNode, out: &mut Output) {
     let mut past_item = false;
+    let mut saw_linebreak = false;
     for elem in parent.children_with_tokens() {
         if !past_item {
             if let SyntaxElement::Node(n) = &elem
@@ -2583,15 +2715,32 @@ fn emit_trailing_list_comments(parent: &SyntaxNode, last_item: &SyntaxNode, out:
         }
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
                 COMMENT_LINE => {
+                    let at_line_start = out.current_column() == out.current_indent_width();
+                    if saw_linebreak && !at_line_start {
+                        out.newline();
+                    } else if !saw_linebreak {
+                        out.space();
+                    }
                     out.write(tok.text().trim_end());
                     out.newline();
+                    saw_linebreak = false;
                 }
                 COMMENT_BLOCK => {
+                    let at_line_start = out.current_column() == out.current_indent_width();
+                    if saw_linebreak && !at_line_start {
+                        out.newline();
+                    } else if !saw_linebreak {
+                        out.space();
+                    }
                     out.write(tok.text());
                     out.newline();
+                    saw_linebreak = false;
                 }
-                WHITESPACE | LINEBREAK | COMMA => {}
+                WHITESPACE | COMMA => {}
                 _ => break,
             },
             SyntaxElement::Node(_) => break,
@@ -2670,12 +2819,14 @@ fn format_wrapping_list(
                 if multi_trailing_comma || i < items.len() - 1 {
                     out.write(",");
                 }
-                emit_node_trailing_comments(item, out);
+                let trailing_comment_on_newline = emit_node_trailing_comments(item, out);
                 if i < items.len() - 1 {
                     emit_comments_after_list_item(parent, item, out);
                     emit_stolen_trailing_comments(&items[i + 1], out);
                 }
-                out.newline();
+                if !trailing_comment_on_newline {
+                    out.newline();
+                }
             }
             emit_trailing_list_comments(parent, items.last().unwrap(), out);
         });
@@ -2827,6 +2978,7 @@ fn is_trivia(kind: SyntaxKind) -> bool {
 struct TrailingComment {
     kind: SyntaxKind,
     text: String,
+    starts_own_line: bool,
 }
 
 /// Recursively extract trailing comments from the rightmost path of a node's subtree.
@@ -2846,9 +2998,14 @@ fn collect_trailing_inner(node: &SyntaxNode, comments: &mut Vec<TrailingComment>
     for elem in children.iter().rev() {
         match elem {
             SyntaxElement::Token(tok) => match tok.kind() {
-                WHITESPACE | LINEBREAK => {}
+                WHITESPACE => {}
+                LINEBREAK => {}
                 COMMENT_LINE | COMMENT_BLOCK => {
-                    comments.push(TrailingComment { kind: tok.kind(), text: tok.text().to_string() });
+                    comments.push(TrailingComment {
+                        kind: tok.kind(),
+                        text: tok.text().to_string(),
+                        starts_own_line: comment_starts_own_line(tok),
+                    });
                 }
                 _ => return,
             },
@@ -2861,16 +3018,29 @@ fn collect_trailing_inner(node: &SyntaxNode, comments: &mut Vec<TrailingComment>
 }
 
 /// Emit trailing comments extracted from a node's subtree.
-fn emit_node_trailing_comments(node: &SyntaxNode, out: &mut Output) {
+fn emit_node_trailing_comments(node: &SyntaxNode, out: &mut Output) -> bool {
     let comments = collect_node_trailing_comments(node);
+    let mut emitted_own_line_comment = false;
     for tc in &comments {
-        out.newline();
+        if tc.starts_own_line {
+            let at_line_start = out.current_column() == out.current_indent_width();
+            if !at_line_start {
+                out.newline();
+            }
+            emitted_own_line_comment = true;
+        } else {
+            out.space();
+        }
         if tc.kind == COMMENT_LINE {
             out.write(tc.text.trim_end());
         } else {
             out.write(&tc.text);
         }
+        if tc.starts_own_line {
+            out.newline();
+        }
     }
+    emitted_own_line_comment
 }
 
 /// Check if a node contains comment tokens among its direct children/tokens.
@@ -2895,6 +3065,32 @@ fn has_deep_comment(node: &SyntaxNode) -> bool {
             }
         }
     }
+    false
+}
+
+/// Check whether a binary expression contains comments that belong to the
+/// chain itself rather than trailing trivia on the final operand.
+fn has_internal_binary_comment(node: &SyntaxNode) -> bool {
+    let mut expr_nodes_seen = 0usize;
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK) => {
+                if expr_nodes_seen < 2 {
+                    return true;
+                }
+            }
+            SyntaxElement::Node(child) => {
+                if expr_nodes_seen == 0 && has_internal_binary_comment(&child) {
+                    return true;
+                }
+                if child.kind().is_expression() {
+                    expr_nodes_seen += 1;
+                }
+            }
+            _ => {}
+        }
+    }
+
     false
 }
 
