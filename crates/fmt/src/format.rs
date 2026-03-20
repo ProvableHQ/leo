@@ -2425,9 +2425,32 @@ fn format_final_expr(node: &SyntaxNode, out: &mut Output) {
     out.space();
     for child in node.children() {
         if child.kind() == BLOCK {
-            format_block(&child, out);
+            if let Some(compact) = compact_final_block_string(&child, out.current_column()) {
+                out.write(&compact);
+            } else {
+                format_block(&child, out);
+            }
         }
     }
+}
+
+fn compact_final_block_string(block: &SyntaxNode, col: usize) -> Option<String> {
+    if has_error_descendant(block) || has_deep_comment(block) {
+        return None;
+    }
+
+    let statements: Vec<_> = block.children().filter(|child| child.kind().is_statement()).collect();
+    if statements.len() != 1 {
+        return None;
+    }
+
+    let stmt = format_node_to_string(&statements[0]);
+    if stmt.contains('\n') {
+        return None;
+    }
+
+    let compact = format!("{{ {stmt} }}");
+    if col + compact.len() <= LINE_WIDTH { Some(compact) } else { None }
 }
 
 // =============================================================================
