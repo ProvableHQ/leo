@@ -703,6 +703,26 @@ mod tests {
     }
 
     #[test]
+    fn lex_identifier_literal() {
+        check_lex("'foo' 'bar_baz' 'x'", expect![[r#"
+            IDENT_LIT "'foo'"
+            WHITESPACE " "
+            IDENT_LIT "'bar_baz'"
+            WHITESPACE " "
+            IDENT_LIT "'x'"
+            EOF ""
+        "#]]);
+    }
+
+    #[test]
+    fn lex_identifier_keyword() {
+        check_lex("identifier", expect![[r#"
+            KW_IDENTIFIER "identifier"
+            EOF ""
+        "#]]);
+    }
+
+    #[test]
     fn lex_integers() {
         check_lex("123 0xFF 0b101 0o77", expect![[r#"
             INTEGER "123"

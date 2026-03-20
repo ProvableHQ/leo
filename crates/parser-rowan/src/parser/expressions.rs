@@ -824,6 +824,113 @@ mod tests {
         "#]]);
     }
 
+    #[test]
+    fn parse_expr_identifier_literal() {
+        check_expr("'foo'", expect![[r#"
+            ROOT@0..5
+              LITERAL_IDENT@0..5
+                IDENT_LIT@0..5 "'foo'"
+        "#]]);
+    }
+
+    // =========================================================================
+    // Dynamic Call Expressions
+    // =========================================================================
+
+    #[test]
+    fn parse_expr_dynamic_call_basic() {
+        check_expr("Adder@(target)/sum(x, y)", expect![[r#"
+            ROOT@0..24
+              DYNAMIC_CALL_EXPR@0..24
+                IDENT@0..5 "Adder"
+                AT@5..6 "@"
+                L_PAREN@6..7 "("
+                PATH_EXPR@7..13
+                  IDENT@7..13 "target"
+                R_PAREN@13..14 ")"
+                SLASH@14..15 "/"
+                IDENT@15..18 "sum"
+                L_PAREN@18..19 "("
+                PATH_EXPR@19..20
+                  IDENT@19..20 "x"
+                COMMA@20..21 ","
+                WHITESPACE@21..22 " "
+                PATH_EXPR@22..23
+                  IDENT@22..23 "y"
+                R_PAREN@23..24 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_call_identifier_target() {
+        check_expr("Adder@('foo')/sum(x, y)", expect![[r#"
+            ROOT@0..23
+              DYNAMIC_CALL_EXPR@0..23
+                IDENT@0..5 "Adder"
+                AT@5..6 "@"
+                L_PAREN@6..7 "("
+                LITERAL_IDENT@7..12
+                  IDENT_LIT@7..12 "'foo'"
+                R_PAREN@12..13 ")"
+                SLASH@13..14 "/"
+                IDENT@14..17 "sum"
+                L_PAREN@17..18 "("
+                PATH_EXPR@18..19
+                  IDENT@18..19 "x"
+                COMMA@19..20 ","
+                WHITESPACE@20..21 " "
+                PATH_EXPR@21..22
+                  IDENT@21..22 "y"
+                R_PAREN@22..23 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_call_with_network() {
+        check_expr("Adder@('foo', 'aleo')/sum(x, y)", expect![[r#"
+            ROOT@0..31
+              DYNAMIC_CALL_EXPR@0..31
+                IDENT@0..5 "Adder"
+                AT@5..6 "@"
+                L_PAREN@6..7 "("
+                LITERAL_IDENT@7..12
+                  IDENT_LIT@7..12 "'foo'"
+                COMMA@12..13 ","
+                WHITESPACE@13..14 " "
+                LITERAL_IDENT@14..20
+                  IDENT_LIT@14..20 "'aleo'"
+                R_PAREN@20..21 ")"
+                SLASH@21..22 "/"
+                IDENT@22..25 "sum"
+                L_PAREN@25..26 "("
+                PATH_EXPR@26..27
+                  IDENT@26..27 "x"
+                COMMA@27..28 ","
+                WHITESPACE@28..29 " "
+                PATH_EXPR@29..30
+                  IDENT@29..30 "y"
+                R_PAREN@30..31 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_call_no_args() {
+        check_expr("Adder@(target)/sum()", expect![[r#"
+            ROOT@0..20
+              DYNAMIC_CALL_EXPR@0..20
+                IDENT@0..5 "Adder"
+                AT@5..6 "@"
+                L_PAREN@6..7 "("
+                PATH_EXPR@7..13
+                  IDENT@7..13 "target"
+                R_PAREN@13..14 ")"
+                SLASH@14..15 "/"
+                IDENT@15..18 "sum"
+                L_PAREN@18..19 "("
+                R_PAREN@19..20 ")"
+        "#]]);
+    }
+
     // =========================================================================
     // Identifiers and Paths
     // =========================================================================

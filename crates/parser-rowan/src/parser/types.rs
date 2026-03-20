@@ -552,6 +552,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_type_identifier() {
+        check_type("identifier", expect![[r#"
+            ROOT@0..10
+              TYPE_PRIMITIVE@0..10
+                KW_IDENTIFIER@0..10 "identifier"
+        "#]]);
+    }
+
+    #[test]
     fn parse_type_u32() {
         check_type("u32", expect![[r#"
             ROOT@0..3

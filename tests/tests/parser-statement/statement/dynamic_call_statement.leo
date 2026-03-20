@@ -1,0 +1,4 @@
+
+let result: u32 = Adder@(target)/sum(1u32, 2u32);
+
+return Adder@('foo')/sum(x, y);
