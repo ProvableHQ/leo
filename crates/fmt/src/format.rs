@@ -708,7 +708,10 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
                         out.space();
                         out.write("{");
                         if let Some(first_item) = node.children().find(|child| {
-                            matches!(child.kind(), FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF | MAPPING_DEF | STORAGE_DEF | ERROR)
+                            matches!(
+                                child.kind(),
+                                FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF | MAPPING_DEF | STORAGE_DEF | ERROR
+                            )
                         }) {
                             emit_stolen_trailing_comments(&first_item, out);
                         }
@@ -1587,12 +1590,10 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
             }
         }
 
-        if let Some(first_item) =
-            elems[start_idx..].iter().find_map(|elem| match elem {
-                SyntaxElement::Node(n) if n.kind().is_statement() || n.kind() == ERROR => Some(n.clone()),
-                _ => None,
-            })
-        {
+        if let Some(first_item) = elems[start_idx..].iter().find_map(|elem| match elem {
+            SyntaxElement::Node(n) if n.kind().is_statement() || n.kind() == ERROR => Some(n.clone()),
+            _ => None,
+        }) {
             emit_stolen_trailing_comments(&first_item, out);
         }
 
@@ -2309,7 +2310,7 @@ fn format_cast(node: &SyntaxNode, out: &mut Output) {
 
 fn format_array_expr(node: &SyntaxNode, out: &mut Output) {
     let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
-        format_wrapping_list(node, out, "[", "]", &exprs, true, false);
+    format_wrapping_list(node, out, "[", "]", &exprs, true, false);
 }
 
 fn format_repeat_expr(node: &SyntaxNode, out: &mut Output) {
