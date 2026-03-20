@@ -1,0 +1,5 @@
+Error [ETYC0372006]: Call expected `2` args, but got `1`
+    --> compiler-test:5:16
+     |
+   5 |         return math_lib::add(x);  // missing second argument
+     |                ^^^^^^^^^^^^^^^^

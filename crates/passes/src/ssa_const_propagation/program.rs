@@ -16,9 +16,15 @@
 
 use super::SsaConstPropagationVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor, ProgramScope, Statement};
+use leo_ast::{AstReconstructor, Constructor, Function, Library, ProgramReconstructor, ProgramScope, Statement};
 
 impl ProgramReconstructor for SsaConstPropagationVisitor<'_> {
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        // Library functions have already been inlined into the consuming program by the
+        // function-inlining pass. Pass the library stub through unchanged.
+        input
+    }
+
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         self.program = input.program_id.as_symbol();
 

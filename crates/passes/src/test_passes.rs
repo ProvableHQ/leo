@@ -104,10 +104,11 @@ This structure ensures that **adding a new compiler pass test is minimal**:
 */
 
 use crate::*;
-use leo_ast::NetworkName;
-use leo_errors::{BufferEmitter, Handler};
-use leo_parser::parse_program;
-use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
+use indexmap::{IndexMap, IndexSet};
+use leo_ast::{NetworkName, Stub};
+use leo_errors::{BufferEmitter, Handler, Result};
+use leo_parser::{parse_library, parse_program};
+use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serial_test::serial;
 use std::rc::Rc;
 
@@ -158,6 +159,7 @@ macro_rules! compiler_passes {
                 (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
+                (SsaForming, (SsaFormingInput { rename_defs: true })),
                 (Flattening, ())
             ]),
             (function_inlining_runner, [
@@ -254,14 +256,13 @@ macro_rules! make_runner {
             create_session_if_not_set_then(|_| {
                 let mut state = CompilerState { handler: handler.clone(), node_builder: Rc::clone(&node_builder), ..Default::default() };
 
-                state.ast = match handler.extend_if_error(parse_program(
-                    handler.clone(),
-                    &state.node_builder,
-                    &with_session_globals(|s| s.source_map.new_source(source, FileName::Custom("test".into()))),
-                    &[],
+                state.ast = match handler.extend_if_error(parse_passes_test_source(
+                    source,
+                    &handler,
+                    &node_builder,
                     NetworkName::TestnetV0,
                 )) {
-                    Ok(ast) => leo_ast::Ast::Program(ast),
+                    Ok(ast) => ast,
                     Err(()) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
                 };
 
@@ -327,3 +328,96 @@ macro_rules! make_all_tests_inner {
 }
 
 compiler_passes!(make_all_tests);
+
+/// Delimiter used to separate library / program sections in multi-part passes tests.
+const PASSES_PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
+
+/// Parses a passes test source string into an `Ast`.
+///
+/// If the source contains no `PASSES_PROGRAM_DELIMITER`, it is treated as a
+/// single standalone program (the existing behaviour). Otherwise the source is
+/// split into sections:
+///
+/// - Each section before the last may be a library header
+///   (`// --- library: NAME --- //` followed by library source) or a plain
+///   program section (currently ignored in passes tests).
+/// - The last section is the main program.
+///
+/// Library stubs are parsed and injected into the main program's `stubs` map
+/// so that the prelude passes (GlobalVarsCollection, PathResolution, TypeChecking,
+/// …) see the library declarations exactly as they would during a full compile.
+fn parse_passes_test_source(
+    source: &str,
+    handler: &Handler,
+    node_builder: &Rc<leo_ast::NodeBuilder>,
+    network: NetworkName,
+) -> Result<leo_ast::Ast> {
+    if !source.contains(PASSES_PROGRAM_DELIMITER) {
+        // Fast path: single-program source, existing behaviour.
+        let sf = with_session_globals(|s| s.source_map.new_source(source, FileName::Custom("test".into())));
+        return parse_program(handler.clone(), node_builder, &sf, &[], network).map(leo_ast::Ast::Program);
+    }
+
+    // Multi-part source: split into sections.
+    let sections: Vec<&str> = source.split(PASSES_PROGRAM_DELIMITER).collect();
+    let (main_section, dep_sections) = sections.split_last().expect("split always yields at least one element");
+    let main_source = main_section.trim();
+
+    // Parse library stubs from dependency sections.
+    let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
+    for section in dep_sections {
+        let trimmed = section.trim();
+        if let Some((lib_name, lib_source)) = extract_passes_library_header(trimmed) {
+            let sf =
+                with_session_globals(|s| s.source_map.new_source(lib_source, FileName::Custom("compiler-test".into())));
+            let library = parse_library(handler.clone(), node_builder, lib_name, &sf, network)?;
+            stubs.insert(lib_name, Stub::FromLibrary { library, parents: IndexSet::new() });
+        }
+        // Non-library program stubs are not needed for individual-pass tests.
+    }
+
+    // Parse the main program to obtain its declared name.
+    let main_sf = with_session_globals(|s| s.source_map.new_source(main_source, FileName::Custom("test".into())));
+    let mut program = parse_program(handler.clone(), node_builder, &main_sf, &[], network)?;
+
+    let main_symbol = program
+        .program_scopes
+        .values()
+        .next()
+        .map(|scope| scope.program_id.as_symbol())
+        .expect("a program must have at least one scope");
+
+    // Establish parent relationships so GlobalVarsCollection sets up visibility
+    // correctly: later stubs are parents of earlier ones (transitive deps), and
+    // the main program is a parent of every library it uses.
+    let lib_symbols: Vec<Symbol> = stubs.keys().copied().collect();
+    for (i, sym) in lib_symbols.iter().enumerate() {
+        if let Some(Stub::FromLibrary { parents, .. }) = stubs.get_mut(sym) {
+            parents.extend(lib_symbols[i + 1..].iter().copied());
+            parents.insert(main_symbol);
+        }
+    }
+
+    // Inject the collected stubs into the parsed program.
+    program.stubs = stubs;
+
+    Ok(leo_ast::Ast::Program(program))
+}
+
+/// Extracts a `// --- library: NAME --- //` header from the start of `source`.
+///
+/// Returns `(library_name_symbol, source_after_header)` on success, or `None`
+/// if the source does not begin with a library header.
+fn extract_passes_library_header(source: &str) -> Option<(Symbol, &str)> {
+    let mut offset = 0;
+    for line in source.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("// --- library:") && trimmed.ends_with("--- //") {
+            let name = trimmed.trim_start_matches("// --- library:").trim_end_matches("--- //").trim();
+            let rest = source[offset + line.len()..].trim_start_matches('\n');
+            return Some((Symbol::intern(name), rest));
+        }
+        offset += line.len() + 1;
+    }
+    None
+}

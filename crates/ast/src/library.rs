@@ -16,13 +16,13 @@
 
 use leo_span::Symbol;
 
-use crate::{Composite, ConstDeclaration, Indent};
+use crate::{Composite, ConstDeclaration, Function, Indent};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Stores the Leo library abstract syntax tree.
 ///
-/// Libraries may contain `const` declarations and `struct` definitions.
+/// Libraries may contain `const` declarations, `struct` definitions, and `fn` functions.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Library {
     pub name: Symbol,
@@ -30,6 +30,8 @@ pub struct Library {
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// The struct definitions in this library.
     pub structs: Vec<(Symbol, Composite)>,
+    /// The function definitions in this library.
+    pub functions: Vec<(Symbol, Function)>,
 }
 
 impl fmt::Display for Library {
@@ -38,6 +40,10 @@ impl fmt::Display for Library {
 
         for (_, struct_def) in self.structs.iter() {
             writeln!(f, "{}", Indent(struct_def))?;
+        }
+
+        for (_, func) in self.functions.iter() {
+            writeln!(f, "{}", Indent(func))?;
         }
 
         for (_, const_decl) in self.consts.iter() {

@@ -1802,6 +1802,7 @@ impl<'a> ConversionContext<'a> {
         item: &SyntaxNode,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
         structs: &mut Vec<(Symbol, leo_ast::Composite)>,
+        functions: &mut Vec<(Symbol, leo_ast::Function)>,
     ) -> Result<()> {
         if is_library_item(item.kind()) {
             match item.kind() {
@@ -1813,14 +1814,18 @@ impl<'a> ConversionContext<'a> {
                     let composite = self.to_composite(item)?;
                     structs.push((composite.identifier.name, composite));
                 }
-                // Future library items (functions, etc.) will be handled here.
+                FUNCTION_DEF => {
+                    // `is_in_program_block = false` so the variant is always `Fn` (not EntryPoint).
+                    let func = self.to_function(item, false)?;
+                    functions.push((func.identifier.name, func));
+                }
                 _ => {}
             }
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
             self.handler.emit_err(ParserError::custom(
-                "Only `const` declarations and `struct` definitions are allowed in a library.",
+                "Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.",
                 span,
             ));
         }
@@ -1978,12 +1983,13 @@ impl<'a> ConversionContext<'a> {
     fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
         let mut consts = Vec::new();
         let mut structs = Vec::new();
+        let mut functions = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts, &mut structs)?;
+            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions)?;
         }
 
-        Ok(leo_ast::Library { name, consts, structs })
+        Ok(leo_ast::Library { name, consts, structs, functions })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -3055,7 +3061,7 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
 /// Currently `const` declarations and `struct` definitions are allowed; this list will grow
 /// as library support expands to include functions and other items.
 fn is_library_item(kind: SyntaxKind) -> bool {
-    matches!(kind, GLOBAL_CONST | STRUCT_DEF)
+    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF)
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).

@@ -26,7 +26,7 @@ use leo_ast::{
     Expression,
     Identifier,
     Node as _,
-    ProgramReconstructor,
+    ProgramReconstructor as _,
     Type,
 };
 
@@ -121,8 +121,12 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         input_call: CallExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        // Skip calls to functions from other programs.
-        if input_call.function.expect_global_location().program != self.program {
+        let callee_loc = input_call.function.expect_global_location();
+        let callee_program = callee_loc.program;
+
+        // Skip calls to external programs that are not libraries (cross-program calls).
+        // Library functions and current-program functions (including modules) proceed below.
+        if callee_program != self.program && !self.state.symbol_table.is_library(callee_program) {
             return (input_call.into(), Default::default());
         }
 

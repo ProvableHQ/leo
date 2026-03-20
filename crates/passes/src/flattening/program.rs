@@ -21,6 +21,7 @@ use leo_ast::{
     Constructor,
     Expression,
     Function,
+    Library,
     ProgramReconstructor,
     ProgramScope,
     ReturnStatement,
@@ -28,6 +29,19 @@ use leo_ast::{
 };
 
 impl ProgramReconstructor for FlatteningVisitor<'_> {
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        let prev_program = self.program;
+        self.program = input.name;
+        let library = Library {
+            name: input.name,
+            consts: input.consts,
+            structs: input.structs,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+        };
+        self.program = prev_program;
+        library
+    }
+
     /// Flattens a program scope.
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         self.program = input.program_id.as_symbol();
