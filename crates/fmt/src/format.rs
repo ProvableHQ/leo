@@ -135,13 +135,22 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                     linebreak_count += 1;
                 }
                 COMMENT_LINE | COMMENT_BLOCK => {
-                    if had_output {
-                        out.ensure_newline();
-                    }
-                    // Blank line before comment if after imports, after a block item,
-                    // or if the source had a blank line.
-                    if prev_was_import || prev_was_block_item || (had_output && linebreak_count >= 2) {
-                        out.newline();
+                    let inline_trailing = had_output
+                        && linebreak_count == 0
+                        && !prev_was_import
+                        && !prev_was_block_item
+                        && !prev_was_comment;
+                    if inline_trailing {
+                        out.space();
+                    } else {
+                        if had_output {
+                            out.ensure_newline();
+                        }
+                        // Blank line before comment if after imports, after a block item,
+                        // or if the source had a blank line.
+                        if prev_was_import || prev_was_block_item || (had_output && linebreak_count >= 2) {
+                            out.newline();
+                        }
                     }
                     let text = if tok.kind() == COMMENT_LINE { tok.text().trim_end() } else { tok.text() };
                     out.write(text);
@@ -194,6 +203,11 @@ fn format_root(node: &SyntaxNode, out: &mut Output) {
                         out.newline();
                     }
                     format_node(&n, out);
+                    if let Some(next) = n.next_sibling()
+                        && emit_stolen_trailing_comments(&next, out)
+                    {
+                        out.newline();
+                    }
                     prev_was_import = false;
                     prev_was_block_item = is_block;
                     prev_was_comment = false;
@@ -996,7 +1010,9 @@ fn format_mapping(node: &SyntaxNode, out: &mut Output) {
             _ => {}
         }
     }
-    out.ensure_newline();
+    if !has_same_line_parent_comment_after_node(node) {
+        out.ensure_newline();
+    }
 }
 
 fn format_storage(node: &SyntaxNode, out: &mut Output) {
@@ -1026,7 +1042,9 @@ fn format_storage(node: &SyntaxNode, out: &mut Output) {
             _ => {}
         }
     }
-    out.ensure_newline();
+    if !has_same_line_parent_comment_after_node(node) {
+        out.ensure_newline();
+    }
 }
 
 fn format_global_const(node: &SyntaxNode, out: &mut Output) {
@@ -1075,7 +1093,9 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
             }
         }
     }
-    out.ensure_newline();
+    if !has_same_line_parent_comment_after_node(node) {
+        out.ensure_newline();
+    }
 }
 
 // =============================================================================
@@ -1148,16 +1168,19 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
                     format_node(param, out);
                 }
                 out.write(",");
-                let trailing_comment_on_newline = emit_node_trailing_comments(param, out);
+                emit_node_trailing_comments(param, out);
                 if i < params.len() - 1 {
                     emit_comments_after_list_item(node, param, out);
                     emit_stolen_trailing_comments(&params[i + 1], out);
-                }
-                if !trailing_comment_on_newline {
-                    out.ensure_newline();
+                    if out.current_column() != out.current_indent_width() {
+                        out.ensure_newline();
+                    }
                 }
             }
             emit_trailing_list_comments(node, params.last().unwrap(), out);
+            if out.current_column() != out.current_indent_width() {
+                out.ensure_newline();
+            }
         });
         out.write(")");
     }
@@ -1346,30 +1369,12 @@ fn format_const_parameter(node: &SyntaxNode, out: &mut Output) {
 
 fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
     let params: Vec<_> = node.children().filter(|c| c.kind() == CONST_PARAM).collect();
-
-    out.write("[");
-    for (i, param) in params.iter().enumerate() {
-        format_const_parameter(param, out);
-        if i < params.len() - 1 {
-            out.write(",");
-            out.space();
-        }
-    }
-    out.write("]");
+    format_wrapping_list(node, out, "[", "]", &params, false, false);
 }
 
 fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
     let args: Vec<_> = node.children().filter(|c| c.kind().is_type() || c.kind().is_expression()).collect();
-
-    out.write("[");
-    for (i, arg) in args.iter().enumerate() {
-        format_node(arg, out);
-        if i < args.len() - 1 {
-            out.write(",");
-            out.space();
-        }
-    }
-    out.write("]");
+    format_wrapping_list(node, out, "[", "]", &args, false, false);
 }
 
 // =============================================================================
@@ -1642,6 +1647,9 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         out.ensure_newline();
                         format_node(n, out);
                         emit_node_trailing_comments(n, out);
+                        if let Some(next) = n.next_sibling() {
+                            emit_stolen_trailing_comments(&next, out);
+                        }
                         saw_linebreak = false;
                     }
                     SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
@@ -2065,16 +2073,19 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
             emit_leading_comments_inner(arg, out, i == 0);
             format_node(arg, out);
             out.write(",");
-            let trailing_comment_on_newline = emit_node_trailing_comments(arg, out);
+            emit_node_trailing_comments(arg, out);
             if i < args.len() - 1 {
                 emit_comments_after_list_item(node, arg, out);
                 emit_stolen_trailing_comments(&args[i + 1], out);
-            }
-            if !trailing_comment_on_newline {
-                out.ensure_newline();
+                if out.current_column() != out.current_indent_width() {
+                    out.ensure_newline();
+                }
             }
         }
         emit_trailing_list_comments(node, args.last().unwrap(), out);
+        if out.current_column() != out.current_indent_width() {
+            out.ensure_newline();
+        }
     });
     out.write(")");
 }
@@ -2223,15 +2234,34 @@ fn format_unary(node: &SyntaxNode, out: &mut Output) {
 fn format_ternary(node: &SyntaxNode, out: &mut Output) {
     let exprs: Vec<_> = node.children().filter(|c| c.kind().is_expression()).collect();
     if exprs.len() >= 3 {
-        format_node(&exprs[0], out);
-        out.space();
-        out.write("?");
-        out.space();
-        format_node(&exprs[1], out);
-        out.space();
-        out.write(":");
-        out.space();
-        format_node(&exprs[2], out);
+        if has_deep_comment(node) {
+            format_node(&exprs[0], out);
+            out.newline();
+            out.indented(|out| {
+                out.write("?");
+                out.space();
+                format_node(&exprs[1], out);
+                emit_node_trailing_comments(&exprs[1], out);
+                emit_comments_after_child_until_token(node, &exprs[1], COLON, out);
+                if out.current_column() != out.current_indent_width() {
+                    out.newline();
+                }
+                out.write(":");
+                out.space();
+                format_node(&exprs[2], out);
+                emit_node_trailing_comments(&exprs[2], out);
+            });
+        } else {
+            format_node(&exprs[0], out);
+            out.space();
+            out.write("?");
+            out.space();
+            format_node(&exprs[1], out);
+            out.space();
+            out.write(":");
+            out.space();
+            format_node(&exprs[2], out);
+        }
     }
 }
 
@@ -2645,18 +2675,14 @@ fn emit_leading_comments_inner(node: &SyntaxNode, out: &mut Output, _is_first: b
 /// We inspect the real token stream rather than node boundaries because rowan
 /// often attaches leading trivia to the following item node.
 fn comment_starts_own_line(token: &SyntaxToken) -> bool {
-    let mut prev = token.prev_token();
-    while let Some(tok) = prev {
-        match tok.kind() {
-            WHITESPACE | COMMENT_LINE | COMMENT_BLOCK => {
-                prev = tok.prev_token();
-            }
-            LINEBREAK => return true,
-            _ => return false,
-        }
-    }
-
-    true
+    let Some(parent) = token.parent() else {
+        return true;
+    };
+    let root = parent.ancestors().last().unwrap_or(parent);
+    let text = root.text().to_string();
+    let start: usize = u32::from(token.text_range().start()) as usize;
+    let line_start = text[..start].rfind('\n').map_or(0, |idx| idx + 1);
+    text[line_start..start].chars().all(char::is_whitespace)
 }
 
 /// Emit "stolen" trailing comments from a node's leading trivia.
@@ -2665,25 +2691,29 @@ fn comment_starts_own_line(token: &SyntaxToken) -> bool {
 /// into the next item's node as leading trivia. This function detects such
 /// comments (those appearing before any LINEBREAK) and emits them inline
 /// so they stay on the previous item's line.
-fn emit_stolen_trailing_comments(node: &SyntaxNode, out: &mut Output) {
+fn emit_stolen_trailing_comments(node: &SyntaxNode, out: &mut Output) -> bool {
+    let mut emitted = false;
     for elem in node.children_with_tokens() {
         match &elem {
             SyntaxElement::Token(tok) => match tok.kind() {
                 COMMENT_LINE if !comment_starts_own_line(tok) => {
                     out.space();
                     out.write(tok.text().trim_end());
+                    emitted = true;
                 }
                 COMMENT_BLOCK if !comment_starts_own_line(tok) => {
                     out.space();
                     out.write(tok.text());
+                    emitted = true;
                 }
-                LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => break,
-                WHITESPACE => {}
+                LINEBREAK | WHITESPACE => {}
+                COMMENT_LINE | COMMENT_BLOCK => break,
                 _ => break,
             },
             SyntaxElement::Node(_) => break,
         }
     }
+    emitted
 }
 
 /// Emit comment tokens between a list `child` and the next list item in `parent`.
@@ -2743,6 +2773,58 @@ fn emit_comments_after_list_item(parent: &SyntaxNode, child: &SyntaxNode, out: &
                 }
                 WHITESPACE => {}
                 _ => break,
+            },
+            SyntaxElement::Node(_) => break,
+        }
+    }
+}
+
+fn emit_comments_after_child_until_token(
+    parent: &SyntaxNode,
+    child: &SyntaxNode,
+    stop_token: SyntaxKind,
+    out: &mut Output,
+) {
+    let mut past_child = false;
+    let mut saw_linebreak = false;
+
+    for elem in parent.children_with_tokens() {
+        if !past_child {
+            if let SyntaxElement::Node(n) = &elem
+                && n.text_range() == child.text_range()
+            {
+                past_child = true;
+            }
+            continue;
+        }
+
+        match &elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                k if k == stop_token => break,
+                LINEBREAK => {
+                    saw_linebreak = true;
+                }
+                COMMENT_LINE => {
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
+                    out.write(tok.text().trim_end());
+                    out.newline();
+                    saw_linebreak = false;
+                }
+                COMMENT_BLOCK => {
+                    if saw_linebreak {
+                        out.ensure_newline();
+                    } else {
+                        out.space();
+                    }
+                    out.write(tok.text());
+                    saw_linebreak = false;
+                }
+                WHITESPACE => {}
+                _ => {}
             },
             SyntaxElement::Node(_) => break,
         }
@@ -2875,16 +2957,19 @@ fn format_wrapping_list(
                 if multi_trailing_comma || i < items.len() - 1 {
                     out.write(",");
                 }
-                let trailing_comment_on_newline = emit_node_trailing_comments(item, out);
+                emit_node_trailing_comments(item, out);
                 if i < items.len() - 1 {
                     emit_comments_after_list_item(parent, item, out);
                     emit_stolen_trailing_comments(&items[i + 1], out);
-                }
-                if !trailing_comment_on_newline {
-                    out.newline();
+                    if out.current_column() != out.current_indent_width() {
+                        out.newline();
+                    }
                 }
             }
             emit_trailing_list_comments(parent, items.last().unwrap(), out);
+            if out.current_column() != out.current_indent_width() {
+                out.newline();
+            }
         });
         out.write(close.trim_start());
     }
@@ -3065,6 +3150,36 @@ fn next_significant_is_colon_colon(elems: &[SyntaxElement], idx: usize) -> bool 
         SyntaxElement::Token(tok) => Some(tok.kind() == COLON_COLON),
         SyntaxElement::Node(_) => Some(false),
     }) == Some(true)
+}
+
+fn has_same_line_parent_comment_after_node(node: &SyntaxNode) -> bool {
+    let Some(parent) = node.parent() else {
+        return false;
+    };
+
+    let mut past_node = false;
+    for elem in parent.children_with_tokens() {
+        if !past_node {
+            if let SyntaxElement::Node(n) = &elem
+                && n.text_range() == node.text_range()
+            {
+                past_node = true;
+            }
+            continue;
+        }
+
+        match elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                WHITESPACE => {}
+                COMMENT_LINE | COMMENT_BLOCK => return true,
+                LINEBREAK => return false,
+                _ => return false,
+            },
+            SyntaxElement::Node(_) => return false,
+        }
+    }
+
+    false
 }
 
 fn previous_significant_is_const_params(elems: &[SyntaxElement], idx: usize) -> bool {
