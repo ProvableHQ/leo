@@ -232,7 +232,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
 
             Expression::DynamicCall(dc) => {
-                self.try_atom(&mut dc.target)?;
+                self.try_atom(&mut dc.target_program)?;
                 if let Some(ref mut network) = dc.network {
                     self.try_atom(network)?;
                 }

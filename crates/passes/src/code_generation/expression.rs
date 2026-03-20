@@ -556,7 +556,7 @@ impl CodeGeneratingVisitor<'_> {
         let mut instructions = vec![];
 
         // Codegen the target expression → PROG operand (a field value in a register).
-        let (target_expr, target_instructions) = self.visit_expression(&input.target);
+        let (target_expr, target_instructions) = self.visit_expression(&input.target_program);
         instructions.extend(target_instructions);
         let prog = target_expr.expect("Target must produce a value.");
 

@@ -22,7 +22,8 @@ use itertools::Itertools as _;
 ///
 /// This represents a dynamic call where:
 /// - `interface` is the interface name (e.g. `MyInterface`)
-/// - `target` is the target expression (a field value)
+/// - `target_program` is the expression containing the target program (a `field` or `identifier` value)
+/// - `network` is the expression containing the target program's network (an optional `identifier` value)
 /// - `function` is the function to call on the target (e.g. `foobar`)
 /// - `arguments` are the arguments passed to the function
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,7 +31,7 @@ pub struct DynamicCallExpression {
     /// The interface name.
     pub interface: Identifier,
     /// The target expression.
-    pub target: Expression,
+    pub target_program: Expression,
     /// The optional network expression (defaults to 'aleo' if None).
     pub network: Option<Expression>,
     /// The function to call.
@@ -50,13 +51,20 @@ impl fmt::Display for DynamicCallExpression {
                 f,
                 "{}@({}, {})/{}({})",
                 self.interface,
-                self.target,
+                self.target_program,
                 network,
                 self.function,
                 self.arguments.iter().format(", ")
             )
         } else {
-            write!(f, "{}@({})/{}({})", self.interface, self.target, self.function, self.arguments.iter().format(", "))
+            write!(
+                f,
+                "{}@({})/{}({})",
+                self.interface,
+                self.target_program,
+                self.function,
+                self.arguments.iter().format(", ")
+            )
         }
     }
 }

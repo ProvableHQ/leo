@@ -821,7 +821,8 @@ impl<'a> ConversionContext<'a> {
 
         let arguments = post_slash.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::DynamicCallExpression { interface, target, network, function, arguments, span, id }.into())
+        Ok(leo_ast::DynamicCallExpression { interface, target_program: target, network, function, arguments, span, id }
+            .into())
     }
 
     /// Convert a METHOD_CALL_EXPR node to the appropriate expression.

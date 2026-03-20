@@ -1032,12 +1032,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check target type: must be field or identifier.
-        let target_type = self.visit_expression(&input.target, &None);
+        let target_type = self.visit_expression(&input.target_program, &None);
         if !matches!(target_type, Type::Field | Type::Identifier | Type::Err) {
             self.emit_err(TypeCheckerError::type_should_be2(
                 &target_type,
                 "`field` or `identifier`",
-                input.target.span(),
+                input.target_program.span(),
             ));
         }
 

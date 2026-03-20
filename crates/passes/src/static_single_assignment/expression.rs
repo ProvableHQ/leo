@@ -142,7 +142,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     fn consume_dynamic_call(&mut self, input: DynamicCallExpression) -> Self::Output {
         let mut statements = Vec::new();
 
-        let (target, mut target_stmts) = self.consume_expression_and_define(input.target);
+        let (target, mut target_stmts) = self.consume_expression_and_define(input.target_program);
         statements.append(&mut target_stmts);
 
         let network = input.network.map(|n| {
@@ -161,7 +161,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             })
             .collect();
 
-        (DynamicCallExpression { target, network, arguments, ..input }.into(), statements)
+        (DynamicCallExpression { target_program: target, network, arguments, ..input }.into(), statements)
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.
