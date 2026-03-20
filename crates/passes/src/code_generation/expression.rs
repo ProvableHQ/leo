@@ -535,7 +535,7 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_dynamic_call(&mut self, input: &DynamicCallExpression) -> (AleoExpr, Vec<AleoStmt>) {
-        let caller_program = self.program_id.expect("Dynamic calls only appear within programs.").name.name;
+        let caller_program = self.program_id.expect("Dynamic calls only appear within programs.").as_symbol();
 
         // Look up the interface and function prototype from the symbol table.
         let interface_location = Location::new(caller_program, vec![input.interface.name]);
