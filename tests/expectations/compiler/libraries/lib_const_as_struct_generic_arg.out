@@ -1,0 +1,24 @@
+program main.aleo;
+
+struct Grid__BuoLASDcHZe:
+    cells as [u32; 4u32];
+
+struct Square__EJsWIiwZaLk:
+    grid as Grid__BuoLASDcHZe;
+
+struct Grid__E7XglmTW4uA:
+    cells as [u32; 8u32];
+
+struct BigSquare__3j8s7bQFQI5:
+    grid as Grid__E7XglmTW4uA;
+
+function get_cell:
+    input r0 as Square__EJsWIiwZaLk.private;
+    output r0.grid.cells[0u32] as u32.private;
+
+function get_big_cell:
+    input r0 as BigSquare__3j8s7bQFQI5.private;
+    output r0.grid.cells[0u32] as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -38,3 +38,5 @@ tests/mismatches/
 tree-sitter/node_modules/
 tree-sitter/build/
 tree-sitter/result
+
+AGENTS.md

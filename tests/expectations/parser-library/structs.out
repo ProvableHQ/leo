@@ -1,0 +1,30 @@
+library test_lib {
+    struct Point {
+        x: u32,
+        y: u32,
+    }
+}
+
+
+library test_lib {
+    struct Vec::[N: u32] {
+        data: u32,
+    }
+}
+
+
+library test_lib {
+    struct Matrix::[R: u32, C: u32] {
+        rows: u32,
+        cols: u32,
+    }
+    struct Grid::[N: u32] {
+        cells: u32,
+    }
+    struct Board {
+        grid: Grid::[SIZE],
+    }
+    const SIZE: u32 = 8u32;
+}
+
+

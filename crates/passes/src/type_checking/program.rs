@@ -169,6 +169,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Set the scope state.
         self.scope_state.program_name = Some(input.name);
 
+        input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
     }
 

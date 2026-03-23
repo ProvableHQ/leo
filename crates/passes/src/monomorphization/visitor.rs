@@ -73,27 +73,43 @@ impl MonomorphizationVisitor<'_> {
     ///
     /// Note: this functions already assumes that all provided const arguments are literals.
     pub(crate) fn monomorphize_composite(&mut self, path: &Path, const_arguments: &Vec<Expression>) -> Path {
-        // Generate a unique name for the monomorphized composite based on const arguments.
+        let original_loc = path.expect_global_location();
+
+        // Generate a unique monomorphized name for the composite.
         //
-        // For `struct Foo::[x: u32, y: u32](..)`, the generated name would be `Foo::[1u32, 2u32]` for a composite
-        // expression that sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a
-        // valid identifier in the user code.
+        // For both local and library composites, the name uses the base struct name plus its
+        // const arguments: e.g. `Foo::[1u32]`. Uniqueness within the consuming program is
+        // guaranteed by the storage location (see below).
         //
-        // Later, we have to legalize these names because they are not valid Aleo identifiers. We do this in codegen.
-        let new_composite_path = path.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
-            "{}::[{}]",
-            path.identifier().name,
-            const_arguments.iter().format(", ")
-        )));
+        // These names are not valid Leo identifiers and are legalized in codegen.
+        let monomorphized_name =
+            leo_span::Symbol::intern(&format!("{}::[{}]", path.identifier().name, const_arguments.iter().format(", ")));
+
+        // Compute the storage location for the monomorphized composite:
+        // - Library composites stay under their own library program (e.g. `math_lib/["Foo::[1u32]"]`),
+        //   just as module composites stay in their module. `reconstruct_library` picks them up
+        //   naturally and code generation inlines them into the consuming program's bytecode.
+        // - Local composites stay in the same program scope.
+        let storage_loc = if original_loc.program != self.program {
+            Location::new(original_loc.program, vec![monomorphized_name])
+        } else {
+            let mut path_segs = original_loc.path[..original_loc.path.len() - 1].to_vec();
+            path_segs.push(monomorphized_name);
+            Location::new(original_loc.program, path_segs)
+        };
+
+        // Build the new path pointing directly to the storage location.
+        let new_composite_path =
+            path.clone().with_updated_last_symbol(monomorphized_name).to_global(storage_loc.clone());
 
         // Check if the new composite name is not already present in `reconstructed_composites`. This ensures that we do not
         // add a duplicate definition for the same composite.
-        if self.reconstructed_composites.get(new_composite_path.expect_global_location()).is_none() {
+        if self.reconstructed_composites.get(&storage_loc).is_none() {
             // Look up the already reconstructed composite by name.
             let composite = self
                 .reconstructed_composites
-                .get(path.expect_global_location())
-                .expect("Composite should already be reconstructed (post-order traversal).");
+                .get(original_loc)
+                .unwrap_or_else(|| panic!("Composite should already be reconstructed (post-order traversal)."));
 
             // Build mapping from const parameters to const argument values.
             let const_param_map: IndexMap<_, _> = composite
@@ -122,16 +138,15 @@ impl MonomorphizationVisitor<'_> {
             // Now, reconstruct the composite to actually monomorphize its content such as generic composite type
             // instantiations.
             composite = self.reconstruct_composite(composite);
-            composite.identifier =
-                Identifier::new(new_composite_path.identifier().name, self.state.node_builder.next_id());
+            composite.identifier = Identifier::new(monomorphized_name, self.state.node_builder.next_id());
             composite.const_parameters = vec![];
             composite.id = self.state.node_builder.next_id();
 
             // Keep track of the new composite in case other composites need it.
-            self.reconstructed_composites.insert(new_composite_path.expect_global_location().clone(), composite);
+            self.reconstructed_composites.insert(storage_loc.clone(), composite);
 
             // Now keep track of the composite we just monomorphized
-            self.monomorphized_composites.insert(path.expect_global_location().clone());
+            self.monomorphized_composites.insert(original_loc.clone());
         }
 
         new_composite_path

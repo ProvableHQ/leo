@@ -1,0 +1,13 @@
+program main.aleo;
+
+struct Slot__KHhnb8Opt0N:
+    size as u32;
+
+function get_val:
+    cast 7u32 into r0 as Slot__KHhnb8Opt0N;
+    output r0.size as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 7u32
