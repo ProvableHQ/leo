@@ -767,24 +767,22 @@ impl<'a> ConversionContext<'a> {
     }
 
     /// Convert a DYNAMIC_CALL_EXPR node to an expression.
-    ///
-    /// Structure: `IDENT AT L_PAREN expr R_PAREN SLASH IDENT L_PAREN args R_PAREN`
     fn dynamic_call_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
         debug_assert_eq!(node.kind(), DYNAMIC_CALL_EXPR);
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
-        // Collect IDENT tokens (interface name and function name).
-        let ident_tokens: Vec<_> = tokens(node).filter(|t| t.kind() == IDENT).collect();
+        let interface = children(node)
+            .filter(|n| n.kind().is_type())
+            .map(|n| self.to_type(&n))
+            .next()
+            .expect("Parser guarantees a type")?;
 
-        let interface = if let Some(token) = ident_tokens.first() {
-            self.to_identifier(token)
+        let function = if let Some(token) = tokens(node).find(|t| t.kind() == IDENT) {
+            self.to_identifier(&token)
         } else {
             self.error_identifier(span)
         };
-
-        let function =
-            if let Some(token) = ident_tokens.get(1) { self.to_identifier(token) } else { self.error_identifier(span) };
 
         // Collect expression children: first is target, optional second is network
         // (if inside the @(...) before the /), rest are arguments.

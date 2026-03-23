@@ -180,6 +180,7 @@ pub trait AstVisitor {
         input: &DynamicCallExpression,
         _additional: &Self::AdditionalInput,
     ) -> Self::Output {
+        self.visit_type(&input.interface);
         self.visit_expression(&input.target_program, &Default::default());
         if let Some(ref network) = input.network {
             self.visit_expression(network, &Default::default());

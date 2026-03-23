@@ -995,9 +995,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let current_program = self.scope_state.program_name.unwrap();
 
         // Look up the interface in the symbol table.
-        let interface_location = Location::new(current_program, vec![input.interface.name]);
-        let Some(interface) = self.state.symbol_table.lookup_interface(current_program, &interface_location) else {
-            self.emit_err(TypeCheckerError::unknown_sym("interface", input.interface, input.interface.span));
+        let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
+            panic!("Dynamic calls can only be done over interface types");
+        };
+        let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
+        let Some(interface) = self.state.symbol_table.lookup_interface(current_program, interface_location) else {
+            self.emit_err(TypeCheckerError::unknown_sym("interface", &input.interface, interface_path.span));
             return Type::Err;
         };
         let interface = interface.clone();

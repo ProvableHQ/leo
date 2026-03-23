@@ -24,6 +24,7 @@ use leo_ast::{
     CallExpression,
     CastExpression,
     CompositeExpression,
+    CompositeType,
     DynamicCallExpression,
     Expression,
     FromStrRadix,
@@ -32,7 +33,6 @@ use leo_ast::{
     IntrinsicExpression,
     Literal,
     LiteralVariant,
-    Location,
     MemberAccess,
     NetworkName,
     Node,
@@ -538,11 +538,15 @@ impl CodeGeneratingVisitor<'_> {
         let caller_program = self.program_id.expect("Dynamic calls only appear within programs.").as_symbol();
 
         // Look up the interface and function prototype from the symbol table.
-        let interface_location = Location::new(caller_program, vec![input.interface.name]);
+
+        let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
+            panic!("Dynamic calls can only be done over interface types");
+        };
+        let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
         let interface = self
             .state
             .symbol_table
-            .lookup_interface(caller_program, &interface_location)
+            .lookup_interface(caller_program, interface_location)
             .expect("Type checking guarantees interfaces exist")
             .clone();
 

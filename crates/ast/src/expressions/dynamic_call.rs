@@ -28,8 +28,8 @@ use itertools::Itertools as _;
 /// - `arguments` are the arguments passed to the function
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DynamicCallExpression {
-    /// The interface name.
-    pub interface: Identifier,
+    /// The interface path.
+    pub interface: Type,
     /// The target expression.
     pub target_program: Expression,
     /// The optional network expression (defaults to 'aleo' if None).

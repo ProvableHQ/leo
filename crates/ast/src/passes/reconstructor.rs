@@ -292,6 +292,7 @@ pub trait AstReconstructor {
     ) -> (Expression, Self::AdditionalOutput) {
         (
             DynamicCallExpression {
+                interface: self.reconstruct_type(input.interface).0,
                 target_program: self.reconstruct_expression(input.target_program, &Default::default()).0,
                 network: input.network.map(|n| self.reconstruct_expression(n, &Default::default()).0),
                 arguments: input

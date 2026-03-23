@@ -355,6 +355,37 @@ impl Parser<'_, '_> {
         Some(m.complete(self, INDEX_EXPR))
     }
 
+    /// Parse dynamic call expression: `expr@(expr)/func(args)`.
+    fn parse_dynamic_call_expr(&mut self, lhs: CompletedMarker) -> Option<CompletedMarker> {
+        let m = lhs.precede(self);
+
+        self.bump_any(); // @
+        self.expect(L_PAREN);
+        self.parse_expr(); // target expression
+        // Optional network argument
+        if self.eat(COMMA) {
+            self.parse_expr(); // network expression
+        }
+        self.expect(R_PAREN);
+        self.expect(SLASH);
+        if self.at(IDENT) {
+            self.bump_any(); // function name
+        }
+        // parse call arguments
+        self.expect(L_PAREN);
+        if !self.at(R_PAREN) {
+            self.parse_expr();
+            while self.eat(COMMA) {
+                if self.at(R_PAREN) {
+                    break;
+                }
+                self.parse_expr();
+            }
+        }
+        self.expect(R_PAREN);
+        Some(m.complete(self, DYNAMIC_CALL_EXPR))
+    }
+
     /// Parse call expression: `expr(args)`.
     fn parse_call_expr(&mut self, lhs: CompletedMarker) -> Option<CompletedMarker> {
         let m = lhs.precede(self);
@@ -578,35 +609,6 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
-        // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
-        if self.at(AT) {
-            self.bump_any(); // @
-            self.expect(L_PAREN);
-            self.parse_expr(); // target expression
-            // Optional network argument
-            if self.eat(COMMA) {
-                self.parse_expr(); // network expression
-            }
-            self.expect(R_PAREN);
-            self.expect(SLASH);
-            if self.at(IDENT) {
-                self.bump_any(); // function name
-            }
-            // parse call arguments
-            self.expect(L_PAREN);
-            if !self.at(R_PAREN) {
-                self.parse_expr();
-                while self.eat(COMMA) {
-                    if self.at(R_PAREN) {
-                        break;
-                    }
-                    self.parse_expr();
-                }
-            }
-            self.expect(R_PAREN);
-            return Some(m.complete(self, DYNAMIC_CALL_EXPR));
-        }
-
         // Check for locator: name.aleo/path
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             self.bump_any(); // .
@@ -650,6 +652,12 @@ impl Parser<'_, '_> {
                 let kind = if is_locator { PATH_LOCATOR_EXPR } else { PROGRAM_REF_EXPR };
                 let cm = m.complete(self, kind);
                 return self.parse_call_expr(cm);
+            }
+
+            // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
+            if self.at(AT) {
+                let cm = m.complete(self, TYPE_LOCATOR);
+                return self.parse_dynamic_call_expr(cm);
             }
 
             let kind = if is_locator { PATH_LOCATOR_EXPR } else { PROGRAM_REF_EXPR };
@@ -698,6 +706,12 @@ impl Parser<'_, '_> {
         if self.at(L_PAREN) {
             let cm = m.complete(self, PATH_EXPR);
             return self.parse_call_expr(cm);
+        }
+
+        // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
+        if self.at(AT) {
+            let cm = m.complete(self, TYPE_PATH);
+            return self.parse_dynamic_call_expr(cm);
         }
 
         Some(m.complete(self, PATH_EXPR))
@@ -842,7 +856,8 @@ mod tests {
         check_expr("Adder@(target)/sum(x, y)", expect![[r#"
             ROOT@0..24
               DYNAMIC_CALL_EXPR@0..24
-                IDENT@0..5 "Adder"
+                TYPE_PATH@0..5
+                  IDENT@0..5 "Adder"
                 AT@5..6 "@"
                 L_PAREN@6..7 "("
                 PATH_EXPR@7..13
@@ -866,7 +881,8 @@ mod tests {
         check_expr("Adder@('foo')/sum(x, y)", expect![[r#"
             ROOT@0..23
               DYNAMIC_CALL_EXPR@0..23
-                IDENT@0..5 "Adder"
+                TYPE_PATH@0..5
+                  IDENT@0..5 "Adder"
                 AT@5..6 "@"
                 L_PAREN@6..7 "("
                 LITERAL_IDENT@7..12
@@ -890,7 +906,8 @@ mod tests {
         check_expr("Adder@('foo', 'aleo')/sum(x, y)", expect![[r#"
             ROOT@0..31
               DYNAMIC_CALL_EXPR@0..31
-                IDENT@0..5 "Adder"
+                TYPE_PATH@0..5
+                  IDENT@0..5 "Adder"
                 AT@5..6 "@"
                 L_PAREN@6..7 "("
                 LITERAL_IDENT@7..12
@@ -918,7 +935,8 @@ mod tests {
         check_expr("Adder@(target)/sum()", expect![[r#"
             ROOT@0..20
               DYNAMIC_CALL_EXPR@0..20
-                IDENT@0..5 "Adder"
+                TYPE_PATH@0..5
+                  IDENT@0..5 "Adder"
                 AT@5..6 "@"
                 L_PAREN@6..7 "("
                 PATH_EXPR@7..13
