@@ -2702,6 +2702,11 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
+    if inits.iter().any(struct_field_init_contains_nested_struct_expr) {
+        format_wrapping_list_multiline(node, out, " { ", " }", &inits, false);
+        return;
+    }
+
     format_wrapping_list(node, out, " { ", " }", &inits, true, false);
 }
 
@@ -3222,31 +3227,42 @@ fn format_wrapping_list(
     } else if !has_comment && dense_simple_items && has_multiline_item {
         format_wrapping_list_with_dense_simple_items(out, open, close, items, &item_strings, multi_trailing_comma);
     } else {
-        out.write(open.trim_end());
-        out.newline();
-        out.indented(|out| {
-            for (i, item) in items.iter().enumerate() {
-                emit_leading_comments_inner(item, out, i == 0);
-                format_node(item, out);
-                if multi_trailing_comma || i < items.len() - 1 {
-                    out.write(",");
-                }
-                emit_node_trailing_comments(item, out);
-                if i < items.len() - 1 {
-                    emit_comments_after_list_item(parent, item, out);
-                    emit_stolen_trailing_comments(&items[i + 1], out);
-                    if out.current_column() != out.current_indent_width() {
-                        out.newline();
-                    }
-                }
-            }
-            emit_trailing_list_comments(parent, items.last().unwrap(), out);
-            if out.current_column() != out.current_indent_width() {
-                out.newline();
-            }
-        });
-        out.write(close.trim_start());
+        format_wrapping_list_multiline(parent, out, open, close, items, multi_trailing_comma);
     }
+}
+
+fn format_wrapping_list_multiline(
+    parent: &SyntaxNode,
+    out: &mut Output,
+    open: &str,
+    close: &str,
+    items: &[SyntaxNode],
+    multi_trailing_comma: bool,
+) {
+    out.write(open.trim_end());
+    out.newline();
+    out.indented(|out| {
+        for (i, item) in items.iter().enumerate() {
+            emit_leading_comments_inner(item, out, i == 0);
+            format_node(item, out);
+            if multi_trailing_comma || i < items.len() - 1 {
+                out.write(",");
+            }
+            emit_node_trailing_comments(item, out);
+            if i < items.len() - 1 {
+                emit_comments_after_list_item(parent, item, out);
+                emit_stolen_trailing_comments(&items[i + 1], out);
+                if out.current_column() != out.current_indent_width() {
+                    out.newline();
+                }
+            }
+        }
+        emit_trailing_list_comments(parent, items.last().unwrap(), out);
+        if out.current_column() != out.current_indent_width() {
+            out.newline();
+        }
+    });
+    out.write(close.trim_start());
 }
 
 fn format_wrapping_list_with_dense_simple_items(
@@ -3372,6 +3388,10 @@ fn format_node_to_string(node: &SyntaxNode) -> String {
     let mut out = Output::new();
     format_node(node, &mut out);
     out.into_raw()
+}
+
+fn struct_field_init_contains_nested_struct_expr(node: &SyntaxNode) -> bool {
+    node.descendants().skip(1).any(|child| matches!(child.kind(), STRUCT_EXPR | STRUCT_LOCATOR_EXPR))
 }
 
 /// Check if a delimited list fits on one line.
