@@ -1,0 +1,171 @@
+program math_impl.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping total__:
+    key as boolean.public;
+    value as u32.public;
+
+function compute:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    async compute r2 into r3;
+    output r2 as u32.private;
+    output r3 as math_impl.aleo/compute.future;
+
+finalize compute:
+    input r0 as u32.public;
+    contains total__[false] into r1;
+    get.or_use total__[false] 0u32 into r2;
+    cast true r2 into r3 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r4 as Optional__EsDmm5O6sv6;
+    ternary r1 r3.is_some r4.is_some into r5;
+    ternary r1 r3.val r4.val into r6;
+    cast r5 r6 into r7 as Optional__EsDmm5O6sv6;
+    contains total__[false] into r8;
+    get.or_use total__[false] 0u32 into r9;
+    cast true r9 into r10 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r11 as Optional__EsDmm5O6sv6;
+    ternary r8 r10.is_some r11.is_some into r12;
+    ternary r8 r10.val r11.val into r13;
+    cast r12 r13 into r14 as Optional__EsDmm5O6sv6;
+    ternary r7.is_some r14.val 0u32 into r15;
+    add r15 r0 into r16;
+    set r16 into total__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import math_impl.aleo;
+program multi_caller.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    call.dynamic r0 'aleo' 'compute' with r1 r2 (as u32.private u32.private) into r3 r4 (as u32.private dynamic.future);
+    call.dynamic r0 'aleo' 'compute' with r1 r3 (as u32.private u32.private) into r5 r6 (as u32.private dynamic.future);
+    async main r4 r6 into r7;
+    output r5 as u32.private;
+    output r7 as multi_caller.aleo/main.future;
+
+finalize main:
+    input r0 as dynamic.future;
+    input r1 as dynamic.future;
+    await r0;
+    await r1;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: aborted
+{
+  "transitions": [
+    {
+      "id": "au189c7ajjpez7p9dq7gtputuwuyx8k34unq9sqvxrv6znxux0fvvxq7u09zy",
+      "program": "math_impl.aleo",
+      "function": "compute",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6142812947242809788283700359445433747494018936601421319912692152653733447451field",
+          "value": "ciphertext1qyqw89yugw2hxek7v2h7srzlrq9s2pe5nvlp3mdw9vxaskyu2pf9gps8lx3mf"
+        },
+        {
+          "type": "private",
+          "id": "966809111478837338727907348675665479246426259730682442428323146588342837513field",
+          "value": "ciphertext1qyq0mh2c0k6zdnk0upf33u47hyyhft8vfjxu2kl0qsncta4zc6eh2pqwqqvra"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "398496260250170794371834927886358084557009582620665540115804715533887530476field",
+          "value": "ciphertext1qyqzkd3jx0p5vve0hnjffgsuuxm93aejwnn7gkq3vw48egpqhncjgqsnp6yta"
+        },
+        {
+          "type": "future",
+          "id": "6675766514766807411892015178646493589794029118066319882568585604443014503968field",
+          "value": "{\n  program_id: math_impl.aleo,\n  function_name: compute,\n  arguments: [\n    8u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5687230178917349342879333723085269402893390609695017679583886453710590565794group",
+      "tcm": "4923669404261525024615164564231158229495857381957562378347145076187615911798field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    },
+    {
+      "id": "au18gu2hhfay4zrqv3a8g2zlcnyfcapglf65tmce6cr0lp4su8rw59suuwaxy",
+      "program": "math_impl.aleo",
+      "function": "compute",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6063052123093717302646456332750276972330354982221872037108398845831211223277field",
+          "value": "ciphertext1qyq9gk02jh4zdtfhra6c3ry5uj0y6zmpxplumv7ymaevncpupfu2upshjlxk4"
+        },
+        {
+          "type": "private",
+          "id": "8209688028429844402905666446168900805965836172827728348344847954324380371733field",
+          "value": "ciphertext1qyq8fqwky9fcayv90gq3tvy0qynq0s5m52ahalshgcaq64rhnp77wzcqc7yrr"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "1009685859827472573140576426659244664886420299671727361929775654279412671066field",
+          "value": "ciphertext1qyqwen56pmrvew99uj3saj88uqxnq3yj9dn7xn9ptvnnsdal2flu6psu97nmw"
+        },
+        {
+          "type": "future",
+          "id": "909738782486239684444266951420961982586721206284413511732941374848542425046field",
+          "value": "{\n  program_id: math_impl.aleo,\n  function_name: compute,\n  arguments: [\n    11u32\n  ]\n}"
+        }
+      ],
+      "tpk": "654806945883542095231242832252509029920855692535061807995710015518808330145group",
+      "tcm": "3300686663669977630236049787960639761475060572059016741348811664424550951697field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    },
+    {
+      "id": "au1qft4dxtpge34pglknnl26jfcwu5gwysedgs60jyrt8h4kc77yqpqg243f9",
+      "program": "multi_caller.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4664683446127633823887141349384580442082990085217399200580588946777326516149field",
+          "value": "ciphertext1qgqwq06lp07zwfpx6x6hmkgy7x88ckeqpyps4r7r24jwkpyqx0h3cp9rhl8w5l8p6u680lxx6jjlt5sk8dcyvqtk6zphra62sveme27qqgksgsx9"
+        },
+        {
+          "type": "private",
+          "id": "3612768336064672765590536550850401845514386099892588336141162247900639674665field",
+          "value": "ciphertext1qyqwlz7lk68j57xmkwvz5wtm30dz8ma5dw3ce0anmtd2fwayfau8kpsaf235c"
+        },
+        {
+          "type": "private",
+          "id": "3929510787861614740890001689212035111823808593867713064005895612394930592159field",
+          "value": "ciphertext1qyqwdyl8f8zt9jcp7s6t4q7qje0txy3yfpt0m3fvykyy5wadct5wxyqvaq5px"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5706984000190519117055760653718138922299002958011201569172550852646434691886field",
+          "value": "ciphertext1qyq9fklkdw8nxz2feauhf4uusrhzpq25ysejcm00pwxw45nj6er8szq7g5nys"
+        },
+        {
+          "type": "future",
+          "id": "8311261044239361055043477667342717699162844476408345431804889300961515231434field",
+          "value": "{\n  program_id: multi_caller.aleo,\n  function_name: main,\n  arguments: [\n    { _program_id: math_impl.aleo, _function_name: compute, _checksum: 1797709838730614182530547992183554771506643741936738756013131500309008825218field },\n    { _program_id: math_impl.aleo, _function_name: compute, _checksum: 6281566600528038103740245885024272491124691075240304600371630382090662157717field }\n  ]\n}"
+        }
+      ],
+      "tpk": "5460101671977983421557592666570386705801849939677836799006538765561915017623group",
+      "tcm": "728412264949564638132993146697805541764296730203779013289928905175905438777field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

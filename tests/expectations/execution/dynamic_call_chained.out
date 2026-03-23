@@ -1,0 +1,161 @@
+program leaf.aleo;
+
+mapping result__:
+    key as boolean.public;
+    value as u32.public;
+
+function process:
+    input r0 as u32.private;
+    mul r0 2u32 into r1;
+    async process r1 into r2;
+    output r1 as u32.private;
+    output r2 as leaf.aleo/process.future;
+
+finalize process:
+    input r0 as u32.public;
+    set r0 into result__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import leaf.aleo;
+program middle.aleo;
+
+function relay:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call.dynamic r0 'aleo' 'process' with r1 (as u32.private) into r2 r3 (as u32.private dynamic.future);
+    async relay r3 into r4;
+    output r2 as u32.private;
+    output r4 as middle.aleo/relay.future;
+
+finalize relay:
+    input r0 as dynamic.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import leaf.aleo;
+import middle.aleo;
+program top_caller.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as u32.private;
+    call.dynamic r0 'aleo' 'relay' with r1 r2 (as field.private u32.private) into r3 r4 (as u32.private dynamic.future);
+    async main r4 into r5;
+    output r3 as u32.private;
+    output r5 as top_caller.aleo/main.future;
+
+finalize main:
+    input r0 as dynamic.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: aborted
+{
+  "transitions": [
+    {
+      "id": "au19hc3605gpgw74cx0s48uecrz7gmtagq47n4h93akg2d00534tgxqha4p5a",
+      "program": "leaf.aleo",
+      "function": "process",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7021867259623283815611557155772124989015218665659005905543440641331353091429field",
+          "value": "ciphertext1qyqfxl9s2jv22ep4pfsyamu4twq4l2k3szmzfdyzjetlmn0fswa0urg886vwf"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2628601658025761687721760086639060834285714753788440836614672792648811250755field",
+          "value": "ciphertext1qyqdg8e0zm35ecyd8w7ptmyzedqzfs4zylqzkjk6kqjhjj26vazf6qquad32t"
+        },
+        {
+          "type": "future",
+          "id": "1753912732069763681017129567352973086842345322571868468532497464808117888375field",
+          "value": "{\n  program_id: leaf.aleo,\n  function_name: process,\n  arguments: [\n    14u32\n  ]\n}"
+        }
+      ],
+      "tpk": "1653590290745421280276907936452469871383249339571746881685209644063269637010group",
+      "tcm": "3085232345272324635475283026803392861689922222957543442918988149733716188581field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au150k8qrqedu6edgwjz8t0w2rdy6t7hp4s4ruj7kvs5fr93ar29gpqmalzd8",
+      "program": "middle.aleo",
+      "function": "relay",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "912255013396119405260443841860225119371884368580062359201260007192213206099field",
+          "value": "ciphertext1qgqyl5c75augdp4mwgge2n2y5sc0xk297xsawtg8q0tqtkvc9tx6wys9xa8z9wv9je6jcracw039skxsyp0mp5wk6jc68wud5uue00h6pc0fx2ja"
+        },
+        {
+          "type": "private",
+          "id": "1773068465407656029244083180735716305646224631213750316723310117757301632865field",
+          "value": "ciphertext1qyqww9ydleeqnpwy5y6ptrsrz4520vycz4dx3ynspsufmpsu0d5q6yqelwvfa"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "8392614571638344648453277831396749118189054777455200640544119490386781558369field",
+          "value": "ciphertext1qyqfcxa6vsc4n9nu4guhnnfypgufr65fh7c6s4a2j8a5q4hg98yegzqvc0m89"
+        },
+        {
+          "type": "future",
+          "id": "1814559884519130732140085732454703778373241544785339379621190360328584657933field",
+          "value": "{\n  program_id: middle.aleo,\n  function_name: relay,\n  arguments: [\n    { _program_id: leaf.aleo, _function_name: process, _checksum: 1446034687199986800033802483295062172449014477249380279161601898943247911756field }\n  ]\n}"
+        }
+      ],
+      "tpk": "5325843552586333639772383893552182957914818753344410044565464063750464515483group",
+      "tcm": "2219185854209674473881597224975145733804381060059828750495773211128556340128field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1zqg0djfledv9rnptvvdqzxarppcwmmcu4swudeaq2hdc2ucd7syqm4nut3",
+      "program": "top_caller.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "3604750838307279022785242867856715037765084018496873879597527320897417941409field",
+          "value": "ciphertext1qgq8gafle5c307z5r4e5zw9cz3yrck9eq2m640f08eatzkdhks2eszuka0daljra4eh32v84tm20r66n3efm9sqawuyq39zlnwyrv6tnzyr4lljv"
+        },
+        {
+          "type": "private",
+          "id": "3805020475072954375643611537531521324335745063799635874508561895815932500405field",
+          "value": "ciphertext1qgqf8f7prc9kvqexzw46h9y4wn6mrdy8yngja9xz66jvelcg9zf6srljg405jumk3k0vf9a0rswurd99wlw2yt8vfkquty7qa4js2ecfpqtwd4q2"
+        },
+        {
+          "type": "private",
+          "id": "90745143605650055349836316854576350659965446620229991373571502328516347582field",
+          "value": "ciphertext1qyqfc225pqdpt97eeykl2knuzd3dn0gm8qslfg7sfqnntxyh8shtqyqqvp9mc"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "5306080461502396135262795075201157780622133975902986012888678546259337143103field",
+          "value": "ciphertext1qyqrfrwaxannjrz6ykz4xluenhjz694d7utlm03tqy33dpluylsgvrs24ysc7"
+        },
+        {
+          "type": "future",
+          "id": "3845214370543532660727250876986573830891019758254609793930794695831751726408field",
+          "value": "{\n  program_id: top_caller.aleo,\n  function_name: main,\n  arguments: [\n    { _program_id: middle.aleo, _function_name: relay, _checksum: 386496424236340273483160252389781832413685391638433081573694250859314089506field }\n  ]\n}"
+        }
+      ],
+      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
+      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

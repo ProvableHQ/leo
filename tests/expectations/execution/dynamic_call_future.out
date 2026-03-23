@@ -1,0 +1,123 @@
+program counter_impl.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping count__:
+    key as boolean.public;
+    value as u32.public;
+
+function increment:
+    input r0 as u32.private;
+    async increment r0 into r1;
+    output r0 as u32.private;
+    output r1 as counter_impl.aleo/increment.future;
+
+finalize increment:
+    input r0 as u32.public;
+    contains count__[false] into r1;
+    get.or_use count__[false] 0u32 into r2;
+    cast true r2 into r3 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r4 as Optional__EsDmm5O6sv6;
+    ternary r1 r3.is_some r4.is_some into r5;
+    ternary r1 r3.val r4.val into r6;
+    cast r5 r6 into r7 as Optional__EsDmm5O6sv6;
+    contains count__[false] into r8;
+    get.or_use count__[false] 0u32 into r9;
+    cast true r9 into r10 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r11 as Optional__EsDmm5O6sv6;
+    ternary r8 r10.is_some r11.is_some into r12;
+    ternary r8 r10.val r11.val into r13;
+    cast r12 r13 into r14 as Optional__EsDmm5O6sv6;
+    ternary r7.is_some r14.val 0u32 into r15;
+    add r15 r0 into r16;
+    set r16 into count__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import counter_impl.aleo;
+program counter_caller.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call.dynamic r0 'aleo' 'increment' with r1 (as u32.private) into r2 r3 (as u32.private dynamic.future);
+    async main r3 into r4;
+    output r2 as u32.private;
+    output r4 as counter_caller.aleo/main.future;
+
+finalize main:
+    input r0 as dynamic.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: aborted
+{
+  "transitions": [
+    {
+      "id": "au1xmnafgs3suevshqkuszsrahdptkqyzgwpal57g3zpaqst37t3yys5pzdre",
+      "program": "counter_impl.aleo",
+      "function": "increment",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5237988195627680498102378136701492619683493216900071761531225134066017675254field",
+          "value": "ciphertext1qyq9ua224650t4rtgzl8263j6zw9tt65th9xzemh4nm93szencrjyqcrnerqp"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "2858238488180037320054103874006502438145074229742044001884831351513294342949field",
+          "value": "ciphertext1qyqydlguqv0q24rpt7dkhxlkg62yayhn9g08q6kddy78u0ev8rxr6qqh045m4"
+        },
+        {
+          "type": "future",
+          "id": "1041705301894183830944633371130987807293715311808096819368051565690707706429field",
+          "value": "{\n  program_id: counter_impl.aleo,\n  function_name: increment,\n  arguments: [\n    42u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5687230178917349342879333723085269402893390609695017679583886453710590565794group",
+      "tcm": "4923669404261525024615164564231158229495857381957562378347145076187615911798field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    },
+    {
+      "id": "au1mhm94y2aml8mmlxu5s7xvmnxf7vt58pmexcw8z84vgq0utdesu9qfk2ukn",
+      "program": "counter_caller.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5095233716818600838263678896039238902943173298814784081374892596952490058314field",
+          "value": "ciphertext1qgqxww229sflcaw7lmg3nd7xezzezzrsdsepthu43cfxc6s5dfdygp0qwac26yedtdsm8jmndehmmp9vrmxwx3w7h6ukewfkkh3j4qacp5lcvnd3"
+        },
+        {
+          "type": "private",
+          "id": "2892963990575159037073044063375171833011656520213998601229646923529676699027field",
+          "value": "ciphertext1qyq8xzjljexfpxgg42rem3h5tnwdujm286as2d3xeh270e5exmwv5pqrsqu7v"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "25393902985232958219047304073092292879473583356349963586040935432304835660field",
+          "value": "ciphertext1qyqvrp4sfre0c4q0hmuqhhgevnxtnwdzxgxr8k592ahvrdcde7aa6yghg6f8x"
+        },
+        {
+          "type": "future",
+          "id": "5570839424351092831344157877390712051710653698787428958947171321431142238262field",
+          "value": "{\n  program_id: counter_caller.aleo,\n  function_name: main,\n  arguments: [\n    { _program_id: counter_impl.aleo, _function_name: increment, _checksum: 2224464166413364287638906739746155718081815494711815414099996135981020493743field }\n  ]\n}"
+        }
+      ],
+      "tpk": "5460101671977983421557592666570386705801849939677836799006538765561915017623group",
+      "tcm": "728412264949564638132993146697805541764296730203779013289928905175905438777field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

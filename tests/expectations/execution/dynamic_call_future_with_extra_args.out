@@ -1,0 +1,147 @@
+program setter_impl.aleo;
+
+mapping data__:
+    key as boolean.public;
+    value as u32.public;
+
+function set_val:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    async set_val r1 into r2;
+    output true as boolean.private;
+    output r2 as setter_impl.aleo/set_val.future;
+
+finalize set_val:
+    input r0 as u32.public;
+    set r0 into data__[false];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import setter_impl.aleo;
+program setter_caller.aleo;
+
+struct Optional__EsDmm5O6sv6:
+    is_some as boolean;
+    val as u32;
+
+mapping local_count__:
+    key as boolean.public;
+    value as u32.public;
+
+function main:
+    input r0 as field.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    call.dynamic r0 'aleo' 'set_val' with r1 r2 (as u32.private u32.private) into r4 r5 (as boolean.private dynamic.future);
+    async main r5 r3 into r6;
+    output r4 as boolean.private;
+    output r6 as setter_caller.aleo/main.future;
+
+finalize main:
+    input r0 as dynamic.future;
+    input r1 as u32.public;
+    await r0;
+    contains local_count__[false] into r2;
+    get.or_use local_count__[false] 0u32 into r3;
+    cast true r3 into r4 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r5 as Optional__EsDmm5O6sv6;
+    ternary r2 r4.is_some r5.is_some into r6;
+    ternary r2 r4.val r5.val into r7;
+    cast r6 r7 into r8 as Optional__EsDmm5O6sv6;
+    contains local_count__[false] into r9;
+    get.or_use local_count__[false] 0u32 into r10;
+    cast true r10 into r11 as Optional__EsDmm5O6sv6;
+    cast false 0u32 into r12 as Optional__EsDmm5O6sv6;
+    ternary r9 r11.is_some r12.is_some into r13;
+    ternary r9 r11.val r12.val into r14;
+    cast r13 r14 into r15 as Optional__EsDmm5O6sv6;
+    ternary r8.is_some r15.val 0u32 into r16;
+    add r16 r1 into r17;
+    set r17 into local_count__[false];
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: aborted
+{
+  "transitions": [
+    {
+      "id": "au15f39dktxfvxg02f4sxnrhsseva8hnz433f8tcz4csq7w43jv7cyq878wfn",
+      "program": "setter_impl.aleo",
+      "function": "set_val",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7382070408257733942218794116782534112475322085989657253685050053286330562391field",
+          "value": "ciphertext1qyqx76ckr0d76czcl78g4xu9sdhpalwhw0a5lj8hgwkfxxadg5tpkys465saq"
+        },
+        {
+          "type": "private",
+          "id": "1581293235499756700532612933712625926237492260885540348047701585711525778284field",
+          "value": "ciphertext1qyqvsv2msf0pkenzek3j4cp203z5y0gypxsfkelrsm2agylxclwjcpss9aype"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "4347839818537186311488338746742657024590547131484023430782202552184257735147field",
+          "value": "ciphertext1qyqgu7m2447g8fv7krnpd39c5yxga3pgmexhuqlvm5j9qa7tdv25qqckhj3mz"
+        },
+        {
+          "type": "future",
+          "id": "5043124954648646891981764494040804201994872411315074663481489488260662861961field",
+          "value": "{\n  program_id: setter_impl.aleo,\n  function_name: set_val,\n  arguments: [\n    100u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5687230178917349342879333723085269402893390609695017679583886453710590565794group",
+      "tcm": "4923669404261525024615164564231158229495857381957562378347145076187615911798field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    },
+    {
+      "id": "au1k3qk7x4c3zn4jayurse4u6cwc384hnf5cl6mhw6swwxntrze3sqskyhmqc",
+      "program": "setter_caller.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7074499250585478357451334165377386922149032628395109081965802040716842313546field",
+          "value": "ciphertext1qgqvqw5aycck0thuxnwadpwntt7ygwkcfyl4uxza2p7r7233m6wd6p8qwhpc3ulxerrty7f3fe74a73w6geattj88naexhkr9rzx320np50983t2"
+        },
+        {
+          "type": "private",
+          "id": "2175433601764538987763646072529356934770047072628890538256325300108187336194field",
+          "value": "ciphertext1qyqxk3nc6ma78r0fszrhu0cffnd6s8sw7hsf9lm6zsujufhqdy5wkzclt39mw"
+        },
+        {
+          "type": "private",
+          "id": "6518177657534755498982423843521304436158655828208845486206943802450512644058field",
+          "value": "ciphertext1qyqfnfqq3fv3rjxqkf4hp7y7n9j43nvnxynqus9jvqgr4d4ldsk37qgshnx06"
+        },
+        {
+          "type": "private",
+          "id": "6996299589167607601139695354533378138722559726435406282818639291305533930455field",
+          "value": "ciphertext1qyqwqztpfdnfp6c95nhcv83hvy8a4cuvsqhaumxmylgluenu6wdgxzsllvuje"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "private",
+          "id": "8213131637968084415739036731738114199888354585913250128046047892099786596246field",
+          "value": "ciphertext1qyq0wy6t0mtfyxf774cnlf6uke4tpnkp55nzqc7zf96gscj4pwg5qzchgy2vy"
+        },
+        {
+          "type": "future",
+          "id": "418011119592574567792952175375113269886368831854241418357840922056086956231field",
+          "value": "{\n  program_id: setter_caller.aleo,\n  function_name: main,\n  arguments: [\n    { _program_id: setter_impl.aleo, _function_name: set_val, _checksum: 454977874705959254232992576416036156686701131405063509712882719668126755478field },\n    5u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5460101671977983421557592666570386705801849939677836799006538765561915017623group",
+      "tcm": "728412264949564638132993146697805541764296730203779013289928905175905438777field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
