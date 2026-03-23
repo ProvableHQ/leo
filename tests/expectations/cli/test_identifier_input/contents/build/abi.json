@@ -1,0 +1,34 @@
+{
+  "program": "test_identifier_input.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "transitions": [
+    {
+      "name": "main",
+      "is_async": false,
+      "inputs": [
+        {
+          "name": "x",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Identifier"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Identifier"
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

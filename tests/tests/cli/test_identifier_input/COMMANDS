@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh"
+COMMON_OPTS="--disable-update-check --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13"
+
+echo "--- leo run with identifier input ---"
+${LEO_BIN} --disable-update-check run main "'hello'"
+
+echo "--- leo execute with identifier input ---"
+${LEO_BIN} execute -y $COMMON_OPTS main "'hello'"

@@ -1,0 +1,80 @@
+--- leo run with identifier input ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_identifier_input.aleo'
+       Leo     1 statements before dead code elimination.
+       Leo     1 statements after dead code elimination.
+       Leo     The program checksum is: '[200u8, 34u8, 31u8, 160u8, 160u8, 5u8, 214u8, 94u8, 17u8, 191u8, 238u8, 77u8, 70u8, 159u8, 140u8, 96u8, 168u8, 29u8, 157u8, 146u8, 108u8, 148u8, 23u8, 106u8, 105u8, 12u8, 36u8, 52u8, 136u8, 73u8, 4u8, 233u8]'.
+       Leo     Program size: 0.16 KB / 500.00 KB
+       Leo ✅ Compiled 'test_identifier_input.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_identifier_input.aleo (local)
+
+➡️  Output
+
+ • 'hello'
+--- leo execute with identifier input ---
+
+       Leo 🔨 Compiling 'test_identifier_input.aleo'
+       Leo     1 statements before dead code elimination.
+       Leo     1 statements after dead code elimination.
+       Leo     The program checksum is: '[200u8, 34u8, 31u8, 160u8, 160u8, 5u8, 214u8, 94u8, 17u8, 191u8, 238u8, 77u8, 70u8, 159u8, 140u8, 96u8, 168u8, 29u8, 157u8, 146u8, 108u8, 148u8, 23u8, 106u8, 105u8, 12u8, 36u8, 52u8, 136u8, 73u8, 4u8, 233u8]'.
+       Leo     Program size: 0.16 KB / 500.00 KB
+       Leo ✅ Compiled 'test_identifier_input.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp2RWGDcde3...
+  Address:            aleo1s3ws5tra87fjycnjrws...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  14
+
+🎯 Execution Target:
+  Program:        test_identifier_input.aleo
+  Function:       main
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will NOT be broadcast to the network.
+
+⚠️ Warnings:
+──────────────────────────────────────────────
+
+
+➕Adding programs to the VM in the following order:
+  - test_identifier_input.aleo (local)
+
+⚙️ Executing test_identifier_input.aleo/main...
+
+📊 Execution Cost Summary for test_identifier_input.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001355
+  On-chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001355
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 'hello'
+

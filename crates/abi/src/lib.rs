@@ -164,6 +164,7 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         ast::Type::Field => abi::Plaintext::Primitive(abi::Primitive::Field),
         ast::Type::Group => abi::Plaintext::Primitive(abi::Primitive::Group),
         ast::Type::Scalar => abi::Plaintext::Primitive(abi::Primitive::Scalar),
+        ast::Type::Identifier => abi::Plaintext::Primitive(abi::Primitive::Identifier),
         ast::Type::Signature => abi::Plaintext::Primitive(abi::Primitive::Signature),
         ast::Type::Integer(int_ty) => abi::Plaintext::Primitive(convert_integer(*int_ty)),
         ast::Type::Array(arr_ty) => abi::Plaintext::Array(abi::Array {
@@ -189,7 +190,6 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
         | ast::Type::Unit
         | ast::Type::Ident(_)
         | ast::Type::Numeric
-        | ast::Type::Identifier
         | ast::Type::DynRecord
         | ast::Type::Err => {
             unreachable!("unexpected type in plaintext context: {ty}")
