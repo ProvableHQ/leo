@@ -258,4 +258,22 @@ mod tests {
         // Removes extra newlines
         assert!(format_source("program test.aleo {}\n\n\n").ends_with("}\n"));
     }
+
+    #[test]
+    fn preserves_malformed_top_level_tokens() {
+        let source = "final finalize(foo);\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_malformed_global_const_with_inline_error() {
+        let source = "const x = (x,y);\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_mixed_malformed_statement_roots() {
+        let source = "let x: const = expr;\nconst x = (x,y);\n";
+        assert_eq!(format_source(source), source);
+    }
 }

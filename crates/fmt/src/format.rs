@@ -123,6 +123,24 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
 // =============================================================================
 
 fn format_root(node: &SyntaxNode, out: &mut Output) {
+    if node.children_with_tokens().any(|elem| {
+        matches!(
+            elem,
+            SyntaxElement::Token(tok)
+                if !matches!(tok.kind(), WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK)
+        )
+    }) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
+    if node.children().any(|child| child.kind() == ERROR)
+        && node.children().all(|child| matches!(child.kind(), ERROR | GLOBAL_CONST))
+    {
+        write_node_verbatim(node, out);
+        return;
+    }
+
     if node.children().any(|child| {
         !matches!(child.kind(), IMPORT | PROGRAM_DECL | ANNOTATION | ERROR) && !is_program_item(child.kind())
     }) {
@@ -1055,6 +1073,11 @@ fn format_storage(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_global_const(node: &SyntaxNode, out: &mut Output) {
+    if write_node_with_inline_error_verbatim(node, out) {
+        out.ensure_newline();
+        return;
+    }
+
     if has_error_descendant(node) {
         write_node_verbatim(node, out);
         out.ensure_newline();
@@ -2852,7 +2875,10 @@ fn should_inline_adjacent_error(node: &SyntaxNode) -> bool {
 
     node.kind() == ERROR
         && text.chars().next().is_some_and(|ch| !ch.is_whitespace())
-        && matches!(prev.kind(), FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF)
+        && matches!(
+            prev.kind(),
+            FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF | GLOBAL_CONST
+        )
 }
 
 fn format_tuple_pattern(node: &SyntaxNode, out: &mut Output) {
