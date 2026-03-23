@@ -1,0 +1,28 @@
+program impl_ext.aleo;
+
+function double_val:
+    input r0 as u64.private;
+    mul r0 2u64 into r1;
+    output r1 as u64.private;
+
+function triple_val:
+    input r0 as u64.private;
+    mul r0 3u64 into r1;
+    output r1 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import impl_ext.aleo;
+program caller.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as u64.private;
+    call.dynamic r0 'aleo' 'double_val' with r1 (as u64.private) into r2 (as u64.private);
+    output r2 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 14u64

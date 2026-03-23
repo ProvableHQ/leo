@@ -1,0 +1,26 @@
+program diamond_impl.aleo;
+
+function get_value:
+    output 42u64 as u64.private;
+
+function left_op:
+    output 1u64 as u64.private;
+
+function right_op:
+    output 2u64 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import diamond_impl.aleo;
+program caller.aleo;
+
+function main:
+    input r0 as field.private;
+    call.dynamic r0 'aleo' 'get_value' into r1 (as u64.private);
+    output r1 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 42u64
