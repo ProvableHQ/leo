@@ -1,6 +1,13 @@
 program test.aleo{
-    fn foo()->(u32,Final<Fn(Final<Fn(Final<Fn(u32,Final<Fn(u32,u32)>,Final<Fn(u32,u32)>,u32)>,Final<Fn(u32,Final<Fn(u32,u32)>,Final<Fn(u32,u32)>,u32)>,Final<Fn(u32,Final<Fn(u32,u32)>,Final<Fn(u32,u32)>,u32)>)>)>){
-        let f: Final = final {};
-        return (0u32,f);
+    fn main(public a:u32)->Final<Fn(u32)>{
+        return final { finalize_value(a); };
     }
+}
+
+final fn finalize_value(a:u32){
+    assert_eq(a, a);
+}
+
+final fn finalize_nested(f:Final<Fn(Final<Fn(u32,u32)>,Final<Fn(u32,u32)>,Final<Fn(u32,u32)>)>){
+    f.run();
 }

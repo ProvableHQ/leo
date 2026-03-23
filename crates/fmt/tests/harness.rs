@@ -160,6 +160,7 @@ mod validate {
         "empty_program",
         "function_annotated",
         "comment_before_program",
+        "malformed_missing_program_rbrace",
         "wrap_binary_chain",
     ];
 
