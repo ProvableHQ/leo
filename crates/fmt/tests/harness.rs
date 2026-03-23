@@ -146,6 +146,9 @@ mod validate {
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::{process::Command, rc::Rc};
 
+    const WORKSPACE_LEO_EXCLUDES: &[&str] =
+        &["crates/fmt/tests/*", "tests/tests/cli/test_fmt/*", "tests/expectations/cli/test_fmt/*"];
+
     /// Files that are expected to fail type checking (error recovery tests,
     /// import tests, empty programs, annotated functions).
     const SKIP_VALIDATION: &[&str] = &[
@@ -264,15 +267,13 @@ mod validate {
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
     }
 
-    /// Collect tracked workspace `.leo` files, excluding formatter fixtures.
+    /// Collect tracked workspace `.leo` files, excluding formatter fixtures and
+    /// hand-authored CLI `fmt` test inputs/expectations.
     fn collect_workspace_leo_files() -> Vec<PathBuf> {
         let root = workspace_root();
-        let output = Command::new("git")
-            .arg("-C")
-            .arg(&root)
-            .args(["ls-files", "-z", "--", "*.leo", ":(exclude)crates/fmt/tests/*"])
-            .output()
-            .expect("failed to run git ls-files");
+        let mut args = vec!["ls-files".to_string(), "-z".to_string(), "--".to_string(), "*.leo".to_string()];
+        args.extend(WORKSPACE_LEO_EXCLUDES.iter().map(|pattern| format!(":(exclude){pattern}")));
+        let output = Command::new("git").arg("-C").arg(&root).args(&args).output().expect("failed to run git ls-files");
         assert!(output.status.success(), "git ls-files failed for {}", root.display());
 
         output
@@ -284,6 +285,23 @@ mod validate {
                 root.join(path)
             })
             .collect()
+    }
+
+    #[test]
+    fn collect_workspace_leo_files_excludes_manual_cli_fmt_fixtures() {
+        let leo_files = collect_workspace_leo_files();
+        let excluded_roots = [
+            workspace_root().join("tests/tests/cli/test_fmt"),
+            workspace_root().join("tests/expectations/cli/test_fmt"),
+        ];
+
+        for file_path in leo_files {
+            assert!(
+                excluded_roots.iter().all(|root| !file_path.starts_with(root)),
+                "workspace formatter scope should exclude manual CLI fmt fixture: {}",
+                file_path.display()
+            );
+        }
     }
 
     /// Validate that target files pass Leo type checking.
@@ -384,7 +402,8 @@ mod validate {
     /// Validate AST equivalence across tracked workspace `.leo` files.
     ///
     /// Uses the same tracked-file scope as the CI `leo-fmt --check` step:
-    /// all tracked `.leo` files excluding `crates/fmt/tests/*`.
+    /// all tracked `.leo` files excluding formatter fixtures and the manual
+    /// CLI `fmt` test source/expectation trees.
     ///
     /// Files that cannot be lowered into the compiler AST fall back to a
     /// normalized rowan parse-tree comparison, which still validates the exact

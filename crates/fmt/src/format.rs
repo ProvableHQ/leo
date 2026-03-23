@@ -2650,7 +2650,7 @@ fn format_tuple_expr(node: &SyntaxNode, out: &mut Output) {
                 |elem| matches!(elem, SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK)),
             );
 
-        if !has_comment && !has_multiline_item && exprs.len() <= MAX_INLINE_TUPLE_ITEMS {
+        if !has_comment && !has_multiline_item {
             let col = out.current_column();
             if fits_on_one_line(col, "(", ")", &expr_strings) {
                 out.write("(");
