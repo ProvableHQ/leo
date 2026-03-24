@@ -166,8 +166,15 @@ impl<'a> ConversionContext<'a> {
         arguments: Vec<leo_ast::Expression>,
         span: Span,
     ) -> leo_ast::Expression {
-        leo_ast::IntrinsicExpression { name, type_parameters: Vec::new(), arguments, span, id: self.builder.next_id() }
-            .into()
+        leo_ast::IntrinsicExpression {
+            name,
+            type_parameters: Vec::new(),
+            return_types: Vec::new(),
+            arguments,
+            span,
+            id: self.builder.next_id(),
+        }
+        .into()
     }
 
     /// Create an empty block for error recovery.
@@ -264,6 +271,7 @@ impl<'a> ConversionContext<'a> {
             TYPE_OPTIONAL => self.type_optional_to_type(node)?,
             TYPE_FINAL => self.type_final_to_type(node)?,
             TYPE_MAPPING => self.type_mapping_to_type(node)?,
+            TYPE_DYN_RECORD => leo_ast::Type::DynRecord,
             ERROR => {
                 // Parse errors already emitted by emit_parse_errors().
                 leo_ast::Type::Err
@@ -704,14 +712,23 @@ impl<'a> ConversionContext<'a> {
     /// Extract type parameters and const arguments from a CONST_ARG_LIST child, if present.
     ///
     /// In the rowan CST, `CONST_ARG_LIST` children are either type nodes (for
-    /// intrinsic type parameters like `Deserialize::[u32]`) or expression nodes
+    /// intrinsic type parameters like `Deserialize::[u32]`), `DYNAMIC_CALL_RETURN_TYPE`
+    /// nodes (for visibility-annotated types like `public u64`), or expression nodes
     /// (for const generic arguments like `Foo::[N]`).
     fn extract_const_arg_list(&self, node: &SyntaxNode) -> Result<ConstArgList> {
         let mut type_parameters = Vec::new();
         let mut const_arguments = Vec::new();
         if let Some(arg_list) = children(node).find(|n| n.kind() == CONST_ARG_LIST) {
             for child in children(&arg_list) {
-                if child.kind().is_type() {
+                if child.kind() == DYNAMIC_CALL_RETURN_TYPE {
+                    // Visibility-annotated type: extract the inner type (visibility
+                    // is extracted separately when building return_types).
+                    if let Some(type_node) = children(&child).find(|n| n.kind().is_type()) {
+                        let span = self.content_span(&child);
+                        let ty = self.to_type(&type_node)?;
+                        type_parameters.push((ty, span));
+                    }
+                } else if child.kind().is_type() {
                     let span = self.content_span(&child);
                     let ty = self.to_type(&child)?;
                     type_parameters.push((ty, span));
@@ -722,6 +739,44 @@ impl<'a> ConversionContext<'a> {
             }
         }
         Ok((type_parameters, const_arguments))
+    }
+
+    /// Extract return types with visibility for `_dynamic_call` from the CST.
+    ///
+    /// Walks the `CONST_ARG_LIST` children to match each type parameter with its
+    /// visibility. `DYNAMIC_CALL_RETURN_TYPE` nodes carry an explicit visibility
+    /// keyword; bare type nodes default to `Mode::None` (which becomes Private in codegen).
+    fn extract_dynamic_call_return_types(
+        &self,
+        callee_node: &SyntaxNode,
+        type_parameters: &[(leo_ast::Type, Span)],
+    ) -> Result<Vec<(leo_ast::Mode, leo_ast::Type, Span)>> {
+        let Some(arg_list) = children(callee_node).find(|n| n.kind() == CONST_ARG_LIST) else {
+            // No type parameters means no return types.
+            return Ok(Vec::new());
+        };
+
+        let mut return_types = Vec::new();
+        let mut tp_idx = 0;
+
+        for child in children(&arg_list) {
+            if child.kind() == DYNAMIC_CALL_RETURN_TYPE {
+                // Extract visibility from the first token.
+                let mode = tokens(&child).find_map(|tok| token_kind_to_mode(tok.kind())).unwrap_or(leo_ast::Mode::None);
+                if let Some((ty, sp)) = type_parameters.get(tp_idx) {
+                    return_types.push((mode, ty.clone(), *sp));
+                }
+                tp_idx += 1;
+            } else if child.kind().is_type() {
+                if let Some((ty, sp)) = type_parameters.get(tp_idx) {
+                    return_types.push((leo_ast::Mode::None, ty.clone(), *sp));
+                }
+                tp_idx += 1;
+            }
+            // Skip non-type children (commas, etc.)
+        }
+
+        Ok(return_types)
     }
 
     /// Convert a CALL_EXPR node to a CallExpression.
@@ -757,8 +812,31 @@ impl<'a> ConversionContext<'a> {
             let module = function.qualifier()[0].name;
             let name = function.identifier().name;
             if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, name) {
+                return Ok(leo_ast::IntrinsicExpression {
+                    name: intrinsic_name,
+                    type_parameters,
+                    return_types: Vec::new(),
+                    arguments,
+                    span,
+                    id,
+                }
+                .into());
+            }
+        }
+
+        // Bare intrinsic calls (e.g. `_dynamic_call::[u64](args)`).
+        // These have no qualifier and the identifier starts with `_`.
+        if function.user_program().is_none() && function.qualifier().is_empty() {
+            let name = function.identifier().name;
+            if leo_ast::Intrinsic::from_symbol(name, &type_parameters).is_some() {
+                // For _dynamic_call, extract return_types with visibility from the CST.
+                let return_types = if name == leo_span::sym::_dynamic_call {
+                    self.extract_dynamic_call_return_types(&callee_node, &type_parameters)?
+                } else {
+                    Vec::new()
+                };
                 return Ok(
-                    leo_ast::IntrinsicExpression { name: intrinsic_name, type_parameters, arguments, span, id }.into()
+                    leo_ast::IntrinsicExpression { name, type_parameters, return_types, arguments, span, id }.into()
                 );
             }
         }

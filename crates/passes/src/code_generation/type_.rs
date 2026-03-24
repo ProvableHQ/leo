@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{IntegerType, Type};
+use leo_ast::{IntegerType, Mode, Type};
 
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(&self, input: &Type) -> AleoType {
@@ -115,5 +115,19 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         (self.visit_type(type_), visibility)
+    }
+
+    /// Maps a dynamic call output type and mode to an AVM type with visibility.
+    /// Futures become `DynamicFuture` (no visibility), DynRecords become `DynamicRecord`
+    /// (no visibility), all others use the provided mode (defaulting to Private).
+    pub fn dynamic_call_output_type(&self, type_: &Type, mode: Mode) -> (AleoType, Option<AleoVisibility>) {
+        if matches!(type_, Type::Future(..)) {
+            (AleoType::DynamicFuture, None)
+        } else if matches!(type_, Type::DynRecord) {
+            (AleoType::DynamicRecord, None)
+        } else {
+            let viz = AleoVisibility::maybe_from(mode).or(Some(AleoVisibility::Private));
+            self.visit_type_with_visibility(type_, viz)
+        }
     }
 }

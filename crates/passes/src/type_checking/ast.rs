@@ -533,6 +533,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;
         };
+
+        // Dynamic dispatch intrinsics have custom validation.
+        match &intrinsic {
+            Intrinsic::DynamicCall => {
+                return self.check_dynamic_call(input, expected);
+            }
+            Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                return self.check_dynamic_mapping_op(intrinsic.clone(), input, expected);
+            }
+            _ => {}
+        }
+
         // Check that operation is not restricted to finalize blocks.
         if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
@@ -1037,23 +1049,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
         let func_proto = func_proto.clone();
 
-        // Dynamic calls are only allowed from transitions.
-        match self.scope_state.variant.unwrap() {
-            Variant::Finalize => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", input.span));
-            }
-            Variant::FinalFn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", input.span));
-            }
-            Variant::Fn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", input.span));
-            }
-            Variant::EntryPoint => {}
-        }
-
-        if self.async_block_id.is_some() {
-            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", input.span));
-        }
+        self.validate_dynamic_call_scope(input.span);
 
         // Check target type: must be field or identifier.
         let target_type = self.visit_expression(&input.target_program, &None);
@@ -1402,6 +1398,22 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
+
+        // Special case: `expr as dyn record` — source must be a record type (not a struct).
+        if matches!(input.type_, Type::DynRecord) {
+            let is_record = matches!(&expression_type, Type::Composite(ct)
+                if self.lookup_composite(ct.path.expect_global_location())
+                    .is_some_and(|c| c.is_record));
+            if !is_record && !matches!(expression_type, Type::Err) {
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &expression_type,
+                    "a record type",
+                    input.expression.span(),
+                ));
+            }
+            self.maybe_assert_type(&input.type_, expected, input.span());
+            return input.type_.clone();
+        }
 
         let assert_castable_type = |actual: &Type, span: Span| {
             if !matches!(

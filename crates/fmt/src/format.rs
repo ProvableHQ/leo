@@ -68,6 +68,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         // Expressions
         k if k.is_literal_node() => format_literal(node, out),
         CALL_EXPR => format_call(node, out),
+        DYNAMIC_CALL_EXPR => format_dynamic_call(node, out),
         METHOD_CALL_EXPR => format_method_call(node, out),
         BINARY_EXPR => format_binary(node, out),
         PATH_EXPR | PATH_LOCATOR_EXPR | PROGRAM_REF_EXPR => format_path(node, out),
@@ -1951,6 +1952,29 @@ fn format_call(node: &SyntaxNode, out: &mut Output) {
         emit_trailing_list_comments(node, args.last().unwrap(), out);
     });
     out.write(")");
+}
+
+fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
+    // DYNAMIC_CALL_EXPR: InterfacePath @ ( target [, network] ) / funcname ( args... )
+    // Walk children and normalize whitespace, recursing into sub-expressions.
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) => {
+                let k = tok.kind();
+                match k {
+                    L_PAREN => out.write("("),
+                    R_PAREN => out.write(")"),
+                    COMMA => {
+                        out.write(",");
+                        out.space();
+                    }
+                    WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK => {}
+                    _ => out.write(tok.text()),
+                }
+            }
+            SyntaxElement::Node(n) => format_node(&n, out),
+        }
+    }
 }
 
 fn format_method_call(node: &SyntaxNode, out: &mut Output) {

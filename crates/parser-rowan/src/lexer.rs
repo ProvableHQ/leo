@@ -334,6 +334,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "public" => KW_PUBLIC,
         "private" => KW_PRIVATE,
         "as" => KW_AS,
+        "dyn" => KW_DYN,
         "self" => KW_SELF,
         "assert" => KW_ASSERT,
         "assert_eq" => KW_ASSERT_EQ,

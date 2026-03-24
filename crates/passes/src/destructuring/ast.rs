@@ -497,7 +497,11 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 // We don't need to keep the original definition.
                 (Statement::dummy(), statements)
             }
-            (m @ Multiple(..), value @ (Expression::Call(..) | Expression::DynamicCall(..)), Type::Tuple(..)) => {
+            (
+                m @ Multiple(..),
+                value @ (Expression::Call(..) | Expression::DynamicCall(..) | Expression::Intrinsic(..)),
+                Type::Tuple(..),
+            ) => {
                 // Just reconstruct the statement.
                 let stmt =
                     DefinitionStatement { place: m, type_: None, value, span: definition.span, id: definition.id }

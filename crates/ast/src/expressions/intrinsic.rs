@@ -26,6 +26,9 @@ pub struct IntrinsicExpression {
     pub name: Symbol,
     /// Type parameters for generic intrinsics.
     pub type_parameters: Vec<(Type, Span)>,
+    /// Explicit return types for `_dynamic_call` with optional visibility modes.
+    /// Empty for all other intrinsics.
+    pub return_types: Vec<(Mode, Type, Span)>,
     /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
     /// Span of the entire call `function(arguments)`.

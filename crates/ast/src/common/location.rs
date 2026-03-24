@@ -16,7 +16,7 @@
 use crate::ProgramId;
 
 use itertools::Itertools;
-use leo_span::Symbol;
+use leo_span::{Symbol, sym};
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{Locator, Network};
 use std::fmt::Display;
@@ -36,12 +36,12 @@ impl Location {
 
     /// Create a sentinel location representing a dynamic call's future.
     pub fn dynamic() -> Location {
-        Location { program: Symbol::intern("__dynamic__"), path: vec![Symbol::intern("__dynamic__")] }
+        Location { program: sym::__dynamic__, path: vec![sym::__dynamic__] }
     }
 
     /// Check whether this location is the dynamic sentinel.
     pub fn is_dynamic(&self) -> bool {
-        self.program == Symbol::intern("__dynamic__")
+        self.program == sym::__dynamic__
     }
 }
 

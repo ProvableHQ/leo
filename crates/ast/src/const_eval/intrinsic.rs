@@ -170,6 +170,10 @@ pub fn evaluate_intrinsic(
         Intrinsic::ProgramChecksum | Intrinsic::ProgramEdition | Intrinsic::ProgramOwner => {
             return Ok(None);
         }
+        // Dynamic dispatch cannot be evaluated at compile time.
+        Intrinsic::DynamicCall | Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+            return Ok(None);
+        }
     };
 
     Ok(Some(value))

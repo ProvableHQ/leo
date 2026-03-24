@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Intrinsic, Location, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};

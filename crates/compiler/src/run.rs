@@ -101,7 +101,7 @@ pub struct Case {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ExecutionStatus {
     None,
-    Aborted,
+    Aborted(Option<String>),
     Accepted,
     Rejected,
     Halted(String),
@@ -112,7 +112,8 @@ impl fmt::Display for ExecutionStatus {
         match self {
             Self::Halted(s) => write!(f, "halted ({s})"),
             Self::None => write!(f, "none"),
-            Self::Aborted => write!(f, "aborted"),
+            Self::Aborted(None) => write!(f, "aborted"),
+            Self::Aborted(Some(reason)) => write!(f, "aborted: {reason}"),
             Self::Accepted => write!(f, "accepted"),
             Self::Rejected => write!(f, "rejected"),
         }
@@ -553,6 +554,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 let mut execution = None;
                 let mut verified = false;
                 let mut status = ExecutionStatus::None;
+                let mut abort_reason: Option<String> = None;
 
                 // Halts are handled by panics, so we need to catch them.
                 // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
@@ -613,7 +615,15 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                         .map_err(|e| anyhow::anyhow!("{e}"))?;
                     status =
                         match (block.aborted_transaction_ids().is_empty(), block.transactions().num_accepted() == 1) {
-                            (false, _) => ExecutionStatus::Aborted,
+                            (false, _) => {
+                                // Attempt check_transaction to diagnose abort reason.
+                                if let Some(ref tx) = execution
+                                    && let Err(e) = ledger.vm().check_transaction(tx, None, &mut rng)
+                                {
+                                    abort_reason = Some(format!("{e}"));
+                                }
+                                ExecutionStatus::Aborted(abort_reason.take())
+                            }
                             (true, true) => ExecutionStatus::Accepted,
                             (true, false) => ExecutionStatus::Rejected,
                         };

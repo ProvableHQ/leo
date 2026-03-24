@@ -1,0 +1,21 @@
+program test.aleo;
+
+mapping result:
+    key as address.public;
+    value as u64.public;
+
+function get_balance:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as address.private;
+    async get_balance r0 r1 r2 r3 into r4;
+    output r4 as test.aleo/get_balance.future;
+
+finalize get_balance:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as address.public;
+    get.or_use.dynamic r0 r1 r2[r3] 0u64 into r4 as u64;
+    set r4 into result[r3];
