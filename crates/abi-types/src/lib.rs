@@ -17,7 +17,7 @@
 //! ABI type definitions for Leo programs.
 //!
 //! This crate provides types that describe the public interface of a Leo program,
-//! including transitions, mappings, and all related types. The ABI enables downstream
+//! including functions, mappings, and all related types. The ABI enables downstream
 //! tooling to interact with deployed Leo programs.
 //!
 //! # Lowered Types
@@ -46,8 +46,9 @@ pub struct Program {
     pub mappings: Vec<Mapping>,
     /// Storage variable definitions.
     pub storage_variables: Vec<StorageVariable>,
-    /// Public entry points (transitions only, not internal functions).
-    pub transitions: Vec<Transition>,
+    /// Public entry points (program functions only, not internal helpers).
+    /// Compiled to Aleo `transition`s.
+    pub functions: Vec<Function>,
 }
 
 /// A struct type definition.
@@ -100,11 +101,12 @@ pub enum StorageType {
     Vector(Box<StorageType>),
 }
 
-/// A transition function (public entry point).
+/// A public entry point (`fn` inside `program {}`). Compiled to an Aleo `transition`.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Transition {
+pub struct Function {
     pub name: String,
-    pub is_async: bool,
+    /// Whether this function has a finalize block. Compiled to an Aleo `finalize` scope.
+    pub is_final: bool,
     pub inputs: Vec<Input>,
     pub outputs: Vec<Output>,
 }
@@ -124,18 +126,18 @@ pub struct RecordField {
     pub mode: Mode,
 }
 
-/// A transition input.
+/// A function input.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Input {
     pub name: String,
-    pub ty: TransitionInput,
+    pub ty: FunctionInput,
     pub mode: Mode,
 }
 
-/// A transition output.
+/// A function output.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Output {
-    pub ty: TransitionOutput,
+    pub ty: FunctionOutput,
     pub mode: Mode,
 }
 
@@ -193,20 +195,20 @@ pub enum Plaintext {
     Optional(Optional),
 }
 
-/// Valid types for transition inputs.
+/// Valid types for function inputs. Aleo: `transition` inputs.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum TransitionInput {
+pub enum FunctionInput {
     Plaintext(Plaintext),
     Record(RecordRef),
 }
 
-/// Valid types for transition outputs.
+/// Valid types for function outputs. Aleo: `transition` outputs.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum TransitionOutput {
+pub enum FunctionOutput {
     Plaintext(Plaintext),
     Record(RecordRef),
-    /// A future returned by async transitions.
-    Future,
+    /// Aleo `future` - the handle for an on-chain finalization.
+    Final,
 }
 
 /// Primitive types that map directly to Aleo literal types.

@@ -65,10 +65,10 @@
     }
   ],
   "storage_variables": [],
-  "transitions": [
+  "functions": [
     {
       "name": "add_numbers",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -108,7 +108,7 @@
     },
     {
       "name": "get_point",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -143,7 +143,7 @@
     },
     {
       "name": "get_token",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -243,10 +243,10 @@
     }
   ],
   "storage_variables": [],
-  "transitions": [
+  "functions": [
     {
       "name": "add_numbers",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -286,7 +286,7 @@
     },
     {
       "name": "get_point",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -321,7 +321,7 @@
     },
     {
       "name": "get_token",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -602,10 +602,10 @@
     }
   ],
   "storage_variables": [],
-  "transitions": [
+  "functions": [
     {
       "name": "single_primitive",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -634,7 +634,7 @@
     },
     {
       "name": "multi_input",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -685,7 +685,7 @@
     },
     {
       "name": "multi_output",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -724,7 +724,7 @@
     },
     {
       "name": "visibility_modes",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -775,7 +775,7 @@
     },
     {
       "name": "struct_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -810,7 +810,7 @@
     },
     {
       "name": "nested_struct_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -845,7 +845,7 @@
     },
     {
       "name": "array_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -884,7 +884,7 @@
     },
     {
       "name": "nested_array_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -933,7 +933,7 @@
     },
     {
       "name": "record_input",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -963,7 +963,7 @@
     },
     {
       "name": "record_output",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -1011,7 +1011,7 @@
     },
     {
       "name": "all_primitives_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -1046,7 +1046,7 @@
     },
     {
       "name": "async_with_finalize",
-      "is_async": true,
+      "is_final": true,
       "inputs": [
         {
           "name": "arg1",
@@ -1062,14 +1062,14 @@
       ],
       "outputs": [
         {
-          "ty": "Future",
+          "ty": "Final",
           "mode": "None"
         }
       ]
     },
     {
       "name": "update_balance",
-      "is_async": true,
+      "is_final": true,
       "inputs": [
         {
           "name": "arg1",
@@ -1094,7 +1094,7 @@
       ],
       "outputs": [
         {
-          "ty": "Future",
+          "ty": "Final",
           "mode": "None"
         }
       ]

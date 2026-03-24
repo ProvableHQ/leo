@@ -39,7 +39,7 @@ struct Ctx<'a> {
 /// Generates the ABI for a Leo program.
 ///
 /// The returned ABI is pruned to only include types that appear in the public
-/// interface (transitions, mappings, storage variables).
+/// interface (functions, mappings, storage variables).
 pub fn generate(ast: &ast::Program) -> abi::Program {
     let scope = ast.program_scopes.values().next().unwrap();
     let ctx = Ctx { scope, stubs: &ast.stubs, modules: &ast.modules };
@@ -68,14 +68,10 @@ pub fn generate(ast: &ast::Program) -> abi::Program {
 
     let storage_variables = scope.storage_variables.iter().map(|(_, sv)| convert_storage_variable(sv)).collect();
 
-    let transitions = scope
-        .functions
-        .iter()
-        .filter(|(_, f)| f.variant.is_entry())
-        .map(|(_, f)| convert_transition(f, &ctx))
-        .collect();
+    let functions =
+        scope.functions.iter().filter(|(_, f)| f.variant.is_entry()).map(|(_, f)| convert_function(f, &ctx)).collect();
 
-    let mut program = abi::Program { program, structs, records, mappings, storage_variables, transitions };
+    let mut program = abi::Program { program, structs, records, mappings, storage_variables, functions };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);
@@ -128,24 +124,24 @@ fn convert_storage_type(ty: &ast::Type) -> abi::StorageType {
     }
 }
 
-fn convert_transition(function: &ast::Function, ctx: &Ctx) -> abi::Transition {
+fn convert_function(function: &ast::Function, ctx: &Ctx) -> abi::Function {
     let name = function.identifier.name.to_string();
-    let is_async = function.has_final_output();
+    let is_final = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, ctx)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, ctx)).collect();
-    abi::Transition { name, is_async, inputs, outputs }
+    abi::Function { name, is_final, inputs, outputs }
 }
 
 fn convert_input(input: &ast::Input, ctx: &Ctx) -> abi::Input {
     abi::Input {
         name: input.identifier.name.to_string(),
-        ty: convert_transition_input(&input.type_, ctx),
+        ty: convert_function_input(&input.type_, ctx),
         mode: convert_mode(input.mode),
     }
 }
 
 fn convert_output(output: &ast::Output, ctx: &Ctx) -> abi::Output {
-    abi::Output { ty: convert_transition_output(&output.type_, ctx), mode: convert_mode(output.mode) }
+    abi::Output { ty: convert_function_output(&output.type_, ctx), mode: convert_mode(output.mode) }
 }
 
 fn convert_mode(mode: ast::Mode) -> abi::Mode {
@@ -197,26 +193,26 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
     }
 }
 
-fn convert_transition_input(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionInput {
+fn convert_function_input(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionInput {
     if let ast::Type::Composite(comp_ty) = ty
         && is_record(comp_ty, ctx)
     {
-        return abi::TransitionInput::Record(abi::RecordRef {
+        return abi::FunctionInput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         });
     }
-    abi::TransitionInput::Plaintext(convert_plaintext(ty))
+    abi::FunctionInput::Plaintext(convert_plaintext(ty))
 }
 
-fn convert_transition_output(ty: &ast::Type, ctx: &Ctx) -> abi::TransitionOutput {
+fn convert_function_output(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionOutput {
     match ty {
-        ast::Type::Future(_) => abi::TransitionOutput::Future,
-        ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::TransitionOutput::Record(abi::RecordRef {
+        ast::Type::Future(_) => abi::FunctionOutput::Final,
+        ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::FunctionOutput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         }),
-        _ => abi::TransitionOutput::Plaintext(convert_plaintext(ty)),
+        _ => abi::FunctionOutput::Plaintext(convert_plaintext(ty)),
     }
 }
 
@@ -287,7 +283,7 @@ fn convert_integer(int_ty: ast::IntegerType) -> abi::Primitive {
     }
 }
 
-/// Prunes types not referenced in the public interface (transitions, mappings, storage).
+/// Prunes types not referenced in the public interface (functions, mappings, storage).
 pub fn prune_non_interface_types(program: &mut abi::Program) {
     let mut used_types: HashSet<abi::Path> = HashSet::new();
 
@@ -295,12 +291,12 @@ pub fn prune_non_interface_types(program: &mut abi::Program) {
     let program_name = &program.program;
 
     // Phase 1: Collect from interface items
-    for transition in &program.transitions {
-        for input in &transition.inputs {
-            collect_from_transition_input(&input.ty, program_name, &mut used_types);
+    for function in &program.functions {
+        for input in &function.inputs {
+            collect_from_function_input(&input.ty, program_name, &mut used_types);
         }
-        for output in &transition.outputs {
-            collect_from_transition_output(&output.ty, program_name, &mut used_types);
+        for output in &function.outputs {
+            collect_from_function_output(&output.ty, program_name, &mut used_types);
         }
     }
 
@@ -354,10 +350,10 @@ fn collect_from_abi_storage_type(ty: &abi::StorageType, program_name: &str, used
     }
 }
 
-fn collect_from_transition_input(ty: &abi::TransitionInput, program_name: &str, used: &mut HashSet<abi::Path>) {
+fn collect_from_function_input(ty: &abi::FunctionInput, program_name: &str, used: &mut HashSet<abi::Path>) {
     match ty {
-        abi::TransitionInput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
-        abi::TransitionInput::Record(rec_ref) => {
+        abi::FunctionInput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
+        abi::FunctionInput::Record(rec_ref) => {
             if is_local_type(rec_ref.program.as_deref(), program_name) {
                 used.insert(rec_ref.path.clone());
             }
@@ -365,15 +361,15 @@ fn collect_from_transition_input(ty: &abi::TransitionInput, program_name: &str, 
     }
 }
 
-fn collect_from_transition_output(ty: &abi::TransitionOutput, program_name: &str, used: &mut HashSet<abi::Path>) {
+fn collect_from_function_output(ty: &abi::FunctionOutput, program_name: &str, used: &mut HashSet<abi::Path>) {
     match ty {
-        abi::TransitionOutput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
-        abi::TransitionOutput::Record(rec_ref) => {
+        abi::FunctionOutput::Plaintext(p) => collect_from_plaintext(p, program_name, used),
+        abi::FunctionOutput::Record(rec_ref) => {
             if is_local_type(rec_ref.program.as_deref(), program_name) {
                 used.insert(rec_ref.path.clone());
             }
         }
-        abi::TransitionOutput::Future => {}
+        abi::FunctionOutput::Final => {}
     }
 }
 

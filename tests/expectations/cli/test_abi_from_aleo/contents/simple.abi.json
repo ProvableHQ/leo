@@ -64,10 +64,10 @@
     }
   ],
   "storage_variables": [],
-  "transitions": [
+  "functions": [
     {
       "name": "add_numbers",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -107,7 +107,7 @@
     },
     {
       "name": "get_point",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",
@@ -142,7 +142,7 @@
     },
     {
       "name": "get_token",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arg1",

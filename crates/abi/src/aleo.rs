@@ -37,7 +37,7 @@ use std::collections::HashSet;
 /// generated ABI are always single-element (just the type name).
 ///
 /// The returned ABI is pruned to only include types that appear in the public
-/// interface (transitions, mappings).
+/// interface (functions, mappings).
 pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
     let program = aleo.stub_id.to_string();
 
@@ -57,14 +57,14 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
     let record_names: HashSet<Symbol> =
         aleo.composites.iter().filter(|(_, c)| c.is_record).map(|(name, _)| *name).collect();
 
-    let transitions = aleo
+    let functions = aleo
         .functions
         .iter()
         .filter(|(_, f)| f.variant.is_entry())
         .map(|(_, f)| convert_function_stub(f, &record_names))
         .collect();
 
-    let mut program = abi::Program { program, structs, records, mappings, storage_variables, transitions };
+    let mut program = abi::Program { program, structs, records, mappings, storage_variables, functions };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);
@@ -72,53 +72,53 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
     program
 }
 
-/// Converts a function stub to a transition for ABI.
-fn convert_function_stub(function: &ast::FunctionStub, record_names: &HashSet<Symbol>) -> abi::Transition {
+/// Converts a function stub to an ABI function.
+fn convert_function_stub(function: &ast::FunctionStub, record_names: &HashSet<Symbol>) -> abi::Function {
     let name = function.identifier.name.to_string();
-    let is_async = function.has_final_output();
+    let is_final = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, record_names)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, record_names)).collect();
-    abi::Transition { name, is_async, inputs, outputs }
+    abi::Function { name, is_final, inputs, outputs }
 }
 
 fn convert_input(input: &ast::Input, record_names: &HashSet<Symbol>) -> abi::Input {
     abi::Input {
         name: input.identifier.name.to_string(),
-        ty: convert_transition_input(&input.type_, record_names),
+        ty: convert_function_input(&input.type_, record_names),
         mode: convert_mode(input.mode),
     }
 }
 
 fn convert_output(output: &ast::Output, record_names: &HashSet<Symbol>) -> abi::Output {
-    abi::Output { ty: convert_transition_output(&output.type_, record_names), mode: convert_mode(output.mode) }
+    abi::Output { ty: convert_function_output(&output.type_, record_names), mode: convert_mode(output.mode) }
 }
 
-fn convert_transition_input(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::TransitionInput {
+fn convert_function_input(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::FunctionInput {
     if let ast::Type::Composite(comp_ty) = ty {
         let name = comp_ty.path.identifier().name;
         if record_names.contains(&name) {
-            return abi::TransitionInput::Record(abi::RecordRef {
+            return abi::FunctionInput::Record(abi::RecordRef {
                 path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
                 program: comp_ty.path.program().map(|s| s.to_string()),
             });
         }
     }
-    abi::TransitionInput::Plaintext(convert_plaintext(ty))
+    abi::FunctionInput::Plaintext(convert_plaintext(ty))
 }
 
-fn convert_transition_output(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::TransitionOutput {
+fn convert_function_output(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::FunctionOutput {
     match ty {
-        ast::Type::Future(_) => abi::TransitionOutput::Future,
+        ast::Type::Future(_) => abi::FunctionOutput::Final,
         ast::Type::Composite(comp_ty) => {
             let name = comp_ty.path.identifier().name;
             if record_names.contains(&name) {
-                return abi::TransitionOutput::Record(abi::RecordRef {
+                return abi::FunctionOutput::Record(abi::RecordRef {
                     path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
                     program: comp_ty.path.program().map(|s| s.to_string()),
                 });
             }
-            abi::TransitionOutput::Plaintext(convert_plaintext(ty))
+            abi::FunctionOutput::Plaintext(convert_plaintext(ty))
         }
-        _ => abi::TransitionOutput::Plaintext(convert_plaintext(ty)),
+        _ => abi::FunctionOutput::Plaintext(convert_plaintext(ty)),
     }
 }

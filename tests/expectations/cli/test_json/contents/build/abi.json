@@ -21,10 +21,10 @@
     }
   ],
   "storage_variables": [],
-  "transitions": [
+  "functions": [
     {
       "name": "main",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "a",

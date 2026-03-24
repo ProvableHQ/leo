@@ -315,10 +315,10 @@
       }
     }
   ],
-  "transitions": [
+  "functions": [
     {
       "name": "single_primitive",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "a",
@@ -347,7 +347,7 @@
     },
     {
       "name": "multi_input",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "a",
@@ -398,7 +398,7 @@
     },
     {
       "name": "multi_output",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "a",
@@ -437,7 +437,7 @@
     },
     {
       "name": "visibility_modes",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "a",
@@ -488,7 +488,7 @@
     },
     {
       "name": "struct_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "p",
@@ -523,7 +523,7 @@
     },
     {
       "name": "nested_struct_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "r",
@@ -558,7 +558,7 @@
     },
     {
       "name": "array_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arr",
@@ -597,7 +597,7 @@
     },
     {
       "name": "nested_array_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "arr",
@@ -646,7 +646,7 @@
     },
     {
       "name": "record_input",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "t",
@@ -676,7 +676,7 @@
     },
     {
       "name": "record_output",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "owner",
@@ -724,7 +724,7 @@
     },
     {
       "name": "all_primitives_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "p",
@@ -759,7 +759,7 @@
     },
     {
       "name": "module_struct_io",
-      "is_async": false,
+      "is_final": false,
       "inputs": [
         {
           "name": "v",
@@ -796,7 +796,7 @@
     },
     {
       "name": "async_with_finalize",
-      "is_async": true,
+      "is_final": true,
       "inputs": [
         {
           "name": "amount",
@@ -812,14 +812,14 @@
       ],
       "outputs": [
         {
-          "ty": "Future",
+          "ty": "Final",
           "mode": "None"
         }
       ]
     },
     {
       "name": "update_balance",
-      "is_async": true,
+      "is_final": true,
       "inputs": [
         {
           "name": "user",
@@ -844,7 +844,7 @@
       ],
       "outputs": [
         {
-          "ty": "Future",
+          "ty": "Final",
           "mode": "None"
         }
       ]
