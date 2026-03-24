@@ -165,6 +165,143 @@ pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Resu
             .map(Value::Record)
             .map_err(|e| CliError::custom(format!("Failed to parse input as record: {e}")).into())
     } else {
+        // Pre-validate numeric literals to reject malformed inputs that snarkvm would silently coerce to zero.
+        validate_cli_literal(input)?;
         Value::from_str(input).map_err(|e| CliError::custom(format!("Failed to parse input: {e}")).into())
+    }
+}
+
+/// Pre-validates a CLI input literal to reject malformed numeric literals
+/// that snarkvm would silently coerce to zero (e.g. `truefield`, `""field`).
+fn validate_cli_literal(input: &str) -> Result<()> {
+    // Suffixes ordered longest-first to avoid ambiguous matches (e.g. u128 before u8).
+    const UNSIGNED_SUFFIXES: &[&str] = &["u128", "u64", "u32", "u16", "u8"];
+    const SIGNED_SUFFIXES: &[&str] = &["i128", "i64", "i32", "i16", "i8"];
+    const FIELD_LIKE_SUFFIXES: &[&str] = &["field", "scalar", "group"];
+
+    for suffix in UNSIGNED_SUFFIXES {
+        if let Some(prefix) = input.strip_suffix(suffix) {
+            return validate_numeric_prefix(prefix, suffix, false, false);
+        }
+    }
+    for suffix in SIGNED_SUFFIXES {
+        if let Some(prefix) = input.strip_suffix(suffix) {
+            return validate_numeric_prefix(prefix, suffix, true, false);
+        }
+    }
+    for suffix in FIELD_LIKE_SUFFIXES {
+        if let Some(prefix) = input.strip_suffix(suffix) {
+            // Group supports coordinate pair syntax like (x, y)group — defer to snarkvm.
+            if *suffix == "group" && prefix.starts_with('(') {
+                return Ok(());
+            }
+            return validate_numeric_prefix(prefix, suffix, true, true);
+        }
+    }
+
+    // For all other inputs (bool, address, struct, record, etc.), skip pre-validation.
+    Ok(())
+}
+
+/// Validates that `prefix` is a well-formed numeric string for the given type `suffix`.
+fn validate_numeric_prefix(prefix: &str, suffix: &str, allow_negative: bool, decimal_only: bool) -> Result<()> {
+    if prefix.is_empty() {
+        return Err(
+            CliError::custom(format!("Invalid {suffix} literal: missing numeric value before '{suffix}'")).into()
+        );
+    }
+    let valid = if decimal_only {
+        is_valid_decimal(prefix, allow_negative)
+    } else {
+        is_valid_decimal(prefix, allow_negative) || is_valid_radix_prefixed(prefix, allow_negative)
+    };
+    if !valid {
+        return Err(
+            CliError::custom(format!("Invalid {suffix} literal: '{prefix}' is not a valid numeric value")).into()
+        );
+    }
+    Ok(())
+}
+
+/// Checks if `s` is a valid decimal integer string (e.g. `123`, `-42`, `1_000`).
+fn is_valid_decimal(s: &str, allow_negative: bool) -> bool {
+    let s = if allow_negative { s.strip_prefix('-').unwrap_or(s) } else { s };
+    if s.is_empty() {
+        return false;
+    }
+    let mut chars = s.chars();
+    // Must start with a digit.
+    if !chars.next().unwrap().is_ascii_digit() {
+        return false;
+    }
+    chars.all(|c| c.is_ascii_digit() || c == '_')
+}
+
+/// Checks if `s` is a valid radix-prefixed integer string (e.g. `0xFF`, `0b1010`, `0o77`).
+fn is_valid_radix_prefixed(s: &str, allow_negative: bool) -> bool {
+    let s = if allow_negative { s.strip_prefix('-').unwrap_or(s) } else { s };
+    if s.len() < 3 || !s.starts_with('0') {
+        return false;
+    }
+    let radix_char = s.as_bytes()[1];
+    let rest = &s[2..];
+    if rest.is_empty() || rest.starts_with('_') {
+        return false;
+    }
+    match radix_char {
+        b'x' | b'X' => rest.chars().all(|c| c.is_ascii_hexdigit() || c == '_'),
+        b'o' => rest.chars().all(|c| matches!(c, '0'..='7' | '_')),
+        b'b' => rest.chars().all(|c| matches!(c, '0' | '1' | '_')),
+        _ => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_literals() {
+        let valid = [
+            "42field",
+            "-7field",
+            "0field",
+            "1_000_000field",
+            "100u64",
+            "0x1Fu8",
+            "0b1010u32",
+            "0o77u16",
+            "-128i8",
+            "-0x80i16",
+            "0scalar",
+            "42group",
+            "(1, 2)group",
+            // Non-numeric types: no suffix match, so validation is skipped.
+            "true",
+            "false",
+            "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
+        ];
+        for input in &valid {
+            assert!(validate_cli_literal(input).is_ok(), "expected '{input}' to be valid");
+        }
+    }
+
+    #[test]
+    fn test_invalid_literals() {
+        let invalid = [
+            "truefield",
+            "falsefield",
+            "field",
+            "scalar",
+            "u8",
+            "abcu64",
+            "-u8",
+            "hello_worldscalar",
+            "truegroup",
+            "xxxi128",
+        ];
+        for input in &invalid {
+            assert!(validate_cli_literal(input).is_err(), "expected '{input}' to be invalid");
+        }
     }
 }

@@ -1,0 +1,8 @@
+Error [ECLI0377045]: Invalid field literal: 'true' is not a valid numeric value
+
+Error [ECLI0377045]: Invalid field literal: missing numeric value before 'field'
+
+Error [ECLI0377045]: Invalid scalar literal: 'false' is not a valid numeric value
+
+Error [ECLI0377045]: Invalid u64 literal: 'abc' is not a valid numeric value
+
