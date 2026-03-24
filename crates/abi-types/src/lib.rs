@@ -200,6 +200,7 @@ pub enum Plaintext {
 pub enum FunctionInput {
     Plaintext(Plaintext),
     Record(RecordRef),
+    DynamicRecord,
 }
 
 /// Valid types for function outputs. Aleo: `transition` outputs.
@@ -209,6 +210,7 @@ pub enum FunctionOutput {
     Record(RecordRef),
     /// Aleo `future` - the handle for an on-chain finalization.
     Final,
+    DynamicRecord,
 }
 
 /// Primitive types that map directly to Aleo literal types.

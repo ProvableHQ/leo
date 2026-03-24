@@ -2929,6 +2929,7 @@ fn keyword_to_primitive_type(kind: SyntaxKind) -> Option<leo_ast::Type> {
         KW_SCALAR => leo_ast::Type::Scalar,
         KW_SIGNATURE => leo_ast::Type::Signature,
         KW_STRING => leo_ast::Type::String,
+        KW_DYN => leo_ast::Type::DynRecord,
         KW_IDENTIFIER => leo_ast::Type::Identifier,
         KW_U8 => leo_ast::Type::Integer(leo_ast::IntegerType::U8),
         KW_U16 => leo_ast::Type::Integer(leo_ast::IntegerType::U16),

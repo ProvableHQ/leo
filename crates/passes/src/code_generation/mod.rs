@@ -421,6 +421,7 @@ pub enum AleoStmt {
         Vec<AleoReg>,
         Vec<(AleoType, Option<AleoVisibility>)>,
     ),
+    GetRecordDynamic(AleoExpr, String, AleoReg, AleoType),
     Async(String, Vec<AleoExpr>, Vec<AleoReg>),
     BranchEq(AleoExpr, AleoExpr, String),
     Position(String),
@@ -467,6 +468,9 @@ impl Display for AleoStmt {
             Self::AssertNeq(left, right) => writeln!(f, "    assert.neq {left} {right};"),
             Self::Cast(operands, dest, type_) => {
                 writeln!(f, "    cast {operands} into {dest} as {type_};")
+            }
+            Self::GetRecordDynamic(src, field, dest, type_) => {
+                writeln!(f, "    get.record.dynamic {src}.{field} into {dest} as {type_};")
             }
             Self::Abs(op, dest) => writeln!(f, "    abs {op} into {dest};"),
             Self::AbsW(op, dest) => writeln!(f, "    abs.w {op} into {dest};"),

@@ -1438,4 +1438,18 @@ create_messages!(
         msg: format!("Dynamic calls can only be made from an entry point, but found one in {context}."),
         help: None,
     }
+
+    @formatted
+    dyn_record_field_requires_type {
+        args: (field: impl Display),
+        msg: format!("Accessing field `{field}` on a `dyn record` requires a type annotation."),
+        help: Some(format!("Use `let x: <type> = r.{field};` or `r.{field} as <type>`.")),
+    }
+
+    @formatted
+    cannot_cast_to_dyn_record {
+        args: (type_: impl Display),
+        msg: format!("Cannot cast `{type_}` to `dyn record`: only concrete record types can be cast to `dyn record`."),
+        help: None,
+    }
 );

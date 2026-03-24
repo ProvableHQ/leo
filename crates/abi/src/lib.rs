@@ -194,6 +194,9 @@ fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
 }
 
 fn convert_function_input(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionInput {
+    if let ast::Type::DynRecord = ty {
+        return abi::FunctionInput::DynamicRecord;
+    }
     if let ast::Type::Composite(comp_ty) = ty
         && is_record(comp_ty, ctx)
     {
@@ -208,6 +211,7 @@ fn convert_function_input(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionInput {
 fn convert_function_output(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionOutput {
     match ty {
         ast::Type::Future(_) => abi::FunctionOutput::Final,
+        ast::Type::DynRecord => abi::FunctionOutput::DynamicRecord,
         ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::FunctionOutput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
@@ -358,6 +362,7 @@ fn collect_from_function_input(ty: &abi::FunctionInput, program_name: &str, used
                 used.insert(rec_ref.path.clone());
             }
         }
+        abi::FunctionInput::DynamicRecord => {}
     }
 }
 
@@ -370,6 +375,7 @@ fn collect_from_function_output(ty: &abi::FunctionOutput, program_name: &str, us
             }
         }
         abi::FunctionOutput::Final => {}
+        abi::FunctionOutput::DynamicRecord => {}
     }
 }
 

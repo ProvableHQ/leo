@@ -89,6 +89,11 @@ impl CodeGeneratingVisitor<'_> {
         type_: &Type,
         visibility: Option<AleoVisibility>,
     ) -> (AleoType, Option<AleoVisibility>) {
+        // Dynamic records have no visibility qualifier.
+        if matches!(type_, Type::DynRecord) {
+            return (AleoType::DynamicRecord, None);
+        }
+
         // If the type is a record, handle it separately.
         if let Type::Composite(composite) = type_ {
             let composite_location = composite.path.expect_global_location();

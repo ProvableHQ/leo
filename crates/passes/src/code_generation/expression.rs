@@ -16,6 +16,8 @@
 
 use super::*;
 
+use leo_span::sym;
+
 use leo_ast::{
     ArrayAccess,
     ArrayExpression,
@@ -69,7 +71,10 @@ impl CodeGeneratingVisitor<'_> {
 
         match input {
             Expression::ArrayAccess(expr) => (Some(self.visit_array_access(expr)), vec![]),
-            Expression::MemberAccess(expr) => (Some(self.visit_member_access(expr)), vec![]),
+            Expression::MemberAccess(expr) => {
+                let (expr, stmts) = self.visit_member_access(expr);
+                (Some(expr), stmts)
+            }
             Expression::Path(expr) => (Some(self.visit_path(expr)), vec![]),
             Expression::Literal(expr) => (Some(self.visit_value(expr)), vec![]),
 
@@ -405,11 +410,28 @@ impl CodeGeneratingVisitor<'_> {
         AleoExpr::ArrayAccess(Box::new(array_operand), Box::new(index_operand))
     }
 
-    fn visit_member_access(&mut self, input: &MemberAccess) -> AleoExpr {
-        let (inner_expr, _) = self.visit_expression(&input.inner);
+    fn visit_member_access(&mut self, input: &MemberAccess) -> (AleoExpr, Vec<AleoStmt>) {
+        let (inner_expr, mut instructions) = self.visit_expression(&input.inner);
         let inner_expr = inner_expr.expect("Trying to access a member of an empty expression.");
 
-        AleoExpr::MemberAccess(Box::new(inner_expr), input.name.to_string())
+        // Check if the inner expression is a dyn record.
+        let inner_type = self.state.type_table.get(&input.inner.id());
+        if matches!(inner_type, Some(Type::DynRecord)) && input.name.name != sym::owner {
+            // Non-owner field access on dyn record: emit get.record.dynamic.
+            let result_type = self.state.type_table.get(&input.id).expect("Type should be resolved.");
+            let dest_reg = self.next_register();
+            let aleo_type = self.visit_type(&result_type);
+            instructions.push(AleoStmt::GetRecordDynamic(
+                inner_expr,
+                input.name.to_string(),
+                dest_reg.clone(),
+                aleo_type,
+            ));
+            return (AleoExpr::Reg(dest_reg), instructions);
+        }
+
+        // Regular member access (or .owner on dyn record).
+        (AleoExpr::MemberAccess(Box::new(inner_expr), input.name.to_string()), instructions)
     }
 
     fn visit_repeat(&mut self, input: &RepeatExpression) -> (AleoExpr, Vec<AleoStmt>) {

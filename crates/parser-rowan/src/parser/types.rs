@@ -54,6 +54,7 @@ impl Parser<'_, '_> {
         KW_SIGNATURE,
         KW_STRING,
         KW_IDENTIFIER,
+        KW_DYN,
         KW_I8,
         KW_I16,
         KW_I32,
@@ -129,7 +130,12 @@ impl Parser<'_, '_> {
         // isn't captured inside the TYPE_PRIMITIVE.
         self.skip_trivia();
         let m = self.start();
+        let kind = self.current();
         self.bump_raw();
+        // `dyn record` is a two-token primitive type.
+        if kind == KW_DYN {
+            self.expect(KW_RECORD);
+        }
         Some(m.complete(self, TYPE_PRIMITIVE))
     }
 

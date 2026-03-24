@@ -127,6 +127,8 @@ define_syntax_kinds! {
     KW_STRING,
     /// `record`
     KW_RECORD,
+    /// `dyn`
+    KW_DYN,
     /// `identifier`
     KW_IDENTIFIER,
     /// `Final`
@@ -596,6 +598,7 @@ impl SyntaxKind {
                 | KW_SIGNATURE
                 | KW_STRING
                 | KW_RECORD
+                | KW_DYN
                 | KW_IDENTIFIER
                 | KW_FINAL_UPPER
                 | KW_I8
@@ -651,6 +654,7 @@ impl SyntaxKind {
                 | KW_SCALAR
                 | KW_SIGNATURE
                 | KW_STRING
+                | KW_DYN
                 | KW_IDENTIFIER
                 | KW_FINAL_UPPER
                 | KW_I8
@@ -853,6 +857,7 @@ impl SyntaxKind {
             KW_SIGNATURE => "'signature'",
             KW_STRING => "'string'",
             KW_RECORD => "'record'",
+            KW_DYN => "'dyn'",
             KW_IDENTIFIER => "'identifier'",
             KW_FINAL_UPPER => "'Final'",
             KW_I8 => "'i8'",

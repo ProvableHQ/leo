@@ -1,0 +1,25 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    balance as u64.private;
+    memo as field.private;
+
+function make_dynamic:
+    input r0 as Token.record;
+    cast r0 into r1 as dynamic.record;
+    output r1 as dynamic.record;
+
+function get_balance:
+    input r0 as dynamic.record;
+    get.record.dynamic r0.balance into r1 as u64;
+    output r1 as u64.private;
+
+function get_owner:
+    input r0 as dynamic.record;
+    output r0.owner as address.private;
+
+function get_memo_typed:
+    input r0 as dynamic.record;
+    get.record.dynamic r0.memo into r1 as field;
+    output r1 as field.private;
