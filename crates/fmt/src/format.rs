@@ -76,6 +76,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         k if k.is_literal_node() => format_literal(node, out),
         CALL_EXPR => format_call(node, out),
         METHOD_CALL_EXPR => format_method_call(node, out),
+        DYNAMIC_CALL_EXPR => format_dynamic_call(node, out),
         BINARY_EXPR => format_binary(node, out),
         PATH_EXPR | PATH_LOCATOR_EXPR | PROGRAM_REF_EXPR => format_path(node, out),
         SELF_EXPR => out.write("self"),
@@ -848,6 +849,100 @@ fn format_fn_prototype(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_record_prototype(node: &SyntaxNode, out: &mut Output) {
+    if !has_token(node, SEMICOLON) {
+        let elems = elements(node);
+        let rbrace_idx = find_last_token_index(&elems, R_BRACE);
+
+        emit_leading_comments(node, out);
+
+        let mut after_lbrace = false;
+        let mut had_member = false;
+        let mut idx = 0;
+        while idx < elems.len() {
+            match &elems[idx] {
+                SyntaxElement::Token(tok) => {
+                    let k = tok.kind();
+                    match k {
+                        KW_RECORD => {
+                            out.write("record");
+                            out.space();
+                        }
+                        IDENT if !after_lbrace => {
+                            out.write(tok.text());
+                            out.space();
+                        }
+                        L_BRACE => {
+                            out.write("{");
+                            out.newline();
+                            after_lbrace = true;
+                        }
+                        DOT_DOT if after_lbrace => {
+                            out.indented(|out| {
+                                out.write("..");
+                                out.newline();
+                            });
+                        }
+                        R_BRACE => {}
+                        COMMENT_LINE if after_lbrace && !had_member => {
+                            out.indented(|out| {
+                                out.write(tok.text().trim_end());
+                            });
+                            out.newline();
+                        }
+                        COMMENT_BLOCK if after_lbrace && !had_member => {
+                            out.indented(|out| {
+                                out.write(tok.text());
+                            });
+                            out.newline();
+                        }
+                        WHITESPACE | LINEBREAK | COMMA => {}
+                        _ => out.write(tok.text()),
+                    }
+                }
+                SyntaxElement::Node(n) => match n.kind() {
+                    STRUCT_MEMBER | STRUCT_MEMBER_PUBLIC | STRUCT_MEMBER_PRIVATE | STRUCT_MEMBER_CONSTANT => {
+                        had_member = true;
+                        out.indented(|out| {
+                            format_struct_member(n, out);
+                            out.write(",");
+                            let trailing_comment_on_newline = emit_node_trailing_comments(n, out);
+                            emit_trailing_list_comments(node, n, out);
+                            if let Some(next) = n.next_sibling() {
+                                emit_stolen_trailing_comments(&next, out);
+                            }
+                            if !trailing_comment_on_newline {
+                                out.ensure_newline();
+                            }
+                        });
+                    }
+                    ERROR => {
+                        let text = n.text().to_string();
+                        let text = text.trim();
+                        if !text.is_empty() {
+                            out.indented(|out| {
+                                out.write(text);
+                                out.newline();
+                            });
+                        }
+                    }
+                    _ => {}
+                },
+            }
+            idx += 1;
+        }
+
+        if has_token(node, R_BRACE) {
+            out.write("}");
+            if let Some(idx) = rbrace_idx {
+                emit_comments_after(&elems, idx, out);
+            }
+        }
+        if let Some(next) = node.next_sibling() {
+            emit_stolen_trailing_comments(&next, out);
+        }
+        return;
+    }
+
     emit_leading_comments(node, out);
     for elem in node.children_with_tokens() {
         if let SyntaxElement::Token(tok) = elem {
@@ -1417,6 +1512,37 @@ fn format_const_parameter_list(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
+    if has_token(node, LT) {
+        let args: Vec<_> = node
+            .children_with_tokens()
+            .filter_map(|elem| match elem {
+                SyntaxElement::Token(tok)
+                    if !matches!(
+                        tok.kind(),
+                        LT | GT | COMMA | WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK
+                    ) =>
+                {
+                    Some(tok.text().to_string())
+                }
+                SyntaxElement::Node(n) if n.kind().is_type() || n.kind().is_expression() => {
+                    Some(format_node_to_string(&n))
+                }
+                _ => None,
+            })
+            .collect();
+
+        out.write("<");
+        for (i, arg) in args.iter().enumerate() {
+            out.write(arg);
+            if i < args.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(">");
+        return;
+    }
+
     let args: Vec<_> = node.children().filter(|c| c.kind().is_type() || c.kind().is_expression()).collect();
     format_wrapping_list(node, out, "[", "]", &args, false, false);
 }
@@ -2262,6 +2388,102 @@ fn format_method_call(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Node(n) => format_node(&n, out),
         }
     }
+}
+
+fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
+    if has_deep_comment(node) {
+        write_node_verbatim(node, out);
+        return;
+    }
+
+    let Some(interface) = node.children().find(|child| child.kind().is_type()) else {
+        write_node_verbatim(node, out);
+        return;
+    };
+
+    let Some(slash_offset) = node.children_with_tokens().find_map(|elem| match elem {
+        SyntaxElement::Token(tok) if tok.kind() == SLASH => Some(tok.text_range().start()),
+        _ => None,
+    }) else {
+        write_node_verbatim(node, out);
+        return;
+    };
+
+    let exprs: Vec<_> = node.children().filter(|child| child.kind().is_expression()).collect();
+    let (pre_slash, args): (Vec<_>, Vec<_>) =
+        exprs.into_iter().partition(|child| child.text_range().start() < slash_offset);
+
+    let Some(target) = pre_slash.first() else {
+        write_node_verbatim(node, out);
+        return;
+    };
+
+    let mut saw_slash = false;
+    let Some(function_name) = node.children_with_tokens().find_map(|elem| match elem {
+        SyntaxElement::Token(tok) if tok.kind() == SLASH => {
+            saw_slash = true;
+            None
+        }
+        SyntaxElement::Token(tok) if saw_slash && tok.kind() == IDENT => Some(tok.text().to_string()),
+        _ => None,
+    }) else {
+        write_node_verbatim(node, out);
+        return;
+    };
+
+    format_node(&interface, out);
+    out.write("@(");
+    format_node(target, out);
+    if let Some(network) = pre_slash.get(1) {
+        out.write(", ");
+        format_node(network, out);
+    }
+    out.write(")/");
+    out.write(&function_name);
+
+    if args.is_empty() {
+        out.write("()");
+        return;
+    }
+
+    let arg_strings: Vec<String> = args.iter().map(format_node_to_string).collect();
+    let col = out.current_column();
+
+    if fits_on_one_line(col, "(", ")", &arg_strings) {
+        out.write("(");
+        for (i, arg) in args.iter().enumerate() {
+            format_node(arg, out);
+            if i < args.len() - 1 {
+                out.write(",");
+                out.space();
+            }
+        }
+        out.write(")");
+        return;
+    }
+
+    out.write("(");
+    out.newline();
+    out.indented(|out| {
+        for (i, arg) in args.iter().enumerate() {
+            emit_leading_comments_inner(arg, out, i == 0);
+            format_node(arg, out);
+            out.write(",");
+            emit_node_trailing_comments(arg, out);
+            if i < args.len() - 1 {
+                emit_comments_after_list_item(node, arg, out);
+                emit_stolen_trailing_comments(&args[i + 1], out);
+                if out.current_column() != out.current_indent_width() {
+                    out.ensure_newline();
+                }
+            }
+        }
+        emit_trailing_list_comments(node, args.last().unwrap(), out);
+        if out.current_column() != out.current_indent_width() {
+            out.ensure_newline();
+        }
+    });
+    out.write(")");
 }
 
 fn format_binary(node: &SyntaxNode, out: &mut Output) {
