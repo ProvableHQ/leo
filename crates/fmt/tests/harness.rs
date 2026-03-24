@@ -24,7 +24,7 @@
 //! 1. Source files format to match target files
 //! 2. Target files are idempotent (format to themselves)
 
-use leo_fmt::format_source;
+use leo_fmt::{check_formatted, format_source};
 use similar::{ChangeTag, TextDiff};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -121,6 +121,46 @@ fn test_idempotency() {
     }
 
     assert!(failures.is_empty(), "{} file(s) not idempotent: {failures:?}", failures.len());
+}
+
+#[test]
+fn manual_cli_fmt_fixtures_remain_ugly_inputs_with_formatted_expectations() {
+    let workspace_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
+    let fixtures = [
+        ("tests/tests/cli/test_fmt/contents/src/main.leo", "tests/expectations/cli/test_fmt/contents/src/main.leo"),
+        (
+            "tests/tests/cli/test_fmt/contents/ugly_lib/src/lib.leo",
+            "tests/expectations/cli/test_fmt/contents/ugly_lib/src/lib.leo",
+        ),
+    ];
+
+    for (source_rel, expected_rel) in fixtures {
+        let source_path = workspace_root.join(source_rel);
+        let expected_path = workspace_root.join(expected_rel);
+
+        let source = std::fs::read_to_string(&source_path)
+            .unwrap_or_else(|_| panic!("Failed to read CLI fmt source fixture: {}", source_path.display()));
+        let expected = std::fs::read_to_string(&expected_path)
+            .unwrap_or_else(|_| panic!("Failed to read CLI fmt expectation fixture: {}", expected_path.display()));
+
+        assert!(
+            !check_formatted(&source),
+            "CLI fmt source fixture must remain intentionally ugly: {}",
+            source_path.display()
+        );
+        assert!(
+            check_formatted(&expected),
+            "CLI fmt expectation fixture must remain formatted: {}",
+            expected_path.display()
+        );
+        assert_eq!(
+            format_source(&source),
+            expected,
+            "CLI fmt fixture pair drifted: {} -> {}",
+            source_path.display(),
+            expected_path.display()
+        );
+    }
 }
 
 /// Compilation and AST validation tests, gated behind `--features validate`.
@@ -292,6 +332,7 @@ mod validate {
     fn collect_workspace_leo_files_excludes_manual_cli_fmt_fixtures() {
         let leo_files = collect_workspace_leo_files();
         let excluded_roots = [
+            workspace_root().join("crates/fmt/tests"),
             workspace_root().join("tests/tests/cli/test_fmt"),
             workspace_root().join("tests/expectations/cli/test_fmt"),
         ];
