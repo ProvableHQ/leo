@@ -10,7 +10,7 @@ program child.aleo {
 
 import child.aleo;
 program inter.aleo {
-    fn use_child(c: child.aleo/child_rec){}
+    fn use_child(c: child.aleo::child_rec){}
 }
 
 // --- Next Program --- //

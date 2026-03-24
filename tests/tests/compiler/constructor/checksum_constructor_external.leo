@@ -12,10 +12,10 @@ import dependent.aleo;
 program test.aleo {
     fn foo() {}
 
-    @checksum(mapping = "dependent.aleo/floo", key = "1field")
+    @checksum(mapping = "dependent.aleo::floo", key = "1field")
     constructor() {}
 
     fn food() {
-        dependent.aleo/foo();
+        dependent.aleo::foo();
     }
 }

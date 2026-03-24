@@ -609,13 +609,13 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
-        // Check for locator: name.aleo/path
+        // Check for locator: name.aleo::path
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             self.bump_any(); // .
             self.bump_any(); // aleo
 
-            let is_locator = if self.eat(SLASH) {
-                // Locator path: name.aleo/Type
+            let is_locator = if self.eat(COLON_COLON) {
+                // Locator path: name.aleo::Type
                 if self.at(IDENT) {
                     self.bump_any();
                 }
@@ -624,13 +624,13 @@ impl Parser<'_, '_> {
                 false
             };
 
-            // Optional const generic args after locator: child.aleo/foo::[3]
+            // Optional const generic args after locator: child.aleo::foo::[3]
             if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
                 self.bump_any(); // ::
                 self.parse_const_generic_args_bracket();
             }
 
-            // Check for struct literal: `child.aleo/Foo::[N] { ... }`
+            // Check for struct literal: `child.aleo::Foo::[N] { ... }`
             if !opts.no_struct && self.at(L_BRACE) {
                 self.bump_any(); // {
                 if !self.at(R_BRACE) {
@@ -1496,7 +1496,7 @@ mod tests {
     #[test]
     fn parse_expr_locator_call_const_generic() {
         // Locator + const generic call
-        check_expr_no_errors("child.aleo/foo::[3]()");
+        check_expr_no_errors("child.aleo::foo::[3]()");
     }
 
     #[test]

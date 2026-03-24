@@ -23,14 +23,14 @@ program mid1.aleo {
     fn init() -> Final {
         return final {
             flag = true;
-            assert(base.aleo/val_u32.unwrap() == 99u32);
+            assert(base.aleo::val_u32.unwrap() == 99u32);
         };
     }
 
     fn wipe() -> Final {
         return final {
             flag = none;
-            assert(base.aleo/val_u32 == none);
+            assert(base.aleo::val_u32 == none);
         };
     }
 
@@ -50,8 +50,8 @@ program mid2.aleo {
         return final {
             counter = 7u8;
 
-            assert(base.aleo/val_u32.unwrap() == 99u32);
-            assert(mid1.aleo/flag.unwrap() == true);
+            assert(base.aleo::val_u32.unwrap() == 99u32);
+            assert(mid1.aleo::flag.unwrap() == true);
         };
     }
 
@@ -59,7 +59,7 @@ program mid2.aleo {
         return final {
             counter = none;
 
-            assert(mid1.aleo/flag == none);
+            assert(mid1.aleo::flag == none);
         };
     }
 
@@ -82,9 +82,9 @@ program top.aleo {
     //
     fn test_initialized() -> Final {
         return final {
-            assert(base.aleo/val_u32.unwrap() == 99u32);
-            assert(mid1.aleo/flag.unwrap() == true);
-            assert(mid2.aleo/counter.unwrap() == 7u8);
+            assert(base.aleo::val_u32.unwrap() == 99u32);
+            assert(mid1.aleo::flag.unwrap() == true);
+            assert(mid2.aleo::counter.unwrap() == 7u8);
         };
     }
 
@@ -95,9 +95,9 @@ program top.aleo {
     //
     fn test_fallback() -> Final {
         return final {
-            assert(base.aleo/val_u32.unwrap_or(0u32) == 0u32);
-            assert(mid1.aleo/flag.unwrap_or(false) == false);
-            assert(mid2.aleo/counter.unwrap_or(11u8) == 11u8);
+            assert(base.aleo::val_u32.unwrap_or(0u32) == 0u32);
+            assert(mid1.aleo::flag.unwrap_or(false) == false);
+            assert(mid2.aleo::counter.unwrap_or(11u8) == 11u8);
         };
     }
 
@@ -108,9 +108,9 @@ program top.aleo {
     //
     fn test_none() -> Final {
         return final {
-            assert(base.aleo/val_u32 == none);
-            assert(mid1.aleo/flag == none);
-            assert(mid2.aleo/counter == none);
+            assert(base.aleo::val_u32 == none);
+            assert(mid1.aleo::flag == none);
+            assert(mid2.aleo::counter == none);
         };
     }
 

@@ -32,8 +32,8 @@ import math_impl.aleo;
 
 program multi_caller.aleo {
     fn main(target: field, a: u32, b: u32) -> (u32, Final) {
-        let (r1, f1): (u32, Final) = math_impl.aleo/MathOps@(target)/compute(a, b);
-        let (r2, f2): (u32, Final) = math_impl.aleo/MathOps@(target)/compute(a, r1);
+        let (r1, f1): (u32, Final) = math_impl.aleo::MathOps@(target)/compute(a, b);
+        let (r2, f2): (u32, Final) = math_impl.aleo::MathOps@(target)/compute(a, r1);
         return (r2, final {
             f1.run();
             f2.run();

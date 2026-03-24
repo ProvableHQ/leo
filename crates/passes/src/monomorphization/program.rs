@@ -209,7 +209,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         //    Each FromLeo stub recursively calls reconstruct_program for the dependency,
         //    which populates `reconstructed_composites` with the dependency's composites.
         //    This means that when the current program's scope is processed, any composites
-        //    from FromLeo dependencies (e.g. `child.aleo/Bar`) are already available for
+        //    from FromLeo dependencies (e.g. `child.aleo::Bar`) are already available for
         //    monomorphization.
         //
         // 2. The current program's composite_map and function_map are populated AFTER

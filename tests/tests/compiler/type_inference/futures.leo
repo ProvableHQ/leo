@@ -16,13 +16,13 @@ import child.aleo;
 
 program type_inference.aleo {
     fn t1() -> (u64, Final) {
-        let f = child.aleo/foo();
+        let f = child.aleo::foo();
         let r = final { foo(f); };
         return (42u64, r);
     }
 
     fn t2() -> (u64, Final) {
-        let f = child.aleo/bar();
+        let f = child.aleo::bar();
         let r = final { foo(f); };
         return (99u64, r);
     }

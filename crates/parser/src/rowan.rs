@@ -285,7 +285,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo/Type` or `program.aleo`.
+    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
@@ -1235,7 +1235,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Extract program and type name from a locator node's IDENT tokens.
     ///
-    /// Locator nodes have the structure: `IDENT DOT KW_ALEO SLASH IDENT [COLON_COLON CONST_ARG_LIST]`.
+    /// Locator nodes have the structure: `IDENT DOT KW_ALEO COLON_COLON IDENT [COLON_COLON CONST_ARG_LIST]`.
     /// The first IDENT is the program name, the second (after SLASH) is the type/function name.
     fn locator_tokens_to_path(&self, node: &SyntaxNode) -> Result<leo_ast::Path> {
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);

@@ -10,7 +10,7 @@ program lib.aleo {
 
 import lib.aleo;
 
-interface Extended : lib.aleo/Base {
+interface Extended : lib.aleo::Base {
     fn set(v: u64) -> u64;
 }
 

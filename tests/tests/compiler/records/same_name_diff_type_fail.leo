@@ -28,6 +28,6 @@ program parent.aleo {
             x: 1u16,
         };
 
-        return r1 == child.aleo/create();
+        return r1 == child.aleo::create();
     }
 }

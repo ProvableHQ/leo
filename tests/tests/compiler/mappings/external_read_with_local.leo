@@ -24,6 +24,6 @@ program relay.aleo {
 }
 
 final fn finalize_send(addr: address) {
-    let a:bool = Mapping::get(relay.aleo/users, addr);
+    let a:bool = Mapping::get(relay.aleo::users, addr);
     assert_eq(a, true);
 }

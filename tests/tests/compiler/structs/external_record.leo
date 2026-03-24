@@ -17,8 +17,8 @@ program parent.aleo {
         owner: address,
         val: u32,
     }
-    fn wrapper_mint(owner: address, val: u32) ->  (child.aleo/A, B) {
-        return (child.aleo/mint(self.caller, 1u32), B {owner: self.signer, val: val});
+    fn wrapper_mint(owner: address, val: u32) ->  (child.aleo::A, B) {
+        return (child.aleo::mint(self.caller, 1u32), B {owner: self.signer, val: val});
     }
 }
 
@@ -31,8 +31,8 @@ program grandparent.aleo {
         owner: address,
         val: u32,
     }
-    fn double_wrapper_mint(owner: address, val: u32) -> (child.aleo/A, parent.aleo/B, C) {
-        let (a,b): (child.aleo/A, parent.aleo/B) = parent.aleo/wrapper_mint(owner,val);
+    fn double_wrapper_mint(owner: address, val: u32) -> (child.aleo::A, parent.aleo::B, C) {
+        let (a,b): (child.aleo::A, parent.aleo::B) = parent.aleo::wrapper_mint(owner,val);
         return (a, b, C {owner: owner, val: val});
     }
 }

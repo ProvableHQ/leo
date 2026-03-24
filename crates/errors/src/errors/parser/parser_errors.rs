@@ -325,7 +325,7 @@ create_messages!(
     invalid_external_type {
         args: (),
         msg: format!("Invalid external type."),
-        help: Some("External type should have the form `<program>.aleo/<record>`. For example `bank.aleo/loan`".to_string()),
+        help: Some("External type should have the form `<program>.aleo::<record>`. For example `bank.aleo::loan`".to_string()),
     }
 
     // TODO This error is unused. Remove it in a future version.

@@ -22,8 +22,8 @@ fn exprs() -> u32 {
     let method = hash.to_field();
     let tuple_field = tup.0;
     let index = arr[0u32];
-    let locator = credits.aleo/transfer;
-    let located = credits.aleo/Point { x: 1field, y: 2field };
+    let locator = credits.aleo::transfer;
+    let located = credits.aleo::Point { x: 1field, y: 2field };
     let paren_call = (f)();
     let indexed_call = arr[0u32]();
     let nested = Foo::Bar::[u32, 1u32](point.x);

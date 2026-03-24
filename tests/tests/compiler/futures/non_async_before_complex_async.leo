@@ -15,8 +15,8 @@ final fn finalize(a: u32) {
 import inner.aleo;
 program mid.aleo {
     fn mid(a: u32) -> Final {
-        let f1: Final = inner.aleo/inner(0u32);
-        let f2: Final = inner.aleo/inner(1u32);
+        let f1: Final = inner.aleo::inner(0u32);
+        let f2: Final = inner.aleo::inner(1u32);
         let f:Final = final { finalize(f2, f1); };
         return f;
     }
@@ -34,17 +34,17 @@ import inner.aleo;
 import mid.aleo;
 program outer.aleo {
     fn outer_1(a: u32) -> Final {
-        mid.aleo/dummy();
-        let f1: Final = mid.aleo/mid(0u32);
-        let f2: Final = mid.aleo/mid(1u32);
+        mid.aleo::dummy();
+        let f1: Final = mid.aleo::mid(0u32);
+        let f2: Final = mid.aleo::mid(1u32);
         let f:Final = final { finalize(f1, f2); };
         return f;
     }
 
     fn outer_2(a: u32) -> Final {
-        let f1: Final = mid.aleo/mid(0u32);
-        mid.aleo/dummy();
-        let f2: Final = mid.aleo/mid(1u32);
+        let f1: Final = mid.aleo::mid(0u32);
+        mid.aleo::dummy();
+        let f2: Final = mid.aleo::mid(1u32);
         let f:Final = final { finalize(f1, f2); };
         return f;
     }

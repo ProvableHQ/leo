@@ -34,7 +34,7 @@ import impl_ext.aleo;
 
 program caller.aleo {
     fn main(target: field, x: u64) -> u64 {
-        return impl_ext.aleo/Base@(target)/double_val(x);
+        return impl_ext.aleo::Base@(target)/double_val(x);
     }
 
     @noupgrade

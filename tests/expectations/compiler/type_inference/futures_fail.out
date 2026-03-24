@@ -1,8 +1,8 @@
 Error [ETYC0372003]: Expected type `u32` but type `Final<Fn()>` was found
     --> compiler-test:7:22
      |
-   7 |         let f: u32 = child.aleo/foo();
-     |                      ^^^^^^^^^^^^^^^^
+   7 |         let f: u32 = child.aleo::foo();
+     |                      ^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u32` was found.
     --> compiler-test:8:33
      |
@@ -16,8 +16,8 @@ Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u8` was found.
 Error [ETYC0372003]: Expected type `(u8, u8)` but type `Final<Fn()>` was found
     --> compiler-test:13:27
      |
-  13 |         let f: (u8, u8) = child.aleo/bar();
-     |                           ^^^^^^^^^^^^^^^^
+  13 |         let f: (u8, u8) = child.aleo::bar();
+     |                           ^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
     --> compiler-test:14:35
      |

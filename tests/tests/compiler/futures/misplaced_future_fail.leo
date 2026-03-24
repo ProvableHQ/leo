@@ -23,11 +23,11 @@ import child.aleo;
 program parent.aleo {
 
     fn foo() -> Final {
-        let f0: Final = child.aleo/foo();
+        let f0: Final = child.aleo::foo();
 
-        child.aleo/foo();
+        child.aleo::foo();
 
-        child.aleo/boo();
+        child.aleo::boo();
 
         return final { finalize_foo(f0); };
     }

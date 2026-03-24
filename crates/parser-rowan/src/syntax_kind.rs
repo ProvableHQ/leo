@@ -95,7 +95,7 @@ define_syntax_kinds! {
     /// Identifier: foo, Bar, _baz
     /// Note: Complex identifiers (paths, program IDs, locators) are deferred
     /// to Phase 2. The lexer produces simple IDENT tokens; the parser handles
-    /// disambiguation of foo::bar, foo.aleo, foo.aleo/bar patterns.
+    /// disambiguation of foo::bar, foo.aleo, foo.aleo::bar patterns.
     IDENT,
 
     // ==========================================================================
@@ -499,7 +499,7 @@ define_syntax_kinds! {
     TUPLE_EXPR,
     /// Struct literal: `Foo { a: 1, b: 2 }`
     STRUCT_EXPR,
-    /// Struct locator literal: `program.aleo/Type { a: 1, b: 2 }`
+    /// Struct locator literal: `program.aleo::Type { a: 1, b: 2 }`
     STRUCT_LOCATOR_EXPR,
     /// Struct field initializer: `a: 1`
     STRUCT_FIELD_INIT,
@@ -507,9 +507,9 @@ define_syntax_kinds! {
     STRUCT_FIELD_SHORTHAND,
     /// Path expression: `foo::bar`
     PATH_EXPR,
-    /// Path locator expression: `program.aleo/function`
+    /// Path locator expression: `program.aleo::function`
     PATH_LOCATOR_EXPR,
-    /// Program reference expression: `name.aleo` (without `/Type` suffix).
+    /// Program reference expression: `name.aleo` (without `::Type` suffix).
     PROGRAM_REF_EXPR,
     /// Self expression: `self`
     SELF_EXPR,
@@ -553,7 +553,7 @@ define_syntax_kinds! {
     TYPE_PATH,
     /// Primitive type: `u32`, `bool`, `field`, etc.
     TYPE_PRIMITIVE,
-    /// Locator type: `program.aleo/Type`
+    /// Locator type: `program.aleo::Type`
     TYPE_LOCATOR,
     /// Array type: `[u32; 10]`
     TYPE_ARRAY,

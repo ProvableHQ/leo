@@ -199,7 +199,7 @@ create_messages!(
         msg: format!(
             "The type `{type_}` is not found in the current scope."
         ),
-        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`".to_string()),
+        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`".to_string()),
     }
 
     /// Attempted to access an invalid composite variable.
@@ -714,7 +714,7 @@ create_messages!(
     must_propagate_all_finals {
         args: (never_propagated: impl Display),
         msg: format!("All Finals generated from external calls must be inserted into a final block in the order they were called. The following were never were: {never_propagated}"),
-        help: Some("Example: `fn foo() -> Final { let a: Final = b.aleo/bar(); return final {{ a.run(); }}; }`".to_string()),
+        help: Some("Example: `fn foo() -> Final { let a: Final = b.aleo::bar(); return final {{ a.run(); }}; }`".to_string()),
     }
 
     // deprecated

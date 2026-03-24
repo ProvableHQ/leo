@@ -12,7 +12,7 @@ Error [ETYC0372164]: The input `y` has type `[u8?; 3]`, which is or contains an 
      |                    ^^^^^^^^^^^
      |
      = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+Error [ETYC0372164]: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
     --> compiler-test:5:33
      |
    5 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
@@ -33,7 +33,7 @@ Error [ETYC0372165]: This function has an output of type `u8?`, which is or cont
      |                                                  ^^^
      |
      = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372165]: This function has an output of type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+Error [ETYC0372165]: This function has an output of type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an output of an entry point fn.
     --> compiler-test:5:55
      |
    5 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
@@ -47,7 +47,7 @@ Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optio
      |            ^^^^^^
      |
      = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `test.aleo/Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+Error [ETYC0372164]: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
     --> compiler-test:9:20
      |
    9 |     fn bar(x: u8?, f: Foo) {

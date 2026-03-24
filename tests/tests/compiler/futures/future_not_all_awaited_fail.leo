@@ -28,12 +28,12 @@ import child.aleo;
 
 program parent.aleo {
     fn foo() -> Final {
-        let f1 = child.aleo/foo();
-        let f2 = child.aleo/foo();
-        let f3 = child.aleo/foo();
-        let f4 = child.aleo/boo();
-        let f5 = child.aleo/boo();
-        let f6 = child.aleo/boo();
+        let f1 = child.aleo::foo();
+        let f2 = child.aleo::foo();
+        let f3 = child.aleo::foo();
+        let f4 = child.aleo::boo();
+        let f5 = child.aleo::boo();
+        let f6 = child.aleo::boo();
         return final { finalize_foo(f1, f2, f3, f4, f5, f6); };
     }
 }

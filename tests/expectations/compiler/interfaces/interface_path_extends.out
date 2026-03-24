@@ -19,15 +19,15 @@ Note: Treating dependencies as Aleo produces different results:
 Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
     --> compiler-test:5:22
      |
-   5 | interface Extended : lib.aleo/Base {
-     |                      ^^^^^^^^^^^^^
+   5 | interface Extended : lib.aleo::Base {
+     |                      ^^^^^^^^^^^^^^
      |
      = Make sure the interface is defined in the current program or an imported program.
 Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
     --> compiler-test:5:1
      |
-   5 | interface Extended : lib.aleo/Base {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   5 | interface Extended : lib.aleo::Base {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 |     fn set(v: u64) -> u64;
      |     ^^^^^^^^^^^^^^^^^^^^^^
    7 | }
@@ -37,8 +37,8 @@ Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
 Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
     --> compiler-test:5:1
      |
-   5 | interface Extended : lib.aleo/Base {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   5 | interface Extended : lib.aleo::Base {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    6 |     fn set(v: u64) -> u64;
      |     ^^^^^^^^^^^^^^^^^^^^^^
    7 | }

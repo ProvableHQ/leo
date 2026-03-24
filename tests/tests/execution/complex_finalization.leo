@@ -82,8 +82,8 @@ program two_program.aleo {
   mapping counts: address => u64;
 
   fn b() -> Final {
-    let f0: Final = zero_program.aleo/c();
-    let f1: Final = one_program.aleo/d();
+    let f0: Final = zero_program.aleo::c();
+    let f1: Final = one_program.aleo::d();
     let signer = self.signer;
     return final { finalize_b(f0, f1, signer); };
   }
@@ -114,9 +114,9 @@ program three_program.aleo {
   mapping counts: address => u64;
 
   fn e() -> Final {
-    let f0: Final = two_program.aleo/b();
-    let f1: Final = one_program.aleo/d();
-    let f2: Final = zero_program.aleo/c();
+    let f0: Final = two_program.aleo::b();
+    let f1: Final = one_program.aleo::d();
+    let f2: Final = zero_program.aleo::c();
     let signer = self.signer;
     return final { finalize_e(f0, f1, f2, signer); };
   }
@@ -145,8 +145,8 @@ program four_program.aleo {
   mapping counts: address => u64;
 
   fn a() -> Final {
-    let f0: Final = two_program.aleo/b();
-    let f1: Final = three_program.aleo/e();
+    let f0: Final = two_program.aleo::b();
+    let f1: Final = three_program.aleo::e();
     let signer = self.signer;
     return final { finalize_a(f0, f1, signer); };
   }

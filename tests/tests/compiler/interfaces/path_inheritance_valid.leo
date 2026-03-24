@@ -10,7 +10,7 @@ program lib.aleo {
 
 import lib.aleo;
 
-program test.aleo : lib.aleo/Counter {
+program test.aleo : lib.aleo::Counter {
     fn increment() -> u64 {
         return 1u64;
     }

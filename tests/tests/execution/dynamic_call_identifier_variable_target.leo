@@ -27,7 +27,7 @@ import var_target.aleo;
 program var_caller.aleo {
     fn main(x: u32, y: u32) -> u32 {
         let target: identifier = 'var_target';
-        return var_target.aleo/Adder@(target)/sum(x, y);
+        return var_target.aleo::Adder@(target)/sum(x, y);
     }
 
     @noupgrade

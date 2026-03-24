@@ -1,6 +1,6 @@
 // Test: Cross-program interface inheritance cycle (should fail)
 
-interface A : lib.aleo/B {
+interface A : lib.aleo::B {
     fn a() -> u64;
 }
 
@@ -14,7 +14,7 @@ program test.aleo {
 
 import test.aleo;
 
-interface B : test.aleo/A {
+interface B : test.aleo::A {
     fn b() -> u64;
 }
 

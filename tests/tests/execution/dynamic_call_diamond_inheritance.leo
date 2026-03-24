@@ -44,7 +44,7 @@ import diamond_impl.aleo;
 
 program caller.aleo {
     fn main(target: field) -> u64 {
-        return diamond_impl.aleo/Base@(target)/get_value();
+        return diamond_impl.aleo::Base@(target)/get_value();
     }
 
     @noupgrade

@@ -2243,9 +2243,9 @@ program bench_router.aleo {
 
     fn aggregate_router(seed: u64) -> u64 {
         let acc = seed;
-        acc = bench_primitives.aleo/aggregate_primitives(acc);
-        acc = bench_registry.aleo/aggregate_registry(acc);
-        acc = bench_policy.aleo/aggregate_policy(acc);
+        acc = bench_primitives.aleo::aggregate_primitives(acc);
+        acc = bench_registry.aleo::aggregate_registry(acc);
+        acc = bench_policy.aleo::aggregate_policy(acc);
         return acc + 1u64;
     }
 }

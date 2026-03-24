@@ -10,7 +10,7 @@ program lib.aleo {
 
 import lib.aleo;
 
-program test.aleo : lib.aleo/NotAnInterface + u64 {
+program test.aleo : lib.aleo::NotAnInterface + u64 {
     fn main(x: u64) -> u64 {
         return 0;
     }
