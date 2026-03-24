@@ -61,7 +61,7 @@ finalize main:
 constructor:
     assert.eq edition 0u16;
 verified: true
-status: aborted: Execution verification failed - Verifier input count mismatch: expected at most 16 public inputs, found 32
+status: accepted
 {
   "transitions": [
     {
