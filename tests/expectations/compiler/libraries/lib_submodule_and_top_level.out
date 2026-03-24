@@ -1,0 +1,4 @@
+program submodule_and_top_level.aleo;
+
+function main:
+    output 50u32 as u32.private;

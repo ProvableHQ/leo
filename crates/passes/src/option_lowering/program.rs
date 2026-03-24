@@ -35,8 +35,21 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         let prev_program = self.program;
         self.program = input.name;
+
+        // Pre-populate `reconstructed_composites` for module composites so that
+        // `reconstruct_module` can find them by location. This mirrors the analogous
+        // pre-population done for program modules in `reconstruct_program`.
+        for (module_path, module) in &input.modules {
+            for (_, c) in &module.composites {
+                let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                let new_composite = self.reconstruct_composite(c.clone());
+                self.reconstructed_composites.insert(Location::new(input.name, full_name), new_composite);
+            }
+        }
+
         let library = Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             consts: input
                 .consts
                 .into_iter()

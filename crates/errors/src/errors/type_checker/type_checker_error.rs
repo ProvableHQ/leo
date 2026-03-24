@@ -1452,4 +1452,12 @@ create_messages!(
         msg: format!("Cannot cast `{type_}` to `dyn record`: only concrete record types can be cast to `dyn record`."),
         help: None,
     }
+
+    /// For when an interface definition appears inside a library module.
+    @formatted
+    interfaces_not_allowed_in_library_modules {
+        args: (),
+        msg: "Interface definitions are not allowed inside library modules.".to_string(),
+        help: None,
+    }
 );

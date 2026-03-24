@@ -1,0 +1,7 @@
+program dead_code.aleo;
+
+function main:
+    output 10u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
