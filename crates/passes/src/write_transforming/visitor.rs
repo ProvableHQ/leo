@@ -17,22 +17,8 @@
 use crate::CompilerState;
 
 use leo_ast::{
-    ArrayAccess,
-    AssignStatement,
-    AstVisitor,
-    DefinitionPlace,
-    DefinitionStatement,
-    Expression,
-    Identifier,
-    IntegerType,
-    Literal,
-    MemberAccess,
-    Node as _,
-    Path,
-    Program,
-    Statement,
-    Stub,
-    Type,
+    ArrayAccess, AssignStatement, AstVisitor, DefinitionPlace, DefinitionStatement, Expression, Identifier,
+    IntegerType, Literal, MemberAccess, Node as _, Path, Program, Statement, Stub, Type,
 };
 use leo_span::Symbol;
 
@@ -112,7 +98,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                     inner: Path::from(name).to_local().into(),
                     name: Identifier::new(field_name, self.state.node_builder.next_id()),
                     span: Default::default(),
-                    id: self.state.node_builder.next_id(),
+                    id: dbg!(self.state.node_builder.next_id()),
                 };
                 self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
                 let def = DefinitionStatement {
@@ -120,7 +106,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                     type_: None,
                     value: access.into(),
                     span: Default::default(),
-                    id: self.state.node_builder.next_id(),
+                    id: dbg!(self.state.node_builder.next_id()),
                 };
                 accumulate.push(def.into());
                 // And recurse - maybe its members are also written to.
@@ -225,6 +211,9 @@ impl<'a> WriteTransformingVisitor<'a> {
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     };
+                    if let Some(member_type) = self.state.type_table.get(&member_name.id) {
+                        self.state.type_table.insert(access.id, member_type);
+                    }
                     self.reconstruct_assign_recurse(*member_name, access.into(), accumulate);
                 }
             }
@@ -289,7 +278,7 @@ impl WriteTransformingFiller<'_> {
                     let Type::Array(arr) = ty else { panic!("Type checking should have prevented this.") };
                     (0..arr.length.as_u32().expect("length should be known at this point"))
                         .map(|i| {
-                            let id = self.0.state.node_builder.next_id();
+                            let id = dbg!(self.0.state.node_builder.next_id());
                             let symbol = self.0.state.assigner.unique_symbol(format_args!("{array_name}#{i}"), "$");
                             self.0.state.type_table.insert(id, arr.element_type().clone());
                             Identifier::new(symbol, id)
