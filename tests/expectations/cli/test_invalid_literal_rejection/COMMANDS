@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+COMMON_OPTS="--disable-update-check"
+
+echo "--- valid field literal should succeed ---" | tee /dev/stderr
+${LEO_BIN} ${COMMON_OPTS} run main 42field
+
+echo "--- truefield should be rejected ---" | tee /dev/stderr
+${LEO_BIN} ${COMMON_OPTS} run main truefield
+
+echo "--- empty prefix field should be rejected ---" | tee /dev/stderr
+${LEO_BIN} ${COMMON_OPTS} run main field
+
+echo "--- falsescalar should be rejected ---" | tee /dev/stderr
+${LEO_BIN} ${COMMON_OPTS} run main falsescalar
+
+echo "--- abcu64 should be rejected ---" | tee /dev/stderr
+${LEO_BIN} ${COMMON_OPTS} run main abcu64
+
+# Exit 0 so the test framework sees a clean exit; the assertions
+# are captured via STDOUT/STDERR comparison.
+exit 0

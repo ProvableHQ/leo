@@ -1,0 +1,13 @@
+--- valid field literal should succeed ---
+--- truefield should be rejected ---
+Error [ECLI0377045]: Invalid field literal: 'true' is not a valid numeric value
+
+--- empty prefix field should be rejected ---
+Error [ECLI0377045]: Invalid field literal: missing numeric value before 'field'
+
+--- falsescalar should be rejected ---
+Error [ECLI0377045]: Invalid scalar literal: 'false' is not a valid numeric value
+
+--- abcu64 should be rejected ---
+Error [ECLI0377045]: Invalid u64 literal: 'abc' is not a valid numeric value
+

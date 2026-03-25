@@ -1,0 +1,72 @@
+--- valid field literal should succeed ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[133u8, 110u8, 242u8, 38u8, 0u8, 63u8, 166u8, 81u8, 74u8, 170u8, 47u8, 166u8, 54u8, 103u8, 147u8, 165u8, 131u8, 58u8, 105u8, 248u8, 98u8, 169u8, 174u8, 77u8, 177u8, 247u8, 59u8, 83u8, 77u8, 7u8, 112u8, 221u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_invalid_literal_rejection.aleo (local)
+
+➡️  Output
+
+ • 43field
+--- truefield should be rejected ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[133u8, 110u8, 242u8, 38u8, 0u8, 63u8, 166u8, 81u8, 74u8, 170u8, 47u8, 166u8, 54u8, 103u8, 147u8, 165u8, 131u8, 58u8, 105u8, 248u8, 98u8, 169u8, 174u8, 77u8, 177u8, 247u8, 59u8, 83u8, 77u8, 7u8, 112u8, 221u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+--- empty prefix field should be rejected ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[133u8, 110u8, 242u8, 38u8, 0u8, 63u8, 166u8, 81u8, 74u8, 170u8, 47u8, 166u8, 54u8, 103u8, 147u8, 165u8, 131u8, 58u8, 105u8, 248u8, 98u8, 169u8, 174u8, 77u8, 177u8, 247u8, 59u8, 83u8, 77u8, 7u8, 112u8, 221u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+--- falsescalar should be rejected ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[133u8, 110u8, 242u8, 38u8, 0u8, 63u8, 166u8, 81u8, 74u8, 170u8, 47u8, 166u8, 54u8, 103u8, 147u8, 165u8, 131u8, 58u8, 105u8, 248u8, 98u8, 169u8, 174u8, 77u8, 177u8, 247u8, 59u8, 83u8, 77u8, 7u8, 112u8, 221u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+--- abcu64 should be rejected ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[133u8, 110u8, 242u8, 38u8, 0u8, 63u8, 166u8, 81u8, 74u8, 170u8, 47u8, 166u8, 54u8, 103u8, 147u8, 165u8, 131u8, 58u8, 105u8, 248u8, 98u8, 169u8, 174u8, 77u8, 177u8, 247u8, 59u8, 83u8, 77u8, 7u8, 112u8, 221u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
