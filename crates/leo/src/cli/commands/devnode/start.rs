@@ -16,12 +16,13 @@
 
 use super::{logger::initialize_terminal_logger, *};
 use serde_json::json;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, path::PathBuf};
 
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     ledger::store::helpers::memory::ConsensusMemory,
-    prelude::{Block, FromBytes, Ledger, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0},
+    prelude::{Block, FromBytes, Ledger, Network, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0,
+    store::ConsensusStorage},
 };
 
 use crate::cli::commands::devnode::rest::Rest;
@@ -42,6 +43,9 @@ pub struct Start {
     /// Enable manual block creation mode.
     #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
+    /// Optional flag for persisting the ledger to disk. If not set, the ledger will be stored in memory and will not persist across restarts.
+    #[clap(long, help = "directory for ledger persistence")]
+    pub(crate) ledger_path: Option<PathBuf>,
 }
 
 impl Command for Start {
