@@ -1,3 +1,52 @@
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because this is a module function.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because the function is called from an on-chain context (constructor or finalize).
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because the function has const parameters.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because this function has more than 16 arguments.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because this function returns a type naming an optional.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because this function has an argument naming an optional.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `add_no_inline` will be ignored because this function has been called from another function.
+    --> compiler-test:5:1
+     |
+   5 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
 program test.aleo;
 
 closure add_no_inline:
