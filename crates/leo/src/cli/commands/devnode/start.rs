@@ -102,38 +102,61 @@ Please either:
             ))
         })?,
     };
-    // Initialize the ledger - use spawn_blocking for the blocking load operation.
-    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
-        tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
-            .await
-            .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
-    // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger, command.manual_block_creation, private_key)
+    match command.ledger_path {
+        Some(path) => {
+            println!("Using persistent ledger at: {}", path.display());
+            let storage_mode = StorageMode::Custom(path);
+            let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
+                tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
+                    .await
+                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await
+        }
+        None => {
+            let storage_mode = StorageMode::new_test(None);
+            let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
+                tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
+                    .await
+                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_devnode<C: 'static + ConsensusStorage<TestnetV0>>(
+    socket_addr: SocketAddr,
+    ledger: Ledger<TestnetV0, C>,
+    manual_block_creation: bool,
+    private_key: String,
+) -> Result<()> {
+    let rps = 999999999;
+
+    // Record the height before handing the ledger off, so we know how far to advance.
+    let current_height = ledger.latest_height();
+
+    Rest::start(socket_addr, rps, ledger, manual_block_creation, private_key)
         .await
         .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
 
-    // Default setting should fast forward to the block corresponding to the latest consensus version.
-    // Enabling manual block creation initializes the ledger to the genesis block.
-    if !command.manual_block_creation {
-        println!("Advancing the Devnode to the latest consensus version");
+    if !manual_block_creation {
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
-        // Call the REST API to advance the ledger by one block.
-        let client = reqwest::Client::new();
-
-        let payload = json!({
-            "num_blocks": last_height,
-        });
-
-        let _response = client
-            .post(format!("http://{}/testnet/block/create", command.socket_addr))
-            .header("Content-Type", "application/json")
-            .json(&payload)
-            .send()
-            .await;
+        let blocks_to_advance = last_height.saturating_sub(current_height);
+        if blocks_to_advance > 0 {
+            println!("Advancing the Devnode to the latest consensus version");
+            let client = reqwest::Client::new();
+            let payload = json!({ "num_blocks": blocks_to_advance });
+            let _response = client
+                .post(format!("http://{}/testnet/block/create", socket_addr))
+                .header("Content-Type", "application/json")
+                .json(&payload)
+                .send()
+                .await;
+        }
     }
-    // Prevent main from exiting.
-    std::future::pending::<()>().await;
 
+    std::future::pending::<()>().await;
     Ok(())
 }
