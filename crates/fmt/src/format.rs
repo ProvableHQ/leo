@@ -778,9 +778,15 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
             }
             SyntaxElement::Node(n) => match n.kind() {
                 PARENT_LIST => format_parent_list(n, out),
-                FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF | MAPPING_DEF | STORAGE_DEF => {
+                FN_PROTOTYPE_DEF | RECORD_PROTOTYPE_DEF => {
                     out.indented(|out| format_node(n, out));
                     out.newline();
+                }
+                MAPPING_DEF | STORAGE_DEF => {
+                    out.indented(|out| format_node(n, out));
+                    if n.next_sibling().is_some() {
+                        out.newline();
+                    }
                 }
                 ERROR => {
                     let text = n.text().to_string();
