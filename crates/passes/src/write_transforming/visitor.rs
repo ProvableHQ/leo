@@ -112,7 +112,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                     inner: Path::from(name).to_local().into(),
                     name: Identifier::new(field_name, self.state.node_builder.next_id()),
                     span: Default::default(),
-                    id: dbg!(self.state.node_builder.next_id()),
+                    id: self.state.node_builder.next_id(),
                 };
                 self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
                 let def = DefinitionStatement {
@@ -120,7 +120,7 @@ impl<'a> WriteTransformingVisitor<'a> {
                     type_: None,
                     value: access.into(),
                     span: Default::default(),
-                    id: dbg!(self.state.node_builder.next_id()),
+                    id: self.state.node_builder.next_id(),
                 };
                 accumulate.push(def.into());
                 // And recurse - maybe its members are also written to.
@@ -292,7 +292,7 @@ impl WriteTransformingFiller<'_> {
                     let Type::Array(arr) = ty else { panic!("Type checking should have prevented this.") };
                     (0..arr.length.as_u32().expect("length should be known at this point"))
                         .map(|i| {
-                            let id = dbg!(self.0.state.node_builder.next_id());
+                            let id = self.0.state.node_builder.next_id()s;
                             let symbol = self.0.state.assigner.unique_symbol(format_args!("{array_name}#{i}"), "$");
                             self.0.state.type_table.insert(id, arr.element_type().clone());
                             Identifier::new(symbol, id)
