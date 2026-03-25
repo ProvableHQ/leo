@@ -1826,6 +1826,10 @@ fn format_type_optional(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
+fn node_is_canonically_formatted(node: &SyntaxNode) -> bool {
+    node.text().to_string().trim() == format_node_to_string(node)
+}
+
 // =============================================================================
 // Statements
 // =============================================================================
@@ -1883,7 +1887,9 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
             // determine if a comment is trailing (same line as previous stmt)
             // or standalone (own line).
             let mut after_lbrace = true;
-            let mut saw_linebreak = false;
+            let mut had_entry = false;
+            let mut previous_statement_canonical = false;
+            let mut linebreak_count: usize = 0;
 
             for elem in &elems[start_idx..] {
                 match elem {
@@ -1893,38 +1899,50 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         }
                         R_BRACE => {}
                         LINEBREAK => {
-                            saw_linebreak = true;
+                            linebreak_count += 1;
                         }
                         WHITESPACE => {}
                         COMMENT_LINE if after_lbrace => {
-                            if saw_linebreak {
+                            if linebreak_count > 0 {
                                 out.ensure_newline();
                             } else {
                                 out.space();
                             }
                             out.write(tok.text().trim_end());
                             out.newline();
-                            saw_linebreak = false;
+                            had_entry = true;
+                            previous_statement_canonical = false;
+                            linebreak_count = 0;
                         }
                         COMMENT_BLOCK if after_lbrace => {
-                            if saw_linebreak {
+                            if linebreak_count > 0 {
                                 out.ensure_newline();
                             } else {
                                 out.space();
                             }
                             out.write(tok.text());
-                            saw_linebreak = false;
+                            had_entry = true;
+                            previous_statement_canonical = false;
+                            linebreak_count = 0;
                         }
                         _ => {}
                     },
                     SyntaxElement::Node(n) if after_lbrace && n.kind().is_statement() => {
-                        out.ensure_newline();
+                        let current_statement_canonical = node_is_canonically_formatted(n);
+                        if had_entry {
+                            out.ensure_newline();
+                            if linebreak_count >= 2 && previous_statement_canonical && current_statement_canonical {
+                                out.newline();
+                            }
+                        }
                         format_node(n, out);
                         emit_node_trailing_comments(n, out);
                         if let Some(next) = n.next_sibling() {
                             emit_stolen_trailing_comments(&next, out);
                         }
-                        saw_linebreak = false;
+                        had_entry = true;
+                        previous_statement_canonical = current_statement_canonical;
+                        linebreak_count = 0;
                     }
                     SyntaxElement::Node(n) if after_lbrace && n.kind() == ERROR => {
                         if should_inline_adjacent_error(n) {
@@ -1933,10 +1951,14 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         let text = n.text().to_string();
                         let text = text.trim();
                         if !text.is_empty() {
-                            out.ensure_newline();
+                            if had_entry {
+                                out.ensure_newline();
+                            }
                             out.write(text);
                         }
-                        saw_linebreak = false;
+                        had_entry = true;
+                        previous_statement_canonical = false;
+                        linebreak_count = 0;
                     }
                     _ => {}
                 }
