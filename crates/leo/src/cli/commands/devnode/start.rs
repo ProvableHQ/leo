@@ -20,7 +20,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use aleo_std_storage::StorageMode;
 use snarkvm::{
-    ledger::store::helpers::memory::ConsensusMemory,
+    ledger::store::helpers::{memory::ConsensusMemory, rocksdb::ConsensusDB},
     prelude::{Block, FromBytes, Ledger, Network, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0,
     store::ConsensusStorage},
 };
@@ -110,7 +110,7 @@ Please either:
                 tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
                     .await
                     .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
-            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
         }
         None => {
             let storage_mode = StorageMode::new_test(None);
@@ -118,7 +118,7 @@ Please either:
                 tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
                     .await
                     .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
-            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
         }
     }
 
