@@ -1,0 +1,34 @@
+Warning [WTYC0372005]: `@no_inline` on `many_args` will be ignored because this is a module function.
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `many_args` will be ignored because the function is called from an on-chain context (constructor or finalize).
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `many_args` will be ignored because the function has const parameters.
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `many_args` will be ignored because this function has more than 16 arguments.
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+program test.aleo;
+
+function main:
+    input r0 as u32.private;
+    add r0 r0 into r1;
+    output r1 as u32.private;

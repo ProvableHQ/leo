@@ -18,6 +18,7 @@ use crate::{CompilerState, Replacer, SsaFormingInput, static_single_assignment::
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{Function, Location, *};
+use leo_errors::TypeCheckerWarning;
 use leo_span::{Symbol, sym};
 
 pub struct TransformVisitor<'a> {
@@ -220,36 +221,54 @@ impl AstReconstructor for TransformVisitor<'_> {
 
         let call_count_ref = self.state.call_count.get_mut(function_location).expect("Guaranteed by type checking");
 
-        // TODO: improve inline heuristic
-        let should_inline = match callee.variant {
-            // Always inline final fns (they cannot exist as standalone functions in code generation)
-            Variant::FinalFn => true,
-            // Always inline module functions
-            _ if function_location.program == self.program && function_location.path.len() > 1 => true,
+        let has_no_inline_annotation = callee.annotations.iter().any(|a| a.identifier.name == sym::no_inline);
 
-            // Respect @no_inline for other variants
-            _ if callee.annotations.iter().any(|a| a.identifier.name == sym::no_inline) => false,
+        // Mandatory inlining conditions
+        let mandatory_cond = |cond: bool, msg: &str| -> bool {
+            if has_no_inline_annotation {
+                self.state.handler.emit_warning(TypeCheckerWarning::no_inline_ignored(
+                    callee.identifier.name,
+                    msg,
+                    callee.annotations.iter().find(|a| a.identifier.name == sym::no_inline).unwrap().span,
+                ));
+            }
+            cond
+        };
 
-            Variant::Fn if
+        let optional_cond = |cond: bool| -> bool { !has_no_inline_annotation && cond };
+
+        let should_inline = mandatory_cond(
+            function_location.program == self.program && function_location.path.len() > 1,
+            "this is a module function",
+        ) || match callee.variant {
+            Variant::FinalFn => mandatory_cond(true, "this is a final fn"),
+            Variant::Fn => {
+                mandatory_cond(
+                    self.is_onchain,
+                    "the function is called from an on-chain context (constructor or finalize)",
+                ) ||
+                mandatory_cond(!callee.const_parameters.is_empty(), "the function has const parameters") ||
+                mandatory_cond(callee.input.len() > 16, "this function has more than 16 arguments") ||
+                mandatory_cond(
+                    Self::names_optional_type(&callee.output_type),
+                    "this function returns a type naming an optional",
+                ) ||
+                mandatory_cond(
+                    callee.input.iter().any(|arg| Self::names_optional_type(&arg.type_)),
+                    "this function has an argument naming an optional",
+                ) ||
+                mandatory_cond(
+                    self.always_inline.contains(&vec![callee.identifier.name]),
+                    "this function has been called from another function",
+                ) ||
                 // Called only once
-                *call_count_ref == 1 ||
-                // Called from onchain context
-                self.is_onchain ||
-                // Has const parameters
-                !callee.const_parameters.is_empty() ||
+                optional_cond(*call_count_ref == 1) ||
                 // Has no arguments
-                callee.input.is_empty() ||
+                optional_cond(callee.input.is_empty()) ||
                 // Has only empty arguments
-                callee.input.iter().all(|arg| arg.type_.is_empty()) ||
-                // Has more than 16 arguments
-                callee.input.len() > 16 ||
-                // Returns a type naming an optional
-                Self::names_optional_type(&callee.output_type) ||
-                // Has an argument naming an optional
-                callee.input.iter().any(|arg| Self::names_optional_type(&arg.type_)) ||
-                // Marked by the analysis phase
-                self.always_inline.contains(&vec![callee.identifier.name]) => true,
-            _ => false,
+                optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
+            }
+            Variant::EntryPoint | Variant::Finalize => false,
         };
 
         // Inline the callee function, if required, otherwise, return the call expression.

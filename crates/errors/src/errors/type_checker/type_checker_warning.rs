@@ -59,4 +59,11 @@ create_messages!(
         msg: format!("`self.caller` used as the owner of record `{record_name}`"),
         help: Some("`self.caller` may refer to a program address, which cannot spend records.".to_string()),
     }
+
+    @formatted
+    no_inline_ignored {
+        args: (name: impl Display, reason: impl Display),
+        msg: format!("`@no_inline` on `{name}` will be ignored because {reason}."),
+        help: Some("Remove the `@no_inline` annotation to silence this warning.".to_string()),
+    }
 );

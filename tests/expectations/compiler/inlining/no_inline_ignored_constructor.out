@@ -1,0 +1,24 @@
+Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because this is a module function.
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize).
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+program test.aleo;
+
+mapping foo:
+    key as u8.public;
+    value as u8.public;
+
+function noop:
+
+constructor:
+    set 1u8 into foo[0u8];

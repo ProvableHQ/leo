@@ -1,0 +1,31 @@
+Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because this is a module function.
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize).
+    --> compiler-test:1:1
+     |
+   1 | @no_inline
+     | ^^^^^^^^^^
+     |
+     = Remove the `@no_inline` annotation to silence this warning.
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+function mint:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async mint r0 r1 into r2;
+    output r2 as test.aleo/mint.future;
+
+finalize mint:
+    input r0 as address.public;
+    input r1 as u64.public;
+    add r1 1u64 into r2;
+    set r2 into account[r0];
