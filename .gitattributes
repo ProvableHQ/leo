@@ -3,3 +3,8 @@
 *.out text eol=lf  
 *.rs text eol=lf
 *.in text eol=lf
+
+# Hide generated tree-sitter artifacts in GitHub diffs.
+tree-sitter/src/parser.c linguist-generated=true
+tree-sitter/src/grammar.json linguist-generated=true
+tree-sitter/src/node-types.json linguist-generated=true
