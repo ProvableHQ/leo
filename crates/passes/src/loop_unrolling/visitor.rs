@@ -103,8 +103,12 @@ impl UnrollingVisitor<'_> {
             // Add the loop variable as a constant for the current scope.
             slf.state.symbol_table.insert_local_const(input.variable.name, value.into());
 
-            let duplicated_body =
-                super::duplicate::duplicate(input.block.clone(), &mut slf.state.symbol_table, &slf.state.node_builder);
+            let duplicated_body = super::duplicate::duplicate(
+                input.block.clone(),
+                &mut slf.state.symbol_table,
+                &slf.state.node_builder,
+                &slf.state.type_table,
+            );
 
             let result = slf.reconstruct_block(duplicated_body).0.into();
 
