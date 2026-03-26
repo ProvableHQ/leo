@@ -679,10 +679,11 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // First 3 args are program, network, function operands.
+        debug_assert!(args.len() >= 3, "Type checking guarantees at least 3 arguments for _dynamic_call");
         let prog = args[0].clone();
         let net = args[1].clone();
         let fun = args[2].clone();
-        let call_args: Vec<AleoExpr> = args[3..].to_vec();
+        let call_args: Vec<AleoExpr> = args.drain(3..).collect();
 
         // Determine input types. If the user provided explicit input_types annotations,
         // use those (with their visibility modes). Otherwise fall back to the type table

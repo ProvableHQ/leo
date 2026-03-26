@@ -1262,9 +1262,8 @@ impl Intrinsic {
             Self::Serialize(_) => 1,
             Self::Deserialize(_, _) => 1,
 
-            // Variable arity (min 3); validated in check_dynamic_call().
-            // This value is never used: visit_intrinsic dispatches before check_intrinsic.
-            Self::DynamicCall => 0,
+            // Variable arity (min 3); full validation in check_dynamic_call().
+            Self::DynamicCall => 3,
             Self::DynamicContains => 4,
             Self::DynamicGet => 4,
             Self::DynamicGetOrUse => 5,
