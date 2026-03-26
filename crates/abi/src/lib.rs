@@ -206,7 +206,7 @@ fn convert_function_input(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionInput {
         });
     }
     if matches!(ty, ast::Type::DynRecord) {
-        return abi::FunctionInput::DynRecord;
+        return abi::FunctionInput::DynamicRecord;
     }
     abi::FunctionInput::Plaintext(convert_plaintext(ty))
 }

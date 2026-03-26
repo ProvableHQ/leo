@@ -219,8 +219,6 @@ define_syntax_kinds! {
     KW_PRIVATE,
     /// `as`
     KW_AS,
-    /// `dyn`
-    KW_DYN,
     /// `self`
     KW_SELF,
     /// `assert`
@@ -642,7 +640,6 @@ impl SyntaxKind {
                 | KW_PUBLIC
                 | KW_PRIVATE
                 | KW_AS
-                | KW_DYN
                 | KW_SELF
                 | KW_ASSERT
                 | KW_ASSERT_EQ

@@ -1,4 +1,4 @@
-Error [ETYC0372179]: `_dynamic_get` requires 4 arguments, but found 3.
+Error [ETYC0372181]: `_dynamic_get` requires 4 arguments, but found 3.
     --> compiler-test:11:20
      |
   11 |     let val: u64 = _dynamic_get::[u64](prog, net, m);
