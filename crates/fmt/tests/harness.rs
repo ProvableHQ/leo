@@ -186,8 +186,15 @@ mod validate {
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::{process::Command, rc::Rc};
 
-    const WORKSPACE_LEO_EXCLUDES: &[&str] =
-        &["crates/fmt/tests/*", "tests/tests/cli/test_fmt/*", "tests/expectations/cli/test_fmt/*"];
+    const WORKSPACE_LEO_EXCLUDES: &[&str] = &[
+        "crates/fmt/tests/*",
+        "tests/tests/cli/test_fmt/*",
+        "tests/expectations/cli/test_fmt/*",
+        "tests/tests/parser-expression/*",
+        "tests/tests/parser-module/*",
+        "tests/tests/parser-statement/*",
+        "tests/tests/parser-library/*",
+    ];
 
     /// Files that are expected to fail type checking (error recovery tests,
     /// import tests, empty programs, annotated functions).
@@ -308,8 +315,9 @@ mod validate {
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
     }
 
-    /// Collect tracked workspace `.leo` files, excluding formatter fixtures and
-    /// hand-authored CLI `fmt` test inputs/expectations.
+    /// Collect tracked workspace `.leo` files, excluding formatter fixtures,
+    /// hand-authored CLI `fmt` test inputs/expectations, and parser fixture
+    /// source directories whose formatting is validated separately.
     fn collect_workspace_leo_files() -> Vec<PathBuf> {
         let root = workspace_root();
         let mut args = vec!["ls-files".to_string(), "-z".to_string(), "--".to_string(), "*.leo".to_string()];
@@ -329,18 +337,22 @@ mod validate {
     }
 
     #[test]
-    fn collect_workspace_leo_files_excludes_manual_cli_fmt_fixtures() {
+    fn collect_workspace_leo_files_excludes_manual_cli_and_parser_fixtures() {
         let leo_files = collect_workspace_leo_files();
         let excluded_roots = [
             workspace_root().join("crates/fmt/tests"),
             workspace_root().join("tests/tests/cli/test_fmt"),
             workspace_root().join("tests/expectations/cli/test_fmt"),
+            workspace_root().join("tests/tests/parser-expression"),
+            workspace_root().join("tests/tests/parser-module"),
+            workspace_root().join("tests/tests/parser-statement"),
+            workspace_root().join("tests/tests/parser-library"),
         ];
 
         for file_path in leo_files {
             assert!(
                 excluded_roots.iter().all(|root| !file_path.starts_with(root)),
-                "workspace formatter scope should exclude manual CLI fmt fixture: {}",
+                "workspace formatter scope should exclude manual CLI/parser fixtures: {}",
                 file_path.display()
             );
         }
