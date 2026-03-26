@@ -11,7 +11,7 @@ interface Adder {
     fn sum(a: u32, b: u32) -> u32;
 }
 
-program var_target.aleo : Adder {
+program var_target.aleo: Adder {
     fn sum(a: u32, b: u32) -> u32 {
         return a + b;
     }
@@ -21,7 +21,6 @@ program var_target.aleo : Adder {
 }
 
 // --- Next Program --- //
-
 import var_target.aleo;
 
 program var_caller.aleo {

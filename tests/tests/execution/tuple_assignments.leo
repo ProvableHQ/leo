@@ -25,9 +25,16 @@ input = ["1u64", "2u64", "3u64", "4u64", "false", "false", "false"]
 */
 
 program test.aleo {
-    fn main(a: u64, b: u64, c: u64, d: u64, y: bool, w: bool, z: bool) -> (public u64, public u64, public u64, public u64) {
+    fn main(
+        a: u64,
+        b: u64,
+        c: u64,
+        d: u64,
+        y: bool,
+        w: bool,
+        z: bool,
+    ) -> (public u64, public u64, public u64, public u64) {
         let tuple: (u64, u64, u64, u64) = (a, b, c, d);
-
         if y {
             if w {
                 tuple.0 = 100u64;
@@ -46,10 +53,9 @@ program test.aleo {
         } else {
             tuple.3 = 800u64;
         }
-
         return tuple;
     }
 
-      @noupgrade
-      constructor() {}
+    @noupgrade
+    constructor() {}
 }

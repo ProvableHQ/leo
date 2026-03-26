@@ -10,7 +10,9 @@ struct Data {
 
 program test.aleo {
     // Test all BHP raw hash variants
-    fn main(input: u64) -> (
+    fn main(
+        input: u64,
+    ) -> (
         address, field, group, i8, u32, scalar,  // BHP256 raw
         field, group, scalar,                     // BHP512 raw
         field, u64,                               // BHP768 raw
@@ -44,15 +46,12 @@ program test.aleo {
         let bhp256_field_normal: field = BHP256::hash_to_field(input);
         let bhp512_field_normal: field = BHP512::hash_to_field(input);
         let bhp768_field_normal: field = BHP768::hash_to_field(data);
-
         return (
-            bhp256_addr_raw, bhp256_field_raw, bhp256_group_raw, bhp256_i8_raw, bhp256_u32_raw, bhp256_scalar_raw,
-            bhp512_field_raw, bhp512_group_raw, bhp512_scalar_raw,
-            bhp768_field_raw, bhp768_u64_raw,
-            bhp1024_field_raw, bhp1024_i128_raw,
-            bhp256_field_raw != bhp256_field_normal,
-            bhp512_field_raw != bhp512_field_normal,
-            bhp768_field_raw != bhp768_field_normal
+            bhp256_addr_raw, bhp256_field_raw, bhp256_group_raw, bhp256_i8_raw, bhp256_u32_raw,
+            bhp256_scalar_raw, bhp512_field_raw, bhp512_group_raw, bhp512_scalar_raw,
+            bhp768_field_raw, bhp768_u64_raw, bhp1024_field_raw, bhp1024_i128_raw,
+            bhp256_field_raw != bhp256_field_normal, bhp512_field_raw != bhp512_field_normal,
+            bhp768_field_raw != bhp768_field_normal,
         );
     }
 }

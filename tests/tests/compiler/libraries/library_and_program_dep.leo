@@ -19,7 +19,6 @@ program helper.aleo {
 }
 
 // --- Next Program --- //
-
 import helper.aleo;
 
 program main.aleo {

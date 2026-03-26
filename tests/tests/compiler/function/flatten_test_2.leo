@@ -1,4 +1,3 @@
-
 struct TokenInfo {
     id: u64,
 }

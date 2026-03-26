@@ -10,7 +10,9 @@ program const_generics.aleo {
 
 final fn foo() {}
 
-fn bar(x: field) -> field { return x; }
+fn bar(x: field) -> field {
+    return x;
+}
 
 // Ensure we don't error out on functions that are not accessible from program entry points
 fn abc::[C: field]() -> field {

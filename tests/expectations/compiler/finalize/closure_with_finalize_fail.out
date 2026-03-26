@@ -1,52 +1,52 @@
 Error [ETYC0372110]: Only entry point fns can return a Final.
-    --> compiler-test:6:25
+    --> compiler-test:5:25
      |
-   6 | fn foo(a: u8, b: u8) -> Final {
+   5 | fn foo(a: u8, b: u8) -> Final {
      |                         ^^^^^
      |
      = Move this function inside the `program` block to make it an entry point fn.
 Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
-    --> compiler-test:7:12
+    --> compiler-test:6:12
      |
-   7 |     return finalize_bar(a, b);
+   6 |     return finalize_bar(a, b);
      |            ^^^^^^^^^^^^^^^^^^
 Error [ETYC0372003]: Expected type `Final<Fn()>` but type `u8` was found
-    --> compiler-test:7:12
+    --> compiler-test:6:12
      |
-   7 |     return finalize_bar(a, b);
+   6 |     return finalize_bar(a, b);
      |            ^^^^^^^^^^^^^^^^^^
 Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:14:1
+    --> compiler-test:13:1
      |
-  14 | final fn finalize_bar(a: u8, b: u8) -> u8 {
+  13 | final fn finalize_bar(a: u8, b: u8) -> u8 {
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |     return a + b;
+  14 |     return a + b;
      |     ^^^^^^^^^^^^^
-  16 | }
+  15 | }
      | ^
      |
      = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
 Error [ETYC0372110]: Only entry point fns can return a Final.
-    --> compiler-test:19:51
+    --> compiler-test:17:51
      |
-  19 | fn mint_public(receiver: address, amount: u64) -> Final {
+  17 | fn mint_public(receiver: address, amount: u64) -> Final {
      |                                                   ^^^^^
      |
      = Move this function inside the `program` block to make it an entry point fn.
 Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
-    --> compiler-test:20:12
+    --> compiler-test:18:12
      |
-  20 |     return final { finalize_mint(receiver, amount); };
+  18 |     return final { finalize_mint(receiver, amount); };
      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Try moving this `final` block into an entry point fn or a script function.
 Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
-    --> compiler-test:20:20
+    --> compiler-test:18:20
      |
-  20 |     return final { finalize_mint(receiver, amount); };
+  18 |     return final { finalize_mint(receiver, amount); };
      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:2:9
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {
+   1 | program test.aleo {
      |         ^^^^^^^^^

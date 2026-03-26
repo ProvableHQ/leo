@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(y: bool) -> bool {
         let a: u32 = 4294967295u32;

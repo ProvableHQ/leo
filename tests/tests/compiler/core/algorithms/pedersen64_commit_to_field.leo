@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u16,
     b: u16,
@@ -14,14 +13,13 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, ) {
+    ) -> (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
         let group_value: group = group::GEN;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Pedersen64 commit_to_field tests
         let a: field = Pedersen64::commit_to_field(bool_value, scalar_value);
         let b: field = Pedersen64::commit_to_field(bool_value, scalar_value);
@@ -38,4 +36,5 @@ program test.aleo {
         let n: field = Pedersen64::commit_to_field(bool_value, scalar_value);
 
         return (a, b, c, d, e, f, g, i, j, k, m, n);
-    }}
+    }
+}

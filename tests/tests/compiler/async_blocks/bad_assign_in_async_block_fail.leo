@@ -1,4 +1,7 @@
-struct Foo { x: u32, y: u32 }
+struct Foo {
+    x: u32,
+    y: u32,
+}
 
 program test.aleo {
     fn foo(p: u32, q: u8) -> Final {
@@ -14,7 +17,6 @@ program test.aleo {
             a[0] = 3;
             x = 2;
             s.x = 99;
-
             {
                 {
                     y = (1u32, 2u8, 3u16);
@@ -29,4 +31,3 @@ program test.aleo {
         return f;
     }
 }
-

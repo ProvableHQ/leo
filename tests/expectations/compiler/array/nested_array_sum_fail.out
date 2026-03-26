@@ -1,5 +1,5 @@
 Error [ETYC0372117]: Expected an array but type `u32` was found.
-    --> compiler-test:8:29
+    --> compiler-test:6:29
      |
-   8 |                 sum = sum + a[i][j];
+   6 |                 sum = sum + a[i][j];
      |                             ^^^^

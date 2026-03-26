@@ -1,4 +1,3 @@
-
 fn function_that_returns_a_value() -> u32 {
     return 0u32;
 }

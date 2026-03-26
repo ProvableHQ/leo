@@ -12,13 +12,16 @@ interface Setter {
     fn set_val(key: u32, value: u32) -> (bool, Final);
 }
 
-program setter_impl.aleo : Setter {
+program setter_impl.aleo: Setter {
     storage data: u32;
 
     fn set_val(key: u32, value: u32) -> (bool, Final) {
-        return (true, final {
-            data = value;
-        });
+        return (
+            true,
+            final {
+                data = value;
+            },
+        );
     }
 
     @noupgrade
@@ -26,7 +29,6 @@ program setter_impl.aleo : Setter {
 }
 
 // --- Next Program --- //
-
 import setter_impl.aleo;
 
 program setter_caller.aleo {
@@ -34,10 +36,13 @@ program setter_caller.aleo {
 
     fn main(target: field, key: u32, value: u32, extra: u32) -> (bool, Final) {
         let (ok, f): (bool, Final) = setter_impl.aleo::Setter@(target)/set_val(key, value);
-        return (ok, final {
-            f.run();
-            local_count = local_count.unwrap_or(0u32) + extra;
-        });
+        return (
+            ok,
+            final {
+                f.run();
+                local_count = local_count.unwrap_or(0u32) + extra;
+            },
+        );
     }
 
     @noupgrade

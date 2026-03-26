@@ -39,12 +39,12 @@ Error [ENV03711000]: `output` is an invalid entry point fn name. A entry point f
   17 |     fn output() -> Final {
      |        ^^^^^^
 Error [ENV03711000]: `key` is an invalid regular fn name. A regular fn cannot be called "key".
-    --> compiler-test:28:4
-     |
-  28 | fn key() {}
-     |    ^^^
-Error [ENV03711000]: `value` is an invalid regular fn name. A regular fn cannot be called "value".
     --> compiler-test:29:4
      |
-  29 | fn value() {}
+  29 | fn key() {}
+     |    ^^^
+Error [ENV03711000]: `value` is an invalid regular fn name. A regular fn cannot be called "value".
+    --> compiler-test:31:4
+     |
+  31 | fn value() {}
      |    ^^^^^

@@ -1,10 +1,10 @@
 Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:2:1
+    --> test:1:1
      |
-   2 | stub credits.aleo {
+   1 | stub credits.aleo {
      | ^^^^
 Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found 'import'
-    --> test:7:5
+    --> test:6:5
      |
-   7 |     import hello.aleo;
+   6 |     import hello.aleo;
      |     ^^^^^^

@@ -1,20 +1,20 @@
 Error [ECMP0376012]: Unable to resolve composite expression `b28668.aleo::Foo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:10:22
+    --> compiler-test:12:22
      |
-  10 |             z: Foo::[self.caller] {
+  12 |             z: Foo::[self.caller] { x: 5 },
      |                      ^^^^^^^^^^^
 Error [ECMP0376012]: Unable to resolve composite expression `b28668.aleo::Goo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:9:33
+    --> compiler-test:11:33
      |
-   9 |         let g: Goo::[y] = Goo::[y] {
+  11 |         let g: Goo::[y] = Goo::[y] {
      |                                 ^
 Error [ECMP0376012]: Unable to resolve composite type `b28668.aleo::Foo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:4:14
+    --> compiler-test:6:14
      |
-   4 |     z: Foo::[self.caller],
+   6 |     z: Foo::[self.caller],
      |              ^^^^^^^^^^^
 Error [ECMP0376012]: Unable to resolve composite type `b28668.aleo::Goo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:9:22
+    --> compiler-test:11:22
      |
-   9 |         let g: Goo::[y] = Goo::[y] {
+  11 |         let g: Goo::[y] = Goo::[y] {
      |                      ^

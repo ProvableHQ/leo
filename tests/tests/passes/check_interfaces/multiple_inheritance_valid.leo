@@ -8,7 +8,7 @@ interface Calculator {
     fn add(a: u64, b: u64) -> u64;
 }
 
-program test.aleo : Counter + Calculator {
+program test.aleo: Counter + Calculator {
     fn increment() -> u64 {
         return 1u64;
     }

@@ -1,4 +1,3 @@
-
 // This example demonstrates an example of a minting and transferring a token in Leo.
 program test.aleo {
     // The `Token` record datatype.
@@ -12,16 +11,12 @@ program test.aleo {
     // The `mint` function initializes a new record with the
     // specified number of tokens assigned to the specified receiver.
     fn mint(owner: address, amount: u64) -> Token {
-        return Token {
-            owner: owner,
-            amount: amount,
-        };
+        return Token { owner: owner, amount: amount };
     }
 
     // The `transfer` function sends the specified number of tokens
     // to the receiver from the provided token record.
     fn transfer(token: Token, to: address, amount: u64) -> (Token, Token) {
-
         // Checks the given token record has sufficient balance.
         // This `sub` operation is safe, and the proof will fail
         // if an overflow occurs.
@@ -29,17 +24,9 @@ program test.aleo {
         let difference: u64 = token.amount - amount;
 
         // Produce a token record with the change amount for the sender.
-        let remaining: Token = Token {
-            owner: token.owner,
-            amount: difference,
-        };
-
+        let remaining: Token = Token { owner: token.owner, amount: difference };
         // Produce a token record for the specified receiver.
-        let transferred: Token = Token {
-            owner: to,
-            amount: amount,
-        };
-
+        let transferred: Token = Token { owner: to, amount: amount };
         // Output the sender's change record and the receiver's record.
         return (remaining, transferred);
     }

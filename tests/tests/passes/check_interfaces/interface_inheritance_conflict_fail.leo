@@ -4,7 +4,7 @@ interface Base {
     fn process(x: u64) -> u64;
 }
 
-interface Derived : Base {
+interface Derived: Base {
     // Conflicting: same name, different return type
     fn process(x: u64) -> u32;
 }

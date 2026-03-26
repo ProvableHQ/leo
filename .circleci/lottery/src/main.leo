@@ -8,10 +8,13 @@ program lottery.aleo {
     }
 
     fn play() -> (Ticket, Final) {
-        let ticket: Ticket = Ticket {
-            owner: self.caller,
-        };
-        return (ticket, final { finalize_play() });
+        let ticket: Ticket = Ticket { owner: self.caller };
+        return (
+            ticket,
+            final {
+                finalize_play();
+            },
+        );
     }
 }
 
@@ -26,5 +29,4 @@ final fn finalize_play() {
     let winners: u8 = num_winners.get_or_use(0u8, 0u8);
     assert(winners < 5u8);
     num_winners.set(0u8, winners + 1u8);
-
 }

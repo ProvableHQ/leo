@@ -5,7 +5,7 @@ program test.aleo {
         const STOP: u32 = 10u32;
         for i: u32 in START..STOP {
             for j: u32 in START..STOP {
-                let (c,d): (u32,u32) = (1u32, 1u32);
+                let (c, d): (u32, u32) = (1u32, 1u32);
             }
         }
         return 1u32;

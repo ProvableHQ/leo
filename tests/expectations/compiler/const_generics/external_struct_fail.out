@@ -8,7 +8,7 @@ Error [ETYC0372017]: The type `child.aleo::Bar::[4u32]` is not found in the curr
 Error [ETYC0372005]: Unknown struct or record `child.aleo::Bar::[3u32]`
     --> compiler-test:6:17
      |
-   6 |         let b = child.aleo::Bar::[3] {
+   6 |         let b = child.aleo::Bar::[3] { x: 0 };
      |                 ^^^^^^^^^^^^^^^
 
 
@@ -32,5 +32,5 @@ Error [ETYC0372017]: The type `child.aleo::Bar` is not found in the current scop
 Error [ETYC0372005]: Unknown struct or record `child.aleo::Bar`
     --> compiler-test:6:17
      |
-   6 |         let b = child.aleo::Bar::[3] {
+   6 |         let b = child.aleo::Bar::[3] { x: 0 };
      |                 ^^^^^^^^^^^^^^^

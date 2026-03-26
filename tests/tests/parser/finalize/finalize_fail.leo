@@ -1,26 +1,25 @@
 fn main() -> bool {
 
-} finalize {
+}finalize {
 
 }
 
 fn main() -> bool {
 
-} finalize() {
+}finalize() {
 
 }
 
 fn main() -> bool {
 
-} finalie() {
+}finalie() {
 
 }
 
 fn main() -> bool {
 
-} finalize main() floo {
+}finalize main() floo {
 
 }
 
-
-program test.aleo { }
+program test.aleo {}

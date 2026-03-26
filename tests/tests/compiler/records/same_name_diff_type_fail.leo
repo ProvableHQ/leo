@@ -1,4 +1,3 @@
-
 program child.aleo {
     record R {
         owner: address,
@@ -6,16 +5,13 @@ program child.aleo {
     }
 
     fn create() -> R {
-        return R {
-            owner: self.signer,
-            x: 1u8,
-        };
+        return R { owner: self.signer, x: 1u8 };
     }
 }
 
 // --- Next Program --- //
-
 import child.aleo;
+
 program parent.aleo {
     record R {
         owner: address,
@@ -23,11 +19,7 @@ program parent.aleo {
     }
 
     fn check() -> bool {
-        let r1: R = R {
-            owner: self.signer,
-            x: 1u16,
-        };
-
+        let r1: R = R { owner: self.signer, x: 1u16 };
         return r1 == child.aleo::create();
     }
 }

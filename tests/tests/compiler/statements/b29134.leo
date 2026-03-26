@@ -1,12 +1,12 @@
 program child.aleo {
-    mapping foo: u32 => u32; 
+    mapping foo: u32 => u32;
 
-    fn bar() { }
+    fn bar() {}
 }
 
 // --- Next Program --- //
-
 import child.aleo;
+
 program parent.aleo {
     mapping f: u32 => u32;
 
@@ -36,4 +36,3 @@ program parent.aleo {
         };
     }
 }
-

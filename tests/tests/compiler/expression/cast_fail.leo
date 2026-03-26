@@ -1,10 +1,10 @@
-
 struct Foo {
     data: field,
 }
 
 program test.aleo {
     mapping balances: field => field;
+
     fn main(a: field) -> Final {
         // Cannot cast to a string.
         let b: string = a as string;

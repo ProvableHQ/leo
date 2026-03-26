@@ -7,14 +7,13 @@ program lib.aleo {
 }
 
 // --- Next Program --- //
-
 import lib.aleo;
 
-interface Extended : lib.aleo::Base {
+interface Extended: lib.aleo::Base {
     fn set(v: u64) -> u64;
 }
 
-program test.aleo : Extended {
+program test.aleo: Extended {
     fn get() -> u64 {
         return 0u64;
     }

@@ -1,5 +1,4 @@
 program tuple_pass_tests.aleo {
-
     // --------------------------------------------
     // 1. Tuple construction + member access
     // --------------------------------------------
@@ -73,7 +72,7 @@ program tuple_pass_tests.aleo {
         let t2 = (a + 1u32, b);
 
         // ternary selects different constants based on tuple equality
-        let r0 = (t1 == t2) ? t1 : t2;  
+        let r0 = (t1 == t2) ? t1 : t2;
         let r1 = (t1 == t1) ? 10u32 : 99u32;
         let r2 = (t1 == t2) ? 77u32 : 11u32;
 
@@ -86,8 +85,6 @@ program tuple_pass_tests.aleo {
 
         assert_eq(r3, 2u32); // false case
         assert_eq(r4, 3u32); // true case
-
         return r0.0 + r0.1 + r1 + r2 + r3 + r4;
     }
 }
-

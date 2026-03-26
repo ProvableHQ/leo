@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn unsigned(a: u8, b: u8, c: u16, d: u32) -> u8 {
         a <<= b;

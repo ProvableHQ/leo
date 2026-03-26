@@ -11,8 +11,8 @@ program test.aleo {
 }
 
 // --- Next Program --- //
-
 import test.aleo;
+
 program basic.aleo {
     fn main(public a: u32, b: u32) -> Final {
         let sum1: u32 = test.aleo::baz(a, b);
@@ -27,8 +27,10 @@ program basic.aleo {
 
         let sum3: u32 = test.aleo::baz(a, b);
         assert_eq(sum3, 1u32);
-
-        let f:Final = final { f1.run(); f2.run(); };
+        let f: Final = final {
+            f1.run();
+            f2.run();
+        };
         return f;
     }
 }

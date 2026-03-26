@@ -1,84 +1,84 @@
 Error [ETYC0372000]: Invalid assignment target: test.aleo::x::y.
-    --> compiler-test:4:9
+    --> compiler-test:3:9
      |
-   4 |         x::y = y;
+   3 |         x::y = y;
      |         ^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: 5u8.
-    --> compiler-test:6:9
+    --> compiler-test:5:9
      |
-   6 |         5u8 = y;
+   5 |         5u8 = y;
      |         ^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: x + x.
-    --> compiler-test:8:9
+    --> compiler-test:7:9
      |
-   8 |         x + x = y;
+   7 |         x + x = y;
      |         ^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: x.neg().
-    --> compiler-test:10:9
+    --> compiler-test:9:9
      |
-  10 |         -x = y;
+   9 |         -x = y;
      |         ^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: x.not().
-    --> compiler-test:12:9
+    --> compiler-test:11:9
      |
-  12 |         !x = y;
+  11 |         !x = y;
      |         ^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: a ? x : x.
-    --> compiler-test:14:9
+    --> compiler-test:12:9
      |
-  14 |         a? x : x = y;
-     |         ^^^^^^^^
+  12 |         a ? x : x = y;
+     |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: x as u32.
-    --> compiler-test:16:9
+    --> compiler-test:13:9
      |
-  16 |         x as u32 = y;
+  13 |         x as u32 = y;
      |         ^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: [x, x, x].
-    --> compiler-test:18:9
+    --> compiler-test:15:9
      |
-  18 |         [x, x, x] = y;
+  15 |         [x, x, x] = y;
      |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: (x, x, x).
-    --> compiler-test:20:9
+    --> compiler-test:17:9
      |
-  20 |         (x, x, x) = y;
+  17 |         (x, x, x) = y;
      |         ^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: test.aleo::x { x: y }.
-    --> compiler-test:22:9
+    --> compiler-test:18:9
      |
-  22 |         x {x: y } = y;
-     |         ^^^^^^^^^
+  18 |         x { x: y } = y;
+     |         ^^^^^^^^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: test.aleo::x().
-    --> compiler-test:24:9
+    --> compiler-test:19:9
      |
-  24 |         x() = y;
+  19 |         x() = y;
      |         ^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 Error [ETYC0372000]: Invalid assignment target: 4u8.
-    --> compiler-test:26:9
+    --> compiler-test:21:9
      |
-  26 |         4u8 = y;
+  21 |         4u8 = y;
      |         ^^^
      |
      = Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.

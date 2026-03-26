@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected '=>' -- found '='
-    --> test:6:24
+    --> test:5:24
      |
-   6 |         let a: mapping = relay.aleo::users;
+   5 |         let a: mapping = relay.aleo::users;
      |                        ^
