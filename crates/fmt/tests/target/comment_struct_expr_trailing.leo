@@ -12,15 +12,15 @@ struct Nested {
 
 fn build_wrapper() -> Wrapper {
     return Wrapper {
-        arr: [Foo { x: 8u8 }, none] // implicit wrap
+        arr: [Foo { x: 8u8 }, none], // implicit wrap
     };
 }
 
 fn build_nested() -> Nested {
     return Nested {
         wrapper: Wrapper {
-            arr: [Foo { x: 9u8 }, none]
-        }
+            arr: [Foo { x: 9u8 }, none],
+        },
     };
 }
 

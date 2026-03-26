@@ -9,7 +9,7 @@ struct Wrapper {
 fn choose_wrapper(cond: bool) -> Wrapper? {
     let result: Wrapper? = cond
         ? Wrapper {
-            arr: [Foo { x: 99u8 }, none]
+            arr: [Foo { x: 99u8 }, none],
         } // implicit wrap
         : none;
     return result;

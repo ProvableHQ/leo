@@ -2982,7 +2982,7 @@ fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
     }
 
     if inits.iter().any(struct_field_init_contains_nested_struct_expr) {
-        format_wrapping_list_multiline(node, out, " { ", " }", &inits, false);
+        format_wrapping_list_multiline(node, out, " { ", " }", &inits, true);
         return;
     }
 

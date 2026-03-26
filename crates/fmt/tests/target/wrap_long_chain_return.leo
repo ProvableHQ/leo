@@ -34,11 +34,11 @@ program test.aleo {
             container: Container {
                 wrappers: [
                     Wrapper {
-                        arr: [Inner { val: 7u8 }, none]
+                        arr: [Inner { val: 7u8 }, none],
                     },
                     none,
-                ]
-            }
+                ],
+            },
         };
         return unwrap_value(top);
     }
