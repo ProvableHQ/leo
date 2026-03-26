@@ -403,7 +403,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Literal(Literal {
                 variant: LiteralVariant::Integer(_, s) | LiteralVariant::Unsuffixed(s),
                 ..
-            }) => AleoExpr::U32(s.parse().unwrap()),
+            }) => AleoExpr::U32(u32::from_str_by_radix(&s.replace('_', "")).unwrap()),
             _ => panic!("Array indices must be integer literals"),
         };
 
