@@ -76,15 +76,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         };
 
         // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
-        // Generic composites (those with const parameters) are templates only and are never emitted;
-        // only their monomorphized concrete versions appear in the final bytecode.
         let data_types = order
             .into_iter()
-            .filter_map(|loc| {
-                lookup(&loc)
-                    .filter(|c| c.const_parameters.is_empty())
-                    .map(|composite| self.visit_struct_or_record(composite, &loc))
-            })
+            .filter_map(|loc| lookup(&loc).map(|composite| self.visit_struct_or_record(composite, &loc)))
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
