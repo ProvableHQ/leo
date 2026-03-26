@@ -1,0 +1,5 @@
+program test.aleo;
+
+function foo:
+    input r0 as [boolean; 8u32].private;
+    output r0[1u32] as boolean.private;
