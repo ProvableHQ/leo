@@ -27,14 +27,14 @@ Note: Treating dependencies as Aleo produces different results:
 Error [ECHI03712000]: Interface `lib_a.aleo/InterfaceA` not found.
     --> compiler-test:6:21
      |
-   6 | program test.aleo : lib_a.aleo/InterfaceA + lib_b.aleo/InterfaceB {
-     |                     ^^^^^^^^^^^^^^^^^^^^^
+   6 | program test.aleo : lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
+     |                     ^^^^^^^^^^^^^^^^^^^^^^
      |
      = Make sure the interface is defined in the current program or an imported program.
 Error [ECHI03712000]: Interface `lib_b.aleo/InterfaceB` not found.
-    --> compiler-test:6:45
+    --> compiler-test:6:46
      |
-   6 | program test.aleo : lib_a.aleo/InterfaceA + lib_b.aleo/InterfaceB {
-     |                                             ^^^^^^^^^^^^^^^^^^^^^
+   6 | program test.aleo : lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
+     |                                              ^^^^^^^^^^^^^^^^^^^^^^
      |
      = Make sure the interface is defined in the current program or an imported program.

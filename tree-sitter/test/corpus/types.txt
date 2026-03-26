@@ -7,7 +7,7 @@ const ZERO: mapping address => u64 = none as address;
 fn types(
     a: address,
     b: Foo,
-    c: credits.aleo/Token,
+    c: credits.aleo::Token,
     d: [u8; 32u32],
     e: [u8],
     f: (u8, u16, u32),

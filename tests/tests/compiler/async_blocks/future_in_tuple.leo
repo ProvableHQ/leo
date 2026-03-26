@@ -15,8 +15,8 @@ program credits.aleo {
 import credits.aleo;
 
 program test_credits.aleo {
-    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Final) {
-        let result: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
+    fn send_credits(input: credits.aleo::credits, amount: u64) -> (credits.aleo::credits, Final) {
+        let result: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(input, self.address, amount);
         return (result.0, final { result.1.run(); });
     }
 }

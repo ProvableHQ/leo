@@ -42,11 +42,11 @@ program relay.aleo {
 }
 
 final fn finalize_send(addr: address) {
-    let a:bool = Mapping::get(registry.aleo/users, addr);
+    let a:bool = Mapping::get(registry.aleo::users, addr);
     assert_eq(a, true);
 }
 
 final fn finalize_send_without_check(addr: address) {
-    let a:bool = Mapping::get_or_use(registry.aleo/users, addr, true);
+    let a:bool = Mapping::get_or_use(registry.aleo::users, addr, true);
     assert_eq(a, true);
 }

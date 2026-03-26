@@ -3,8 +3,3 @@ Error [EPAR0370047]: expected `import`, `program`, or module item at top level
      |
    1 | record Foo { owner: address, data: u32 }
      | ^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_1:1:1
-     |
-   1 | fn helper() -> u32 { return 0u32; }
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

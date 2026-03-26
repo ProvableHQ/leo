@@ -99,6 +99,14 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             *c = declaration;
         }
 
+        // Skip generic functions (those with const parameters): they cannot be fully evaluated
+        // until they are monomorphized into the consuming program's scope.
+        input.functions = input
+            .functions
+            .into_iter()
+            .map(|(i, f)| if f.const_parameters.is_empty() { (i, self.reconstruct_function(f)) } else { (i, f) })
+            .collect();
+
         input
     }
 

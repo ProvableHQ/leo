@@ -26,7 +26,7 @@ import id_target.aleo;
 
 program id_caller.aleo {
     fn main(x: u32, y: u32) -> u32 {
-        return id_target.aleo/Adder@('id_target')/sum(x, y);
+        return id_target.aleo::Adder@('id_target')/sum(x, y);
     }
 
     @noupgrade

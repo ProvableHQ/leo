@@ -13,7 +13,7 @@ import dependent.aleo;
 
 program test.aleo {
     fn t1() -> Final {
-        let f: Final = dependent.aleo/t1(42, 43);
+        let f: Final = dependent.aleo::t1(42, 43);
         return final {
             f.run();
         };

@@ -474,7 +474,7 @@ program test_{name}.aleo {{
     @test
     @should_fail
     fn do_nothing() {{
-        let result: u32 = {name}.aleo/main(2u32, 3u32);
+        let result: u32 = {name}.aleo::main(2u32, 3u32);
         assert_eq(result, 3u32);
     }}
 
@@ -484,7 +484,7 @@ program test_{name}.aleo {{
 
 @test
 script test_it() {{
-    let result: u32 = {name}.aleo/main(1u32, 2u32);
+    let result: u32 = {name}.aleo::main(1u32, 2u32);
     assert_eq(result, 3u32);
 }}
 "#

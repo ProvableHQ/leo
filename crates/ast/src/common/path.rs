@@ -58,7 +58,7 @@ simple_node_impl!(Path);
 impl Path {
     /// Creates a new unresolved `Path` from the given components.
     ///
-    /// - `user_program`: An optional program name (e.g. `credits` in `credits.aleo/Bar`)
+    /// - `user_program`: An optional program name (e.g. `credits` in `credits.aleo::Bar`)
     /// - `qualifier`: The namespace segments (e.g., `foo::bar` in `foo::bar::baz`).
     /// - `identifier`: The final item in the path (e.g., `baz`).
     /// - `span`: The source code span for this path.
@@ -127,7 +127,7 @@ impl Path {
     /// Returns the program symbol this path refers to, if known.
     ///
     /// Priority:
-    /// 1. User-written program qualifier (e.g. `foo.aleo/bar::baz`)
+    /// 1. User-written program qualifier (e.g. `foo.aleo::bar::baz`)
     /// 2. Resolved global target program
     /// 3. None (unresolved or local)
     pub fn program(&self) -> Option<Symbol> {
@@ -296,22 +296,22 @@ impl fmt::Display for Path {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Determine the program prefix and separator:
         //
-        // 1. If the user explicitly wrote a program (e.g. `credits.aleo/Foo`), always use it
-        //    with a `/` separator.
+        // 1. If the user explicitly wrote a program (e.g. `credits.aleo::Foo`), always use it
+        //    with a `::` separator.
         //
         // 2. Otherwise fall back to the resolved global location's program, but only when it is
         //    an `.aleo` program.  `.aleo` programs never appear in the qualifier, so we must
         //    reconstruct the prefix here to produce readable error messages like
-        //    `parent.aleo/Foo` vs `child.aleo/Foo`.
+        //    `parent.aleo::Foo` vs `child.aleo::Foo`.
         //
         // 3. Library programs (no `.aleo` suffix) already have their name as the first qualifier
         //    segment (e.g. `math_lib::Foo`), so adding a prefix here would double-print it.
         if let Some(pid) = &self.user_program {
-            write!(f, "{}/", pid.as_symbol())?;
+            write!(f, "{}::", pid.as_symbol())?;
         } else if let Some(loc) = self.try_global_location() {
             // Use the global program as prefix only for .aleo programs.
             if with_session_globals(|sg| loc.program.as_str(sg, |s| s.ends_with(".aleo"))) {
-                write!(f, "{}/", loc.program)?;
+                write!(f, "{}::", loc.program)?;
             }
         }
 

@@ -54,6 +54,6 @@ struct Two {
 program parent.aleo {
     fn create_wrapper() -> Foo {
         let f: Foo = Foo {bar: [Bar {baz: [Baz {one: One {two: [Two {val1: 1u32, val2: 2u32}, Two {val1: 3u32, val2: 4u32}]}}, Baz {one: One {two: [Two {val1: 5u32, val2: 6u32}, Two {val1: 7u32, val2: 8u32}]}}]}]};
-        return child.aleo/create();
+        return child.aleo::create();
     }
 }

@@ -49,15 +49,15 @@ program parent.aleo {
         woo: Woo,
     }
 
-    fn create_wrapper() -> (child.aleo/Foo, child.aleo/Boo) {
-        let f: child.aleo/Foo = child.aleo/Foo {bar: [child.aleo/Bar {baz: [child.aleo/Baz {one: child.aleo/One {two: [child.aleo/Two {val1: 1u32, val2: 2u32}, child.aleo/Two {val1: 3u32, val2: 4u32}]}}, child.aleo/Baz {one: child.aleo/One {two: [child.aleo/Two {val1: 5u32, val2: 6u32}, child.aleo/Two {val1: 7u32, val2: 8u32}]}}]}]};
-        let (f1, b1): (child.aleo/Foo, child.aleo/Boo) = child.aleo/create();
-        return child.aleo/create();
+    fn create_wrapper() -> (child.aleo::Foo, child.aleo::Boo) {
+        let f: child.aleo::Foo = child.aleo::Foo {bar: [child.aleo::Bar {baz: [child.aleo::Baz {one: child.aleo::One {two: [child.aleo::Two {val1: 1u32, val2: 2u32}, child.aleo::Two {val1: 3u32, val2: 4u32}]}}, child.aleo::Baz {one: child.aleo::One {two: [child.aleo::Two {val1: 5u32, val2: 6u32}, child.aleo::Two {val1: 7u32, val2: 8u32}]}}]}]};
+        let (f1, b1): (child.aleo::Foo, child.aleo::Boo) = child.aleo::create();
+        return child.aleo::create();
     }
 
-    fn create_another_wrapper() -> (child.aleo/Foo, child.aleo/Boo, BooHoo, Woo) {
-        let f: child.aleo/Foo = child.aleo/Foo {bar: [child.aleo/Bar {baz: [child.aleo/Baz {one: child.aleo/One {two: [child.aleo/Two {val1: 1u32, val2: 2u32}, child.aleo/Two {val1: 3u32, val2: 4u32}]}}, child.aleo/Baz {one: child.aleo/One {two: [child.aleo/Two {val1: 5u32, val2: 6u32}, child.aleo/Two {val1: 7u32, val2: 8u32}]}}]}]};
-        let (f1, b1): (child.aleo/Foo, child.aleo/Boo) = child.aleo/create();
+    fn create_another_wrapper() -> (child.aleo::Foo, child.aleo::Boo, BooHoo, Woo) {
+        let f: child.aleo::Foo = child.aleo::Foo {bar: [child.aleo::Bar {baz: [child.aleo::Baz {one: child.aleo::One {two: [child.aleo::Two {val1: 1u32, val2: 2u32}, child.aleo::Two {val1: 3u32, val2: 4u32}]}}, child.aleo::Baz {one: child.aleo::One {two: [child.aleo::Two {val1: 5u32, val2: 6u32}, child.aleo::Two {val1: 7u32, val2: 8u32}]}}]}]};
+        let (f1, b1): (child.aleo::Foo, child.aleo::Boo) = child.aleo::create();
         return (f1, b1, BooHoo {owner: self.signer, val: 10u32, woo: Woo {a: 1u32, b: 2u32}}, Woo {a: 3u32, b: 4u32});
     }
 
@@ -73,8 +73,8 @@ program grandparent.aleo {
         return a;
     }
 
-    fn omega_wrapper() -> (child.aleo/Foo, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo) {
-        let (f, b, bh, w): (child.aleo/Foo, child.aleo/Boo, parent.aleo/BooHoo, parent.aleo/Woo) = parent.aleo/create_another_wrapper();
-        return parent.aleo/create_another_wrapper();
+    fn omega_wrapper() -> (child.aleo::Foo, child.aleo::Boo, parent.aleo::BooHoo, parent.aleo::Woo) {
+        let (f, b, bh, w): (child.aleo::Foo, child.aleo::Boo, parent.aleo::BooHoo, parent.aleo::Woo) = parent.aleo::create_another_wrapper();
+        return parent.aleo::create_another_wrapper();
     }
 }

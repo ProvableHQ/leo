@@ -13,6 +13,6 @@ import child1.aleo;
 program parent.aleo {
 
     fn main(addr: address) {
-        let r = child1.aleo/R { owner: addr };
+        let r = child1.aleo::R { owner: addr };
     }
 }

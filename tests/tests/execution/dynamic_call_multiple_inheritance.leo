@@ -36,8 +36,8 @@ import calc_impl.aleo;
 
 program caller.aleo {
     fn main(target: field, x: u32, y: u32) -> u32 {
-        let s: u32 = calc_impl.aleo/Adder@(target)/sum(x, y);
-        let p: u32 = calc_impl.aleo/Multiplier@(target)/product(x, y);
+        let s: u32 = calc_impl.aleo::Adder@(target)/sum(x, y);
+        let p: u32 = calc_impl.aleo::Multiplier@(target)/product(x, y);
         return s + p;
     }
 

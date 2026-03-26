@@ -60,7 +60,7 @@ struct Foo {
 
 program main.aleo {
     fn compute(x: u32) -> (u32, math_lib::Foo::[43], Foo) {
-        let a: u32 = helper.aleo/add_offset(x);
+        let a: u32 = helper.aleo::add_offset(x);
         let b: math_lib::Bar = math_lib::Bar {
             f: math_lib::Foo::[42] {
                 x: [1000; 43]

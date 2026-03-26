@@ -58,8 +58,8 @@ struct Foo {
 }
 program external_structs.aleo {
     fn main1(local: Foo, 
-                    external1: child1.aleo/Foo,
-                    external2: child2.aleo/Foo) { 
+                    external1: child1.aleo::Foo,
+                    external2: child2.aleo::Foo) { 
         assert_eq(
                local.x + local.y
              + external1.x + external1.y + external1.z
@@ -69,8 +69,8 @@ program external_structs.aleo {
     }
 
     fn main2() -> public u32 {
-        let external1 = child1.aleo/main2(1, 2, 3);
-        let external2 = child2.aleo/main2(1, 2, 3, 4);
+        let external1 = child1.aleo::main2(1, 2, 3);
+        let external2 = child2.aleo::main2(1, 2, 3, 4);
         return external1.x + external1.y + external1.z
              + external2.x + external2.y + external2.z + external2.w;
     }

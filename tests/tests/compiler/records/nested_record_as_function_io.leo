@@ -13,11 +13,11 @@ program program_a.aleo {
 
 import program_a.aleo;
 program program_b.aleo {
-    fn foobar(input: program_a.aleo/X) -> u32 {
+    fn foobar(input: program_a.aleo::X) -> u32 {
         return input.val;
     }
 
-    fn boofar(input: program_a.aleo/X) -> program_a.aleo/X {
+    fn boofar(input: program_a.aleo::X) -> program_a.aleo::X {
         return input;
     }
 }

@@ -14,8 +14,8 @@ final fn finalize(a: u32, b: u32) {
 import test.aleo;
 program basic.aleo {
     fn main(public a: u32, b: u32) -> Final {
-        let f1: Final = test.aleo/main_inner(0u32, 0u32);
-        let f2: Final = test.aleo/main_inner(1u32, 1u32);
+        let f1: Final = test.aleo::main_inner(0u32, 0u32);
+        let f2: Final = test.aleo::main_inner(1u32, 1u32);
         let f:Final = final { finalize(f1, f2); };
         return f;
     }

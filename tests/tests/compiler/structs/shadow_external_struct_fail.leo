@@ -54,6 +54,6 @@ struct Two {
 
 program parent.aleo {
     fn create_wrapper() -> Foo {
-        return child.aleo/create();
+        return child.aleo::create();
     }
 }

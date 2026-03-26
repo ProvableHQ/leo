@@ -261,6 +261,24 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install_rust_nightly
+      - restore_cache:
+          keys:
+            - cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Install cargo-nextest
+          command: |
+            set -euo pipefail
+            if command -v cargo-nextest >/dev/null 2>&1; then
+              cargo nextest --version
+            else
+              cargo install cargo-nextest --locked
+            fi
+      - save_cache:
+          key: cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo/bin
+            - ~/.cargo/registry
+            - ~/.cargo/git
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive

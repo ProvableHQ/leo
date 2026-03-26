@@ -7,7 +7,7 @@ program child2.aleo {
     }
 
     fn main(b: u32) -> u32 {
-        return grandchild.aleo/main(b);
+        return grandchild.aleo::main(b);
     }
 
     @noupgrade

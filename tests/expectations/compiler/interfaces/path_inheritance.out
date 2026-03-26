@@ -15,7 +15,7 @@ Note: Treating dependencies as Aleo produces different results:
 Error [ECHI03712000]: Interface `lib.aleo/MyInterface` not found.
     --> compiler-test:5:21
      |
-   5 | program test.aleo : lib.aleo/MyInterface {
-     |                     ^^^^^^^^^^^^^^^^^^^^
+   5 | program test.aleo : lib.aleo::MyInterface {
+     |                     ^^^^^^^^^^^^^^^^^^^^^
      |
      = Make sure the interface is defined in the current program or an imported program.

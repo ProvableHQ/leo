@@ -29,7 +29,7 @@ stub credits.aleo {
 
     fn mint(public a1: address, public a2: u64) -> credits;
 
-    fn transfer_public(public a1: address, public a2: u64) -> exchange.aleo/tokens;
+    fn transfer_public(public a1: address, public a2: u64) -> exchange.aleo::tokens;
 
     fn transfer_private(a1: credits, a2: address, a3: u64) -> (credits, credits);
 
@@ -52,8 +52,8 @@ finalize foo() {
 
 
 program test.aleo {
-    fn foo(arg1: address, arg1: u64, cred: credits.aleo/credits)->credits.aleo/credits {
-        credits.aleo/transfer_public(arg1, arg2);
+    fn foo(arg1: address, arg1: u64, cred: credits.aleo::credits)->credits.aleo::credits {
+        credits.aleo::transfer_public(arg1, arg2);
         credits.leo/transfer_public(arg1, arg2);
     }
 }

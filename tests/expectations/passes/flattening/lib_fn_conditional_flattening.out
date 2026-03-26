@@ -1,0 +1,23 @@
+library math_lib {
+    fn min(a$$0: u32, b$$1: u32) -> u32 {
+        let $var$2 = a$$0 < b$$1;
+        let $var$3 = $var$2 ? a$$0 : b$$1;
+        {
+        }
+        return $var$3;
+    }
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    fn main(a$$4: u32, b$$5: u32) -> u32 {
+        let $var$6 = math_lib::min(a$$4, b$$5);
+        {
+        }
+        return $var$6;
+    }
+}
+

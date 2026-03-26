@@ -62,6 +62,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         }
     }
 

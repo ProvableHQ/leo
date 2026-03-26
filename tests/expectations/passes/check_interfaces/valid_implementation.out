@@ -3,7 +3,7 @@ program test.aleo {
         return amount + 1u64;
     }
     fn main(x: u64) -> u64 {
-        return test.aleo/increment(x);
+        return test.aleo::increment(x);
     }
 }
 

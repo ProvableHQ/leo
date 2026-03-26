@@ -50,14 +50,14 @@ struct S {
 }
 
 program test1.aleo {
-    fn check_clone() -> test0.aleo/R {
-        let r: test0.aleo/R = test0.aleo/make();
-        return test0.aleo/input_output(r).1;
+    fn check_clone() -> test0.aleo::R {
+        let r: test0.aleo::R = test0.aleo::make();
+        return test0.aleo::input_output(r).1;
     }
 
     // Unlike internal records, external records should be fine to
     // pass through without cloning.
-    fn pass_through(r: test0.aleo/R) -> test0.aleo/R {
+    fn pass_through(r: test0.aleo::R) -> test0.aleo::R {
         return r;
     }
     // As of commit 314d56a9e3626418e8a953ecb81f595555716459,
@@ -81,11 +81,11 @@ import test0.aleo;
 import test1.aleo;
 
 program test2.aleo {
-    fn test_pass_through() -> test0.aleo/R {
-        let r: test0.aleo/R = test0.aleo/make();
+    fn test_pass_through() -> test0.aleo::R {
+        let r: test0.aleo::R = test0.aleo::make();
         // While we're at it, make sure we can put this in a tuple.
-        let r2: (test0.aleo/R, test0.aleo/R) = (r, r);
-        return test1.aleo/pass_through(r2.1);
+        let r2: (test0.aleo::R, test0.aleo::R) = (r, r);
+        return test1.aleo::pass_through(r2.1);
     }
 
     @noupgrade

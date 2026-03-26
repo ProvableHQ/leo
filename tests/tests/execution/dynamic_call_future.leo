@@ -31,7 +31,7 @@ import counter_impl.aleo;
 
 program counter_caller.aleo {
     fn main(target: field, val: u32) -> (u32, Final) {
-        let (result, f): (u32, Final) = counter_impl.aleo/Counter@(target)/increment(val);
+        let (result, f): (u32, Final) = counter_impl.aleo::Counter@(target)/increment(val);
         return (result, final {
             f.run();
         });

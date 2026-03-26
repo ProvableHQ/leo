@@ -24,7 +24,7 @@ import helper.aleo;
 
 program main.aleo {
     fn compute(x: u32) -> u32 {
-        let scaled: u32 = helper.aleo/scale(x);
+        let scaled: u32 = helper.aleo::scale(x);
         return scaled + constants::ADDEND;
     }
 

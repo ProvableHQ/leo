@@ -133,7 +133,7 @@ enum LogosToken {
     // Identifiers and Keywords
     // =========================================================================
     // Note: Complex identifiers (paths like foo::bar, program IDs like foo.aleo,
-    // locators like foo.aleo/bar) are deferred to Phase 2. The lexer produces
+    // locators like foo.aleo::bar) are deferred to Phase 2. The lexer produces
     // simple tokens; the parser handles disambiguation.
     //
     // We need special cases for `group::abc`, `signature::abc`, and `Future::abc`

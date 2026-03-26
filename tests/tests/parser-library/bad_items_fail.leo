@@ -1,6 +1,4 @@
 
-fn foo() {}
-
 final fn bar() {}
 
 record Bar { owner: address }

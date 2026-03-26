@@ -4,7 +4,7 @@ program test.aleo {
 
     fn foo() {}
 
-    @checksum(mapping = "test.aleo/expected_checksum", key = "1field")
+    @checksum(mapping = "test.aleo::expected_checksum", key = "1field")
     constructor() {}
 
 }

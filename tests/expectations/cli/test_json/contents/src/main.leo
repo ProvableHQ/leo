@@ -7,7 +7,7 @@ program test_json_program.aleo {
         return c;
     }
 
-    @checksum(mapping = "test_json_program.aleo/expected_checksum", key = "true")
+    @checksum(mapping = "test_json_program.aleo::expected_checksum", key = "true")
     constructor() {}
 }
 

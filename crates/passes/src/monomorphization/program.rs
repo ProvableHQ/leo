@@ -57,6 +57,22 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            // Collect library function instances. Non-generic functions are kept from the
+            // original input; generic functions are superseded by their reconstructed versions
+            // in `reconstructed_functions` (which also contains any monomorphized variants like
+            // `"pad::[3u32]"`). Excluding generic originals prevents duplicates that would cause
+            // TypeChecking to report "defined multiple times" errors on the next iteration.
+            functions: input
+                .functions
+                .into_iter()
+                .filter(|(_, f)| f.const_parameters.is_empty())
+                .chain(self.reconstructed_functions.iter().filter_map(|(loc, f)| {
+                    loc.path
+                        .split_last()
+                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
+                        .map(|(last, _)| (*last, f.clone()))
+                }))
+                .collect(),
         }
     }
 
@@ -116,7 +132,17 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             })
             .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
             .into_iter()
-            .filter(|location| location.program == self.program)
+            .filter(|location| {
+                // Always include current-program functions.
+                if location.program == self.program {
+                    return true;
+                }
+                // Also include generic library functions reachable from the current program.
+                // Non-generic library functions need no monomorphization and are handled by
+                // the early-return in `reconstruct_call` (no const arguments).
+                self.state.symbol_table.is_library(location.program)
+                    && self.function_map.get(location).map(|f| !f.const_parameters.is_empty()).unwrap_or(false)
+            })
             .collect::<Vec<_>>();
 
         for function_name in &order {
@@ -209,7 +235,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         //    Each FromLeo stub recursively calls reconstruct_program for the dependency,
         //    which populates `reconstructed_composites` with the dependency's composites.
         //    This means that when the current program's scope is processed, any composites
-        //    from FromLeo dependencies (e.g. `child.aleo/Bar`) are already available for
+        //    from FromLeo dependencies (e.g. `child.aleo::Bar`) are already available for
         //    monomorphization.
         //
         // 2. The current program's composite_map and function_map are populated AFTER
@@ -243,6 +269,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 library.structs.iter().for_each(|(name, c)| {
                     self.composite_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| c.clone());
                 });
+                // Seed function_map with library function definitions so that reconstruct_call can
+                // inline them into the consuming program under mangled names.
+                library.functions.iter().for_each(|(name, f)| {
+                    self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
+                });
             }
         });
 
@@ -262,7 +293,10 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // Program objects may not carry library stubs — can still access them.
         let prev_program = self.program;
         self.composite_map.retain(|loc, _| loc.program != prev_program);
-        self.function_map.clear();
+        // Retain library functions (analogous to composite_map.retain above) so that deeply-nested
+        // FromLeo programs — whose inner Program objects may not carry library stubs — can still
+        // inline library functions when their scopes are processed.
+        self.function_map.retain(|loc, _| self.state.symbol_table.is_library(loc.program));
 
         self.program =
             *input.program_scopes.first().expect("a program must have a single program scope at this stage").0;

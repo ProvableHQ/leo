@@ -16,7 +16,7 @@ program test0.aleo {
 import test0.aleo;
 program test1.aleo {
     // This should compile fine without attempting to clone.
-    fn bar(x: test0.aleo/R) -> test0.aleo/R {
+    fn bar(x: test0.aleo::R) -> test0.aleo::R {
         return x;
     }
 }

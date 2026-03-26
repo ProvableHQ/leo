@@ -78,7 +78,11 @@ impl ProgramReconstructor for TransformVisitor<'_> {
             }
         }
 
-        // This is a sanity check to ensure that functions in the program scope have been processed.
+        // Drop any library functions that were not reachable from this program (dead library code).
+        // They are not needed and would fail the sanity check below.
+        self.function_map.retain(|loc, _| !self.state.symbol_table.is_library(loc.program));
+
+        // This is a sanity check to ensure that all non-library functions in the program scope have been processed.
         assert!(self.function_map.is_empty(), "All functions in the program should have been processed.");
 
         // Reconstruct the constructor.
@@ -87,11 +91,15 @@ impl ProgramReconstructor for TransformVisitor<'_> {
 
         // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
         let functions = core::mem::take(&mut self.reconstructed_functions)
-            .iter()
+            .into_iter()
             .filter_map(|(loc, f)| {
-                // Only consider functions defined at program scope. The rest are not relevant since they should all
-                // have been inlined by now.
-                loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f.clone()))
+                // Only emit functions that belong to the current program scope and have a single-segment
+                // path (no module prefix). Library functions and module-nested functions have all been
+                // inlined at their call sites and must not appear as standalone functions in output.
+                if loc.program != self.program {
+                    return None;
+                }
+                loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f))
             })
             .collect();
 
@@ -150,8 +158,8 @@ impl ProgramReconstructor for TransformVisitor<'_> {
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
-        // Populate `self.function_map` using the functions in the program scopes and the modules
-        // Use full Location (program + path) as keys to avoid collisions between programs
+        // Populate `self.function_map` using the functions in the program scopes and the modules.
+        // Use full Location (program + path) as keys to avoid collisions between programs.
         input
             .modules
             .iter()
@@ -168,6 +176,16 @@ impl ProgramReconstructor for TransformVisitor<'_> {
             .for_each(|(location, f)| {
                 self.function_map.insert(location, f);
             });
+
+        // Populate `function_map` with library functions from FromLibrary stubs.
+        // Library functions are inlined at call sites just like module functions.
+        input.stubs.iter().for_each(|(_, stub)| {
+            if let Stub::FromLibrary { library, .. } = stub {
+                library.functions.iter().for_each(|(name, f)| {
+                    self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
+                });
+            }
+        });
 
         // Reconstruct program scopes. Inline functions defined in modules will be traversed
         // using the call graph and reconstructed in the right order.
@@ -204,15 +222,17 @@ impl AstReconstructor for TransformVisitor<'_> {
 
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.function.expect_global_location().program != self.program {
+        let function_location = input.function.expect_global_location();
+
+        // Pass through calls to external programs (non-library). Library functions and module
+        // functions are always inlined; only true cross-program calls are left as-is.
+        if function_location.program != self.program && !self.state.symbol_table.is_library(function_location.program) {
             return (input.into(), Default::default());
         }
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
         // Use full Location (program + path) to ensure correct lookup across multiple programs.
-        let function_location = input.function.expect_global_location();
         let (_, callee) = self
             .reconstructed_functions
             .iter()
@@ -241,6 +261,10 @@ impl AstReconstructor for TransformVisitor<'_> {
             function_location.program == self.program && function_location.path.len() > 1,
             "this is a module function",
         ) || match callee.variant {
+            // Always inline library functions (they cannot exist as standalone Aleo functions).
+            _ if self.state.symbol_table.is_library(function_location.program) => {
+                mandatory_cond(true, "this is a library function")
+            }
             Variant::FinalFn => mandatory_cond(true, "this is a final fn"),
             Variant::Fn => {
                 mandatory_cond(

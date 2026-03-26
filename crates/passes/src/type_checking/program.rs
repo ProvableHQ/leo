@@ -171,6 +171,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.functions.iter().for_each(|(_, f)| self.visit_function(f));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

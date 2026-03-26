@@ -19,9 +19,9 @@ final fn finalize() {
 import credits.aleo;
 
 program test_credits.aleo {
-    fn send_credits(input: credits.aleo/credits, amount: u64) -> (credits.aleo/credits, Final) {
-        let start: (credits.aleo/credits, Final) = credits.aleo/transfer_private_to_public(input, self.address, amount);
-        let after: (u8, credits.aleo/credits) = (1u8, start.0);
+    fn send_credits(input: credits.aleo::credits, amount: u64) -> (credits.aleo::credits, Final) {
+        let start: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(input, self.address, amount);
+        let after: (u8, credits.aleo::credits) = (1u8, start.0);
         let start_2: Final = start.1;
         return (
             after.1, 

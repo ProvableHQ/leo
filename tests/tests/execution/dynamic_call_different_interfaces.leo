@@ -42,8 +42,8 @@ import multiplier_target.aleo;
 
 program combo_caller.aleo {
     fn main(add_target: field, mul_target: field, x: u32, y: u32) -> u32 {
-        let s: u32 = adder_target.aleo/Adder@(add_target)/sum(x, y);
-        let p: u32 = multiplier_target.aleo/Multiplier@(mul_target)/product(x, y);
+        let s: u32 = adder_target.aleo::Adder@(add_target)/sum(x, y);
+        let p: u32 = multiplier_target.aleo::Multiplier@(mul_target)/product(x, y);
         return s + p;
     }
 

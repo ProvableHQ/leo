@@ -32,14 +32,14 @@ program child1.aleo {
 
 import child1.aleo;
 struct Foo {
-    c: child1.aleo/Foo // ensures we don't think this is a cyclical dependency
+    c: child1.aleo::Foo // ensures we don't think this is a cyclical dependency
 }
 program external_structs.aleo {
-    fn main() -> (child1.aleo/Boo, child1.aleo/Foo, child1.aleo/Boo, Foo, child1.aleo/Coo) {
-        let bb: child1.aleo/Boo = child1.aleo/Boo {a:1u32, b:1u32};
-        let ff = child1.aleo/Foo {c: bb};
+    fn main() -> (child1.aleo::Boo, child1.aleo::Foo, child1.aleo::Boo, Foo, child1.aleo::Coo) {
+        let bb: child1.aleo::Boo = child1.aleo::Boo {a:1u32, b:1u32};
+        let ff = child1.aleo::Foo {c: bb};
 
-        return (bb, ff, child1.aleo/main_2(ff), Foo {c: ff}, child1.aleo/Coo { x: 0, y: 0});
+        return (bb, ff, child1.aleo::main_2(ff), Foo {c: ff}, child1.aleo::Coo { x: 0, y: 0});
     }
 
     @noupgrade
