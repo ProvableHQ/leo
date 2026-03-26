@@ -5,6 +5,7 @@ program test.aleo {
 
         assert_eq(sum, diff);
 
+        // Return the computed sum.
         return sum;
     }
 }

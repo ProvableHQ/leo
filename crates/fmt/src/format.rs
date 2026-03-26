@@ -1909,7 +1909,10 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                         }
                         WHITESPACE => {}
                         COMMENT_LINE if after_lbrace => {
-                            if linebreak_count > 0 {
+                            if had_entry && linebreak_count >= 2 && previous_statement_canonical {
+                                out.ensure_newline();
+                                out.newline();
+                            } else if linebreak_count > 0 {
                                 out.ensure_newline();
                             } else {
                                 out.space();
@@ -1921,7 +1924,10 @@ fn format_block(node: &SyntaxNode, out: &mut Output) {
                             linebreak_count = 0;
                         }
                         COMMENT_BLOCK if after_lbrace => {
-                            if linebreak_count > 0 {
+                            if had_entry && linebreak_count >= 2 && previous_statement_canonical {
+                                out.ensure_newline();
+                                out.newline();
+                            } else if linebreak_count > 0 {
                                 out.ensure_newline();
                             } else {
                                 out.space();
