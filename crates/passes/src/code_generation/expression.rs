@@ -684,32 +684,40 @@ impl CodeGeneratingVisitor<'_> {
         let fun = args[2].clone();
         let call_args: Vec<AleoExpr> = args[3..].to_vec();
 
-        // Determine input types from the type table for call arguments (args 3+).
-        // call.dynamic requires explicit visibility on every type; default to Private.
-        // Unlike the Interface@() syntax which gets visibility from the function prototype,
-        // the intrinsic syntax has no prototype, so all inputs default to Private.
-        let input_types: Vec<(AleoType, Option<AleoVisibility>)> = input
-            .arguments
-            .iter()
-            .skip(3)
-            .map(|arg| {
-                let ty = self
-                    .state
-                    .type_table
-                    .get(&arg.id())
-                    .expect("Type checking guarantees argument types are in the type table");
-                let viz = Some(AleoVisibility::Private);
-                self.visit_type_with_visibility(&ty, viz)
-            })
-            .collect();
+        // Determine input types. If the user provided explicit input_types annotations,
+        // use those (with their visibility modes). Otherwise fall back to the type table
+        // and default to Private.
+        let input_types: Vec<(AleoType, Option<AleoVisibility>)> = if !input.input_types.is_empty() {
+            input
+                .input_types
+                .iter()
+                .map(|(mode, type_, _)| {
+                    let viz = AleoVisibility::maybe_from(*mode).or(Some(AleoVisibility::Private));
+                    self.visit_type_with_visibility(type_, viz)
+                })
+                .collect()
+        } else {
+            // No explicit input annotations — infer types from the type table, default to Private.
+            input
+                .arguments
+                .iter()
+                .skip(3)
+                .map(|arg| {
+                    let ty = self
+                        .state
+                        .type_table
+                        .get(&arg.id())
+                        .expect("Type checking guarantees argument types are in the type table");
+                    let viz = Some(AleoVisibility::Private);
+                    self.visit_type_with_visibility(&ty, viz)
+                })
+                .collect()
+        };
 
-        // Allocate output registers based on return_types.
+        // Allocate output registers.
+        // Unit returns are already filtered at parse time — return_types never contains Unit.
         let mut destinations = Vec::new();
-        if input.return_types.len() > 1 {
-            for _ in &input.return_types {
-                destinations.push(self.next_register());
-            }
-        } else if input.return_types.len() == 1 {
+        for _ in &input.return_types {
             destinations.push(self.next_register());
         }
 

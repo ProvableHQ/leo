@@ -747,6 +747,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let remove_expr: Expression = IntrinsicExpression {
                         name: sym::_mapping_remove,
                         type_parameters: vec![],
+                        input_types: vec![],
                         return_types: vec![],
                         arguments: vec![mapping_expr, false_literal],
                         span,
@@ -767,6 +768,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let set_expr: Expression = IntrinsicExpression {
                         name: sym::_mapping_set,
                         type_parameters: vec![],
+                        input_types: vec![],
                         return_types: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
                         span,

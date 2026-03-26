@@ -483,10 +483,15 @@ impl Parser<'_, '_> {
             // Array type argument (e.g. `[u8; 4]` in `Deserialize::[[u8; 4]]`)
             self.parse_type();
         } else if self.at(KW_FINAL_UPPER) {
-            // Final type argument (e.g. `Final` in `_dynamic_call::[u32, Final]`)
+            // Final type argument (e.g. `Final` in `_dynamic_call::[Final]`)
             self.parse_type();
         } else if self.at(KW_DYN) {
             // Dynamic record type argument (e.g. `dyn record` in `_dynamic_call::[dyn record]`)
+            self.parse_type();
+        } else if self.at(L_PAREN) && (self.nth(1) == R_PAREN || Self::PRIMITIVE_TYPE_KINDS.contains(&self.nth(1))) {
+            // Tuple type argument (e.g. `(u32, u32)` in `_dynamic_call::[(u32, u32)]`).
+            // Distinguish from parenthesized expressions like `(A * 2)` using lookahead:
+            // `()` or `(` followed by a primitive type keyword is a tuple type.
             self.parse_type();
         } else {
             // Expression argument (e.g. `N + 1`, `5`, `N`)

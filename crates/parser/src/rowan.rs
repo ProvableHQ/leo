@@ -43,6 +43,9 @@ use leo_span::{
 /// Type parameters and const arguments extracted from a `CONST_ARG_LIST` node.
 type ConstArgList = (Vec<(leo_ast::Type, Span)>, Vec<leo_ast::Expression>);
 
+/// Annotated types with visibility modes, used for `_dynamic_call` input/return types.
+type AnnotatedTypes = Vec<(leo_ast::Mode, leo_ast::Type, Span)>;
+
 /// Parent declarations for inheritance
 type Parents = Vec<(Span, leo_ast::Type)>;
 
@@ -169,6 +172,7 @@ impl<'a> ConversionContext<'a> {
         leo_ast::IntrinsicExpression {
             name,
             type_parameters: Vec::new(),
+            input_types: Vec::new(),
             return_types: Vec::new(),
             arguments,
             span,
@@ -741,42 +745,69 @@ impl<'a> ConversionContext<'a> {
         Ok((type_parameters, const_arguments))
     }
 
-    /// Extract return types with visibility for `_dynamic_call` from the CST.
+    /// Extract input and return types with visibility for `_dynamic_call` from the CST.
     ///
-    /// Walks the `CONST_ARG_LIST` children to match each type parameter with its
-    /// visibility. `DYNAMIC_CALL_RETURN_TYPE` nodes carry an explicit visibility
-    /// keyword; bare type nodes default to `Mode::None` (which becomes Private in codegen).
-    fn extract_dynamic_call_return_types(
+    /// Rule: the last type parameter is the return type, all preceding are input types.
+    /// - `_dynamic_call::[u64](...)` — return u64, no input annotations
+    /// - `_dynamic_call::[public u32, u64](...)` — input: public u32, return: u64
+    /// - `_dynamic_call::[public u32, public u32, (u32, u32)](...)` — two inputs, tuple return
+    ///
+    /// Tuple return types are unpacked into individual elements.
+    /// Visibility prefixes (public/private/constant) are extracted from `DYNAMIC_CALL_RETURN_TYPE` nodes.
+    fn extract_dynamic_call_types(
         &self,
         callee_node: &SyntaxNode,
         type_parameters: &[(leo_ast::Type, Span)],
-    ) -> Result<Vec<(leo_ast::Mode, leo_ast::Type, Span)>> {
+    ) -> Result<(AnnotatedTypes, AnnotatedTypes)> {
         let Some(arg_list) = children(callee_node).find(|n| n.kind() == CONST_ARG_LIST) else {
-            // No type parameters means no return types.
-            return Ok(Vec::new());
+            return Ok((Vec::new(), Vec::new()));
         };
 
-        let mut return_types = Vec::new();
-        let mut tp_idx = 0;
+        // Collect all annotated type entries with their modes.
+        let mut all_entries = Vec::new();
 
         for child in children(&arg_list) {
             if child.kind() == DYNAMIC_CALL_RETURN_TYPE {
-                // Extract visibility from the first token.
                 let mode = tokens(&child).find_map(|tok| token_kind_to_mode(tok.kind())).unwrap_or(leo_ast::Mode::None);
-                if let Some((ty, sp)) = type_parameters.get(tp_idx) {
-                    return_types.push((mode, ty.clone(), *sp));
-                }
-                tp_idx += 1;
+                all_entries.push(mode);
             } else if child.kind().is_type() {
-                if let Some((ty, sp)) = type_parameters.get(tp_idx) {
-                    return_types.push((leo_ast::Mode::None, ty.clone(), *sp));
-                }
-                tp_idx += 1;
+                all_entries.push(leo_ast::Mode::None);
             }
-            // Skip non-type children (commas, etc.)
         }
 
-        Ok(return_types)
+        // Split: everything except the last is input types, the last is return type.
+        if type_parameters.is_empty() {
+            return Ok((Vec::new(), Vec::new()));
+        }
+
+        let mut input_types = Vec::new();
+        let mut return_types = Vec::new();
+
+        let last_idx = type_parameters.len() - 1;
+        for (i, ((ty, sp), mode)) in type_parameters.iter().zip(all_entries.iter()).enumerate() {
+            if i < last_idx {
+                // Input type entry.
+                input_types.push((*mode, ty.clone(), *sp));
+            } else {
+                // Last entry: return type.
+                // - Unit `()` means void return (empty return_types).
+                // - Tuple `(T1, T2)` is unpacked into individual elements.
+                // - Anything else is a single return type.
+                match ty {
+                    leo_ast::Type::Unit => {}
+                    leo_ast::Type::Tuple(tuple) => {
+                        for elem in tuple.elements() {
+                            return_types.push((*mode, elem.clone(), *sp));
+                        }
+                    }
+                    _ => {
+                        return_types.push((*mode, ty.clone(), *sp));
+                    }
+                }
+            }
+        }
+
+        Ok((input_types, return_types))
     }
 
     /// Convert a CALL_EXPR node to a CallExpression.
@@ -815,6 +846,7 @@ impl<'a> ConversionContext<'a> {
                 return Ok(leo_ast::IntrinsicExpression {
                     name: intrinsic_name,
                     type_parameters,
+                    input_types: Vec::new(),
                     return_types: Vec::new(),
                     arguments,
                     span,
@@ -829,15 +861,23 @@ impl<'a> ConversionContext<'a> {
         if function.user_program().is_none() && function.qualifier().is_empty() {
             let name = function.identifier().name;
             if leo_ast::Intrinsic::from_symbol(name, &type_parameters).is_some() {
-                // For _dynamic_call, extract return_types with visibility from the CST.
-                let return_types = if name == leo_span::sym::_dynamic_call {
-                    self.extract_dynamic_call_return_types(&callee_node, &type_parameters)?
+                // For _dynamic_call, split type parameters into input_types and return_types.
+                // Rule: last type param is the return type, all preceding are input types.
+                let (input_types, return_types) = if name == leo_span::sym::_dynamic_call {
+                    self.extract_dynamic_call_types(&callee_node, &type_parameters)?
                 } else {
-                    Vec::new()
+                    (Vec::new(), Vec::new())
                 };
-                return Ok(
-                    leo_ast::IntrinsicExpression { name, type_parameters, return_types, arguments, span, id }.into()
-                );
+                return Ok(leo_ast::IntrinsicExpression {
+                    name,
+                    type_parameters,
+                    input_types,
+                    return_types,
+                    arguments,
+                    span,
+                    id,
+                }
+                .into());
             }
         }
 

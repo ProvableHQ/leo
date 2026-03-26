@@ -26,7 +26,7 @@ import adder_impl.aleo;
 
 program caller.aleo {
     fn main(target: field, x: u32, y: u32) -> (u32, u32) {
-        let (s, p): (u32, u32) = _dynamic_call::[u32, u32](target, 'aleo', 'sum_and_product', x, y);
+        let (s, p): (u32, u32) = _dynamic_call::[(u32, u32)](target, 'aleo', 'sum_and_product', x, y);
         return (s, p);
     }
 

@@ -1482,8 +1482,7 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    /// Validates a `_dynamic_call` intrinsic expression.
-    /// Validates scope restrictions shared by all dynamic call variants.
+    /// Validates scope restrictions shared by all dynamic call variants (both intrinsic and Interface@() syntax).
     /// Dynamic calls must be in an entry point, not in a final block, and not in a conditional.
     pub fn validate_dynamic_call_scope(&mut self, span: Span) {
         match self.scope_state.variant.unwrap() {
@@ -1525,12 +1524,22 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Remaining arguments: visit without specific type expectation.
-        for arg in input.arguments.iter().skip(3) {
-            self.visit_expression(arg, &None);
+        // Remaining arguments: if input_types are provided, validate count matches
+        // and use them as expected types. Otherwise visit without expectation.
+        let call_args = input.arguments.len().saturating_sub(3);
+        if !input.input_types.is_empty() && input.input_types.len() != call_args {
+            self.emit_err(TypeCheckerError::dynamic_call_input_type_count_mismatch(
+                input.input_types.len(),
+                call_args,
+                span,
+            ));
+        }
+        for (i, arg) in input.arguments.iter().skip(3).enumerate() {
+            let expected = input.input_types.get(i).map(|(_, t, _)| t.clone());
+            self.visit_expression(arg, &expected);
         }
 
-        // Determine return type from explicit return_types.
+        // Determine return type. Unit `()` is normalized to empty return_types at parse time.
         let return_type = match input.return_types.len() {
             0 => Type::Unit,
             1 => input.return_types[0].1.clone(),
@@ -1584,8 +1593,8 @@ impl TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        // Check type parameter.
-        if needs_type_param && input.type_parameters.is_empty() {
+        // Check type parameter count.
+        if needs_type_param && input.type_parameters.len() != 1 {
             self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, span));
             return Type::Err;
         }

@@ -1487,4 +1487,11 @@ create_messages!(
         msg: "Dynamic calls cannot be used inside a conditional branch.".to_string(),
         help: Some("Move the dynamic call outside the `if`/`else` block.".to_string()),
     }
+
+    @formatted
+    dynamic_call_input_type_count_mismatch {
+        args: (annotated: impl Display, actual: impl Display),
+        msg: format!("`_dynamic_call` has {annotated} input type annotation(s) but {actual} call argument(s) were provided (excluding the 3 target arguments)."),
+        help: Some("The number of type annotations before the return type must match the number of call arguments after program/network/function.".to_string()),
+    }
 );
