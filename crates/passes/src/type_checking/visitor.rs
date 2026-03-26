@@ -1562,6 +1562,27 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type_is_valid(inner, span);
             }
 
+            // Check that the vector element types are valid.
+            Type::Vector(vector_type) => {
+                // Check that the vector element type is valid.
+                match vector_type.element_type() {
+                    // Vector elements cannot be futures.
+                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_final(span)),
+                    // Vector elements cannot be tuples.
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
+                    // Vector elements cannot be records.
+                    Type::Composite(composite_type) => {
+                        if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location())
+                            && composite.is_record
+                        {
+                            self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
+                        }
+                    }
+                    _ => {} // Do nothing.
+                }
+                self.assert_type_is_valid(vector_type.element_type(), span);
+            }
+
             Type::Address
             | Type::Boolean
             | Type::Composite(_)
@@ -1574,7 +1595,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
-            | Type::Vector(_)
             | Type::Numeric
             | Type::Err => {} // Do nothing.
         }
