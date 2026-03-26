@@ -1,0 +1,7 @@
+Error [ETYC0372185]: `constant` visibility is not allowed in `_dynamic_call` type annotations.
+    --> compiler-test:4:43
+     |
+   4 |         let result: u64 = _dynamic_call::[constant u64](target, net, func, x);
+     |                                           ^^^^^^^^^^^^
+     |
+     = Use `public` or `private` instead.

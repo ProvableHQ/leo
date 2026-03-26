@@ -1539,6 +1539,13 @@ impl TypeCheckingVisitor<'_> {
             self.visit_expression(arg, &expected);
         }
 
+        // Reject `constant` visibility on input and return types.
+        for (mode, _, sp) in input.input_types.iter().chain(input.return_types.iter()) {
+            if matches!(mode, Mode::Constant) {
+                self.emit_err(TypeCheckerError::dynamic_call_constant_not_allowed(*sp));
+            }
+        }
+
         // Determine return type. Unit `()` is normalized to empty return_types at parse time.
         let return_type = match input.return_types.len() {
             0 => Type::Unit,

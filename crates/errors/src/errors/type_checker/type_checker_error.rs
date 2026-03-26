@@ -1488,4 +1488,10 @@ create_messages!(
         help: Some("Move the dynamic call outside the `if`/`else` block.".to_string()),
     }
 
+    @formatted
+    dynamic_call_constant_not_allowed {
+        args: (),
+        msg: "`constant` visibility is not allowed in `_dynamic_call` type annotations.".to_string(),
+        help: Some("Use `public` or `private` instead.".to_string()),
+    }
 );
