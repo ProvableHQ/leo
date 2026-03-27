@@ -1,0 +1,30 @@
+module  {
+}
+
+
+module  {
+    const FACTOR: u32 = 5u32;
+}
+
+
+module  {
+    struct Buffer::[N: u32] {
+        data: [u32; N],
+    }
+}
+
+
+module  {
+    fn scale::[N: u32](x: u32) -> u32 {
+        return x * N;
+    }
+}
+
+
+module  {
+    fn multi_generic::[A: u32, B: u32](x: u32) -> u32 {
+        return x * A + B;
+    }
+}
+
+

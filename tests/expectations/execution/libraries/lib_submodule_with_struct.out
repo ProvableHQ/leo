@@ -1,0 +1,19 @@
+program submodule_struct.aleo;
+
+struct Vec2__GgtuQih9HbY:
+    x as u32;
+    y as u32;
+
+function compute:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as Vec2__GgtuQih9HbY;
+    mul r2.x r2.x into r3;
+    mul r2.y r2.y into r4;
+    add r3 r4 into r5;
+    output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 25u32

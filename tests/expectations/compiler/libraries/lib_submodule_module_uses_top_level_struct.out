@@ -1,0 +1,15 @@
+program top_struct_usage.aleo;
+
+struct Point__3uDmHFk4KiT:
+    x as u32;
+    y as u32;
+
+function main:
+    cast 3u32 4u32 into r0 as Point__3uDmHFk4KiT;
+    mul r0.x r0.x into r1;
+    mul r0.y r0.y into r2;
+    add r1 r2 into r3;
+    output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1989,7 +1989,7 @@ impl<'a> ConversionContext<'a> {
             self.collect_library_item(&child, &mut consts, &mut structs, &mut functions)?;
         }
 
-        Ok(leo_ast::Library { name, consts, structs, functions })
+        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -2810,15 +2810,16 @@ pub fn parse_program(
     Ok(program)
 }
 
-/// Parses a complete library into a Library AST.
+/// Parses a complete library with its submodules into a Library AST.
 pub fn parse_library(
     handler: Handler,
     node_builder: &NodeBuilder,
     library_name: Symbol,
     source: &SourceFile,
+    modules: &[std::rc::Rc<SourceFile>],
     _network: NetworkName,
 ) -> Result<leo_ast::Library> {
-    // Parse `lib.leo` library file
+    // Parse `lib.leo` library file.
     let parse = leo_parser_rowan::parse_file(&source.src);
     let main_context = conversion_context(
         &handler,
@@ -2829,7 +2830,40 @@ pub fn parse_library(
         source.src.len() as u32,
     );
 
-    main_context.to_library(library_name, &parse.syntax())
+    let mut library = main_context.to_library(library_name, &parse.syntax())?;
+
+    // Determine the root directory of `lib.leo` for module key computation.
+    let root_dir = match &source.name {
+        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+        _ => None,
+    };
+
+    // Parse each submodule source file and insert it into the library.
+    for module_sf in modules {
+        let module_parse = leo_parser_rowan::parse_module_entry(&module_sf.src);
+        let module_context = conversion_context(
+            &handler,
+            node_builder,
+            module_parse.lex_errors(),
+            module_parse.errors(),
+            module_sf.absolute_start,
+            module_sf.src.len() as u32,
+        );
+
+        if let Some(key) = compute_module_key(&module_sf.name, root_dir.as_deref()) {
+            for segment in &key {
+                if symbol_is_keyword(*segment) {
+                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                }
+            }
+            // Library modules use library_name as the owner (analogous to program_name in
+            // program modules). Items inside are registered under Location::new(library_name, path).
+            let module_ast = module_context.to_module(&module_parse.syntax(), library_name, key.clone())?;
+            library.modules.insert(key, module_ast);
+        }
+    }
+
+    Ok(library)
 }
 
 // =============================================================================
