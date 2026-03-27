@@ -21,8 +21,7 @@ use std::{net::SocketAddr, path::PathBuf};
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     ledger::store::helpers::{memory::ConsensusMemory, rocksdb::ConsensusDB},
-    prelude::{Block, FromBytes, Ledger, Network, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0,
-    store::ConsensusStorage},
+    prelude::{Block, FromBytes, Ledger, Network, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0, store::ConsensusStorage},
 };
 
 use crate::cli::commands::devnode::rest::Rest;
