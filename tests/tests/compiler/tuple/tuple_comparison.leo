@@ -13,7 +13,6 @@ fn make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
 
 program tuple_eq_flat_stress.aleo {
     fn test_all() {
-
         // --- Base tuples
         let t1 = (1u32, 2u32);
         let t2 = (1u32, 3u32);
@@ -72,13 +71,11 @@ program tuple_eq_flat_stress.aleo {
         } else {
             assert(false);
         }
-
         if ((1u32, 2u32) != (1u32, 3u32)) {
             assert(true);
         } else {
             assert(false);
         }
-
         // --- 8. tuple built from struct fields
         let s1 = S { a: 9u32, b: 8u32 };
         let s2 = S { a: 9u32, b: 7u32 };
@@ -113,8 +110,7 @@ program tuple_eq_flat_stress.aleo {
 
         // Member access combined with tuple comparison
         assert(((x, y).0, (x, y).1) == (x, y));
-        assert_neq(((x, y).0, (x, y).1), (x, x));   // mismatched tuple
-
+        assert_neq(((x, y).0, (x, y).1), (x, x)); // mismatched tuple
         // --- 11. Ternary selecting between tuples based on tuple comparison
         let tA = (7u32, 8u32);
         let tB = (7u32, 9u32);
@@ -136,6 +132,5 @@ program tuple_eq_flat_stress.aleo {
         let b = 22u32;
         let sel4 = ((a, b).0 == a) ? (a, b) : (0u32, 0u32);
         assert_eq(sel4, (a, b));
-
     }
 }

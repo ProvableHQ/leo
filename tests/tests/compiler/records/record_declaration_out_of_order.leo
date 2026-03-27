@@ -1,4 +1,3 @@
-
 program test.aleo {
     record Token {
         // The token amount.
@@ -7,7 +6,7 @@ program test.aleo {
         owner: address,
     }
 
-    fn main(a: u64, b:u64) -> Token {
+    fn main(a: u64, b: u64) -> Token {
         return Token { amount: a + b, owner: self.signer };
     }
 }

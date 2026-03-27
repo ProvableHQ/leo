@@ -11,7 +11,7 @@ interface Adder {
     fn sum(a: u32, b: u32) -> u32;
 }
 
-program adder_target.aleo : Adder {
+program adder_target.aleo: Adder {
     fn sum(a: u32, b: u32) -> u32 {
         return a + b;
     }
@@ -26,7 +26,7 @@ interface Multiplier {
     fn product(a: u32, b: u32) -> u32;
 }
 
-program multiplier_target.aleo : Multiplier {
+program multiplier_target.aleo: Multiplier {
     fn product(a: u32, b: u32) -> u32 {
         return a * b;
     }
@@ -36,7 +36,6 @@ program multiplier_target.aleo : Multiplier {
 }
 
 // --- Next Program --- //
-
 import adder_target.aleo;
 import multiplier_target.aleo;
 

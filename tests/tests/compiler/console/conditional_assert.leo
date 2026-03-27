@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(id_type: u8) -> bool {
         if (id_type == 1u8) {

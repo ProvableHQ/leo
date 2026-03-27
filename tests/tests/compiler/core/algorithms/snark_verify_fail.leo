@@ -23,12 +23,25 @@ program test.aleo {
         nested_inputs: [[field; 2]; 3],
         nested_proof: [[u8; 5]; 2],
     ) -> Final {
-        return final { finalize(
-            bad_vk, bad_varuna, bad_inputs, bad_proof,
-            vk, varuna_version, inputs, proof,
-            batch_vks_flat, batch_vks, batch_inputs_2d, batch_inputs_mismatch,
-            nested_vk, nested_inputs, nested_proof,
-        ); };
+        return final {
+            finalize(
+                bad_vk,
+                bad_varuna,
+                bad_inputs,
+                bad_proof,
+                vk,
+                varuna_version,
+                inputs,
+                proof,
+                batch_vks_flat,
+                batch_vks,
+                batch_inputs_2d,
+                batch_inputs_mismatch,
+                nested_vk,
+                nested_inputs,
+                nested_proof,
+            );
+        };
     }
 }
 

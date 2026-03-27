@@ -1,50 +1,50 @@
 Error [ETYC0372117]: Expected a [u8; N] but type `u32` was found.
-    --> compiler-test:53:34
+    --> compiler-test:66:34
      |
-  53 |     let v1: bool = Snark::verify(bad_vk, varuna_version, inputs, proof);
+  66 |     let v1: bool = Snark::verify(bad_vk, varuna_version, inputs, proof);
      |                                  ^^^^^^
 Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
-    --> compiler-test:56:38
+    --> compiler-test:69:38
      |
-  56 |     let v2: bool = Snark::verify(vk, bad_varuna, inputs, proof);
+  69 |     let v2: bool = Snark::verify(vk, bad_varuna, inputs, proof);
      |                                      ^^^^^^^^^^
 Error [ETYC0372117]: Expected type `field` but type `u8` was found.
-    --> compiler-test:59:54
+    --> compiler-test:72:54
      |
-  59 |     let v3: bool = Snark::verify(vk, varuna_version, bad_inputs, proof);
+  72 |     let v3: bool = Snark::verify(vk, varuna_version, bad_inputs, proof);
      |                                                      ^^^^^^^^^^
 Error [ETYC0372117]: Expected a [u8; N] but type `u64` was found.
-    --> compiler-test:62:62
+    --> compiler-test:75:62
      |
-  62 |     let v4: bool = Snark::verify(vk, varuna_version, inputs, bad_proof);
+  75 |     let v4: bool = Snark::verify(vk, varuna_version, inputs, bad_proof);
      |                                                              ^^^^^^^^^
 Error [ETYC0372117]: Expected a [[u8; N]; M] but type `[u8; 128]` was found.
-    --> compiler-test:65:40
+    --> compiler-test:78:40
      |
-  65 |     let v5: bool = Snark::verify_batch(batch_vks_flat, varuna_version, batch_inputs_mismatch, proof);
+  78 |     let v5: bool = Snark::verify_batch(batch_vks_flat, varuna_version, batch_inputs_mismatch, proof);
      |                                        ^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected a [[[field; N]; M]; K] but type `[[field; 4]; 3]` was found.
-    --> compiler-test:68:67
+    --> compiler-test:81:67
      |
-  68 |     let v6: bool = Snark::verify_batch(batch_vks, varuna_version, batch_inputs_2d, proof);
+  81 |     let v6: bool = Snark::verify_batch(batch_vks, varuna_version, batch_inputs_2d, proof);
      |                                                                   ^^^^^^^^^^^^^^^
 Error [ETYC0372156]: The number of verifying keys (3) must match the number of circuits in the inputs (2).
-    --> compiler-test:71:40
+    --> compiler-test:84:40
      |
-  71 |     let v7: bool = Snark::verify_batch(batch_vks, varuna_version, batch_inputs_mismatch, proof);
+  84 |     let v7: bool = Snark::verify_batch(batch_vks, varuna_version, batch_inputs_mismatch, proof);
      |                                        ^^^^^^^^^
 Error [ETYC0372117]: Expected a [u8; N] but type `[[u8; 3]; 4]` was found.
-    --> compiler-test:74:34
+    --> compiler-test:87:34
      |
-  74 |     let v8: bool = Snark::verify(nested_vk, varuna_version, inputs, proof);
+  87 |     let v8: bool = Snark::verify(nested_vk, varuna_version, inputs, proof);
      |                                  ^^^^^^^^^
 Error [ETYC0372117]: Expected a [field; N] but type `[[field; 2]; 3]` was found.
-    --> compiler-test:77:54
+    --> compiler-test:90:54
      |
-  77 |     let v9: bool = Snark::verify(vk, varuna_version, nested_inputs, proof);
+  90 |     let v9: bool = Snark::verify(vk, varuna_version, nested_inputs, proof);
      |                                                      ^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected a [u8; N] but type `[[u8; 5]; 2]` was found.
-    --> compiler-test:80:63
+    --> compiler-test:93:63
      |
-  80 |     let v10: bool = Snark::verify(vk, varuna_version, inputs, nested_proof);
+  93 |     let v10: bool = Snark::verify(vk, varuna_version, inputs, nested_proof);
      |                                                               ^^^^^^^^^^^^

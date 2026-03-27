@@ -14,7 +14,7 @@ Error [ETYC0372031]: A mapping's value cannot be a future
    6 |     mapping x: Final => Final;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372115]: An array cannot have a Final as an element type.
-    --> compiler-test:11:9
+    --> compiler-test:10:9
      |
-  11 |         let an_array: [Final; 1] = [future];
+  10 |         let an_array: [Final; 1] = [future];
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -7,14 +7,12 @@ fn foo(a: u8, b: u8) -> (u8, u8) {
     return (c, d);
 }
 
-
 program test.aleo {
     fn bar(flag: bool, a: u8, b: u8) -> (u8, u8) {
         let start: (u8, u8) = foo(a, b);
         if flag {
             start = foo(start.0, start.1);
         } else {
-
             start = foo(start.1, start.0);
         }
         return start;

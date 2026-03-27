@@ -6,16 +6,27 @@ expectation: Fail
 program test.aleo {
     // Test ECDSA verification with incorrect types - should fail
     fn main(
-        sig_correct: [u8; 65],          // Correct signature
-        sig_wrong_size: [u8; 64],       // Wrong: should be [u8; 65]
-        sig_wrong_type: u64,            // Wrong: should be [u8; 65]
-        addr_wrong_size_1: [u8; 20],    // Wrong for non-eth: should be [u8; 33]
-        addr_wrong_size_2: [u8; 33],    // Wrong for eth: should be [u8; 20]
-        addr_wrong_elem: [u32; 33],     // Wrong element type: should be u8
-        digest_wrong_size: [u8; 31],    // Wrong for digest: should be [u8; 32]
-        msg: u64
+        sig_correct: [u8; 65], // Correct signature
+        sig_wrong_size: [u8; 64], // Wrong: should be [u8; 65]
+        sig_wrong_type: u64, // Wrong: should be [u8; 65]
+        addr_wrong_size_1: [u8; 20], // Wrong for non-eth: should be [u8; 33]
+        addr_wrong_size_2: [u8; 33], // Wrong for eth: should be [u8; 20]
+        addr_wrong_elem: [u32; 33], // Wrong element type: should be u8
+        digest_wrong_size: [u8; 31], // Wrong for digest: should be [u8; 32]
+        msg: u64,
     ) -> Final {
-        return final { finalize(sig_correct, sig_wrong_size, sig_wrong_type, addr_wrong_size_1, addr_wrong_size_2, addr_wrong_elem, digest_wrong_size, msg); };
+        return final {
+            finalize(
+                sig_correct,
+                sig_wrong_size,
+                sig_wrong_type,
+                addr_wrong_size_1,
+                addr_wrong_size_2,
+                addr_wrong_elem,
+                digest_wrong_size,
+                msg,
+            );
+        };
     }
 }
 
@@ -27,10 +38,9 @@ final fn finalize(
     addr_wrong_size_2: [u8; 33],
     addr_wrong_elem: [u32; 33],
     digest_wrong_size: [u8; 31],
-    msg: u64
+    msg: u64,
 ) {
     // These should all fail with type errors:
-
     // Fail: signature wrong size with digest wrong size
     let v1: bool = ECDSA::verify_digest(sig_wrong_size, addr_wrong_size_2, digest_wrong_size);
 

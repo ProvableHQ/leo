@@ -15,7 +15,6 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 final fn finalize(f: Final) {

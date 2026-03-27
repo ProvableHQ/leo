@@ -1,8 +1,8 @@
 Error [EAST0372017]: The name `Token` is defined multiple times.
-    --> compiler-test:12:8
+    --> compiler-test:10:8
      |
-   3 |       record Token {
+   2 |       record Token {
      |              ^^^^^ previous definition of `Token` here
    ...
-  12 |   struct Token { // This struct cannot have the same name as the record defined above it.
+  10 |   struct Token { // This struct cannot have the same name as the record defined above it.
      |          ^^^^^ `Token` redefined here

@@ -33,7 +33,6 @@ fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
 program test.aleo {
     fn main() -> u32 {
         // sizes::LEN = 4, sizes::HALF = 2
-
         // Array of size LEN (4): [1, 2, 3, 4] -> sum = 10
         let full: [u32; sizes::LEN] = make_array::[sizes::LEN]();
         let full_sum: u32 = sum_array::[sizes::LEN](full);

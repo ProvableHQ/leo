@@ -1,17 +1,17 @@
 Error [EPAR0370050]: Could not lex the following content: `'`.
 
-    --> test:4:23
+    --> test:4:19
      |
-   4 |         let d: char = '\u}
-     |                       ^
+   4 |     let d: char = '\u
+     |                   ^
 Error [EPAR0370050]: Could not lex the following content: `\`.
 
-    --> test:4:24
+    --> test:4:20
      |
-   4 |         let d: char = '\u}
-     |                        ^
+   4 |     let d: char = '\u
+     |                    ^
 Error [EPAR0370005]: expected ';' -- found '}'
-    --> test:4:26
+    --> test:5:1
      |
-   4 |         let d: char = '\u}
-     |                          ^
+   5 | }
+     | ^

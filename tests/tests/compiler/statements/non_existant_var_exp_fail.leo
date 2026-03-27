@@ -1,6 +1,6 @@
-
 program test.aleo {}
+
 fn main(k: bool) -> bool {
-	let b: u8 = 1u8**z;
+    let b: u8 = 1u8 ** z;
     return k == true;
 }

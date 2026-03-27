@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping values: scalar => group;
 
     fn foo() -> Final {

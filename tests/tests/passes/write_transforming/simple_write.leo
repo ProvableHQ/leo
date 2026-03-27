@@ -5,4 +5,3 @@ program test.aleo {
         return a[1u32];
     }
 }
-

@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
@@ -8,6 +7,6 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_private (public receiver: address, public amount: u64) {
+final fn finalize_mint_private(public receiver: address, public amount: u64) {
     Mapping::set(account, receiver, amount);
 }

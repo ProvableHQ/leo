@@ -1,20 +1,20 @@
 Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '?'
-    --> test:4:6
+    --> test:3:6
      |
-   4 | @foo(?, bar, ?)
+   3 | @foo(?, bar, ?)
      |      ^
 Error [EPAR0370005]: expected '=' -- found ','
-    --> test:4:12
+    --> test:3:12
      |
-   4 | @foo(?, bar, ?)
+   3 | @foo(?, bar, ?)
      |            ^
 Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '?'
-    --> test:4:14
+    --> test:3:14
      |
-   4 | @foo(?, bar, ?)
+   3 | @foo(?, bar, ?)
      |              ^
 Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '123'
-    --> test:9:6
+    --> test:8:6
      |
-   9 | @bar(123) // ints not vali
+   8 | @bar(123)
      |      ^^^

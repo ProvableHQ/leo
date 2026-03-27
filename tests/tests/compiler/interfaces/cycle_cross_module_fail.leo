@@ -1,6 +1,6 @@
 // Test: Cross-module interface inheritance cycle (should fail)
 
-interface A : mod_b::B {
+interface A: mod_b::B {
     fn a() -> u64;
 }
 
@@ -12,10 +12,10 @@ program test.aleo {
 
 // --- Next Module: mod_b.leo --- //
 
-interface B : C {
+interface B: C {
     fn b() -> u64;
 }
 
-interface C : B {
+interface C: B {
     fn b() -> u64;
 }

@@ -4,4 +4,3 @@ program test.aleo {
         return result.unwrap();
     }
 }
-

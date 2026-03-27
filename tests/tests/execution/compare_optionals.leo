@@ -105,4 +105,3 @@ program compare_optionals.aleo {
     @noupgrade
     constructor() {}
 }
-

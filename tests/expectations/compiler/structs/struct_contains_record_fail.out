@@ -1,13 +1,13 @@
 Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     token: Token,
+   3 |     token: Token,
      |     ^^^^^
      |
      = Remove the record `test.aleo::Token` from `Foo`.
 Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
 Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:7:9
+    --> compiler-test:6:9
      |
-   7 | program test.aleo {
+   6 | program test.aleo {
      |         ^^^^^^^^^

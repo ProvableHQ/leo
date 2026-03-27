@@ -1,4 +1,3 @@
-
 program test.aleo {}
 
 fn x() -> u32 {

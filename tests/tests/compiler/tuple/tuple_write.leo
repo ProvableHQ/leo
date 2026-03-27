@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn baz(foo: u8, bar: u8) -> u8 {
         let a: (u8, u8) = (foo, bar);
@@ -25,14 +24,13 @@ program test.aleo {
         } else {
             tupl.1 = tupl.1 + y;
         }
-
         return tupl;
     }
 
     fn baz4(x: field, y: field, z: bool) -> (field, field) {
         let tupl1: (field, field) = (x, y);
         let tupl2: (field, field) = (y, x);
-        let result: (field, field) =  z ? tupl1 : tupl2;
+        let result: (field, field) = z ? tupl1 : tupl2;
         return result;
     }
 }

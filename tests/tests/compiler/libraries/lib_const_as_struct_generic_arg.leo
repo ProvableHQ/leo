@@ -17,15 +17,15 @@ const SIDE: u32 = 4u32;
 const DOUBLE_SIDE: u32 = SIDE + SIDE;
 
 struct Grid::[N: u32] {
-    cells: [u32; N]
+    cells: [u32; N],
 }
 
 struct Square {
-    grid: Grid::[SIDE]
+    grid: Grid::[SIDE],
 }
 
 struct BigSquare {
-    grid: Grid::[DOUBLE_SIDE]
+    grid: Grid::[DOUBLE_SIDE],
 }
 
 // --- Next Program --- //

@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping amounts: address => u128;
 

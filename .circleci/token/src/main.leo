@@ -11,7 +11,6 @@ program token.aleo {
     }
 
     /* Mint */
-
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
     fn mint_public(public receiver: address, public amount: u64) -> Final {
         // Mint the tokens publicly by invoking the computation on-chain.
@@ -20,10 +19,7 @@ program token.aleo {
 
     // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
     fn mint_private(receiver: address, amount: u64) -> token {
-        return token {
-            owner: receiver,
-            amount: amount,
-        };
+        return token { owner: receiver, amount: amount };
     }
 
     /* Transfer */
@@ -40,52 +36,50 @@ program token.aleo {
         let difference: u64 = sender.amount - amount;
 
         // Produce a token record with the change amount for the sender.
-        let remaining: token = token {
-            owner: sender.owner,
-            amount: difference,
-        };
-
+        let remaining: token = token { owner: sender.owner, amount: difference };
         // Produce a token record for the specified receiver.
-        let transferred: token = token {
-            owner: receiver,
-            amount: amount,
-        };
-
+        let transferred: token = token { owner: receiver, amount: amount };
         // Output the sender's change record and the receiver's record.
         return (remaining, transferred);
     }
 
     // The function `transfer_private_to_public` turns a specified token amount from a token record into public tokens for the specified receiver.
     // This function preserves privacy for the sender's record, however it publicly reveals the token receiver and the token amount.
-    fn transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Final) {
+    fn transfer_private_to_public(
+        sender: token,
+        public receiver: address,
+        public amount: u64,
+    ) -> (token, Final) {
         // Checks the given token record has a sufficient token amount.
         // This `sub` operation is safe, and the proof will fail if an underflow occurs.
         // `difference` holds the change amount for the caller.
         let difference: u64 = sender.amount - amount;
 
         // Produces a token record with the change amount for the caller.
-        let remaining: token = token {
-            owner: sender.owner,
-            amount: difference,
-        };
-
+        let remaining: token = token { owner: sender.owner, amount: difference };
         // Output the sender's change record.
         // Increment the token amount publicly for the token receiver.
-        return (remaining, final { finalize_transfer_private_to_public(receiver, amount); });
+        return (
+            remaining,
+            final {
+                finalize_transfer_private_to_public(receiver, amount);
+            },
+        );
     }
 
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
     fn transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Final) {
         // Produces a token record for the token receiver.
-        let transferred: token = token {
-            owner: receiver,
-            amount: amount,
-        };
-
+        let transferred: token = token { owner: receiver, amount: amount };
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        return (transferred, final { finalize_transfer_public_to_private(self.caller, amount); });
+        return (
+            transferred,
+            final {
+                finalize_transfer_public_to_private(self.caller, amount);
+            },
+        );
     }
 }
 
@@ -97,8 +91,11 @@ final fn finalize_mint_public(public receiver: address, public amount: u64) {
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-
-final fn finalize_transfer_public(public sender: address, public receiver: address, public amount: u64) {
+final fn finalize_transfer_public(
+    public sender: address,
+    public receiver: address,
+    public amount: u64,
+) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -110,7 +107,6 @@ final fn finalize_transfer_public(public sender: address, public receiver: addre
     let receiver_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
     Mapping::set(account, receiver, receiver_amount + amount);
 }
-
 
 final fn finalize_transfer_private_to_public(public receiver: address, public amount: u64) {
     // Increments `account[receiver]` by `amount`.

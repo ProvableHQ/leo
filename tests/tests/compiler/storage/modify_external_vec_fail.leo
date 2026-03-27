@@ -13,7 +13,6 @@ program provider.aleo {
 }
 
 // --- Next Program --- //
-
 import provider.aleo;
 
 program user.aleo {
@@ -22,11 +21,11 @@ program user.aleo {
             //
             // Every line below should be DISALLOWED on external storage.
             //
-            provider.aleo::nums.push(3u32);         // ❌ illegal external mutation
-            provider.aleo::nums.pop();              // ❌ illegal external mutation
-            provider.aleo::nums.set(0u32, 99u32);   // ❌ illegal external mutation
-            provider.aleo::nums.clear();            // ❌ illegal external mutation
-            provider.aleo::nums.swap_remove(1u32);  // ❌ illegal external mutation
+            provider.aleo::nums.push(3u32); // ❌ illegal external mutation
+            provider.aleo::nums.pop(); // ❌ illegal external mutation
+            provider.aleo::nums.set(0u32, 99u32); // ❌ illegal external mutation
+            provider.aleo::nums.clear(); // ❌ illegal external mutation
+            provider.aleo::nums.swap_remove(1u32); // ❌ illegal external mutation
         };
     }
 

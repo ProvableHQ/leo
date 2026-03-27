@@ -1,4 +1,3 @@
-
 struct Amount {
     amount: u64,
     amt: u64,
@@ -21,8 +20,10 @@ program test.aleo {
 
     fn main(x: address) -> u64 {
         let c: u64 = 1u64;
-        let t: Token = Token { owner: x, amount: Amount { amount: c, amt: c } };
-
+        let t: Token = Token {
+            owner: x,
+            amount: Amount { amount: c, amt: c },
+        };
         return c + c;
     }
 }

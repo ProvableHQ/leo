@@ -1,5 +1,5 @@
 Error [EPAR0370047]: expected parameter name
-    --> compiler-test:7:13
+    --> compiler-test:6:13
      |
-   7 |     fn main(let x: u8, y: bool) -> bool {
+   6 |     fn main(let x: u8, y: bool) -> bool {
      |             ^^^

@@ -30,14 +30,12 @@ input = [ "sign1vck9vl9w0w9xh3z9dph5qmyqacqapyuve7jfqvgfyslglx92auqmr6965sdn7wp4
 
 struct foo {
     a: u8,
-    b: scalar
+    b: scalar,
 }
 
-const SIG_5: signature =
-  sign1vck9vl9w0w9xh3z9dph5qmyqacqapyuve7jfqvgfyslglx92auqmr6965sdn7wp4n9nahysxps633j9d2g4rgs2zhxlz75sxm8af7qvr22qjwn4zc0pzv87twjygsz9m7ekljmuw4jpzf68rwuq99r0tp735vs6220q7tp60nr7llkwstcvu49wdhydx5x2s3sftjskzawhqvqcj6tl;
+const SIG_5: signature = sign1vck9vl9w0w9xh3z9dph5qmyqacqapyuve7jfqvgfyslglx92auqmr6965sdn7wp4n9nahysxps633j9d2g4rgs2zhxlz75sxm8af7qvr22qjwn4zc0pzv87twjygsz9m7ekljmuw4jpzf68rwuq99r0tp735vs6220q7tp60nr7llkwstcvu49wdhydx5x2s3sftjskzawhqvqcj6tl;
 
 program test.aleo {
-
     // literal/const method call
     fn main(a: address, v: field) -> bool {
         return SIG_5.verify(a, v);

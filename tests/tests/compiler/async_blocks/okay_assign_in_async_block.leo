@@ -1,4 +1,7 @@
-struct Foo { x: u32, y: u32 }
+struct Foo {
+    x: u32,
+    y: u32,
+}
 
 program test.aleo {
     fn foo(p: u32, q: u8) -> Final {
@@ -20,21 +23,18 @@ program test.aleo {
             {
                 w = 1;
             }
-
             {
                 let b = 0u32;
                 {
                     b = 1;
                 }
             }
-
             {
                 {
                     let c = 0u32;
                     c = 1;
                 }
             }
-
             for i in 0u32..2u32 {
                 let d = 0u32;
                 d = 1;
@@ -43,4 +43,3 @@ program test.aleo {
         return f;
     }
 }
-

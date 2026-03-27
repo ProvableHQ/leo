@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: u8, b: u8) -> bool {
         let ret: bool = a == b;
