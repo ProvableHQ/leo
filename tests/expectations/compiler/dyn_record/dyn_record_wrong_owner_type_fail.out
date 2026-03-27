@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected 'record' -- found ')'
-    --> compiler-test:2:19
+Error [ETYC0372117]: Expected type `u64` but type `address` was found.
+    --> compiler-test:3:22
      |
-   2 |     fn main(r: dyn) -> u64 {
-     |                   ^
+   3 |         let x: u64 = r.owner;
+     |                      ^^^^^^^

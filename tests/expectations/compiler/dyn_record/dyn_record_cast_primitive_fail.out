@@ -1,10 +1,5 @@
-Error [EPAR0370005]: expected 'record' -- found '{'
-    --> compiler-test:2:28
+Error [ETYC0372179]: Cannot cast `u64` to `dyn record`: only concrete record types can be cast to `dyn record`.
+    --> compiler-test:3:16
      |
-   2 |     fn main(x: u64) -> dyn {
-     |                            ^
-Error [EPAR0370005]: expected 'record' -- found ';'
-    --> compiler-test:3:24
-     |
-   3 |         return x as dyn;
-     |                        ^
+   3 |         return x as dyn record;
+     |                ^

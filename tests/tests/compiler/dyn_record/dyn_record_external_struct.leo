@@ -21,7 +21,7 @@ import token.aleo;
 
 program test.aleo {
     fn main(t: token.aleo::Token) -> u64 {
-        let d: dyn = t as dyn;
+        let d: dyn record = t as dyn record;
         let m: token.aleo::Metadata = d.meta;
         return m.amount;
     }
