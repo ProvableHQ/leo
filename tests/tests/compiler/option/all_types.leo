@@ -137,7 +137,6 @@ program all_types.aleo {
         let b: address? = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let val1 = b
             .unwrap_or(a.unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta));
-
         // Case 2: Struct containing address and optional address
         let s = AddrStruct {
             a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta,

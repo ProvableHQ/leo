@@ -9,7 +9,7 @@ program test.aleo {
     }
 
     fn main(t: Token) -> u64 {
-        let d: dyn record = t as dyn record;
+        let d: dyn = t as dyn;
         let info: Info = d.data;
         return info.inner;
     }

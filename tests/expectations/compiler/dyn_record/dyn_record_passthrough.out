@@ -1,5 +1,10 @@
-program test.aleo;
-
-function main:
-    input r0 as dynamic.record;
-    output r0.owner as address.private;
+Error [EPAR0370005]: expected 'record' -- found ')'
+    --> compiler-test:2:19
+     |
+   2 |     fn main(r: dyn) -> address {
+     |                   ^
+Error [EPAR0370005]: expected 'record' -- found ')'
+    --> compiler-test:7:16
+     |
+   7 | fn inner(r: dyn) -> address {
+     |                ^

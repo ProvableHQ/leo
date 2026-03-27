@@ -5,21 +5,21 @@ program test.aleo {
         memo: field,
     }
 
-    fn make_dynamic(t: Token) -> dyn record {
-        let dynamic = t as dyn record;
+    fn make_dynamic(t: Token) -> dyn {
+        let dynamic = t as dyn;
         return dynamic;
     }
 
-    fn get_balance(r: dyn record) -> u64 {
+    fn get_balance(r: dyn) -> u64 {
         let balance: u64 = r.balance;
         return balance;
     }
 
-    fn get_owner(r: dyn record) -> address {
+    fn get_owner(r: dyn) -> address {
         return r.owner;
     }
 
-    fn get_memo_typed(r: dyn record) -> field {
+    fn get_memo_typed(r: dyn) -> field {
         let memo: field = r.memo;
         return memo;
     }

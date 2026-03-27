@@ -6,7 +6,7 @@ program test.aleo {
     }
 
     fn main(t: Token) -> bool {
-        let d: dyn record = t as dyn record;
+        let d: dyn = t as dyn;
         let b: u64 = d.balance;
         let m: field = d.memo;
         let o: address = d.owner;

@@ -1,5 +1,10 @@
-Error [ETYC0372179]: Cannot cast `test.aleo::Foo` to `dyn record`: only concrete record types can be cast to `dyn record`.
-    --> compiler-test:8:16
+Error [EPAR0370005]: expected 'record' -- found '{'
+    --> compiler-test:6:28
      |
-   8 |         return f as dyn record;
-     |                ^
+   6 |     fn main(f: Foo) -> dyn {
+     |                            ^
+Error [EPAR0370005]: expected 'record' -- found ';'
+    --> compiler-test:8:24
+     |
+   8 |         return f as dyn;
+     |                        ^

@@ -16,7 +16,7 @@ program test.aleo {
 
     fn get_balance(owner: address, balance: u64, memo: field) -> u64 {
         let t: Token = Token { owner, balance, memo };
-        let d: dyn record = t as dyn record;
+        let d: dyn = t as dyn;
         let b: u64 = d.balance;
         return b;
     }

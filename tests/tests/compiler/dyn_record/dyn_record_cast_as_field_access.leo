@@ -5,7 +5,7 @@ program test.aleo {
     }
 
     fn main(t: Token) -> u64 {
-        let d: dyn record = t as dyn record;
+        let d: dyn = t as dyn;
         return d.balance as u64;
     }
 }

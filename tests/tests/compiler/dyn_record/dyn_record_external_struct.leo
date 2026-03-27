@@ -17,11 +17,11 @@ program token.aleo {
 }
 
 // --- Next Program --- //
-
 import token.aleo;
+
 program test.aleo {
     fn main(t: token.aleo::Token) -> u64 {
-        let d: dyn record = t as dyn record;
+        let d: dyn = t as dyn;
         let m: token.aleo::Metadata = d.meta;
         return m.amount;
     }

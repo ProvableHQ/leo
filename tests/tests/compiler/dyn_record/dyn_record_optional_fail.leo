@@ -1,5 +1,5 @@
 program test.aleo {
-    fn main(r: dyn record?) -> address {
+    fn main(r: dyn?) -> address {
         return r.owner;
     }
 }

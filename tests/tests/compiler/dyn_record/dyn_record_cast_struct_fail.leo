@@ -3,8 +3,8 @@ program test.aleo {
         x: u32,
     }
 
-    fn main(f: Foo) -> dyn record {
+    fn main(f: Foo) -> dyn {
         // Should fail: cannot cast struct to dyn record
-        return f as dyn record;
+        return f as dyn;
     }
 }

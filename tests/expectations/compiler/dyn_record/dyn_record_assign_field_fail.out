@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected an assignable struct or record but type `dyn record` was found.
-    --> compiler-test:3:9
+Error [EPAR0370005]: expected 'record' -- found ')'
+    --> compiler-test:2:19
      |
-   3 |         r.balance = 100u64;
-     |         ^
+   2 |     fn main(r: dyn) {
+     |                   ^
