@@ -58,12 +58,12 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            4.447872
   Function 'main'
     Total Execution Cost:   0.001334
-    |- Finalize Cost:       0.000000
     |- Storage Cost:        0.001334
+    |- Finalize Cost:       0.000000
   Function 'mint'
     Total Execution Cost:   0.001536
-    |- Finalize Cost:       0.000000
     |- Storage Cost:        0.001536
+    |- Finalize Cost:       0.000000
   Function 'dynamic_transfer'
     Total Execution Cost:   0.000000 (lower bound)
     |- Storage Cost:        N/A (dynamic call)
