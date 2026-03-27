@@ -1573,9 +1573,13 @@ fn format_type(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_type_primitive(node: &SyntaxNode, out: &mut Output) {
-    // Just write the keyword token text.
-    if let Some(tok) = node.children_with_tokens().find_map(|e| e.into_token().filter(|t| !t.kind().is_trivia())) {
+    let mut first = true;
+    for tok in node.children_with_tokens().filter_map(|e| e.into_token()).filter(|t| !t.kind().is_trivia()) {
+        if !first {
+            out.space();
+        }
         out.write(tok.text());
+        first = false;
     }
 }
 
