@@ -1,0 +1,15 @@
+Error [ETYC0372156]: `Program::checksum` must be called on a program ID, e.g. `foo.aleo`
+    --> compiler-test:3:41
+     |
+   3 |     let c: [u8; 32] = Program::checksum(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+     |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372156]: `Program::edition` must be called on a program ID, e.g. `foo.aleo`
+    --> compiler-test:4:35
+     |
+   4 |     let d: u16 = Program::edition(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372156]: `Program::program_owner` must be called on a program ID, e.g. `foo.aleo`
+    --> compiler-test:5:45
+     |
+   5 |     let e: address = Program::program_owner(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+     |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

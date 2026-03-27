@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: bool, b: bool) -> bool {
         // unary
@@ -14,4 +13,5 @@ program test.aleo {
         let ar: bool = a.xor(b);
 
         return h;
-    }}
+    }
+}

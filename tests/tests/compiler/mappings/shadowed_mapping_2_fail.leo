@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping one: field => field;
 
     fn one() -> u8 {

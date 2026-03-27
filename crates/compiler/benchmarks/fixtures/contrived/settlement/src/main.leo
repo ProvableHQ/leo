@@ -2712,10 +2712,10 @@ program bench_settlement.aleo {
 
     fn aggregate_settlement(seed: u64) -> u64 {
         let acc = seed;
-        acc = bench_primitives.aleo/aggregate_primitives(acc);
-        acc = bench_registry.aleo/aggregate_registry(acc);
-        acc = bench_policy.aleo/aggregate_policy(acc);
-        acc = bench_router.aleo/aggregate_router(acc);
+        acc = bench_primitives.aleo::aggregate_primitives(acc);
+        acc = bench_registry.aleo::aggregate_registry(acc);
+        acc = bench_policy.aleo::aggregate_policy(acc);
+        acc = bench_router.aleo::aggregate_router(acc);
         return acc + 1u64;
     }
 }

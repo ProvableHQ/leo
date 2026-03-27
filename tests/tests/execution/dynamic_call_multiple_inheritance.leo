@@ -15,9 +15,10 @@ interface Multiplier {
     fn product(a: u32, b: u32) -> u32;
 }
 
-interface Calculator : Adder + Multiplier {}
+interface Calculator: Adder + Multiplier {
+}
 
-program calc_impl.aleo : Calculator {
+program calc_impl.aleo: Calculator {
     fn sum(a: u32, b: u32) -> u32 {
         return a + b;
     }
@@ -31,13 +32,12 @@ program calc_impl.aleo : Calculator {
 }
 
 // --- Next Program --- //
-
 import calc_impl.aleo;
 
 program caller.aleo {
     fn main(target: field, x: u32, y: u32) -> u32 {
-        let s: u32 = calc_impl.aleo/Adder@(target)/sum(x, y);
-        let p: u32 = calc_impl.aleo/Multiplier@(target)/product(x, y);
+        let s: u32 = calc_impl.aleo::Adder@(target)/sum(x, y);
+        let p: u32 = calc_impl.aleo::Multiplier@(target)/product(x, y);
         return s + p;
     }
 

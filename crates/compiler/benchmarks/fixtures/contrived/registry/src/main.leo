@@ -2061,7 +2061,7 @@ program bench_registry.aleo {
 
     fn aggregate_registry(seed: u64) -> u64 {
         let acc = seed;
-        acc = bench_primitives.aleo/aggregate_primitives(acc);
+        acc = bench_primitives.aleo::aggregate_primitives(acc);
         return acc + 1u64;
     }
 }

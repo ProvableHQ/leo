@@ -29,12 +29,11 @@ program helper.aleo {
 }
 
 // --- Next Program --- //
-
 import helper.aleo;
 
 program main.aleo {
     fn compute(x: u32) -> u32 {
-        let a: u32 = helper.aleo/add_offset(x);
+        let a: u32 = helper.aleo::add_offset(x);
         return a + config_lib::FACTOR + math_lib::SCALE;
     }
 

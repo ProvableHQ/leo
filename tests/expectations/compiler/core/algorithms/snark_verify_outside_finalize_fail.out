@@ -9,12 +9,12 @@ Error [ETYC0372034]: `Snark::verify` must be inside a `final fn` or a `final` bl
    8 |         return Snark::verify(vk, v, inputs, proof);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:12:16
+    --> compiler-test:17:16
      |
-  12 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
+  17 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372034]: `Snark::verify_batch` must be inside a `final fn` or a `final` block.
-    --> compiler-test:12:16
+    --> compiler-test:17:16
      |
-  12 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
+  17 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

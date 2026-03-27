@@ -1,0 +1,14 @@
+program test.aleo;
+
+struct Info:
+    inner as u64;
+
+record Token:
+    owner as address.private;
+    data as Info.private;
+
+function main:
+    input r0 as Token.record;
+    cast r0 into r1 as dynamic.record;
+    get.record.dynamic r1.data into r2 as Info;
+    output r2.inner as u64.private;

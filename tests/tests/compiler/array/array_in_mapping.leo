@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping data: address => [bool; 8];
 

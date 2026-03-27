@@ -1,4 +1,3 @@
-
 program test.aleo {
     // This calculates the n-th fibonacci number (up to 64th)
     fn fibonacci(public n: u8) -> u128 {
@@ -9,11 +8,10 @@ program test.aleo {
         let c: u8 = 0u8;
 
         let z: u8 = reverse_bits(n);
-
-        for i:u8 in 0u8..8u8 {
+        for i: u8 in 0u8..8u8 {
             if n > 0u8 {
                 let f2i1: u128 = f1 * f1 + f0 * f0;
-                let f2i: u128 =  f0 * (2u128 * f1 - f0);
+                let f2i: u128 = f0 * (2u128 * f1 - f0);
                 if z & 1u8.shl(c) == 0u8 {
                     f0 = f2i;
                     f1 = f2i1;
@@ -25,25 +23,20 @@ program test.aleo {
                 n = n >> 1u8;
             }
         }
-
         return f0;
     }
 }
 
 fn reverse_bits(n: u8) -> u8 {
     let reverse: u8 = 0u8;
-
-    for i:u8 in 0u8..8u8 {
+    for i: u8 in 0u8..8u8 {
         if n > 0u8 {
             reverse = reverse << 1u8;
-
             if n & 1u8 == 1u8 {
                 reverse ^= 1u8;
             }
-
             n = n >> 1u8;
         }
     }
-
     return reverse;
 }

@@ -13,16 +13,18 @@ program test.aleo {
     // Note: Digest variants require [u8; 32], hash variants require byte-aligned types
     fn main(
         sig: [u8; 65],
-        addr: [u8; 33],       // For non-eth variants
-        addr_eth: [u8; 20],   // For eth variants
-        digest: [u8; 32],     // For digest variants
+        addr: [u8; 33], // For non-eth variants
+        addr_eth: [u8; 20], // For eth variants
+        digest: [u8; 32], // For digest variants
         msg_u32: u32,
         msg_u64: u64,
         msg_u128: u128,
         msg_array: [u32; 2],
-        msg_array2: [u64; 4]
+        msg_array2: [u64; 4],
     ) -> Final {
-        return final { finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2); };
+        return final {
+            finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2);
+        };
     }
 }
 
@@ -35,7 +37,7 @@ final fn finalize(
     msg_u64: u64,
     msg_u128: u128,
     msg_array: [u32; 2],
-    msg_array2: [u64; 4]
+    msg_array2: [u64; 4],
 ) {
     // Digest variants (require [u8; 32])
     let v1: bool = ECDSA::verify_digest(sig, addr, digest);

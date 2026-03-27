@@ -10,7 +10,5 @@ program foo.aleo {
         h: scalar?,
         i: field?,
         j: signature?,
-    ) {
-
-    }
+    ) {}
 }

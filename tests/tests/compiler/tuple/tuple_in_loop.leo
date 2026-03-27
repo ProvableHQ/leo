@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn foo(a: u8, b: u8, flag: bool) -> u8 {
         let start: (u8, u8) = (a, b);

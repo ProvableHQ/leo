@@ -4,5 +4,6 @@ interface Foo {
 
 program bar.aleo {
     fn foo() {}
+
     fn bar() {}
 }

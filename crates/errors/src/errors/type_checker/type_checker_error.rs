@@ -199,7 +199,7 @@ create_messages!(
         msg: format!(
             "The type `{type_}` is not found in the current scope."
         ),
-        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`".to_string()),
+        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`".to_string()),
     }
 
     /// Attempted to access an invalid composite variable.
@@ -714,7 +714,7 @@ create_messages!(
     must_propagate_all_finals {
         args: (never_propagated: impl Display),
         msg: format!("All Finals generated from external calls must be inserted into a final block in the order they were called. The following were never were: {never_propagated}"),
-        help: Some("Example: `fn foo() -> Final { let a: Final = b.aleo/bar(); return final {{ a.run(); }}; }`".to_string()),
+        help: Some("Example: `fn foo() -> Final { let a: Final = b.aleo::bar(); return final {{ a.run(); }}; }`".to_string()),
     }
 
     // deprecated
@@ -1436,6 +1436,28 @@ create_messages!(
     dynamic_call_not_allowed_here {
         args: (context: impl Display),
         msg: format!("Dynamic calls can only be made from an entry point, but found one in {context}."),
+        help: None,
+    }
+
+    @formatted
+    dyn_record_field_requires_type {
+        args: (field: impl Display),
+        msg: format!("Accessing field `{field}` on a `dyn record` requires a type annotation."),
+        help: Some(format!("Use `let x: <type> = r.{field};` or `r.{field} as <type>`.")),
+    }
+
+    @formatted
+    cannot_cast_to_dyn_record {
+        args: (type_: impl Display),
+        msg: format!("Cannot cast `{type_}` to `dyn record`: only concrete record types can be cast to `dyn record`."),
+        help: None,
+    }
+
+    /// For when an interface definition appears inside a library module.
+    @formatted
+    interfaces_not_allowed_in_library_modules {
+        args: (),
+        msg: "Interface definitions are not allowed inside library modules.".to_string(),
         help: None,
     }
 );

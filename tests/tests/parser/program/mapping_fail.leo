@@ -1,4 +1,3 @@
-
 program test.aleo {
     mappin balances: address => u128;
 

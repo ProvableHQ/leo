@@ -1,4 +1,6 @@
-struct Foo::[N: u32] { x: u32 }
+struct Foo::[N: u32] {
+    x: u32,
+}
 
 program test.aleo {
     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {

@@ -20,6 +20,7 @@ use leo_ast::{
     ConstParameter,
     Function,
     Input,
+    Library,
     Location,
     Module,
     Output,
@@ -31,6 +32,39 @@ use leo_ast::{
 use leo_span::Symbol;
 
 impl ProgramReconstructor for OptionLoweringVisitor<'_> {
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        let prev_program = self.program;
+        self.program = input.name;
+
+        // Pre-populate `reconstructed_composites` for module composites so that
+        // `reconstruct_module` can find them by location. This mirrors the analogous
+        // pre-population done for program modules in `reconstruct_program`.
+        for (module_path, module) in &input.modules {
+            for (_, c) in &module.composites {
+                let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
+                let new_composite = self.reconstruct_composite(c.clone());
+                self.reconstructed_composites.insert(Location::new(input.name, full_name), new_composite);
+            }
+        }
+
+        let library = Library {
+            name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
+            consts: input
+                .consts
+                .into_iter()
+                .map(|(i, c)| match self.reconstruct_const(c) {
+                    (Statement::Const(declaration), _) => (i, declaration),
+                    _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+                })
+                .collect(),
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+        };
+        self.program = prev_program;
+        library
+    }
+
     fn reconstruct_program(&mut self, input: Program) -> Program {
         self.program =
             *input.program_scopes.first().expect("a program must have a single program scope at this time.").0;

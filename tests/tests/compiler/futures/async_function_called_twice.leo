@@ -15,7 +15,6 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 final fn finalize(f: Final) {
@@ -24,12 +23,12 @@ final fn finalize(f: Final) {
 
 program test.aleo {
     fn t1() -> Final {
-        let f: Final = dependent.aleo/t1();
+        let f: Final = dependent.aleo::t1();
         return final { finalize(f); };
     }
 
     fn t2() -> Final {
-        let f: Final = dependent.aleo/t2();
+        let f: Final = dependent.aleo::t2();
         return final { finalize(f); };
     }
 }

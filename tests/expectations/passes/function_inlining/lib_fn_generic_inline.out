@@ -1,0 +1,15 @@
+library math_lib {
+    fn scale::[N: u32](x: u32) -> u32 {
+        return x * N;
+    }
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn main(x: u32) -> u32 {
+        return $var$0;
+    }
+}
+

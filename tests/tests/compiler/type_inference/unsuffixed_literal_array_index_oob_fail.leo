@@ -4,4 +4,3 @@ program b28681.aleo {
         let x0 = arr[4]; // out of bounds
     }
 }
-

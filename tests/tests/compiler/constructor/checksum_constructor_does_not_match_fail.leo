@@ -1,10 +1,9 @@
 program test.aleo {
-
     mapping expected_checksum: bool => [u8; 32];
 
     fn foo() {}
 
-    @checksum(mapping = "test.aleo/expected_checksum", key = "true")
+    @checksum(mapping = "test.aleo::expected_checksum", key = "true")
     constructor() {
         if self.edition >= 0u16 {
             let expected: [u8; 32] = Mapping::get(expected_checksum, true);

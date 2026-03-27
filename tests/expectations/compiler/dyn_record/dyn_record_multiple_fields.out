@@ -1,0 +1,13 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    balance as u64.private;
+    memo as field.private;
+
+function main:
+    input r0 as Token.record;
+    cast r0 into r1 as dynamic.record;
+    get.record.dynamic r1.balance into r2 as u64;
+    is.eq r2 0u64 into r3;
+    output r3 as boolean.private;

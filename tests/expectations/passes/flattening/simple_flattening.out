@@ -1,15 +1,15 @@
 program test.aleo {
-    fn main(cond: bool, a: u32, b: u32) -> u32 {
-        let condition$0 = cond;
+    fn main(cond$$0: bool, a$$1: u32, b$$2: u32) -> u32 {
+        let condition$3 = cond$$0;
         {
         }
-        let condition$1 = cond.not();
+        let condition$4 = cond$$0.not();
         {
         }
         {
         }
-        let $ret$2 = condition$0 ? a : b;
-        return $ret$2;
+        let $ret$5 = condition$3 ? a$$1 : b$$2;
+        return $ret$5;
     }
 }
 

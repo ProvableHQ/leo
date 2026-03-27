@@ -4,4 +4,3 @@ program test.aleo {
         amounts: (u64, u64),
     }
 }
-

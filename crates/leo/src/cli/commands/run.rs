@@ -40,7 +40,7 @@ use snarkvm::{
 pub struct LeoRun {
     #[clap(
         name = "NAME",
-        help = "The name of the function to execute, e.g `helloworld.aleo/main` or `main`.",
+        help = "The name of the function to execute, e.g `helloworld.aleo::main` or `main`.",
         default_value = "main"
     )]
     pub(crate) name: String,
@@ -140,7 +140,7 @@ fn handle_run<A: Aleo>(
 
     // Parse the <NAME> into an optional program name and a function name.
     // If only a function name is provided, then use the program name from the package.
-    let (program_name, function_name) = match command.name.split_once('/') {
+    let (program_name, function_name) = match command.name.split_once('/').or_else(|| command.name.split_once("::")) {
         Some((program_name, function_name)) => (program_name.to_string(), function_name.to_string()),
         None => match &package {
             Some(package) => (

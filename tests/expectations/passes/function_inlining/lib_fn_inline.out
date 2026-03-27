@@ -1,0 +1,15 @@
+library math_lib {
+    fn add(a: u32, b: u32) -> u32 {
+        return a + b;
+    }
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn main(x: u32, y: u32) -> u32 {
+        return $var$0;
+    }
+}
+

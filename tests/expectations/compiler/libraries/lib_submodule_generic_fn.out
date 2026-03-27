@@ -1,0 +1,4 @@
+program submodule_generic.aleo;
+
+function main:
+    output 42u32 as u32.private;

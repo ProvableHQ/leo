@@ -2,7 +2,8 @@ interface CounterInterface {
     mapping counter: address => u64;
 }
 
-program test.aleo : CounterInterface {
+program test.aleo: CounterInterface {
     mapping counter: u32 => u64;
+
     fn main() {}
 }

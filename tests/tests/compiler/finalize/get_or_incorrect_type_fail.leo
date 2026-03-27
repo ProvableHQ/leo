@@ -1,4 +1,3 @@
-
 struct Token {
     owner_addr: address,
     amount: u128,

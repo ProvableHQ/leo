@@ -553,7 +553,7 @@ mod test_helpers {
 import nested_example_layer_0.aleo;
 program nested.aleo {
     fn example(public a: u32, b: u32) -> u32 {
-        let c: u32 = nested_example_layer_0.aleo/main(a, b);
+        let c: u32 = nested_example_layer_0.aleo::main(a, b);
         return c;
     }
 
@@ -686,8 +686,8 @@ function external_nested_function:
 import child.aleo;
 import parent.aleo;
 program grandparent.aleo {
-    fn double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
-        return parent.aleo/wrapper_mint(owner, val);
+    fn double_wrapper_mint(owner: address, val: u32) -> child.aleo::A {
+        return parent.aleo::wrapper_mint(owner, val);
     }
 
     @noupgrade
@@ -697,8 +697,8 @@ program grandparent.aleo {
         let parent_program = "
 import child.aleo;
 program parent.aleo {
-    fn wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
-        return child.aleo/mint(owner, val);
+    fn wrapper_mint(owner: address, val: u32) ->  child.aleo::A {
+        return child.aleo::mint(owner, val);
     }
 
     @noupgrade
@@ -845,10 +845,10 @@ program outer.aleo {
         arg3: u32,
     }
 
-    fn inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_2_record, inner_1_record) {
-        let c: inner_1.aleo/ex_struct = inner_1.aleo/ex_struct {arg1: 1u32, arg2: 1u32};
-        let rec_1:inner_1.aleo/inner_1_record = inner_1.aleo/inner_1_main(1u32,1u32, c);
-        let rec_2:inner_2.aleo/inner_2_record = inner_2.aleo/inner_2_main(1u32,1u32);
+    fn inner_1_main(public a: u32, b: u32) -> (inner_1.aleo::inner_1_record, inner_2.aleo::inner_2_record, inner_1_record) {
+        let c: inner_1.aleo::ex_struct = inner_1.aleo::ex_struct {arg1: 1u32, arg2: 1u32};
+        let rec_1:inner_1.aleo::inner_1_record = inner_1.aleo::inner_1_main(1u32,1u32, c);
+        let rec_2:inner_2.aleo::inner_2_record = inner_2.aleo::inner_2_main(1u32,1u32);
         return (rec_1, rec_2, inner_1_record {owner: aleo14tnetva3xfvemqyg5ujzvr0qfcaxdanmgjx2wsuh2xrpvc03uc9s623ps7, arg1: 1u32, arg2: 1u32, arg3: 1u32});
     }
 
@@ -1014,14 +1014,14 @@ program outer_2.aleo {
         a: u32,
     }
     
-    fn main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
-        let d: inner_1.aleo/Foo = inner_1.aleo/main(1u32,1u32);
-        let e: u32 = inner_1.aleo/main_2(inner_1.aleo/Foo {a: a, b: b, c: inner_1.aleo/Boo {a:1u32, b:1u32}});
+    fn main(public a: u32, b: u32) -> (inner_2.aleo::Yoo, Hello) {
+        let d: inner_1.aleo::Foo = inner_1.aleo::main(1u32,1u32);
+        let e: u32 = inner_1.aleo::main_2(inner_1.aleo::Foo {a: a, b: b, c: inner_1.aleo::Boo {a:1u32, b:1u32}});
         let f: Boo = Boo {a:1u32, b:1u32};
-        let g: inner_2.aleo/Foo = inner_2.aleo/main(1u32, 1u32);
-        inner_2.aleo/Yo_Consumer(inner_2.aleo/Yo());
-        let h: inner_2.aleo/Yoo = inner_2.aleo/Yo();
-        let i: inner_2.aleo/Goo = inner_2.aleo/Goo_creator();
+        let g: inner_2.aleo::Foo = inner_2.aleo::main(1u32, 1u32);
+        inner_2.aleo::Yo_Consumer(inner_2.aleo::Yo());
+        let h: inner_2.aleo::Yoo = inner_2.aleo::Yo();
+        let i: inner_2.aleo::Goo = inner_2.aleo::Goo_creator();
         let j: Hello = Hello {owner: self.signer, a:1u32};
 
         return (h, j);

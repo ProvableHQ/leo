@@ -12,7 +12,6 @@ function = "mint"
 input = ["aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q", "1u64"]
 */
 
-
 program test.aleo {
     record Token {
         // The token owner.
@@ -24,11 +23,7 @@ program test.aleo {
     }
 
     fn mint(owner: address, amount: u64) -> Token {
-        return Token {
-            owner,
-            amount: amount,
-            flag: true,
-        };
+        return Token { owner, amount: amount, flag: true };
     }
 
     @noupgrade

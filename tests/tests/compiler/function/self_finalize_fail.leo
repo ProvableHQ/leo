@@ -1,7 +1,11 @@
-
 program test.aleo {
     fn matches(addr: address) -> (bool, Final) {
-        return (self.caller == addr, final { finalize_matches(self.caller); });
+        return (
+            self.caller == addr,
+            final {
+                finalize_matches(self.caller);
+            },
+        );
     }
 }
 

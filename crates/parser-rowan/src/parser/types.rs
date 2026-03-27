@@ -23,7 +23,7 @@
 //! - Tuple types: (Type1, Type2, ...) or () (unit)
 //! - Optional types: Type?
 //! - Future types: Future or Future<fn(Types) -> Type>
-//! - Composite types: Named, Foo::[N], program.aleo/Type (locator)
+//! - Composite types: Named, Foo::[N], program.aleo::Type (locator)
 
 use super::{CompletedMarker, Parser};
 use crate::syntax_kind::SyntaxKind::*;
@@ -54,6 +54,7 @@ impl Parser<'_, '_> {
         KW_SIGNATURE,
         KW_STRING,
         KW_IDENTIFIER,
+        KW_DYN,
         KW_I8,
         KW_I16,
         KW_I32,
@@ -103,7 +104,7 @@ impl Parser<'_, '_> {
             KW_MAPPING => self.parse_mapping_type(),
             // Primitive type keywords
             _ if self.at_primitive_type() => self.parse_primitive_type(),
-            // Named/Composite type: Foo, Foo::[N], program.aleo/Type
+            // Named/Composite type: Foo, Foo::[N], program.aleo::Type
             IDENT => self.parse_named_type(),
             _ => None,
         }
@@ -129,7 +130,12 @@ impl Parser<'_, '_> {
         // isn't captured inside the TYPE_PRIMITIVE.
         self.skip_trivia();
         let m = self.start();
+        let kind = self.current();
         self.bump_raw();
+        // `dyn record` is a two-token primitive type.
+        if kind == KW_DYN {
+            self.expect(KW_RECORD);
+        }
         Some(m.complete(self, TYPE_PRIMITIVE))
     }
 
@@ -272,7 +278,7 @@ impl Parser<'_, '_> {
     /// - Simple names: `Foo`
     /// - Paths: `Foo::Bar`
     /// - Const generics: `Foo::[N]` or `Foo::<N>`
-    /// - Locators: `program.aleo/Type`
+    /// - Locators: `program.aleo::Type`
     fn parse_named_type(&mut self) -> Option<CompletedMarker> {
         if !self.at(IDENT) {
             return None;
@@ -281,21 +287,21 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
-        // Check for locator: name.aleo/Type
+        // Check for locator: name.aleo::Type
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             self.bump_any(); // .
             self.bump_any(); // aleo
 
-            if self.eat(SLASH) {
-                // Locator path: program.aleo/Type
+            if self.eat(COLON_COLON) {
+                // Locator path: program.aleo::Type
                 if self.at(IDENT) {
                     self.bump_any();
                 } else {
-                    self.error("expected type name after /");
+                    self.error("expected type name after ::");
                 }
             }
 
-            // Optional const generic args after locator: child.aleo/Bar::[4]
+            // Optional const generic args after locator: child.aleo::Bar::[4]
             if self.at(COLON_COLON) && self.nth(1) == L_BRACKET {
                 self.bump_any(); // ::
                 self.parse_const_generic_args_bracket();
@@ -793,14 +799,14 @@ mod tests {
 
     #[test]
     fn parse_type_locator() {
-        check_type("credits.aleo/Token", expect![[r#"
-            ROOT@0..18
-              TYPE_LOCATOR@0..18
+        check_type("credits.aleo::Token", expect![[r#"
+            ROOT@0..19
+              TYPE_LOCATOR@0..19
                 IDENT@0..7 "credits"
                 DOT@7..8 "."
                 KW_ALEO@8..12 "aleo"
-                SLASH@12..13 "/"
-                IDENT@13..18 "Token"
+                COLON_COLON@12..14 "::"
+                IDENT@14..19 "Token"
         "#]]);
     }
 
@@ -949,7 +955,7 @@ mod tests {
     #[test]
     fn parse_type_locator_const_generic() {
         // Locator + const generic args
-        check_type_no_errors("child.aleo/Bar::[4]");
+        check_type_no_errors("child.aleo::Bar::[4]");
     }
 
     // =========================================================================

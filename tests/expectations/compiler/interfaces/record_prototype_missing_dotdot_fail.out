@@ -9,7 +9,7 @@ Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields be
    2 | 
    3 |     record Token {
      |     ^^^^^^^^^^^^^^
-   4 |         owner: address
-     |         ^^^^^^^^^^^^^^
+   4 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
    5 |     }
      |     ^

@@ -1,7 +1,11 @@
 Error [ETYC0372104]: Not all Finals were consumed: result2
-    --> compiler-test:9:33
+    --> compiler-test:18:19
      |
-   9 |         return (result.0, final { result.1.run(); });
-     |                                 ^^^^^^^^^^^^^^^^^^^
+  18 |             final {
+     |                   ^
+  19 |                 result.1.run();
+     |                 ^^^^^^^^^^^^^^^
+  20 |             },
+     |             ^
      |
      = Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.

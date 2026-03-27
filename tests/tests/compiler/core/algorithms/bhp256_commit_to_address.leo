@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u128,
     b: u128,
@@ -14,21 +13,23 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> (address, address, address, address, address, address, address, address, address, address, address, address, address, address, address, ) {
+    ) -> (
+        address, address, address, address, address, address, address, address, address, address,
+        address, address, address, address, address,
+    ) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
-//         let group_value: group = group::GEN;
+        //         let group_value: group = group::GEN;
         let i128_value: i128 = 1i128;
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // BHP256 commit_to_address tests
         let a: address = BHP256::commit_to_address(addr_value, 1scalar);
         let b: address = BHP256::commit_to_address(bool_value, 1scalar);
         let c: address = BHP256::commit_to_address(field_value, 1scalar);
-//         let d: address = BHP256::commit_to_address(group_value, 1scalar);
+        //         let d: address = BHP256::commit_to_address(group_value, 1scalar);
         let e: address = BHP256::commit_to_address(i8_value, 1scalar);
         let f: address = BHP256::commit_to_address(i16_value, 1scalar);
         let g: address = BHP256::commit_to_address(i32_value, 1scalar);
@@ -44,4 +45,5 @@ program test.aleo {
         let q: address = BHP256::commit_to_address(Foo { a: 1u128, b: 2u128 }, 1scalar);
 
         return (a, b, c, e, f, g, h, i, j, k, l, m, n, o, q);
-    }}
+    }
+}

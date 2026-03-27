@@ -8,16 +8,15 @@ program child.aleo {
 }
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program parent.aleo {
-    // This shouldn't conflict with child.aleo/Foo
+    // This shouldn't conflict with child.aleo::Foo
     record Foo {
         owner: address,
     }
 
-    // Foo and FooBar are both prefixes. Shouldn't conflict with child.aleo/Foo though.
+    // Foo and FooBar are both prefixes. Shouldn't conflict with child.aleo::Foo though.
     record FooBarBaz {
         owner: address,
     }
@@ -27,5 +26,5 @@ program parent.aleo {
         owner: address,
     }
 
-    fn foo () {}
+    fn foo() {}
 }

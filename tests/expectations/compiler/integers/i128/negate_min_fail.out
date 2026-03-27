@@ -1,5 +1,5 @@
 Error [ESAZ0374006]: Unary operation `-170141183460469231731687303715884105728i128.neg()` failed at compile time: negation overflow.
-    --> compiler-test:8:16
+    --> compiler-test:6:16
      |
-   8 |         return -a; // This line attempts to return 170141183460469231731687303715884105728i128 however, the largest i128 value is 170141183460469231731687303715884105727i128.
+   6 |         return -a; // This line attempts to return 170141183460469231731687303715884105728i128 however, the largest i128 value is 170141183460469231731687303715884105727i128.
      |                ^^

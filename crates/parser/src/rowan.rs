@@ -285,7 +285,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo/Type` or `program.aleo`.
+    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
@@ -1235,7 +1235,7 @@ impl<'a> ConversionContext<'a> {
 
     /// Extract program and type name from a locator node's IDENT tokens.
     ///
-    /// Locator nodes have the structure: `IDENT DOT KW_ALEO SLASH IDENT [COLON_COLON CONST_ARG_LIST]`.
+    /// Locator nodes have the structure: `IDENT DOT KW_ALEO COLON_COLON IDENT [COLON_COLON CONST_ARG_LIST]`.
     /// The first IDENT is the program name, the second (after SLASH) is the type/function name.
     fn locator_tokens_to_path(&self, node: &SyntaxNode) -> Result<leo_ast::Path> {
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
@@ -1802,6 +1802,7 @@ impl<'a> ConversionContext<'a> {
         item: &SyntaxNode,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
         structs: &mut Vec<(Symbol, leo_ast::Composite)>,
+        functions: &mut Vec<(Symbol, leo_ast::Function)>,
     ) -> Result<()> {
         if is_library_item(item.kind()) {
             match item.kind() {
@@ -1813,14 +1814,18 @@ impl<'a> ConversionContext<'a> {
                     let composite = self.to_composite(item)?;
                     structs.push((composite.identifier.name, composite));
                 }
-                // Future library items (functions, etc.) will be handled here.
+                FUNCTION_DEF => {
+                    // `is_in_program_block = false` so the variant is always `Fn` (not EntryPoint).
+                    let func = self.to_function(item, false)?;
+                    functions.push((func.identifier.name, func));
+                }
                 _ => {}
             }
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
             self.handler.emit_err(ParserError::custom(
-                "Only `const` declarations and `struct` definitions are allowed in a library.",
+                "Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.",
                 span,
             ));
         }
@@ -1978,12 +1983,13 @@ impl<'a> ConversionContext<'a> {
     fn to_library(&self, name: Symbol, node: &SyntaxNode) -> Result<leo_ast::Library> {
         let mut consts = Vec::new();
         let mut structs = Vec::new();
+        let mut functions = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts, &mut structs)?;
+            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions)?;
         }
 
-        Ok(leo_ast::Library { name, consts, structs })
+        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -2804,15 +2810,16 @@ pub fn parse_program(
     Ok(program)
 }
 
-/// Parses a complete library into a Library AST.
+/// Parses a complete library with its submodules into a Library AST.
 pub fn parse_library(
     handler: Handler,
     node_builder: &NodeBuilder,
     library_name: Symbol,
     source: &SourceFile,
+    modules: &[std::rc::Rc<SourceFile>],
     _network: NetworkName,
 ) -> Result<leo_ast::Library> {
-    // Parse `lib.leo` library file
+    // Parse `lib.leo` library file.
     let parse = leo_parser_rowan::parse_file(&source.src);
     let main_context = conversion_context(
         &handler,
@@ -2823,7 +2830,40 @@ pub fn parse_library(
         source.src.len() as u32,
     );
 
-    main_context.to_library(library_name, &parse.syntax())
+    let mut library = main_context.to_library(library_name, &parse.syntax())?;
+
+    // Determine the root directory of `lib.leo` for module key computation.
+    let root_dir = match &source.name {
+        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+        _ => None,
+    };
+
+    // Parse each submodule source file and insert it into the library.
+    for module_sf in modules {
+        let module_parse = leo_parser_rowan::parse_module_entry(&module_sf.src);
+        let module_context = conversion_context(
+            &handler,
+            node_builder,
+            module_parse.lex_errors(),
+            module_parse.errors(),
+            module_sf.absolute_start,
+            module_sf.src.len() as u32,
+        );
+
+        if let Some(key) = compute_module_key(&module_sf.name, root_dir.as_deref()) {
+            for segment in &key {
+                if symbol_is_keyword(*segment) {
+                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                }
+            }
+            // Library modules use library_name as the owner (analogous to program_name in
+            // program modules). Items inside are registered under Location::new(library_name, path).
+            let module_ast = module_context.to_module(&module_parse.syntax(), library_name, key.clone())?;
+            library.modules.insert(key, module_ast);
+        }
+    }
+
+    Ok(library)
 }
 
 // =============================================================================
@@ -2929,6 +2969,7 @@ fn keyword_to_primitive_type(kind: SyntaxKind) -> Option<leo_ast::Type> {
         KW_SCALAR => leo_ast::Type::Scalar,
         KW_SIGNATURE => leo_ast::Type::Signature,
         KW_STRING => leo_ast::Type::String,
+        KW_DYN => leo_ast::Type::DynRecord,
         KW_IDENTIFIER => leo_ast::Type::Identifier,
         KW_U8 => leo_ast::Type::Integer(leo_ast::IntegerType::U8),
         KW_U16 => leo_ast::Type::Integer(leo_ast::IntegerType::U16),
@@ -3055,7 +3096,7 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
 /// Currently `const` declarations and `struct` definitions are allowed; this list will grow
 /// as library support expands to include functions and other items.
 fn is_library_item(kind: SyntaxKind) -> bool {
-    matches!(kind, GLOBAL_CONST | STRUCT_DEF)
+    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF)
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).

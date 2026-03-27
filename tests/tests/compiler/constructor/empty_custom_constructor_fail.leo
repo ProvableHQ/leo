@@ -1,6 +1,5 @@
 program constr.aleo {
-    fn main() {
-    }
+    fn main() {}
 
     @custom
     constructor() {

@@ -24,17 +24,16 @@ program test.aleo {
         let array_u32_result: [u32; 2] = Deserialize::from_bits::[[u32; 2]](array_u32_bits);
 
         // Raw roundtrip (no metadata)
-        let array_u8_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_u8_orig);  // 4 * 8 bits
+        let array_u8_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_u8_orig); // 4 * 8 bits
         let array_u8_result_raw: [u8; 4] = Deserialize::from_bits_raw::[[u8; 4]](array_u8_bits_raw);
-
         return (
             array_u8_result[0u8], array_u8_result[1u8], array_u8_result[2u8], array_u8_result[3u8],
-            array_u32_result[0u8], array_u32_result[1u8],
-            array_u8_result_raw[0u8], array_u8_result_raw[1u8], array_u8_result_raw[2u8], array_u8_result_raw[3u8],
+            array_u32_result[0u8], array_u32_result[1u8], array_u8_result_raw[0u8],
+            array_u8_result_raw[1u8], array_u8_result_raw[2u8], array_u8_result_raw[3u8],
             array_u8_result[0u8] == array_u8_orig[0u8],
             array_u32_result[0u8] == array_u32_orig[0u8],
             array_u8_result_raw[0u8] == array_u8_orig[0u8],
-            array_u8_result_raw[3u8] == array_u8_orig[3u8]
+            array_u8_result_raw[3u8] == array_u8_orig[3u8],
         );
     }
 }

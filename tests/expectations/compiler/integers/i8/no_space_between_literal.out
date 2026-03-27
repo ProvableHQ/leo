@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected ';' -- found 'i8'
-    --> compiler-test:5:15
+    --> compiler-test:4:15
      |
-   5 |     let i = 1 i8;
+   4 |     let i = 1 i8;
      |               ^^

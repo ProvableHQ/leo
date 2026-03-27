@@ -1,52 +1,47 @@
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
+Error [EPAR0370047]: Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.
     --> test_0:1:1
-     |
-   1 | fn foo() {}
-     | ^^^^^^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_1:1:1
      |
    1 | final fn bar() {}
      | ^^^^^^^^^^^^^^^^^
 Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test_2:1:1
+    --> test_1:1:1
      |
    1 | record Bar { owner: address }
      | ^^^^^^
 Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test_3:1:1
+    --> test_2:1:1
      |
    1 | mapping my_map: u32 => u32;
      | ^^^^^^^
 Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test_4:1:1
+    --> test_3:1:1
      |
    1 | storage foo: u32;
      | ^^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_5:1:1
+Error [EPAR0370047]: Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.
+    --> test_4:1:1
      |
    1 | interface MyInterface { fn baz(); }
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_6:1:1
+Error [EPAR0370047]: Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.
+    --> test_5:1:1
      |
    1 | import foo.aleo;
      | ^^^^^^^^^^^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_7:1:1
+Error [EPAR0370047]: Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.
+    --> test_6:1:1
      |
    1 | program foo.aleo {}
      | ^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370047]: Only `const` declarations and `struct` definitions are allowed in a library.
-    --> test_8:1:1
+Error [EPAR0370047]: Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.
+    --> test_7:1:1
      |
    1 | @noupgrade
      | ^^^^^^^^^^
    2 | constructor() {}
      | ^^^^^^^^^^^^^^^^
 Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test_9:1:1
+    --> test_8:1:1
      |
    1 | {
      | ^

@@ -1,5 +1,4 @@
-
-program test.aleo { }
+program test.aleo {}
 
 struct Foo {
     foo: [Foo; 1],

@@ -1,4 +1,3 @@
-
 struct Foo {
     x: u32,
 }

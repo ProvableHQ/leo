@@ -2062,8 +2062,8 @@ program bench_policy.aleo {
 
     fn aggregate_policy(seed: u64) -> u64 {
         let acc = seed;
-        acc = bench_primitives.aleo/aggregate_primitives(acc);
-        acc = bench_registry.aleo/aggregate_registry(acc);
+        acc = bench_primitives.aleo::aggregate_primitives(acc);
+        acc = bench_registry.aleo::aggregate_registry(acc);
         return acc + 1u64;
     }
 }

@@ -133,7 +133,7 @@ enum LogosToken {
     // Identifiers and Keywords
     // =========================================================================
     // Note: Complex identifiers (paths like foo::bar, program IDs like foo.aleo,
-    // locators like foo.aleo/bar) are deferred to Phase 2. The lexer produces
+    // locators like foo.aleo::bar) are deferred to Phase 2. The lexer produces
     // simple tokens; the parser handles disambiguation.
     //
     // We need special cases for `group::abc`, `signature::abc`, and `Future::abc`
@@ -292,6 +292,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "signature" => KW_SIGNATURE,
         "string" => KW_STRING,
         "record" => KW_RECORD,
+        "dyn" => KW_DYN,
         "identifier" => KW_IDENTIFIER,
         "i8" => KW_I8,
         "i16" => KW_I16,

@@ -11,7 +11,7 @@ Error [EPAR0370046]: Identifier My__Struct cannot contain a double underscore `_
 Error [EPAR0370046]: Identifier field__name cannot contain a double underscore `__`
     --> test:2:5
      |
-   2 |     field__name: u8
+   2 |     field__name: u8,
      |     ^^^^^^^^^^^
 Error [EPAR0370046]: Identifier test__function cannot contain a double underscore `__`
     --> test:5:4

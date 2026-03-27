@@ -132,8 +132,11 @@ program none_cases.aleo {
             // Local optional struct
             let c: Container? = none;
             assert(c == none);
-            assert(c.unwrap_or(Container { id: 0, point: Point { x: 0field, y: 0field } }).id == 0);
-
+            assert(c.unwrap_or(Container {
+                id: 0,
+                point: Point { x: 0field, y: 0field },
+            }).id
+                == 0);
             let local_container = Container {
                 id: 1,
                 point: Point { x: 5field, y: 10field },
@@ -142,8 +145,10 @@ program none_cases.aleo {
 
             let maybe_c: Container? = local_container;
             assert(maybe_c.unwrap().point.y == 10field);
-
-            container = Container { id: 9, point: Point { x: 9field, y: 9field } };
+            container = Container {
+                id: 9,
+                point: Point { x: 9field, y: 9field },
+            };
             assert(container.unwrap().point.x == 9field);
         };
     }

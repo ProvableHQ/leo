@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn baz(s: signature, a: address, v: value) {
         let a: bool = signature::verify(s, a, v);

@@ -36,21 +36,7 @@ fn foo::[
     a14: group,
     a15: field
 ]() -> (
-    bool,
-    u8,
-    u16,
-    u32,
-    u64,
-    u128,
-    i8,
-    i16,
-    i32,
-    i64,
-    i128,
-    scalar,
-    address,
-    group,
-    field
+    bool, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, scalar, address, group, field,
 ) {
     return (a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
 }
@@ -58,21 +44,7 @@ fn foo::[
 program test.aleo {
     // Main transition that calls `foo` with values of all types and returns its result
     fn main() -> (
-        bool,
-        u8,
-        u16,
-        u32,
-        u64,
-        u128,
-        i8,
-        i16,
-        i32,
-        i64,
-        i128,
-        scalar,
-        address,
-        group,
-        field
+        bool, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, scalar, address, group, field,
     ) {
         // Call `foo` with values for all allowed types. Also check for type inference of unsuffixed literals here
         return foo::[
@@ -90,7 +62,7 @@ program test.aleo {
             42, // scalar
             aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4, // address
             0, // group
-            1, // field
+            1 // field
         ]();
     }
 
@@ -110,7 +82,7 @@ program test.aleo {
             42, // scalar
             aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4, // address
             0, // group
-            1, // field
+            1 // field
         ] { x: 0 };
     }
 }

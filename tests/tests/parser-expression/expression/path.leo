@@ -9,7 +9,7 @@ XXX::YYY::ZZZ
 
 Self::pp::qq
 
-foo.aleo/bar 
+foo.aleo::bar 
 
 foo/bar
 

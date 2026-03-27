@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main() -> bool {
         return true;

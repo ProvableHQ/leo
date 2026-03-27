@@ -94,6 +94,9 @@ fn convert_output(output: &ast::Output, record_names: &HashSet<Symbol>) -> abi::
 }
 
 fn convert_function_input(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::FunctionInput {
+    if let ast::Type::DynRecord = ty {
+        return abi::FunctionInput::DynamicRecord;
+    }
     if let ast::Type::Composite(comp_ty) = ty {
         let name = comp_ty.path.identifier().name;
         if record_names.contains(&name) {
@@ -109,6 +112,7 @@ fn convert_function_input(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi
 fn convert_function_output(ty: &ast::Type, record_names: &HashSet<Symbol>) -> abi::FunctionOutput {
     match ty {
         ast::Type::Future(_) => abi::FunctionOutput::Final,
+        ast::Type::DynRecord => abi::FunctionOutput::DynamicRecord,
         ast::Type::Composite(comp_ty) => {
             let name = comp_ty.path.identifier().name;
             if record_names.contains(&name) {

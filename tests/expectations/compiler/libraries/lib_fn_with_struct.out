@@ -1,0 +1,22 @@
+program main.aleo;
+
+struct Point__7VbTm7beYPk:
+    x as u32;
+    y as u32;
+
+function compute:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    cast r0 r1 into r4 as Point__7VbTm7beYPk;
+    add r4.x r2 into r5;
+    add r4.y r3 into r6;
+    cast r5 r6 into r7 as Point__7VbTm7beYPk;
+    mul r7.x r7.x into r8;
+    mul r7.y r7.y into r9;
+    add r8 r9 into r10;
+    output r10 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

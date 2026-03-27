@@ -711,11 +711,16 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
 ) -> Result<(Transaction<N>, DeploymentStats)> {
     assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
     // Initialize a vector for the placeholder verifying keys and certificates.
-    let mut verifying_keys = Vec::with_capacity(program.functions().len());
+    let mut verifying_keys = Vec::with_capacity(program.functions().len() + program.records().len());
     for function_name in program.functions().keys() {
         let verifying_key = VerifyingKey::from_str(leo_compiler::run::PLACEHOLDER_VK)?;
         let certificate = Certificate::from_str(leo_compiler::run::PLACEHOLDER_CERT)?;
         verifying_keys.push((*function_name, (verifying_key, certificate)));
+    }
+    for record_name in program.records().keys() {
+        let verifying_key = VerifyingKey::from_str(leo_compiler::run::PLACEHOLDER_VK)?;
+        let certificate = Certificate::from_str(leo_compiler::run::PLACEHOLDER_CERT)?;
+        verifying_keys.push((*record_name, (verifying_key, certificate)));
     }
     // Create the deployment.
     let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None).unwrap();
@@ -819,7 +824,7 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     let sample_key = PrivateKey::new(rng)?;
     let sample_address = Address::try_from(&sample_key)?;
 
-    for (function_name, _) in deployment.verifying_keys() {
+    for (function_name, _) in deployment.function_verifying_keys() {
         let name = function_name.to_string();
 
         // Compute the finalize cost based on the consensus version.

@@ -14,4 +14,3 @@ struct Foo::[N: u32] {
 fn foo::[N: u32]() -> Foo::[2 * N] {
     return Foo::[2 * N] { x: 0 };
 }
-

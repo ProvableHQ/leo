@@ -194,6 +194,27 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
             }
+            Type::DynRecord => {
+                if assign {
+                    self.emit_err(TypeCheckerError::type_should_be2(
+                        "dyn record",
+                        "an assignable struct or record",
+                        input.inner.span(),
+                    ));
+                    return Type::Err;
+                }
+                // `.owner` is always accessible and returns `address`.
+                if input.name.name == sym::owner {
+                    self.maybe_assert_type(&Type::Address, expected, input.span());
+                    Type::Address
+                } else if let Some(expected_type) = expected {
+                    // Other fields require a type annotation (via `let x: T = r.field` or `r.field as T`).
+                    expected_type.clone()
+                } else {
+                    self.emit_err(TypeCheckerError::dyn_record_field_requires_type(input.name, input.name.span()));
+                    Type::Err
+                }
+            }
             type_ => {
                 self.emit_err(TypeCheckerError::type_should_be2(type_, "a struct or record", input.inner.span()));
                 Type::Err
@@ -1339,6 +1360,47 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_cast(&mut self, input: &CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Special case: casting to `dyn record`.
+        if matches!(input.type_, Type::DynRecord) {
+            let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
+            // Only concrete record types can be cast to `dyn record`.
+            match &expression_type {
+                Type::Composite(composite) => {
+                    if let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
+                        && !comp.is_record
+                    {
+                        self.emit_err(TypeCheckerError::cannot_cast_to_dyn_record(
+                            &expression_type,
+                            input.expression.span(),
+                        ));
+                    }
+                }
+                Type::Err => {}
+                _ => {
+                    self.emit_err(TypeCheckerError::cannot_cast_to_dyn_record(
+                        &expression_type,
+                        input.expression.span(),
+                    ));
+                }
+            }
+            self.maybe_assert_type(&input.type_, expected, input.span());
+            return input.type_.clone();
+        }
+
+        // Special case: `r.field as Type` on a dyn record provides the expected type
+        // to the member access so the field resolves to the annotated type.
+        if let Expression::MemberAccess(member) = &input.expression {
+            let inner_type = self.visit_expression(&member.inner, &None);
+            if matches!(inner_type, Type::DynRecord) {
+                // Re-visit the full member access with the cast target as expected type.
+                let result = self.visit_member_access_general(member, false, &Some(input.type_.clone()));
+                // Update the type table with the resolved type.
+                self.state.type_table.insert(input.expression.id(), result.clone());
+                self.maybe_assert_type(&input.type_, expected, input.span());
+                return input.type_.clone();
+            }
+        }
+
         let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
 
         let assert_castable_type = |actual: &Type, span: Span| {
@@ -1651,6 +1713,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Make sure this isn't an external record type - won't work as we can't construct it.
         if self.is_external_record(&typ) {
             self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span));
+        }
+
+        // dyn record cannot be used in ternary - the VM does not support it.
+        if matches!(typ, Type::DynRecord) {
+            self.emit_err(TypeCheckerError::type_should_be2("dyn record", "a type supported by ternary", input.span));
         }
 
         // None of its members may be external record types either.

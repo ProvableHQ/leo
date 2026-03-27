@@ -79,8 +79,10 @@ impl Constructor {
                 let Some(mapping_string) = annotation.map.get(&sym::mapping) else {
                     bail!("A `@checksum` annotation must have a 'mapping' key.")
                 };
-                // Parse the mapping string as a locator.
-                let mapping = Locator::<N>::from_str(mapping_string)
+                // Parse the mapping string as a locator. Accept both `prog.aleo::name` (Leo
+                // syntax) and `prog.aleo/name` (Aleo protocol syntax) by normalizing `::` to `/`.
+                let normalized = mapping_string.replace(".aleo::", ".aleo/");
+                let mapping = Locator::<N>::from_str(&normalized)
                     .map_err(|e| anyhow!("Invalid mapping in `@checksum` annotation: `{e}`."))?;
 
                 // Parse the key string from the annotation.

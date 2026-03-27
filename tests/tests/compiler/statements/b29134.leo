@@ -1,12 +1,12 @@
 program child.aleo {
-    mapping foo: u32 => u32; 
+    mapping foo: u32 => u32;
 
-    fn bar() { }
+    fn bar() {}
 }
 
 // --- Next Program --- //
-
 import child.aleo;
+
 program parent.aleo {
     mapping f: u32 => u32;
 
@@ -21,7 +21,7 @@ program parent.aleo {
     fn get_test() -> Final {
         return final {
             for i in 0u32..2u32 {
-                let foo = child.aleo/foo.get(i);
+                let foo = child.aleo::foo.get(i);
                 assert(foo == 42);
             }
         };
@@ -30,10 +30,9 @@ program parent.aleo {
     fn get_or_use_test() -> Final {
         return final {
             for i in 0u32..2u32 {
-                let foo = child.aleo/foo.get_or_use(i, 42);
+                let foo = child.aleo::foo.get_or_use(i, 42);
                 assert(foo == 42);
             }
         };
     }
 }
-

@@ -667,7 +667,7 @@ module.exports = grammar({
 
     path_locator_expression: $ => seq(
       field('program', $.program_id),
-      '/',
+      token(prec(1, '::')),
       field('member', $.identifier),
       optional($.const_arg_list),
     ),
@@ -822,7 +822,7 @@ module.exports = grammar({
 
     locator_type: $ => seq(
       $.program_id,
-      optional(seq('/', $.identifier)),
+      optional(seq(token(prec(1, '::')), $.identifier)),
       optional($.const_arg_list),
     ),
 

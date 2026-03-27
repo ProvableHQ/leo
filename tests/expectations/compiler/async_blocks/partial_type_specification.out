@@ -1,19 +1,18 @@
 Warning [WSAZ0374000]: Not all paths through the function run all Finals. 2/4 paths contain at least one Final that is never run.
-    --> compiler-test:13:31
+    --> compiler-test:14:31
      |
-  13 |         let f3: Final = final {
+  14 |         let f3: Final = final {
      |                               ^
-  14 |             // f.run();
+  15 |             // f.run();
      |             ^^^^^^^^^^^
-  15 |             if b == 1u32 {
+  16 |             if b == 1u32 {
      |             ^^^^^^^^^^^^^^
-  16 |                 Final::run(f);
+  17 |                 Final::run(f);
      |                 ^^^^^^^^^^^^^^
-  17 |                 f2.run();
+  18 |                 f2.run();
      |                 ^^^^^^^^^
-  18 |             }
+  19 |             }
      |             ^
-  19 | 
   20 |             if b == 2u32 {
      |             ^^^^^^^^^^^^^^
   21 |                 //f2.run();
@@ -22,10 +21,9 @@ Warning [WSAZ0374000]: Not all paths through the function run all Finals. 2/4 pa
      |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   23 |             }
      |             ^
-  24 | 
-  25 |             Mapping::set(ayo, 1u32, a);
+  24 |             Mapping::set(ayo, 1u32, a);
      |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  26 |         };
+  25 |         };
      |         ^
      |
      = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.

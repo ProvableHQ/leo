@@ -1,5 +1,11 @@
-Error [EPAR0370047]: expected ','
-    --> test:9:5
-     |
-   9 |     y: u8
-     |     ^
+program comma_separators.aleo {
+    struct None {
+        x: u8,
+        y: u8,
+    }
+    fn main(public a: u32) -> u32 {
+        return a;
+    }
+}
+
+

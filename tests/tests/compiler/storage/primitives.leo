@@ -32,7 +32,8 @@ program primitives.aleo {
             assert(scalar_val.unwrap() == 1);
             assert(field_val.unwrap() == 42);
             assert(group_val.unwrap() == 0);
-            assert(addr_val.unwrap() == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
+            assert(addr_val.unwrap()
+                == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
         };
     }
 
@@ -42,8 +43,9 @@ program primitives.aleo {
             assert(scalar_val.unwrap_or(0) == 1);
             assert(field_val.unwrap_or(0) == 42);
             assert(group_val.unwrap_or(0) == 0);
-            assert(addr_val.unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta) ==
-                   aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
+            assert(addr_val
+                .unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta)
+                == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
         };
     }
 

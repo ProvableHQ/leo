@@ -53,6 +53,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
 
         Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
             consts: input
                 .consts
@@ -62,6 +63,7 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
         }
     }
 

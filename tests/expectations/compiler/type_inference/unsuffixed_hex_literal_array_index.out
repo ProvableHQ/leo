@@ -1,0 +1,4 @@
+program test.aleo;
+
+function main:
+    output 6u32 as u32.private;

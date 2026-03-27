@@ -16,9 +16,16 @@
 
 use super::CommonSubexpressionEliminatingVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, Module, ProgramReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, Library, Module, ProgramReconstructor};
 
 impl ProgramReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
+    fn reconstruct_library(&mut self, input: Library) -> Library {
+        // Library function bodies are no longer relevant after function inlining and may not
+        // satisfy CSE's invariants (e.g. expression type-table entries for raw function bodies).
+        // Pass functions through unchanged.
+        input
+    }
+
     fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
         input.functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
         input.constructor = input.constructor.map(|c| self.reconstruct_constructor(c));

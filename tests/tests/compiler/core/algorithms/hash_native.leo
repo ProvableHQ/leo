@@ -5,7 +5,9 @@ expectation: Pass
 
 program test.aleo {
     // Test native hash functions that return bit arrays
-    fn main(input: u64) -> (
+    fn main(
+        input: u64,
+    ) -> (
         bool, bool, bool, bool,  // Keccak256 native samples
         bool, bool,               // Keccak384 native samples
         bool, bool,               // Keccak512 native samples
@@ -49,16 +51,11 @@ program test.aleo {
         // Test that native and native_raw produce different results
         let keccak256_bits_raw: [bool; 256] = Keccak256::hash_to_bits_raw(input);
         let sha3_256_bits_raw: [bool; 256] = SHA3_256::hash_to_bits_raw(input);
-
         return (
-            keccak256_0, keccak256_100, keccak256_200, keccak256_255,
-            keccak384_0, keccak384_383,
-            keccak512_0, keccak512_511,
-            sha3_256_0, sha3_256_255,
-            sha3_384_0, sha3_384_383,
-            sha3_512_0, sha3_512_511,
-            keccak256_bits[0u8] != keccak256_bits_raw[0u8],
-            sha3_256_bits[0u8] != sha3_256_bits_raw[0u8]
+            keccak256_0, keccak256_100, keccak256_200, keccak256_255, keccak384_0, keccak384_383,
+            keccak512_0, keccak512_511, sha3_256_0, sha3_256_255, sha3_384_0, sha3_384_383,
+            sha3_512_0, sha3_512_511, keccak256_bits[0u8] != keccak256_bits_raw[0u8],
+            sha3_256_bits[0u8] != sha3_256_bits_raw[0u8],
         );
     }
 }
