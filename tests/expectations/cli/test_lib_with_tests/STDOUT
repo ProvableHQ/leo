@@ -1,0 +1,17 @@
+--- leo test on a library with tests/ ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_my_lib.aleo'
+       Leo     14 statements before dead code elimination.
+       Leo     11 statements after dead code elimination.
+       Leo     The program checksum is: '[131u8, 185u8, 83u8, 151u8, 158u8, 198u8, 120u8, 198u8, 76u8, 12u8, 0u8, 87u8, 98u8, 73u8, 139u8, 227u8, 197u8, 98u8, 156u8, 130u8, 229u8, 79u8, 192u8, 83u8, 168u8, 185u8, 36u8, 24u8, 40u8, 220u8, 47u8, 178u8]'.
+       Leo     Program size: 0.22 KB / 500.00 KB
+       Leo ✅ Compiled 'test_my_lib.aleo' into Aleo instructions.
+       Leo Loading the ledger from storage...
+       Leo Loading the ledger from storage...
+       Leo Loading the ledger from storage...
+3 / 3 tests passed.
+PASSED: test_my_lib.aleo/test_double
+PASSED: test_my_lib.aleo/test_square
+PASSED: test_my_lib.aleo/test_square_zero
