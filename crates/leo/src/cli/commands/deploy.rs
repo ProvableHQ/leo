@@ -824,7 +824,7 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     let sample_key = PrivateKey::new(rng)?;
     let sample_address = Address::try_from(&sample_key)?;
 
-    for (function_name, _) in deployment.verifying_keys() {
+    for (function_name, _) in deployment.function_verifying_keys() {
         let name = function_name.to_string();
 
         // Compute the finalize cost based on the consensus version.
