@@ -1,7 +1,31 @@
 {
   "program": "some_sample_leo_program.aleo",
   "structs": [],
-  "records": [],
+  "records": [
+    {
+      "path": [
+        "Token"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
+          "mode": "None"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
   "mappings": [],
   "storage_variables": [],
   "functions": [
@@ -41,6 +65,80 @@
               }
             }
           },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "mint",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "owner",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Record": {
+              "path": [
+                "Token"
+              ],
+              "program": "some_sample_leo_program.aleo"
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "dynamic_transfer",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "target",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Field"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "token",
+          "ty": "DynamicRecord",
+          "mode": "None"
+        },
+        {
+          "name": "to",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "DynamicRecord",
           "mode": "None"
         }
       ]
