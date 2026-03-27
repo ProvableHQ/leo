@@ -70,11 +70,38 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) ->
 }
 
 impl CodeGeneratingVisitor<'_> {
+    /// Recursively walk the stub tree and register all `FromAleo` composites
+    /// and mappings so they are known before any code generation runs.
+    fn register_stubs(&mut self, program: &Program) {
+        for stub in program.stubs.values() {
+            match stub {
+                leo_ast::Stub::FromAleo { program, .. } => {
+                    for (name, _) in &program.mappings {
+                        self.global_mapping
+                            .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), name.to_string());
+                    }
+                    for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
+                        self.composite_mapping
+                            .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), *is_record);
+                    }
+                }
+                leo_ast::Stub::FromLeo { program, .. } => {
+                    self.register_stubs(program);
+                }
+                leo_ast::Stub::FromLibrary { .. } => {}
+            }
+        }
+    }
+
     pub(crate) fn visit_package(&mut self) -> CompiledPrograms {
         let mut import_bytecodes = Vec::new();
 
         match &self.state.ast {
             Ast::Program(program) => {
+                // Register all composites and mappings recursively
+                // before generating code for any dependency.
+                self.register_stubs(program);
+
                 for stub in program.stubs.values() {
                     match stub {
                         leo_ast::Stub::FromLeo { program, .. } => {
@@ -100,19 +127,7 @@ impl CodeGeneratingVisitor<'_> {
                                 bytecode: bytecode.to_string(),
                             });
                         }
-                        leo_ast::Stub::FromAleo { program, .. } => {
-                            for (name, _) in &program.mappings {
-                                self.global_mapping
-                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), name.to_string());
-                            }
-                            for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
-                                self.composite_mapping
-                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), *is_record);
-                            }
-                        }
-                        leo_ast::Stub::FromLibrary { .. } => {
-                            // no-op
-                        }
+                        leo_ast::Stub::FromAleo { .. } | leo_ast::Stub::FromLibrary { .. } => {}
                     }
                 }
             }
