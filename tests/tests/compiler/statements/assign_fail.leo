@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: bool, x: u8, y: u8) {
         x::y = y;
@@ -10,17 +9,13 @@ program test.aleo {
         -x = y;
 
         !x = y;
-
-        a? x : x = y;
-
+        a ? x : x = y;
         x as u32 = y;
 
         [x, x, x] = y;
 
         (x, x, x) = y;
-
-        x {x: y } = y;
-
+        x { x: y } = y;
         x() = y;
 
         4u8 = y;

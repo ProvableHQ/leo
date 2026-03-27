@@ -1,4 +1,3 @@
-
 program test.aleo {
     record credits {
         owner: address,
@@ -11,8 +10,5 @@ fn foo(a: credits) -> u8 {
 }
 
 fn boo(a: address, b: u64) -> credits {
-    return credits {
-       owner: a,
-       micrcredits: b,
-   };
+    return credits { owner: a, micrcredits: b };
 }

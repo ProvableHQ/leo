@@ -1,5 +1,3 @@
-
-
 program test.aleo {
     fn foo(a: [u32; 4]) {
         let sum: u32 = 0u32;

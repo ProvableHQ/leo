@@ -1,11 +1,11 @@
 Error [ETYC0372019]: The `record` type requires the variable `owner: address`.
-    --> compiler-test:4:5
+    --> compiler-test:3:5
      |
-   4 |     record Token {
+   3 |     record Token {
      |     ^^^^^^^^^^^^^^
-   5 |         // The token amount.
+   4 |         // The token amount.
      |         ^^^^^^^^^^^^^^^^^^^^
-   6 |         amount: u64,
+   5 |         amount: u64,
      |         ^^^^^^^^^^^^
-   7 |     }
+   6 |     }
      |     ^

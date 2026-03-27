@@ -29,7 +29,7 @@ Error [ETYC0372163]: Constants cannot have an optional type or a type that conta
   15 | const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372163]: Constants cannot have an optional type or a type that contains an optional
-    --> compiler-test:33:9
+    --> compiler-test:32:9
      |
-  33 |         const D_local: [[u8?; 2]; 2] = [[1u8, 2u8], [3u8, 4u8]];
+  32 |         const D_local: [[u8?; 2]; 2] = [[1u8, 2u8], [3u8, 4u8]];
      |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

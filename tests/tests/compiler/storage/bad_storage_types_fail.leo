@@ -9,8 +9,9 @@ program negative_storage_tests.aleo {
 
     // --- Record (disallowed composite) ---
     record MyRecord {
-        owner: address
+        owner: address,
     }
+
     storage record_storage: MyRecord;
 
     // --- Arrays of illegal types ---

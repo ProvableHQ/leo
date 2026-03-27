@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     fn main(a: u16, b: u16) -> bool {
         // unary
         let h: u16 = a.not();
@@ -44,4 +42,5 @@ program test.aleo {
         let av: u16 = a.rem_wrapped(b);
 
         return a == b;
-    }}
+    }
+}

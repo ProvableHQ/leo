@@ -30,8 +30,6 @@ program test.aleo {
     fn deposit(public sender: address, public amount: u64) -> Final {
         let caller: address = self.caller;
         let signer: address = self.signer;
-        return final {
-            do_deposit(sender, amount);
-        };
+        return final { do_deposit(sender, amount); };
     }
 }

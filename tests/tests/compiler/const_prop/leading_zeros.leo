@@ -37,6 +37,7 @@ program test.aleo {
     fn field_tr2() -> field {
         return F3;
     }
+
     fn group_tr() -> group {
         return G1 + G2 + G3 + G4 + G5 + G6 + G7 + G8;
     }
@@ -44,6 +45,7 @@ program test.aleo {
     fn group_tr2() -> group {
         return G3;
     }
+
     fn scalar_tr() -> scalar {
         return S1 + S2 + S3 + S4 + S5;
     }
@@ -51,6 +53,7 @@ program test.aleo {
     fn scalar_tr2() -> scalar {
         return S5;
     }
+
     fn i8_tr() -> i8 {
         return I1 + I2 + I3 + I4;
     }

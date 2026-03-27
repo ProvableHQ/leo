@@ -1,4 +1,3 @@
-
 "string"
 
 "another { } string"

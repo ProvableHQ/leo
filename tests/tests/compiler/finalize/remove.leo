@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping balances: address => u32;
 
     fn foo() -> Final {
@@ -16,7 +14,6 @@ final fn finalize_foo(account: address) -> () {
     assert(expect_true);
 
     Mapping::remove(balances, account); // Remove the mapping entry for account
-
     let expect_false: bool = Mapping::contains(balances, account);
     assert(!expect_false);
 }

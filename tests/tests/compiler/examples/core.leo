@@ -1,4 +1,3 @@
-
 program test.aleo {
     // This function takes as input a field `a` and calls several core functions.
     // Core functions are built-in to the Leo language and call handwritten, optimized circuits in the AVM.
@@ -11,4 +10,3 @@ program test.aleo {
         return d;
     }
 }
-

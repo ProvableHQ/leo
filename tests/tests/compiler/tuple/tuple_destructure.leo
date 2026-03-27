@@ -2,8 +2,6 @@ fn bax(baq: u8) -> (u8, u8) {
     return (baq + baq, baq * baq);
 }
 
-
-
 program test.aleo {
     fn baz(foo: u8, bar: u8) -> u8 {
         let (a, b): (u8, u8) = (foo, bar);

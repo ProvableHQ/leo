@@ -2,17 +2,18 @@ interface Base {
     fn get_value() -> u64;
 }
 
-interface Left : Base {
+interface Left: Base {
     fn left_op() -> u64;
 }
 
-interface Right : Base {
+interface Right: Base {
     fn right_op() -> u64;
 }
 
-interface Diamond : Left + Right {}
+interface Diamond: Left + Right {
+}
 
-program test.aleo : Diamond {
+program test.aleo: Diamond {
     fn get_value() -> u64 {
         return 42u64;
     }

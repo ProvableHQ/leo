@@ -396,16 +396,16 @@ Error [ETYC0372004]: Could not determine the type of `0`
      |
      = Consider using explicit type annotations.
 Error [ETYC0372004]: Could not determine the type of `2`
-    --> compiler-test:45:20
+    --> compiler-test:45:19
      |
-  45 |         let b4  = -2;
-     |                    ^
+  45 |         let b4 = -2;
+     |                   ^
      |
      = Consider using explicit type annotations.
 Error [ETYC0372004]: Could not determine the type of `2`
-    --> compiler-test:46:20
+    --> compiler-test:46:19
      |
-  46 |         let b5  = !2;
-     |                    ^
+  46 |         let b5 = !2;
+     |                   ^
      |
      = Consider using explicit type annotations.

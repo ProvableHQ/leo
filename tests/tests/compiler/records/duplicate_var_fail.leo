@@ -1,4 +1,3 @@
-
 program test.aleo {
     // test 1: adjacent duplicate - no "..." gap marker
     record Token {
@@ -22,7 +21,6 @@ program test.aleo {
         owner: address,
         amount: u64,
     }
-
 }
 
 fn main(zz: bool) -> bool {

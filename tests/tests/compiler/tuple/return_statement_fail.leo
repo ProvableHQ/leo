@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: bool, b: bool) -> (bool, u64) {
         let t: (bool, bool) = (a, b);

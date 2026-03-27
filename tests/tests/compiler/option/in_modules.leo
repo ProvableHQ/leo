@@ -1,9 +1,7 @@
-
 // 1. Return u8? → move to inline, unwrap in transition
 fn basic_implicit_return_() -> u8? {
     return 5u8; // implicitly wrapped
 }
-
 
 // 2. Optional input (inline is OK)
 fn takes_optional_u8(x: u8?) -> u8 {
@@ -14,7 +12,6 @@ fn takes_optional_u8(x: u8?) -> u8 {
 fn basic_implicit_argument_() -> u8 {
     return takes_optional_u8(42u8); // implicitly wrapped
 }
-
 
 // 4. Return u8? → unwrap
 fn basic_implicit_ternary_(cond: bool) -> u8? {
@@ -28,10 +25,7 @@ fn complex_implicit_return_() -> [u8?; 2] {
         arr: [dep::inner::Foo { x: 8u8 }, none],
     };
     let wrapper = wrapper_opt.unwrap();
-    return [
-        wrapper.arr[0].unwrap().x,
-        wrapper.arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-    ];
+    return [wrapper.arr[0].unwrap().x, wrapper.arr[1].unwrap_or(dep::inner::Foo { x: none }).x];
 }
 
 // 2. Optional arg → already inline
@@ -47,54 +41,42 @@ fn complex_implicit_argument_() -> u8 {
 
 // 3. Return dep::Wrapper? → unwrap fully to [u8; 2]
 fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
-    let wrapper_opt: dep::Wrapper? = cond
-        ? dep::Wrapper { arr: [dep::inner::Foo { x: 99u8 }, none] }
-        : none;
+    let wrapper_opt: dep::Wrapper? = cond ? dep::Wrapper {
+        arr: [dep::inner::Foo { x: 99u8 }, none],
+    } : none;
     let wrapper = wrapper_opt.unwrap();
-    return [
-        wrapper.arr[0].unwrap().x,
-        wrapper.arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-    ];
+    return [wrapper.arr[0].unwrap().x, wrapper.arr[1].unwrap_or(dep::inner::Foo { x: none }).x];
 }
 
 // 5. [dep::Wrapper; 3]? → unwrap all the way to [[u8; 2]; 3]
 fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = none;
     let arr = arr_opt.unwrap();
-
     return [
-        [
-            arr[0].arr[0].unwrap().x,
-            arr[0].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-        ],
+        [arr[0].arr[0].unwrap().x, arr[0].arr[1].unwrap_or(dep::inner::Foo { x: none }).x],
         [
             arr[1].arr[0].unwrap_or(dep::inner::Foo { x: none }).x,
             arr[1].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
         ],
-        [
-            arr[2].arr[0].unwrap().x,
-            arr[2].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-        ],
+        [arr[2].arr[0].unwrap().x, arr[2].arr[1].unwrap_or(dep::inner::Foo { x: none }).x],
     ];
 }
 
 // 6. Deeper access into optional array — unwrap fully
 fn complex_array_access_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = [
-        dep::Wrapper { arr: [dep::inner::Foo { x: 10u8 }, none] },
-        dep::Wrapper { arr: [dep::inner::Foo { x: 20u8 }, none] },
+        dep::Wrapper {
+            arr: [dep::inner::Foo { x: 10u8 }, none],
+        },
+        dep::Wrapper {
+            arr: [dep::inner::Foo { x: 20u8 }, none],
+        },
         dep::Wrapper { arr: [none, none] },
     ];
     let arr = arr_opt.unwrap();
     return [
-        [
-            arr[0].arr[0].unwrap().x,
-            arr[0].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-        ],
-        [
-            arr[1].arr[0].unwrap().x,
-            arr[1].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
-        ],
+        [arr[0].arr[0].unwrap().x, arr[0].arr[1].unwrap_or(dep::inner::Foo { x: none }).x],
+        [arr[1].arr[0].unwrap().x, arr[1].arr[1].unwrap_or(dep::inner::Foo { x: none }).x],
         [
             arr[2].arr[0].unwrap_or(dep::inner::Foo { x: none }).x,
             arr[2].arr[1].unwrap_or(dep::inner::Foo { x: none }).x,
@@ -124,7 +106,6 @@ program in_modules.aleo {
     }
 
     // === COMPLEX TYPE TESTS ===
-
     fn complex_implicit_return() -> [u8; 2] {
         let xs = complex_implicit_return_();
         return [xs[0].unwrap(), xs[1].unwrap_or(0u8)];
@@ -142,7 +123,9 @@ program in_modules.aleo {
     // 4. Optional reassignment only — allowed
     fn complex_implicit_reassignment() -> u8 {
         let w: dep::Wrapper? = none;
-        w = dep::Wrapper { arr: [dep::inner::Foo { x: 7u8 }, none] };
+        w = dep::Wrapper {
+            arr: [dep::inner::Foo { x: 7u8 }, none],
+        };
         return w.unwrap().arr[0].unwrap().x.unwrap();
     }
 
@@ -156,7 +139,6 @@ program in_modules.aleo {
         return arr[1][0].unwrap(); // should be 20
     }
 }
-
 
 // --- Next Module: dep.leo --- //
 

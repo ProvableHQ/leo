@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping Yo: u32 => u32;
 
@@ -8,6 +7,6 @@ program test.aleo {
     }
 }
 
-final fn finalize_main(a:u32, b:u32) -> Final {
+final fn finalize_main(a: u32, b: u32) -> Final {
     Mapping::set(Yo, a, b);
 }

@@ -1,5 +1,4 @@
 program unary_ops_unsuffixed.aleo {
-    
     // Test negate with unsuffixed literals
     fn test_negate_unsuffixed() -> u8 {
         let a: i8? = -5;
@@ -10,7 +9,7 @@ program unary_ops_unsuffixed.aleo {
         let f: field? = -1;
         return 42u8;
     }
-    
+
     // Test not with unsuffixed literals
     fn test_not_unsuffixed() -> u8 {
         let a: bool? = !true;
@@ -19,7 +18,7 @@ program unary_ops_unsuffixed.aleo {
         let d: u16? = !100;
         return 42u8;
     }
-    
+
     // Test abs with unsuffixed negative literals
     fn test_abs_unsuffixed() -> u8 {
         let a: i8? = (-5).abs();
@@ -27,14 +26,14 @@ program unary_ops_unsuffixed.aleo {
         let c: i32? = (-1000).abs();
         return 42u8;
     }
-    
+
     // Test abs_wrapped with unsuffixed literals
     fn test_abs_wrapped_unsuffixed() -> u8 {
         let a: i8? = (-127).abs_wrapped();
         let b: i16? = (-32767).abs_wrapped();
         return 42u8;
     }
-    
+
     // Test field operations with unsuffixed literals
     fn test_field_ops_unsuffixed() -> u8 {
         let a: field? = (5).double();
@@ -43,7 +42,7 @@ program unary_ops_unsuffixed.aleo {
         let d: field? = (25).square_root();
         return 42u8;
     }
-    
+
     // Test nested unary operations
     fn test_nested_unary_unsuffixed() -> u8 {
         let a: i8? = -(-5);
@@ -51,7 +50,7 @@ program unary_ops_unsuffixed.aleo {
         let c: u8? = !!5;
         return 42u8;
     }
-    
+
     // Test unary in expression context
     fn test_unary_in_expression() -> u8 {
         let a: i8? = -5 + 3;
@@ -60,4 +59,3 @@ program unary_ops_unsuffixed.aleo {
         return 42u8;
     }
 }
-

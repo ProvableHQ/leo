@@ -3,7 +3,7 @@ const START: u32 = 0u32;
 program test.aleo {
     fn foo(a: u32, b: u32, flag: bool) -> u32 {
         const STOP: u32 = 10u32;
-        const B: u8 = ((1u8,1u8),1u8);
+        const B: u8 = ((1u8, 1u8), 1u8);
         return 1u32;
     }
 }

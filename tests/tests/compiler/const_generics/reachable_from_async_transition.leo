@@ -5,7 +5,7 @@ program const_generics.aleo {
     }
 }
 
-final fn bar() { }
+final fn bar() {}
 
 fn abc::[C: field]() -> field {
     return def::[C]();

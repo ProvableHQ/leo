@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: group, b: group) -> bool {
         // unary
@@ -13,4 +12,5 @@ program test.aleo {
         let w: bool = a.neq(b);
 
         return a == b;
-    }}
+    }
+}

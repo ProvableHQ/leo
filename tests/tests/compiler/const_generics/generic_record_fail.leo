@@ -5,7 +5,7 @@ program test.aleo {
     }
 
     record Bar::[N: field] {
-        owner: address
+        owner: address,
     }
 
     fn foo() {}

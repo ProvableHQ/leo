@@ -1,18 +1,18 @@
 // Test: Deeply transitive interface inheritance cycle (should fail)
 
-interface A : B {
+interface A: B {
     fn a() -> u64;
 }
 
-interface B : C {
+interface B: C {
     fn b() -> u64;
 }
 
-interface C : D {
+interface C: D {
     fn c() -> u64;
 }
 
-interface D : A {
+interface D: A {
     fn d() -> u64;
 }
 

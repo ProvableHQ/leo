@@ -20,7 +20,6 @@ program test.aleo {
         // A new move record should be created and owned by the opponent.
         let one_is_owner: bool = move_record.player_1 == move_record.owner;
         let opponent: address = one_is_owner ? move_record.player_2 : move_record.player_1;
-
         return move {
             owner: opponent,
             incoming_fire_coordinate,
@@ -42,5 +41,3 @@ program test.aleo {
         };
     }
 }
-
-

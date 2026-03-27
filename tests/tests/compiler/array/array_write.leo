@@ -1,9 +1,7 @@
-
 struct S {
     x: u8,
     y: u32,
 }
-
 
 struct T {
     x: u8,
@@ -37,7 +35,7 @@ program test.aleo {
     }
 
     fn with_tuples(s: S, t: T) -> (S, T) {
-        let st: (S, T) = (s, T { x: t.x, y: t.y, z: s});
+        let st: (S, T) = (s, T { x: t.x, y: t.y, z: s });
         st.1 = t;
         st.0.x = 1u8;
         st.1.y[1u8] = s;
@@ -48,13 +46,10 @@ program test.aleo {
         if x {
             t.x = 1u8;
         } else {
-            t.z = S {
-                x: 2u8,
-                y: 3u32,
-            };
+            t.z = S { x: 2u8, y: 3u32 };
         }
         return t;
-    } 
+    }
 
     record R {
         owner: address,
@@ -63,10 +58,7 @@ program test.aleo {
 
     fn f_record() -> (R, Final) {
         let fut: Final = final { f_finalize(1u8); };
-        let r: R = R {
-            owner: self.signer,
-            x: 1u8,
-        };
+        let r: R = R { owner: self.signer, x: 1u8 };
         r.x = 2u8;
         return (r, fut);
     }
@@ -74,10 +66,10 @@ program test.aleo {
     fn in_loops(xs: [u8; 8]) -> [u8; 8] {
         for i: u8 in 0u8..7u8 {
             for j: u8 in 0u8..7u8 - i {
-                if xs[j] < xs[j+1u8] {
+                if xs[j] < xs[j + 1u8] {
                     let tmp: u8 = xs[j];
-                    xs[j] = xs[j+1u8];
-                    xs[j+1u8] = tmp;
+                    xs[j] = xs[j + 1u8];
+                    xs[j + 1u8] = tmp;
                 }
             }
         }

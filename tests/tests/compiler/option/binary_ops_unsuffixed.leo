@@ -1,5 +1,4 @@
 program binary_ops_unsuffixed.aleo {
-    
     // Test arithmetic operators with unsuffixed literals
     fn test_arithmetic_unsuffixed() -> u8 {
         let a: u8? = 1 + 1;
@@ -10,7 +9,7 @@ program binary_ops_unsuffixed.aleo {
         let f: u8? = 2 ** 3u8;
         return 42u8;
     }
-    
+
     // Test bitwise operators with unsuffixed literals
     fn test_bitwise_unsuffixed() -> u8 {
         let a: u8? = 5 & 3;
@@ -20,7 +19,7 @@ program binary_ops_unsuffixed.aleo {
         let e: u8? = 10 >> 1u8;
         return 42u8;
     }
-    
+
     // Test wrapped operators with unsuffixed literals
     fn test_wrapped_unsuffixed() -> u8 {
         let a: u8? = 250.add_wrapped(10);
@@ -29,7 +28,7 @@ program binary_ops_unsuffixed.aleo {
         let d: u8? = 10.div_wrapped(3);
         return 42u8;
     }
-    
+
     // Test with different integer types
     fn test_different_int_types() -> u8 {
         let a: u16? = 100 + 200;
@@ -38,7 +37,7 @@ program binary_ops_unsuffixed.aleo {
         let d: u128? = 100000 / 2;
         return 42u8;
     }
-    
+
     // Test with field type
     fn test_field_unsuffixed() -> u8 {
         let a: field? = 1 + 2;
@@ -47,7 +46,7 @@ program binary_ops_unsuffixed.aleo {
         let d: field? = 100 / 10;
         return 42u8;
     }
-    
+
     // Test mixed: one suffixed, one unsuffixed
     fn test_mixed_suffixed_unsuffixed() -> u8 {
         let a: u8? = 1u8 + 1;
@@ -55,7 +54,7 @@ program binary_ops_unsuffixed.aleo {
         let c: u8? = 2u8 * 3u8;
         return 42u8;
     }
-    
+
     // Test with negative unsuffixed literals (signed types)
     fn test_signed_unsuffixed() -> u8 {
         let a: i8? = -5 + 3;
@@ -64,7 +63,7 @@ program binary_ops_unsuffixed.aleo {
         let d: i64? = 100 / -5;
         return 42u8;
     }
-    
+
     // Test nested expressions
     fn test_nested_unsuffixed() -> u8 {
         let a: u8? = (1 + 2) * 3;
@@ -73,4 +72,3 @@ program binary_ops_unsuffixed.aleo {
         return 42u8;
     }
 }
-

@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected ';' -- found 'field'
-    --> compiler-test:4:13
+    --> compiler-test:4:15
      |
-   4 |   let f = 1 field;
-     |             ^^^^^
+   4 |     let f = 1 field;
+     |               ^^^^^

@@ -3,8 +3,7 @@ program test.aleo {
         let a: u32? = 5u32;
 
         // Case 1: T? = unwrap(T?)
-        let b: u32? = a.unwrap();   // should implicitly wrap to u32?
-
+        let b: u32? = a.unwrap(); // should implicitly wrap to u32?
         // Case 2: T? = unwrap(T?) + T
         let c: u32? = a.unwrap() + 7u32;
 

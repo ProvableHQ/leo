@@ -63,7 +63,7 @@ program vector_structs.aleo {
             ids.push(30u32);
             assert(ids.len() == 3u32);
 
-            // Dynamic index from input 
+            // Dynamic index from input
             let val_opt = ids.get(index);
             assert(val_opt.unwrap() == 20u32);
 
@@ -126,17 +126,14 @@ program vector_structs.aleo {
     fn test_vector_containers_behavior(idx: u32) -> Final {
         return final {
             assert(containers.len() == 0u32);
-
             let c1 = Container {
                 id: 1u32,
                 points: [Point { x: 11field, y: 22field }, Point { x: 33field, y: 44field }],
             };
-
             let c2 = Container {
                 id: 2u32,
                 points: [Point { x: 55field, y: 66field }, Point { x: 77field, y: 88field }],
             };
-
             containers.push(c1);
             containers.push(c2);
             assert(containers.len() == 2u32);
@@ -146,14 +143,10 @@ program vector_structs.aleo {
             assert(target.id == 1u32 || target.id == 2u32);
 
             // Dynamically mutate element at input index
-            containers.set(
-                idx,
-                Container {
-                    id: 99u32,
-                    points: [Point { x: 999field, y: 999field }, Point { x: 33field, y: 33field }],
-                },
-            );
-
+            containers.set(idx, Container {
+                id: 99u32,
+                points: [Point { x: 999field, y: 999field }, Point { x: 33field, y: 33field }],
+            }, );
             let updated = containers.get(idx).unwrap();
             assert(updated.id == 99u32);
             assert(updated.points[0].x == 999field);

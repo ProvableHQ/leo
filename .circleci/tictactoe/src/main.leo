@@ -54,14 +54,12 @@ program tictactoe.aleo {
         } else if row == 3u8 && col == 3u8 && r3c3 == 0u8 {
             r3c3 = player;
         }
-
         // Construct the updated game board.
         let updated: Board = Board {
             r1: Row { c1: r1c1, c2: r1c2, c3: r1c3 },
             r2: Row { c1: r2c1, c2: r2c2, c3: r2c3 },
             r3: Row { c1: r3c1, c2: r3c2, c3: r3c3 },
         };
-
         // Check if the game is over.
         if check_for_win(updated, 1u8) {
             return (updated, 1u8);
@@ -82,7 +80,7 @@ program tictactoe.aleo {
 struct Row {
     c1: u8,
     c2: u8,
-    c3: u8
+    c3: u8,
 }
 
 // A tic tac toe board.
@@ -99,8 +97,7 @@ struct Board {
 // - `b` : A tic tac toe board.
 // - `p` : A number corresponding to a player.
 fn check_for_win(b: Board, p: u8) -> bool {
-    return
-        (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
+    return (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
         (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
         (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
         (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
@@ -109,4 +106,3 @@ fn check_for_win(b: Board, p: u8) -> bool {
         (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
         (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal
 }
-

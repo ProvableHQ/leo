@@ -3,10 +3,9 @@ program lib.aleo {
 }
 
 // --- Next Program --- //
-
 import lib.aleo;
 
-program test.aleo : lib.aleo::NonExistent {
+program test.aleo: lib.aleo::NonExistent {
     fn main(x: u64) -> u64 {
         return 0;
     }

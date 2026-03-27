@@ -1,5 +1,5 @@
 Error [ETYC0372008]: The value 1 is not a valid `group`
-    --> compiler-test:5:16
+    --> compiler-test:4:16
      |
-   5 |         return 1group;
+   4 |         return 1group;
      |                ^^^^^^

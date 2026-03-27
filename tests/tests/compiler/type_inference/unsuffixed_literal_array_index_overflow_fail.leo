@@ -4,4 +4,3 @@ program b28681.aleo {
         let x1 = arr[44444444444444444444444]; // not a valid u32
     }
 }
-

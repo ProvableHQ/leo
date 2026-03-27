@@ -5,4 +5,3 @@ program test.aleo {
         return y;
     }
 }
-

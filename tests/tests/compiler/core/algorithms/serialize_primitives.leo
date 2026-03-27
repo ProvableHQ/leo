@@ -20,7 +20,7 @@ program test.aleo {
         u32_val: u32,
         u64_val: u64,
         u128_val: u128,
-        s: scalar
+        s: scalar,
     ) -> (
         bool, bool, bool, bool,  // Sample bits from address
         bool, bool, bool, bool,  // Sample bits from integers
@@ -46,10 +46,10 @@ program test.aleo {
 
         // Sample bits from each serialization
         return (
-            addr_bits[0u8], addr_bits[100u8], addr_bits[200u8], addr_bits[278u16],
-            i8_bits[0u8], i32_bits[16u8], i64_bits[32u8], i128_bits[64u8],
-            field_bits[0u8], field_bits[128u8], group_bits[0u8], group_bits[278u16],
-            scalar_bits[0u8], u8_bits[0u8], u64_bits[0u8], bool_bits[0u8]
+            addr_bits[0u8], addr_bits[100u8], addr_bits[200u8], addr_bits[278u16], i8_bits[0u8],
+            i32_bits[16u8], i64_bits[32u8], i128_bits[64u8], field_bits[0u8], field_bits[128u8],
+            group_bits[0u8], group_bits[278u16], scalar_bits[0u8], u8_bits[0u8], u64_bits[0u8],
+            bool_bits[0u8],
         );
     }
 }

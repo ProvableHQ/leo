@@ -1,4 +1,3 @@
-
 program test.aleo {}
 
 fn x(x: u32, public const y: i32) {

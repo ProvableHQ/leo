@@ -2,7 +2,7 @@ interface Processor {
     fn process(a: address, amount: u64) -> bool;
 }
 
-program test.aleo : Processor {
+program test.aleo: Processor {
     fn process(a: address, amount: u64) -> bool {
         return amount > 0u64;
     }

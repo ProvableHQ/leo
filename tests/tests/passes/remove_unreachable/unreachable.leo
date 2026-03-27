@@ -7,29 +7,35 @@ program test.aleo {
             return a;
         }
         return b;
-    } 
+    }
+
     fn foo(cond: bool, a: u32, b: u32) -> u32 {
         return a;
         return b;
-    } 
+    }
+
     fn bar(cond: bool, a: u32, b: u32) -> u32 {
         if true {
             return a;
         }
         return b;
-    } 
+    }
+
     fn baz(cond: bool, a: u32, b: u32) -> u32 {
         if false {
             return a;
         }
         return b;
-    } 
+    }
+
     fn foobar(cond: bool, a: u32, b: u32) -> u32 {
         if false {
             a = a + 42;
-            { return a; }
+            {
+                return a;
+            }
             a = a + 50;
         }
         return b;
-    } 
+    }
 }

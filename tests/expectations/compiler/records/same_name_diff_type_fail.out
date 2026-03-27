@@ -1,7 +1,7 @@
 Error [ETYC0372119]: Received different types `parent.aleo::R` and `child.aleo::R` for the operation `==`.
-    --> compiler-test:16:16
+    --> compiler-test:12:16
      |
-  16 |         return r1 == child.aleo::create();
+  12 |         return r1 == child.aleo::create();
      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Make both operands the same type.

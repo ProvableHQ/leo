@@ -514,7 +514,7 @@ impl TypeCheckingVisitor<'_> {
         };
 
         // Define a regex to match valid program IDs.
-        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
+        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
 
         fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
             bail!("structs are not supported")

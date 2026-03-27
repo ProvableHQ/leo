@@ -22,12 +22,10 @@ program test.aleo {
             Foo { x: raw[2] == 0u64 ? none : raw[2] },
             Foo { x: raw[3] == 0u64 ? none : raw[3] },
         ];
-
         let sum: u64 = 0u64;
         for i in 0u8..4u8 {
             sum += arr[i].x.unwrap_or((i * i) as u64);
         }
-
         assert(sum == 50);
     }
 

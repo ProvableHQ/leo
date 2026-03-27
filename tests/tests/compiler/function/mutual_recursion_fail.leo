@@ -1,4 +1,3 @@
-
 @no_inline
 fn foo(n: u8) -> u8 {
     return bar(n);

@@ -6,7 +6,6 @@ final fn finalize_deposit(hash: field, amount: u64) {
     Mapping::set(balances, hash, current_amount + amount);
 }
 
-
 // Updates on-chain state by the amount of tokens withdrawn.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were withdrawn.
@@ -21,13 +20,11 @@ final fn finalize_withdraw(hash: field, amount: u64) {
 // - `periods`  : The number of periods to compound the interest over.
 fn calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
     let amount: u64 = principal;
-
-    for i:u64 in 0u64..100u64 {
+    for i: u64 in 0u64..100u64 {
         if i < periods {
             amount += (amount * rate) / 10000u64;
         }
     }
-
     return amount;
 }
 
@@ -51,10 +48,7 @@ program basic_bank.aleo {
     // The bank's address is aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a.
     fn issue(owner: address, amount: u64) -> Token {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
-        return Token {
-            owner: owner,
-            amount: amount,
-        };
+        return Token { owner: owner, amount: amount };
     }
 
     // Deposits some amount of money into the bank.
@@ -63,16 +57,15 @@ program basic_bank.aleo {
     // - `amount`: The amount of tokens to deposit.
     fn deposit(token: Token, amount: u64) -> (Token, Final) {
         let difference: u64 = token.amount - amount;
-
-        let remaining: Token = Token {
-            owner: token.owner,
-            amount: difference,
-        };
-
+        let remaining: Token = Token { owner: token.owner, amount: difference };
         // Compute the hash of the token owner.
         let hash: field = BHP256::hash_to_field(token.owner);
-
-        return (remaining, final { finalize_deposit(hash, amount); });
+        return (
+            remaining,
+            final {
+                finalize_deposit(hash, amount);
+            },
+        );
     }
 
     // Returns a new Token containing the amount of money withdrawn.
@@ -86,13 +79,12 @@ program basic_bank.aleo {
         let hash: field = BHP256::hash_to_field(recipient);
 
         let total: u64 = calculate_interest(amount, rate, periods);
-
-        let token: Token = Token {
-            owner: recipient,
-            amount: total,
-        };
-
-        return (token, final { finalize_withdraw(hash, amount); });
+        let token: Token = Token { owner: recipient, amount: total };
+        return (
+            token,
+            final {
+                finalize_withdraw(hash, amount);
+            },
+        );
     }
-
 }

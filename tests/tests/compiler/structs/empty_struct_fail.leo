@@ -1,7 +1,7 @@
-
 program test.aleo {}
 
-struct Bar {}
+struct Bar {
+}
 
 struct Foo {
     a: [u8; 0],

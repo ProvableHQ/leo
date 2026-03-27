@@ -1,4 +1,3 @@
-
 // Ensure Final types are correctly found through
 // two layers of dependencies.
 
@@ -14,7 +13,6 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 final fn finalize(f: Final) {
@@ -29,7 +27,6 @@ program dependent2.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent2.aleo;
 
 final fn finalize(f: Final) {

@@ -11,31 +11,24 @@ input = []
 program test.aleo {
     fn main() -> u32 {
         let mat = common::use_matrix(); // Matrix with modified elements
-
         let outer = outer::OuterWrapper::[4] {
-            nested: outer::inner::InnerGeneric::[4] {
-                data: [0; 4],
-            },
+            nested: outer::inner::InnerGeneric::[4] { data: [0; 4] },
         };
-
         // ✅ Modify struct field using assignment
         for i in 0u32..4u32 {
             outer.nested.data[i] = i * 10;
         }
-
         // ✅ Modify nested matrix elements
         for i in 0u32..common::R {
             for j in 0u32..common::C {
                 mat.inner.values[i][j] = mat.inner.values[i][j] + 1;
             }
         }
-
         return mat.inner.values[0][1] + outer.nested.data[3];
     }
 
     @noupgrade
     constructor() {}
-
 }
 
 // --- Next Module: common.leo --- //
@@ -55,20 +48,14 @@ struct WrappedMatrix::[M: u32, N: u32] {
 
 // ✅ Function constructing matrix and modifying it with loop/assignment
 fn use_matrix() -> WrappedMatrix::[R, C] {
-    let base = Matrix::[R, C] {
-        values: [[1; C]; R],
-    };
-
+    let base = Matrix::[R, C] { values: [[1; C]; R] };
     // ✅ Modify inner matrix values using loop and assignment
     for i in 0u32..R {
         for j in 0u32..C {
             base.values[i][j] = i + j;
         }
     }
-
-    return WrappedMatrix::[R, C] {
-        inner: base,
-    };
+    return WrappedMatrix::[R, C] { inner: base };
 }
 
 // --- Next Module: outer.leo --- //

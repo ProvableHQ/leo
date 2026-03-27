@@ -1,5 +1,5 @@
 Error [ETYC0372003]: Expected type `parent.aleo::Foo` but type `child.aleo::Foo` was found
-    --> compiler-test:29:16
+    --> compiler-test:51:16
      |
-  29 |         return child.aleo::create();
+  51 |         return child.aleo::create();
      |                ^^^^^^^^^^^^^^^^^^^^

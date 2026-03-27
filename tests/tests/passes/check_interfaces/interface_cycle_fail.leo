@@ -1,10 +1,10 @@
 // Test: Interface inheritance cycle (should fail)
 
-interface A : B {
+interface A: B {
     fn foo() -> u64;
 }
 
-interface B : A {
+interface B: A {
     fn bar() -> u64;
 }
 

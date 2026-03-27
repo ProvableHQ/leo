@@ -1,4 +1,3 @@
-
 struct Data {
     data: [u8; 2],
 }
@@ -9,7 +8,6 @@ fn foo(a: u8, b: u8) -> [Data; 2] {
     if (a == b) {
         return [data_1, data_2];
     }
-
     let data_3: Data = Data { data: [2u8 * data_1.data[0u8], 4u8 * data_2.data[1u8]] };
 
     return [data_2, data_3];

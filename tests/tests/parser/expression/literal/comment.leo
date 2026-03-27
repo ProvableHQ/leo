@@ -25,10 +25,4 @@ program test.aleo {
     //test3
 
     // test4
-
-
-
-
-
-
 }

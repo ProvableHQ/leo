@@ -2,13 +2,11 @@ interface Producer {
     fn produce(a: u32) -> (u32, Final);
 }
 
-program test.aleo : Producer {
+program test.aleo: Producer {
     mapping store: u32 => u32;
 
     fn produce(a: u32) -> (u32, Final) {
-        let f: Final = final {
-            Mapping::set(store, a, a);
-        };
+        let f: Final = final { Mapping::set(store, a, a); };
         return (a, f);
     }
 

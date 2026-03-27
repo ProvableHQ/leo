@@ -11,11 +11,11 @@ interface Base {
     fn double_val(x: u64) -> u64;
 }
 
-interface Extended : Base {
+interface Extended: Base {
     fn triple_val(x: u64) -> u64;
 }
 
-program impl_ext.aleo : Extended {
+program impl_ext.aleo: Extended {
     fn double_val(x: u64) -> u64 {
         return x * 2u64;
     }
@@ -29,7 +29,6 @@ program impl_ext.aleo : Extended {
 }
 
 // --- Next Program --- //
-
 import impl_ext.aleo;
 
 program caller.aleo {

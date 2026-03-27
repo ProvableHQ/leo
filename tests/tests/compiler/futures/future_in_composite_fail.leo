@@ -1,10 +1,10 @@
-
 struct S {
     member: Final,
 }
 
 program test.aleo {
     mapping x: Final => Final;
+
     fn main() -> Final {
         let future: Final = final { finish(); };
         let an_array: [Final; 1] = [future];

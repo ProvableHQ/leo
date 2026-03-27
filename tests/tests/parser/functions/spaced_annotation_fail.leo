@@ -1,4 +1,4 @@
-
 program test.aleo {}
-@ test
+
+@test
 fn test() -> u8 {}
