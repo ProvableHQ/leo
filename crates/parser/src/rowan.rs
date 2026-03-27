@@ -285,39 +285,49 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo`.
+    /// TYPE_LOCATOR represents `program.aleo::Type`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
-        // Extract IDENT tokens for program and type name
+        // Extract IDENT tokens for program and (optional) type name.
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
+        let program_token = idents.next();
+        let name_token = idents.next();
 
-        if let (Some(program_token), Some(name_token)) = (idents.next(), idents.next()) {
-            // Convert program token into Identifier
-            let program_ident = self.to_identifier(&program_token);
-            let type_ident = self.to_identifier(&name_token);
+        // Find KW_ALEO in the tokens — always present in a TYPE_LOCATOR node.
+        let kw_aleo_token =
+            tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
 
-            // Find KW_ALEO in the tokens — required
-            let kw_aleo_token =
-                tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
+        let network_ident = leo_ast::Identifier {
+            name: Symbol::intern("aleo"),
+            span: self.token_span(&kw_aleo_token),
+            id: self.builder.next_id(),
+        };
 
-            let network_ident = leo_ast::Identifier {
-                name: Symbol::intern("aleo"),
-                span: self.token_span(&kw_aleo_token),
-                id: self.builder.next_id(),
-            };
-
-            // ProgramId always has network
-            let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
-
-            let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
-            let path = leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
-
-            // Extract const arguments from CONST_ARG_LIST child node
-            let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-            Ok(leo_ast::CompositeType { path, const_arguments }.into())
-        } else {
-            panic!("TYPE_LOCATOR should contain both a program and type identifier: {:?}", node.text())
+        match (program_token, name_token) {
+            (Some(program_token), Some(name_token)) => {
+                // Normal case: program.aleo::Type
+                let program_ident = self.to_identifier(&program_token);
+                let type_ident = self.to_identifier(&name_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
+                let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
+                Ok(leo_ast::CompositeType { path, const_arguments }.into())
+            }
+            (Some(program_token), None) => {
+                // program.aleo without ::Type — a program ID used as a type reference.
+                let program_ident = self.to_identifier(&program_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let span = self.content_span(node);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), program_ident, span, self.builder.next_id());
+                Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into())
+            }
+            _ => {
+                panic!("TYPE_LOCATOR should contain at least a program IDENT: {:?}", node.text())
+            }
         }
     }
 
