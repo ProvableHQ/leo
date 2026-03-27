@@ -1418,11 +1418,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let assert_castable_type = |actual: &Type, span: Span| {
             if !matches!(
                 actual,
-                Type::Integer(_) | Type::Boolean | Type::Field | Type::Group | Type::Scalar | Type::Address | Type::Err,
+                Type::Integer(_)
+                    | Type::Boolean
+                    | Type::Field
+                    | Type::Group
+                    | Type::Scalar
+                    | Type::Address
+                    | Type::Identifier
+                    | Type::Err,
             ) {
                 self.emit_err(TypeCheckerError::type_should_be2(
                     actual,
-                    "an integer, bool, field, group, scalar, or address",
+                    "an integer, bool, field, group, scalar, address, or identifier",
                     span,
                 ));
             }
