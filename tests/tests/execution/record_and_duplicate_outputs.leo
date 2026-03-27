@@ -30,10 +30,7 @@ program test0.aleo {
     }
 
     fn make() -> R {
-        return R {
-            owner: self.signer,
-            x: 0field,
-        };
+        return R { owner: self.signer, x: 0field };
     }
 
     @noupgrade
@@ -41,7 +38,6 @@ program test0.aleo {
 }
 
 // --- Next Program --- //
-
 import test0.aleo;
 
 struct S {
@@ -60,14 +56,12 @@ program test1.aleo {
     fn pass_through(r: test0.aleo::R) -> test0.aleo::R {
         return r;
     }
+
     // As of commit 314d56a9e3626418e8a953ecb81f595555716459,
     // programs with duplicate outputs did not work.
     // Now they should clone the duplicates to satisfy SnarkVM.
     fn foo(y: group) -> (S, S, group, group, field, field, u8, u8) {
-        let x: S = S {
-            x: 1field,
-            y: 2field,
-        };
+        let x: S = S { x: 1field, y: 2field };
         return (x, x, y, y, 2field, 2field, 1u8, 1u8);
     }
 
@@ -76,7 +70,6 @@ program test1.aleo {
 }
 
 // --- Next Program --- //
-
 import test0.aleo;
 import test1.aleo;
 

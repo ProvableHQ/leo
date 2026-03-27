@@ -6,4 +6,3 @@ program test.aleo {
         return VALUE;
     }
 }
-

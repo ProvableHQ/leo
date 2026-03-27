@@ -1,0 +1,18 @@
+library math_lib {
+module ops {
+    fn double(x: u32) -> u32 {
+        return x + x;
+    }
+}
+
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn main(x: u32) -> u32 {
+        return $var$0;
+    }
+}
+

@@ -1,4 +1,3 @@
-
 final fn bar() {
     let x: u32 = block.timestamp;
 }

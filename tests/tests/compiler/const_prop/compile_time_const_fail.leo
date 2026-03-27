@@ -1,4 +1,3 @@
-
 const A: i32 = 1i32 / 0i32;
 
 const B: u8 = 255u8 + 1u8;

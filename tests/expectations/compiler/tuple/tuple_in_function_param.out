@@ -1,5 +1,5 @@
 Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:3:12
+    --> compiler-test:2:12
      |
-   3 |     fn foo(a: (u8, u16)) -> (u8, u16) {
+   2 |     fn foo(a: (u8, u16)) -> (u8, u16) {
      |            ^^^^^^^^^^^^

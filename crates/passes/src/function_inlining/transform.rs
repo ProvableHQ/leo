@@ -184,6 +184,13 @@ impl ProgramReconstructor for TransformVisitor<'_> {
                 library.functions.iter().for_each(|(name, f)| {
                     self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
                 });
+                // Also seed module functions from the library.
+                library.modules.iter().for_each(|(module_path, m)| {
+                    m.functions.iter().for_each(|(name, f)| {
+                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                        self.function_map.entry(Location::new(library.name, path)).or_insert_with(|| f.clone());
+                    });
+                });
             }
         });
 

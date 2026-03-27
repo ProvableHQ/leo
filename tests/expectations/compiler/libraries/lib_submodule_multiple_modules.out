@@ -1,0 +1,7 @@
+program multi_mod.aleo;
+
+function main:
+    output 17u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

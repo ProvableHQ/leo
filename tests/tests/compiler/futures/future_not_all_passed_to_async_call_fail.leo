@@ -15,18 +15,17 @@ program child.aleo {
         let caller = self.caller;
         return final { finalize_foo(caller); };
     }
+
     fn boo() -> Final {
         let caller = self.caller;
         return final { finalize_boo(caller); };
     }
- }
+}
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program parent.aleo {
-
     fn foo() -> Final {
         let f0: Final = child.aleo::foo();
         let f1: Final = child.aleo::foo();

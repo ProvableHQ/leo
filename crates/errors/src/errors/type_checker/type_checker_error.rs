@@ -1494,4 +1494,12 @@ create_messages!(
         msg: "`constant` visibility is not allowed in `_dynamic_call` type annotations.".to_string(),
         help: Some("Use `public` or `private` instead.".to_string()),
     }
+
+    /// For when an interface definition appears inside a library module.
+    @formatted
+    interfaces_not_allowed_in_library_modules {
+        args: (),
+        msg: "Interface definitions are not allowed inside library modules.".to_string(),
+        help: None,
+    }
 );

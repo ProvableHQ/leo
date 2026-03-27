@@ -1,0 +1,4 @@
+program cross_module_call.aleo;
+
+function main:
+    output 25u32 as u32.private;

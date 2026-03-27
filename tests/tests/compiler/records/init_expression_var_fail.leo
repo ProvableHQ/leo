@@ -1,4 +1,3 @@
-
 program test.aleo {
     record Token {
         // The token owner.
@@ -22,5 +21,3 @@ fn main(x: address) -> u64 {
 
     return c;
 }
-
-

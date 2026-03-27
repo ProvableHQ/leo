@@ -43,25 +43,23 @@ impl UnrollingVisitor<'_> {
     /// Unrolls an IterationStatement.
     pub fn unroll_iteration_statement(&mut self, input: IterationStatement, start: Value, stop: Value) -> Statement {
         // We already know these are integers since loop unrolling occurs after type checking.
-        let cast_to_number = |v: Value| -> Result<i128, Statement> {
+        let cast_to_number = |v: Value| -> Option<i128> {
             match v.as_i128() {
-                Some(val_as_i128) => Ok(val_as_i128),
+                Some(val_as_i128) => Some(val_as_i128),
                 None => {
                     self.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span()));
-                    Err(Statement::dummy())
+                    None
                 }
             }
         };
 
         // Cast `start` to `i128`.
-        let start = match cast_to_number(start) {
-            Ok(v) => v,
-            Err(s) => return s,
+        let Some(start) = cast_to_number(start) else {
+            return Statement::dummy();
         };
         // Cast `stop` to `i128`.
-        let stop = match cast_to_number(stop) {
-            Ok(v) => v,
-            Err(s) => return s,
+        let Some(stop) = cast_to_number(stop) else {
+            return Statement::dummy();
         };
 
         let new_block_id = self.state.node_builder.next_id();
@@ -103,8 +101,12 @@ impl UnrollingVisitor<'_> {
             // Add the loop variable as a constant for the current scope.
             slf.state.symbol_table.insert_local_const(input.variable.name, value.into());
 
-            let duplicated_body =
-                super::duplicate::duplicate(input.block.clone(), &mut slf.state.symbol_table, &slf.state.node_builder);
+            let duplicated_body = super::duplicate::duplicate(
+                input.block.clone(),
+                &mut slf.state.symbol_table,
+                &slf.state.node_builder,
+                &slf.state.type_table,
+            );
 
             let result = slf.reconstruct_block(duplicated_body).0.into();
 

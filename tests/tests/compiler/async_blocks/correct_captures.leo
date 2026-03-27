@@ -16,20 +16,17 @@ program test.aleo {
             let sum1_again = x + y2.0 + (y2.1 as u32) + (z[0] as u32) + (z[2] as u32);
             let sum2 = p + (q as u32) + t1 + t2 as u32 + X;
             let total = sum1 + sum1_again + sum2;
-            map.set(0u32, total); // `total` is local so it shouldn't be in the param list of the produced async function 
-
+            map.set(0u32, total); // `total` is local so it shouldn't be in the param list of the produced async function
             {
                 let total2 = sum1 + sum1_again + sum2;
-                map.set(0u32, total2); // `total2` is local so it shouldn't be in the param list of the produced async function 
+                map.set(0u32, total2); // `total2` is local so it shouldn't be in the param list of the produced async function
             }
         };
-
         // No shadowing
         let total = x;
         assert(total >= 0u32);
         let total2 = x;
         assert(total2 >= 0u32);
-
 
         return f;
     }

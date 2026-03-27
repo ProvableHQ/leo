@@ -2,20 +2,18 @@ program inner.aleo {
     mapping foo: u32 => u32;
 
     fn inner(a: u32) -> Final {
-        return final {
-            Mapping::set(foo, 0u32, a);
-        };
+        return final { Mapping::set(foo, 0u32, a); };
     }
 }
 
 // --- Next Program --- //
-
 import inner.aleo;
+
 program mid.aleo {
     fn mid(a: u32) -> Final {
         let f1: Final = inner.aleo::inner(0u32);
         let f2: Final = inner.aleo::inner(1u32);
-        let f:Final = final {
+        let f: Final = final {
             f2.run();
             f1.run();
         };
@@ -26,15 +24,15 @@ program mid.aleo {
 }
 
 // --- Next Program --- //
-
 import inner.aleo;
 import mid.aleo;
+
 program outer.aleo {
     fn outer_1(a: u32) -> Final {
         mid.aleo::dummy();
         let f1: Final = mid.aleo::mid(0u32);
         let f2: Final = mid.aleo::mid(1u32);
-        let f:Final = final {
+        let f: Final = final {
             f1.run();
             f2.run();
         };
@@ -45,7 +43,7 @@ program outer.aleo {
         let f1: Final = mid.aleo::mid(0u32);
         mid.aleo::dummy();
         let f2: Final = mid.aleo::mid(1u32);
-        let f:Final = final {
+        let f: Final = final {
             f1.run();
             f2.run();
         };

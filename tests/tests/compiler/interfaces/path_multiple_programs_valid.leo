@@ -17,11 +17,10 @@ program lib_b.aleo {
 }
 
 // --- Next Program --- //
-
 import lib_a.aleo;
 import lib_b.aleo;
 
-program test.aleo : lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
+program test.aleo: lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
     fn fn_a() -> u64 {
         return 1u64;
     }

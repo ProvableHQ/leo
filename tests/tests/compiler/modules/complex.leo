@@ -12,28 +12,16 @@ program all_module_features.aleo {
         let x3 = gamma::X;
 
         // Struct name shadowing (SharedName)
-        let s1 = alpha::SharedName {
-            val: 1,
-        };
-        let s2 = beta::SharedName::[beta::X] {
-            val: [2; beta::X],
-        };
-
+        let s1 = alpha::SharedName { val: 1 };
+        let s2 = beta::SharedName::[beta::X] { val: [2; beta::X] };
         // Cross-module inline chaining via main
         let g = gamma::make_inner(alpha::X + beta::X);
         let result = gamma::consume_inner(g);
 
         // Struct with field type from another module
-        let composed = Nested {
-            a: s1,
-            b: s2,
-            c: g,
-        };
-
+        let composed = Nested { a: s1, b: s2, c: g };
         // Inline function call that takes struct from another module
-        return x1 + x2 + x3
-             + s2.val[1]
-             + result;
+        return x1 + x2 + x3 + s2.val[1] + result;
     }
 }
 
@@ -64,9 +52,7 @@ struct SharedName::[N: u32] {
 
 // Inline using generic struct
 fn make() -> SharedName::[X] {
-    return SharedName::[X] {
-        val: [5; X],
-    };
+    return SharedName::[X] { val: [5; X] };
 }
 
 // --- Next Module: gamma.leo --- //

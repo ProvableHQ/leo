@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn foo() -> Final {
         return final { finalize_foo(); };

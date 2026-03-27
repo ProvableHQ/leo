@@ -7,22 +7,12 @@ program flat_module_corner.aleo {
     fn main() -> u32 {
         let val1 = util::X;
         let val2 = config::X;
-
-        let d1 = util::Data::[3] {
-            values: [10, 20, 30],
-        };
-
-        let d2 = config::Data {
-            values: [100; config::X],
-        };
-
+        let d1 = util::Data::[3] { values: [10, 20, 30] };
+        let d2 = config::Data { values: [100; config::X] };
         let res1 = util::helper();
         let res2 = config::helper();
         let boosted = shared::boost(val1 + val2);
-
-        return val1 + val2
-             + d1.values[1] + d2.values[2]
-             + res1 + res2 + boosted;
+        return val1 + val2 + d1.values[1] + d2.values[2] + res1 + res2 + boosted;
     }
 }
 
@@ -36,9 +26,7 @@ struct Data::[N: u32] {
 
 fn helper() -> u32 {
     const LOCAL_CONST_IN_A_MODULE: u32 = 0;
-    let d = Data::[X + LOCAL_CONST_IN_A_MODULE] {
-        values: [1, 2, 3],
-    };
+    let d = Data::[X + LOCAL_CONST_IN_A_MODULE] { values: [1, 2, 3] };
     return d.values[0];
 }
 
@@ -51,9 +39,7 @@ struct Data {
 }
 
 fn helper() -> u32 {
-    let d = Data {
-        values: [5; X],
-    };
+    let d = Data { values: [5; X] };
     return d.values[1];
 }
 

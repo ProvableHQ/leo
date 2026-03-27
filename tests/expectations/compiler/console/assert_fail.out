@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected ',' -- found ')'
-    --> compiler-test:5:27
+    --> compiler-test:3:27
      |
-   5 |         assert_eq(a == 1u8);
+   3 |         assert_eq(a == 1u8);
      |                           ^

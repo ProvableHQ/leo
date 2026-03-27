@@ -1,5 +1,5 @@
-
 program test.aleo {}
+
 fn main(a: i8) -> bool {
     let b: bool = a == 1u8;
     let c: bool = a != 1u8;

@@ -14,7 +14,6 @@ program base.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 
 program mid1.aleo {
@@ -39,7 +38,6 @@ program mid1.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 import mid1.aleo;
 
@@ -68,13 +66,11 @@ program mid2.aleo {
 }
 
 // --- Next Program --- //
-
 import base.aleo;
 import mid1.aleo;
 import mid2.aleo;
 
 program top.aleo {
-
     //
     // ─────────────────────────────────────────────
     // Check all external values are initialized
@@ -117,4 +113,3 @@ program top.aleo {
     @noupgrade
     constructor() {}
 }
-

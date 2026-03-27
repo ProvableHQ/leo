@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping values: field => field;
 
     fn foo() -> Final {

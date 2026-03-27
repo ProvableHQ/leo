@@ -30,11 +30,7 @@ program complex.aleo {
         return final {
             // Structs
             point = Point { x: 1field, y: 2field };
-            points = [
-                Point { x: 10field, y: 20field },
-                Point { x: 30field, y: 40field },
-            ];
-
+            points = [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }];
             stats = Stats { values: [5u32, 10u32, 15u32], active: true };
 
             // Arrays
@@ -46,7 +42,7 @@ program complex.aleo {
 
     //
     // ────────────────────────────────────────────────────────────────
-    // Unset everything 
+    // Unset everything
     // ────────────────────────────────────────────────────────────────
     //
     fn to_none() -> Final {
@@ -110,10 +106,8 @@ program complex.aleo {
             assert(p.y == 2field);
 
             // Array of structs
-            let ps = points.unwrap_or([
-                Point { x: 0field, y: 0field },
-                Point { x: 0field, y: 0field },
-            ]);
+            let ps = points
+                .unwrap_or([Point { x: 0field, y: 0field }, Point { x: 0field, y: 0field }]);
             assert(ps[0].x == 10field);
             assert(ps[1].y == 40field);
 

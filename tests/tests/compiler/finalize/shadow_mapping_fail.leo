@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping bar: u8 => u8;
 
     fn bar(a: u8) -> u8 {

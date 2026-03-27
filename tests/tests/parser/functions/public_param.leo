@@ -1,4 +1,3 @@
-
 program test.aleo {}
 
 fn x(x: u32, public y: i32) -> u8 {

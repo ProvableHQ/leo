@@ -2,16 +2,17 @@ program child.aleo {
     fn foo() -> Final {
         return final { foo_(); };
     }
+
     fn bar() -> Final {
         return final { bar_(); };
     }
 }
 
 final fn foo_() {}
+
 final fn bar_() {}
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program type_inference.aleo {

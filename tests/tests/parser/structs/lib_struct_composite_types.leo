@@ -2,7 +2,9 @@
 // various syntactic positions — function parameters, return types, local variable
 // declarations, struct field types, and mapping value types.
 
-struct Local::[N: u32] { v: u32 }
+struct Local::[N: u32] {
+    v: u32,
+}
 
 program test.aleo {
     mapping cache: address => some_lib::Entry::[8u32];

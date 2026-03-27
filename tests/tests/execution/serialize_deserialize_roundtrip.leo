@@ -258,20 +258,18 @@ program test.aleo {
     fn test_array_rt(value: [u32; 4]) -> public bool {
         let bits: [bool; 330] = Serialize::to_bits(value);
         let reconstructed: [u32; 4] = Deserialize::from_bits::[[u32; 4]](bits);
-        let matches_non_raw: bool =
-            value[0u8] == reconstructed[0u8] &&
-            value[1u8] == reconstructed[1u8] &&
-            value[2u8] == reconstructed[2u8] &&
-            value[3u8] == reconstructed[3u8];
-
+        let matches_non_raw: bool = value[0u8]
+            == reconstructed[0u8]
+            && value[1u8] == reconstructed[1u8]
+            && value[2u8] == reconstructed[2u8]
+            && value[3u8] == reconstructed[3u8];
         let bits_raw: [bool; 128] = Serialize::to_bits_raw(value);
         let reconstructed_raw: [u32; 4] = Deserialize::from_bits_raw::[[u32; 4]](bits_raw);
-        let matches_raw: bool =
-            value[0u8] == reconstructed_raw[0u8] &&
-            value[1u8] == reconstructed_raw[1u8] &&
-            value[2u8] == reconstructed_raw[2u8] &&
-            value[3u8] == reconstructed_raw[3u8];
-
+        let matches_raw: bool = value[0u8]
+            == reconstructed_raw[0u8]
+            && value[1u8] == reconstructed_raw[1u8]
+            && value[2u8] == reconstructed_raw[2u8]
+            && value[3u8] == reconstructed_raw[3u8];
         return matches_non_raw && matches_raw;
     }
 

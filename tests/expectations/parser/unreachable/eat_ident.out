@@ -4,208 +4,160 @@ Error [EPAR0370047]: expected struct name
    1 | struct import
      |        ^^^^^^
 Error [EPAR0370047]: expected struct name
+    --> test:2:8
+     |
+   2 | struct ;
+     |        ^
+Error [EPAR0370047]: expected struct name
     --> test:3:8
      |
-   3 | struct ;
+   3 | struct .
+     |        ^
+Error [EPAR0370047]: expected struct name
+    --> test:4:8
+     |
+   4 | struct ,
      |        ^
 Error [EPAR0370047]: expected struct name
     --> test:5:8
      |
-   5 | struct .
+   5 | struct *
+     |        ^
+Error [EPAR0370047]: expected struct name
+    --> test:6:8
+     |
+   6 | struct +
+     |        ^
+Error [EPAR0370047]: expected struct name
+    --> test:7:8
+     |
+   7 | struct -
      |        ^
 Error [EPAR0370047]: expected struct name
     --> test:8:8
      |
-   8 | struct ,
+   8 | struct /
+     |        ^
+Error [EPAR0370047]: expected struct name
+    --> test:9:8
+     |
+   9 | struct [
      |        ^
 Error [EPAR0370047]: expected struct name
     --> test:10:8
      |
-  10 | struct *
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:12:8
-     |
-  12 | struct +
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:14:8
-     |
-  14 | struct -
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:16:8
-     |
-  16 | struct /
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:18:8
-     |
-  18 | struct [
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:20:8
-     |
-  20 | struct ]
+  10 | struct ]
      |        ^
 Error [EPAR0370027]: Missing a program scope in a Leo file.
     --> test:1:1
      |
    1 | struct import
      | ^^^^^^^^^^^^^
-   2 | 
-   3 | struct ;
+   2 | struct ;
      | ^^^^^^^^
-   4 | 
-   5 | struct .
+   3 | struct .
      | ^^^^^^^^
-   6 | 
-   7 | 
-   8 | struct ,
+   4 | struct ,
      | ^^^^^^^^
-   9 | 
-  10 | struct *
+   5 | struct *
      | ^^^^^^^^
-  11 | 
-  12 | struct +
+   6 | struct +
      | ^^^^^^^^
-  13 | 
-  14 | struct -
+   7 | struct -
      | ^^^^^^^^
-  15 | 
-  16 | struct /
+   8 | struct /
      | ^^^^^^^^
-  17 | 
-  18 | struct [
+   9 | struct [
      | ^^^^^^^^
-  19 | 
-  20 | struct ]
+  10 | struct ]
      | ^^^^^^^^
-  21 | 
-  22 | struct {
+  11 | struct {
      | ^^^^^^^^
-  23 | 
-  24 | struct }
+  12 | struct
+     | ^^^^^^
+  13 | }
+     | ^
+  14 | struct (
      | ^^^^^^^^
-  25 | 
-  26 | struct (
+  15 | struct )
      | ^^^^^^^^
-  27 | 
-  28 | struct )
+  16 | struct :
      | ^^^^^^^^
-  29 | 
-  30 | struct :
-     | ^^^^^^^^
-  31 | 
-  32 | struct ::
+  17 | struct ::
      | ^^^^^^^^^
-  33 | 
-  34 | struct ?
+  18 | struct ?
      | ^^^^^^^^
-  35 | 
-  36 | struct _
+  19 | struct _
      | ^^^^^^^^
-  37 | 
-  38 | struct =
+  20 | struct =
      | ^^^^^^^^
-  39 | 
-  40 | struct ==
+  21 | struct ==
      | ^^^^^^^^^
-  41 | 
-  42 | struct !
+  22 | struct !
      | ^^^^^^^^
-  43 | 
-  44 | struct !=
+  23 | struct !=
      | ^^^^^^^^^
-  45 | 
-  46 | struct >
+  24 | struct >
      | ^^^^^^^^
-  47 | 
-  48 | struct >=
+  25 | struct >=
      | ^^^^^^^^^
+  26 | struct <
+     | ^^^^^^^^
+  27 | struct <=
+     | ^^^^^^^^^
+  28 | struct >
+     | ^^^^^^^^
+  29 | struct ..
+     | ^^^^^^^^^
+  30 | struct as
+     | ^^^^^^^^^
+  31 | struct const
+     | ^^^^^^^^^^^^
+  32 | struct let
+     | ^^^^^^^^^^
+  33 | struct for
+     | ^^^^^^^^^^
+  34 | struct if
+     | ^^^^^^^^^
+  35 | struct else
+     | ^^^^^^^^^^^
+  36 | struct i8
+     | ^^^^^^^^^
+  37 | struct i16
+     | ^^^^^^^^^^
+  38 | struct i32
+     | ^^^^^^^^^^
+  39 | struct i64
+     | ^^^^^^^^^^
+  40 | struct i128
+     | ^^^^^^^^^^^
+  41 | struct u8
+     | ^^^^^^^^^
+  42 | struct u16
+     | ^^^^^^^^^^
+  43 | struct u32
+     | ^^^^^^^^^^
+  44 | struct u64
+     | ^^^^^^^^^^
+  45 | struct u128
+     | ^^^^^^^^^^^
+  46 | struct &
+     | ^^^^^^^^
+  47 | struct return
+     | ^^^^^^^^^^^^^
+  48 | struct self
+     | ^^^^^^^^^^^
   49 | 
-  50 | struct <
-     | ^^^^^^^^
+  50 | struct Self struct true
+     | ^^^^^^^^^^^^^^^^^^^^^^^
   51 | 
-  52 | struct <=
-     | ^^^^^^^^^
+  52 | struct false
+     | ^^^^^^^^^^^^
   53 | 
-  54 | struct >
+  54 | struct 0
      | ^^^^^^^^
   55 | 
-  56 | struct ..
-     | ^^^^^^^^^
-  57 | 
-  58 | struct as
-     | ^^^^^^^^^
-  59 | 
-  60 | struct const
-     | ^^^^^^^^^^^^
-  61 | 
-  62 | struct let
-     | ^^^^^^^^^^
-  63 | 
-  64 | struct for
-     | ^^^^^^^^^^
-  65 | 
-  66 | struct if
-     | ^^^^^^^^^
-  67 | 
-  68 | struct else
-     | ^^^^^^^^^^^
-  69 | 
-  70 | struct i8
-     | ^^^^^^^^^
-  71 | 
-  72 | struct i16
-     | ^^^^^^^^^^
-  73 | 
-  74 | struct i32
-     | ^^^^^^^^^^
-  75 | 
-  76 | struct i64
-     | ^^^^^^^^^^
-  77 | 
-  78 | struct i128
-     | ^^^^^^^^^^^
-  79 | 
-  80 | struct u8
-     | ^^^^^^^^^
-  81 | 
-  82 | struct u16
-     | ^^^^^^^^^^
-  83 | 
-  84 | struct u32
-     | ^^^^^^^^^^
-  85 | 
-  86 | struct u64
-     | ^^^^^^^^^^
-  87 | 
-  88 | struct u128
-     | ^^^^^^^^^^^
-  89 | 
-  90 | struct &
-     | ^^^^^^^^
-  91 | 
-  92 | struct return
-     | ^^^^^^^^^^^^^
-  93 | 
-  94 | struct self
-     | ^^^^^^^^^^^
-  95 | 
-  96 | struct Self
-     | ^^^^^^^^^^^
-  97 | 
-  98 | struct true
-     | ^^^^^^^^^^^
-  99 | 
- 100 | struct false
-     | ^^^^^^^^^^^^
- 101 | 
- 102 | struct 0
-     | ^^^^^^^^
- 103 | 
- 104 | program test.aleo {}
+  56 | program test.aleo {}
      | ^^^^^^^^^^^^^^^^^^^^
      |
      = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.

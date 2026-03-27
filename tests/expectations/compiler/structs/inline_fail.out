@@ -1,5 +1,5 @@
 Error [ETYC0372013]: Composite initialization expression for `Foo` is missing member `x`.
-    --> compiler-test:9:22
+    --> compiler-test:8:22
      |
-   9 |         let a: Foo = Foo { y: 0u32 };
+   8 |         let a: Foo = Foo { y: 0u32 };
      |                      ^^^^^^^^^^^^^^^

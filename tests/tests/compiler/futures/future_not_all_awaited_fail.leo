@@ -1,4 +1,3 @@
-
 program child.aleo {
     mapping count: address => field;
 
@@ -6,11 +5,12 @@ program child.aleo {
         let caller = self.caller;
         return final { finalize_foo(caller); };
     }
+
     fn boo() -> Final {
         let caller = self.caller;
         return final { finalize_boo(caller); };
     }
- }
+}
 
 final fn finalize_foo(addr: address) {
     let val: field = Mapping::get_or_use(count, addr, 0field);
@@ -22,8 +22,7 @@ final fn finalize_boo(addr: address) {
     Mapping::set(count, addr, val + 1field);
 }
 
- // --- Next Program --- //
-
+// --- Next Program --- //
 import child.aleo;
 
 program parent.aleo {

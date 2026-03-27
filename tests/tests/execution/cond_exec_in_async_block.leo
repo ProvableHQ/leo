@@ -20,9 +20,9 @@ program cond_exec_in_finalize.aleo {
     fn f(a: u64, b: u64) -> Final {
         return final {
             if (b == 0u64) {
-              assert_eq(b, 0u64);
+                assert_eq(b, 0u64);
             } else {
-              assert_eq(a / b, 1u64);
+                assert_eq(a / b, 1u64);
             }
         };
     }

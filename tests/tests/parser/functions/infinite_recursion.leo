@@ -1,5 +1,4 @@
-
-program test.aleo { }
+program test.aleo {}
 
 fn inf() -> u8 {
     inf();

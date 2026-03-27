@@ -1,10 +1,10 @@
 Error [EPAR0370047]: expected parameter name
-    --> test:4:14
+    --> test:3:14
      |
-   4 | fn x(x: u32, const public y: i32) {
+   3 | fn x(x: u32, const public y: i32) {
      |              ^^^^^
 Error [EPAR0370047]: expected parameter name
-    --> test:8:15
+    --> test:7:15
      |
-   8 | fn x(constant public x: u32, y: i32) {
+   7 | fn x(constant public x: u32, y: i32) {
      |               ^^^^^^

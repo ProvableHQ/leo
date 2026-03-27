@@ -24,6 +24,8 @@ program finalize.aleo {
 }
 
 final fn finalize() {}
+
 @no_inline
 fn key() {}
+
 fn value() {}

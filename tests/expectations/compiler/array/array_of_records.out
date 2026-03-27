@@ -1,5 +1,5 @@
 Error [ETYC0372079]: An array cannot have a record as an element type
-    --> compiler-test:8:12
+    --> compiler-test:7:12
      |
-   8 |     fn foo(a: [bar; 8]) -> u8 {
+   7 |     fn foo(a: [bar; 8]) -> u8 {
      |            ^^^^^^^^^^^

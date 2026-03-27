@@ -1,15 +1,15 @@
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:5:5
+    --> compiler-test:4:5
      |
-   5 |     mem: (u8, u16)
+   4 |     mem: (u8, u16),
      |     ^^^
 Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:9:5
+    --> compiler-test:8:5
      |
-   9 |     mems: (A, A)
+   8 |     mems: (A, A),
      |     ^^^^
 Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:2:9
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {}
+   1 | program test.aleo {}
      |         ^^^^^^^^^

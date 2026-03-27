@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `test.aleo::finalize_mint_public`
-    --> compiler-test:7:24
+    --> compiler-test:6:24
      |
-   7 |         return final { finalize_mint_public(receiver, amount); };
+   6 |         return final { finalize_mint_public(receiver, amount); };
      |                        ^^^^^^^^^^^^^^^^^^^^

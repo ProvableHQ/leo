@@ -1,8 +1,8 @@
 Error [EAST0372017]: The name `f1` is defined multiple times.
-    --> compiler-test:7:4
+    --> compiler-test:6:4
      |
-   2 |   fn f1(a: u8) -> u8 {
+   1 |   fn f1(a: u8) -> u8 {
      |      ^^ previous definition of `f1` here
    ...
-   7 |   fn f1(a: u8) -> u8 {
+   6 |   fn f1(a: u8) -> u8 {
      |      ^^ `f1` redefined here

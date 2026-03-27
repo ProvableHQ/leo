@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping balances: address => u32;
 
     fn foo() -> Final {

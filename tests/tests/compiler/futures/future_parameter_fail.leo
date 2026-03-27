@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn first(x: Final) -> Final {
         return final { finish(); };

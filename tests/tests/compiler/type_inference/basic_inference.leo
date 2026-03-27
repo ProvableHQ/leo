@@ -6,11 +6,10 @@ struct S {
 program foo.aleo {
     record R {
         owner: address,
-        v: u64
+        v: u64,
     }
 
-    fn main(x: u32, y: u32, addr: address, arr: [u32; 4]) 
-        -> (S, S, u64, u32, u32, bool, u32, u32) {
+    fn main(x: u32, y: u32, addr: address, arr: [u32; 4]) -> (S, S, u64, u32, u32, bool, u32, u32) {
         let s1 = S { x, y };
         let s2: S = s1;
         let s3 = s1;

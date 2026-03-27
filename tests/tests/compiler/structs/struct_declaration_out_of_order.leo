@@ -1,5 +1,3 @@
-
-
 struct F {
     b: B,
     g: G,

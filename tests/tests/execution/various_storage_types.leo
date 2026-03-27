@@ -110,8 +110,8 @@ program mixed_types.aleo {
             assert(scalar_val.unwrap() == 2scalar);
             assert(field_val.unwrap() == 21field);
             assert(group_val.unwrap() == 0group);
-            assert(address_val.unwrap() == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
-
+            assert(address_val.unwrap()
+                == aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta);
             // Flip and recheck
             flag = !flag.unwrap();
             assert(flag.unwrap() == false);

@@ -1,12 +1,10 @@
 program singleton_storage.aleo {
     storage counter: u8;
-    
+
     storage vec: [u8];
 
     fn push() -> Final {
-        return final {
-            vec.push(42u8);
-        };
+        return final { vec.push(42u8); };
     }
 
     fn pop() -> Final {
@@ -24,9 +22,7 @@ program singleton_storage.aleo {
     }
 
     fn clear() -> Final {
-        return final {
-            vec.clear();
-        };
+        return final { vec.clear(); };
     }
 
     fn swap_remove() -> Final {
@@ -37,8 +33,6 @@ program singleton_storage.aleo {
     }
 
     fn set() -> Final {
-        return final {
-            vec.set(3u32, 42u8);
-        };
+        return final { vec.set(3u32, 42u8); };
     }
 }

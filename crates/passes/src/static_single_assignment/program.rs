@@ -170,6 +170,7 @@ impl LibraryConsumer for SsaFormingVisitor<'_> {
         self.program = input.name;
         let library = Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.consume_module(m))).collect(),
             consts: input.consts,
             structs: input.structs,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),

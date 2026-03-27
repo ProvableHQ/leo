@@ -9,10 +9,10 @@ program child.aleo {
 }
 
 final fn foo_() {}
+
 final fn bar_() {}
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program type_inference.aleo {

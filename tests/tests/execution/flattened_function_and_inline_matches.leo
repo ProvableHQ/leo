@@ -78,7 +78,11 @@ fn floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
 
 program test.aleo {
     fn bar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
-        let data: Data = Data { a: a, b: b, c: Extra { c: a } };
+        let data: Data = Data {
+            a: a,
+            b: b,
+            c: Extra { c: a },
+        };
         let start: (u8, u8, Data) = foo(a, b, data);
         // (2, 1, Data { a: 1, b: 0, c: Extra { c: 1 } })
         if flag1 {
@@ -98,8 +102,11 @@ program test.aleo {
     }
 
     fn blar(flag1: bool, flag2: bool, a: u8, b: u8) -> (u8, u8, Data) {
-        let data: Data = Data { a: a, b: b, c: Extra { c: a } };
-
+        let data: Data = Data {
+            a: a,
+            b: b,
+            c: Extra { c: a },
+        };
         let start: (u8, u8, Data) = floo(a, b, data);
         if flag1 {
             start = floo(start.0, start.2.c.c, start.2);
@@ -115,5 +122,4 @@ program test.aleo {
 
     @noupgrade
     constructor() {}
-
 }

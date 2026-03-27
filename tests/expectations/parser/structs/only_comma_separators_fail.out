@@ -1,24 +1,14 @@
-Error [EPAR0370047]: expected ','
-    --> test:8:10
-     |
-   8 |     x: u8;
-     |          ^
 Error [EPAR0370047]: expected field name
-    --> test:8:10
+    --> test:9:5
      |
-   8 |     x: u8;
-     |          ^
-   9 |     y: u8
+   9 |     ;
+     |     ^
+  10 |     y: u8
      |     ^^^^^
-Error [EPAR0370047]: expected ','
-    --> test:13:10
-     |
-  13 |     x: u8;
-     |          ^
 Error [EPAR0370047]: expected field name
-    --> test:13:10
+    --> test:15:5
      |
-  13 |     x: u8;
-     |          ^
-  14 |     y: u8;
+  15 |     ;
+     |     ^
+  16 |     y: u8;
      |     ^^^^^^

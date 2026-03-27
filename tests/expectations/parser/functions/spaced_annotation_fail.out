@@ -1,5 +1,7 @@
-Error [EPAR0370005]: expected an identifier, 'program' -- found 'test'
-    --> test:3:3
-     |
-   3 | @ test
-     |   ^^^^
+program test.aleo {
+}
+    @test
+    fn test() -> u8 {
+    }
+
+

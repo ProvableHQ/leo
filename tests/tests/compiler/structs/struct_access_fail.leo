@@ -1,8 +1,6 @@
-
-
 struct s1 {
     f1: u32,
-    f2: u32
+    f2: u32,
 }
 
 program test.aleo {
@@ -12,4 +10,3 @@ program test.aleo {
         return x;
     }
 }
-

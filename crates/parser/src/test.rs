@@ -142,6 +142,7 @@ fn runner_library_test(test: &str) -> String {
                 &Default::default(),
                 Symbol::intern("test_lib"),
                 &source_file,
+                &[],
                 NetworkName::TestnetV0,
             );
             match handler.extend_if_error(result) {

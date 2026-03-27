@@ -12,9 +12,7 @@ program zero_program.aleo {
     storage count: u64;
 
     fn c() -> Final {
-        let f = final {
-            count = count.unwrap_or(0) + 1u64;
-        };
+        let f = final { count = count.unwrap_or(0) + 1u64; };
         return f;
     }
 
@@ -22,17 +20,13 @@ program zero_program.aleo {
     constructor() {}
 }
 
-
 // --- Next Program --- //
-
 
 program one_program.aleo {
     storage count: u64;
 
     fn d() -> Final {
-        let f = final {
-            count = count.unwrap_or(0) + 2u64;
-        };
+        let f = final { count = count.unwrap_or(0) + 2u64; };
         return f;
     }
 
@@ -41,8 +35,6 @@ program one_program.aleo {
 }
 
 // --- Next Program --- //
-
-
 import zero_program.aleo;
 import one_program.aleo;
 
@@ -52,7 +44,6 @@ program two_program.aleo {
     fn b() -> Final {
         let f0: Final = zero_program.aleo::c();
         let f1: Final = one_program.aleo::d();
-
         return final {
             f0.run();
             f1.run();

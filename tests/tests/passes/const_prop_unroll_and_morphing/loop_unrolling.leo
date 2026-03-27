@@ -15,4 +15,3 @@ program test.aleo {
         return sum;
     }
 }
-

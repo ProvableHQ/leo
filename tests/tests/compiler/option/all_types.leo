@@ -1,4 +1,3 @@
-
 // --- Shared Structs ---
 struct OptStruct {
     val: u16?,
@@ -28,13 +27,31 @@ struct Top {
     container: Container?,
 }
 
-struct AddrStruct { a: address, b: address? }
-struct InnerAddr { val: address? }
-struct WrapperAddr { inner: InnerAddr }
+struct AddrStruct {
+    a: address,
+    b: address?,
+}
 
-struct SigStruct { a: signature, b: signature? }
-struct InnerSig { val: signature? }
-struct WrapperSig { inner: InnerSig }
+struct InnerAddr {
+    val: address?,
+}
+
+struct WrapperAddr {
+    inner: InnerAddr,
+}
+
+struct SigStruct {
+    a: signature,
+    b: signature?,
+}
+
+struct InnerSig {
+    val: signature?,
+}
+
+struct WrapperSig {
+    inner: InnerSig,
+}
 
 program all_types.aleo {
     // --- Section 1: Basic Optionals and Inference ---
@@ -49,9 +66,7 @@ program all_types.aleo {
     // --- Section 2: Arrays of Optionals ---
     fn array_of_optionals() -> u8 {
         let arr: [u8?; 3] = [1u8, none, 3u8];
-        let sum = arr[0].unwrap_or(10u8)
-                  + arr[1].unwrap_or(20u8)
-                  + arr[2].unwrap_or(30u8);
+        let sum = arr[0].unwrap_or(10u8) + arr[1].unwrap_or(20u8) + arr[2].unwrap_or(30u8);
         return sum; // 1 + 20 + 3 = 24
     }
 
@@ -86,20 +101,24 @@ program all_types.aleo {
         let wrapper = Wrapper { arr: [inner, none] };
         let container = Container { wrappers: [wrapper, none] };
         let top = Top { container };
-
-        return top.container.unwrap()
-            .wrappers.unwrap()[0].unwrap()
-            .arr.unwrap()[0].unwrap()
-            .val.unwrap(); // 10
+        return top
+            .container
+            .unwrap()
+            .wrappers
+            .unwrap()[0]
+            .unwrap()
+            .arr
+            .unwrap()[0]
+            .unwrap()
+            .val
+            .unwrap(); // 10
     }
 
     // --- Section 8: Tuples with Optional Elements ---
     fn tuples_with_optional_elements() -> u32 {
         let t1: (u32, u32?) = (100u32, 200u32);
         let t2: (u32, u32?) = (300u32, none);
-
-        let sum = t1.0 + t1.1.unwrap_or(0u32)
-                + t2.0 + t2.1.unwrap_or(50u32);
+        let sum = t1.0 + t1.1.unwrap_or(0u32) + t2.0 + t2.1.unwrap_or(50u32);
         return sum; // 100 + 200 + 300 + 50 = 650
     }
 
@@ -108,12 +127,7 @@ program all_types.aleo {
         let gr: group? = 0group;
         let fl: field? = 1field;
         let sc: scalar? = 2scalar;
-
-        return (
-            gr.unwrap(),
-            fl.unwrap_or(2field),
-            sc.unwrap(),
-        );
+        return (gr.unwrap(), fl.unwrap_or(2field), sc.unwrap());
     }
 
     // --- Section 10: Optionals with Address ---
@@ -121,25 +135,28 @@ program all_types.aleo {
         // Case 1: Direct optional address
         let a: address? = none;
         let b: address? = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
-        let val1 = b.unwrap_or(a.unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta));
-
+        let val1 = b
+            .unwrap_or(a.unwrap_or(aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta));
         // Case 2: Struct containing address and optional address
-        let s = AddrStruct { 
-            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, 
-            b: none 
+        let s = AddrStruct {
+            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta,
+            b: none,
         };
         let val2 = s.b.unwrap_or(s.a);
 
         // Case 3: Optional struct containing address
-        let s_opt: AddrStruct? = AddrStruct { 
-            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta, 
-            b: none 
+        let s_opt: AddrStruct? = AddrStruct {
+            a: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta,
+            b: none,
         };
         let val3 = s_opt.unwrap().a;
 
         // Case 4: Nested struct with optional address field
-
-        let wrapper = WrapperAddr { inner: InnerAddr { val: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta } };
+        let wrapper = WrapperAddr {
+            inner: InnerAddr {
+                val: aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta,
+            },
+        };
         let val4 = wrapper.inner.val.unwrap();
 
         // Just return one of the addresses to satisfy return type
@@ -147,33 +164,24 @@ program all_types.aleo {
     }
 
     // --- Section 11: Optionals with Signature ---
-    fn optional_signature() -> (signature, signature, signature, signature)
-    {
-        let sig: signature =
-            sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj;
-
+    fn optional_signature() -> (signature, signature, signature, signature) {
+        let sig: signature = sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj;
         // Case 1: Direct optional signature
         let a: signature? = none;
         let b: signature? = sig;
         let val1 = b.unwrap_or(a.unwrap_or(sig));
 
         // Case 2: Struct containing signature + optional signature
-        let s = SigStruct {
-            a: sig,
-            b: none
-        };
+        let s = SigStruct { a: sig, b: none };
         let val2 = s.b.unwrap_or(s.a);
 
         // Case 3: Optional struct containing signature
-        let s_opt: SigStruct? = SigStruct {
-            a: sig,
-            b: none
-        };
+        let s_opt: SigStruct? = SigStruct { a: sig, b: none };
         let val3 = s_opt.unwrap().a;
 
         // Case 4: Nested struct with optional signature
         let wrapper = WrapperSig {
-            inner: InnerSig { val: sig }
+            inner: InnerSig { val: sig },
         };
         let val4 = wrapper.inner.val.unwrap();
 

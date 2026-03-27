@@ -1,4 +1,3 @@
-
 fn get_bit(number: u32, i: u8) -> bool {
     let mask: u32 = 1u32 << i;
     return number.and(mask) > 0u32;

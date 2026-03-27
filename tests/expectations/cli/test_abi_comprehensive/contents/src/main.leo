@@ -42,7 +42,6 @@ struct Rectangle {
 
 program abi_test.aleo {
     // === Record Definitions ===
-
     // Record with public and private fields
     record Token {
         owner: address,
@@ -51,7 +50,6 @@ program abi_test.aleo {
     }
 
     // === Mappings ===
-
     // Simple mapping
     mapping balances: address => u64;
 
@@ -62,7 +60,6 @@ program abi_test.aleo {
     mapping arrays: u32 => [field; 2];
 
     // === Storage Variables ===
-
     // Simple storage variable
     storage counter: u32;
 
@@ -73,7 +70,6 @@ program abi_test.aleo {
     storage history: [u64];
 
     // === Transitions ===
-
     // Single primitive input/output
     fn single_primitive(a: u32) -> u32 {
         return a + 1u32;
@@ -136,16 +132,12 @@ program abi_test.aleo {
 
     // Async transition with finalize
     fn async_with_finalize(public amount: u64) -> Final {
-        return final {
-            let dummy: u64 = amount + 1u64;
-        };
+        return final { let dummy: u64 = amount + 1u64; };
     }
 
     // Async transition that updates mapping
     fn update_balance(public user: address, public amount: u64) -> Final {
-        return final {
-            Mapping::set(balances, user, amount);
-        };
+        return final { Mapping::set(balances, user, amount); };
     }
 
     @noupgrade

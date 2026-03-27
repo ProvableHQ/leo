@@ -4,6 +4,7 @@ program st.aleo {
     // can handle converting long names correctly.
     storage some_very_long_storage_variable: u8;
     storage some_verrry_long_storage_vector: [u8];
+
     fn foo() -> Final {
         return final {
             some_very_long_storage_variable = 0;
