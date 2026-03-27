@@ -196,6 +196,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
         self.state.symbol_table.add_as_library(self.program_name);
 
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.modules.values().for_each(|m| self.visit_module(m));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

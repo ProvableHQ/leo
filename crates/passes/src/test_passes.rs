@@ -368,9 +368,18 @@ fn parse_passes_test_source(
     for section in dep_sections {
         let trimmed = section.trim();
         if let Some((lib_name, lib_source)) = extract_passes_library_header(trimmed) {
-            let sf =
-                with_session_globals(|s| s.source_map.new_source(lib_source, FileName::Custom("compiler-test".into())));
-            let library = parse_library(handler.clone(), node_builder, lib_name, &sf, network)?;
+            // Split the library body into a main source and any submodule sections.
+            let (main_lib_src, lib_modules) = split_passes_modules(lib_source);
+            let sf = with_session_globals(|s| {
+                s.source_map.new_source(&main_lib_src, FileName::Custom("compiler-test".into()))
+            });
+            let module_sfs: Vec<_> = lib_modules
+                .iter()
+                .map(|(src, name): &(String, String)| {
+                    with_session_globals(|s| s.source_map.new_source(src, FileName::Custom(name.clone())))
+                })
+                .collect();
+            let library = parse_library(handler.clone(), node_builder, lib_name, &sf, &module_sfs, network)?;
             stubs.insert(lib_name, Stub::FromLibrary { library, parents: IndexSet::new() });
         }
         // Non-library program stubs are not needed for individual-pass tests.
@@ -402,6 +411,46 @@ fn parse_passes_test_source(
     program.stubs = stubs;
 
     Ok(leo_ast::Ast::Program(program))
+}
+
+/// Splits a library source string into a main body and a list of `(source, name)` submodule pairs.
+///
+/// Module sections are delimited by `// --- Next Module: name --- //` comments, using the same
+/// protocol as program modules in compiler tests. The name becomes the `FileName::Custom` for
+/// the submodule source file so that `compute_module_key` can derive its path.
+fn split_passes_modules(source: &str) -> (String, Vec<(String, String)>) {
+    const MOD_DELIM: &str = "// --- Next Module:";
+    if !source.contains(MOD_DELIM) {
+        return (source.to_string(), Vec::new());
+    }
+
+    let mut main_source = String::new();
+    let mut modules: Vec<(String, String)> = Vec::new();
+    let mut current_name: Option<String> = None;
+    let mut current_src = String::new();
+
+    for line in source.lines() {
+        if let Some(rest) = line.strip_prefix(MOD_DELIM) {
+            if let Some(name) = current_name.take() {
+                modules.push((current_src.clone(), name));
+                current_src.clear();
+            } else {
+                main_source = current_src.clone();
+                current_src.clear();
+            }
+            current_name = Some(rest.trim().trim_end_matches(" --- //").to_string());
+        } else {
+            current_src.push_str(line);
+            current_src.push('\n');
+        }
+    }
+    if let Some(name) = current_name {
+        modules.push((current_src, name));
+    } else {
+        main_source = current_src;
+    }
+
+    (main_source, modules)
 }
 
 /// Extracts a `// --- library: NAME --- //` header from the start of `source`.

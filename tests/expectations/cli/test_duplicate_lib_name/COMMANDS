@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+echo "--- leo build main (should fail: conflicting library name 'helper') ---" | tee /dev/stderr
+
+cd main || exit 1
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

@@ -1,0 +1,5 @@
+Error [ETYC0372005]: Unknown function `math_lib::nonexistent::add`
+    --> compiler-test:5:16
+     |
+   5 |         return math_lib::nonexistent::add(1u32, 2u32);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^

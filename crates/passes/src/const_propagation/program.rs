@@ -74,7 +74,15 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
                     .collect(),
                 program_name: input.program_name,
                 path: input.path,
-                composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
+                // Skip generic composites (those with const parameters): their types cannot be
+                // fully evaluated until they are monomorphized into the consuming program's scope.
+                composites: input
+                    .composites
+                    .into_iter()
+                    .map(
+                        |(i, c)| if c.const_parameters.is_empty() { (i, slf.reconstruct_composite(c)) } else { (i, c) },
+                    )
+                    .collect(),
                 functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
                 interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
             }
@@ -99,13 +107,16 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
             *c = declaration;
         }
 
-        // Skip generic functions (those with const parameters): they cannot be fully evaluated
-        // until they are monomorphized into the consuming program's scope.
+        // Pass generic functions (those with const parameters) through unchanged; they will be
+        // monomorphized into the consuming program's scope and const-propagated at that point.
         input.functions = input
             .functions
             .into_iter()
             .map(|(i, f)| if f.const_parameters.is_empty() { (i, self.reconstruct_function(f)) } else { (i, f) })
             .collect();
+
+        // Process submodules, applying the same const-propagation logic to their items.
+        input.modules = input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect();
 
         input
     }
