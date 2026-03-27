@@ -97,6 +97,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                         .map(|(last, _)| (*last, f.clone()))
                 }))
                 .collect(),
+            interfaces: input.interfaces,
         }
     }
 

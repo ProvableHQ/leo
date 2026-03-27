@@ -1,4 +1,4 @@
-// Test: interface definitions are not allowed inside library modules.
+// Test: interface definitions are allowed inside library modules.
 
 // --- library: math_lib --- //
 

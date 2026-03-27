@@ -181,10 +181,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
         input.modules.values().for_each(|m| {
-            // Interfaces are not allowed in library modules; report every one found.
-            for (_, iface) in m.interfaces.iter() {
-                self.emit_err(TypeCheckerError::interfaces_not_allowed_in_library_modules(iface.span()));
-            }
             self.visit_module(m);
         });
     }

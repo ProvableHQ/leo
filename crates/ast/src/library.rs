@@ -16,7 +16,7 @@
 
 use leo_span::Symbol;
 
-use crate::{Composite, ConstDeclaration, Function, Indent, Module};
+use crate::{Composite, ConstDeclaration, Function, Indent, Interface, Module};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,7 +24,8 @@ use std::fmt;
 /// Stores the Leo library abstract syntax tree.
 ///
 /// Libraries may contain `const` declarations, `struct` definitions, `fn` functions,
-/// and submodules (each a separate source file under the library's `src/` directory).
+/// `interface` definitions, and submodules (each a separate source file under the
+/// library's `src/` directory).
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Library {
     pub name: Symbol,
@@ -36,11 +37,17 @@ pub struct Library {
     pub structs: Vec<(Symbol, Composite)>,
     /// The function definitions in this library.
     pub functions: Vec<(Symbol, Function)>,
+    /// The interface definitions in this library.
+    pub interfaces: Vec<(Symbol, Interface)>,
 }
 
 impl fmt::Display for Library {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "library {} {{", self.name)?;
+
+        for (_, interface) in self.interfaces.iter() {
+            writeln!(f, "{}", Indent(interface))?;
+        }
 
         for (_, struct_def) in self.structs.iter() {
             writeln!(f, "{}", Indent(struct_def))?;

@@ -1931,6 +1931,7 @@ impl<'a> ConversionContext<'a> {
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
         structs: &mut Vec<(Symbol, leo_ast::Composite)>,
         functions: &mut Vec<(Symbol, leo_ast::Function)>,
+        interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
     ) -> Result<()> {
         if is_library_item(item.kind()) {
             match item.kind() {
@@ -1947,13 +1948,17 @@ impl<'a> ConversionContext<'a> {
                     let func = self.to_function(item, false)?;
                     functions.push((func.identifier.name, func));
                 }
+                INTERFACE_DEF => {
+                    let interface = self.to_interface(item)?;
+                    interfaces.push((interface.identifier.name, interface));
+                }
                 _ => {}
             }
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
             self.handler.emit_err(ParserError::custom(
-                "Only `const` declarations, `struct` definitions, and `fn` functions are allowed in a library.",
+                "Only `const` declarations, `struct` definitions, `fn` functions, and `interface` definitions are allowed in a library.",
                 span,
             ));
         }
@@ -2112,12 +2117,13 @@ impl<'a> ConversionContext<'a> {
         let mut consts = Vec::new();
         let mut structs = Vec::new();
         let mut functions = Vec::new();
+        let mut interfaces = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions)?;
+            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions, &mut interfaces)?;
         }
 
-        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions })
+        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions, interfaces })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -3238,11 +3244,8 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a library (`lib.leo`).
-///
-/// Currently `const` declarations and `struct` definitions are allowed; this list will grow
-/// as library support expands to include functions and other items.
 fn is_library_item(kind: SyntaxKind) -> bool {
-    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF)
+    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF | INTERFACE_DEF)
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).

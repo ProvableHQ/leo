@@ -22,9 +22,12 @@ use leo_ast::{
     CompositeType,
     Function,
     FunctionPrototype,
+    Interface,
+    Library,
     Location,
     MappingPrototype,
     Member,
+    Program,
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
@@ -687,8 +690,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Validate that record prototypes don't specify `owner` with a type other than `address`.
-    fn validate_record_prototypes(&mut self, input: &ProgramScope) {
-        for (_, interface) in &input.interfaces {
+    fn validate_record_prototypes(&mut self, interfaces: &[(Symbol, Interface)]) {
+        for (_, interface) in interfaces {
             for (_, record_proto) in &interface.records {
                 for member in &record_proto.members {
                     if member.identifier.name == sym::owner && member.type_ != Type::Address {
@@ -703,26 +706,23 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
     }
 
-    fn build_inheritance_graph(&mut self, input: &ProgramScope) {
+    fn build_inheritance_graph(&mut self, interfaces: &[(Vec<Symbol>, Interface)], extra_seeds: &[(Location, Span)]) {
+        // Populate graph with the given interfaces as seeds.
+        // Each entry is (module_prefix, interface) where module_prefix is the path to the
+        // containing module (empty for top-level, e.g. [ops] for a submodule named ops).
         let mut queue: IndexSet<(Location, Span)> = IndexSet::new();
         let mut processed: IndexSet<Location> = IndexSet::new();
-
-        // Seed with top-level interfaces declared in this program scope.
-        for (_, interface) in &input.interfaces {
-            let location = Location::new(self.current_program, vec![interface.identifier.name]);
+        for (prefix, interface) in interfaces {
+            let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
+            let location = Location::new(self.current_program, path);
             let span = interface.identifier.span;
             queue.insert((location, span));
         }
 
-        // Also seed with module-level interfaces that this program directly implements.
-        // Without this seeding, `transitive_closure` on a module interface would return empty
-        // because the interface and its ancestors were never added to the graph.
-        for (parent_span, parent_type) in &input.parents {
-            if let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type
-                && let Some(parent_location) = parent_path.try_global_location()
-            {
-                queue.insert((parent_location.clone(), *parent_span));
-            }
+        // Also seed with extra locations (e.g. interfaces directly implemented by the program scope)
+        // so that cross-program cycles are detected during BFS.
+        for (location, span) in extra_seeds {
+            queue.insert((location.clone(), *span));
         }
 
         while let Some((location, _location_span)) = queue.pop() {
@@ -766,10 +766,78 @@ impl AstVisitor for CheckInterfacesVisitor<'_> {
 }
 
 impl ProgramVisitor for CheckInterfacesVisitor<'_> {
+    fn visit_program(&mut self, input: &Program) {
+        // Visit stubs first so that library interface caches are fully populated
+        // before check_program_implements_interface runs in visit_program_scope.
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_library(&mut self, input: &Library) {
+        self.current_program = input.name;
+        // Reset the inheritance graph for this new scope.
+        self.inheritance_graph = DiGraph::default();
+
+        // Collect interfaces with their module-path prefix so that build_inheritance_graph can
+        // construct the correct Location (matching how global_items_collection registered them).
+        // Top-level library interfaces use an empty prefix; submodule interfaces use the module path.
+        let mut prefixed: Vec<(Vec<Symbol>, Interface)> =
+            input.interfaces.iter().map(|(_, i)| (vec![], i.clone())).collect();
+        for module in input.modules.values() {
+            prefixed.extend(module.interfaces.iter().map(|(_, i)| (module.path.clone(), i.clone())));
+        }
+
+        // Build a flat list (without prefix) for callers that don't need location info.
+        let all_interfaces: Vec<(Symbol, Interface)> =
+            prefixed.iter().map(|(_, i)| (i.identifier.name, i.clone())).collect();
+
+        self.build_inheritance_graph(&prefixed, &[]);
+
+        // Check for cycles.
+        if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
+            self.state.handler.emit_err(CheckInterfacesError::cyclic_interface_inheritance(
+                path.iter().map(|loc| loc.to_string()).collect::<Vec<_>>().join(" -> "),
+            ));
+            return;
+        }
+
+        // Validate record prototypes (e.g. owner must be address).
+        self.validate_record_prototypes(&all_interfaces);
+
+        // Flatten all interfaces to catch conflicting member inheritance, using the same
+        // prefixed paths so the Location matches the symbol table entries.
+        for (prefix, interface) in &prefixed {
+            let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
+            let location = Location::new(self.current_program, path);
+            self.flatten_interface(&location, interface.identifier.span);
+        }
+    }
+
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         self.current_program = input.program_id.as_symbol();
+        // Reset the inheritance graph for this new scope.
+        self.inheritance_graph = DiGraph::default();
 
-        self.build_inheritance_graph(input);
+        // Program-scope interfaces are always at the top level (no module prefix).
+        let prefixed: Vec<(Vec<Symbol>, Interface)> =
+            input.interfaces.iter().map(|(_, i)| (vec![], i.clone())).collect();
+
+        // Also seed from parent interfaces implemented by this program scope so that cross-program
+        // cycles involving those interfaces are detected during BFS.
+        let parent_seeds: Vec<(Location, Span)> = input
+            .parents
+            .iter()
+            .filter_map(|(span, parent_type)| {
+                if let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type {
+                    parent_path.try_global_location().map(|loc| (loc.clone(), *span))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        self.build_inheritance_graph(&prefixed, &parent_seeds);
 
         // Check for cycles using post_order traversal.
         if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
@@ -780,7 +848,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         }
 
         // Validate record prototypes (e.g. owner must be address).
-        self.validate_record_prototypes(input);
+        self.validate_record_prototypes(&input.interfaces);
 
         // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {

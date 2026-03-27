@@ -1,0 +1,31 @@
+program impl_cross.aleo;
+
+function fetch:
+    output 42u32 as u32.private;
+
+function store:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import impl_cross.aleo;
+program caller_cross.aleo;
+
+function call_store:
+    input r0 as u32.private;
+    call.dynamic 'impl_cross' 'aleo' 'store' with r0 (as u32.private) into r1 (as u32.private);
+    output r1 as u32.private;
+
+function call_fetch:
+    call.dynamic 'impl_cross' 'aleo' 'fetch' into r0 (as u32.private);
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 6u32
+status: success
+output: 42u32

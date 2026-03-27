@@ -354,6 +354,7 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_aleo_program(&mut self, _input: &AleoProgram) {}
 
     fn visit_library(&mut self, input: &Library) {
+        input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
@@ -385,6 +386,7 @@ pub trait ProgramVisitor: AstVisitor {
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
     }
 
     fn visit_composite(&mut self, input: &Composite) {
