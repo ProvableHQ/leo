@@ -24,20 +24,18 @@ program test.aleo {
         let array_u32_bits: [bool; 182] = Serialize::to_bits(array_u32);
 
         // Raw serialization (no metadata, just concatenated elements)
-        let array_u8_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_u8);  // 4 * 8 bits
-        let array_u32_bits_raw: [bool; 64] = Serialize::to_bits_raw(array_u32);  // 2 * 32 bits
-
+        let array_u8_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_u8); // 4 * 8 bits
+        let array_u32_bits_raw: [bool; 64] = Serialize::to_bits_raw(array_u32); // 2 * 32 bits
         // 2D array raw serialization
-        let array_2d_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_2d);  // 4 * 8 bits
-
+        let array_2d_bits_raw: [bool; 32] = Serialize::to_bits_raw(array_2d); // 4 * 8 bits
         // Sample bits from serializations
         return (
             array_u8_bits[0u8], array_u8_bits[50u8], array_u8_bits[100u8], array_u8_bits[200u8],
             array_u32_bits[0u8], array_u32_bits[50u8], array_u32_bits[100u8], array_u32_bits[150u8],
-            array_u8_bits_raw[0u8], array_u8_bits_raw[8u8], array_u8_bits_raw[16u8], array_u8_bits_raw[24u8],
-            array_2d_bits_raw[0u8], array_2d_bits_raw[16u8],
+            array_u8_bits_raw[0u8], array_u8_bits_raw[8u8], array_u8_bits_raw[16u8],
+            array_u8_bits_raw[24u8], array_2d_bits_raw[0u8], array_2d_bits_raw[16u8],
             array_u8_bits[0u8] != array_u8_bits_raw[0u8],
-            array_u32_bits[0u8] != array_u32_bits_raw[0u8]
+            array_u32_bits[0u8] != array_u32_bits_raw[0u8],
         );
     }
 }

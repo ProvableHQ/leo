@@ -1,6 +1,4 @@
-
 program test.aleo {
-
     mapping one: field => field;
     mapping two: field => field;
     mapping three: field => field;

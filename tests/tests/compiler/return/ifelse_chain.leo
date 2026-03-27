@@ -1,4 +1,3 @@
-
 // The intent is to test that the amount of code generated
 // is only linear in the number of conditions.
 program test.aleo {
@@ -14,7 +13,6 @@ program test.aleo {
         } else if a == 4field {
             return 4u32;
         }
-
         return 5u32;
     }
 }

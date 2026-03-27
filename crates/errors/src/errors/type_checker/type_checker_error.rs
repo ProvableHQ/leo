@@ -1459,4 +1459,12 @@ create_messages!(
         msg: format!("Vector types can only be used in storage declarations."),
         help: None,
     }
+
+    /// For when an interface definition appears inside a library module.
+    @formatted
+    interfaces_not_allowed_in_library_modules {
+        args: (),
+        msg: "Interface definitions are not allowed inside library modules.".to_string(),
+        help: None,
+    }
 );

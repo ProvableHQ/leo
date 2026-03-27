@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: i32) -> i32 {
         let b: i32 = -2147483647i32;

@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping account: address => u64;
 

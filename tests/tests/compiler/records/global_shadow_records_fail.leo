@@ -1,9 +1,9 @@
-
 program test.aleo {
     record Token {
         owner: address,
         amount: u64,
     }
+
     record Token {
         owner: address,
         amount: u64,
@@ -11,7 +11,7 @@ program test.aleo {
         arg2: u64,
     }
 
-    fn main(a: u8, b:u8) -> u8 {
+    fn main(a: u8, b: u8) -> u8 {
         return a + b;
     }
 }

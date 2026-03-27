@@ -1,26 +1,26 @@
 Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:24:16
+    --> compiler-test:23:16
      |
-  24 |         return six(n);
+  23 |         return six(n);
      |                ^^^^^^
 Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:28:16
+    --> compiler-test:27:16
      |
-  28 |         return seven(n) + eight(n);
+  27 |         return seven(n) + eight(n);
      |                ^^^^^^^^
 Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:28:27
+    --> compiler-test:27:27
      |
-  28 |         return seven(n) + eight(n);
+  27 |         return seven(n) + eight(n);
      |                           ^^^^^^^^
 Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:32:16
+    --> compiler-test:31:16
      |
-  32 |         return five(n);
+  31 |         return five(n);
      |                ^^^^^^^
 Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:36:16
+    --> compiler-test:35:16
      |
-  36 |         return five(n);
+  35 |         return five(n);
      |                ^^^^^^^
 Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/five` --> `test.aleo/six` --> `test.aleo/seven` --> `test.aleo/five`

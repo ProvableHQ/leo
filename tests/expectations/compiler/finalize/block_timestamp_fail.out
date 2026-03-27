@@ -1,5 +1,5 @@
 Error [ETYC0372034]: `block.timestamp` must be inside a `final fn` or a `final` block.
-    --> compiler-test:4:30
+    --> compiler-test:3:30
      |
-   4 |         assert_eq(timestamp, block.timestamp);
+   3 |         assert_eq(timestamp, block.timestamp);
      |                              ^^^^^^^^^^^^^^^

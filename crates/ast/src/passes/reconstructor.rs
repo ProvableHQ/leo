@@ -598,6 +598,7 @@ pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             consts: input
                 .consts
                 .into_iter()

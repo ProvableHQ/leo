@@ -1,6 +1,6 @@
-
 program test.aleo {
     fn main(a: scalar) -> bool {
         let s: scalar = 1scalar;
         return s + a == 0scalar;
-    }}
+    }
+}

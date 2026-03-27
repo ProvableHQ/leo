@@ -1,0 +1,5 @@
+Error [ETYC0372117]: Expected type `u32` but type `bool` was found.
+    --> compiler-test:5:41
+     |
+   5 |         return math_lib::ops::add(1u32, true);  // bool where u32 expected
+     |                                         ^^^^

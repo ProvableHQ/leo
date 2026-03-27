@@ -1,5 +1,5 @@
 Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:10:9
+    --> compiler-test:11:9
      |
-  10 | program test.aleo {}
+  11 | program test.aleo {}
      |         ^^^^^^^^^

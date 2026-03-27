@@ -16,7 +16,7 @@
 // --- library: math_lib --- //
 
 struct Foo::[N: u32] {
-    x: [u32; N + 1]
+    x: [u32; N + 1],
 }
 
 struct Bar {
@@ -39,7 +39,7 @@ program helper.aleo {
     fn add_offset(x: u32) -> u32 {
         let f = math_lib::Foo::[99] { x: [12; 100] };
         let b = math_lib::Bar {
-            f: math_lib::Foo::[42] { x: [4; 43] }
+            f: math_lib::Foo::[42] { x: [4; 43] },
         };
         return x + config_lib::BASE + math_lib::OFFSET + f.x[42] + b.f.x[3];
     }
@@ -47,11 +47,13 @@ program helper.aleo {
     @noupgrade
     constructor() {}
 }
+
 // --- Next Module: dep.leo --- //
-struct B::[N: u32] { z: u32 }
+struct B::[N: u32] {
+    z: u32,
+}
 
 // --- Next Program --- //
-
 import helper.aleo;
 
 struct Foo {
@@ -62,11 +64,13 @@ program main.aleo {
     fn compute(x: u32) -> (u32, math_lib::Foo::[43], Foo) {
         let a: u32 = helper.aleo::add_offset(x);
         let b: math_lib::Bar = math_lib::Bar {
-            f: math_lib::Foo::[42] {
-                x: [1000; 43]
-            }
+            f: math_lib::Foo::[42] { x: [1000; 43] },
         };
-        return (b.f.x[0] + a + config_lib::FACTOR + math_lib::SCALE, math_lib::Foo::[43] { x: [99; 44] }, Foo { y: 199 });
+        return (
+            b.f.x[0] + a + config_lib::FACTOR + math_lib::SCALE,
+            math_lib::Foo::[43] { x: [99; 44] },
+            Foo { y: 199 },
+        );
     }
 
     @noupgrade

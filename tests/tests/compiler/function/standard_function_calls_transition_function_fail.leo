@@ -1,7 +1,6 @@
-
 fn main(a: u32, b: u32, y: bool) -> u32 {
     if y {
-       return adder(a, b);
+        return adder(a, b);
     } else {
         return subber(a, b);
     }
@@ -14,4 +13,5 @@ program test.aleo {
 
     fn subber(a: u32, b: u32) -> u32 {
         return a - b;
-    }}
+    }
+}

@@ -11,14 +11,11 @@ program test.aleo {
 
         let t1: (u32, u16) = (1, 2);
         let t1_1 = t1.1;
-        
+
         let t2: (u32, u16) = (1u32, 2);
 
         // Struct field type inference works
-        let s0 = S {
-            x: 0, y: 0
-        };
-        
+        let s0 = S { x: 0, y: 0 };
         let a0 = [1u16, 2u16];
         let a0_0 = a0[0u8];
         let a1: [u64; 3] = [1, 2, 3];
@@ -27,24 +24,23 @@ program test.aleo {
 
         let x: u32 = 1 + (true ? 0 : 1);
         let y: u32 = true ? 0 : 1;
-
-        for i: u8 in 1..20 { }
-        for i: u16 in 1..20 { }
-        for i: u32 in 1..20 { }
-        for i: u64 in 1..20 { }
-        for i: u128 in 1..20 { }
-        for i: i8 in 1..20 { }
-        for i: i16 in 1..20 { }
-        for i: i32 in 1..20 { }
-        for i: i64 in 1..20 { }
-        for i: i128 in 1..20 { }
+        for i: u8 in 1..20 {}
+        for i: u16 in 1..20 {}
+        for i: u32 in 1..20 {}
+        for i: u64 in 1..20 {}
+        for i: u128 in 1..20 {}
+        for i: i8 in 1..20 {}
+        for i: i16 in 1..20 {}
+        for i: i32 in 1..20 {}
+        for i: i64 in 1..20 {}
+        for i: i128 in 1..20 {}
     }
 
     fn function_calls(s: signature, a: address) {
         let z0 = bar(3, 4);
         let g = group::GEN;
         let verify = signature::verify(s, a, 0field);
-    }        
+    }
 }
 
 fn bar(x: u32, y: u64) -> u16 {

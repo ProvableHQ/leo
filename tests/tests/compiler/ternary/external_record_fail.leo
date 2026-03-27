@@ -1,4 +1,3 @@
-
 program test0.aleo {
     record R {
         owner: address,
@@ -6,16 +5,13 @@ program test0.aleo {
     }
 
     fn foo() -> R {
-        return R {
-            owner: self.signer,
-            x: true,
-        };
+        return R { owner: self.signer, x: true };
     }
 }
 
 // --- Next Program --- //
-
 import test0.aleo;
+
 program test1.aleo {
     // It's impossible to have a ternary conditional over an external record type.
     // As of commit 314d56a9e3626418e8a953ecb81f595555716459 this caused

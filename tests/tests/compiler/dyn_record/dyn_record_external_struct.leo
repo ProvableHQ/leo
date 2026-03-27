@@ -17,8 +17,8 @@ program token.aleo {
 }
 
 // --- Next Program --- //
-
 import token.aleo;
+
 program test.aleo {
     fn main(t: token.aleo::Token) -> u64 {
         let d: dyn record = t as dyn record;

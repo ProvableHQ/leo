@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn matches(addr: address) -> bool {
         return self.caller == addr;
@@ -22,4 +21,3 @@ struct Bar {
 struct Baz {
     a: u128,
 }
-

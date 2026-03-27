@@ -37,6 +37,7 @@ impl ProgramReconstructor for StorageLoweringVisitor<'_> {
         self.program = input.name;
         let library = Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             consts: input
                 .consts
                 .into_iter()

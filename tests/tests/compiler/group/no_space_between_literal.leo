@@ -1,7 +1,6 @@
-
-program test.aleo { }
+program test.aleo {}
 
 fn main(x: bool) -> group {
-  let g: group = 1 group;
-  return g;
+    let g: group = 1 group;
+    return g;
 }

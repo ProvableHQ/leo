@@ -30,7 +30,6 @@ fn returns_optional() -> u8? {
 
 program bad_types.aleo {
     // === Basic assignment & comparison errors ===
-
     // ❌ Optional assigned to non-optional
     fn assign_optional_to_non_optional() {
         let a: u8? = 5u8;
@@ -55,6 +54,7 @@ program bad_types.aleo {
         let b: u8 = 42u8;
         let result = a == b; // ERROR
     }
+
     // ❌ Mixed types in optional array
     fn array_of_optionals_mixed_types() {
         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
@@ -74,7 +74,6 @@ program bad_types.aleo {
     }
 
     // === Ternary errors ===
-
     // ❌ Mismatched branches in ternary
     fn ternary_mismatched_branches() {
         let flag: bool = true;
@@ -88,7 +87,6 @@ program bad_types.aleo {
     }
 
     // === Inline function call errors ===
-
     fn call_fn_with_optional_arg() {
         let val: u8? = 5u8;
         let result = takes_u8(val); // ERROR
@@ -99,7 +97,6 @@ program bad_types.aleo {
     }
 
     // === Const-related errors ===
-
     @noupgrade
     constructor() {}
 }

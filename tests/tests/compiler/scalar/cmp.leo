@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: scalar, b: scalar) -> bool {
         let c: bool = a > b;
@@ -6,4 +5,5 @@ program test.aleo {
         let e: bool = a >= b;
         let f: bool = a <= b;
         return f;
-    }}
+    }
+}

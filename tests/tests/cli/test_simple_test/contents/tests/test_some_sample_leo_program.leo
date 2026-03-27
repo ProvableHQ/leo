@@ -1,5 +1,6 @@
 // The 'test_some_sample_leo_program' test program.
 import some_sample_leo_program.aleo;
+
 program test_some_sample_leo_program.aleo {
     @test
     @should_fail

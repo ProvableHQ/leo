@@ -132,12 +132,12 @@ Error [ETYC0372004]: Could not determine the type of `2`
 Error [ETYC0372117]: Expected an integer but type `numeric` was found.
     --> compiler-test:13:18
      |
-  13 |         for i in 1..2 { }
+  13 |         for i in 1..2 {}
      |                  ^
 Error [ETYC0372117]: Expected an integer but type `numeric` was found.
     --> compiler-test:13:21
      |
-  13 |         for i in 1..2 { }
+  13 |         for i in 1..2 {}
      |                     ^
 Error [ETYC0372004]: Could not determine the type of `1`
     --> compiler-test:14:19

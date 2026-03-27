@@ -1,6 +1,6 @@
 Error [EPAR0370050]: Could not lex the following content: `\`.
 
-    --> test:3:5
+    --> test:2:5
      |
-   3 |     \}
+   2 |     \
      |     ^

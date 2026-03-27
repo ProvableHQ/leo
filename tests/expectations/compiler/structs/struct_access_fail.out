@@ -1,5 +1,5 @@
 Error [ETYC0372117]: Expected type `i8` but type `u32` was found.
-    --> compiler-test:10:21
+    --> compiler-test:8:21
      |
-  10 |         let x: i8 = s.f1;
+   8 |         let x: i8 = s.f1;
      |                     ^^^^

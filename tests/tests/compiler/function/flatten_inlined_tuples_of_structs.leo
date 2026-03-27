@@ -1,4 +1,3 @@
-
 struct Extra {
     c: u8,
 }
@@ -27,13 +26,11 @@ program test.aleo {
         if flag1 {
             start = foo(start.0, start.2.c.c);
         } else {
-
             if flag2 {
                 start = foo(start.1, start.2.b);
             } else {
                 start = foo(start.2.a, start.1);
             }
-
         }
         return start;
     }

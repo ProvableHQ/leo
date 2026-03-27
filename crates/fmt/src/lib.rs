@@ -258,4 +258,56 @@ mod tests {
         // Removes extra newlines
         assert!(format_source("program test.aleo {}\n\n\n").ends_with("}\n"));
     }
+
+    #[test]
+    fn preserves_malformed_top_level_tokens() {
+        let source = "final finalize(foo);\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_malformed_global_const_with_inline_error() {
+        let source = "const x = (x,y);\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_mixed_malformed_statement_roots() {
+        let source = "let x: const = expr;\nconst x = (x,y);\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_interface_record_prototype_bodies() {
+        let source = "interface TokenInterface {\n    record Token {\n        owner: address,\n        amount: u64,\n        ..\n    }\n}\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn preserves_angle_const_generic_arguments() {
+        let source = "fn use_generics() {\n    let y = Matrix::<ROWS, 4>;\n}\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
+    fn formats_dynamic_call_expressions() {
+        let source = "program test.aleo{fn main(target:address,x:u32,y:u32)->u32{return Adder@(target)/sum(x,y);}}\n";
+        let expected = "program test.aleo {\n    fn main(target: address, x: u32, y: u32) -> u32 {\n        return Adder@(target)/sum(x, y);\n    }\n}\n";
+        assert_eq!(format_source(source), expected);
+    }
+
+    #[test]
+    fn formats_dynamic_call_with_locator_interface_and_network() {
+        let source =
+            "program test.aleo{fn main(x:u32,y:u32)->u32{return adder_impl.aleo::Adder@('foo','aleo')/sum(x,y);}}\n";
+        let expected = "program test.aleo {\n    fn main(x: u32, y: u32) -> u32 {\n        return adder_impl.aleo::Adder@('foo', 'aleo')/sum(x, y);\n    }\n}\n";
+        assert_eq!(format_source(source), expected);
+    }
+
+    #[test]
+    fn preserves_dyn_record_type_and_cast() {
+        let source = "program test.aleo{record Token{owner:address,balance:u64}fn main(t:Token)->dyn record{let d:dyn record=t as dyn record;return d;}}\n";
+        let expected = "program test.aleo {\n    record Token {\n        owner: address,\n        balance: u64,\n    }\n\n    fn main(t: Token) -> dyn record {\n        let d: dyn record = t as dyn record;\n        return d;\n    }\n}\n";
+        assert_eq!(format_source(source), expected);
+    }
 }

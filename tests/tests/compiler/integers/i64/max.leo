@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: i64) -> i64 {
         let b: i64 = 9223372036854775807i64;

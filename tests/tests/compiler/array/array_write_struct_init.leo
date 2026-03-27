@@ -1,6 +1,5 @@
-
 struct S {
-    x: [field; 2]
+    x: [field; 2],
 }
 
 program test.aleo {
@@ -8,9 +7,7 @@ program test.aleo {
         let array: [field; 2] = [1field, 1field];
         array[0] = 2field;
         // See bug #28711 - the write was not being captured.
-        return S {
-            x: array,
-        };
+        return S { x: array };
     }
 
     fn main2() -> S {
@@ -19,8 +16,6 @@ program test.aleo {
             array[i] = 2field;
         }
         // See bug #28711 - the write was not being captured.
-        return S {
-            x: array,
-        };
+        return S { x: array };
     }
 }

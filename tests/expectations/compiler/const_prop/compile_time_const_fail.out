@@ -1,15 +1,15 @@
 Error [ESAZ0374007]: Binary operation `1i32 / 0i32` failed at compile time: div overflow.
-    --> compiler-test:2:16
+    --> compiler-test:1:16
      |
-   2 | const A: i32 = 1i32 / 0i32;
+   1 | const A: i32 = 1i32 / 0i32;
      |                ^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `255u8 + 1u8` failed at compile time: add overflow.
-    --> compiler-test:4:15
+    --> compiler-test:3:15
      |
-   4 | const B: u8 = 255u8 + 1u8;
+   3 | const B: u8 = 255u8 + 1u8;
      |               ^^^^^^^^^^^
 Error [ESAZ0374006]: Unary operation `0field.inv()` failed at compile time: attempt to invert 0field.
-    --> compiler-test:6:18
+    --> compiler-test:5:18
      |
-   6 | const C: field = 0field.inv();
+   5 | const C: field = 0field.inv();
      |                  ^^^^^^^^^^^^

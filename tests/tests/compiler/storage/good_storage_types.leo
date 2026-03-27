@@ -35,4 +35,3 @@ program good_storage_tests.aleo {
 
     fn foo() {}
 }
-

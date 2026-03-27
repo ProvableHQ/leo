@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main() -> i32 {
         const A: i32 = 1i32;

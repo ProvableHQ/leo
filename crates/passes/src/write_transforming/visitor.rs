@@ -225,6 +225,9 @@ impl<'a> WriteTransformingVisitor<'a> {
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
                     };
+                    if let Some(member_type) = self.state.type_table.get(&member_name.id) {
+                        self.state.type_table.insert(access.id, member_type);
+                    }
                     self.reconstruct_assign_recurse(*member_name, access.into(), accumulate);
                 }
             }

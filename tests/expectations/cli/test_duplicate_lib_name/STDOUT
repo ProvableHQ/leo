@@ -1,0 +1,4 @@
+--- leo build main (should fail: conflicting library name 'helper') ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+build exit code: 14

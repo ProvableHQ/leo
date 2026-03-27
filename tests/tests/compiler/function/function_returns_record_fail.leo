@@ -1,9 +1,5 @@
-
 fn foo(board: Board, data: u8) -> Board {
-    return Board {
-        owner: board.owner,
-        data: data,
-    };
+    return Board { owner: board.owner, data: data };
 }
 
 fn bar(board: Board) {
@@ -20,7 +16,4 @@ program test.aleo {
         bar(board);
         return foo(board, 1u8);
     }
-
-
-
 }

@@ -10,7 +10,7 @@ program test.aleo {
         g: group,
         u64_val: u64,
         i32_val: i32,
-        addr: address
+        addr: address,
     ) -> (
         bool, bool, bool, bool,  // Sample bits from field (253 bits)
         bool, bool, bool, bool,  // Sample bits from group (253 bits)
@@ -30,12 +30,11 @@ program test.aleo {
 
         // Sample bits
         return (
-            field_bits_raw[0u8], field_bits_raw[100u8], field_bits_raw[200u8], field_bits_raw[252u8],
-            group_bits_raw[0u8], group_bits_raw[100u8], group_bits_raw[200u8], group_bits_raw[252u8],
-            addr_bits_raw[0u8], addr_bits_raw[252u8], u64_bits_raw[0u8], i32_bits_raw[0u8],
-            u64_bits_raw[32u8], i32_bits_raw[16u8],
-            field_bits[0u8] != field_bits_raw[0u8],
-            group_bits[0u8] != group_bits_raw[0u8]
+            field_bits_raw[0u8], field_bits_raw[100u8], field_bits_raw[200u8],
+            field_bits_raw[252u8], group_bits_raw[0u8], group_bits_raw[100u8],
+            group_bits_raw[200u8], group_bits_raw[252u8], addr_bits_raw[0u8], addr_bits_raw[252u8],
+            u64_bits_raw[0u8], i32_bits_raw[0u8], u64_bits_raw[32u8], i32_bits_raw[16u8],
+            field_bits[0u8] != field_bits_raw[0u8], group_bits[0u8] != group_bits_raw[0u8],
         );
     }
 }

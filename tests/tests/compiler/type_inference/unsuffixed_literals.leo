@@ -113,7 +113,7 @@ program test.aleo {
         let h9: i128 = 1i128 / 1i128;
         let h10 = a12 / 1;
 
-        // Rem 
+        // Rem
         let i0 = a0 % 1;
         let i1 = a1 % 1u16;
         let i2 = 1 % a2;
@@ -125,7 +125,7 @@ program test.aleo {
         let i8_: i64 = 1 % 1;
         let i9: i128 = 1i128 % 1i128;
 
-        // Rem Wrapped 
+        // Rem Wrapped
         let j0 = a0.rem_wrapped(1);
         let j1 = a1.rem_wrapped(1u16);
         let j2 = 1.rem_wrapped(a2);
@@ -163,7 +163,6 @@ program test.aleo {
         let l10: field = 1 ** 1; // infer the 1s as `field`
         let l11 = 1field ** 1; // infer 1 as `field`
         let l12 = 1 ** 1field; // infer 1 as `field`
-
         // Pow Wrapped
         let m0 = a0.pow_wrapped(1u8);
         let m1 = a1.pow_wrapped(1u16);
@@ -309,8 +308,8 @@ program test.aleo {
         let b3: group = 0.double();
         let b4 = 2.inv();
         let b5: field = 2.inv();
-        let b6: i32  = -2;
-        let b7: i64  = !2;
+        let b6: i32 = -2;
+        let b7: i64 = !2;
         let b8 = 2.square(); // 2 must be field
         let b9: field = 2.square(); // 2 must be field
         let b10 = 2.square_root(); // 2 must be field

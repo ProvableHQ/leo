@@ -16,16 +16,20 @@
 
 use leo_span::Symbol;
 
-use crate::{Composite, ConstDeclaration, Function, Indent};
+use crate::{Composite, ConstDeclaration, Function, Indent, Module};
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Stores the Leo library abstract syntax tree.
 ///
-/// Libraries may contain `const` declarations, `struct` definitions, and `fn` functions.
+/// Libraries may contain `const` declarations, `struct` definitions, `fn` functions,
+/// and submodules (each a separate source file under the library's `src/` directory).
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Library {
     pub name: Symbol,
+    /// Submodules of this library, keyed by their path (e.g., `[utils]` for `src/utils.leo`).
+    pub modules: IndexMap<Vec<Symbol>, Module>,
     /// The constants defined in this library.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// The struct definitions in this library.
@@ -42,12 +46,16 @@ impl fmt::Display for Library {
             writeln!(f, "{}", Indent(struct_def))?;
         }
 
+        for (_, const_decl) in self.consts.iter() {
+            writeln!(f, "{};", Indent(const_decl))?;
+        }
+
         for (_, func) in self.functions.iter() {
             writeln!(f, "{}", Indent(func))?;
         }
 
-        for (_, const_decl) in self.consts.iter() {
-            writeln!(f, "{};", Indent(const_decl))?;
+        for (_, module) in self.modules.iter() {
+            writeln!(f, "{}", module)?;
         }
 
         writeln!(f, "}}")

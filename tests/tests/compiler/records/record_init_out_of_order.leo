@@ -1,4 +1,3 @@
-
 // TODO: This should be made into an integration test.
 
 program test.aleo {
@@ -11,9 +10,6 @@ program test.aleo {
 
     fn main(owner: address, a: u64) -> Token {
         let amount: u64 = a * a;
-        return Token {
-            amount,
-            owner,
-        };
+        return Token { amount, owner };
     }
 }

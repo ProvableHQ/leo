@@ -1,5 +1,5 @@
 Error [EPAR0370005]: expected ';' -- found 'group'
-    --> compiler-test:5:20
+    --> compiler-test:4:22
      |
-   5 |   let g: group = 1 group;
-     |                    ^^^^^
+   4 |     let g: group = 1 group;
+     |                      ^^^^^

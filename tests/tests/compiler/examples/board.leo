@@ -1,4 +1,3 @@
-
 program test.aleo {
     // Battleship boards are represented by 8x8 squares.
     // A u64 is all that is required to represent a hit or a miss on a single board.
@@ -21,10 +20,7 @@ program test.aleo {
     }
 
     // Returns a new board_state.
-    fn new_board_state(
-        ships: u64,
-        opponent: address,
-    ) -> board_state {
+    fn new_board_state(ships: u64, opponent: address) -> board_state {
         return board_state {
             owner: self.signer,
             hits_and_misses: 0u64,
@@ -44,7 +40,6 @@ program test.aleo {
     ) -> board_state {
         // Ensure this board hasn't been used to start a game before.
         assert(!board.game_started);
-
         return board_state {
             owner: board.owner,
             hits_and_misses: board.hits_and_misses,
@@ -76,7 +71,6 @@ program test.aleo {
 
         // Update played tiles.
         let played_tiles: u64 = board.played_tiles | shoot;
-
         return board_state {
             owner: board.owner,
             hits_and_misses: board.hits_and_misses,
@@ -97,7 +91,6 @@ program test.aleo {
     ) -> board_state {
         // Update hits and misses.
         let hits_and_misses: u64 = board.hits_and_misses | hit_or_miss;
-
         return board_state {
             owner: board.owner,
             hits_and_misses,
