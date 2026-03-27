@@ -1452,4 +1452,11 @@ create_messages!(
         msg: format!("Cannot cast `{type_}` to `dyn record`: only concrete record types can be cast to `dyn record`."),
         help: None,
     }
+
+    @formatted
+    vector_type_only_in_storage {
+        args: (),
+        msg: format!("Vector types can only be used in storage declarations."),
+        help: None,
+    }
 );

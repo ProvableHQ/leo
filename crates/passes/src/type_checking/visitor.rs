@@ -1562,25 +1562,9 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type_is_valid(inner, span);
             }
 
-            // Check that the vector element types are valid.
-            Type::Vector(vector_type) => {
-                // Check that the vector element type is valid.
-                match vector_type.element_type() {
-                    // Vector elements cannot be futures.
-                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_final(span)),
-                    // Vector elements cannot be tuples.
-                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
-                    // Vector elements cannot be records.
-                    Type::Composite(composite_type) => {
-                        if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location())
-                            && composite.is_record
-                        {
-                            self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
-                        }
-                    }
-                    _ => {} // Do nothing.
-                }
-                self.assert_type_is_valid(vector_type.element_type(), span);
+            // Vector types can only be used in storage declarations.
+            Type::Vector(_) => {
+                self.emit_err(TypeCheckerError::vector_type_only_in_storage(span));
             }
 
             Type::Address
@@ -1737,8 +1721,17 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Scalar
             | Type::Numeric
-            | Type::Err
-            | Type::Vector(_) => {} // valid
+            | Type::Err => {} // valid
+            Type::Vector(vector_type) => {
+                let element_ty = vector_type.element_type();
+                match element_ty {
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
+                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    _ => {}
+                }
+                self.assert_storage_type_is_valid(element_ty, span);
+            }
         }
     }
 

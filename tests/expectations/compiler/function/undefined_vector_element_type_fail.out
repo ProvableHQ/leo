@@ -1,7 +1,5 @@
-Error [ETYC0372017]: The type `test.aleo::Nonexistent` is not found in the current scope.
+Error [ETYC0372180]: Vector types can only be used in storage declarations.
     --> compiler-test:3:12
      |
    3 |     fn foo(a: [Nonexistent]) -> bool {
      |            ^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
