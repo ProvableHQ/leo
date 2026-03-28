@@ -127,6 +127,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_library(&mut self, input: &leo_ast::Library) {
         self.current_program = input.name;
 
+        // The rest is identical to the default implementation
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));

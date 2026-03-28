@@ -89,16 +89,8 @@ impl ProgramReconstructor for TransformVisitor<'_> {
         // Note: This must be done after the functions have been reconstructed to ensure that every callee function has been inlined.
         let constructor = input.constructor.map(|constructor| self.reconstruct_constructor(constructor));
 
-        // Drain reconstructed functions for this scope. Library functions (loc.program != self.program)
-        // are retained in `self.reconstructed_functions` so that FromLeo stub scopes processed later
-        // in the same compilation unit can look them up without reprocessing.  A FromLeo stub is
-        // stored as a parsed (not compiled) Program whose inner `stubs` field is empty, so the stub's
-        // own `reconstruct_program` call has no library entries to add to `function_map`.  Keeping the
-        // already-reconstructed library functions available here bridges that gap correctly.
-        //
-        // Note: `self.program` is left set to the current scope's name after this call returns.
-        // Callers that process multiple scopes (e.g. `reconstruct_program` iterating over stubs)
-        // reset `self.program` at the top of each `reconstruct_program_scope` call.
+        // Partition reconstructed functions: retain library functions for later stub scopes to look up,
+        // and collect only top-level functions from the current scope for output.
         let all_reconstructed = core::mem::take(&mut self.reconstructed_functions);
         let (library_fns, current_fns): (Vec<_>, Vec<_>) =
             all_reconstructed.into_iter().partition(|(loc, _)| loc.program != self.program);
@@ -106,9 +98,8 @@ impl ProgramReconstructor for TransformVisitor<'_> {
         let functions = current_fns
             .into_iter()
             .filter_map(|(loc, f)| {
-                // Only emit functions that belong to the current program scope and have a single-segment
-                // path (no module prefix). Library functions and module-nested functions have all been
-                // inlined at their call sites and must not appear as standalone functions in output.
+                // Emit only single-segment paths; Functions in submodules have all been
+                // inlined at their call sites and must not appear as standalone functions in the output.
                 loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f))
             })
             .collect();
