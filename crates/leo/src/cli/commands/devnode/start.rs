@@ -110,11 +110,13 @@ Please either:
                     let entry = entry.map_err(|e| CliError::custom(format!("Failed to read entry: {e}")))?;
                     let entry_path = entry.path();
                     if entry_path.is_dir() {
-                        std::fs::remove_dir_all(&entry_path)
-                            .map_err(|e| CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display())))?;
+                        std::fs::remove_dir_all(&entry_path).map_err(|e| {
+                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                        })?;
                     } else {
-                        std::fs::remove_file(&entry_path)
-                            .map_err(|e| CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display())))?;
+                        std::fs::remove_file(&entry_path).map_err(|e| {
+                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                        })?;
                     }
                 }
                 println!("Cleaned ledger directory: {}", path.display());
