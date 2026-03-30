@@ -529,6 +529,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Visit type parameters so that array length expressions are properly checked and any
+        // literal lengths (e.g., the `2` in `[u32; 2]`) are added to the type table. This mirrors
+        // how `visit_definition` and `visit_const` call `visit_type` for their type annotations.
+        for (tp, _) in &input.type_parameters {
+            self.visit_type(tp);
+        }
+
         // Check core struct name and function.
         let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;

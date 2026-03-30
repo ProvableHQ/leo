@@ -491,7 +491,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             }
 
             _ => {
-                // Default: reconstruct all arguments recursively and return the (possibly updated) original call
+                // Default: reconstruct all arguments and type parameters recursively and return the (possibly updated)
+                // original call.
+                input.type_parameters =
+                    input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
                 let statements: Vec<_> = input
                     .arguments
                     .iter_mut()
