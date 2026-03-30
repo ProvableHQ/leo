@@ -2,7 +2,7 @@
 echo "
 Step 4: Downloading parameters. This may take a few minutes..."
 
-# Create a new dummy Leo project.
+# Create a new dummy Leo program and verify run + test work.
 $LEO new dummy || exit
 cd dummy || exit
 
@@ -19,8 +19,15 @@ do
       sleep 0.5
 done
 
-# Try to run `leo run`.
 $LEO run main 0u32 1u32 || exit
+$LEO test || exit
 
-# Remove the dummy program.
 cd .. && rm -rf dummy
+
+# Create a new dummy Leo library and verify build + test work.
+$LEO new --library dummy_lib || exit
+cd dummy_lib || exit
+$LEO build || exit
+$LEO test || exit
+
+cd .. && rm -rf dummy_lib

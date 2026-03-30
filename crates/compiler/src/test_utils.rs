@@ -192,6 +192,32 @@ pub fn extract_program_name(source: &str, handler: &Handler) -> Result<String, L
     Ok(program_name)
 }
 
+/// Checks whether a source section starts with the `// --- aleo stub --- //` header.
+///
+/// If present, returns the remaining source after the header (raw Aleo bytecode).
+/// Sections with this header are always treated as `FromAleo` stubs.
+pub fn extract_aleo_stub_header(source: &str) -> Option<&str> {
+    let mut offset = 0;
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+
+        if trimmed == "// --- aleo stub --- //" {
+            let rest = &source[offset + line.len()..].trim_start_matches('\n');
+            return Some(rest);
+        }
+
+        // Skip blank lines and comments before the header.
+        if !trimmed.is_empty() && !trimmed.starts_with("//") {
+            return None;
+        }
+
+        offset += line.len() + 1;
+    }
+
+    None
+}
+
 /// Extracts a test library header of the form `// --- library: NAME --- //`.
 ///
 /// If present, returns the library name together with the remaining source

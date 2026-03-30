@@ -1,0 +1,20 @@
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "Program that uses both calc_lib and base_lib.",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "base_lib",
+      "location": "local",
+      "path": "../base_lib",
+      "edition": null
+    },
+    {
+      "name": "calc_lib",
+      "location": "local",
+      "path": "../calc_lib",
+      "edition": null
+    }
+  ]
+}

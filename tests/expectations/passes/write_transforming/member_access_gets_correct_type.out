@@ -1,0 +1,30 @@
+program test.aleo {
+    struct S {
+        x: u8,
+        y: u32,
+    }
+    struct T {
+        x: u8,
+        y: [test.aleo::S; 3],
+        z: test.aleo::S,
+    }
+    fn nested2(s: test.aleo::S, t: test.aleo::T) -> (test.aleo::S, test.aleo::T) {
+        let t#x$0 = t.x;
+        let t#y$1 = t.y;
+        let t#y$1#0$3 = t#y$1[0u8];
+        let t#y$1#1$4 = t#y$1[1u8];
+        let t#y$1#1$4#x$6 = t#y$1#1$4.x;
+        let t#y$1#1$4#y$7 = t#y$1#1$4.y;
+        let t#y$1#2$5 = t#y$1[2u8];
+        let t#z$2 = t.z;
+        t#y$1#1$4 = s;
+        t#y$1#1$4#x$6 = t#y$1#1$4.x;
+        t#y$1#1$4#y$7 = t#y$1#1$4.y;
+        t#y$1#1$4#x$6 = 1u8;
+        t#y$1#1$4 = test.aleo::S { x: t#y$1#1$4#x$6, y: t#y$1#1$4#y$7 };
+        t#y$1 = [t#y$1#0$3, t#y$1#1$4, t#y$1#2$5];
+        t = test.aleo::T { x: t#x$0, y: t#y$1, z: t#z$2 };
+        return (s, t);
+    }
+}
+
