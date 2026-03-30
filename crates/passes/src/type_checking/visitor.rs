@@ -227,6 +227,15 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
                 None
             }
+            // Deserialize intrinsics require exactly one type parameter.
+            Some(Intrinsic::Deserialize(variant, _)) if intrinsic_expr.type_parameters.len() != 1 => {
+                let name = match variant {
+                    DeserializeVariant::FromBits => "Deserialize::from_bits",
+                    DeserializeVariant::FromBitsRaw => "Deserialize::from_bits_raw",
+                };
+                self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, intrinsic_expr.span()));
+                None
+            }
             intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
             // Dynamic dispatch intrinsics may have type parameters.
             intrinsic @ Some(
