@@ -21,7 +21,7 @@ use std::{net::SocketAddr, path::PathBuf};
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     ledger::store::helpers::{memory::ConsensusMemory, rocksdb::ConsensusDB},
-    prelude::{Block, FromBytes, Ledger, Network, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0, store::ConsensusStorage},
+    prelude::{Block, FromBytes, Ledger, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0, store::ConsensusStorage},
 };
 
 use crate::cli::commands::devnode::rest::Rest;
@@ -34,17 +34,20 @@ pub struct Start {
     #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
     pub(crate) verbosity: u8,
     /// Address to bind the Devnode REST API server to.
-    #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
+    #[clap(short = 'a', long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
     pub(crate) socket_addr: String,
     /// Path to the genesis block file.
-    #[clap(long, help = "path to genesis block file", default_value = "blank")]
+    #[clap(short = 'g', long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
     /// Enable manual block creation mode.
-    #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
+    #[clap(short = 'm', long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
     /// Optional flag for persisting the ledger to disk. If not set, the ledger will be stored in memory and will not persist across restarts.
-    #[clap(long, help = "directory for ledger persistence")]
+    #[clap(short = 'l', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
     pub(crate) ledger_path: Option<PathBuf>,
+    /// If set alongside --ledger-path, clears the ledger directory before starting.
+    #[clap(short = 'c', long, help = "clears the ledger directory before starting", default_value = "false")]
+    pub(crate) clean: bool,
 }
 
 impl Command for Start {
@@ -76,7 +79,6 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         .socket_addr
         .parse()
         .map_err(|e| CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e)))?;
-    let rps = 999999999;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
         Block::from_bytes_le(&std::fs::read(&command.genesis_path).map_err(|e| {
@@ -86,8 +88,6 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
-    // Initialize the storage mode.
-    let storage_mode = StorageMode::new_test(None);
     // Fetch the private key from the command line or an environment variable.
     let private_key = match private_key {
         Some(key) => key,
@@ -103,6 +103,22 @@ Please either:
     };
     match command.ledger_path {
         Some(path) => {
+            if command.clean && path.exists() {
+                for entry in std::fs::read_dir(&path)
+                    .map_err(|e| CliError::custom(format!("Failed to read ledger directory: {e}")))?
+                {
+                    let entry = entry.map_err(|e| CliError::custom(format!("Failed to read entry: {e}")))?;
+                    let entry_path = entry.path();
+                    if entry_path.is_dir() {
+                        std::fs::remove_dir_all(&entry_path)
+                            .map_err(|e| CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display())))?;
+                    } else {
+                        std::fs::remove_file(&entry_path)
+                            .map_err(|e| CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display())))?;
+                    }
+                }
+                println!("Cleaned ledger directory: {}", path.display());
+            }
             println!("Using persistent ledger at: {}", path.display());
             let storage_mode = StorageMode::Custom(path);
             let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
