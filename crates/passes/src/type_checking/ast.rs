@@ -514,12 +514,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // a `U32` as the default type.
         self.visit_expression_infer_default_u32(&input.count);
 
-        // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
-        // size limit.
-        if let Some(count) = input.count.as_u32()
-            && count > self.limits.max_array_elements as u32
-        {
-            self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+        // If we can already evaluate the repeat count as a `u32`, then make sure it's not greater than the array
+        // size limit. If the count is a literal but exceeds u32::MAX, report that separately.
+        if let Some(count) = input.count.as_u32() {
+            if count > self.limits.max_array_elements as u32 {
+                self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+            }
+        } else if let Expression::Literal(_) = &input.count {
+            self.emit_err(TypeCheckerError::array_too_large_for_u32(input.span()));
         }
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
