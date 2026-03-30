@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Tests that `leo test` works on a library package that has a tests/ directory.
+# The library is the only package involved; no wrapper program is needed.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo test on a library with tests/ ---"
+${LEO_BIN} --disable-update-check test

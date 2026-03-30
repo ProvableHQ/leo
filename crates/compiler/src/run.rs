@@ -192,13 +192,16 @@ fn deploy_without_proof(
     consensus_version: ConsensusVersion,
     rng: &mut ChaCha20Rng,
 ) -> anyhow::Result<Transaction<CurrentNetwork>> {
-    // Create placeholder verifying keys and certificates for each function.
-    let mut verifying_keys = Vec::with_capacity(program.functions().len());
-    for function_name in program.functions().keys() {
-        let verifying_key = VerifyingKey::from_str(PLACEHOLDER_VK)?;
-        let certificate = Certificate::from_str(PLACEHOLDER_CERT)?;
-        verifying_keys.push((*function_name, (verifying_key, certificate)));
-    }
+    // Create placeholder verifying keys and certificates for each function and record.
+    // The ledger requires exactly num_functions + num_records verifying keys per deployment.
+    let placeholder_vk = VerifyingKey::from_str(PLACEHOLDER_VK)?;
+    let placeholder_cert = Certificate::from_str(PLACEHOLDER_CERT)?;
+    let verifying_keys = program
+        .functions()
+        .keys()
+        .chain(program.records().keys())
+        .map(|name| (*name, (placeholder_vk.clone(), placeholder_cert.clone())))
+        .collect::<Vec<_>>();
 
     // Create the deployment with placeholders.
     let mut deployment = Deployment::new(edition, program.clone(), verifying_keys, None, None)

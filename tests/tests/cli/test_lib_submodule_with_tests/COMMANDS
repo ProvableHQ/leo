@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Tests that `leo test` works on a library that has submodules.
+# The test file exercises both top-level library functions and submodule functions.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo test on a library with submodules ---"
+${LEO_BIN} --disable-update-check test

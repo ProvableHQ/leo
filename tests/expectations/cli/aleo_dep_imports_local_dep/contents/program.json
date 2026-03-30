@@ -1,0 +1,22 @@
+{
+  "program": "main.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "3.5.0",
+  "dependencies": [
+    {
+      "name": "helper.aleo",
+      "location": "local",
+      "path": "helper.aleo",
+      "edition": null
+    },
+    {
+      "name": "lib.aleo",
+      "location": "local",
+      "path": "lib.aleo",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

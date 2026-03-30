@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Regression test: `leo test` on a program that defines a record.
+#
+# Before the fix, `deploy_without_proof` only created placeholder verifying keys
+# for functions.  Programs that also define records require one verifying key per
+# record as well, or the ledger rejects the deployment with a size mismatch.
+# This caused `leo test` to fail with a cryptic deployment error on any program
+# that contained a record definition.
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+
+echo "--- leo test (program with record, should succeed) ---"
+${LEO_BIN} --disable-update-check test

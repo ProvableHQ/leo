@@ -371,7 +371,7 @@ fn parse_dependencies_from_aleo(
         .map(|program_id| {
             // If the dependency already exists, use it.
             // Otherwise, assume it's a network dependency.
-            if let Some(dependency) = existing.get(&Symbol::intern(&program_id.name().to_string())) {
+            if let Some(dependency) = existing.get(&Symbol::intern(&program_id.to_string())) {
                 dependency.clone()
             } else {
                 let name = program_id.to_string();
