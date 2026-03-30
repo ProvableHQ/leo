@@ -11,7 +11,7 @@ program test.aleo: Greeter {
     }
 
     fn main(target: field, x: u32) -> (u32, Final) {
-        let (val, f): (u32, Final) = Greeter@(target)/greet(x);
+        let (val, f): (u32, Final) = Greeter@(target)::greet(x);
         return (
             val,
             final {

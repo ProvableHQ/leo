@@ -2469,30 +2469,36 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
         return;
     };
 
-    let Some(slash_offset) = node.children_with_tokens().find_map(|elem| match elem {
-        SyntaxElement::Token(tok) if tok.kind() == SLASH => Some(tok.text_range().start()),
-        _ => None,
-    }) else {
+    // Find the last :: token — this is the separator between @(target) and function name.
+    // (Earlier :: tokens may be part of the interface type path, e.g. `foo.aleo::Interface`.)
+    let Some(sep_offset) = node
+        .children_with_tokens()
+        .filter_map(|elem| match elem {
+            SyntaxElement::Token(tok) if tok.kind() == COLON_COLON => Some(tok.text_range().start()),
+            _ => None,
+        })
+        .last()
+    else {
         write_node_verbatim(node, out);
         return;
     };
 
     let exprs: Vec<_> = node.children().filter(|child| child.kind().is_expression()).collect();
-    let (pre_slash, args): (Vec<_>, Vec<_>) =
-        exprs.into_iter().partition(|child| child.text_range().start() < slash_offset);
+    let (pre_sep, args): (Vec<_>, Vec<_>) =
+        exprs.into_iter().partition(|child| child.text_range().start() < sep_offset);
 
-    let Some(target) = pre_slash.first() else {
+    let Some(target) = pre_sep.first() else {
         write_node_verbatim(node, out);
         return;
     };
 
-    let mut saw_slash = false;
+    let mut saw_sep = false;
     let Some(function_name) = node.children_with_tokens().find_map(|elem| match elem {
-        SyntaxElement::Token(tok) if tok.kind() == SLASH => {
-            saw_slash = true;
+        SyntaxElement::Token(tok) if tok.kind() == COLON_COLON => {
+            saw_sep = true;
             None
         }
-        SyntaxElement::Token(tok) if saw_slash && tok.kind() == IDENT => Some(tok.text().to_string()),
+        SyntaxElement::Token(tok) if saw_sep && tok.kind() == IDENT => Some(tok.text().to_string()),
         _ => None,
     }) else {
         write_node_verbatim(node, out);
@@ -2502,11 +2508,11 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
     format_node(&interface, out);
     out.write("@(");
     format_node(target, out);
-    if let Some(network) = pre_slash.get(1) {
+    if let Some(network) = pre_sep.get(1) {
         out.write(", ");
         format_node(network, out);
     }
-    out.write(")/");
+    out.write(")::");
     out.write(&function_name);
 
     if args.is_empty() {

@@ -11,8 +11,8 @@ program test.aleo: Worker {
     }
 
     fn main(target: field, x: u32, y: u32) -> (u32, Final) {
-        let (val1, f1): (u32, Final) = Worker@(target)/work(x);
-        let (val2, f2): (u32, Final) = Worker@(target)/work(y);
+        let (val1, f1): (u32, Final) = Worker@(target)::work(x);
+        let (val2, f2): (u32, Final) = Worker@(target)::work(y);
         return (
             val1 + val2,
             final {

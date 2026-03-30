@@ -12,7 +12,7 @@ program test.aleo: Producer {
 
     fn main(target: field, x: u32) -> u32 {
         // Error: trying to use the result as a plain u32 when it includes a Final
-        let val: u32 = Producer@(target)/produce(x);
+        let val: u32 = Producer@(target)::produce(x);
         return val;
     }
 }

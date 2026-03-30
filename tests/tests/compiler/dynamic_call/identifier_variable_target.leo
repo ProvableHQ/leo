@@ -9,6 +9,6 @@ program test.aleo: Adder {
 
     fn main(x: u32, y: u32) -> u32 {
         let target: identifier = 'foo';
-        return Adder@(target)/sum(x, y);
+        return Adder@(target)::sum(x, y);
     }
 }

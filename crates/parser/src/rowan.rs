@@ -913,39 +913,39 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Collect expression children: first is target, optional second is network
-        // (if inside the @(...) before the /), rest are arguments.
+        // (if inside the @(...) before the ::), rest are arguments.
         // We detect which expressions are "inside the parens" vs "arguments" by
-        // looking at the SLASH token position. Expressions before SLASH are
-        // target/network, expressions after are arguments.
-        let slash_offset = tokens(node).find(|t| t.kind() == SLASH).map(|t| t.text_range().start());
+        // looking at the :: token position after the @(...). Expressions before ::
+        // are target/network, expressions after are arguments.
+        let separator_offset = tokens(node).filter(|t| t.kind() == COLON_COLON).last().map(|t| t.text_range().start());
 
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
 
-        let mut pre_slash = Vec::new();
-        let mut post_slash = Vec::new();
+        let mut pre_sep = Vec::new();
+        let mut post_sep = Vec::new();
         for child in &expr_children {
-            if let Some(slash_off) = slash_offset {
-                if child.text_range().start() < slash_off {
-                    pre_slash.push(child);
+            if let Some(sep_off) = separator_offset {
+                if child.text_range().start() < sep_off {
+                    pre_sep.push(child);
                 } else {
-                    post_slash.push(child);
+                    post_sep.push(child);
                 }
             } else {
-                // No slash found (error recovery), treat all as pre-slash
-                pre_slash.push(child);
+                // No separator found (error recovery), treat all as pre
+                pre_sep.push(child);
             }
         }
 
-        let target = if let Some(target_node) = pre_slash.first() {
+        let target = if let Some(target_node) = pre_sep.first() {
             self.to_expression(target_node)?
         } else {
             self.error_expression(span)
         };
 
         let network =
-            if let Some(network_node) = pre_slash.get(1) { Some(self.to_expression(network_node)?) } else { None };
+            if let Some(network_node) = pre_sep.get(1) { Some(self.to_expression(network_node)?) } else { None };
 
-        let arguments = post_slash.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
+        let arguments = post_sep.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
         Ok(leo_ast::DynamicCallExpression { interface, target_program: target, network, function, arguments, span, id }
             .into())

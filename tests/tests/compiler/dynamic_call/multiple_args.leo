@@ -8,6 +8,6 @@ program test.aleo: Processor {
     }
 
     fn main(target: field, addr: address, val: u64) -> bool {
-        return Processor@(target)/process(addr, val);
+        return Processor@(target)::process(addr, val);
     }
 }

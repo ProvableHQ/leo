@@ -25,7 +25,7 @@ import adder_impl.aleo;
 
 program caller.aleo {
     fn main(target: field, x: u32, y: u32) -> u32 {
-        return adder_impl.aleo::Adder@(target)/sum(x, y);
+        return adder_impl.aleo::Adder@(target)::sum(x, y);
     }
 
     @noupgrade

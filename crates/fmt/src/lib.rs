@@ -291,16 +291,16 @@ mod tests {
 
     #[test]
     fn formats_dynamic_call_expressions() {
-        let source = "program test.aleo{fn main(target:address,x:u32,y:u32)->u32{return Adder@(target)/sum(x,y);}}\n";
-        let expected = "program test.aleo {\n    fn main(target: address, x: u32, y: u32) -> u32 {\n        return Adder@(target)/sum(x, y);\n    }\n}\n";
+        let source = "program test.aleo{fn main(target:address,x:u32,y:u32)->u32{return Adder@(target)::sum(x,y);}}\n";
+        let expected = "program test.aleo {\n    fn main(target: address, x: u32, y: u32) -> u32 {\n        return Adder@(target)::sum(x, y);\n    }\n}\n";
         assert_eq!(format_source(source), expected);
     }
 
     #[test]
     fn formats_dynamic_call_with_locator_interface_and_network() {
         let source =
-            "program test.aleo{fn main(x:u32,y:u32)->u32{return adder_impl.aleo::Adder@('foo','aleo')/sum(x,y);}}\n";
-        let expected = "program test.aleo {\n    fn main(x: u32, y: u32) -> u32 {\n        return adder_impl.aleo::Adder@('foo', 'aleo')/sum(x, y);\n    }\n}\n";
+            "program test.aleo{fn main(x:u32,y:u32)->u32{return adder_impl.aleo::Adder@('foo','aleo')::sum(x,y);}}\n";
+        let expected = "program test.aleo {\n    fn main(x: u32, y: u32) -> u32 {\n        return adder_impl.aleo::Adder@('foo', 'aleo')::sum(x, y);\n    }\n}\n";
         assert_eq!(format_source(source), expected);
     }
 
