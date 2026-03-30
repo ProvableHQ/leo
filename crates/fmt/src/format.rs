@@ -1530,7 +1530,9 @@ fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
                 {
                     Some(tok.text().to_string())
                 }
-                SyntaxElement::Node(n) if n.kind().is_type() || n.kind().is_expression() => {
+                SyntaxElement::Node(n)
+                    if n.kind().is_type() || n.kind().is_expression() || n.kind() == DYNAMIC_CALL_RETURN_TYPE =>
+                {
                     Some(format_node_to_string(&n))
                 }
                 _ => None,
@@ -1549,7 +1551,10 @@ fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
         return;
     }
 
-    let args: Vec<_> = node.children().filter(|c| c.kind().is_type() || c.kind().is_expression()).collect();
+    let args: Vec<_> = node
+        .children()
+        .filter(|c| c.kind().is_type() || c.kind().is_expression() || c.kind() == DYNAMIC_CALL_RETURN_TYPE)
+        .collect();
     format_wrapping_list(node, out, "[", "]", &args, false, false);
 }
 
@@ -1559,7 +1564,7 @@ fn format_const_argument_list(node: &SyntaxNode, out: &mut Output) {
 
 fn format_type(node: &SyntaxNode, out: &mut Output) {
     match node.kind() {
-        TYPE_PRIMITIVE => format_type_primitive(node, out),
+        TYPE_PRIMITIVE | TYPE_DYN_RECORD => format_type_primitive(node, out),
         TYPE_LOCATOR => format_type_locator(node, out),
         TYPE_PATH => format_type_path(node, out),
         TYPE_ARRAY => format_type_array(node, out),
@@ -1568,7 +1573,32 @@ fn format_type(node: &SyntaxNode, out: &mut Output) {
         TYPE_FINAL => format_type_final(node, out),
         TYPE_MAPPING => format_type_mapping(node, out),
         TYPE_OPTIONAL => format_type_optional(node, out),
+        DYNAMIC_CALL_RETURN_TYPE => format_dynamic_call_return_type(node, out),
         _ => {}
+    }
+}
+
+/// Formats a `DYNAMIC_CALL_RETURN_TYPE` node: visibility keyword + type (e.g. `public u64`).
+fn format_dynamic_call_return_type(node: &SyntaxNode, out: &mut Output) {
+    let mut first = true;
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) if !tok.kind().is_trivia() => {
+                if !first {
+                    out.space();
+                }
+                out.write(tok.text());
+                first = false;
+            }
+            SyntaxElement::Node(n) => {
+                if !first {
+                    out.space();
+                }
+                format_node(&n, out);
+                first = false;
+            }
+            _ => {}
+        }
     }
 }
 
