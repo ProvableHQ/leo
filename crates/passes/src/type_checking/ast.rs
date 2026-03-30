@@ -1084,13 +1084,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Check argument types.
+        // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
-            self.visit_expression(argument, &Some(expected_input.type_().clone()));
+            let proto_type = expected_input.type_().clone();
+            if self.is_record_type(&proto_type) {
+                let actual_type = self.visit_expression(argument, &Some(Type::DynRecord));
+                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                    self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
+                        &proto_type,
+                        argument.span(),
+                    ));
+                }
+            } else {
+                self.visit_expression(argument, &Some(proto_type));
+            }
         }
 
         // If the output type contains a Future, mark it as coming from a dynamic call.
-        let output_type = func_proto.output_type.clone();
+        // Replace any record types in the output with `dyn record`.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type);
         let contains_future = match &output_type {
             Type::Future(..) => true,
             Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
