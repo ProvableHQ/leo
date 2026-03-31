@@ -1,0 +1,12 @@
+program test_dynamic_call_with_flag.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    call.dynamic r0 r1 r2 with r3 (as u64.private) into r4 (as u64.private);
+    output r4 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -97,6 +97,53 @@ pub fn check_edition_constructor_requirements<N: Network>(
     Ok(())
 }
 
+/// Load additional programs specified by `--with` and add them to the VM.
+///
+/// Each entry is either a local `.aleo` file path (if it exists on disk)
+/// or a remote program name fetched from the network endpoint with transitive dependencies.
+pub fn load_extra_programs_into_vm<N: Network>(
+    entries: &[String],
+    vm: &snarkvm::prelude::VM<N, snarkvm::prelude::store::helpers::memory::ConsensusMemory<N>>,
+    context: &crate::cli::context::Context,
+    network: leo_ast::NetworkName,
+    endpoint: Option<&str>,
+) -> leo_errors::Result<()> {
+    use snarkvm::prelude::ProgramID;
+    use std::{path::Path, str::FromStr};
+
+    let mut extras: Vec<(Program<N>, leo_package::Edition)> = Vec::new();
+
+    for entry in entries {
+        let path = Path::new(entry);
+        if path.is_file() {
+            println!("📂 Loading local program from {entry}...");
+            let bytecode = std::fs::read_to_string(path)
+                .map_err(|e| CliError::custom(format!("Failed to read program file '{entry}': {e}")))?;
+            let program = Program::<N>::from_str(&bytecode)
+                .map_err(|e| CliError::custom(format!("Failed to parse program from '{entry}': {e}")))?;
+            extras.push((program, LOCAL_PROGRAM_DEFAULT_EDITION));
+        } else if path.exists() {
+            return Err(CliError::custom(format!("'{entry}' exists but is not a file.")).into());
+        } else {
+            let endpoint = endpoint.ok_or_else(|| {
+                CliError::custom(format!(
+                    "'{entry}' is not a local file; fetching from the network requires --endpoint to be set."
+                ))
+            })?;
+            let name = if entry.ends_with(".aleo") { entry.clone() } else { format!("{entry}.aleo") };
+            println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
+            let program_id = ProgramID::<N>::from_str(&name)
+                .map_err(|e| CliError::custom(format!("Failed to parse program ID '{name}': {e}")))?;
+            let fetched = super::query::load_latest_programs_from_network(context, program_id, network, endpoint)?;
+            extras.extend(fetched.into_iter().map(|(p, ed)| (p, ed.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION))));
+        }
+    }
+
+    vm.process().write().add_programs_with_editions(&extras)?;
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

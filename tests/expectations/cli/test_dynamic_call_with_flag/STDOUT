@@ -1,0 +1,39 @@
+--- run WITHOUT --with should fail ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[25u8, 10u8, 35u8, 30u8, 187u8, 109u8, 88u8, 98u8, 91u8, 230u8, 99u8, 164u8, 69u8, 20u8, 107u8, 6u8, 240u8, 74u8, 196u8, 253u8, 202u8, 244u8, 220u8, 145u8, 24u8, 116u8, 42u8, 23u8, 255u8, 181u8, 195u8, 254u8]'.
+       Leo     Program size: 0.32 KB / 500.00 KB
+       Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_dynamic_call_with_flag.aleo (local)
+Error [ECLI0377045]: Failed to authorize execution: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (call.dynamic r0 r1 r2 with r3 (as u64.private) into r4 (as u64.private);) at index 0 failed: Failed to execute: Call failed: Failed to retrieve the external stack in a dynamic call: External stack for 'extra_prog.aleo' does not exist
+
+--- run WITH --with should succeed ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[25u8, 10u8, 35u8, 30u8, 187u8, 109u8, 88u8, 98u8, 91u8, 230u8, 99u8, 164u8, 69u8, 20u8, 107u8, 6u8, 240u8, 74u8, 196u8, 253u8, 202u8, 244u8, 220u8, 145u8, 24u8, 116u8, 42u8, 23u8, 255u8, 181u8, 195u8, 254u8]'.
+       Leo     Program size: 0.32 KB / 500.00 KB
+       Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+
+➕Adding programs to the VM in the following order:
+  - test_dynamic_call_with_flag.aleo (local)
+📂 Loading local program from ./extra_prog.aleo...
+
+➡️  Output
+
+ • 14u64
