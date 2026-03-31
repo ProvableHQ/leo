@@ -18,7 +18,7 @@ use super::*;
 
 use itertools::Itertools as _;
 
-/// A dynamic call expression, e.g. `MyInterface@(target)/foobar(args)`.
+/// A dynamic call expression, e.g. `MyInterface@(target)::foobar(args)`.
 ///
 /// This represents a dynamic call where:
 /// - `interface` is the interface name (e.g. `MyInterface`)
@@ -49,7 +49,7 @@ impl fmt::Display for DynamicCallExpression {
         if let Some(network) = &self.network {
             write!(
                 f,
-                "{}@({}, {})/{}({})",
+                "{}@({}, {})::{}({})",
                 self.interface,
                 self.target_program,
                 network,
@@ -59,7 +59,7 @@ impl fmt::Display for DynamicCallExpression {
         } else {
             write!(
                 f,
-                "{}@({})/{}({})",
+                "{}@({})::{}({})",
                 self.interface,
                 self.target_program,
                 self.function,

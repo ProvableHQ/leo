@@ -35,7 +35,7 @@ program setter_caller.aleo {
     storage local_count: u32;
 
     fn main(target: field, key: u32, value: u32, extra: u32) -> (bool, Final) {
-        let (ok, f): (bool, Final) = setter_impl.aleo::Setter@(target)/set_val(key, value);
+        let (ok, f): (bool, Final) = setter_impl.aleo::Setter@(target)::set_val(key, value);
         return (
             ok,
             final {

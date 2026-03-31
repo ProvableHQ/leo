@@ -1,0 +1,5 @@
+Error [ETYC0372182]: `_dynamic_get` requires exactly one type parameter, e.g. `_dynamic_get::[u64](...)`
+    --> compiler-test:11:15
+     |
+  11 |     let val = _dynamic_get(prog, net, m, key);
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

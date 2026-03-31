@@ -192,6 +192,9 @@ pub trait AstVisitor {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        for (ty, _) in &input.type_parameters {
+            self.visit_type(ty);
+        }
         input.arguments.iter().for_each(|arg| {
             self.visit_expression(arg, &Default::default());
         });

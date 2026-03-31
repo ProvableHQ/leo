@@ -139,7 +139,12 @@ pub fn evaluate_intrinsic(
             return Ok(None);
         }
         Intrinsic::GroupGen => Value::generator(),
-        Intrinsic::AleoGenerator => Value::generator(),
+        // AleoGenerator must NOT be constant-folded. The compile-time value (Edwards generator G')
+        // differs from the runtime value (account generator H = hash_to_curve). The bytecode must
+        // emit the symbolic `aleo::GENERATOR` opcode for the VM to resolve at runtime.
+        Intrinsic::AleoGenerator => {
+            return Ok(None);
+        }
         Intrinsic::OptionalUnwrap | Intrinsic::OptionalUnwrapOr => {
             return Ok(None);
         }
@@ -168,6 +173,10 @@ pub fn evaluate_intrinsic(
         }
         Intrinsic::FinalRun => panic!("await must be handled elsewhere"),
         Intrinsic::ProgramChecksum | Intrinsic::ProgramEdition | Intrinsic::ProgramOwner => {
+            return Ok(None);
+        }
+        // Dynamic dispatch cannot be evaluated at compile time.
+        Intrinsic::DynamicCall | Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
             return Ok(None);
         }
     };

@@ -11,7 +11,7 @@ program test.aleo: Setter {
     }
 
     fn main(target: field, k: u32, v: u32, extra: u32) -> (bool, Final) {
-        let (ok, f): (bool, Final) = Setter@(target)/set_val(k, v);
+        let (ok, f): (bool, Final) = Setter@(target)::set_val(k, v);
         return (
             ok,
             final {

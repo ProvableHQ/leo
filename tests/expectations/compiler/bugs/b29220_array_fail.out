@@ -1,0 +1,10 @@
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
+    --> compiler-test:9:9
+     |
+   9 |         let x: [u32; COUNT * 9223372036854775807] = [0u32; COUNT * 9223372036854775807];
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
+    --> compiler-test:9:53
+     |
+   9 |         let x: [u32; COUNT * 9223372036854775807] = [0u32; COUNT * 9223372036854775807];
+     |                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

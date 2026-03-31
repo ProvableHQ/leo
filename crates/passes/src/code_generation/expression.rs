@@ -460,6 +460,18 @@ impl CodeGeneratingVisitor<'_> {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters)
+            .expect("All core functions should be known at this phase of compilation");
+
+        // Dynamic dispatch intrinsics have custom code generation.
+        match &intrinsic {
+            Intrinsic::DynamicCall => return self.generate_dynamic_call_intrinsic(input),
+            Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                return self.generate_dynamic_mapping_op(intrinsic, input);
+            }
+            _ => {}
+        }
+
         let mut stmts = vec![];
 
         // Visit each function argument and accumulate instructions from expressions.
@@ -473,11 +485,7 @@ impl CodeGeneratingVisitor<'_> {
             })
             .collect::<Vec<_>>();
 
-        let (intr_dest, intr_stmts) = self.generate_intrinsic(
-            Intrinsic::from_symbol(input.name, &input.type_parameters)
-                .expect("All core functions should be known at this phase of compilation"),
-            &arguments,
-        );
+        let (intr_dest, intr_stmts) = self.generate_intrinsic(intrinsic, &arguments);
 
         // Add the instruction to the list of instructions.
         stmts.extend(intr_stmts);
@@ -639,19 +647,8 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine output types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
-        // Future outputs are mapped to DynamicFuture.
-        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
-            .output
-            .iter()
-            .map(|out| {
-                if matches!(out.type_, Type::Future(..)) {
-                    (AleoType::DynamicFuture, None)
-                } else {
-                    let viz = AleoVisibility::maybe_from(out.mode).or(Some(AleoVisibility::Private));
-                    self.visit_type_with_visibility(&out.type_, viz)
-                }
-            })
-            .collect();
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
+            func_proto.output.iter().map(|out| self.dynamic_call_output_type(&out.type_, out.mode)).collect();
 
         // Emit CallDynamic instruction.
         instructions.push(AleoStmt::CallDynamic(
@@ -665,6 +662,131 @@ impl CodeGeneratingVisitor<'_> {
         ));
 
         (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
+    }
+
+    /// Generates code for `_dynamic_call` intrinsic.
+    fn generate_dynamic_call_intrinsic(&mut self, input: &IntrinsicExpression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let mut instructions = vec![];
+
+        // Codegen all arguments.
+        let mut args: Vec<AleoExpr> = Vec::with_capacity(input.arguments.len());
+        for argument in &input.arguments {
+            let (arg_expr, arg_instructions) = self.visit_expression(argument);
+            instructions.extend(arg_instructions);
+            if let Some(expr) = arg_expr {
+                args.push(expr);
+            }
+        }
+
+        // First 3 args are program, network, function operands.
+        debug_assert!(args.len() >= 3, "Type checking guarantees at least 3 arguments for _dynamic_call");
+        let prog = args[0].clone();
+        let net = args[1].clone();
+        let fun = args[2].clone();
+        let call_args: Vec<AleoExpr> = args.drain(3..).collect();
+
+        // Determine input types. If the user provided explicit input_types annotations,
+        // use those (with their visibility modes). Otherwise fall back to the type table
+        // and default to Private.
+        let input_types: Vec<(AleoType, Option<AleoVisibility>)> = if !input.input_types.is_empty() {
+            input
+                .input_types
+                .iter()
+                .map(|(mode, type_, _)| {
+                    let viz = AleoVisibility::maybe_from(*mode).or(Some(AleoVisibility::Private));
+                    self.visit_type_with_visibility(type_, viz)
+                })
+                .collect()
+        } else {
+            // No explicit input annotations — infer types from the type table, default to Private.
+            input
+                .arguments
+                .iter()
+                .skip(3)
+                .map(|arg| {
+                    let ty = self
+                        .state
+                        .type_table
+                        .get(&arg.id())
+                        .expect("Type checking guarantees argument types are in the type table");
+                    let viz = Some(AleoVisibility::Private);
+                    self.visit_type_with_visibility(&ty, viz)
+                })
+                .collect()
+        };
+
+        // Allocate output registers.
+        // Unit returns are already filtered at parse time — return_types never contains Unit.
+        let mut destinations = Vec::new();
+        for _ in &input.return_types {
+            destinations.push(self.next_register());
+        }
+
+        // Determine output types with visibility annotations.
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
+            input.return_types.iter().map(|(mode, type_, _)| self.dynamic_call_output_type(type_, *mode)).collect();
+
+        instructions.push(AleoStmt::CallDynamic(
+            prog,
+            net,
+            fun,
+            call_args,
+            input_types,
+            destinations.clone(),
+            output_types,
+        ));
+
+        let dest_expr = if destinations.is_empty() {
+            None
+        } else {
+            Some(AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()))
+        };
+
+        (dest_expr, instructions)
+    }
+
+    /// Generates code for `_dynamic_contains`, `_dynamic_get`, `_dynamic_get_or_use` intrinsics.
+    fn generate_dynamic_mapping_op(
+        &mut self,
+        intrinsic: Intrinsic,
+        input: &IntrinsicExpression,
+    ) -> (Option<AleoExpr>, Vec<AleoStmt>) {
+        let mut instructions = vec![];
+
+        // Codegen all arguments.
+        let mut args: Vec<AleoExpr> = Vec::with_capacity(input.arguments.len());
+        for argument in &input.arguments {
+            let (arg_expr, arg_instructions) = self.visit_expression(argument);
+            instructions.extend(arg_instructions);
+            if let Some(expr) = arg_expr {
+                args.push(expr);
+            }
+        }
+
+        let prog = args[0].clone();
+        let net = args[1].clone();
+        let mapping = args[2].clone();
+        let key = args[3].clone();
+
+        let dest = self.next_register();
+
+        let stmt = match intrinsic {
+            Intrinsic::DynamicContains => AleoStmt::ContainsDynamic(prog, net, mapping, key, dest.clone()),
+            Intrinsic::DynamicGet => {
+                let ty = self.visit_type(&input.type_parameters[0].0);
+                AleoStmt::GetDynamic(prog, net, mapping, key, dest.clone(), ty)
+            }
+            Intrinsic::DynamicGetOrUse => {
+                let default = args[4].clone();
+                let ty = self.visit_type(&input.type_parameters[0].0);
+                AleoStmt::GetOrUseDynamic(prog, net, mapping, key, default, dest.clone(), ty)
+            }
+            _ => unreachable!(),
+        };
+
+        instructions.push(stmt);
+
+        (Some(AleoExpr::Reg(dest)), instructions)
     }
 
     fn visit_tuple(&mut self, input: &TupleExpression) -> (AleoExpr, Vec<AleoStmt>) {
@@ -909,6 +1031,13 @@ impl CodeGeneratingVisitor<'_> {
                 | Intrinsic::VectorClear
                 | Intrinsic::VectorSwapRemove => {
                     panic!("`Vector` intrinsics should have been lowered before code generation")
+                }
+                // Dynamic dispatch intrinsics are handled in visit_intrinsic.
+                Intrinsic::DynamicCall
+                | Intrinsic::DynamicContains
+                | Intrinsic::DynamicGet
+                | Intrinsic::DynamicGetOrUse => {
+                    unreachable!("Dynamic dispatch intrinsics are handled in visit_intrinsic")
                 }
             };
             // Add the instruction to the list of instructions.

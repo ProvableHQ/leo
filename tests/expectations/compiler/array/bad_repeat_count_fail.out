@@ -3,11 +3,21 @@ Error [ETYC0372008]: The value 111111111111111 is not a valid `u8`
      |
    3 |         let a = [1u32; 111111111111111u8]; // overflow
      |                        ^^^^^^^^^^^^^^^^^
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
+    --> compiler-test:3:17
+     |
+   3 |         let a = [1u32; 111111111111111u8]; // overflow
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372008]: The value 111111111111111 is not a valid `u32`
     --> compiler-test:4:24
      |
    4 |         let b = [1u32; 111111111111111]; // overflow
      |                        ^^^^^^^^^^^^^^^
+Error [ETYC0372144]: An array length must be small enough to fit in a `u32`
+    --> compiler-test:4:17
+     |
+   4 |         let b = [1u32; 111111111111111]; // overflow
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372077]: An array cannot have more than 2048 elements, found one with 2049 elements
     --> compiler-test:6:17
      |

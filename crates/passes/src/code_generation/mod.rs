@@ -422,6 +422,12 @@ pub enum AleoStmt {
         Vec<(AleoType, Option<AleoVisibility>)>,
     ),
     GetRecordDynamic(AleoExpr, String, AleoReg, AleoType),
+    /// `contains.dynamic {prog} {net} {mapping}[{key}] into {dest};`
+    ContainsDynamic(AleoExpr, AleoExpr, AleoExpr, AleoExpr, AleoReg),
+    /// `get.dynamic {prog} {net} {mapping}[{key}] into {dest} as {type};`
+    GetDynamic(AleoExpr, AleoExpr, AleoExpr, AleoExpr, AleoReg, AleoType),
+    /// `get.or_use.dynamic {prog} {net} {mapping}[{key}] {default} into {dest} as {type};`
+    GetOrUseDynamic(AleoExpr, AleoExpr, AleoExpr, AleoExpr, AleoExpr, AleoReg, AleoType),
     Async(String, Vec<AleoExpr>, Vec<AleoReg>),
     BranchEq(AleoExpr, AleoExpr, String),
     Position(String),
@@ -564,6 +570,15 @@ impl Display for AleoStmt {
                     )?;
                 }
                 writeln!(f, ";")
+            }
+            Self::ContainsDynamic(prog, net, mapping, key, dest) => {
+                writeln!(f, "    contains.dynamic {prog} {net} {mapping}[{key}] into {dest};")
+            }
+            Self::GetDynamic(prog, net, mapping, key, dest, ty) => {
+                writeln!(f, "    get.dynamic {prog} {net} {mapping}[{key}] into {dest} as {ty};")
+            }
+            Self::GetOrUseDynamic(prog, net, mapping, key, default, dest, ty) => {
+                writeln!(f, "    get.or_use.dynamic {prog} {net} {mapping}[{key}] {default} into {dest} as {ty};")
             }
             Self::Async(id, inputs, dests) => {
                 write!(f, "    async {id}")?;

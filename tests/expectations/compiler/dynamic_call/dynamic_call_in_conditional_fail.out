@@ -1,0 +1,7 @@
+Error [ETYC0372184]: Dynamic calls cannot be used inside a conditional branch.
+    --> compiler-test:13:20
+     |
+  13 |             return Adder@(target)::sum(x, y);
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move the dynamic call outside the `if`/`else` block.

@@ -102,6 +102,8 @@ impl Parser<'_, '_> {
             KW_FINAL_UPPER => self.parse_future_type(),
             // Mapping type (storage context): mapping key => value
             KW_MAPPING => self.parse_mapping_type(),
+            // Dynamic record type: dyn record
+            KW_DYN => self.parse_dyn_record_type(),
             // Primitive type keywords
             _ if self.at_primitive_type() => self.parse_primitive_type(),
             // Named/Composite type: Foo, Foo::[N], program.aleo::Type
@@ -115,9 +117,15 @@ impl Parser<'_, '_> {
         Self::PRIMITIVE_TYPE_KINDS.contains(&self.current())
     }
 
-    /// Parse a cast type (primitive types only, matching the LALRPOP grammar).
+    /// Parse a cast type (primitive types and `dyn record`).
     pub fn parse_cast_type(&mut self) -> Option<CompletedMarker> {
-        if self.at_primitive_type() { self.parse_primitive_type() } else { None }
+        if self.at_primitive_type() {
+            self.parse_primitive_type()
+        } else if self.at(KW_DYN) {
+            self.parse_dyn_record_type()
+        } else {
+            None
+        }
     }
 
     /// Parse a primitive type keyword.
@@ -137,6 +145,21 @@ impl Parser<'_, '_> {
             self.expect(KW_RECORD);
         }
         Some(m.complete(self, TYPE_PRIMITIVE))
+    }
+
+    /// Parse a `dyn record` type.
+    fn parse_dyn_record_type(&mut self) -> Option<CompletedMarker> {
+        if !self.at(KW_DYN) {
+            return None;
+        }
+        self.skip_trivia();
+        let m = self.start();
+        self.bump_any(); // dyn
+        // Expect `record` keyword following `dyn`.
+        if !self.eat(KW_RECORD) {
+            self.error("expected `record` after `dyn`");
+        }
+        Some(m.complete(self, TYPE_DYN_RECORD))
     }
 
     /// Parse a tuple type: `(T1, T2, ...)` or unit `()`.
@@ -447,11 +470,28 @@ impl Parser<'_, '_> {
     /// expression.
     fn parse_const_generic_arg(&mut self) {
         self.skip_trivia();
-        if self.at_primitive_type() {
+        if matches!(self.current(), KW_PUBLIC | KW_PRIVATE | KW_CONSTANT) {
+            // Visibility-prefixed type argument (e.g. `public u64` in `_dynamic_call::[public u64]`).
+            let m = self.start();
+            self.bump_any(); // visibility keyword
+            self.parse_type();
+            m.complete(self, DYNAMIC_CALL_RETURN_TYPE);
+        } else if self.at_primitive_type() {
             // Type argument (e.g. `u32` in `Deserialize::[u32]`)
             self.parse_type();
         } else if self.at(L_BRACKET) && self.nth(1).is_type_keyword() {
             // Array type argument (e.g. `[u8; 4]` in `Deserialize::[[u8; 4]]`)
+            self.parse_type();
+        } else if self.at(KW_FINAL_UPPER) {
+            // Final type argument (e.g. `Final` in `_dynamic_call::[Final]`)
+            self.parse_type();
+        } else if self.at(KW_DYN) {
+            // Dynamic record type argument (e.g. `dyn record` in `_dynamic_call::[dyn record]`)
+            self.parse_type();
+        } else if self.at(L_PAREN) && (self.nth(1) == R_PAREN || Self::PRIMITIVE_TYPE_KINDS.contains(&self.nth(1))) {
+            // Tuple type argument (e.g. `(u32, u32)` in `_dynamic_call::[(u32, u32)]`).
+            // Distinguish from parenthesized expressions like `(A * 2)` using lookahead:
+            // `()` or `(` followed by a primitive type keyword is a tuple type.
             self.parse_type();
         } else {
             // Expression argument (e.g. `N + 1`, `5`, `N`)

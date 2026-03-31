@@ -151,6 +151,8 @@ impl CodeGeneratingVisitor<'_> {
                     },
                     None,
                 ));
+            } else if matches!(output.type_, Type::DynRecord) {
+                instructions.push(AleoStmt::Output(operand.clone(), AleoType::DynamicRecord, None));
             } else if output.type_.is_empty() {
                 // do nothing
             } else {
@@ -171,7 +173,10 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 expression_instructions
             }
-            (DefinitionPlace::Multiple(identifiers), Expression::Call(_) | Expression::DynamicCall(_)) => {
+            (
+                DefinitionPlace::Multiple(identifiers),
+                Expression::Call(_) | Expression::DynamicCall(_) | Expression::Intrinsic(_),
+            ) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 let Some(AleoExpr::Tuple(elems)) = operand else {
                     panic!("Definition with multiple identifiers should yield a tuple")
