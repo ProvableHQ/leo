@@ -30,14 +30,17 @@ pub(crate) fn microcredits_to_credits(microcredits: u64) -> f64 {
 pub struct FunctionCostStats {
     pub name: String,
     pub finalize_cost: u64,
-    /// The cost of proving the execution transition (execution_cost - finalize_cost).
+    /// The storage cost of the execution transition (execution_cost - finalize_cost).
     /// `None` when authorization sampling fails (e.g. functions requiring specific record types).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub proof_cost: Option<u64>,
+    pub storage_cost: Option<u64>,
     /// The total execution cost (finalize + proof).
     /// `None` when authorization sampling fails (e.g. functions requiring specific record types).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execution_cost: Option<u64>,
+    /// Whether this function uses dynamic calls, making the finalize cost a lower bound.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub has_dynamic_calls: bool,
 }
 
 /// Statistics for a deployed program.
@@ -123,15 +126,46 @@ impl fmt::Display for DeploymentStats {
 
         for fc in &self.function_costs {
             writeln!(f, "{}", format!("  Function '{}'", fc.name).bold())?;
+            let bound = if fc.has_dynamic_calls { " (lower bound)" } else { "" };
             if let Some(execution_cost) = fc.execution_cost {
-                writeln!(f, "    {:24}{:.6}", "Total Execution Cost:".cyan(), microcredits_to_credits(execution_cost))?;
-                writeln!(f, "    {:24}{:.6}", "|- Finalize Cost:".cyan(), microcredits_to_credits(fc.finalize_cost))?;
-                if let Some(proof_cost) = fc.proof_cost {
-                    writeln!(f, "    {:24}{:.6}", "|- Proof Cost:".cyan(), microcredits_to_credits(proof_cost))?;
+                writeln!(
+                    f,
+                    "    {:24}{:.6}{}",
+                    "Total Execution Cost:".cyan(),
+                    microcredits_to_credits(execution_cost),
+                    bound.dimmed()
+                )?;
+                if let Some(storage_cost) = fc.storage_cost {
+                    writeln!(
+                        f,
+                        "    {:24}{:.6}{}",
+                        "|- Storage Cost:".cyan(),
+                        microcredits_to_credits(storage_cost),
+                        bound.dimmed()
+                    )?;
                 }
+                writeln!(
+                    f,
+                    "    {:24}{:.6}{}",
+                    "|- Finalize Cost:".cyan(),
+                    microcredits_to_credits(fc.finalize_cost),
+                    bound.dimmed()
+                )?;
             } else {
-                writeln!(f, "    {:24}{}", "Total Execution Cost:".cyan(), "Undetermined".dimmed())?;
-                writeln!(f, "    {:24}{:.6}", "|- Finalize Cost:".cyan(), microcredits_to_credits(fc.finalize_cost))?;
+                writeln!(
+                    f,
+                    "    {:24}{:.6} (lower bound)",
+                    "Total Execution Cost:".cyan(),
+                    microcredits_to_credits(fc.finalize_cost),
+                )?;
+                writeln!(f, "    {:24}{}", "|- Storage Cost:".cyan(), "N/A (dynamic call)".dimmed())?;
+                writeln!(
+                    f,
+                    "    {:24}{:.6}{}",
+                    "|- Finalize Cost:".cyan(),
+                    microcredits_to_credits(fc.finalize_cost),
+                    bound.dimmed()
+                )?;
             }
         }
         Ok(())

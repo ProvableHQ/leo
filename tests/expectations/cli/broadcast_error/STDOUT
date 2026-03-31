@@ -58,8 +58,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.946118
   Function 'main'
     Total Execution Cost:   0.001326
+    |- Storage Cost:        0.001326
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001326
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for broadcast_error.aleo...
@@ -138,8 +138,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.946118
   Function 'main'
     Total Execution Cost:   0.001326
+    |- Storage Cost:        0.001326
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001326
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for broadcast_error.aleo...

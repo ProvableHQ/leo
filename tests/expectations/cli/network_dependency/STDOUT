@@ -59,8 +59,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.897896
   Function 'main'
     Total Execution Cost:   0.001283
+    |- Storage Cost:        0.001283
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001283
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_program1.aleo...
@@ -141,8 +141,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.954701
   Function 'main'
     Total Execution Cost:   0.001994
+    |- Storage Cost:        0.001994
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001994
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_program2.aleo...

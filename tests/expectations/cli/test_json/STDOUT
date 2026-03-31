@@ -22,7 +22,7 @@ PASSED: test_main.aleo/test_addition
   - test_json_program.aleo (local)
 
 🌱 Synthesizing the following keys in test_json_program.aleo:
-    - main
+    - main (function)
 
 🔑 Synthesized keys for test_json_program.aleo/main (edition 1)
 ℹ️ Circuit Information:
@@ -89,8 +89,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            1.996643
   Function 'main'
     Total Execution Cost:   0.001328
+    |- Storage Cost:        0.001328
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001328
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for test_json_program.aleo...
@@ -237,8 +237,8 @@ Loaded the following programs into the VM:
   Total Fee:            1.996643
   Function 'main'
     Total Execution Cost:   0.001328
+    |- Storage Cost:        0.001328
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001328
 ──────────────────────────────────────────────
 📡 Broadcasting upgrade for test_json_program.aleo...
 💰Your current public balance is XXXXXX credits.
