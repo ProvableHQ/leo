@@ -14,7 +14,7 @@ program test.aleo: TokenOps {
     }
 
     fn main(target: field, t: Token) -> dyn record {
-        return test.aleo::TokenOps@(target)/transfer(t as dyn record);
+        return test.aleo::TokenOps@(target)::transfer(t as dyn record);
     }
 
     @noupgrade

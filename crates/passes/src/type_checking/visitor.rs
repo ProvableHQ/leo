@@ -2258,10 +2258,10 @@ impl TypeCheckingVisitor<'_> {
 
     /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
     pub fn is_record_type(&mut self, ty: &Type) -> bool {
-        if let Type::Composite(ct) = ty {
-            if let Some(comp) = self.lookup_composite(ct.path.expect_global_location()) {
-                return comp.is_record;
-            }
+        if let Type::Composite(ct) = ty
+            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
+        {
+            return comp.is_record;
         }
         false
     }

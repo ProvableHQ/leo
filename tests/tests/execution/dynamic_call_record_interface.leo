@@ -36,7 +36,7 @@ program caller.aleo {
 
     fn main(owner: address, balance: u64) -> u64 {
         let t: token_impl.aleo::Token = token_impl.aleo::get_initial(balance);
-        let result: dyn record = token_impl.aleo::TokenOps@('token_impl')/double_balance(t as dyn record);
+        let result: dyn record = token_impl.aleo::TokenOps@('token_impl')::double_balance(t as dyn record);
         let b: u64 = result.balance;
         return b;
     }
