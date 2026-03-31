@@ -72,6 +72,25 @@ commands:
                 cargo generate-lockfile
             }
             cargo install cargo-mtime
+      - restore_cache:
+          keys:
+            - llvm-v1-{{ arch }}
+      - run:
+          name: Install LLVM/libclang (Windows)
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            if (!(Test-Path "C:\Program Files\LLVM\bin\libclang.dll")) {
+              choco install llvm --no-progress -y
+            }
+            $llvmBin = "C:\Program Files\LLVM\bin"
+            [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Process")
+            [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Machine")
+            $Env:Path += ";$llvmBin"
+      - save_cache:
+          key: llvm-v1-{{ arch }}
+          paths:
+            - C:\Program Files\LLVM
+
   install-snarkos:
     description: "Download specific snarkOS release binary"
     steps:
@@ -91,6 +110,28 @@ commands:
             unzip -o /tmp/snarkos.zip -d "$HOME/.local/bin"
             chmod +x "$HOME/.local/bin/snarkos"
             echo "export PATH=$HOME/.local/bin:\$PATH" >> "$BASH_ENV"
+
+  install-libclang:
+    description: "Install libclang required by bindgen (Linux/macOS, for the persistent-storage feature)"
+    steps:
+      - restore_cache:
+          keys:
+            - libclang-v1-{{ arch }}
+      - run:
+          name: Install libclang
+          command: |
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+              # libclang ships with Xcode — locate it and export the path for bindgen.
+              LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
+              echo "export LIBCLANG_PATH=$LIBCLANG_PATH" >> "$BASH_ENV"
+            else
+              sudo apt-get update -qq
+              sudo apt-get install -y libclang-dev
+            fi
+      - save_cache:
+          key: libclang-v1-{{ arch }}
+          paths:
+            - /var/cache/apt/archives
 
   build-and-test:
     description: "Build and run tests"
@@ -197,6 +238,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - install-libclang
       - install-snarkos
       - run:
           name: Update Submodules
@@ -218,6 +260,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install-rust
+      - install-libclang
       - install-snarkos
       - run:
             name: Update Submodules
@@ -261,6 +304,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
       - install_rust_nightly
+      - install-libclang
       - restore_cache:
           keys:
             - cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
@@ -327,6 +371,7 @@ jobs:
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
             - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
             - cargo-v1-{{ arch }}
+      - install-libclang
       - run:
           name: Update Submodules
           command: git submodule update --init --recursive
