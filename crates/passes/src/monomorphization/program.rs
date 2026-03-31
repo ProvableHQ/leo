@@ -27,7 +27,7 @@ use leo_ast::{
     Stub,
     Variant,
 };
-use leo_span::sym;
+use leo_span::{Symbol, sym};
 
 impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
@@ -37,8 +37,32 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         //
         // This ensures the library stub is updated with correct field types after monomorphization
         // (e.g., `Bar.f` pointing to the consuming program's monomorphized `Foo::[42u32]`).
+
+        // Seed `reconstructed_functions` with non-generic library module functions.
+        // These functions are not processed by the main reconstruction loop (which only handles
+        // generic library functions and current-program functions), so we process them here via
+        // `reconstruct_function` to update any composite type references (e.g., a non-generic
+        // function that constructs or returns a generic composite with concrete const arguments).
+        // Without this, the composite expressions in the function body and its signature would
+        // still reference the generic composite location rather than the monomorphized one.
+        for (module_path, module) in &input.modules {
+            for (name, f) in &module.functions {
+                if f.const_parameters.is_empty() {
+                    let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                    let loc = Location::new(input.name, path);
+                    if !self.reconstructed_functions.contains_key(&loc) {
+                        let processed = self.reconstruct_function(f.clone());
+                        self.reconstructed_functions.insert(loc, processed);
+                    }
+                }
+            }
+        }
+
         Library {
             name: input.name,
+            // Reconstruct each module, which collects its monomorphized composites and functions
+            // from reconstructed_composites/reconstructed_functions via reconstruct_module.
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             structs: self
                 .reconstructed_composites
                 .iter()
@@ -57,11 +81,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            // Collect library function instances. Non-generic functions are kept from the
-            // original input; generic functions are superseded by their reconstructed versions
-            // in `reconstructed_functions` (which also contains any monomorphized variants like
-            // `"pad::[3u32]"`). Excluding generic originals prevents duplicates that would cause
-            // TypeChecking to report "defined multiple times" errors on the next iteration.
+            // Collect top-level library function instances. Non-generic functions are kept from
+            // the original input; generic functions are superseded by their reconstructed versions
+            // in `reconstructed_functions`. Excluding generic originals prevents duplicates that
+            // would cause TypeChecking to report "defined multiple times" errors on the next
+            // iteration.
             functions: input
                 .functions
                 .into_iter()
@@ -274,6 +298,17 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 library.functions.iter().for_each(|(name, f)| {
                     self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
                 });
+                // Seed composite_map and function_map with items from library submodules.
+                library.modules.iter().for_each(|(module_path, m)| {
+                    m.composites.iter().for_each(|(name, c)| {
+                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                        self.composite_map.entry(Location::new(library.name, path)).or_insert_with(|| c.clone());
+                    });
+                    m.functions.iter().for_each(|(name, f)| {
+                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
+                        self.function_map.entry(Location::new(library.name, path)).or_insert_with(|| f.clone());
+                    });
+                });
             }
         });
 
@@ -383,6 +418,10 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 })
                 .collect(),
 
+            // Collect functions for this module from `reconstructed_functions`. Non-generic
+            // functions are included because the main reconstruction loop processes all
+            // reachable functions (both generic and non-generic). Generic originals are
+            // excluded because only their monomorphized specializations are relevant.
             functions: self
                 .reconstructed_functions
                 .iter()

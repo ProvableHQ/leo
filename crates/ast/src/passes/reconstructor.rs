@@ -198,21 +198,14 @@ pub trait AstReconstructor {
 
     fn reconstruct_intrinsic(
         &mut self,
-        input: IntrinsicExpression,
+        mut input: IntrinsicExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        (
-            IntrinsicExpression {
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
-                    .collect(),
-                ..input
-            }
-            .into(),
-            Default::default(),
-        )
+        input.type_parameters =
+            input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
+        input.arguments =
+            input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg, &Default::default()).0).collect();
+        (input.into(), Default::default())
     }
 
     fn reconstruct_tuple_access(
@@ -598,6 +591,7 @@ pub trait ProgramReconstructor: AstReconstructor {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         Library {
             name: input.name,
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
             consts: input
                 .consts
                 .into_iter()

@@ -16,7 +16,6 @@ const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
 
 program const_optionals.aleo {
     // === TRANSITIONS ===
-
     fn const_single_optional() -> u8 {
         return A.unwrap();
     }

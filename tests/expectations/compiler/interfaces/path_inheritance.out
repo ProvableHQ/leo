@@ -13,9 +13,9 @@ function do_something:
 Note: Treating dependencies as Aleo produces different results:
 
 Error [ECHI03712000]: Interface `lib.aleo/MyInterface` not found.
-    --> compiler-test:5:21
+    --> compiler-test:4:20
      |
-   5 | program test.aleo : lib.aleo::MyInterface {
-     |                     ^^^^^^^^^^^^^^^^^^^^^
+   4 | program test.aleo: lib.aleo::MyInterface {
+     |                    ^^^^^^^^^^^^^^^^^^^^^
      |
      = Make sure the interface is defined in the current program or an imported program.

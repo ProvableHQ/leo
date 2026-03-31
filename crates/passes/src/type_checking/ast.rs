@@ -514,12 +514,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // a `U32` as the default type.
         self.visit_expression_infer_default_u32(&input.count);
 
-        // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
-        // size limit.
-        if let Some(count) = input.count.as_u32()
-            && count > self.limits.max_array_elements as u32
-        {
-            self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+        // If we can already evaluate the repeat count as a `u32`, then make sure it's not greater than the array
+        // size limit. If the count is a literal but exceeds u32::MAX, report that separately.
+        if let Some(count) = input.count.as_u32() {
+            if count > self.limits.max_array_elements as u32 {
+                self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+            }
+        } else if let Expression::Literal(_) = &input.count {
+            self.emit_err(TypeCheckerError::array_too_large_for_u32(input.span()));
         }
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
@@ -529,6 +531,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Visit type parameters so that array length expressions are properly checked and any
+        // literal lengths (e.g., the `2` in `[u32; 2]`) are added to the type table. This mirrors
+        // how `visit_definition` and `visit_const` call `visit_type` for their type annotations.
+        for (tp, _) in &input.type_parameters {
+            self.visit_type(tp);
+        }
+
         // Check core struct name and function.
         let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;
@@ -1075,13 +1084,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Check argument types.
+        // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
-            self.visit_expression(argument, &Some(expected_input.type_().clone()));
+            let proto_type = expected_input.type_().clone();
+            if self.is_record_type(&proto_type) {
+                let actual_type = self.visit_expression(argument, &Some(Type::DynRecord));
+                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                    self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
+                        &proto_type,
+                        argument.span(),
+                    ));
+                }
+            } else {
+                self.visit_expression(argument, &Some(proto_type));
+            }
         }
 
         // If the output type contains a Future, mark it as coming from a dynamic call.
-        let output_type = func_proto.output_type.clone();
+        // Replace any record types in the output with `dyn record`.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type);
         let contains_future = match &output_type {
             Type::Future(..) => true,
             Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),

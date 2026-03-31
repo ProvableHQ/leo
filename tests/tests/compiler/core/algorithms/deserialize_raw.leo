@@ -6,9 +6,8 @@ expectation: Pass
 program test.aleo {
     // Test Deserialize::from_bits_raw for primitive types (raw = no metadata)
     fn main() -> (
-        u32, u64, i32, i64,
-        field, group, scalar, address,
-        bool, bool, bool, bool, bool, bool, bool, bool
+        u32, u64, i32, i64, field, group, scalar, address, bool, bool, bool, bool, bool, bool, bool,
+        bool,
     ) {
         // Create bit arrays (raw sizes: field/group/address=253, scalar=251, integers=their width)
         let u32_bits: [bool; 32] = [true; 32];
@@ -48,18 +47,11 @@ program test.aleo {
         let group_normal: group = Deserialize::from_bits::[group](group_bits_normal);
         let scalar_normal: scalar = Deserialize::from_bits::[scalar](scalar_bits_normal);
         let addr_normal: address = Deserialize::from_bits::[address](addr_bits_normal);
-
         return (
-            u32_raw, u64_raw, i32_raw, i64_raw,
-            field_raw, group_raw, scalar_raw, addr_raw,
-            u32_raw != u32_normal,
-            u64_raw != u64_normal,
-            i32_raw != i32_normal,
-            i64_raw != i64_normal,
-            field_raw != field_normal,
-            group_raw != group_normal,
-            scalar_raw != scalar_normal,
-            addr_raw != addr_normal
+            u32_raw, u64_raw, i32_raw, i64_raw, field_raw, group_raw, scalar_raw, addr_raw,
+            u32_raw != u32_normal, u64_raw != u64_normal, i32_raw != i32_normal,
+            i64_raw != i64_normal, field_raw != field_normal, group_raw != group_normal,
+            scalar_raw != scalar_normal, addr_raw != addr_normal,
         );
     }
 }

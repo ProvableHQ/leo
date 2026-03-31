@@ -1,4 +1,3 @@
-
 // Ensure Final types are correctly found through
 // two layers of dependencies.
 
@@ -15,7 +14,6 @@ program dependent.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent.aleo;
 
 program dependent2.aleo {
@@ -26,7 +24,6 @@ program dependent2.aleo {
 }
 
 // --- Next Program --- //
-
 import dependent2.aleo;
 
 program test.aleo {

@@ -1,4 +1,3 @@
-
 program test.aleo {
     record Token {
         // The token amount.
@@ -9,7 +8,7 @@ program test.aleo {
         flag: bool,
     }
 
-    fn main(a: u64, b:u64) -> Token {
-        return Token { amount: a + b, owner: self.signer, flag: true};
+    fn main(a: u64, b: u64) -> Token {
+        return Token { amount: a + b, owner: self.signer, flag: true };
     }
 }

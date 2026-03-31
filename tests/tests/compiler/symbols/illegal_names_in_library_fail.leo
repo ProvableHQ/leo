@@ -17,13 +17,13 @@ program childaleo.aleo {
         aleob: u32,
         daleo: u32,
     }
+
     fn bar() {}
 }
 
 // --- Next Program --- //
-
 import childaleo.aleo;
 
 program foo.aleo {
-    fn foo () {}
+    fn foo() {}
 }

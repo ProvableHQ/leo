@@ -1,8 +1,6 @@
-
 program test.aleo {
     fn main(x: u32) -> bool {
         let c: u32 = 0u32;
-
         if x == 1u32 {
             c = 1u32;
         } else if x == 2u32 {

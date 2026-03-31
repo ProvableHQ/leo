@@ -1,7 +1,5 @@
-
 program test.aleo {
     // TODO: This test passes, but constant propagation should detect an overflow.
-
     fn main(y: bool) -> i64 {
         let a: i64 = -9223372036854775808i64;
 

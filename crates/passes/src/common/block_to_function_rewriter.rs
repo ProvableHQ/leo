@@ -141,7 +141,9 @@ impl BlockToFunctionRewriter<'_> {
                 match index_opt {
                     Some(index) => {
                         let Type::Tuple(TupleType { elements }) = var_type else {
-                            panic!("Expected tuple type when accessing tuple field: {symbol}.{index}");
+                            // The type checker has already emitted an error for this invalid access;
+                            // return no inputs so compilation can continue to report all diagnostics.
+                            return vec![];
                         };
 
                         let synthetic_name = format!("\"{symbol}.{index}\"");

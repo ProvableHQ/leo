@@ -254,12 +254,19 @@ impl Path {
     {
         let Path { user_program, qualifier, identifier, span, id, .. } = self;
 
-        // Case 1: The path starts with a known external library name and the user
-        // did not explicitly specify a program. In this situation we interpret
+        // Case 1: The path starts with a known external library name, or with the name
+        // of the current program/library itself (a self-qualified path like `my_lib::module::item`),
+        // and the user did not explicitly specify a program. In either situation we interpret
         // the first qualifier segment as the program name.
+        //
+        // The `first.name == program` branch handles intra-library self-qualified references
+        // (e.g., `my_lib::sub_mod::fn` written inside `my_lib`). It cannot accidentally fire
+        // for regular `.aleo` programs because program names always carry the `.aleo` suffix
+        // (e.g., `foo.aleo`), while Leo identifiers cannot contain `.`, so no qualifier can
+        // ever equal a program name.
         if let Some(first) = qualifier.first()
             && user_program.is_none()
-            && external_libs.contains(&first.name)
+            && (external_libs.contains(&first.name) || first.name == program)
         {
             // Build the path within the external library by skipping the
             // first qualifier (the library name itself).

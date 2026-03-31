@@ -14,7 +14,7 @@ Error [ETYC0372145]: Records cannot be declared with generic const parameters.
      |
    7 |     record Bar::[N: field] {
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         owner: address
-     |         ^^^^^^^^^^^^^^
+   8 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
    9 |     }
      |     ^

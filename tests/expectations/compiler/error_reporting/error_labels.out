@@ -1,75 +1,56 @@
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:6:5
+    --> compiler-test:7:5
      |
-   5 |       x: u32,
+   6 |       x: u32,
      |       ^^^^^^ `x` first declared here
-   6 |       x: u32
+   7 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
     --> compiler-test:12:5
      |
-  10 |       x: u32,
+  11 |       x: u32,
      |       ^^^^^^ `x` first declared here
-  11 |
-  12 |       x: u32
+  12 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:19:5
+    --> compiler-test:17:5
      |
   16 |       x: u32,
      |       ^^^^^^ `x` first declared here
-   ...
-  19 |       x: u32
+  17 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:26:5
+    --> compiler-test:22:5
      |
-  23 | /     x
-  24 | |         : 
-  25 | |             u32,
-     | |_______________- `x` first declared here
-  26 |       x: u32
+  21 |       x: u32,
+     |       ^^^^^^ `x` first declared here
+  22 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:34:5
+    --> compiler-test:27:5
      |
-  30 | /     x
-  31 | |         : 
-  32 | |             u32,
-     | |_______________- `x` first declared here
-  33 |
-  34 |       x: u32
+  26 |       x: u32,
+     |       ^^^^^^ `x` first declared here
+  27 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:43:5
+    --> compiler-test:32:5
      |
-  38 | /     x
-  39 | |         : 
-  40 | |             u32,
-     | |_______________- `x` first declared here
-   ...
-  43 |       x: u32
+  31 |       x: u32,
+     |       ^^^^^^ `x` first declared here
+  32 |       x: u32,
      |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:50:5
+    --> compiler-test:37:5
      |
-  47 | /     x
-  48 | |         : 
-  49 | |             u32,
-     | |_______________- `x` first declared here
-  50 | /     x
-  51 | |          : 
-  52 | |                 u32
-     | |___________________- struct field already declared
+  36 |       x: u32,
+     |       ^^^^^^ `x` first declared here
+  37 |       x: u32,
+     |       ^^^^^^ struct field already declared
 Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:62:5
+    --> compiler-test:42:5
      |
-  56 | /     x
-  57 | |         : 
-  58 | |             u32,
-     | |_______________- `x` first declared here
-   ...
-  62 | /     x
-  63 | |              : 
-  64 | |                  u32
-     | |____________________- struct field already declared
+  41 |       x: u32,
+     |       ^^^^^^ `x` first declared here
+  42 |       x: u32,
+     |       ^^^^^^ struct field already declared

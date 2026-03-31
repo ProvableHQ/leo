@@ -1,0 +1,4 @@
+program submodule_basic.aleo;
+
+function main:
+    output 19u32 as u32.private;

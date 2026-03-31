@@ -1,10 +1,10 @@
 Error [ETYC0372006]: Call expected `0` args, but got `1`
-    --> compiler-test:12:20
+    --> compiler-test:10:20
      |
-  12 |     let a: field = ChaCha::rand_field(1field);
+  10 |     let a: field = ChaCha::rand_field(1field);
      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372006]: Call expected `0` args, but got `2`
-    --> compiler-test:13:20
+    --> compiler-test:11:20
      |
-  13 |     let b: field = ChaCha::rand_field(1field, 2field);
+  11 |     let b: field = ChaCha::rand_field(1field, 2field);
      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

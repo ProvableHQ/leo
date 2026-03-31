@@ -89,7 +89,7 @@ pub enum Expression {
     Intrinsic(Box<IntrinsicExpression>),
     /// A call expression, e.g., `my_fun(args)`.
     Call(Box<CallExpression>),
-    /// A dynamic call expression, e.g., `MyInterface @ (target) / foobar(args)`.
+    /// A dynamic call expression, e.g., `MyInterface @ (target) :: foobar(args)`.
     DynamicCall(Box<DynamicCallExpression>),
     /// A cast expression, e.g., `42u32 as u8`.
     Cast(Box<CastExpression>),

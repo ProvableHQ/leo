@@ -10,4 +10,3 @@ program test_json_program.aleo {
     @checksum(mapping = "test_json_program.aleo::expected_checksum", key = "true")
     constructor() {}
 }
-

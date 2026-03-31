@@ -20,7 +20,6 @@ function = "some_assignments"
 input = ["true", "true"]
 */
 
-
 struct S {
     x: u32,
     y: [u32; 3],
@@ -32,14 +31,8 @@ program test.aleo {
         if a {
             arr[0u8] = 10u32;
         }
-
-        let s: S = S {
-            x: 3u32,
-            y: arr,
-        };
-
+        let s: S = S { x: 3u32, y: arr };
         let tuple: (S, S) = (s, s);
-
         if b {
             tuple.0.y[0u8] = 20u32;
             tuple.1.x = 30u32;
@@ -48,7 +41,6 @@ program test.aleo {
                 tuple.1.y = [50u32, 60u32, 70u32];
             }
         }
-
         return [
             arr[0u8],
             arr[1u8],
@@ -62,7 +54,6 @@ program test.aleo {
             tuple.1.y[1u8],
             tuple.1.y[2u8],
         ];
-        
     }
 
     @noupgrade

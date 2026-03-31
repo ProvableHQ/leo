@@ -112,8 +112,17 @@ impl Intrinsic {
             sym::_block_height => Self::BlockHeight,
             sym::_block_timestamp => Self::BlockTimestamp,
             sym::_network_id => Self::NetworkId,
-            sym::_deserialize_from_bits => Self::Deserialize(DeserializeVariant::FromBits, type_parameters[0].0.clone()),
-            sym::_deserialize_from_bits_raw => Self::Deserialize(DeserializeVariant::FromBitsRaw, type_parameters[0].0.clone()),
+            sym::_deserialize_from_bits => {
+                // The type parameter count is validated in the type checker. Use `Type::Err` as a
+                // placeholder when the parameter is absent so that `from_symbol` always returns
+                // `Some`, allowing the type checker to emit a targeted diagnostic.
+                let ty = type_parameters.first().map_or(Type::Err, |(t, _)| t.clone());
+                Self::Deserialize(DeserializeVariant::FromBits, ty)
+            }
+            sym::_deserialize_from_bits_raw => {
+                let ty = type_parameters.first().map_or(Type::Err, |(t, _)| t.clone());
+                Self::Deserialize(DeserializeVariant::FromBitsRaw, ty)
+            }
             sym::_group_gen => Self::GroupGen,
             sym::_aleo_generator => Self::AleoGenerator,
             sym::_aleo_generator_powers => Self::AleoGeneratorPowers,

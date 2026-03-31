@@ -42,7 +42,7 @@ program test.aleo {
         let b1 = -1.abs_wrapped();
         let b2 = 0.double();
         let b3 = 2.inv();
-        let b4  = -2;
-        let b5  = !2;
+        let b4 = -2;
+        let b5 = !2;
     }
 }

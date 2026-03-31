@@ -186,9 +186,8 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
 
     fn visit_function(&mut self, input: &Function) {
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
-        if let Err(err) =
-            self.state.symbol_table.insert_function(Location::new(self.program_name, full_name), input.clone())
-        {
+        let loc = Location::new(self.program_name, full_name);
+        if let Err(err) = self.state.symbol_table.insert_function(loc, input.clone()) {
             self.state.handler.emit_err(err);
         }
     }
@@ -208,6 +207,9 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.modules.values().for_each(|m| {
+            self.visit_module(m);
+        });
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

@@ -8,12 +8,10 @@ program child.aleo {
 }
 
 // --- Next Program --- //
-
 import child.aleo;
 
 program parent.aleo {}
 
-fn f(x :u8) {
+fn f(x: u8) {
     assert_eq(x, x);
 }
-

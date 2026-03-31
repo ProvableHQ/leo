@@ -227,6 +227,15 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
                 None
             }
+            // Deserialize intrinsics require exactly one type parameter.
+            Some(Intrinsic::Deserialize(variant, _)) if intrinsic_expr.type_parameters.len() != 1 => {
+                let name = match variant {
+                    DeserializeVariant::FromBits => "Deserialize::from_bits",
+                    DeserializeVariant::FromBitsRaw => "Deserialize::from_bits_raw",
+                };
+                self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, intrinsic_expr.span()));
+                None
+            }
             intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
             // Dynamic dispatch intrinsics may have type parameters.
             intrinsic @ Some(
@@ -521,7 +530,7 @@ impl TypeCheckingVisitor<'_> {
         };
 
         // Define a regex to match valid program IDs.
-        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
+        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
 
         fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
             bail!("structs are not supported")
@@ -2245,6 +2254,34 @@ impl TypeCheckingVisitor<'_> {
             }
         }
         comp.cloned()
+    }
+
+    /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
+    pub fn is_record_type(&mut self, ty: &Type) -> bool {
+        if let Type::Composite(ct) = ty
+            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
+        {
+            return comp.is_record;
+        }
+        false
+    }
+
+    /// Replaces any record-typed composites with `Type::DynRecord`.
+    /// Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &Type) -> Type {
+        match ty {
+            Type::DynRecord => Type::DynRecord,
+            Type::Tuple(tuple) => Type::Tuple(TupleType::new(
+                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t)).collect(),
+            )),
+            other => {
+                if self.is_record_type(other) {
+                    Type::DynRecord
+                } else {
+                    other.clone()
+                }
+            }
+        }
     }
 
     /// Sets the type of a variable in the symbol table.

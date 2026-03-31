@@ -1,4 +1,4 @@
-program test.aleo : interfaces::Counter {
+program test.aleo: interfaces::Counter {
     fn increment() -> u64 {
         return 1u64;
     }

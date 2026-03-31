@@ -11,7 +11,7 @@ fn scale::[N: u32](a: u32) -> u32 {
 
 program main.aleo {
     fn compute(x: u32, n: u32) -> u32 {
-        return math_lib::scale::[n](x);  // n is a runtime variable, not a const
+        return math_lib::scale::[n](x); // n is a runtime variable, not a const
     }
 
     @noupgrade

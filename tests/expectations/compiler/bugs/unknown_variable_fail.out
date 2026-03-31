@@ -1,15 +1,15 @@
 Error [ETYC0372005]: Unknown variable `caller`
-    --> compiler-test:34:52
+    --> compiler-test:36:31
      |
-  34 |         return (self.caller, final { finalize_init(caller); });
-     |                                                    ^^^^^^
+  36 |                 finalize_init(caller);
+     |                               ^^^^^^
 Error [ETYC0372005]: Unknown variable `account`
-    --> compiler-test:52:49
+    --> compiler-test:56:49
      |
-  52 |     let owner_amount: u64 = Mapping::get_or_use(account, caller, 0u64);
+  56 |     let owner_amount: u64 = Mapping::get_or_use(account, caller, 0u64);
      |                                                 ^^^^^^^
 Error [ETYC0372005]: Unknown variable `account`
-    --> compiler-test:54:18
+    --> compiler-test:58:18
      |
-  54 |     Mapping::set(account, caller, owner_amount + admin_token_amt);
+  58 |     Mapping::set(account, caller, owner_amount + admin_token_amt);
      |                  ^^^^^^^

@@ -291,7 +291,7 @@ jobs:
           no_output_timeout: 35m
           command: |
             cargo nextest run -p leo-fmt --locked --cargo-profile ci --features validate \
-              -E 'test(/validate_/) - test(validate_ast_equivalence_repos) - test(validate_workspace_ast_equivalence)'
+              -E 'test(/validate_/) - test(validate_ast_equivalence_repos)'
       - run:
           name: Validate tree-sitter corpus
           no_output_timeout: 35m

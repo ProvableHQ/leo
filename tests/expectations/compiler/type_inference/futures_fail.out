@@ -1,30 +1,30 @@
 Error [ETYC0372003]: Expected type `u32` but type `Final<Fn()>` was found
-    --> compiler-test:7:22
+    --> compiler-test:6:22
      |
-   7 |         let f: u32 = child.aleo::foo();
+   6 |         let f: u32 = child.aleo::foo();
      |                      ^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u32` was found.
-    --> compiler-test:8:33
+    --> compiler-test:7:33
      |
-   8 |         let r: u8 = final { foo(f); };
+   7 |         let r: u8 = final { foo(f); };
      |                                 ^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u8` was found.
-    --> compiler-test:9:24
+    --> compiler-test:8:24
      |
-   9 |         return (42u64, r);
+   8 |         return (42u64, r);
      |                        ^
 Error [ETYC0372003]: Expected type `(u8, u8)` but type `Final<Fn()>` was found
-    --> compiler-test:13:27
+    --> compiler-test:12:27
      |
-  13 |         let f: (u8, u8) = child.aleo::bar();
+  12 |         let f: (u8, u8) = child.aleo::bar();
      |                           ^^^^^^^^^^^^^^^^^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
-    --> compiler-test:14:35
+    --> compiler-test:13:35
      |
-  14 |         let r: bool = final { foo(f); };
+  13 |         let r: bool = final { foo(f); };
      |                                   ^
 Error [ETYC0372117]: Expected type `Final<Fn()>` but type `bool` was found.
-    --> compiler-test:15:24
+    --> compiler-test:14:24
      |
-  15 |         return (99u64, r);
+  14 |         return (99u64, r);
      |                        ^

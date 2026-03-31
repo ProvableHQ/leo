@@ -159,15 +159,15 @@ impl Compiler {
         }
     }
 
-    /// Simple wrapper around `parse_library` that also returns a program AST.
+    /// Simple wrapper around `parse_library` that also returns a library AST.
     pub fn parse_and_return_library(
         &mut self,
         library_name: &str,
         source: &str,
         filename: FileName,
+        modules: &[(&str, FileName)],
     ) -> Result<Library> {
-        // Parse the program.
-        self.parse_library(Symbol::intern(library_name), source, filename)?;
+        self.parse_library(Symbol::intern(library_name), source, filename, modules)?;
 
         match &self.state.ast {
             Ast::Program(_) => unreachable!("expected Library AST"),
@@ -175,24 +175,31 @@ impl Compiler {
         }
     }
 
-    /// Parses a library source into a library AST and stores it in the compiler state.
+    /// Parses a library source (and its submodules) into a library AST.
     ///
-    /// The source file is first registered in the session source map so span
-    /// information can be resolved correctly. The parser then constructs the
-    /// library AST using the provided `library_name` and source file.
-    ///
-    /// The resulting AST is stored in `self.state.ast`.
-    pub fn parse_library(&mut self, library_name: Symbol, source: &str, filename: FileName) -> Result<()> {
-        // Register the source in the source map.
+    /// All source strings are registered in the session source map so span information
+    /// can be resolved correctly. The resulting AST is stored in `self.state.ast`.
+    pub fn parse_library(
+        &mut self,
+        library_name: Symbol,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+    ) -> Result<()> {
         let source_file = with_session_globals(|s| s.source_map.new_source(source, filename.clone()));
 
-        // Register the sources of all the modules in the source map.
-        // Use the parser to construct the abstract syntax tree (ast).
+        // Register each module source in the source map.
+        let module_files = modules
+            .iter()
+            .map(|(src, name)| with_session_globals(|s| s.source_map.new_source(src, name.clone())))
+            .collect::<Vec<_>>();
+
         self.state.ast = Ast::Library(leo_parser::parse_library(
             self.state.handler.clone(),
             &self.state.node_builder,
             library_name,
             &source_file,
+            &module_files,
             self.state.network,
         )?);
 
@@ -507,13 +514,12 @@ impl Compiler {
         source_directory: impl AsRef<Path>,
         file_source: &impl FileSource,
     ) -> Result<Library> {
-        // Multi-file libraries (additional source files in `src/` besides `lib.leo`) are not yet
-        // supported. `read_sources_and_modules` collects them but we discard the module map here;
-        // only `lib.leo` is parsed. Extend this when module support is added to libraries.
-        let (source, _) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
+        let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
-        // Parse the main source along with all collected modules.
-        self.parse_library(library_name, &source, FileName::Real(entry_file_path.as_ref().into()))?;
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        self.parse_library(library_name, &source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
 
         match &self.state.ast {
             Ast::Library(library) => Ok(library.clone()),

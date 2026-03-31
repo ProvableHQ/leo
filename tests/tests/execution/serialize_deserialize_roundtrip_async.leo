@@ -46,16 +46,12 @@ final fn fin_test_async_field_rt(addr: address, value: field) {
 final fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
     let bits: [bool; 134] = Serialize::to_bits(value);
     let reconstructed: [u8; 2] = Deserialize::from_bits::[[u8; 2]](bits);
-    let matches_non_raw: bool =
-        value[0u8] == reconstructed[0u8] &&
-        value[1u8] == reconstructed[1u8];
-
+    let matches_non_raw: bool = value[0u8] == reconstructed[0u8] && value[1u8] == reconstructed[1u8];
     let bits_raw: [bool; 16] = Serialize::to_bits_raw(value);
     let reconstructed_raw: [u8; 2] = Deserialize::from_bits_raw::[[u8; 2]](bits_raw);
-    let matches_raw: bool =
-        value[0u8] == reconstructed_raw[0u8] &&
-        value[1u8] == reconstructed_raw[1u8];
-
+    let matches_raw: bool = value[0u8]
+        == reconstructed_raw[0u8]
+        && value[1u8] == reconstructed_raw[1u8];
     assert(matches_non_raw && matches_raw);
 }
 

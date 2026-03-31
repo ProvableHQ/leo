@@ -1,4 +1,3 @@
-
 program test.aleo {
     mapping u8: u8 => u8;
 

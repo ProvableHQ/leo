@@ -1,5 +1,5 @@
 Error [ETYC0372047]: The number of entry point fns exceeds the maximum. snarkVM allows up to 31 entry point fns within a single program.
-    --> compiler-test:2:9
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {
+   1 | program test.aleo {
      |         ^^^^^^^^^

@@ -1,0 +1,6 @@
+program test.aleo;
+
+function main:
+    input r0 as [boolean; 182u32].private;
+    deserialize.bits r0 ([boolean; 182u32]) into r1 ([u32; 2u32]);
+    output r1 as [u32; 2u32].private;

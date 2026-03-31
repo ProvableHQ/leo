@@ -1,4 +1,3 @@
-
 program test.aleo {}
 
 fn main(y: bool) -> bool {

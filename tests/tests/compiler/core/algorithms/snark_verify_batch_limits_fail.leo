@@ -12,11 +12,16 @@ program test.aleo {
         overflow_vks: [[u8; 10]; 5],
         overflow_inputs: [[[field; 1]; 26]; 5],
     ) -> Final {
-        return final { finalize(
-            too_many_vks, too_many_inputs,
-            varuna_version, proof,
-            overflow_vks, overflow_inputs,
-        ); };
+        return final {
+            finalize(
+                too_many_vks,
+                too_many_inputs,
+                varuna_version,
+                proof,
+                overflow_vks,
+                overflow_inputs,
+            );
+        };
     }
 }
 

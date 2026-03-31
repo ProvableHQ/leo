@@ -6,9 +6,7 @@ expectation: Pass
 program test.aleo {
     // Test Deserialize::from_bits for primitive types (non-raw includes metadata)
     fn main() -> (
-        bool, u8, u16, u32, u64, u128,
-        i8, i16, i32, i64, i128,
-        field, group, scalar, address
+        bool, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, field, group, scalar, address,
     ) {
         // Create bit arrays for deserialization (non-raw sizes with metadata)
         let bool_bits: [bool; 27] = [true; 27];
@@ -43,11 +41,9 @@ program test.aleo {
         let g: group = Deserialize::from_bits::[group](group_bits);
         let s: scalar = Deserialize::from_bits::[scalar](scalar_bits);
         let addr: address = Deserialize::from_bits::[address](addr_bits);
-
         return (
-            b, u8_val, u16_val, u32_val, u64_val, u128_val,
-            i8_val, i16_val, i32_val, i64_val, i128_val,
-            f, g, s, addr
+            b, u8_val, u16_val, u32_val, u64_val, u128_val, i8_val, i16_val, i32_val, i64_val,
+            i128_val, f, g, s, addr,
         );
     }
 }

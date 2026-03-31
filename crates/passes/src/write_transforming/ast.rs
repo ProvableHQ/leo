@@ -161,6 +161,8 @@ impl AstReconstructor for WriteTransformingVisitor<'_> {
         mut input: IntrinsicExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
+        input.type_parameters =
+            input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
         let mut statements = Vec::new();
         for arg in input.arguments.iter_mut() {
             let (expr, statements2) = self.reconstruct_expression(std::mem::take(arg), &());

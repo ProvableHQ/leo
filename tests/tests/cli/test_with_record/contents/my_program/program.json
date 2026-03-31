@@ -1,0 +1,6 @@
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "Program with a record, used to test leo test with records.",
+  "license": "MIT"
+}

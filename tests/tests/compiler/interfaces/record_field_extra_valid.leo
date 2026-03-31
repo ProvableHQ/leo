@@ -6,11 +6,12 @@ interface TokenInterface {
     }
 }
 
-program test.aleo : TokenInterface {
+program test.aleo: TokenInterface {
     record Token {
         owner: address,
         amount: u64,
         metadata: u32,
     }
+
     fn main() {}
 }

@@ -297,39 +297,49 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo`.
+    /// TYPE_LOCATOR represents `program.aleo::Type`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
-        // Extract IDENT tokens for program and type name
+        // Extract IDENT tokens for program and (optional) type name.
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
+        let program_token = idents.next();
+        let name_token = idents.next();
 
-        if let (Some(program_token), Some(name_token)) = (idents.next(), idents.next()) {
-            // Convert program token into Identifier
-            let program_ident = self.to_identifier(&program_token);
-            let type_ident = self.to_identifier(&name_token);
+        // Find KW_ALEO in the tokens — always present in a TYPE_LOCATOR node.
+        let kw_aleo_token =
+            tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
 
-            // Find KW_ALEO in the tokens — required
-            let kw_aleo_token =
-                tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
+        let network_ident = leo_ast::Identifier {
+            name: Symbol::intern("aleo"),
+            span: self.token_span(&kw_aleo_token),
+            id: self.builder.next_id(),
+        };
 
-            let network_ident = leo_ast::Identifier {
-                name: Symbol::intern("aleo"),
-                span: self.token_span(&kw_aleo_token),
-                id: self.builder.next_id(),
-            };
-
-            // ProgramId always has network
-            let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
-
-            let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
-            let path = leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
-
-            // Extract const arguments from CONST_ARG_LIST child node
-            let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-            Ok(leo_ast::CompositeType { path, const_arguments }.into())
-        } else {
-            panic!("TYPE_LOCATOR should contain both a program and type identifier: {:?}", node.text())
+        match (program_token, name_token) {
+            (Some(program_token), Some(name_token)) => {
+                // Normal case: program.aleo::Type
+                let program_ident = self.to_identifier(&program_token);
+                let type_ident = self.to_identifier(&name_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
+                let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
+                Ok(leo_ast::CompositeType { path, const_arguments }.into())
+            }
+            (Some(program_token), None) => {
+                // program.aleo without ::Type — a program ID used as a type reference.
+                let program_ident = self.to_identifier(&program_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let span = self.content_span(node);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), program_ident, span, self.builder.next_id());
+                Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into())
+            }
+            _ => {
+                panic!("TYPE_LOCATOR should contain at least a program IDENT: {:?}", node.text())
+            }
         }
     }
 
@@ -903,39 +913,39 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Collect expression children: first is target, optional second is network
-        // (if inside the @(...) before the /), rest are arguments.
+        // (if inside the @(...) before the ::), rest are arguments.
         // We detect which expressions are "inside the parens" vs "arguments" by
-        // looking at the SLASH token position. Expressions before SLASH are
-        // target/network, expressions after are arguments.
-        let slash_offset = tokens(node).find(|t| t.kind() == SLASH).map(|t| t.text_range().start());
+        // looking at the :: token position after the @(...). Expressions before ::
+        // are target/network, expressions after are arguments.
+        let separator_offset = tokens(node).filter(|t| t.kind() == COLON_COLON).last().map(|t| t.text_range().start());
 
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
 
-        let mut pre_slash = Vec::new();
-        let mut post_slash = Vec::new();
+        let mut pre_sep = Vec::new();
+        let mut post_sep = Vec::new();
         for child in &expr_children {
-            if let Some(slash_off) = slash_offset {
-                if child.text_range().start() < slash_off {
-                    pre_slash.push(child);
+            if let Some(sep_off) = separator_offset {
+                if child.text_range().start() < sep_off {
+                    pre_sep.push(child);
                 } else {
-                    post_slash.push(child);
+                    post_sep.push(child);
                 }
             } else {
-                // No slash found (error recovery), treat all as pre-slash
-                pre_slash.push(child);
+                // No separator found (error recovery), treat all as pre
+                pre_sep.push(child);
             }
         }
 
-        let target = if let Some(target_node) = pre_slash.first() {
+        let target = if let Some(target_node) = pre_sep.first() {
             self.to_expression(target_node)?
         } else {
             self.error_expression(span)
         };
 
         let network =
-            if let Some(network_node) = pre_slash.get(1) { Some(self.to_expression(network_node)?) } else { None };
+            if let Some(network_node) = pre_sep.get(1) { Some(self.to_expression(network_node)?) } else { None };
 
-        let arguments = post_slash.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
+        let arguments = post_sep.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
         Ok(leo_ast::DynamicCallExpression { interface, target_program: target, network, function, arguments, span, id }
             .into())
@@ -2107,7 +2117,7 @@ impl<'a> ConversionContext<'a> {
             self.collect_library_item(&child, &mut consts, &mut structs, &mut functions)?;
         }
 
-        Ok(leo_ast::Library { name, consts, structs, functions })
+        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.
@@ -2928,15 +2938,16 @@ pub fn parse_program(
     Ok(program)
 }
 
-/// Parses a complete library into a Library AST.
+/// Parses a complete library with its submodules into a Library AST.
 pub fn parse_library(
     handler: Handler,
     node_builder: &NodeBuilder,
     library_name: Symbol,
     source: &SourceFile,
+    modules: &[std::rc::Rc<SourceFile>],
     _network: NetworkName,
 ) -> Result<leo_ast::Library> {
-    // Parse `lib.leo` library file
+    // Parse `lib.leo` library file.
     let parse = leo_parser_rowan::parse_file(&source.src);
     let main_context = conversion_context(
         &handler,
@@ -2947,7 +2958,40 @@ pub fn parse_library(
         source.src.len() as u32,
     );
 
-    main_context.to_library(library_name, &parse.syntax())
+    let mut library = main_context.to_library(library_name, &parse.syntax())?;
+
+    // Determine the root directory of `lib.leo` for module key computation.
+    let root_dir = match &source.name {
+        FileName::Real(path) => path.parent().map(|p| p.to_path_buf()),
+        _ => None,
+    };
+
+    // Parse each submodule source file and insert it into the library.
+    for module_sf in modules {
+        let module_parse = leo_parser_rowan::parse_module_entry(&module_sf.src);
+        let module_context = conversion_context(
+            &handler,
+            node_builder,
+            module_parse.lex_errors(),
+            module_parse.errors(),
+            module_sf.absolute_start,
+            module_sf.src.len() as u32,
+        );
+
+        if let Some(key) = compute_module_key(&module_sf.name, root_dir.as_deref()) {
+            for segment in &key {
+                if symbol_is_keyword(*segment) {
+                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                }
+            }
+            // Library modules use library_name as the owner (analogous to program_name in
+            // program modules). Items inside are registered under Location::new(library_name, path).
+            let module_ast = module_context.to_module(&module_parse.syntax(), library_name, key.clone())?;
+            library.modules.insert(key, module_ast);
+        }
+    }
+
+    Ok(library)
 }
 
 // =============================================================================

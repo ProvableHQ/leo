@@ -1,3 +1,1 @@
-
-program test.aleo {
-}
+program test.aleo {}

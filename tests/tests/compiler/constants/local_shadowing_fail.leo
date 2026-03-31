@@ -7,7 +7,7 @@ program test.aleo {
             start = (start.0 + start.1, start.1 + 1u8);
             if flag {
                 start = (start.1, start.0 + start.0);
-                const HELLO:u8 = 1u8;
+                const HELLO: u8 = 1u8;
             }
         }
         return start.0 + start.1;

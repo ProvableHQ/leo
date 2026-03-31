@@ -1,8 +1,8 @@
 Error [EAST0372017]: The name `s1` is defined multiple times.
-    --> compiler-test:7:8
+    --> compiler-test:6:8
      |
-   3 |   struct s1 {
+   1 |   struct s1 {
      |          ^^ previous definition of `s1` here
    ...
-   7 |   struct s1 {
+   6 |   struct s1 {
      |          ^^ `s1` redefined here

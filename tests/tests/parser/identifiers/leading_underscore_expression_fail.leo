@@ -9,4 +9,3 @@ program test.aleo {
 fn foo(_param: u32) -> u32 {
     return _param;
 }
-

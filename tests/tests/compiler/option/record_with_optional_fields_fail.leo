@@ -1,7 +1,7 @@
-    // Nested struct with optional field
-    struct InnerStruct {
-        val: u64?,
-    }
+// Nested struct with optional field
+struct InnerStruct {
+    val: u64?,
+}
 
 program record_with_optional_fields.aleo {
     record BadRecord1 {

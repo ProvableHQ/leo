@@ -1,5 +1,5 @@
 struct My__Struct {
-    field__name: u8
+    field__name: u8,
 }
 
 fn test__function(param__name: u8) -> bool {

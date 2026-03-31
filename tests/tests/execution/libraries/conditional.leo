@@ -38,7 +38,6 @@ const HIGH_SCORE: u32 = MID_SCORE + thresholds::HIGH;
 program test.aleo {
     fn classify(x: u32) -> u32 {
         let result: u32 = 0u32;
-
         if x < thresholds::LOW {
             // x < 10: low tier
             result = scores::LOW_SCORE;
@@ -52,7 +51,6 @@ program test.aleo {
             // x >= 75: max tier, return all thresholds summed
             result = thresholds::LOW + thresholds::MID + thresholds::HIGH;
         }
-
         // Verify the thresholds are ordered correctly (compile-time constants used at runtime).
         assert(thresholds::LOW < thresholds::MID);
         assert(thresholds::MID < thresholds::HIGH);

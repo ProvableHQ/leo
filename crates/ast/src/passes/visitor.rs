@@ -192,6 +192,9 @@ pub trait AstVisitor {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        for (ty, _) in &input.type_parameters {
+            self.visit_type(ty);
+        }
         input.arguments.iter().for_each(|arg| {
             self.visit_expression(arg, &Default::default());
         });
@@ -346,6 +349,7 @@ pub trait ProgramVisitor: AstVisitor {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.modules.values().for_each(|m| self.visit_module(m));
     }
 
     fn visit_stub(&mut self, input: &Stub) {

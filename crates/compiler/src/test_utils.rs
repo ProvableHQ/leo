@@ -108,14 +108,16 @@ pub fn parse_program(
 
 /// Parses a Leo library from the given source for use in compiler tests.
 ///
-/// This constructs a temporary `Compiler` instance with a minimal configuration
-/// and delegates to `parse_and_return_library` to produce the `Library` AST.
+/// The source may contain `// --- Next Module: name --- //` delimiters to embed
+/// submodule source files, using the same protocol as `parse_program`.
 pub fn parse_library(
     library_name: &str,
     source: &str,
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
 ) -> Result<Library, LeoError> {
+    let (main_source, modules) = split_modules(source);
+
     let mut compiler = Compiler::new(
         None,
         /* is_test */ false,
@@ -128,7 +130,10 @@ pub fn parse_library(
     );
 
     let filename = FileName::Custom("compiler-test".into());
-    compiler.parse_and_return_library(library_name, source, filename)
+    let module_refs: Vec<(&str, FileName)> =
+        modules.iter().map(|(src, path)| (src.as_str(), FileName::Custom(path.to_string_lossy().into()))).collect();
+
+    compiler.parse_and_return_library(library_name, &main_source, filename, &module_refs)
 }
 
 /// Splits a single source string into a main source and a list of module
@@ -185,6 +190,32 @@ pub fn extract_program_name(source: &str, handler: &Handler) -> Result<String, L
     let (_program, program_name) =
         parse_program(source, handler, &Rc::new(NodeBuilder::default()), indexmap::IndexMap::new())?;
     Ok(program_name)
+}
+
+/// Checks whether a source section starts with the `// --- aleo stub --- //` header.
+///
+/// If present, returns the remaining source after the header (raw Aleo bytecode).
+/// Sections with this header are always treated as `FromAleo` stubs.
+pub fn extract_aleo_stub_header(source: &str) -> Option<&str> {
+    let mut offset = 0;
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+
+        if trimmed == "// --- aleo stub --- //" {
+            let rest = &source[offset + line.len()..].trim_start_matches('\n');
+            return Some(rest);
+        }
+
+        // Skip blank lines and comments before the header.
+        if !trimmed.is_empty() && !trimmed.starts_with("//") {
+            return None;
+        }
+
+        offset += line.len() + 1;
+    }
+
+    None
 }
 
 /// Extracts a test library header of the form `// --- library: NAME --- //`.

@@ -94,22 +94,22 @@ Error [ESAZ0374007]: Binary operation `1u32 mod 0u32` failed at compile time: mo
  148 |         let k7: u32 = 1u32.mod(a2);
      |                       ^^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `1u32 div_wrapped 0u32` failed at compile time: Type error.
-    --> compiler-test:247:18
+    --> compiler-test:246:18
      |
- 247 |         let s2 = 1.div_wrapped(a2);
+ 246 |         let s2 = 1.div_wrapped(a2);
      |                  ^^^^^^^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `1u64 div_wrapped 0u64` failed at compile time: Type error.
-    --> compiler-test:248:18
+    --> compiler-test:247:18
      |
- 248 |         let s3 = 1u64.div_wrapped(a3);
+ 247 |         let s3 = 1u64.div_wrapped(a3);
      |                  ^^^^^^^^^^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `1i16 div_wrapped 0i16` failed at compile time: Type error.
-    --> compiler-test:251:23
+    --> compiler-test:250:23
      |
- 251 |         let s6: i16 = 1.div_wrapped(a6);
+ 250 |         let s6: i16 = 1.div_wrapped(a6);
      |                       ^^^^^^^^^^^^^^^^^
 Error [ESAZ0374007]: Binary operation `1i32 div_wrapped 0i32` failed at compile time: Type error.
-    --> compiler-test:252:23
+    --> compiler-test:251:23
      |
- 252 |         let s7: i32 = 1i32.div_wrapped(a7);
+ 251 |         let s7: i32 = 1i32.div_wrapped(a7);
      |                       ^^^^^^^^^^^^^^^^^^^^

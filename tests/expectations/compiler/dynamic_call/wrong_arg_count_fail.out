@@ -1,5 +1,5 @@
 Error [ETYC0372006]: Call expected `2` args, but got `1`
     --> compiler-test:11:16
      |
-  11 |         return Adder@(target)/sum(1u32);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |         return Adder@(target)::sum(1u32);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -10,7 +10,7 @@ program test.aleo : Adder {
 
     fn main(target: field, x: u32, y: u32, cond: bool) -> u32 {
         if cond {
-            return Adder@(target)/sum(x, y);
+            return Adder@(target)::sum(x, y);
         }
         return 0u32;
     }

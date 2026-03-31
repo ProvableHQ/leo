@@ -55,12 +55,6 @@ program test.aleo {
         // Ensure the caller is the auctioneer.
         assert_eq(self.caller, aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh);
         // Return 'is_winner' as 'true' in the winning 'Bid'.
-        return Bid {
-            owner: bid.bidder,
-            bidder: bid.bidder,
-            amount: bid.amount,
-            is_winner: true,
-        };
+        return Bid { owner: bid.bidder, bidder: bid.bidder, amount: bid.amount, is_winner: true };
     }
 }
-

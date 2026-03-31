@@ -7,8 +7,9 @@ Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amo
   12 |           amount: u32,
      |           ^^^^^^^^^^^ conflicts with definition here
    ...
-  17 |   interface Combined : TokenA + TokenB {}
-     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ conflict detected here
+  17 | / interface Combined: TokenA + TokenB {
+  18 | | }
+     | |_- conflict detected here
      |
      = Ensure both interfaces define the same type and mode for this field, or rename one of them.
 Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amount` in interface `Combined` inherited from `TokenA`. Fields with the same name must have identical types and modes.
@@ -20,7 +21,8 @@ Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amo
   12 |           amount: u32,
      |           ^^^^^^^^^^^ conflicts with definition here
    ...
-  17 |   interface Combined : TokenA + TokenB {}
-     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ conflict detected here
+  17 | / interface Combined: TokenA + TokenB {
+  18 | | }
+     | |_- conflict detected here
      |
      = Ensure both interfaces define the same type and mode for this field, or rename one of them.

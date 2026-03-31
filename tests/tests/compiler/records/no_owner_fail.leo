@@ -1,4 +1,3 @@
-
 program test.aleo {
     // This record does not define the `owner` variable required for a record type.
     record Token {
@@ -8,4 +7,5 @@ program test.aleo {
 
     fn main(zz: bool) -> bool {
         return true;
-    }}
+    }
+}

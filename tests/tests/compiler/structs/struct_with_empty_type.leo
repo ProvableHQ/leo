@@ -6,12 +6,11 @@ struct Baz {
 program scratch.aleo {
     mapping baz: Baz => u64;
 
-    fn prepare(a: [u32; 0]) ->  Final {
+    fn prepare(a: [u32; 0]) -> Final {
         return final { finalize(a); };
     }
 }
 
-final fn finalize(a: [u32;0]) {
+final fn finalize(a: [u32; 0]) {
     Mapping::set(baz, Baz { a: 0, b: [] }, 3);
 }
-

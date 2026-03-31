@@ -13,11 +13,10 @@ program invalid_optional_types.aleo {
     fn future_optional_type() {
         let fut: Final? = final { finalize(); }; // ERROR: Final? is not allowed
     }
+
     @noupgrade
     constructor() {}
 }
 
 // Dummy future-returning function
-final fn finalize() {
-}
-
+final fn finalize() {}

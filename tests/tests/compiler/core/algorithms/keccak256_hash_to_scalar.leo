@@ -1,4 +1,3 @@
-
 struct Foo {
     a: u128,
     b: u128,
@@ -14,7 +13,10 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> (scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, ) {
+    ) -> (
+        scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar, scalar,
+        scalar, scalar, scalar, scalar, scalar,
+    ) {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
@@ -23,7 +25,6 @@ program test.aleo {
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-
         // Keccak256 hash_to_scalar tests
         let a: scalar = Keccak256::hash_to_scalar(addr_value);
         let b: scalar = Keccak256::hash_to_scalar(bool_value);
@@ -44,4 +45,5 @@ program test.aleo {
         let q: scalar = Keccak256::hash_to_scalar(Foo { a: 1u128, b: 1u128 });
 
         return (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, q);
-    }}
+    }
+}

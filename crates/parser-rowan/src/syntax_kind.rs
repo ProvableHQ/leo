@@ -547,7 +547,7 @@ define_syntax_kinds! {
     FINAL_EXPR,
     /// Tuple access: `a.0`
     TUPLE_ACCESS_EXPR,
-    /// Dynamic call: `Interface @ (target) / function(args)`
+    /// Dynamic call: `Interface @ (target) :: function(args)`
     DYNAMIC_CALL_EXPR,
 
     // ==========================================================================
