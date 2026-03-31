@@ -13,7 +13,7 @@
           "name": "prog",
           "ty": {
             "Plaintext": {
-              "Primitive": "Field"
+              "Primitive": "Identifier"
             }
           },
           "mode": "None"
@@ -22,7 +22,7 @@
           "name": "net",
           "ty": {
             "Plaintext": {
-              "Primitive": "Field"
+              "Primitive": "Identifier"
             }
           },
           "mode": "None"
@@ -31,7 +31,7 @@
           "name": "func",
           "ty": {
             "Plaintext": {
-              "Primitive": "Field"
+              "Primitive": "Identifier"
             }
           },
           "mode": "None"

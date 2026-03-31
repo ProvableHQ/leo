@@ -3,13 +3,9 @@
 LEO_BIN=${1}
 COMMON_OPTS="--disable-update-check"
 
-# Field encodings:
-#   extra_prog -> 488459582523545069320293field
-#   aleo       -> 1868917857field
-#   dbl        -> 7103076field
-PROG="488459582523545069320293field"
-NET="1868917857field"
-FUNC="7103076field"
+PROG="'extra_prog'"
+NET="'aleo'"
+FUNC="'dbl'"
 INPUT="7u64"
 
 echo "--- run WITHOUT --with should fail ---"
