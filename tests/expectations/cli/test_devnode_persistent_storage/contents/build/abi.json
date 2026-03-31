@@ -1,0 +1,32 @@
+{
+  "program": "persistent_counter.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [
+    {
+      "name": "counts",
+      "key": {
+        "Primitive": "Address"
+      },
+      "value": {
+        "Primitive": {
+          "UInt": "U64"
+        }
+      }
+    }
+  ],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "increment",
+      "is_final": true,
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}
