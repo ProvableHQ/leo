@@ -1595,7 +1595,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
-            let ty = var.type_.expect("must be known at this point");
+            // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
+            // variable's type from being set during `visit_definition`. Return `Type::Err` to
+            // signal that an error has already been emitted rather than panicking.
+            let Some(ty) = var.type_ else {
+                return Type::Err;
+            };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
                 self.check_access_allowed("storage access", true, input.span());
             }
