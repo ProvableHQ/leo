@@ -80,10 +80,6 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         .socket_addr
         .parse()
         .map_err(|e| CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e)))?;
-<<<<<<< HEAD
-=======
-
->>>>>>> 9b817454248beca5fe4a8bcd453fd39c8170eac7
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
         Block::from_bytes_le(&std::fs::read(&command.genesis_path).map_err(|e| {
@@ -93,10 +89,6 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
-<<<<<<< HEAD
-=======
-
->>>>>>> 9b817454248beca5fe4a8bcd453fd39c8170eac7
     // Fetch the private key from the command line or an environment variable.
     let private_key = match private_key {
         Some(key) => key,
@@ -110,7 +102,6 @@ Please either:
             ))
         })?,
     };
-<<<<<<< HEAD
     match command.ledger_path {
         Some(path) => {
             if command.clean && path.exists() {
@@ -131,11 +122,6 @@ Please either:
                 }
                 println!("Cleaned ledger directory: {}", path.display());
             }
-=======
-
-    match command.ledger_path {
-        Some(path) => {
->>>>>>> 9b817454248beca5fe4a8bcd453fd39c8170eac7
             println!("Using persistent ledger at: {}", path.display());
             let storage_mode = StorageMode::Custom(path);
             let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
