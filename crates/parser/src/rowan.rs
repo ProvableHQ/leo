@@ -297,14 +297,16 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo::Type`.
+    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo::module::Type`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
-        // Extract IDENT tokens for program and (optional) type name.
-        let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
-        let program_token = idents.next();
-        let name_token = idents.next();
+        // Collect all IDENT tokens; the first is the program name and the rest
+        // form qualifier segments plus the final type name.
+        let all_idents: Vec<_> = tokens(node).filter(|t| t.kind() == IDENT).collect();
+        let Some(program_token) = all_idents.first() else {
+            panic!("TYPE_LOCATOR should contain at least a program IDENT: {:?}", node.text())
+        };
 
         // Find KW_ALEO in the tokens — always present in a TYPE_LOCATOR node.
         let kw_aleo_token =
@@ -316,30 +318,24 @@ impl<'a> ConversionContext<'a> {
             id: self.builder.next_id(),
         };
 
-        match (program_token, name_token) {
-            (Some(program_token), Some(name_token)) => {
-                // Normal case: program.aleo::Type
-                let program_ident = self.to_identifier(&program_token);
-                let type_ident = self.to_identifier(&name_token);
-                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
-                let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
-                let path =
-                    leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
-                let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-                Ok(leo_ast::CompositeType { path, const_arguments }.into())
-            }
-            (Some(program_token), None) => {
-                // program.aleo without ::Type — a program ID used as a type reference.
-                let program_ident = self.to_identifier(&program_token);
-                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
-                let span = self.content_span(node);
-                let path =
-                    leo_ast::Path::new(Some(program_id), Vec::new(), program_ident, span, self.builder.next_id());
-                Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into())
-            }
-            _ => {
-                panic!("TYPE_LOCATOR should contain at least a program IDENT: {:?}", node.text())
-            }
+        let program_ident = self.to_identifier(program_token);
+        let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+
+        if all_idents.len() < 2 {
+            // program.aleo without ::Type — a program ID used as a type reference.
+            let span = self.content_span(node);
+            let path = leo_ast::Path::new(Some(program_id), Vec::new(), program_ident, span, self.builder.next_id());
+            Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into())
+        } else {
+            // program.aleo::Type or program.aleo::module::Type:
+            //   last IDENT = type name, everything before (excluding program) = qualifier segments.
+            let name_token = all_idents.last().unwrap(); // safe: len >= 2
+            let qualifier: Vec<_> = all_idents[1..all_idents.len() - 1].iter().map(|t| self.to_identifier(t)).collect();
+            let type_ident = self.to_identifier(name_token);
+            let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
+            let path = leo_ast::Path::new(Some(program_id), qualifier, type_ident, path_span, self.builder.next_id());
+            let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
+            Ok(leo_ast::CompositeType { path, const_arguments }.into())
         }
     }
 
@@ -1391,41 +1387,47 @@ impl<'a> ConversionContext<'a> {
 
     /// Extract program and type name from a locator node's IDENT tokens.
     ///
-    /// Locator nodes have the structure: `IDENT DOT KW_ALEO COLON_COLON IDENT [COLON_COLON CONST_ARG_LIST]`.
-    /// The first IDENT is the program name, the second (after SLASH) is the type/function name.
+    /// Locator nodes have the structure:
+    ///   `IDENT DOT KW_ALEO COLON_COLON IDENT [COLON_COLON IDENT]* [COLON_COLON CONST_ARG_LIST]`.
+    /// The first IDENT is the program name, the remaining IDENTs form qualifier segments and the
+    /// final item name (e.g. `program.aleo::sub::item` → qualifier: `[sub]`, name: `item`).
     fn locator_tokens_to_path(&self, node: &SyntaxNode) -> Result<leo_ast::Path> {
         let span = self.to_span(node);
-        let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
+        let all_idents: Vec<_> = tokens(node).filter(|t| t.kind() == IDENT).collect();
 
-        // Error recovery: emit a diagnostic and use a placeholder if a token is absent.
-        let program_ident = match idents.next() {
-            Some(token) => self.to_identifier(&token),
+        // First IDENT is the program name — with error recovery if absent.
+        let program_ident = match all_idents.first() {
+            Some(t) => self.to_identifier(t),
             None => {
                 self.emit_unexpected_str("program name", node.text(), span);
                 self.error_identifier(span)
             }
         };
 
+        // KW_ALEO is always present; fall back to `span` if somehow absent.
         let network_ident = leo_ast::Identifier {
             name: Symbol::intern("aleo"),
             span: tokens(node).find(|t| t.kind() == KW_ALEO).map(|t| self.token_span(&t)).unwrap_or(span),
             id: self.builder.next_id(),
         };
 
+        // Wrap into ProgramId — network is never None.
         let program = leo_ast::ProgramId { name: program_ident, network: network_ident };
 
+        // Last IDENT is the item name; [1..len-1] are qualifiers.
         // Error recovery: the rowan parser only bumps the name IDENT `if self.at(IDENT)`,
         // so a non-IDENT token after `::` (e.g. `a.aleo::;`) produces a locator with no name.
-        let name = match idents.next() {
-            Some(token) => self.to_identifier(&token),
-            None => {
-                self.emit_unexpected_str("identifier", node.text(), span);
-                self.error_identifier(span)
-            }
+        let (qualifier, name) = if all_idents.len() < 2 {
+            self.emit_unexpected_str("identifier", node.text(), span);
+            (Vec::new(), self.error_identifier(span))
+        } else {
+            let name = self.to_identifier(all_idents.last().unwrap()); // safe: len >= 2
+            let qualifier: Vec<_> = all_idents[1..all_idents.len() - 1].iter().map(|t| self.to_identifier(t)).collect();
+            (qualifier, name)
         };
 
         let path_span = Span::new(program.name.span.lo, name.span.hi);
-        Ok(leo_ast::Path::new(Some(program), Vec::new(), name, path_span, self.builder.next_id()))
+        Ok(leo_ast::Path::new(Some(program), qualifier, name, path_span, self.builder.next_id()))
     }
 
     /// Convert a STRUCT_FIELD_INIT or STRUCT_FIELD_SHORTHAND node to a CompositeFieldInitializer.

@@ -615,9 +615,14 @@ impl Parser<'_, '_> {
             self.bump_any(); // aleo
 
             let is_locator = if self.eat(COLON_COLON) {
-                // Locator path: name.aleo::Type
+                // Locator path: name.aleo::Type or name.aleo::module::Type
                 if self.at(IDENT) {
                     self.bump_any();
+                    // Consume additional path segments: name.aleo::module::submodule::item
+                    while self.at(COLON_COLON) && self.nth(1) == IDENT {
+                        self.bump_any(); // ::
+                        self.bump_any(); // IDENT
+                    }
                 }
                 true
             } else {

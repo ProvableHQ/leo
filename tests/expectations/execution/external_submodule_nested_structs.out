@@ -1,0 +1,61 @@
+program child.aleo;
+
+struct Inner__6nOBWHFoWZS:
+    val as u32;
+
+struct Outer__EsNghuz7Iao:
+    inner as Inner__6nOBWHFoWZS;
+    count as u32;
+
+function make_outer:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    add r0 r1 into r3;
+    cast r3 into r4 as Inner__6nOBWHFoWZS;
+    cast r4 r2 into r5 as Outer__EsNghuz7Iao;
+    output r5 as Outer__EsNghuz7Iao.private;
+
+function double_outer:
+    input r0 as Outer__EsNghuz7Iao.private;
+    mul r0.inner.val 2u32 into r1;
+    cast r1 into r2 as Inner__6nOBWHFoWZS;
+    mul r0.count 2u32 into r3;
+    cast r2 r3 into r4 as Outer__EsNghuz7Iao;
+    output r4 as Outer__EsNghuz7Iao.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function sum_outer:
+    input r0 as child.aleo/Outer__EsNghuz7Iao.private;
+    add r0.inner.val r0.count into r1;
+    output r1 as u32.private;
+
+function make_and_sum:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    call child.aleo/make_outer r0 r1 r2 into r3;
+    add r3.inner.val r3.count into r4;
+    output r4 as u32.private;
+
+function nest_and_double:
+    input r0 as u32.private;
+    cast r0 into r1 as child.aleo/Inner__6nOBWHFoWZS;
+    cast r1 r0 into r2 as child.aleo/Outer__EsNghuz7Iao;
+    call child.aleo/double_outer r2 into r3;
+    add r3.inner.val r3.count into r4;
+    output r4 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 10u32
+status: success
+output: 12u32
+status: success
+output: 40u32
