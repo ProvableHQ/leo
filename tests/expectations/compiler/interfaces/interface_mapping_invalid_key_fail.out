@@ -1,0 +1,10 @@
+Error [ETYC0372031]: A mapping's key cannot be a tuple
+    --> compiler-test:6:5
+     |
+   6 |     mapping data: (u32, u64) => u128;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372031]: A mapping's key cannot be a tuple
+    --> compiler-test:10:5
+     |
+  10 |     mapping data: (u32, u64) => u128;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,0 +1,11 @@
+program test.aleo;
+
+mapping items__:
+    key as u32.public;
+    value as address.public;
+
+mapping items__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function foo:

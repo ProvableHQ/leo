@@ -1,0 +1,7 @@
+program test.aleo {
+    mapping base_table: [address; 2] => u128;
+    mapping ext_table: [bool; 4] => u64;
+    fn foo() {
+    }
+}
+

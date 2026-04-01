@@ -1,0 +1,15 @@
+Error [EPAR0370047]: expected pattern
+    --> compiler-test:8:13
+     |
+   8 |         let record: credits = credits { owner: receiver, amount };
+     |             ^^^^^^
+Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'record'
+    --> compiler-test:10:17
+     |
+  10 |         return (record, f);
+     |                 ^^^^^^
+Error [EPAR0370029]: A tuple expression must have at least two elements.
+    --> compiler-test:10:16
+     |
+  10 |         return (record, f);
+     |                ^^^^^^^^^^^

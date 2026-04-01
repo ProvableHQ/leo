@@ -1,0 +1,5 @@
+program test.aleo {
+    mapping allowances: [address; 2] => u128;
+
+    fn foo() {}
+}
