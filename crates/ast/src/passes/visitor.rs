@@ -363,6 +363,7 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
@@ -374,6 +375,7 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_module(&mut self, input: &Module) {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
     }
 
@@ -402,6 +404,8 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_interface(&mut self, input: &Interface) {
         input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
         input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
+        input.mappings.iter().for_each(|m| self.visit_mapping(m));
+        input.storages.iter().for_each(|s| self.visit_storage_variable(s));
     }
 
     fn visit_function_prototype(&mut self, input: &FunctionPrototype) {
