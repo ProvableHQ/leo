@@ -214,17 +214,46 @@ pub fn create_http_agent() -> ureq::Agent {
     ureq::Agent::config_builder().max_redirects(0).http_status_as_error(false).build().new_agent()
 }
 
-// Fetch the given endpoint url and return the sanitized response.
-pub fn fetch_from_network(url: &str) -> Result<String, UtilError> {
-    fetch_from_network_plain(url).map(|s| s.replace("\\n", "\n").replace('\"', ""))
+/// Retries a fallible network operation with exponential backoff.
+///
+/// Attempts the operation `retries + 1` times. Delays between attempts are
+/// 1 s, 2 s, 4 s, …, capped at 64 s. Returns the result of the last attempt.
+///
+/// Only use this for idempotent, read-only network calls (GET requests);
+/// never use it for state-mutating calls such as transaction broadcasts.
+pub fn retry_network_call<T, E: std::fmt::Display>(
+    network_retries: u32,
+    mut f: impl FnMut() -> std::result::Result<T, E>,
+) -> std::result::Result<T, E> {
+    let mut result = f();
+    for attempt in 1..=network_retries {
+        if result.is_ok() {
+            break;
+        }
+        let delay_secs = 2u64.pow(attempt - 1).min(64);
+        eprintln!("⚠️  Network request failed, retrying in {delay_secs}s (attempt {attempt}/{network_retries})...");
+        std::thread::sleep(std::time::Duration::from_secs(delay_secs));
+        result = f();
+    }
+    result
 }
 
-pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
-    let mut response = create_http_agent()
-        .get(url)
-        .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
-        .call()
-        .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, e))?;
+// Fetch the given endpoint url and return the sanitized response.
+pub fn fetch_from_network(url: &str, network_retries: u32) -> Result<String, UtilError> {
+    fetch_from_network_plain(url, network_retries).map(|s| s.replace("\\n", "\n").replace('\"', ""))
+}
+
+pub fn fetch_from_network_plain(url: &str, network_retries: u32) -> Result<String, UtilError> {
+    // Retry only on transport-level failures (connection errors, timeouts, etc.).
+    // HTTP 3xx/4xx/5xx responses are not retried since they reflect persistent conditions.
+    let agent = create_http_agent();
+    let mut response = retry_network_call(network_retries, || {
+        agent
+            .get(url)
+            .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
+            .call()
+            .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, e))
+    })?;
     match response.status().as_u16() {
         200..=299 => Ok(response.body_mut().read_to_string().unwrap()),
         301 => Err(UtilError::endpoint_moved_error(url)),
@@ -234,9 +263,14 @@ pub fn fetch_from_network_plain(url: &str) -> Result<String, UtilError> {
 
 /// Fetch the given program from the network and return the program as a string.
 // TODO (@d0cd) Unify with `leo_package::CompilationUnit::fetch`.
-pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkName) -> Result<String, UtilError> {
+pub fn fetch_program_from_network(
+    name: &str,
+    endpoint: &str,
+    network: NetworkName,
+    network_retries: u32,
+) -> Result<String, UtilError> {
     let url = format!("{endpoint}/{network}/program/{name}");
-    let program = fetch_from_network(&url)?;
+    let program = fetch_from_network(&url, network_retries)?;
     Ok(program)
 }
 
@@ -244,12 +278,17 @@ pub fn fetch_program_from_network(name: &str, endpoint: &str, network: NetworkNa
 ///
 /// Returns the actual latest edition number for the given program.
 /// This should be used instead of defaulting to arbitrary edition numbers.
-pub fn fetch_latest_edition(name: &str, endpoint: &str, network: NetworkName) -> Result<Edition, UtilError> {
+pub fn fetch_latest_edition(
+    name: &str,
+    endpoint: &str,
+    network: NetworkName,
+    network_retries: u32,
+) -> Result<Edition, UtilError> {
     // Strip the .aleo suffix if present for the URL.
     let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
 
     let url = format!("{endpoint}/{network}/program/{name_without_suffix}.aleo/latest_edition");
-    let contents = fetch_from_network(&url)?;
+    let contents = fetch_from_network(&url, network_retries)?;
     contents
         .parse::<u16>()
         .map_err(|e| UtilError::failed_to_retrieve_from_endpoint(url, format!("Failed to parse edition as u16: {e}")))

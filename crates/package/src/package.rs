@@ -200,6 +200,7 @@ impl Package {
         home_path: Q,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -210,6 +211,7 @@ impl Package {
             /* no_local */ false,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -222,6 +224,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -232,6 +235,7 @@ impl Package {
             no_local,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -244,6 +248,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -254,6 +259,7 @@ impl Package {
             no_local,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -296,6 +302,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -349,6 +356,7 @@ impl Package {
                     &mut digraph,
                     no_cache,
                     no_local,
+                    network_retries,
                 )?;
             }
 
@@ -377,6 +385,7 @@ impl Package {
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
         no_local: bool,
+        network_retries: u32,
     ) -> Result<()> {
         let name_symbol = symbol(&new.name)?;
 
@@ -420,7 +429,15 @@ impl Package {
                         let Some(network) = network else {
                             return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
                         };
-                        CompilationUnit::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
+                        CompilationUnit::fetch(
+                            name_symbol,
+                            new.edition,
+                            home_path,
+                            network,
+                            endpoint,
+                            no_cache,
+                            network_retries,
+                        )?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
@@ -446,6 +463,7 @@ impl Package {
                 graph,
                 no_cache,
                 no_local,
+                network_retries,
             )?;
         }
 

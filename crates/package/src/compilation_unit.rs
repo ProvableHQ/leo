@@ -212,8 +212,9 @@ impl CompilationUnit {
         network: NetworkName,
         endpoint: &str,
         no_cache: bool,
+        network_retries: u32,
     ) -> Result<Self> {
-        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache)
+        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries)
     }
 
     fn fetch_impl(
@@ -223,6 +224,7 @@ impl CompilationUnit {
         network: NetworkName,
         endpoint: &str,
         no_cache: bool,
+        network_retries: u32,
     ) -> Result<Self> {
         // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
         // here so cache paths and network URLs are constructed consistently.
@@ -241,11 +243,11 @@ impl CompilationUnit {
                 // Check if we have a cached version - avoid network call if possible.
                 match find_cached_edition(&cache_directory, &name.to_string()) {
                     Some(cached_edition) => cached_edition,
-                    None => crate::fetch_latest_edition(&name.to_string(), endpoint, network)?,
+                    None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
                 }
             }
             // no_cache is set - user wants fresh data from network.
-            None => crate::fetch_latest_edition(&name.to_string(), endpoint, network)?,
+            None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
         };
 
         // Define the full cache path for the program.
@@ -286,8 +288,8 @@ impl CompilationUnit {
                     format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
                 };
                 let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&primary_url)
-                    .or_else(|_| fetch_from_network(&secondary_url))
+                let contents = fetch_from_network(&primary_url, network_retries)
+                    .or_else(|_| fetch_from_network(&secondary_url, network_retries))
                     .map_err(|err| {
                         UtilError::failed_to_retrieve_from_endpoint(
                             primary_url,

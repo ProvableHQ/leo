@@ -18,7 +18,7 @@ use super::*;
 
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network};
+use leo_package::{Package, ProgramData, fetch_program_from_network, retry_network_call};
 
 use aleo_std::StorageMode;
 use rand::CryptoRng;
@@ -240,8 +240,14 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version =
-        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
+    let consensus_version = get_consensus_version(
+        &command.extra.consensus_version,
+        &endpoint,
+        network,
+        &consensus_heights,
+        &context,
+        command.env_override.network_retries,
+    )?;
 
     // Build the config for JSON output.
     let config = Some(Config {
@@ -284,7 +290,12 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
             // Get the actual edition from the network if not specified.
             let edition = match task.edition {
                 Some(e) => e,
-                None => leo_package::fetch_latest_edition(&task.id.to_string(), &endpoint, network)?,
+                None => leo_package::fetch_latest_edition(
+                    &task.id.to_string(),
+                    &endpoint,
+                    network,
+                    command.env_override.network_retries,
+                )?,
             };
             Ok((task.program, edition))
         })
@@ -339,6 +350,7 @@ Once it is deployed, it CANNOT be changed.
                     bytecode_size,
                     consensus_version,
                     &query,
+                    command.env_override.network_retries,
                     rng,
                 )?
             } else {
@@ -416,7 +428,8 @@ Once it is deployed, it CANNOT be changed.
             let fee_id = fee.id().to_string();
             let fee_transaction_id = Transaction::from_fee(fee.clone())?.id().to_string();
             let id = transaction.id().to_string();
-            let height_before = check_transaction::current_height(&endpoint, network)?;
+            let height_before =
+                check_transaction::current_height(&endpoint, network, command.env_override.network_retries)?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
                 &format!("{endpoint}/{network}/transaction/broadcast"),
@@ -445,6 +458,7 @@ Once it is deployed, it CANNOT be changed.
                         height_before + 1,
                         command.extra.max_wait,
                         command.extra.blocks_to_check,
+                        command.env_override.network_retries,
                     )?;
                     let confirmed = tx_status == Some(TransactionStatus::Accepted);
                     if confirmed {
@@ -494,7 +508,8 @@ fn check_tasks_for_warnings<N: Network>(
             continue;
         }
         // Check if the program exists on the network.
-        if fetch_program_from_network(&id.to_string(), endpoint, network).is_ok() {
+        if fetch_program_from_network(&id.to_string(), endpoint, network, command.env_override.network_retries).is_ok()
+        {
             warnings
                 .push(format!("The program '{id}' already exists on the network. Please use `leo upgrade` instead.",));
         }
@@ -529,7 +544,9 @@ fn check_tasks_for_warnings<N: Network>(
         }
     }
     // Check for a consensus version mismatch.
-    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+    if let Err(e) =
+        check_consensus_version_mismatch(consensus_version, endpoint, network, command.env_override.network_retries)
+    {
         warnings.push(format!("{e}. In some cases, the deployment may fail"));
     }
     warnings
@@ -707,6 +724,7 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
     bytecode_size: usize,
     consensus_version: ConsensusVersion,
     query: &SnarkVMQuery<N, BlockMemory<N>>,
+    network_retries: u32,
     rng: &mut R,
 ) -> Result<(Transaction<N>, DeploymentStats)> {
     assert!(!program.functions().is_empty(), "Program `{}` has no functions", program.id());
@@ -767,8 +785,8 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
             .map_err(|e| anyhow::anyhow!("{e}"))?,
     };
 
-    // Get the state root.
-    let state_root = query.current_state_root()?;
+    // Get the state root, retrying on transient network failures.
+    let state_root = retry_network_call(network_retries, || query.current_state_root())?;
 
     // Create a fee transition without a proof.
     let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;

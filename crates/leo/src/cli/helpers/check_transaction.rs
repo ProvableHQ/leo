@@ -63,9 +63,9 @@ struct RejectedTransaction {
     fee: Option<Fee>,
 }
 
-pub fn current_height(endpoint: &str, network: NetworkName) -> Result<usize> {
+pub fn current_height(endpoint: &str, network: NetworkName, network_retries: u32) -> Result<usize> {
     let height_url = format!("{endpoint}/{network}/block/height/latest");
-    let height_str = leo_package::fetch_from_network_plain(&height_url)?;
+    let height_str = leo_package::fetch_from_network_plain(&height_url, network_retries)?;
     let height: usize = height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))?;
     Ok(height)
 }
@@ -77,10 +77,14 @@ fn status_at_height(
     network: NetworkName,
     height: usize,
     max_wait: usize,
+    network_retries: u32,
 ) -> Result<Option<TransactionStatus>> {
     // Wait until the block at `height` exists.
+    // Use a fixed retry count of 1 here: this loop polls every second, and
+    // applying the user-supplied `network_retries` backoff per iteration could
+    // stall the wait loop for many seconds per poll with large retry values.
     for i in 0usize.. {
-        if current_height(endpoint, network)? >= height {
+        if current_height(endpoint, network, 1)? >= height {
             break;
         } else if i >= max_wait {
             // We've waited too long; give up.
@@ -91,7 +95,7 @@ fn status_at_height(
     }
 
     let block_url = format!("{endpoint}/{network}/block/{height}");
-    let block_str = leo_package::fetch_from_network_plain(&block_url)?;
+    let block_str = leo_package::fetch_from_network_plain(&block_url, network_retries)?;
     let block: Block = serde_json::from_str(&block_str).map_err(|e| anyhow!("Deserialization failure X: {e}."))?;
     let maybe_this_transaction =
         block.transactions.iter().find(|transaction_result| transaction_result.transaction.id == id);
@@ -112,7 +116,7 @@ fn status_at_height(
         }
 
         let url = format!("{endpoint}/{network}/transaction/unconfirmed/{}", rejected.transaction.id);
-        let transaction_str = leo_package::fetch_from_network_plain(&url)?;
+        let transaction_str = leo_package::fetch_from_network_plain(&url, network_retries)?;
         let transaction: RejectedTransaction =
             serde_json::from_str(&transaction_str).map_err(|e| anyhow!("Deserialization failure: {e}"))?;
         // It's actually the fee that will show up as rejected.
@@ -130,6 +134,7 @@ struct CheckedTransaction {
     status: Option<TransactionStatus>,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn check_transaction(
     id: &str,
     maybe_fee_id: Option<&str>,
@@ -138,13 +143,14 @@ fn check_transaction(
     start_height: usize,
     max_wait: usize,
     blocks_to_check: usize,
+    network_retries: u32,
 ) -> Result<CheckedTransaction> {
     // It appears that the default rate limit for snarkOS is 10 requests per second per IP,
     // and this value seems to avoid rate limits in practice, so let's go with this.
     const DELAY_MILLIS: u64 = 201;
 
     for use_height in start_height..start_height + blocks_to_check {
-        let status = status_at_height(id, maybe_fee_id, endpoint, network, use_height, max_wait)?;
+        let status = status_at_height(id, maybe_fee_id, endpoint, network, use_height, max_wait, network_retries)?;
         if status.is_some() {
             return Ok(CheckedTransaction { blocks_checked: use_height - start_height + 1, status });
         }
@@ -158,6 +164,7 @@ fn check_transaction(
 
 /// Check to find the transaction id among new blocks, printing its status (if found)
 /// to the user. Returns `Some(..)` if and only if the transaction was found.
+#[allow(clippy::too_many_arguments)]
 pub fn check_transaction_with_message(
     id: &str,
     maybe_fee_id: Option<&str>,
@@ -166,6 +173,7 @@ pub fn check_transaction_with_message(
     start_height: usize,
     max_wait: usize,
     blocks_to_check: usize,
+    network_retries: u32,
 ) -> Result<Option<TransactionStatus>> {
     println!("🔄 Searching up to {blocks_to_check} blocks to confirm transaction (this may take several seconds)...");
     let checked = crate::cli::check_transaction::check_transaction(
@@ -176,6 +184,7 @@ pub fn check_transaction_with_message(
         start_height,
         max_wait,
         blocks_to_check,
+        network_retries,
     )?;
     println!("Explored {} blocks.", checked.blocks_checked);
     match checked.status {

@@ -81,6 +81,7 @@ fn handle_query(
     endpoint: &str,
 ) -> Result<<LeoQuery as Command>::Output> {
     let recursive = context.recursive;
+    let network_retries = query.env_override.network_retries;
     let (program, output) = match query.command {
         QueryCommands::Block { command } => (None, command.apply(context, ())?),
         QueryCommands::Transaction { command } => (None, command.apply(context, ())?),
@@ -112,7 +113,7 @@ fn handle_query(
 
     // Make GET request to retrieve on-chain state.
     let url = format!("{endpoint}/{network}/{output}");
-    let result = fetch_from_network(&url)?;
+    let result = fetch_from_network(&url, network_retries)?;
     if !recursive {
         tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
         println!("{result}\n");

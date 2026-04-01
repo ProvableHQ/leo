@@ -195,7 +195,13 @@ fn handle_synthesize<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_id} and its dependencies from {endpoint}...");
-        programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
+        programs = load_latest_programs_from_network(
+            &context,
+            program_id,
+            network,
+            &endpoint,
+            command.env_override.network_retries,
+        )?;
     };
 
     // Add the programs to the VM.

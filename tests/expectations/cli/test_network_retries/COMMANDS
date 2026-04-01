@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Test that --network-retries / NETWORK_RETRIES is accepted and that
+# retry messages appear on stderr when a request fails.
+#
+# We use port 1 as a guaranteed-closed port so every request fails
+# immediately with "connection refused", exercising the retry path
+# without any real network dependency.
+#
+# With --network-retries 1: one retry fires → one retry message in stderr.
+# With --network-retries 0: no retries → no retry message, fails fast.
+#
+# We capture stderr ourselves and report retry message counts to stdout
+# so the test remains meaningful even though filter_stderr strips retry
+# messages from all tests (preventing transient failures from breaking
+# other tests like test_add).
+
+LEO_BIN=${1}
+DEAD_ENDPOINT="http://localhost:1"
+
+# One retry: expect exactly one "retrying" message in stderr.
+STDERR1=$(${LEO_BIN} --disable-update-check query \
+    --network testnet \
+    --endpoint "${DEAD_ENDPOINT}" \
+    --network-retries 1 \
+    stateroot 2>&1 1>/dev/null || true)
+COUNT1=$(echo "${STDERR1}" | grep -c "Network request failed, retrying" || true)
+echo "retries=1: retry_count=${COUNT1}"
+
+# Zero retries: expect no "retrying" message.
+STDERR0=$(${LEO_BIN} --disable-update-check query \
+    --network testnet \
+    --endpoint "${DEAD_ENDPOINT}" \
+    --network-retries 0 \
+    stateroot 2>&1 1>/dev/null || true)
+COUNT0=$(echo "${STDERR0}" | grep -c "Network request failed, retrying" || true)
+echo "retries=0: retry_count=${COUNT0}"

@@ -107,6 +107,7 @@ pub fn load_extra_programs_into_vm<N: Network>(
     context: &crate::cli::context::Context,
     network: leo_ast::NetworkName,
     endpoint: Option<&str>,
+    network_retries: u32,
 ) -> leo_errors::Result<()> {
     use snarkvm::prelude::ProgramID;
     use std::{path::Path, str::FromStr};
@@ -134,7 +135,13 @@ pub fn load_extra_programs_into_vm<N: Network>(
             println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
             let program_id = ProgramID::<N>::from_str(&name)
                 .map_err(|e| CliError::custom(format!("Failed to parse program ID '{name}': {e}")))?;
-            let fetched = super::query::load_latest_programs_from_network(context, program_id, network, endpoint)?;
+            let fetched = super::query::load_latest_programs_from_network(
+                context,
+                program_id,
+                network,
+                endpoint,
+                network_retries,
+            )?;
             extras.extend(fetched.into_iter().map(|(p, ed)| (p, ed.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION))));
         }
     }

@@ -223,8 +223,14 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         .collect();
 
     // Get the consensus version.
-    let consensus_version =
-        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
+    let consensus_version = get_consensus_version(
+        &command.extra.consensus_version,
+        &endpoint,
+        network,
+        &consensus_heights,
+        &context,
+        command.env_override.network_retries,
+    )?;
 
     // Build the config for JSON output.
     let config = Some(Config {
@@ -271,6 +277,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             network,
             &endpoint,
             true,
+            command.env_override.network_retries,
         ) else {
             warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
             continue;
@@ -332,6 +339,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                     bytecode_size,
                     consensus_version,
                     &query,
+                    command.env_override.network_retries,
                     rng,
                 )?
             } else {
@@ -404,7 +412,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             let fee_id = fee.id().to_string();
             let fee_transaction_id = Transaction::from_fee(fee.clone())?.id().to_string();
             let id = transaction.id().to_string();
-            let height_before = check_transaction::current_height(&endpoint, network)?;
+            let height_before =
+                check_transaction::current_height(&endpoint, network, command.env_override.network_retries)?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
                 &format!("{endpoint}/{network}/transaction/broadcast"),
@@ -433,6 +442,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                         height_before + 1,
                         command.extra.max_wait,
                         command.extra.blocks_to_check,
+                        command.env_override.network_retries,
                     )?;
                     let confirmed = tx_status == Some(TransactionStatus::Accepted);
                     if confirmed {
@@ -482,7 +492,9 @@ fn check_tasks_for_warnings<N: Network>(
         }
 
         // Check if the program exists on the network.
-        if let Ok(remote_program) = fetch_program_from_network(&id.to_string(), endpoint, network) {
+        if let Ok(remote_program) =
+            fetch_program_from_network(&id.to_string(), endpoint, network, command.env_override.network_retries)
+        {
             // Parse the program.
             let remote_program = match Program::<N>::from_str(&remote_program) {
                 Ok(program) => program,
@@ -530,7 +542,9 @@ fn check_tasks_for_warnings<N: Network>(
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
         }
         // Check for a consensus version mismatch.
-        if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+        if let Err(e) =
+            check_consensus_version_mismatch(consensus_version, endpoint, network, command.env_override.network_retries)
+        {
             warnings.push(format!("{e}. In some cases, the deployment may fail"));
         }
     }

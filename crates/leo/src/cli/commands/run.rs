@@ -83,6 +83,7 @@ impl Command for LeoRun {
             home_path,
             self.env_override.network,
             self.env_override.endpoint.as_deref(),
+            self.env_override.network_retries,
         )
         .is_ok()
         {
@@ -262,7 +263,13 @@ fn handle_run<A: Aleo>(
         let endpoint = get_endpoint(&command.env_override.endpoint)?;
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
         // Load the programs from the network.
-        programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
+        programs = load_latest_programs_from_network(
+            &context,
+            program_id,
+            network,
+            &endpoint,
+            command.env_override.network_retries,
+        )?;
     };
 
     // Add the programs to the VM.
@@ -280,7 +287,14 @@ fn handle_run<A: Aleo>(
     // Load any extra programs specified via `--with`.
     if !command.with.is_empty() {
         let endpoint = get_endpoint(&command.env_override.endpoint).ok();
-        load_extra_programs_into_vm::<A::Network>(&command.with, &vm, &context, network, endpoint.as_deref())?;
+        load_extra_programs_into_vm::<A::Network>(
+            &command.with,
+            &vm,
+            &context,
+            network,
+            endpoint.as_deref(),
+            command.env_override.network_retries,
+        )?;
     }
 
     // Evaluate the program and get a response.

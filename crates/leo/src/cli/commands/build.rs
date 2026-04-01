@@ -114,6 +114,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_local,
             Some(network),
             Some(&endpoint),
+            command.env_override.network_retries,
         )?
     } else {
         Package::from_directory(
@@ -123,6 +124,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_local,
             Some(network),
             Some(&endpoint),
+            command.env_override.network_retries,
         )?
     };
 

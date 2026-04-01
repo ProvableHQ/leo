@@ -76,7 +76,7 @@ impl Default for BuildOptions {
 }
 
 /// Overrides for the `.env` file.
-#[derive(Parser, Clone, Debug, Default)]
+#[derive(Parser, Clone, Debug)]
 pub struct EnvOptions {
     #[clap(
         long,
@@ -109,6 +109,26 @@ pub struct EnvOptions {
         global = true
     )]
     pub(crate) consensus_heights: Option<Vec<u32>>,
+    #[clap(
+        long,
+        env = "NETWORK_RETRIES",
+        help = "Number of times to retry a failed network request before giving up.",
+        default_value = "2"
+    )]
+    pub(crate) network_retries: u32,
+}
+
+impl Default for EnvOptions {
+    fn default() -> Self {
+        Self {
+            private_key: None,
+            network: None,
+            endpoint: None,
+            devnet: false,
+            consensus_heights: None,
+            network_retries: 2,
+        }
+    }
 }
 
 /// The fee options for the transactions.
@@ -222,6 +242,7 @@ pub fn get_consensus_version(
     network: NetworkName,
     heights: &[u32],
     context: &Context,
+    network_retries: u32,
 ) -> Result<ConsensusVersion> {
     // Get the consensus version.
     let result = match consensus_version {
@@ -243,7 +264,7 @@ pub fn get_consensus_version(
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
             // Get the consensus heights for the current network.
-            get_latest_block_height(endpoint, network, context)
+            get_latest_block_height(endpoint, network, context, network_retries)
                 .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, heights))
                 .map_err(|_| {
                     CliError::custom(
@@ -258,7 +279,7 @@ pub fn get_consensus_version(
     // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
     // If it returns a result and does not match the given version, print a warning.
     if let Ok(consensus_version) = result
-        && let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network)
+        && let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network, network_retries)
     {
         println!("⚠️ Warning: {e}");
     }
@@ -271,9 +292,10 @@ pub fn check_consensus_version_mismatch(
     consensus_version: ConsensusVersion,
     endpoint: &str,
     network: NetworkName,
+    network_retries: u32,
 ) -> anyhow::Result<()> {
     // Check the `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
-    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version"))
+    if let Ok(response) = fetch_from_network(&format!("{endpoint}/{network}/consensus_version"), network_retries)
         && let Ok(response) = response.parse::<u8>()
     {
         let consensus_version = consensus_version as u8;
