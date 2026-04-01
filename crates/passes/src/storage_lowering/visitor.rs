@@ -70,6 +70,8 @@ impl StorageLoweringVisitor<'_> {
         IntrinsicExpression {
             name: sym::_mapping_get_or_use,
             type_parameters: vec![],
+            input_types: vec![],
+            return_types: vec![],
             arguments: vec![len_path_expr, self.literal_false(), self.literal_zero_u32()],
             span,
             id: self.state.node_builder.next_id(),
@@ -88,6 +90,8 @@ impl StorageLoweringVisitor<'_> {
         IntrinsicExpression {
             name: sym::_mapping_set,
             type_parameters: vec![],
+            input_types: vec![],
+            return_types: vec![],
             arguments: vec![path_expr, key_expr, value_expr],
             span,
             id: self.state.node_builder.next_id(),
@@ -100,6 +104,8 @@ impl StorageLoweringVisitor<'_> {
         IntrinsicExpression {
             name: sym::_mapping_get,
             type_parameters: vec![],
+            input_types: vec![],
+            return_types: vec![],
             arguments: vec![path_expr, key_expr],
             span,
             id: self.state.node_builder.next_id(),
@@ -118,6 +124,8 @@ impl StorageLoweringVisitor<'_> {
         IntrinsicExpression {
             name: sym::_mapping_get_or_use,
             type_parameters: vec![],
+            input_types: vec![],
+            return_types: vec![],
             arguments: vec![path_expr, key_expr, default_expr],
             span,
             id: self.state.node_builder.next_id(),
@@ -228,6 +236,8 @@ impl StorageLoweringVisitor<'_> {
                 let contains_expr: Expression = IntrinsicExpression {
                     name: sym::_mapping_contains,
                     type_parameters: vec![],
+                    input_types: vec![],
+                    return_types: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal.clone()],
                     span: Span::default(),
                     id: id(),
@@ -241,6 +251,8 @@ impl StorageLoweringVisitor<'_> {
                 let get_or_use_expr: Expression = IntrinsicExpression {
                     name: sym::_mapping_get_or_use,
                     type_parameters: vec![],
+                    input_types: vec![],
+                    return_types: vec![],
                     arguments: vec![mapping_expr.clone(), false_literal, zero],
                     span: Span::default(),
                     id: id(),

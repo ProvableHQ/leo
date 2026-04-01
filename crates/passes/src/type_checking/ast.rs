@@ -514,12 +514,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // a `U32` as the default type.
         self.visit_expression_infer_default_u32(&input.count);
 
-        // If we can already evaluate the repeat count as a `u32`, then make sure it's not 0 or  greater than the array
-        // size limit.
-        if let Some(count) = input.count.as_u32()
-            && count > self.limits.max_array_elements as u32
-        {
-            self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+        // If we can already evaluate the repeat count as a `u32`, then make sure it's not greater than the array
+        // size limit. If the count is a literal but exceeds u32::MAX, report that separately.
+        if let Some(count) = input.count.as_u32() {
+            if count > self.limits.max_array_elements as u32 {
+                self.emit_err(TypeCheckerError::array_too_large(count, self.limits.max_array_elements, input.span()));
+            }
+        } else if let Expression::Literal(_) = &input.count {
+            self.emit_err(TypeCheckerError::array_too_large_for_u32(input.span()));
         }
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
@@ -529,10 +531,29 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Visit type parameters so that array length expressions are properly checked and any
+        // literal lengths (e.g., the `2` in `[u32; 2]`) are added to the type table. This mirrors
+        // how `visit_definition` and `visit_const` call `visit_type` for their type annotations.
+        for (tp, _) in &input.type_parameters {
+            self.visit_type(tp);
+        }
+
         // Check core struct name and function.
         let Some(intrinsic) = self.get_intrinsic(input) else {
             return Type::Err;
         };
+
+        // Dynamic dispatch intrinsics have custom validation.
+        match &intrinsic {
+            Intrinsic::DynamicCall => {
+                return self.check_dynamic_call(input, expected);
+            }
+            Intrinsic::DynamicContains | Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                return self.check_dynamic_mapping_op(intrinsic.clone(), input, expected);
+            }
+            _ => {}
+        }
+
         // Check that operation is not restricted to finalize blocks.
         if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
@@ -1037,23 +1058,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
         let func_proto = func_proto.clone();
 
-        // Dynamic calls are only allowed from transitions.
-        match self.scope_state.variant.unwrap() {
-            Variant::Finalize => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", input.span));
-            }
-            Variant::FinalFn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", input.span));
-            }
-            Variant::Fn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", input.span));
-            }
-            Variant::EntryPoint => {}
-        }
-
-        if self.async_block_id.is_some() {
-            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", input.span));
-        }
+        self.validate_dynamic_call_scope(input.span);
 
         // Check target type: must be field or identifier.
         let target_type = self.visit_expression(&input.target_program, &None);
@@ -1079,13 +1084,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Check argument types.
+        // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
-            self.visit_expression(argument, &Some(expected_input.type_().clone()));
+            let proto_type = expected_input.type_().clone();
+            if self.is_record_type(&proto_type) {
+                let actual_type = self.visit_expression(argument, &Some(Type::DynRecord));
+                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                    self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
+                        &proto_type,
+                        argument.span(),
+                    ));
+                }
+            } else {
+                self.visit_expression(argument, &Some(proto_type));
+            }
         }
 
         // If the output type contains a Future, mark it as coming from a dynamic call.
-        let output_type = func_proto.output_type.clone();
+        // Replace any record types in the output with `dyn record`.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type);
         let contains_future = match &output_type {
             Type::Future(..) => true,
             Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
@@ -1404,14 +1421,37 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
 
+        // Special case: `expr as dyn record` — source must be a record type (not a struct).
+        if matches!(input.type_, Type::DynRecord) {
+            let is_record = matches!(&expression_type, Type::Composite(ct)
+                if self.lookup_composite(ct.path.expect_global_location())
+                    .is_some_and(|c| c.is_record));
+            if !is_record && !matches!(expression_type, Type::Err) {
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &expression_type,
+                    "a record type",
+                    input.expression.span(),
+                ));
+            }
+            self.maybe_assert_type(&input.type_, expected, input.span());
+            return input.type_.clone();
+        }
+
         let assert_castable_type = |actual: &Type, span: Span| {
             if !matches!(
                 actual,
-                Type::Integer(_) | Type::Boolean | Type::Field | Type::Group | Type::Scalar | Type::Address | Type::Err,
+                Type::Integer(_)
+                    | Type::Boolean
+                    | Type::Field
+                    | Type::Group
+                    | Type::Scalar
+                    | Type::Address
+                    | Type::Identifier
+                    | Type::Err,
             ) {
                 self.emit_err(TypeCheckerError::type_should_be2(
                     actual,
-                    "an integer, bool, field, group, scalar, or address",
+                    "an integer, bool, field, group, scalar, address, or identifier",
                     span,
                 ));
             }
@@ -1556,7 +1596,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
-            let ty = var.type_.expect("must be known at this point");
+            // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
+            // variable's type from being set during `visit_definition`. Return `Type::Err` to
+            // signal that an error has already been emitted rather than panicking.
+            let Some(ty) = var.type_ else {
+                return Type::Err;
+            };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
                 self.check_access_allowed("storage access", true, input.span());
             }

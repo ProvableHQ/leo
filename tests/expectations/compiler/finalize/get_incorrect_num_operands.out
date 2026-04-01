@@ -1,32 +1,32 @@
 Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:9:5
+    --> compiler-test:8:5
      |
-   9 |     mapping tokens: address => Token;
+   8 |     mapping tokens: address => Token;
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here.
-    --> compiler-test:12:47
+    --> compiler-test:11:47
      |
-  12 |         return final { finalize_decrease_self(self.caller, amount); };
+  11 |         return final { finalize_decrease_self(self.caller, amount); };
      |                                               ^^^^^^^^^^^
      |
      = Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`
 Error [ETYC0372006]: Call expected `2` args, but got `3`
-    --> compiler-test:17:5
+    --> compiler-test:16:5
      |
-  17 |     Mapping::get(tokens, true, true);
+  16 |     Mapping::get(tokens, true, true);
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372006]: Call expected `2` args, but got `3`
+    --> compiler-test:17:5
+     |
+  17 |     tokens.get(true, true);
+     |     ^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372006]: Call expected `2` args, but got `1`
     --> compiler-test:18:5
      |
-  18 |     tokens.get(true, true);
-     |     ^^^^^^^^^^^^^^^^^^^^^^
+  18 |     Mapping::get(amounts);
+     |     ^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372006]: Call expected `2` args, but got `1`
     --> compiler-test:19:5
      |
-  19 |     Mapping::get(amounts);
-     |     ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372006]: Call expected `2` args, but got `1`
-    --> compiler-test:20:5
-     |
-  20 |     amounts.get();
+  19 |     amounts.get();
      |     ^^^^^^^^^^^^^

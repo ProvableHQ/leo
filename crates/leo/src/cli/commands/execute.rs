@@ -16,6 +16,7 @@
 
 use super::*;
 
+use super::common::load_extra_programs_into_vm;
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
 use leo_package::{Package, ProgramData, fetch_program_from_network};
@@ -81,6 +82,14 @@ pub struct LeoExecute {
     pub(crate) extra: ExtraOptions,
     #[clap(flatten)]
     build_options: BuildOptions,
+    #[clap(
+        long = "with",
+        help = "Additional programs to load into the VM (comma-separated). \
+        If a path exists locally, it is read as an .aleo bytecode file; \
+        otherwise it is fetched from the network endpoint.",
+        value_delimiter = ','
+    )]
+    pub(crate) with: Vec<String>,
 }
 
 impl Command for LeoExecute {
@@ -359,6 +368,11 @@ fn handle_execute<A: Aleo>(
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+
+    // Load any extra programs specified via `--with`.
+    if !command.with.is_empty() {
+        load_extra_programs_into_vm::<A::Network>(&command.with, &vm, &context, network, Some(&endpoint))?;
+    }
 
     // Generate the authorization (the method differs based on skip_execute_proof).
     let authorization = if command.skip_execute_proof {

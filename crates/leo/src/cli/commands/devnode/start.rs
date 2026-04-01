@@ -21,7 +21,7 @@ use std::net::SocketAddr;
 use aleo_std_storage::StorageMode;
 use snarkvm::{
     ledger::store::helpers::memory::ConsensusMemory,
-    prelude::{Block, FromBytes, Ledger, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0},
+    prelude::{Block, FromBytes, Ledger, PrivateKey, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0},
 };
 
 use crate::cli::commands::devnode::rest::Rest;
@@ -67,6 +67,8 @@ impl Command for Start {
 async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()> {
     // Initialize the logger.
     println!("Starting the Devnode server...");
+    // Load the private key from the command line or environment variable, and start the server.
+    let private_key = resolve_private_key(&private_key)?;
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
     // Parse the listener address.
     let socket_addr: SocketAddr = command
@@ -85,19 +87,6 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
     };
     // Initialize the storage mode.
     let storage_mode = StorageMode::new_test(None);
-    // Fetch the private key from the command line or an environment variable.
-    let private_key = match private_key {
-        Some(key) => key,
-        None => std::env::var("PRIVATE_KEY").map_err(|e| {
-            CliError::custom(format!(
-                "
-Failed to load `PRIVATE_KEY` from the environment: {e}
-Please either:
-1. Use the --private-key flag: `leo devnode start --private-key <PRIVATE_KEY>`
-2. Set the PRIVATE_KEY environment variable"
-            ))
-        })?,
-    };
     // Initialize the ledger - use spawn_blocking for the blocking load operation.
     let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
         tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
@@ -132,4 +121,51 @@ Please either:
     std::future::pending::<()>().await;
 
     Ok(())
+}
+
+fn resolve_private_key(private_key: &Option<String>) -> Result<PrivateKey<TestnetV0>> {
+    match private_key {
+        Some(pk) => {
+            Ok(PrivateKey::<TestnetV0>::from_str(pk)
+                .map_err(|e| CliError::custom(format!("Invalid private key: {e}")))?)
+        }
+        None => {
+            let pk = std::env::var("PRIVATE_KEY").map_err(|e| {
+                CliError::custom(format!(
+                    "
+Failed to load `PRIVATE_KEY` from the environment: {e}
+Please either:
+1. Use the --private-key flag: `leo devnode start --private-key <PRIVATE_KEY>`
+2. Set the PRIVATE_KEY environment variable"
+                ))
+            })?;
+            Ok(PrivateKey::<TestnetV0>::from_str(&pk)
+                .map_err(|e| CliError::custom(format!("Invalid private key: {e}")))?)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const VALID_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
+    const INVALID_PRIVATE_KEY: &str = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWa";
+
+    #[test]
+    fn test_blank_private_key_from_flag() {
+        let err = resolve_private_key(&Some(String::new())).unwrap_err();
+        assert!(err.to_string().contains("Invalid private key"));
+    }
+
+    #[test]
+    fn test_invalid_private_key_from_flag() {
+        let err = resolve_private_key(&Some(INVALID_PRIVATE_KEY.to_string())).unwrap_err();
+        assert!(err.to_string().contains("Invalid private key"));
+    }
+
+    #[test]
+    fn test_valid_private_key_from_flag() {
+        assert!(resolve_private_key(&Some(VALID_PRIVATE_KEY.to_string())).is_ok());
+    }
 }

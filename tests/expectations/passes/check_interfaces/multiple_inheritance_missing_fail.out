@@ -1,17 +1,17 @@
 Error [ECHI03712002]: Program `test.aleo` implements interface `test.aleo/Calculator` but is missing the required function `add`.
     --> test:11:1
      |
-  11 | program test.aleo : Counter + Calculator {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 | program test.aleo: Counter + Calculator {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   12 |     fn increment() -> u64 {
      |     ^^^^^^^^^^^^^^^^^^^^^^^
   13 |         return 1u64;
      |         ^^^^^^^^^^^^
   14 |     }
      |     ^
-  15 |     // Missing add function from Calculator
+  15 | 
+  16 |     // Missing add function from Calculator
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  16 | 
   17 |     fn main(x: u64) -> u64 {
      |     ^^^^^^^^^^^^^^^^^^^^^^^^
   18 |         return 0;

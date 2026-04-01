@@ -1452,4 +1452,68 @@ create_messages!(
         msg: format!("Cannot cast `{type_}` to `dyn record`: only concrete record types can be cast to `dyn record`."),
         help: None,
     }
+
+    @formatted
+    dynamic_call_min_args {
+        args: (found: impl Display),
+        msg: format!("`_dynamic_call` requires at least 3 arguments (program, network, function), but found {found}."),
+        help: None,
+    }
+
+    @formatted
+    dynamic_intrinsic_wrong_arg_count {
+        args: (name: impl Display, expected: impl Display, found: impl Display),
+        msg: format!("`{name}` requires {expected} arguments, but found {found}."),
+        help: None,
+    }
+
+    @formatted
+    dynamic_intrinsic_missing_type_param {
+        args: (name: impl Display),
+        msg: format!("`{name}` requires exactly one type parameter, e.g. `{name}::[u64](...)`"),
+        help: None,
+    }
+
+    @formatted
+    dynamic_call_input_type_count_mismatch {
+        args: (annotated: impl Display, actual: impl Display),
+        msg: format!("`_dynamic_call` has {annotated} input type annotation(s) but {actual} call argument(s) were provided (excluding the 3 target arguments)."),
+        help: Some("The number of type annotations before the return type must match the number of call arguments after program/network/function.".to_string()),
+    }
+
+    @formatted
+    dynamic_call_in_conditional {
+        args: (),
+        msg: "Dynamic calls cannot be used inside a conditional branch.".to_string(),
+        help: Some("Move the dynamic call outside the `if`/`else` block.".to_string()),
+    }
+
+    @formatted
+    dynamic_call_constant_not_allowed {
+        args: (),
+        msg: "`constant` visibility is not allowed in `_dynamic_call` type annotations.".to_string(),
+        help: Some("Use `public` or `private` instead.".to_string()),
+    }
+
+    /// For when an interface definition appears inside a library module.
+    @formatted
+    interfaces_not_allowed_in_library_modules {
+        args: (),
+        msg: "Interface definitions are not allowed inside library modules.".to_string(),
+        help: None,
+    }
+
+    @formatted
+    dynamic_call_record_arg_requires_dyn_record {
+        args: (record_type: impl Display),
+        msg: format!("Dynamic call argument has record type `{record_type}`, but dynamic calls require `dyn record`."),
+        help: Some("Cast your record value with `my_arg as dyn record`.".to_string()),
+    }
+
+    @formatted
+    dynamic_call_record_return_is_dyn_record {
+        args: (record_type: impl Display),
+        msg: format!("Dynamic call returns record type `{record_type}`, but dynamic calls return `dyn record`."),
+        help: Some("Dynamic calls cannot return concrete record types. Access fields on the returned `dyn record` with type annotations: `let x: u64 = result.field;`".to_string()),
+    }
 );

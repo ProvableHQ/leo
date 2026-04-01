@@ -10,7 +10,7 @@ fn add(a: u32, b: u32) -> u32 {
 
 program main.aleo {
     fn compute(x: u32) -> u32 {
-        return math_lib::add(x, true);  // bool where u32 expected
+        return math_lib::add(x, true); // bool where u32 expected
     }
 
     @noupgrade

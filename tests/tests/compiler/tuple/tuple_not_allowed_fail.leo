@@ -1,6 +1,5 @@
+program test.aleo {}
 
-program test.aleo {
-}
 fn main(zz: bool) -> u8 {
     return 1u8;
 }
@@ -19,5 +18,5 @@ fn baz(zz: bool) -> u8 {
 }
 
 struct A {
-    mem: (u8, u16)
+    mem: (u8, u16),
 }

@@ -1,5 +1,5 @@
 Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:7:25
+    --> compiler-test:5:25
      |
-   7 |         let a: scalar = ChaCha::rand_scalar();
+   5 |         let a: scalar = ChaCha::rand_scalar();
      |                         ^^^^^^^^^^^^^^^^^^^^^

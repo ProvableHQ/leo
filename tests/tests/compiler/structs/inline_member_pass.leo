@@ -1,6 +1,5 @@
-
 struct Foo {
-    x: u8
+    x: u8,
 }
 
 program test.aleo {

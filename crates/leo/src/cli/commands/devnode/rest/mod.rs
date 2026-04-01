@@ -23,7 +23,7 @@ mod routes;
 
 use snarkvm::{
     console::{program::ProgramID, types::Field},
-    prelude::{Ledger, Network, Transaction, store::ConsensusStorage},
+    prelude::{Ledger, Network, PrivateKey, Transaction, store::ConsensusStorage},
 };
 
 use super::*;
@@ -73,7 +73,7 @@ pub struct Rest<N: Network, C: ConsensusStorage<N>> {
     /// Whether manual block creation is enabled.
     manual_block_creation: bool,
     /// The Private Key used for block creation.
-    private_key: String,
+    private_key: PrivateKey<N>,
 }
 
 impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
@@ -83,7 +83,7 @@ impl<N: Network, C: 'static + ConsensusStorage<N>> Rest<N, C> {
         rest_rps: u32,
         ledger: Ledger<N, C>,
         manual_block_creation: bool,
-        private_key: String,
+        private_key: PrivateKey<N>,
     ) -> Result<Self> {
         // Initialize the server.
         let mut server = Self {

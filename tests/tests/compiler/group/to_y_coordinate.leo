@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(a: group) -> field {
         let x: field = a.to_x_coordinate();

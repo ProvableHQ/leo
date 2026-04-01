@@ -8,6 +8,7 @@ interface B {
     fn process() -> u32;
 }
 
-interface C : A + B {}
+interface C: A + B {
+}
 
 program test.aleo {}

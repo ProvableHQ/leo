@@ -227,7 +227,23 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
                 None
             }
+            // Deserialize intrinsics require exactly one type parameter.
+            Some(Intrinsic::Deserialize(variant, _)) if intrinsic_expr.type_parameters.len() != 1 => {
+                let name = match variant {
+                    DeserializeVariant::FromBits => "Deserialize::from_bits",
+                    DeserializeVariant::FromBitsRaw => "Deserialize::from_bits_raw",
+                };
+                self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, intrinsic_expr.span()));
+                None
+            }
             intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
+            // Dynamic dispatch intrinsics may have type parameters.
+            intrinsic @ Some(
+                Intrinsic::DynamicCall
+                | Intrinsic::DynamicContains
+                | Intrinsic::DynamicGet
+                | Intrinsic::DynamicGetOrUse,
+            ) => intrinsic,
             Some(intrinsic) => {
                 // Check that the number of type parameters is 0.
                 if !intrinsic_expr.type_parameters.is_empty() {
@@ -514,7 +530,7 @@ impl TypeCheckingVisitor<'_> {
         };
 
         // Define a regex to match valid program IDs.
-        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]*\.aleo$").unwrap();
+        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
 
         fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
             bail!("structs are not supported")
@@ -1465,7 +1481,174 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("network.id", true, function_span);
                 Type::Integer(IntegerType::U16)
             }
+            // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
+            Intrinsic::DynamicCall
+            | Intrinsic::DynamicContains
+            | Intrinsic::DynamicGet
+            | Intrinsic::DynamicGetOrUse => {
+                unreachable!("Dynamic dispatch intrinsics are handled before check_intrinsic")
+            }
         }
+    }
+
+    /// Validates scope restrictions shared by all dynamic call variants (both intrinsic and Interface@() syntax).
+    /// Dynamic calls must be in an entry point, not in a final block, and not in a conditional.
+    pub fn validate_dynamic_call_scope(&mut self, span: Span) {
+        match self.scope_state.variant.unwrap() {
+            Variant::Finalize => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", span));
+            }
+            Variant::FinalFn => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", span));
+            }
+            Variant::Fn => {
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", span));
+            }
+            Variant::EntryPoint => {}
+        }
+        if self.async_block_id.is_some() {
+            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", span));
+        }
+        if self.scope_state.is_conditional {
+            self.emit_err(TypeCheckerError::dynamic_call_in_conditional(span));
+        }
+    }
+
+    pub fn check_dynamic_call(&mut self, input: &IntrinsicExpression, expected: &Option<Type>) -> Type {
+        let span = input.span();
+
+        self.validate_dynamic_call_scope(span);
+
+        // Minimum 3 arguments: program, network, function.
+        if input.arguments.len() < 3 {
+            self.emit_err(TypeCheckerError::dynamic_call_min_args(input.arguments.len(), span));
+            return Type::Err;
+        }
+
+        // First 3 arguments must be field or identifier.
+        for arg in input.arguments.iter().take(3) {
+            let arg_type = self.visit_expression(arg, &None);
+            if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
+                self.emit_err(TypeCheckerError::type_should_be2(&arg_type, "`field` or `identifier`", arg.span()));
+            }
+        }
+
+        // Remaining arguments: if input_types are provided, validate count matches
+        // and use them as expected types. Otherwise visit without expectation.
+        let call_args = input.arguments.len().saturating_sub(3);
+        if !input.input_types.is_empty() && input.input_types.len() != call_args {
+            self.emit_err(TypeCheckerError::dynamic_call_input_type_count_mismatch(
+                input.input_types.len(),
+                call_args,
+                span,
+            ));
+        }
+        for (i, arg) in input.arguments.iter().skip(3).enumerate() {
+            let expected = input.input_types.get(i).map(|(_, t, _)| t.clone());
+            self.visit_expression(arg, &expected);
+        }
+
+        // Reject `constant` visibility on input and return types.
+        for (mode, _, sp) in input.input_types.iter().chain(input.return_types.iter()) {
+            if matches!(mode, Mode::Constant) {
+                self.emit_err(TypeCheckerError::dynamic_call_constant_not_allowed(*sp));
+            }
+        }
+
+        // Determine return type. Unit `()` is normalized to empty return_types at parse time.
+        let return_type = match input.return_types.len() {
+            0 => Type::Unit,
+            1 => input.return_types[0].1.clone(),
+            _ => Type::Tuple(TupleType::new(input.return_types.iter().map(|(_, t, _)| t.clone()).collect())),
+        };
+
+        // If return type contains Future, mark as dynamic call location.
+        let contains_future = match &return_type {
+            Type::Future(..) => true,
+            Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
+            _ => false,
+        };
+        if contains_future {
+            self.scope_state.call_location = Some(Location::dynamic());
+        }
+
+        self.assert_and_return_type(return_type, expected, span)
+    }
+
+    /// Validates `_dynamic_contains`, `_dynamic_get`, and `_dynamic_get_or_use` intrinsics.
+    pub fn check_dynamic_mapping_op(
+        &mut self,
+        intrinsic: Intrinsic,
+        input: &IntrinsicExpression,
+        expected: &Option<Type>,
+    ) -> Type {
+        let span = input.span();
+
+        // Must be in finalize context.
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
+            && self.async_block_id.is_none()
+        {
+            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span));
+        }
+
+        let (expected_args, needs_type_param, name) = match &intrinsic {
+            Intrinsic::DynamicContains => (4, false, "_dynamic_contains"),
+            Intrinsic::DynamicGet => (4, true, "_dynamic_get"),
+            Intrinsic::DynamicGetOrUse => (5, true, "_dynamic_get_or_use"),
+            _ => unreachable!(),
+        };
+
+        // Check argument count.
+        if input.arguments.len() != expected_args {
+            self.emit_err(TypeCheckerError::dynamic_intrinsic_wrong_arg_count(
+                name,
+                expected_args,
+                input.arguments.len(),
+                span,
+            ));
+            return Type::Err;
+        }
+
+        // Check type parameter count.
+        if needs_type_param && input.type_parameters.len() != 1 {
+            self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, span));
+            return Type::Err;
+        }
+        if !needs_type_param && !input.type_parameters.is_empty() {
+            self.emit_err(TypeCheckerError::custom(format!("`{name}` does not accept type parameters."), span));
+            return Type::Err;
+        }
+
+        // First 3 arguments: program, network, mapping — must be field or identifier.
+        for arg in input.arguments.iter().take(3) {
+            let arg_type = self.visit_expression(arg, &None);
+            if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
+                self.emit_err(TypeCheckerError::type_should_be2(&arg_type, "`field` or `identifier`", arg.span()));
+            }
+        }
+
+        // Arg 4 (key): any type.
+        if input.arguments.len() > 3 {
+            self.visit_expression(&input.arguments[3], &None);
+        }
+
+        // Determine return type.
+        let return_type = match &intrinsic {
+            Intrinsic::DynamicContains => Type::Boolean,
+            Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
+                let tp = input.type_parameters.first().map(|(t, _)| t.clone()).unwrap_or(Type::Err);
+                // For get_or_use, check that default value matches the type param.
+                if matches!(intrinsic, Intrinsic::DynamicGetOrUse)
+                    && let Some(default_arg) = input.arguments.get(4)
+                {
+                    self.visit_expression(default_arg, &Some(tp.clone()));
+                }
+                tp
+            }
+            _ => unreachable!(),
+        };
+
+        self.assert_and_return_type(return_type, expected, span)
     }
 
     /// Emits an error if the composite member is a record type.
@@ -2071,6 +2254,34 @@ impl TypeCheckingVisitor<'_> {
             }
         }
         comp.cloned()
+    }
+
+    /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
+    pub fn is_record_type(&mut self, ty: &Type) -> bool {
+        if let Type::Composite(ct) = ty
+            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
+        {
+            return comp.is_record;
+        }
+        false
+    }
+
+    /// Replaces any record-typed composites with `Type::DynRecord`.
+    /// Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &Type) -> Type {
+        match ty {
+            Type::DynRecord => Type::DynRecord,
+            Type::Tuple(tuple) => Type::Tuple(TupleType::new(
+                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t)).collect(),
+            )),
+            other => {
+                if self.is_record_type(other) {
+                    Type::DynRecord
+                } else {
+                    other.clone()
+                }
+            }
+        }
     }
 
     /// Sets the type of a variable in the symbol table.

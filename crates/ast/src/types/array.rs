@@ -74,8 +74,12 @@ impl ArrayType {
     pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<ConsoleArrayType<N>> {
         let length = if let Expression::Literal(literal) = &*self.length {
             match &literal.variant {
-                LiteralVariant::Integer(_, s) => s.parse::<u32>().unwrap(),
-                LiteralVariant::Unsuffixed(s) => s.parse::<u32>().unwrap(),
+                LiteralVariant::Integer(_, s) => {
+                    s.parse::<u32>().map_err(|e| anyhow::anyhow!("Array length is not a valid u32: {e}"))?
+                }
+                LiteralVariant::Unsuffixed(s) => {
+                    s.parse::<u32>().map_err(|e| anyhow::anyhow!("Array length is not a valid u32: {e}"))?
+                }
                 _ => anyhow::bail!("Array length must be an integer literal"),
             }
         } else {

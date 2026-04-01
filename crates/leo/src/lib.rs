@@ -16,6 +16,5 @@
 
 #![deny(unsafe_code)]
 #![allow(clippy::module_inception)]
-#![doc = include_str!("../../../README.md")]
 
 pub mod cli;

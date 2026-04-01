@@ -10,7 +10,9 @@ struct Point {
 
 program test.aleo {
     // Test all Pedersen and Poseidon raw hash variants
-    fn main(input: u64) -> (
+    fn main(
+        input: u64,
+    ) -> (
         field, group, scalar, address,  // Pedersen64 raw
         field, group, scalar, u128,     // Pedersen128 raw
         field, group, scalar, address,  // Poseidon2 raw
@@ -43,12 +45,11 @@ program test.aleo {
 
         // Poseidon8 raw hashes
         let psd8_u64_raw: u64 = Poseidon8::hash_to_u64_raw(point);
-
         return (
-            ped64_field_raw, ped64_group_raw, ped64_scalar_raw, ped64_addr_raw,
-            ped128_field_raw, ped128_group_raw, ped128_scalar_raw, ped128_u128_raw,
-            psd2_field_raw, psd2_group_raw, psd2_scalar_raw, psd2_addr_raw,
-            psd4_field_raw, psd4_group_raw, psd4_scalar_raw, psd8_u64_raw
+            ped64_field_raw, ped64_group_raw, ped64_scalar_raw, ped64_addr_raw, ped128_field_raw,
+            ped128_group_raw, ped128_scalar_raw, ped128_u128_raw, psd2_field_raw, psd2_group_raw,
+            psd2_scalar_raw, psd2_addr_raw, psd4_field_raw, psd4_group_raw, psd4_scalar_raw,
+            psd8_u64_raw,
         );
     }
 }

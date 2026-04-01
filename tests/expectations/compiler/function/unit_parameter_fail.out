@@ -1,25 +1,25 @@
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:3:5
+    --> compiler-test:2:5
      |
-   3 |     x: (),
+   2 |     x: (),
      |     ^^^^^
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:8:13
+    --> compiler-test:7:13
      |
-   8 |     fn main(x: ()) {}
+   7 |     fn main(x: ()) {}
      |             ^^^^^
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:10:14
+    --> compiler-test:9:14
      |
-  10 |     fn other(x: [(); 2]) {}
+   9 |     fn other(x: [(); 2]) {}
      |              ^^^^^^^^^^
 Error [ETYC0372123]: The unit type () may appear only as the return type of a function.
-    --> compiler-test:12:25
+    --> compiler-test:11:25
      |
-  12 |     fn yet_another() -> [(); 2] {}
+  11 |     fn yet_another() -> [(); 2] {}
      |                         ^^^^^^^
 Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:12:5
+    --> compiler-test:11:5
      |
-  12 |     fn yet_another() -> [(); 2] {}
+  11 |     fn yet_another() -> [(); 2] {}
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

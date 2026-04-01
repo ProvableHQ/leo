@@ -1,4 +1,3 @@
-
 fn f1(a: u8) -> u8 {
     let b: u8 = a + 1u8;
     return b;

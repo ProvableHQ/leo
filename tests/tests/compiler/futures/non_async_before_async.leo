@@ -4,6 +4,7 @@ program test.aleo {
     fn main_inner(public a: u32, public b: u32) -> Final {
         return final { finalize(a, b); };
     }
+
     fn baz(a: u32, b: u32) -> u32 {
         return a + b;
     }
@@ -14,8 +15,8 @@ final fn finalize(a: u32, b: u32) {
 }
 
 // --- Next Program --- //
-
 import test.aleo;
+
 program basic.aleo {
     fn main(public a: u32, b: u32) -> Final {
         let sum1: u32 = test.aleo::baz(a, b);
@@ -30,8 +31,7 @@ program basic.aleo {
 
         let sum3: u32 = test.aleo::baz(a, b);
         assert_eq(sum3, 1u32);
-
-        let f:Final = final { finalize(f1, f2); };
+        let f: Final = final { finalize(f1, f2); };
         return f;
     }
 }

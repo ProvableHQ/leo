@@ -1,5 +1,6 @@
 // The 'test_test_program2' test program.
 import test_program2.aleo;
+
 program test_test_program2.aleo {
     @test
     @should_fail

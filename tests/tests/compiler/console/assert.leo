@@ -1,6 +1,7 @@
 struct Foo {
     a: u8,
 }
+
 program test.aleo {
     record Token {
         // The token owner.
@@ -15,11 +16,13 @@ program test.aleo {
         assert(a);
 
         assert_eq(foo, Foo { a: 0u8 });
-
-        assert_neq(token, Token {
-            owner: aleo1lfapwg53y5enqpt0d8cnef4g8lj7l6g9uhkkma23qyv6jm4ppyfq50regr,
-            amount: 0u64,
-        });
+        assert_neq(
+            token,
+            Token {
+                owner: aleo1lfapwg53y5enqpt0d8cnef4g8lj7l6g9uhkkma23qyv6jm4ppyfq50regr,
+                amount: 0u64,
+            }
+        );
         return a == true;
     }
 }

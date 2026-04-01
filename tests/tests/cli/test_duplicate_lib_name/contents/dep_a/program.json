@@ -1,0 +1,15 @@
+{
+  "program": "dep_a.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "helper",
+      "location": "local",
+      "path": "../helper_a",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

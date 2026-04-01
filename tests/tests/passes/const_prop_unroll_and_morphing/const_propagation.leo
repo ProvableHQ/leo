@@ -5,6 +5,7 @@ program test.aleo {
         let b: u32 = a + 5u32;
         return x + b;
     }
+
     fn foo(x: u32) -> u32 {
         let b: u32 = a + 5u32;
         if true {
@@ -15,10 +16,9 @@ program test.aleo {
         } else {
             b = 43;
         }
-        if true && false{
+        if true && false {
             b = 60;
         }
         return x + b;
     }
 }
-

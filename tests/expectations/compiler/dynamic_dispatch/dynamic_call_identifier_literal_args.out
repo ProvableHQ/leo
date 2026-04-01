@@ -1,0 +1,6 @@
+program test.aleo;
+
+function main:
+    input r0 as u64.private;
+    call.dynamic 'some_program' 'aleo' 'add' with r0 (as u64.private) into r1 (as u64.private);
+    output r1 as u64.private;

@@ -1,4 +1,3 @@
-
 fn foo(a: u8, b: u8) -> u8 {
     assert_neq(a, b);
     return a + b;
@@ -10,5 +9,5 @@ program test.aleo {
             let result: u8 = foo(a, b);
             assert_neq(result, 0u8);
         };
-    } 
+    }
 }

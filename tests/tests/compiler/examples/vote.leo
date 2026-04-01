@@ -1,6 +1,4 @@
-
 // The 'vote.leo' program.
-
 
 // Proposal details
 struct ProposalInfo {
@@ -64,26 +62,34 @@ program vote.aleo {
         // Generate a new proposal id.
         let id: field = BHP256::hash_to_field(info.title);
 
-
         // Return a new record for the proposal.
         // Finalize the proposal id.
-        return (Proposal { owner: self.signer, id, info }, final { finalize_propose(id); });
+        return (
+            Proposal { owner: self.signer, id, info },
+            final {
+                finalize_propose(id);
+            },
+        );
     }
-    // Create a new ticket to vote with.
-    fn new_ticket(
-        public pid: field,
-        public voter: address,
-    ) -> (Ticket, Final) {
 
+    // Create a new ticket to vote with.
+    fn new_ticket(public pid: field, public voter: address) -> (Ticket, Final) {
         // Finalize the proposal id for the ticket.
-        return (Ticket { owner: voter, pid }, final { finalize_new_ticket(pid); });
+        return (
+            Ticket { owner: voter, pid },
+            final {
+                finalize_new_ticket(pid);
+            },
+        );
     }
+
     // Vote privately to agree with a proposal.
     fn agree(ticket: Ticket) -> Final {
         // Finalize this vote.
         let pid = ticket.pid;
         return final { finalize_agree(pid); };
     }
+
     // Vote privately to disagree with a proposal.
     fn disagree(ticket: Ticket) -> Final {
         // Finalize this vote.

@@ -24,7 +24,7 @@
 //! 1. Source files format to match target files
 //! 2. Target files are idempotent (format to themselves)
 
-use leo_fmt::format_source;
+use leo_fmt::{check_formatted, format_source};
 use similar::{ChangeTag, TextDiff};
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -123,6 +123,46 @@ fn test_idempotency() {
     assert!(failures.is_empty(), "{} file(s) not idempotent: {failures:?}", failures.len());
 }
 
+#[test]
+fn manual_cli_fmt_fixtures_remain_ugly_inputs_with_formatted_expectations() {
+    let workspace_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
+    let fixtures = [
+        ("tests/tests/cli/test_fmt/contents/src/main.leo", "tests/expectations/cli/test_fmt/contents/src/main.leo"),
+        (
+            "tests/tests/cli/test_fmt/contents/ugly_lib/src/lib.leo",
+            "tests/expectations/cli/test_fmt/contents/ugly_lib/src/lib.leo",
+        ),
+    ];
+
+    for (source_rel, expected_rel) in fixtures {
+        let source_path = workspace_root.join(source_rel);
+        let expected_path = workspace_root.join(expected_rel);
+
+        let source = std::fs::read_to_string(&source_path)
+            .unwrap_or_else(|_| panic!("Failed to read CLI fmt source fixture: {}", source_path.display()));
+        let expected = std::fs::read_to_string(&expected_path)
+            .unwrap_or_else(|_| panic!("Failed to read CLI fmt expectation fixture: {}", expected_path.display()));
+
+        assert!(
+            !check_formatted(&source),
+            "CLI fmt source fixture must remain intentionally ugly: {}",
+            source_path.display()
+        );
+        assert!(
+            check_formatted(&expected),
+            "CLI fmt expectation fixture must remain formatted: {}",
+            expected_path.display()
+        );
+        assert_eq!(
+            format_source(&source),
+            expected,
+            "CLI fmt fixture pair drifted: {} -> {}",
+            source_path.display(),
+            expected_path.display()
+        );
+    }
+}
+
 /// Compilation and AST validation tests, gated behind `--features validate`.
 ///
 /// These tests use the real Leo compiler to verify that:
@@ -146,6 +186,16 @@ mod validate {
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::{process::Command, rc::Rc};
 
+    const WORKSPACE_LEO_EXCLUDES: &[&str] = &[
+        "crates/fmt/tests/*",
+        "tests/tests/cli/test_fmt/*",
+        "tests/expectations/cli/test_fmt/*",
+        "tests/tests/parser-expression/*",
+        "tests/tests/parser-module/*",
+        "tests/tests/parser-statement/*",
+        "tests/tests/parser-library/*",
+    ];
+
     /// Files that are expected to fail type checking (error recovery tests,
     /// import tests, empty programs, annotated functions).
     const SKIP_VALIDATION: &[&str] = &[
@@ -157,6 +207,7 @@ mod validate {
         "empty_program",
         "function_annotated",
         "comment_before_program",
+        "malformed_missing_program_rbrace",
         "wrap_binary_chain",
     ];
 
@@ -264,15 +315,14 @@ mod validate {
         PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("..")
     }
 
-    /// Collect tracked workspace `.leo` files, excluding formatter fixtures.
+    /// Collect tracked workspace `.leo` files, excluding formatter fixtures,
+    /// hand-authored CLI `fmt` test inputs/expectations, and parser fixture
+    /// source directories whose formatting is validated separately.
     fn collect_workspace_leo_files() -> Vec<PathBuf> {
         let root = workspace_root();
-        let output = Command::new("git")
-            .arg("-C")
-            .arg(&root)
-            .args(["ls-files", "-z", "--", "*.leo", ":(exclude)crates/fmt/tests/*"])
-            .output()
-            .expect("failed to run git ls-files");
+        let mut args = vec!["ls-files".to_string(), "-z".to_string(), "--".to_string(), "*.leo".to_string()];
+        args.extend(WORKSPACE_LEO_EXCLUDES.iter().map(|pattern| format!(":(exclude){pattern}")));
+        let output = Command::new("git").arg("-C").arg(&root).args(&args).output().expect("failed to run git ls-files");
         assert!(output.status.success(), "git ls-files failed for {}", root.display());
 
         output
@@ -284,6 +334,28 @@ mod validate {
                 root.join(path)
             })
             .collect()
+    }
+
+    #[test]
+    fn collect_workspace_leo_files_excludes_manual_cli_and_parser_fixtures() {
+        let leo_files = collect_workspace_leo_files();
+        let excluded_roots = [
+            workspace_root().join("crates/fmt/tests"),
+            workspace_root().join("tests/tests/cli/test_fmt"),
+            workspace_root().join("tests/expectations/cli/test_fmt"),
+            workspace_root().join("tests/tests/parser-expression"),
+            workspace_root().join("tests/tests/parser-module"),
+            workspace_root().join("tests/tests/parser-statement"),
+            workspace_root().join("tests/tests/parser-library"),
+        ];
+
+        for file_path in leo_files {
+            assert!(
+                excluded_roots.iter().all(|root| !file_path.starts_with(root)),
+                "workspace formatter scope should exclude manual CLI/parser fixtures: {}",
+                file_path.display()
+            );
+        }
     }
 
     /// Validate that target files pass Leo type checking.
@@ -384,7 +456,8 @@ mod validate {
     /// Validate AST equivalence across tracked workspace `.leo` files.
     ///
     /// Uses the same tracked-file scope as the CI `leo-fmt --check` step:
-    /// all tracked `.leo` files excluding `crates/fmt/tests/*`.
+    /// all tracked `.leo` files excluding formatter fixtures and the manual
+    /// CLI `fmt` test source/expectation trees.
     ///
     /// Files that cannot be lowered into the compiler AST fall back to a
     /// normalized rowan parse-tree comparison, which still validates the exact

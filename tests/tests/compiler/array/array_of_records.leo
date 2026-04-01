@@ -1,4 +1,3 @@
-
 program test.aleo {
     record bar {
         owner: address,

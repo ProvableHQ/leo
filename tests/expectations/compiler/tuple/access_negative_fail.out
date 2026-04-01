@@ -1,5 +1,5 @@
 Error [EPAR0370047]: expected field name or tuple index
-    --> compiler-test:7:20
+    --> compiler-test:5:21
      |
-   7 |     return (t.0, t.-1); // Index `t.-1` is invalid.
-     |                    ^
+   5 |     return (t.0, t. - 1); // Index `t.-1` is invalid.
+     |                     ^

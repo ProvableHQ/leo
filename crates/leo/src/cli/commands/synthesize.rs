@@ -230,19 +230,27 @@ fn handle_synthesize<A: Aleo>(
         Ok(hex)
     };
 
+    // Collect record names for translation key synthesis.
+    let record_names: Vec<_> = stack.program().records().keys().cloned().collect();
+
     println!("\n🌱 Synthesizing the following keys in {program_id}:");
     for id in &function_ids {
-        println!("    - {id}");
+        println!("    - {id} (function)");
+    }
+    for name in &record_names {
+        println!("    - {name} (record translation)");
     }
 
     let mut synthesized_functions = Vec::new();
 
-    for function_id in function_ids {
-        stack.synthesize_key::<A, _>(function_id, rng)?;
-        let proving_key = stack.get_proving_key(function_id)?;
-        let verifying_key = stack.get_verifying_key(function_id)?;
+    // Helper: process a synthesized key (function or translation), print circuit info,
+    // record metadata, and optionally save keys to disk.
+    let mut process_key = |name: &str, label: &str| -> Result<()> {
+        let name_id = snarkvm::prelude::Identifier::<A::Network>::from_str(name)?;
+        let proving_key = stack.get_proving_key(&name_id)?;
+        let verifying_key = stack.get_verifying_key(&name_id)?;
 
-        println!("\n🔑 Synthesized keys for {program_id}/{function_id} (edition {edition})");
+        println!("\n🔑 Synthesized {label} for {program_id}/{name} (edition {edition})");
         println!("ℹ️ Circuit Information:");
         println!("    - Public Inputs: {}", verifying_key.circuit_info.num_public_inputs);
         println!("    - Variables: {}", verifying_key.circuit_info.num_public_and_private_variables);
@@ -252,13 +260,11 @@ fn handle_synthesize<A: Aleo>(
         println!("    - Non-Zero Entries in C: {}", verifying_key.circuit_info.num_non_zero_c);
         println!("    - Circuit ID: {}", verifying_key.id);
 
-        // Get the checksums of the keys.
         let prover_bytes = proving_key.to_bytes_le()?;
         let verifier_bytes = verifying_key.to_bytes_le()?;
         let prover_checksum = hash(&prover_bytes)?;
         let verifier_checksum = hash(&verifier_bytes)?;
 
-        // Construct the metadata.
         let metadata = Metadata {
             prover_checksum,
             prover_size: prover_bytes.len(),
@@ -279,44 +285,44 @@ fn handle_synthesize<A: Aleo>(
         };
 
         synthesized_functions.push(SynthesizedFunction {
-            name: function_id.to_string(),
+            name: name.to_string(),
             circuit_info,
             metadata: metadata.clone(),
         });
 
-        // A helper to write to a file.
-        let write_to_file = |path: PathBuf, data: &[u8]| -> Result<()> {
-            std::fs::write(path, data).map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
-            Ok(())
-        };
-
-        // If the `save` option is set, save the proving and verifying keys to a file in the specified directory.
-        // The file format is `program_id.function_id.edition_or_local.type.timestamp`.
-        // The directory is created if it doesn't exist.
         if let Some(path) = &command.action.save {
-            // Create the directory if it doesn't exist.
             std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
-            // Get the current timestamp.
             let timestamp = chrono::Utc::now().timestamp();
-            // The edition.
-            let edition = if command.local { "local".to_string() } else { edition.to_string() };
-            // The prefix for the file names.
-            let prefix = format!("{network}.{program_id}.{function_id}.{edition}");
-            // Get the file paths.
+            let edition_str = if command.local { "local".to_string() } else { edition.to_string() };
+            let prefix = format!("{network}.{program_id}.{name}.{edition_str}");
             let prover_file_path = PathBuf::from(path).join(format!("{prefix}.prover.{timestamp}"));
             let verifier_file_path = PathBuf::from(path).join(format!("{prefix}.verifier.{timestamp}"));
-            let metadata_file_path = PathBuf::from(path)
-                .join(format!("{network}.{program_id}.{function_id}.{edition}.metadata.{timestamp}"));
-            // Print the save location.
+            let metadata_file_path = PathBuf::from(path).join(format!("{prefix}.metadata.{timestamp}"));
             println!(
-                "💾 Saving proving key, verifying key, and metadata to: {}/{network}.{program_id}.{function_id}.{edition}.prover|verifier|metadata.{timestamp}",
+                "💾 Saving {label} to: {}/{prefix}.prover|verifier|metadata.{timestamp}",
                 metadata_file_path.parent().unwrap().display()
             );
-            // Save the keys.
-            write_to_file(prover_file_path, &prover_bytes)?;
-            write_to_file(verifier_file_path, &verifier_bytes)?;
-            write_to_file(metadata_file_path, metadata_pretty.as_bytes())?;
+            std::fs::write(&prover_file_path, &prover_bytes)
+                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+            std::fs::write(&verifier_file_path, &verifier_bytes)
+                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+            std::fs::write(&metadata_file_path, metadata_pretty.as_bytes())
+                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
         }
+
+        Ok(())
+    };
+
+    // Synthesize function keys.
+    for function_id in function_ids {
+        stack.synthesize_key::<A, _>(function_id, rng)?;
+        process_key(&function_id.to_string(), "keys")?;
+    }
+
+    // Synthesize record translation keys.
+    for record_name in &record_names {
+        stack.synthesize_translation_key::<A, _>(record_name, rng)?;
+        process_key(&record_name.to_string(), "translation key")?;
     }
 
     Ok(SynthesizeOutput { program: program_id.to_string(), functions: synthesized_functions })

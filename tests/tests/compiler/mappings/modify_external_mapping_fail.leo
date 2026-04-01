@@ -13,7 +13,6 @@ program provider.aleo {
 }
 
 // --- Next Program --- //
-
 import provider.aleo;
 
 program user.aleo {
@@ -22,12 +21,11 @@ program user.aleo {
             //
             // All of these must be rejected — external mapping mutation is illegal.
             //
-            provider.aleo::balances.set(3u32, 300u32);  // ❌ illegal external mutation
-            provider.aleo::balances.remove(1u32);       // ❌ illegal external mutation
+            provider.aleo::balances.set(3u32, 300u32); // ❌ illegal external mutation
+            provider.aleo::balances.remove(1u32); // ❌ illegal external mutation
         };
     }
 
     @noupgrade
     constructor() {}
 }
-

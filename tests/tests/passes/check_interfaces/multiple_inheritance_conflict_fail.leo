@@ -8,7 +8,7 @@ interface BoolChecker {
     fn get_value() -> bool;
 }
 
-program test.aleo : IntCounter + BoolChecker {
+program test.aleo: IntCounter + BoolChecker {
     fn get_value() -> u64 {
         return 0u64;
     }

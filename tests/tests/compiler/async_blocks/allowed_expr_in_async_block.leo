@@ -1,5 +1,6 @@
 program test.aleo {
     mapping foo: u32 => u32;
+
     fn t1() -> Final {
         return final {
             let b = block.height;

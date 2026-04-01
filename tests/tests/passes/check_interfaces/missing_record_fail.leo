@@ -5,7 +5,7 @@ interface TokenStandard {
     fn transfer(amount: u64) -> u64;
 }
 
-program test.aleo : TokenStandard {
+program test.aleo: TokenStandard {
     // Missing Token record
     fn transfer(amount: u64) -> u64 {
         return amount;

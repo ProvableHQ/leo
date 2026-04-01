@@ -6,9 +6,10 @@ interface Multiplier {
     fn product(a: u32, b: u32) -> u32;
 }
 
-interface Calculator : Adder + Multiplier {}
+interface Calculator: Adder + Multiplier {
+}
 
-program test.aleo : Calculator {
+program test.aleo: Calculator {
     fn sum(a: u32, b: u32) -> u32 {
         return a + b;
     }
@@ -18,8 +19,8 @@ program test.aleo : Calculator {
     }
 
     fn main(target: field, x: u32, y: u32) -> u32 {
-        let s: u32 = Adder@(target)/sum(x, y);
-        let p: u32 = Multiplier@(target)/product(x, y);
+        let s: u32 = Adder@(target)::sum(x, y);
+        let p: u32 = Multiplier@(target)::product(x, y);
         return s + p;
     }
 }

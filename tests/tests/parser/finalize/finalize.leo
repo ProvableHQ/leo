@@ -1,20 +1,9 @@
-
 program test.aleo {
-    fn main() -> bool {
-
-    }
-
+    fn main() -> bool {}
 }
 
-final fn finalize_main() {
+final fn finalize_main() {}
 
-}
+fn main() -> bool {}
 
-fn main() -> bool {
-
-}
-final fn main(a: foo, b: bar) -> baz {
-
-}
-
-
+final fn main(a: foo, b: bar) -> baz {}

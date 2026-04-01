@@ -1,0 +1,25 @@
+program a.aleo;
+
+function f:
+    input r0 as u64.private;
+    add r0 r0 into r1;
+    output r1 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import a.aleo;
+program caller.aleo;
+
+function run:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    call.dynamic r0 r1 r2 with r3 (as u64.private) into r4 (as u64.private);
+    output r4 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 10u64

@@ -1,0 +1,5 @@
+Error [ETYC0372177]: Dynamic calls can only be made from an entry point, but found one in a final block.
+    --> compiler-test:7:28
+     |
+   7 |             let val: u64 = _dynamic_call::[u64](target, net, func);
+     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

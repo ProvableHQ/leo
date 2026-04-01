@@ -16,6 +16,7 @@
 
 use super::*;
 
+use super::common::load_extra_programs_into_vm;
 use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
 use leo_package::{Package, ProgramData};
 
@@ -53,6 +54,14 @@ pub struct LeoRun {
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
+    #[clap(
+        long = "with",
+        help = "Additional programs to load into the VM (comma-separated). \
+            If a path exists locally, it is read as an .aleo bytecode file; \
+            otherwise it is fetched from the network endpoint.",
+        value_delimiter = ','
+    )]
+    pub(crate) with: Vec<String>,
 }
 
 impl Command for LeoRun {
@@ -267,6 +276,12 @@ fn handle_run<A: Aleo>(
         })
         .collect::<Vec<_>>();
     vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+
+    // Load any extra programs specified via `--with`.
+    if !command.with.is_empty() {
+        let endpoint = get_endpoint(&command.env_override.endpoint).ok();
+        load_extra_programs_into_vm::<A::Network>(&command.with, &vm, &context, network, endpoint.as_deref())?;
+    }
 
     // Evaluate the program and get a response.
     let authorization = vm

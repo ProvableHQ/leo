@@ -11,8 +11,8 @@ program child.aleo {
 }
 
 // --- Next Program --- //
-
 import child.aleo;
+
 program parent.aleo {
-    fn main() { }
+    fn main() {}
 }

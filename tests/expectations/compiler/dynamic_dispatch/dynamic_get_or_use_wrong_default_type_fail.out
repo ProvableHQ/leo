@@ -1,0 +1,5 @@
+Error [ETYC0372117]: Expected type `u64` but type `bool` was found.
+    --> compiler-test:11:66
+     |
+  11 |     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key, true);
+     |                                                                  ^^^^

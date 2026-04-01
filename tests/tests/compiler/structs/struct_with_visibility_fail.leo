@@ -1,4 +1,3 @@
-
 struct Foo {
     constant a: u8,
     private bar: bool,

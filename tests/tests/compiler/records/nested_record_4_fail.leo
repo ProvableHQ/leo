@@ -1,4 +1,3 @@
-
 program test.aleo {
     record Token3 {
         owner: address,
@@ -14,4 +13,3 @@ program test.aleo {
 struct Bar {
     bar: (Token2, Token2),
 }
-

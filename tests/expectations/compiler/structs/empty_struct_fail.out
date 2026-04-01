@@ -1,8 +1,10 @@
 Error [ETYC0372112]: A struct must have at least one member.
-    --> compiler-test:4:1
+    --> compiler-test:3:1
      |
-   4 | struct Bar {}
-     | ^^^^^^^^^^^^^
+   3 | struct Bar {
+     | ^^^^^^^^^^^^
+   4 | }
+     | ^
 Error [ETYC0372171]: A struct must have at least one member of non-zero size.
     --> compiler-test:6:1
      |
@@ -13,7 +15,7 @@ Error [ETYC0372171]: A struct must have at least one member of non-zero size.
    8 | }
      | ^
 Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:2:9
+    --> compiler-test:1:9
      |
-   2 | program test.aleo {}
+   1 | program test.aleo {}
      |         ^^^^^^^^^

@@ -1,11 +1,11 @@
 Error [EPAR0370050]: Could not lex the following content: `/* next li`.
 
-    --> test:1:5
+    --> test:1:1
      |
-   1 |     /* next line starts with 2069
-     |     ^^
+   1 | /* next line starts with 2069
+     | ^^
 Error [EPAR0370051]: Unicode bidi override code point encountered.
-    --> test:2:1
+    --> test:4:1
      |
-   2 | ⁩*/
+   4 | ⁩*/
      | ^^^

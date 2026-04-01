@@ -23,9 +23,6 @@ use std::{
 
 use walkdir::WalkDir;
 
-// The following license text that should be present at the beginning of every source file.
-const EXPECTED_LICENSE_TEXT: &str = include_str!("../../.resources/license_header");
-
 // The following directories will be excluded from the license scan.
 const DIRS_TO_SKIP: [&str; 9] =
     [".cargo", ".circleci", ".git", ".github", ".resources", "docs", "examples", "target", "tests"];
@@ -51,8 +48,14 @@ fn compare_license_text(path: &Path, expected_lines: &[&str]) {
 }
 
 fn check_file_licenses<P: AsRef<Path>>(path: P) {
+    // The following license text that should be present at the beginning of every source file.
+    let expected_license_text = match std::fs::read_to_string("../../.resources/license_header") {
+        Ok(s) => s,
+        Err(_) => return, // silently skip in published builds
+    };
+
     let path = path.as_ref();
-    let license_lines: Vec<_> = EXPECTED_LICENSE_TEXT.lines().collect();
+    let license_lines: Vec<_> = expected_license_text.lines().collect();
 
     let mut iter = WalkDir::new(path).into_iter();
     while let Some(entry) = iter.next() {
@@ -99,15 +102,24 @@ fn check_file_licenses<P: AsRef<Path>>(path: P) {
 fn generate_cli_tests() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
     let workspace_root = manifest_dir.join("../..");
-
-    println!("cargo::rerun-if-changed={}", workspace_root.join("tests/tests/cli").display());
-
     let tests_dir = workspace_root.join("tests/tests/cli");
+
+    if !tests_dir.exists() {
+        // Not in workspace (e.g. crates.io build)
+        return;
+    }
+
+    println!("cargo:rerun-if-changed={}", tests_dir.display());
 
     let mut out = String::from("use serial_test::serial;\n");
 
-    for entry in fs::read_dir(&tests_dir).unwrap() {
-        let entry = entry.unwrap();
+    let entries = match fs::read_dir(&tests_dir) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+
+    for entry in entries {
+        let Ok(entry) = entry else { continue };
         let path = entry.path();
 
         if !path.is_dir() {
@@ -133,7 +145,7 @@ fn {fn_name}() {{
     }
 
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    fs::write(out_dir.join("cli_tests.rs"), out).unwrap();
+    let _ = fs::write(out_dir.join("cli_tests.rs"), out);
 }
 
 /// Captures git metadata and emits a composite version string as a cargo env var.

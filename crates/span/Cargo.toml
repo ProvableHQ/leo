@@ -1,6 +1,6 @@
 [package]
 name = "leo-span"
-version = "3.5.0"
+version = "4.0.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Span handling for the Leo programming language"
 homepage = "https://leo-lang.org"
@@ -13,7 +13,7 @@ keywords = [
   "zero-knowledge"
 ]
 categories = [ "compilers", "cryptography", "web-programming" ]
-include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md", "build.rs", "symbols.txt" ]
 license = "GPL-3.0"
 edition = "2024"
 

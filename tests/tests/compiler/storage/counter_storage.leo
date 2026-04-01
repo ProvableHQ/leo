@@ -2,9 +2,7 @@ program test.aleo {
     storage counter: u32;
 
     fn initialize() -> Final {
-        return final {
-            counter = 0;
-        };
+        return final { counter = 0; };
     }
 
     fn increment() -> Final {

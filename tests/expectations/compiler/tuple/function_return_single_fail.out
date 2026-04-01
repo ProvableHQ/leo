@@ -1,5 +1,5 @@
 Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> compiler-test:8:16
+    --> compiler-test:7:16
      |
-   8 |         return (b,);
+   7 |         return (b,);
      |                ^^^^

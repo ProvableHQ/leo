@@ -491,7 +491,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             }
 
             _ => {
-                // Default: reconstruct all arguments recursively and return the (possibly updated) original call
+                // Default: reconstruct all arguments and type parameters recursively and return the (possibly updated)
+                // original call.
+                input.type_parameters =
+                    input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
                 let statements: Vec<_> = input
                     .arguments
                     .iter_mut()
@@ -747,6 +750,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let remove_expr: Expression = IntrinsicExpression {
                         name: sym::_mapping_remove,
                         type_parameters: vec![],
+                        input_types: vec![],
+                        return_types: vec![],
                         arguments: vec![mapping_expr, false_literal],
                         span,
                         id: id(),
@@ -766,6 +771,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     let set_expr: Expression = IntrinsicExpression {
                         name: sym::_mapping_set,
                         type_parameters: vec![],
+                        input_types: vec![],
+                        return_types: vec![],
                         arguments: vec![mapping_expr, false_literal, new_value],
                         span,
                         id: id(),
@@ -835,7 +842,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         let (reconstructed_expression, statements) = self.reconstruct_expression(input.expression, &Default::default());
-        if !matches!(reconstructed_expression, Expression::Call(_) | Expression::Intrinsic(_)) {
+        if !matches!(
+            reconstructed_expression,
+            Expression::Call(_) | Expression::DynamicCall(_) | Expression::Intrinsic(_)
+        ) {
             (
                 ExpressionStatement {
                     expression: Expression::Unit(UnitExpression {

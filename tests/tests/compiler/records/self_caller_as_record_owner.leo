@@ -4,16 +4,11 @@ program test0.aleo {
     }
 
     fn foo() -> Token {
-        return Token {
-            owner: self.caller,
-        };
+        return Token { owner: self.caller };
     }
 
     fn bar() -> Token {
-        let t: Token = Token {
-            owner: self.caller,
-        };
-
+        let t: Token = Token { owner: self.caller };
         return t;
     }
 }

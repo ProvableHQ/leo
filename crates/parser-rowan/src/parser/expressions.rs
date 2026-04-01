@@ -355,7 +355,7 @@ impl Parser<'_, '_> {
         Some(m.complete(self, INDEX_EXPR))
     }
 
-    /// Parse dynamic call expression: `expr@(expr)/func(args)`.
+    /// Parse dynamic call expression: `expr@(expr)::func(args)`.
     fn parse_dynamic_call_expr(&mut self, lhs: CompletedMarker) -> Option<CompletedMarker> {
         let m = lhs.precede(self);
 
@@ -367,7 +367,7 @@ impl Parser<'_, '_> {
             self.parse_expr(); // network expression
         }
         self.expect(R_PAREN);
-        self.expect(SLASH);
+        self.expect(COLON_COLON);
         if self.at(IDENT) {
             self.bump_any(); // function name
         }
@@ -654,7 +654,7 @@ impl Parser<'_, '_> {
                 return self.parse_call_expr(cm);
             }
 
-            // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
+            // Check for dynamic call: Interface @ ( target [, network] ) :: function ( args )
             if self.at(AT) {
                 let cm = m.complete(self, TYPE_LOCATOR);
                 return self.parse_dynamic_call_expr(cm);
@@ -708,7 +708,7 @@ impl Parser<'_, '_> {
             return self.parse_call_expr(cm);
         }
 
-        // Check for dynamic call: Interface @ ( target [, network] ) / function ( args )
+        // Check for dynamic call: Interface @ ( target [, network] ) :: function ( args )
         if self.at(AT) {
             let cm = m.complete(self, TYPE_PATH);
             return self.parse_dynamic_call_expr(cm);
@@ -853,9 +853,9 @@ mod tests {
 
     #[test]
     fn parse_expr_dynamic_call_basic() {
-        check_expr("Adder@(target)/sum(x, y)", expect![[r#"
-            ROOT@0..24
-              DYNAMIC_CALL_EXPR@0..24
+        check_expr("Adder@(target)::sum(x, y)", expect![[r#"
+            ROOT@0..25
+              DYNAMIC_CALL_EXPR@0..25
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -863,7 +863,32 @@ mod tests {
                 PATH_EXPR@7..13
                   IDENT@7..13 "target"
                 R_PAREN@13..14 ")"
-                SLASH@14..15 "/"
+                COLON_COLON@14..16 "::"
+                IDENT@16..19 "sum"
+                L_PAREN@19..20 "("
+                PATH_EXPR@20..21
+                  IDENT@20..21 "x"
+                COMMA@21..22 ","
+                WHITESPACE@22..23 " "
+                PATH_EXPR@23..24
+                  IDENT@23..24 "y"
+                R_PAREN@24..25 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_call_identifier_target() {
+        check_expr("Adder@('foo')::sum(x, y)", expect![[r#"
+            ROOT@0..24
+              DYNAMIC_CALL_EXPR@0..24
+                TYPE_PATH@0..5
+                  IDENT@0..5 "Adder"
+                AT@5..6 "@"
+                L_PAREN@6..7 "("
+                LITERAL_IDENT@7..12
+                  IDENT_LIT@7..12 "'foo'"
+                R_PAREN@12..13 ")"
+                COLON_COLON@13..15 "::"
                 IDENT@15..18 "sum"
                 L_PAREN@18..19 "("
                 PATH_EXPR@19..20
@@ -877,35 +902,10 @@ mod tests {
     }
 
     #[test]
-    fn parse_expr_dynamic_call_identifier_target() {
-        check_expr("Adder@('foo')/sum(x, y)", expect![[r#"
-            ROOT@0..23
-              DYNAMIC_CALL_EXPR@0..23
-                TYPE_PATH@0..5
-                  IDENT@0..5 "Adder"
-                AT@5..6 "@"
-                L_PAREN@6..7 "("
-                LITERAL_IDENT@7..12
-                  IDENT_LIT@7..12 "'foo'"
-                R_PAREN@12..13 ")"
-                SLASH@13..14 "/"
-                IDENT@14..17 "sum"
-                L_PAREN@17..18 "("
-                PATH_EXPR@18..19
-                  IDENT@18..19 "x"
-                COMMA@19..20 ","
-                WHITESPACE@20..21 " "
-                PATH_EXPR@21..22
-                  IDENT@21..22 "y"
-                R_PAREN@22..23 ")"
-        "#]]);
-    }
-
-    #[test]
     fn parse_expr_dynamic_call_with_network() {
-        check_expr("Adder@('foo', 'aleo')/sum(x, y)", expect![[r#"
-            ROOT@0..31
-              DYNAMIC_CALL_EXPR@0..31
+        check_expr("Adder@('foo', 'aleo')::sum(x, y)", expect![[r#"
+            ROOT@0..32
+              DYNAMIC_CALL_EXPR@0..32
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -917,24 +917,24 @@ mod tests {
                 LITERAL_IDENT@14..20
                   IDENT_LIT@14..20 "'aleo'"
                 R_PAREN@20..21 ")"
-                SLASH@21..22 "/"
-                IDENT@22..25 "sum"
-                L_PAREN@25..26 "("
-                PATH_EXPR@26..27
-                  IDENT@26..27 "x"
-                COMMA@27..28 ","
-                WHITESPACE@28..29 " "
-                PATH_EXPR@29..30
-                  IDENT@29..30 "y"
-                R_PAREN@30..31 ")"
+                COLON_COLON@21..23 "::"
+                IDENT@23..26 "sum"
+                L_PAREN@26..27 "("
+                PATH_EXPR@27..28
+                  IDENT@27..28 "x"
+                COMMA@28..29 ","
+                WHITESPACE@29..30 " "
+                PATH_EXPR@30..31
+                  IDENT@30..31 "y"
+                R_PAREN@31..32 ")"
         "#]]);
     }
 
     #[test]
     fn parse_expr_dynamic_call_no_args() {
-        check_expr("Adder@(target)/sum()", expect![[r#"
-            ROOT@0..20
-              DYNAMIC_CALL_EXPR@0..20
+        check_expr("Adder@(target)::sum()", expect![[r#"
+            ROOT@0..21
+              DYNAMIC_CALL_EXPR@0..21
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -942,10 +942,10 @@ mod tests {
                 PATH_EXPR@7..13
                   IDENT@7..13 "target"
                 R_PAREN@13..14 ")"
-                SLASH@14..15 "/"
-                IDENT@15..18 "sum"
-                L_PAREN@18..19 "("
-                R_PAREN@19..20 ")"
+                COLON_COLON@14..16 "::"
+                IDENT@16..19 "sum"
+                L_PAREN@19..20 "("
+                R_PAREN@20..21 ")"
         "#]]);
     }
 

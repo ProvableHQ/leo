@@ -73,7 +73,6 @@ fn horizontal_check(
     return bits_split_row;
 }
 
-
 program test.aleo {
     // Returns `true` if the ship placement is valid.
     fn validate_ship(
@@ -94,12 +93,9 @@ program test.aleo {
         let is_adjacent: bool = adjacency_check(ship, horizontal); // True if bits are adjacent horizontally.
         let is_horizontal: bool = horizontal_check(ship, horizontal); // True if those horizontal bits are not split across rows.
         let valid_horizontal: bool = is_adjacent && is_horizontal; // True if bits are adjacent horizontally and not split across rows.
-
         // Check vertical bits of ship.
         let valid_vertical: bool = adjacency_check(ship, vertical); // True if bits are adjacent vertically.
-
         let ship_is_valid: bool = valid_horizontal || valid_vertical; // Ship is valid if it is vertically or horizontally valid.
-
         return ship_is_valid;
     }
 
@@ -120,7 +116,6 @@ program test.aleo {
 
         let num_bits: u64 = bitcount(ships);
         assert_eq(num_bits, 14u64); // Given 4 individually-valid ships, a valid combination should yield exactly 14 flipped bits.
-
         return ships;
     }
 }

@@ -1,5 +1,5 @@
 Error [ETYC0372117]: Expected type `u32` but type `bool` was found.
-    --> compiler-test:11:41
+    --> compiler-test:11:42
      |
-  11 |         return Adder@(target)/sum(1u32, true);
-     |                                         ^^^^
+  11 |         return Adder@(target)::sum(1u32, true);
+     |                                          ^^^^

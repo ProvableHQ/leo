@@ -33,10 +33,7 @@ program child.aleo {
             group_val = 0group;
 
             point = Point { x: 1field, y: 2field };
-            points = [
-                Point { x: 10field, y: 20field },
-                Point { x: 30field, y: 40field },
-            ];
+            points = [Point { x: 10field, y: 20field }, Point { x: 30field, y: 40field }];
             stats = Stats { values: [5u32, 10u32, 15u32], active: true };
 
             arr_u32 = [7u32, 8u32, 9u32];
@@ -44,7 +41,7 @@ program child.aleo {
             nested = [[1u8, 2u8], [3u8, 4u8]];
 
             counter = 9u8;
-            vec.push(50u8); 
+            vec.push(50u8);
         };
     }
 
@@ -73,11 +70,9 @@ program child.aleo {
     constructor() {}
 }
 
-
 // --- Next Program --- //
-
-
 import child.aleo;
+
 program test.aleo {
     //
     // ────────────────────────────────────────────────────────────────
@@ -125,7 +120,6 @@ program test.aleo {
         };
     }
 
-
     //
     // ────────────────────────────────────────────────────────────────
     // Case 2: After wipe(), everything becomes none
@@ -151,7 +145,6 @@ program test.aleo {
         };
     }
 
-
     //
     // ────────────────────────────────────────────────────────────────
     // Case 3: unwrap_or on wiped storage
@@ -163,21 +156,13 @@ program test.aleo {
             assert(child.aleo::scalar_val.unwrap_or(0) == 0);
             assert(child.aleo::field_val.unwrap_or(0field) == 0field);
             assert(child.aleo::group_val.unwrap_or(0group) == 0group);
-
-            let p = child.aleo::point.unwrap_or(
-                child.aleo::Point { x: 0field, y: 0field }
-            );
+            let p = child.aleo::point.unwrap_or(child.aleo::Point { x: 0field, y: 0field });
             assert(p.x == 0field);
-
-            let ps = child.aleo::points.unwrap_or([
-                child.aleo::Point { x: 0field, y: 0field },
-                child.aleo::Point { x: 0field, y: 0field },
-            ]);
+            let ps = child.aleo::points
+                .unwrap_or([child.aleo::Point { x: 0field, y: 0field }, child.aleo::Point { x: 0field, y: 0field }]);
             assert(ps[0].x == 0field);
-
-            let s = child.aleo::stats.unwrap_or(
-                child.aleo::Stats { values: [0u32, 0u32, 0u32], active: false }
-            );
+            let s = child.aleo::stats
+                .unwrap_or(child.aleo::Stats { values: [0u32, 0u32, 0u32], active: false });
             assert(s.active == false);
 
             let a = child.aleo::arr_u32.unwrap_or([0u32, 0u32, 0u32]);
@@ -195,5 +180,4 @@ program test.aleo {
 
     @noupgrade
     constructor() {}
-
 }

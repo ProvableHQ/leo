@@ -1,4 +1,3 @@
-
 program registry.aleo {
     mapping users: address => bool;
 
@@ -13,7 +12,6 @@ final fn finalize_register(addr: address) {
 }
 
 // --- Next Program --- //
-
 import registry.aleo;
 
 program relay.aleo {
@@ -23,7 +21,6 @@ program relay.aleo {
 }
 
 final fn finalize_send(addr: address) {
-    let a:bool = Mapping::get(registry.aleo::foo, addr);
+    let a: bool = Mapping::get(registry.aleo::foo, addr);
     assert_eq(a, true);
 }
-

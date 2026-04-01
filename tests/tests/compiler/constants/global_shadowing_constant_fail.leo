@@ -1,4 +1,3 @@
-
 const HELLO: u8 = 0u8;
 const HELLO: u8 = 1u8;
 program test.aleo {

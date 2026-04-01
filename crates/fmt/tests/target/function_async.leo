@@ -1,8 +1,6 @@
 program test.aleo {
     fn do_something(value: u64) -> Final {
-        return final {
-            finalize(value);
-        };
+        return final { finalize(value); };
     }
 }
 

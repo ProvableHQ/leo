@@ -1,9 +1,8 @@
-
 program test.aleo {
     // The 'ntzgaudet' main function.
     // From Hacker's Delight 2nd ed. figure 5-24
     fn main(public x: u32) -> u8 {
-        let y: u32 = x & 0u32.sub_wrapped(x);  // Isolate rightmost 1-bit
+        let y: u32 = x & 0u32.sub_wrapped(x); // Isolate rightmost 1-bit
         let bz: u8 = (y != 0u32) ? 0u8 : 1u8;
         // 0x0000FFFF = 65535
         let b4: u8 = (y & 65535u32 != 0u32) ? 0u8 : 16u8;

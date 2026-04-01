@@ -1,4 +1,3 @@
-
 program test.aleo {
     fn main(flag: u8, value: u8) -> u8 {
         if (flag == 0u8) {
@@ -8,4 +7,5 @@ program test.aleo {
             value += 2u8;
         }
         return value;
-    }}
+    }
+}

@@ -26,7 +26,7 @@
           {
             "name": "main",
             "finalize_cost": 0,
-            "proof_cost": 1328,
+            "storage_cost": 1328,
             "execution_cost": 1328
           }
         ]

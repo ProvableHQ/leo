@@ -14,8 +14,9 @@ interface TokenB {
     }
 }
 
-interface Combined : TokenA + TokenB {}
+interface Combined: TokenA + TokenB {
+}
 
-program test.aleo : Combined {
+program test.aleo: Combined {
     fn main() {}
 }
