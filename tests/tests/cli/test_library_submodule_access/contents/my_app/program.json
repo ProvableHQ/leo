@@ -1,0 +1,8 @@
+{
+  "program": "my_app.aleo",
+  "version": "0.1.0",
+  "description": "Program that uses structs, consts, and functions from shapes_lib submodules.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

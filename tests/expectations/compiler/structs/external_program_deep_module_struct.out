@@ -1,0 +1,87 @@
+program child.aleo;
+
+struct DeepPoint__1R89g18Fnth:
+    x as u32;
+    y as u32;
+
+function make_point_deep:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as DeepPoint__1R89g18Fnth;
+    output r2 as DeepPoint__1R89g18Fnth.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function use_deep_type:
+    input r0 as child.aleo/DeepPoint__1R89g18Fnth.private;
+    add r0.x r0.y into r1;
+    output r1 as u32.private;
+
+function make_deep_struct:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as child.aleo/DeepPoint__1R89g18Fnth;
+    output r2 as child.aleo/DeepPoint__1R89g18Fnth.private;
+
+function call_child_deep:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    call child.aleo/make_point_deep r0 r1 into r2;
+    output r2 as child.aleo/DeepPoint__1R89g18Fnth.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372017]: The type `child.aleo::outer::inner::DeepPoint` is not found in the current scope.
+    --> compiler-test:7:22
+     |
+   7 |     fn use_deep_type(p: child.aleo::outer::inner::DeepPoint) -> u32 {
+     |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372017]: The type `child.aleo::outer::inner::DeepPoint` is not found in the current scope.
+    --> compiler-test:8:16
+     |
+   8 |         return p.x + p.y;
+     |                ^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372017]: The type `child.aleo::outer::inner::DeepPoint` is not found in the current scope.
+    --> compiler-test:8:22
+     |
+   8 |         return p.x + p.y;
+     |                      ^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372017]: The type `child.aleo::outer::inner::DeepPoint` is not found in the current scope.
+    --> compiler-test:12:44
+     |
+  12 |     fn make_deep_struct(x: u32, y: u32) -> child.aleo::outer::inner::DeepPoint {
+     |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372005]: Unknown struct or record `child.aleo::outer::inner::DeepPoint`
+    --> compiler-test:13:16
+     |
+  13 |         return child.aleo::outer::inner::DeepPoint { x: x, y: y };
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372017]: The type `child.aleo::outer::inner::DeepPoint` is not found in the current scope.
+    --> compiler-test:17:43
+     |
+  17 |     fn call_child_deep(x: u32, y: u32) -> child.aleo::outer::inner::DeepPoint {
+     |                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372003]: Expected type `child.aleo::outer::inner::DeepPoint` but type `child.aleo::DeepPoint__1R89g18Fnth` was found
+    --> compiler-test:18:16
+     |
+  18 |         return child.aleo::make_point_deep(x, y);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

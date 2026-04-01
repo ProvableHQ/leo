@@ -1,0 +1,8 @@
+{
+  "program": "provider.aleo",
+  "version": "0.1.0",
+  "description": "Provider program with a colors submodule.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

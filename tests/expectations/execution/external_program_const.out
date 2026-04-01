@@ -1,0 +1,28 @@
+program child.aleo;
+
+function get_main_const:
+    output 42u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function from_main:
+    output 42u32 as u32.private;
+
+function from_sub:
+    output 10u32 as u32.private;
+
+function combined:
+    output 52u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 42u32
+status: success
+output: 10u32
+status: success
+output: 52u32

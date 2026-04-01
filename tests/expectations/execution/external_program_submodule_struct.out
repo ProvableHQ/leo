@@ -1,0 +1,38 @@
+program child.aleo;
+
+struct Point__A2e5UeHolpJ:
+    x as u32;
+    y as u32;
+
+function make_point_entry:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as Point__A2e5UeHolpJ;
+    output r2 as Point__A2e5UeHolpJ.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function sum_local_struct:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as child.aleo/Point__A2e5UeHolpJ;
+    add r2.x r2.y into r3;
+    output r3 as u32.private;
+
+function sum_via_child:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    call child.aleo/make_point_entry r0 r1 into r2;
+    add r2.x r2.y into r3;
+    output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 7u32
+status: success
+output: 11u32

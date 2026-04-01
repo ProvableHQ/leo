@@ -1,0 +1,37 @@
+program child.aleo;
+
+function get_main_const:
+    output 42u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function from_main:
+    output 42u32 as u32.private;
+
+function from_sub:
+    output 10u32 as u32.private;
+
+function combined:
+    output 52u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown variable `child.aleo::MAIN_CONST`
+    --> compiler-test:7:16
+     |
+   7 |         return child.aleo::MAIN_CONST;
+     |                ^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown variable `child.aleo::MAIN_CONST`
+    --> compiler-test:15:16
+     |
+  15 |         return child.aleo::MAIN_CONST + child.aleo::sub::SUB_CONST;
+     |                ^^^^^^^^^^^^^^^^^^^^^^

@@ -316,9 +316,14 @@ impl Parser<'_, '_> {
             self.bump_any(); // aleo
 
             if self.eat(COLON_COLON) {
-                // Locator path: program.aleo::Type
+                // Locator path: program.aleo::Type or program.aleo::module::Type
                 if self.at(IDENT) {
                     self.bump_any();
+                    // Consume additional path segments: program.aleo::module::submodule::Type
+                    while self.at(COLON_COLON) && self.nth(1) == IDENT {
+                        self.bump_any(); // ::
+                        self.bump_any(); // IDENT
+                    }
                 } else {
                     self.error("expected type name after ::");
                 }
