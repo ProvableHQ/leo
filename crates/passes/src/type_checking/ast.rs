@@ -1135,6 +1135,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
             // FIXME better error
             self.emit_err(TypeCheckerError::can_only_call_inline_function("a final block", input.span));
+            return Type::Err;
         }
 
         // Async functions return a single future.
