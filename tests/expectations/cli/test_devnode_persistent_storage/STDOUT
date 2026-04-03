@@ -60,8 +60,8 @@ Once it is deployed, it CANNOT be changed.
   Total Fee:            2.042366
   Function 'increment'
     Total Execution Cost:   0.001916
+    |- Storage Cost:        0.001264
     |- Finalize Cost:       0.000652
-    |- Proof Cost:          0.001264
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for persistent_counter.aleo...
