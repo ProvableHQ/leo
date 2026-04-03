@@ -23,7 +23,9 @@ trap cleanup EXIT
 wait_for_devnode() {
   local deadline=$((SECONDS + 120))
   while [ $SECONDS -lt $deadline ]; do
-    if curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest" >/dev/null 2>&1; then
+    local height
+    height=$(curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest" 2>/dev/null || echo "")
+    if [ -n "$height" ] && [ "$height" -ge 17 ] 2>/dev/null; then
       return 0
     fi
     sleep 1
