@@ -63,7 +63,7 @@ serial_test        = "3.1"
 sha2               = "0.10"
 similar            = "2.6"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "44ede42", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "rocks" ] }
+snarkvm            = { version = "4.6.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "rocks" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"
