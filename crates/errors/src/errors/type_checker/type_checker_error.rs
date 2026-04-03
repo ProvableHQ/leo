@@ -1502,4 +1502,18 @@ create_messages!(
         msg: "Interface definitions are not allowed inside library modules.".to_string(),
         help: None,
     }
+
+    @formatted
+    dynamic_call_record_arg_requires_dyn_record {
+        args: (record_type: impl Display),
+        msg: format!("Dynamic call argument has record type `{record_type}`, but dynamic calls require `dyn record`."),
+        help: Some("Cast your record value with `my_arg as dyn record`.".to_string()),
+    }
+
+    @formatted
+    dynamic_call_record_return_is_dyn_record {
+        args: (record_type: impl Display),
+        msg: format!("Dynamic call returns record type `{record_type}`, but dynamic calls return `dyn record`."),
+        help: Some("Dynamic calls cannot return concrete record types. Access fields on the returned `dyn record` with type annotations: `let x: u64 = result.field;`".to_string()),
+    }
 );

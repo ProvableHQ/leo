@@ -1,0 +1,12 @@
+Error [ETYC0372117]: Expected type `dyn record` but type `test.aleo::Token` was found.
+    --> compiler-test:17:55
+     |
+  17 |         return test.aleo::TokenOps@(target)::transfer(t);
+     |                                                       ^
+Error [ETYC0372187]: Dynamic call argument has record type `test.aleo::Token`, but dynamic calls require `dyn record`.
+    --> compiler-test:17:55
+     |
+  17 |         return test.aleo::TokenOps@(target)::transfer(t);
+     |                                                       ^
+     |
+     = Cast your record value with `my_arg as dyn record`.

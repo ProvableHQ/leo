@@ -1,0 +1,39 @@
+program a.aleo;
+
+record Token:
+    owner as address.private;
+    balance as u64.private;
+
+function f:
+    input r0 as Token.record;
+    add r0.balance r0.balance into r1;
+    cast r0.owner r1 into r2 as Token.record;
+    output r2 as Token.record;
+
+function get_initial:
+    input r0 as u64.private;
+    cast self.signer r0 into r1 as Token.record;
+    output r1 as Token.record;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import a.aleo;
+program caller.aleo;
+
+function main:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as address.private;
+    input r4 as u64.private;
+    call a.aleo/get_initial r4 into r5;
+    cast r5 into r6 as dynamic.record;
+    call.dynamic r0 r1 r2 with r6 (as dynamic.record) into r7 (as dynamic.record);
+    get.record.dynamic r7.balance into r8 as u64;
+    output r8 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 100u64

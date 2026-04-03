@@ -1,0 +1,10 @@
+Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
+    --> compiler-test:7:13
+     |
+   7 |             baz();
+     |             ^^^^^
+Error [ETYC0372042]: Only regular fns can be called from a final block.
+    --> compiler-test:7:13
+     |
+   7 |             baz();
+     |             ^^^^^

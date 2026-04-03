@@ -1,0 +1,65 @@
+{
+  "program": "test_dynamic_call_with_flag.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "main",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "prog",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Identifier"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "net",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Identifier"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "func",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Identifier"
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "x",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

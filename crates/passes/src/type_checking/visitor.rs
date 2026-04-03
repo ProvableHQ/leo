@@ -2256,6 +2256,34 @@ impl TypeCheckingVisitor<'_> {
         comp.cloned()
     }
 
+    /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
+    pub fn is_record_type(&mut self, ty: &Type) -> bool {
+        if let Type::Composite(ct) = ty
+            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
+        {
+            return comp.is_record;
+        }
+        false
+    }
+
+    /// Replaces any record-typed composites with `Type::DynRecord`.
+    /// Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &Type) -> Type {
+        match ty {
+            Type::DynRecord => Type::DynRecord,
+            Type::Tuple(tuple) => Type::Tuple(TupleType::new(
+                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t)).collect(),
+            )),
+            other => {
+                if self.is_record_type(other) {
+                    Type::DynRecord
+                } else {
+                    other.clone()
+                }
+            }
+        }
+    }
+
     /// Sets the type of a variable in the symbol table.
     pub fn set_local_type(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type) {
         self.insert_symbol_conditional_scope(name.name);

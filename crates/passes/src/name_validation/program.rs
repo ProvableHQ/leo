@@ -31,11 +31,13 @@ impl ProgramVisitor for NameValidationVisitor<'_> {
         self.is_not_keyword(program_name, "program", &[]);
 
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
+        input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
     fn visit_module(&mut self, input: &Module) {
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
+        input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 

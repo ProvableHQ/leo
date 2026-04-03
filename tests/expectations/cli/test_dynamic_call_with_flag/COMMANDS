@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+COMMON_OPTS="--disable-update-check"
+
+PROG="'extra_prog'"
+NET="'aleo'"
+FUNC="'dbl'"
+INPUT="7u64"
+
+echo "--- run WITHOUT --with should fail ---"
+${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
+
+echo "--- run WITH --with should succeed ---"
+${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
+
+exit 0

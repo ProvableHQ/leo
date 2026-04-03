@@ -827,16 +827,9 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     for (function_name, _) in deployment.function_verifying_keys() {
         let name = function_name.to_string();
 
-        // Compute the finalize cost based on the consensus version.
-        let finalize_cost = if consensus_version >= ConsensusVersion::V10 {
-            minimum_cost_in_microcredits_v3(&stack, function_name)?
-        } else if consensus_version >= ConsensusVersion::V2 {
-            minimum_cost_in_microcredits_v2(&stack, function_name)?
-        } else {
-            minimum_cost_in_microcredits_v1(&stack, function_name)?
-        };
-
         // Sample inputs and attempt authorization to estimate execution cost (best-effort).
+        // When authorization succeeds, use the breakdown directly from snarkVM.
+        // When it fails, fall back to the static finalize cost.
         let input_types = deployment.program().get_function(function_name)?.input_types();
         let inputs = input_types
             .into_iter()
@@ -846,20 +839,32 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
                     .map_err(|e| CliError::custom(format!("Failed to sample value: {e}")).into())
             })
             .collect::<Result<Vec<_>>>()?;
-        let execution_cost =
+        let (finalize_cost, storage_cost, execution_cost) =
             match vm.authorize(&sample_key, deployment.program().id(), function_name, inputs.iter(), rng) {
                 Err(e) => {
                     tracing::debug!("Could not estimate execution cost for '{name}': {e}");
-                    None
+                    // Fall back to static finalize cost analysis.
+                    let static_finalize_cost = if consensus_version >= ConsensusVersion::V10 {
+                        minimum_cost_in_microcredits_v3(&stack, function_name)?
+                    } else if consensus_version >= ConsensusVersion::V2 {
+                        minimum_cost_in_microcredits_v2(&stack, function_name)?
+                    } else {
+                        minimum_cost_in_microcredits_v1(&stack, function_name)?
+                    };
+                    (static_finalize_cost, None, None)
                 }
                 Ok(authorization) => {
-                    Some(execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?.0)
+                    let (total, (storage, finalize)) =
+                        execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
+                    (finalize, Some(storage), Some(total))
                 }
             };
 
-        let proof_cost = execution_cost.map(|ec| ec.saturating_sub(finalize_cost));
+        // Check if this function (or any function it calls) uses dynamic dispatch.
+        // Dynamic calls make costs a lower bound since the target is resolved at runtime.
+        let has_dynamic_calls = stack.contains_dynamic_call(function_name).unwrap_or(false);
 
-        function_costs.push(FunctionCostStats { name, finalize_cost, proof_cost, execution_cost });
+        function_costs.push(FunctionCostStats { name, finalize_cost, storage_cost, execution_cost, has_dynamic_calls });
     }
 
     Ok(function_costs)

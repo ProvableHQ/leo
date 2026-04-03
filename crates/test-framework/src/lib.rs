@@ -29,6 +29,7 @@ use walkdir::WalkDir;
 enum TestFailure {
     Panicked(String),
     Mismatch { got: String, expected: String },
+    MissingExpectation,
 }
 
 /// Print a unified diff between expected and actual content.
@@ -58,10 +59,11 @@ fn print_diff(expected: &str, actual: &str) {
 /// if it panics or if results differ from the previous run.
 ///
 ///
-/// If no corresponding `.out` file is found in `expecations/{category}`,
-/// or if the environment variable `UPDATE_EXPECT` is set, no
-/// comparison to a previous result is done and the result of the current
-/// run is written to the file.
+/// If the environment variable `UPDATE_EXPECT` is set, no comparison to
+/// a previous result is done and the result of the current run is written
+/// to the `.out` file. If no corresponding `.out` file is found in
+/// `expectations/{category}` and `UPDATE_EXPECT` is not set, the test
+/// fails with a `MissingExpectation` error.
 pub fn run_tests(category: &str, runner: fn(&str) -> String) {
     // This ensures error output doesn't try to display colors.
     unsafe {
@@ -124,10 +126,12 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
         expectation_path.set_extension("out");
 
         // It may not be ideal to the the IO below in parallel, but I'm thinking it likely won't matter.
-        if rewrite_expectations || !expectation_path.exists() {
+        if rewrite_expectations {
             fs::write(&expectation_path, &output)
                 .unwrap_or_else(|e| panic!("Failed to write file {}: {e}.", expectation_path.display()));
             TestResult { failure: None, name: path.clone(), wrote: true }
+        } else if !expectation_path.exists() {
+            TestResult { failure: Some(TestFailure::MissingExpectation), name: path.clone(), wrote: false }
         } else {
             let expected = fs::read_to_string(&expectation_path)
                 .unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", expectation_path.display()));
@@ -167,6 +171,12 @@ pub fn run_tests(category: &str, runner: fn(&str) -> String) {
                 TestFailure::Mismatch { got, expected } => {
                     eprintln!("Diff (expected -> got):");
                     print_diff(expected, got);
+                }
+                TestFailure::MissingExpectation => {
+                    eprintln!(
+                        "Unexpected test file with no expectation. \
+                         If this test file is expected, run with UPDATE_EXPECT=1 to generate the expectation file."
+                    );
                 }
             }
         }
@@ -229,10 +239,16 @@ pub fn run_single_test(category: &str, path: &Path, runner: fn(&str) -> String) 
             let mut expectation_path = expectations_dir.join(path.strip_prefix(&tests_dir).unwrap());
             expectation_path.set_extension("out");
 
-            if rewrite_expectations || !expectation_path.exists() {
+            if rewrite_expectations {
                 fs::write(&expectation_path, &output)
                     .unwrap_or_else(|e| panic!("Failed to write file {}: {e}.", expectation_path.display()));
                 wrote = true;
+            } else if !expectation_path.exists() {
+                panic!(
+                    "Unexpected test file with no expectation at {}. \
+                     If this test file is expected, run with UPDATE_EXPECT=1 to generate the expectation file.",
+                    expectation_path.display()
+                );
             } else {
                 let expected = fs::read_to_string(&expectation_path)
                     .unwrap_or_else(|e| panic!("Failed to read file {}: {e}.", expectation_path.display()));

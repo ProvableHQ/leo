@@ -26,6 +26,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         // Do the default implementation for visiting the program scope.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
+        input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));

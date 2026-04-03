@@ -1084,13 +1084,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Check argument types.
+        // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
-            self.visit_expression(argument, &Some(expected_input.type_().clone()));
+            let proto_type = expected_input.type_().clone();
+            if self.is_record_type(&proto_type) {
+                let actual_type = self.visit_expression(argument, &Some(Type::DynRecord));
+                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                    self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
+                        &proto_type,
+                        argument.span(),
+                    ));
+                }
+            } else {
+                self.visit_expression(argument, &Some(proto_type));
+            }
         }
 
         // If the output type contains a Future, mark it as coming from a dynamic call.
-        let output_type = func_proto.output_type.clone();
+        // Replace any record types in the output with `dyn record`.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type);
         let contains_future = match &output_type {
             Type::Future(..) => true,
             Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
@@ -1140,6 +1152,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
             // FIXME better error
             self.emit_err(TypeCheckerError::can_only_call_inline_function("a final block", input.span));
+            return Type::Err;
         }
 
         // Async functions return a single future.
@@ -1583,7 +1596,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
-            let ty = var.type_.expect("must be known at this point");
+            // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
+            // variable's type from being set during `visit_definition`. Return `Type::Err` to
+            // signal that an error has already been emitted rather than panicking.
+            let Some(ty) = var.type_ else {
+                return Type::Err;
+            };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
                 self.check_access_allowed("storage access", true, input.span());
             }

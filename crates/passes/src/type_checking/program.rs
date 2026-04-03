@@ -88,6 +88,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
+        // Typecheck each interface definition.
+        for (_, interface) in input.interfaces.iter() {
+            self.visit_interface(interface);
+        }
+
         // Typecheck each mapping definition.
         let mut mapping_count = 0;
         for (_, mapping) in input.mappings.iter() {
@@ -157,6 +162,9 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         // Typecheck each composite definition.
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
+
+        // Typecheck each interface definition.
+        input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
 
         for (_, function) in input.functions.iter() {
             self.visit_function(function);

@@ -619,12 +619,13 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine input types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
+        // Record types must become `dynamic.record` in the bytecode.
         let input_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
             .input
             .iter()
             .map(|inp| {
                 let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
-                self.visit_type_with_visibility(&inp.type_, viz)
+                self.dynamic_call_input_type(&inp.type_, viz)
             })
             .collect();
 
@@ -687,14 +688,14 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine input types. If the user provided explicit input_types annotations,
         // use those (with their visibility modes). Otherwise fall back to the type table
-        // and default to Private.
+        // and default to Private. Record types must become `dynamic.record` in the bytecode.
         let input_types: Vec<(AleoType, Option<AleoVisibility>)> = if !input.input_types.is_empty() {
             input
                 .input_types
                 .iter()
                 .map(|(mode, type_, _)| {
                     let viz = AleoVisibility::maybe_from(*mode).or(Some(AleoVisibility::Private));
-                    self.visit_type_with_visibility(type_, viz)
+                    self.dynamic_call_input_type(type_, viz)
                 })
                 .collect()
         } else {
@@ -710,7 +711,7 @@ impl CodeGeneratingVisitor<'_> {
                         .get(&arg.id())
                         .expect("Type checking guarantees argument types are in the type table");
                     let viz = Some(AleoVisibility::Private);
-                    self.visit_type_with_visibility(&ty, viz)
+                    self.dynamic_call_input_type(&ty, viz)
                 })
                 .collect()
         };

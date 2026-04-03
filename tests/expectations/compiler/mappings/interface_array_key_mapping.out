@@ -1,0 +1,16 @@
+program test.aleo;
+
+mapping allowances:
+    key as [address; 2u32].public;
+    value as u128.public;
+
+function foo:
+    input r0 as address.private;
+    input r1 as address.private;
+    cast r0 r1 into r2 as [address; 2u32];
+    async foo r2 into r3;
+    output r3 as test.aleo/foo.future;
+
+finalize foo:
+    input r0 as [address; 2u32].public;
+    get.or_use allowances[r0] 0u128 into r1;

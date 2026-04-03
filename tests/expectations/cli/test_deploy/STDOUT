@@ -1,9 +1,9 @@
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     2 statements before dead code elimination.
-       Leo     2 statements after dead code elimination.
-       Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
-       Leo     Program size: 0.20 KB / 500.00 KB
+       Leo     8 statements before dead code elimination.
+       Leo     8 statements after dead code elimination.
+       Leo     The program checksum is: '[109u8, 115u8, 37u8, 36u8, 104u8, 211u8, 71u8, 47u8, 167u8, 121u8, 76u8, 58u8, 12u8, 161u8, 114u8, 2u8, 167u8, 69u8, 23u8, 209u8, 243u8, 251u8, 90u8, 233u8, 85u8, 135u8, 145u8, 25u8, 18u8, 86u8, 72u8, 144u8]'.
+       Leo     Program size: 0.68 KB / 500.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
@@ -43,23 +43,31 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.20 KB / 500.00 KB
-  Total Variables:      17,516
-  Total Constraints:    12,927
+  Program Size:         0.68 KB / 500.00 KB
+  Total Variables:      99,771
+  Total Constraints:    76,101
   Max Variables:        XXXXXX
   Max Constraints:      XXXXXX
 
 💰 Cost Breakdown (credits)
-  Transaction Storage:  0.892000
-  Program Synthesis:    0.030443
+  Transaction Storage:  3.270000
+  Program Synthesis:    0.175872
   Namespace:            1.000000
   Constructor:          0.002000
   Priority Fee:         0.000000
-  Total Fee:            1.924443
+  Total Fee:            4.447872
   Function 'main'
     Total Execution Cost:   0.001334
+    |- Storage Cost:        0.001334
     |- Finalize Cost:       0.000000
-    |- Proof Cost:          0.001334
+  Function 'mint'
+    Total Execution Cost:   0.001536
+    |- Storage Cost:        0.001536
+    |- Finalize Cost:       0.000000
+  Function 'dynamic_transfer'
+    Total Execution Cost:   0.000000 (lower bound)
+    |- Storage Cost:        N/A (dynamic call)
+    |- Finalize Cost:       0.000000 (lower bound)
 ──────────────────────────────────────────────
 
 📡 Broadcasting deployment for some_sample_leo_program.aleo...

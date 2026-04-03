@@ -1,6 +1,6 @@
 [package]
 name = "leo-abi-types"
-version = "3.5.0"
+version = "4.0.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "ABI type definitions for Leo programs"
 homepage = "https://leo-lang.org"
