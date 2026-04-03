@@ -15,14 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use super::*;
 
-use snarkvm::prelude::{Identifier, LimitedWriter, Plaintext, PrivateKey, Program, ToBytes, Transaction, VM};
+use snarkvm::prelude::{Identifier, LimitedWriter, Plaintext, Program, ToBytes, Transaction, VM};
 
 use axum::{Json, extract::rejection::JsonRejection};
 
 use anyhow::{Context, anyhow};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::{str::FromStr, sync::atomic::Ordering};
+use std::sync::atomic::Ordering;
 
 use rayon::prelude::*;
 
@@ -534,16 +534,13 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         }
         // Create a block with the transaction if the manual block creation feature is not enabled.
         if !rest.manual_block_creation {
-            // Parse the private key.
-            let private_key = PrivateKey::<N>::from_str(&rest.private_key)?;
-
             // Clone the ledger for the blocking task
             let ledger = rest.ledger.clone();
             // Wrap blocking operations in spawn_blocking
             let new_block = tokio::task::spawn_blocking(move || {
                 ledger
                     .prepare_advance_to_next_beacon_block(
-                        &private_key,
+                        &rest.private_key,
                         vec![],
                         vec![],
                         vec![tx],
@@ -583,9 +580,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         // Iterate and create the specified number of blocks.
         // Return the last created block.
         let last_block = tokio::task::spawn_blocking(move || -> Result<ErasedJson, RestError> {
-            let private_key = PrivateKey::<N>::from_str(&rest.private_key)
-                .map_err(|e| RestError::bad_request(anyhow!("Invalid private key: {}", e)))?;
-
             let mut last_block = None;
 
             // Take all unconfirmed transactions from the buffer.
@@ -601,7 +595,13 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                 // If there are no transactions left in the buffer, create an empty block.
                 let new_block = rest
                     .ledger
-                    .prepare_advance_to_next_beacon_block(&private_key, vec![], vec![], txs, &mut rand::thread_rng())
+                    .prepare_advance_to_next_beacon_block(
+                        &rest.private_key,
+                        vec![],
+                        vec![],
+                        txs,
+                        &mut rand::thread_rng(),
+                    )
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
 
                 // Update the ledger to the new block.
