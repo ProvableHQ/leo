@@ -625,7 +625,7 @@ impl CodeGeneratingVisitor<'_> {
             .iter()
             .map(|inp| {
                 let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
-                self.dynamic_call_input_type(&inp.type_, viz)
+                self.dynamic_call_input_type(&inp.type_, viz, Some(&interface))
             })
             .collect();
 
@@ -648,8 +648,11 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine output types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
-        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
-            func_proto.output.iter().map(|out| self.dynamic_call_output_type(&out.type_, out.mode)).collect();
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
+            .output
+            .iter()
+            .map(|out| self.dynamic_call_output_type(&out.type_, out.mode, Some(&interface)))
+            .collect();
 
         // Emit CallDynamic instruction.
         instructions.push(AleoStmt::CallDynamic(
@@ -695,7 +698,7 @@ impl CodeGeneratingVisitor<'_> {
                 .iter()
                 .map(|(mode, type_, _)| {
                     let viz = AleoVisibility::maybe_from(*mode).or(Some(AleoVisibility::Private));
-                    self.dynamic_call_input_type(type_, viz)
+                    self.dynamic_call_input_type(type_, viz, None)
                 })
                 .collect()
         } else {
@@ -711,7 +714,7 @@ impl CodeGeneratingVisitor<'_> {
                         .get(&arg.id())
                         .expect("Type checking guarantees argument types are in the type table");
                     let viz = Some(AleoVisibility::Private);
-                    self.dynamic_call_input_type(&ty, viz)
+                    self.dynamic_call_input_type(&ty, viz, None)
                 })
                 .collect()
         };
@@ -724,8 +727,11 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // Determine output types with visibility annotations.
-        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
-            input.return_types.iter().map(|(mode, type_, _)| self.dynamic_call_output_type(type_, *mode)).collect();
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = input
+            .return_types
+            .iter()
+            .map(|(mode, type_, _)| self.dynamic_call_output_type(type_, *mode, None))
+            .collect();
 
         instructions.push(AleoStmt::CallDynamic(
             prog,

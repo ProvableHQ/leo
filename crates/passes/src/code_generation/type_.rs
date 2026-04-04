@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{IntegerType, Mode, Type};
+use leo_ast::{IntegerType, Interface, Mode, Type};
 
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(&self, input: &Type) -> AleoType {
@@ -117,46 +117,34 @@ impl CodeGeneratingVisitor<'_> {
         (self.visit_type(type_), visibility)
     }
 
-    /// Maps a dynamic call input type and mode to an AVM type with visibility.
-    /// Record types (both concrete and `dyn record`) become `DynamicRecord` (no visibility).
-    /// All others use the provided visibility (defaulting to Private).
+    /// Maps a dynamic call input type to an AVM type. `dyn record` and interface record types
+    /// become `DynamicRecord`; all others use the provided visibility.
     pub fn dynamic_call_input_type(
         &self,
         type_: &Type,
         visibility: Option<AleoVisibility>,
+        interface: Option<&Interface>,
     ) -> (AleoType, Option<AleoVisibility>) {
-        if matches!(type_, Type::DynRecord) {
+        if matches!(type_, Type::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
             return (AleoType::DynamicRecord, None);
-        }
-        if let Type::Composite(composite) = type_ {
-            let composite_location = composite.path.expect_global_location();
-            let this_program_name = self.program_id.unwrap().as_symbol();
-            if self.state.symbol_table.lookup_record(this_program_name, composite_location).is_some() {
-                return (AleoType::DynamicRecord, None);
-            }
         }
         (self.visit_type(type_), visibility)
     }
 
-    /// Maps a dynamic call output type and mode to an AVM type with visibility.
-    /// Futures become `DynamicFuture` (no visibility), record types (both concrete
-    /// and `dyn record`) become `DynamicRecord` (no visibility), all others use the
-    /// provided mode (defaulting to Private).
-    pub fn dynamic_call_output_type(&self, type_: &Type, mode: Mode) -> (AleoType, Option<AleoVisibility>) {
+    /// Maps a dynamic call output type to an AVM type. Futures become `DynamicFuture`, `dyn record`
+    /// and interface record types become `DynamicRecord`; all others use the provided mode.
+    pub fn dynamic_call_output_type(
+        &self,
+        type_: &Type,
+        mode: Mode,
+        interface: Option<&Interface>,
+    ) -> (AleoType, Option<AleoVisibility>) {
         if matches!(type_, Type::Future(..)) {
             (AleoType::DynamicFuture, None)
-        } else if matches!(type_, Type::DynRecord) {
+        } else if matches!(type_, Type::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
             (AleoType::DynamicRecord, None)
         } else {
             let viz = AleoVisibility::maybe_from(mode).or(Some(AleoVisibility::Private));
-            // Check if this is a concrete record type — those also become DynamicRecord.
-            if let Type::Composite(composite) = type_ {
-                let composite_location = composite.path.expect_global_location();
-                let this_program_name = self.program_id.unwrap().as_symbol();
-                if self.state.symbol_table.lookup_record(this_program_name, composite_location).is_some() {
-                    return (AleoType::DynamicRecord, None);
-                }
-            }
             self.visit_type_with_visibility(type_, viz)
         }
     }

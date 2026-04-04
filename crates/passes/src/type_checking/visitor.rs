@@ -2256,26 +2256,15 @@ impl TypeCheckingVisitor<'_> {
         comp.cloned()
     }
 
-    /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
-    pub fn is_record_type(&mut self, ty: &Type) -> bool {
-        if let Type::Composite(ct) = ty
-            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
-        {
-            return comp.is_record;
-        }
-        false
-    }
-
-    /// Replaces any record-typed composites with `Type::DynRecord`.
-    /// Only recurses into tuples — records cannot be nested inside structs or arrays.
-    pub fn replace_records_with_dyn_record(&mut self, ty: &Type) -> Type {
+    /// Replaces interface record types with `Type::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &Type, interface: &Interface) -> Type {
         match ty {
             Type::DynRecord => Type::DynRecord,
             Type::Tuple(tuple) => Type::Tuple(TupleType::new(
-                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t)).collect(),
+                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t, interface)).collect(),
             )),
             other => {
-                if self.is_record_type(other) {
+                if interface.is_record_type(other) {
                     Type::DynRecord
                 } else {
                     other.clone()
