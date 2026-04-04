@@ -33,6 +33,66 @@ use itertools::Itertools;
 use leo_span::Span;
 use serde::{Deserialize, Serialize};
 
+/// A mapping prototype in an interface, e.g. `mapping balances: address => u128;`.
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+pub struct MappingPrototype {
+    /// The name of the mapping.
+    pub identifier: Identifier,
+    /// The type of the key.
+    pub key_type: Type,
+    /// The type of the value.
+    pub value_type: Type,
+    /// The entire span of the mapping prototype.
+    pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
+}
+
+impl PartialEq for MappingPrototype {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for MappingPrototype {}
+
+impl fmt::Display for MappingPrototype {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "mapping {}: {} => {};", self.identifier, self.key_type, self.value_type)
+    }
+}
+
+crate::simple_node_impl!(MappingPrototype);
+
+/// A storage variable prototype in an interface, e.g. `storage counter: u32;`.
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+pub struct StorageVariablePrototype {
+    /// The name of the storage variable.
+    pub identifier: Identifier,
+    /// The type of the variable.
+    pub type_: Type,
+    /// The entire span of the storage variable prototype.
+    pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
+}
+
+impl PartialEq for StorageVariablePrototype {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for StorageVariablePrototype {}
+
+impl fmt::Display for StorageVariablePrototype {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "storage {}: {};", self.identifier, self.type_)
+    }
+}
+
+crate::simple_node_impl!(StorageVariablePrototype);
+
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct FunctionPrototype {
     /// Annotations on the function.

@@ -88,11 +88,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Typecheck each interface definition.
-        for (_, interface) in input.interfaces.iter() {
-            self.visit_interface(interface);
-        }
-
         // Typecheck each mapping definition.
         let mut mapping_count = 0;
         for (_, mapping) in input.mappings.iter() {
@@ -112,6 +107,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
+
+        // Typecheck each interface definition. This populates the type table for expressions inside interface
+        // prototypes (e.g. array lengths in record member types or function signatures), preventing panics in
+        // later passes such as const propagation.
+        input.interfaces.iter().for_each(|(_, iface)| self.visit_interface(iface));
 
         // Typecheck each function definitions.
         let mut transition_count = 0;
@@ -164,7 +164,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
 
         // Typecheck each interface definition.
-        input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
+        input.interfaces.iter().for_each(|(_, iface)| self.visit_interface(iface));
 
         for (_, function) in input.functions.iter() {
             self.visit_function(function);

@@ -1,0 +1,31 @@
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+program test.aleo {
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+    fn issue(owner: address) -> test.aleo::Token {
+        return test.aleo::Token { owner: owner, amount: 0u64 };
+    }
+    fn split(t: test.aleo::Token) -> (test.aleo::Token, test.aleo::Token) {
+        let half: u64 = t.amount / 2u64;
+        let a: test.aleo::Token = test.aleo::Token { owner: t.owner, amount: half };
+        let b: test.aleo::Token = test.aleo::Token { owner: t.owner, amount: half };
+        return (a, b);
+    }
+    fn owner_of(t: test.aleo::Token) -> address {
+        return t.owner;
+    }
+}
+

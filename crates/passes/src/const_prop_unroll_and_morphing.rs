@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    CheckInterfaces,
     CompilerState,
     ConstPropagation,
     GlobalItemsCollection,
@@ -69,7 +70,11 @@ impl Pass for ConstPropUnrollAndMorphing {
                 && !monomorphization_output.changed
                 && !remove_unreachable_output.changed
             {
-                // We've got a fixed point, so see if we have any errors.
+                // We've reached a fixed point. Verify interface conformance now that const propagation,
+                // loop unrolling, and monomorphization have fully converged.
+                CheckInterfaces::do_pass((), state)?;
+
+                // See if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
                     return Err(CompilerError::const_not_evaluated(not_evaluated_span).into());
                 }

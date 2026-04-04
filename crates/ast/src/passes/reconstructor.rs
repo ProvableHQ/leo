@@ -675,8 +675,27 @@ pub trait ProgramReconstructor: AstReconstructor {
             id: input.id,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_prototype(f))).collect(),
             records: input.records.into_iter().map(|(i, f)| (i, self.reconstruct_record_prototype(f))).collect(),
-            mappings: input.mappings.into_iter().map(|f| self.reconstruct_mapping(f)).collect(),
-            storages: input.storages.into_iter().map(|f| self.reconstruct_storage_variable(f)).collect(),
+            mappings: input.mappings.into_iter().map(|m| self.reconstruct_mapping_prototype(m)).collect(),
+            storages: input.storages.into_iter().map(|s| self.reconstruct_storage_variable_prototype(s)).collect(),
+        }
+    }
+
+    fn reconstruct_mapping_prototype(&mut self, input: MappingPrototype) -> MappingPrototype {
+        MappingPrototype {
+            identifier: input.identifier,
+            key_type: self.reconstruct_type(input.key_type).0,
+            value_type: self.reconstruct_type(input.value_type).0,
+            span: input.span,
+            id: input.id,
+        }
+    }
+
+    fn reconstruct_storage_variable_prototype(&mut self, input: StorageVariablePrototype) -> StorageVariablePrototype {
+        StorageVariablePrototype {
+            identifier: input.identifier,
+            type_: self.reconstruct_type(input.type_).0,
+            span: input.span,
+            id: input.id,
         }
     }
 

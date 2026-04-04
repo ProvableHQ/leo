@@ -24,4 +24,8 @@ Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields be
      |     ^
 program test.aleo;
 
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
 function main:

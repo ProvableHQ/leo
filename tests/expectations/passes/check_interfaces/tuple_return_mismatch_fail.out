@@ -1,0 +1,27 @@
+Error [ECHI03712004]: Function `split` does not match the signature required by interface `test.aleo/ISplit`.
+Expected:
+fn split(t: test.aleo::Token) -> (test.aleo::Token, test.aleo::Token)
+Found:
+fn split(t: test.aleo::Token) -> (test.aleo::Token, u64)
+    --> test:19:5
+     |
+  19 |     fn split(t: Token) -> (Token, u64) {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  20 |         return (t, t.amount);
+     |         ^^^^^^^^^^^^^^^^^^^^^
+  21 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> test:6:1
+     |
+   6 | 
+   7 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   8 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   9 |         ..
+     |         ^^
+  10 |     }
+     |     ^

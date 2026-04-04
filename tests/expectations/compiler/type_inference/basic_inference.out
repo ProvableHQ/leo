@@ -1,5 +1,9 @@
 program foo.aleo;
 
+record R:
+    owner as address.private;
+    v as u64.private;
+
 struct S:
     x as u32;
     y as u32;

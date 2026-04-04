@@ -1,6 +1,10 @@
 import grandchild.aleo;
 program child2.aleo;
 
+record R:
+    owner as address.private;
+    f2 as field.private;
+
 function main:
     input r0 as u32.private;
     call grandchild.aleo/main r0 into r1;

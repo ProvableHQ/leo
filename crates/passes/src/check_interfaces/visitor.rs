@@ -23,12 +23,12 @@ use leo_ast::{
     Function,
     FunctionPrototype,
     Location,
-    Mapping,
+    MappingPrototype,
     Member,
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
-    StorageVariable,
+    StorageVariablePrototype,
     Type,
 };
 use leo_errors::{CheckInterfacesError, Color, Label};
@@ -42,16 +42,20 @@ use leo_ast::common::{DiGraph, DiGraphError};
 struct FlattenedInterface {
     functions: Vec<(Symbol, FunctionPrototype)>,
     records: Vec<(Symbol, RecordPrototype)>,
-    mappings: Vec<Mapping>,
-    storages: Vec<StorageVariable>,
+    mappings: Vec<MappingPrototype>,
+    storages: Vec<StorageVariablePrototype>,
 }
 
 pub struct CheckInterfacesVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Current program name being processed.
     current_program: Symbol,
-    /// Cache of flattened interfaces (with all inherited members).
+    /// Cache of successfully flattened interfaces (with all inherited members).
     flattened_interfaces: IndexMap<Location, FlattenedInterface>,
+    /// Set of interfaces whose flattening failed. Used to suppress duplicate errors when
+    /// the same interface is flattened more than once (e.g. once during the "flatten all"
+    /// loop and again from `check_program_implements_interface`).
+    failed_flattens: IndexSet<Location>,
     /// Interface inheritance graph
     inheritance_graph: DiGraph<Location>,
 }
@@ -62,18 +66,41 @@ impl<'a> CheckInterfacesVisitor<'a> {
             state,
             current_program: Symbol::intern(""),
             flattened_interfaces: IndexMap::new(),
+            failed_flattens: IndexSet::new(),
             inheritance_graph: DiGraph::default(),
         }
     }
 
     /// Flatten an interface by collecting all inherited members.
     /// Detects conflicts during flattening. Assumes cycles have already been checked.
+    ///
+    /// Results (both success and failure) are cached so that repeated calls for the same
+    /// interface location neither re-run expensive logic nor emit duplicate errors.
     fn flatten_interface(&mut self, location: &Location, location_span: Span) -> Option<FlattenedInterface> {
-        // Check cache first.
+        // Return early if this interface previously failed to flatten, suppressing duplicate errors.
+        // This can happen when the same interface is processed in the "flatten all interfaces" loop
+        // and then again from `check_program_implements_interface`.
+        if self.failed_flattens.contains(location) {
+            return None;
+        }
         if let Some(flattened) = self.flattened_interfaces.get(location) {
             return Some(flattened.clone());
         }
 
+        let result = self.flatten_interface_inner(location, location_span);
+        match &result {
+            Some(f) => {
+                self.flattened_interfaces.insert(location.clone(), f.clone());
+            }
+            None => {
+                self.failed_flattens.insert(location.clone());
+            }
+        }
+        result
+    }
+
+    /// Inner implementation of `flatten_interface` (no caching — called exactly once per location).
+    fn flatten_interface_inner(&mut self, location: &Location, location_span: Span) -> Option<FlattenedInterface> {
         let Some(interface) = self.state.symbol_table.lookup_interface(self.current_program, location) else {
             self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
             return None;
@@ -107,11 +134,17 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
             let parent_flattened = self.flatten_interface(parent_location, parent_interface_span)?;
 
+            // Build the union of record prototype names from both the child and parent interface.
+            // This is needed so that `prototypes_match` can compare types by record name rather
+            // than by fully-qualified location (see `type_eq_with_record_names`).
+            let inheritance_record_names: IndexSet<Symbol> =
+                flattened.records.iter().chain(parent_flattened.records.iter()).map(|(name, _)| *name).collect();
+
             // Merge parent functions, checking for conflicts.
             for (name, parent_func) in &parent_flattened.functions {
                 if let Some((_, existing_func)) = flattened.functions.iter().find(|(n, _)| n == name) {
                     // Same name exists - check if compatible.
-                    if !Self::prototypes_match(existing_func, parent_func) {
+                    if !Self::prototypes_match(existing_func, parent_func, &inheritance_record_names) {
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             name,
                             interface_name,
@@ -243,8 +276,6 @@ impl<'a> CheckInterfacesVisitor<'a> {
             }
         }
 
-        // Cache the result.
-        self.flattened_interfaces.insert(location.clone(), flattened.clone());
         Some(flattened)
     }
 
@@ -263,6 +294,14 @@ impl<'a> CheckInterfacesVisitor<'a> {
             None => return, // Error already emitted.
         };
 
+        // Collect the names of all record prototypes required by this interface. These are
+        // abstract types: `record Token;` in the interface means "the implementing program
+        // must provide a record called Token". When comparing function signatures we match
+        // these by name (last path segment) rather than by fully-qualified location, because
+        // the interface may be defined in a different module or library than the program, so
+        // the resolved locations differ even though they refer to the same record.
+        let record_names: IndexSet<Symbol> = flattened.records.iter().map(|(name, _)| *name).collect();
+
         // Check all required functions are implemented.
         for (func_name, required_proto) in &flattened.functions {
             let func_location = Location::new(program_name, vec![*func_name]);
@@ -270,7 +309,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             match self.state.symbol_table.lookup_function(program_name, &func_location) {
                 Some(func_symbol) => {
                     // Function exists - check signature matches exactly.
-                    if !Self::function_matches_prototype(&func_symbol.function, required_proto) {
+                    if !Self::function_matches_prototype(&func_symbol.function, required_proto, &record_names) {
                         self.state.handler.emit_err(CheckInterfacesError::signature_mismatch(
                             func_name,
                             interface_location,
@@ -416,26 +455,31 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Check if two FunctionPrototypes have matching signatures.
-    fn prototypes_match(a: &FunctionPrototype, b: &FunctionPrototype) -> bool {
+    ///
+    /// `record_names` is the union of record prototype names from both interfaces being
+    /// compared; see `type_eq_with_record_names` for how they are handled.
+    fn prototypes_match(a: &FunctionPrototype, b: &FunctionPrototype, record_names: &IndexSet<Symbol>) -> bool {
         // Input parameters must match exactly.
         a.input.len() == b.input.len() &&
         a.input.iter().zip(b.input.iter()).all(|(input_a, input_b)| {
             // Parameter names must match.
             input_a.identifier.name == input_b.identifier.name &&
             // Parameter types must match.
-            input_a.type_.eq_user(&input_b.type_) &&
+            Self::type_eq_with_record_names(&input_a.type_, &input_b.type_, record_names) &&
             // Parameter modes must match.
             input_a.mode.eq_user(&input_b.mode)
         }) &&
 
         // Output must match.
         a.output.len() == b.output.len() &&
-        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| output_a.type_.eq_user(&output_b.type_) && output_a.mode.eq_user(&output_b.mode)) &&
+        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| {
+            Self::type_eq_with_record_names(&output_a.type_, &output_b.type_, record_names)
+                && output_a.mode.eq_user(&output_b.mode)
+        }) &&
 
         // Const parameters must match.
         a.const_parameters.len() == b.const_parameters.len() &&
         a.const_parameters.iter().zip(b.const_parameters.iter()).all(|(const_a, const_b)| const_a.type_.eq_user(&const_b.type_)) &&
-
 
         //TODO: we may want to check certain annotations, but they are not significant yet
         // // Annotations must match.
@@ -443,11 +487,51 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // a.annotations.iter().zip(b.annotations.iter()).all(|(ann_a, ann_b)| ann_a == ann_b) &&
 
         // Output type must match (including Final).
-        a.output_type.eq_user(&b.output_type)
+        Self::type_eq_with_record_names(&a.output_type, &b.output_type, record_names)
+    }
+
+    /// Like `eq_user`, but composite types whose name is in `record_names` are matched by name
+    /// only, ignoring their resolved program path.
+    ///
+    /// This is necessary because record prototypes in an interface are abstract — `record Token`
+    /// in the interface just means "the implementing program must provide a record called Token".
+    /// The interface and the program may live in different modules, so their resolved paths differ
+    /// even though they refer to the same record.
+    ///
+    /// Example: an interface in `mylib.aleo` declares `record Token;` and requires
+    /// `fn transfer(t: Token) -> Token`. The implementing program `test.aleo` defines its own
+    /// `record Token`. After path resolution, the prototype type is `mylib.aleo/[Token]` and the
+    /// program type is `test.aleo/[Token]`. `eq_user` would reject them; this function accepts
+    /// them because `Token` is in `record_names`.
+    fn type_eq_with_record_names(func_type: &Type, proto_type: &Type, record_names: &IndexSet<Symbol>) -> bool {
+        match (func_type, proto_type) {
+            (Type::Composite(fc), Type::Composite(pc)) => {
+                if let Some(proto_loc) = pc.path.try_global_location()
+                    && let Some(&proto_name) = proto_loc.path.last()
+                    && record_names.contains(&proto_name)
+                {
+                    // Match by record name only.
+                    return fc.path.try_global_location().and_then(|loc| loc.path.last().copied()) == Some(proto_name);
+                }
+                func_type.eq_user(proto_type)
+            }
+            (Type::Tuple(ft), Type::Tuple(pt)) => {
+                ft.elements.len() == pt.elements.len()
+                    && ft
+                        .elements
+                        .iter()
+                        .zip(pt.elements.iter())
+                        .all(|(fe, pe)| Self::type_eq_with_record_names(fe, pe, record_names))
+            }
+            _ => func_type.eq_user(proto_type),
+        }
     }
 
     /// Check if a Function matches a FunctionPrototype exactly.
-    fn function_matches_prototype(func: &Function, proto: &FunctionPrototype) -> bool {
+    ///
+    /// `record_names` is the set of record prototype names declared by the interface; see
+    /// `type_eq_with_record_names` for how they are handled.
+    fn function_matches_prototype(func: &Function, proto: &FunctionPrototype, record_names: &IndexSet<Symbol>) -> bool {
         // Input parameters must match exactly.
         func.input.len() == proto.input.len() &&
 
@@ -455,7 +539,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             // Parameter names must match.
             func_input.identifier.name == proto_input.identifier.name &&
             // Parameter types must match.
-            func_input.type_.eq_user(&proto_input.type_) &&
+            Self::type_eq_with_record_names(&func_input.type_, &proto_input.type_, record_names) &&
             // Parameter modes must match.
             func_input.mode.eq_user(&proto_input.mode)
         }) &&
@@ -463,20 +547,22 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // Output must match.
         func.output.len() == proto.output.len() &&
 
-        func.output.iter().zip(proto.output.iter()).all(
-            |(func_output, proto_output)| func_output.type_.eq_user(&proto_output.type_) && func_output.mode.eq_user(&proto_output.mode)) &&
+        func.output.iter().zip(proto.output.iter()).all(|(func_output, proto_output)| {
+            Self::type_eq_with_record_names(&func_output.type_, &proto_output.type_, record_names)
+                && func_output.mode.eq_user(&proto_output.mode)
+        }) &&
 
         // Const parameters must match.
         func.const_parameters.len() == proto.const_parameters.len() &&
         func.const_parameters.iter().zip(proto.const_parameters.iter()).all(|(func_const, proto_const)| func_const.type_.eq_user(&proto_const.type_)) &&
 
         //TODO: we may want to check certain annotations, but they are not significant yet
-        // // Annotations must match.
+        // Annotations must match.
         // func.annotations.len() == proto.annotations.len() &&
         // func.annotations.iter().zip(proto.annotations.iter()).all(|(ann_func, ann_proto)| ann_func == ann_proto) &&
 
         // Output type must match (including Final).
-        func.output_type.eq_user(&proto.output_type)
+        Self::type_eq_with_record_names(&func.output_type, &proto.output_type, record_names)
     }
 
     fn format_prototype_signature(proto: &FunctionPrototype) -> String {

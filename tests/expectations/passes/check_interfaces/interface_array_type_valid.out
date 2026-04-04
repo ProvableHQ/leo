@@ -1,0 +1,9 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn hash(input: [u8; 32]) -> [u8; 32] {
+        return input;
+    }
+}
+

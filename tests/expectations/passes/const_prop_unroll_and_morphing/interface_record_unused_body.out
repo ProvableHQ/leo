@@ -1,0 +1,25 @@
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> test:12:1
+     |
+  12 | 
+  13 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  14 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  15 |         ..
+     |         ^^
+  16 |     }
+     |     ^
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+    fn total_supply() -> u64 {
+        return 1000000u64;
+    }
+}
+

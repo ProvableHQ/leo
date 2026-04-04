@@ -412,8 +412,8 @@ pub trait ProgramVisitor: AstVisitor {
     fn visit_interface(&mut self, input: &Interface) {
         input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
         input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
-        input.mappings.iter().for_each(|m| self.visit_mapping(m));
-        input.storages.iter().for_each(|s| self.visit_storage_variable(s));
+        input.mappings.iter().for_each(|m| self.visit_mapping_prototype(m));
+        input.storages.iter().for_each(|s| self.visit_storage_variable_prototype(s));
     }
 
     fn visit_function_prototype(&mut self, input: &FunctionPrototype) {
@@ -423,7 +423,18 @@ pub trait ProgramVisitor: AstVisitor {
         self.visit_type(&input.output_type);
     }
 
-    fn visit_record_prototype(&mut self, _input: &RecordPrototype) {}
+    fn visit_record_prototype(&mut self, input: &RecordPrototype) {
+        input.members.iter().for_each(|member| self.visit_type(&member.type_));
+    }
+
+    fn visit_mapping_prototype(&mut self, input: &MappingPrototype) {
+        self.visit_type(&input.key_type);
+        self.visit_type(&input.value_type);
+    }
+
+    fn visit_storage_variable_prototype(&mut self, input: &StorageVariablePrototype) {
+        self.visit_type(&input.type_);
+    }
 
     fn visit_constructor(&mut self, input: &Constructor) {
         self.visit_block(&input.block);
