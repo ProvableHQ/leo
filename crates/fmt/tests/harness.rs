@@ -186,6 +186,9 @@ mod validate {
     use leo_span::{create_session_if_not_set_then, source_map::FileName};
     use std::{process::Command, rc::Rc};
 
+    const ALEO_STUB_HEADER: &str = "// --- aleo stub --- //";
+    const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
+
     const WORKSPACE_LEO_EXCLUDES: &[&str] = &[
         "crates/fmt/tests/*",
         "tests/tests/cli/test_fmt/*",
@@ -477,7 +480,31 @@ mod validate {
                 let name = file_path.file_stem().unwrap().to_str().unwrap();
                 let source = std::fs::read_to_string(file_path)
                     .unwrap_or_else(|_| panic!("Failed to read: {}", file_path.display()));
-                let (mode, before, ast_error) = snapshot_for_source(name, &source);
+
+                // Multi-section compiler test files can embed raw Aleo bytecode stubs
+                // (lines between `ALEO_STUB_HEADER` and the next `PROGRAM_DELIMITER`).
+                // Strip those lines so that only Leo source is passed to the formatter.
+                let leo_source: String = if source.contains(ALEO_STUB_HEADER) {
+                    let mut filtered = String::with_capacity(source.len());
+                    let mut in_aleo = false;
+                    for line in source.lines() {
+                        if line.trim() == ALEO_STUB_HEADER {
+                            in_aleo = true;
+                        } else if in_aleo && line.trim() == PROGRAM_DELIMITER {
+                            in_aleo = false;
+                            filtered.push_str(line);
+                            filtered.push('\n');
+                        } else if !in_aleo {
+                            filtered.push_str(line);
+                            filtered.push('\n');
+                        }
+                    }
+                    filtered
+                } else {
+                    source
+                };
+
+                let (mode, before, ast_error) = snapshot_for_source(name, &leo_source);
                 let label = comparison_label(mode);
 
                 match mode {
@@ -495,7 +522,7 @@ mod validate {
                     }
                 }
 
-                let formatted = format_source(&source);
+                let formatted = format_source(&leo_source);
                 let Ok(after) = snapshot_in_mode(mode, name, &formatted) else {
                     println!("\n=== FORMAT BROKE PARSING: {} ===", file_path.display());
                     println!("Original source passed {label} validation but formatted output did not");

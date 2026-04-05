@@ -67,132 +67,80 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     let (last, rest) = sources.split_last().expect("non-empty sources");
 
-    // Pre-parse all `// --- aleo stub --- //` sections. These contain raw Aleo bytecode and
-    // are always treated as FromAleo stubs. We parse them first so they're available for Leo
-    // programs to reference, regardless of file order.
-    let mut aleo_lookup: IndexMap<Symbol, (Stub, String)> = IndexMap::new();
+    // Process dependency sections in file order so that `import_stubs` reflects
+    // the topological ordering expressed in the test file (dependencies before dependents).
     for source in rest {
         if let Some(aleo_source) = super::test_utils::extract_aleo_stub_header(source) {
             let program = handler
                 .extend_if_error(disassemble_from_str::<TestnetV0>("", aleo_source).map_err(|err| err.into()))?;
             let name = program.stub_id.as_symbol();
-            let stub: Stub = program.into();
-            aleo_lookup.insert(name, (stub, aleo_source.to_string()));
-        }
-    }
-
-    // In FromAleo mode, insert aleo stubs early so Leo programs can reference them,
-    // and register them in the Process for validation.
-    // In FromLeo mode, we defer insertion until after Leo programs to reproduce the
-    // real-world ordering where FromAleo stubs may appear after FromLeo stubs.
-    if stub_type == StubType::FromAleo {
-        for (name, (stub, aleo_source)) in &aleo_lookup {
-            import_stubs.insert(*name, stub.clone());
+            import_stubs.insert(name, program.into());
             add_aleo_program(aleo_source)?;
+            continue;
         }
-    }
 
-    for source in rest {
-        // Skip aleo stub sections; they are handled above.
-        if super::test_utils::extract_aleo_stub_header(source).is_some() {
+        if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
+            // Library dependency: always parsed as a Leo library regardless of stub mode.
+            let library = handler.extend_if_error(super::test_utils::parse_library(
+                &library_name,
+                library_source,
+                handler,
+                node_builder,
+            ))?;
+            import_stubs.insert(Symbol::intern(&library_name), library.into());
+            if handler.err_count() != 0 {
+                return Err(());
+            }
             continue;
         }
 
         match stub_type {
             StubType::FromLeo => {
-                if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
-                    // Handle library dependencies (always Leo dependencies).
-                    let library = handler.extend_if_error(super::test_utils::parse_library(
-                        &library_name,
-                        library_source,
-                        handler,
-                        node_builder,
-                    ))?;
-
-                    import_stubs.insert(Symbol::intern(&library_name), library.into());
-                } else {
-                    // Handle program dependencies. Treat them as Leo direct dependencies.
-                    // Merge aleo_lookup into the stubs passed for parsing so that Leo programs
-                    // can reference types from aleo stubs.
-                    let mut stubs_for_parse = import_stubs.clone();
-                    for (name, (stub, _)) in &aleo_lookup {
-                        stubs_for_parse.insert(*name, stub.clone());
-                    }
-
-                    let (program, program_name) = handler.extend_if_error(super::test_utils::parse_program(
-                        source,
-                        handler,
-                        node_builder,
-                        stubs_for_parse,
-                    ))?;
-
-                    import_stubs.insert(Symbol::intern(&program_name), program.into());
-                }
-
+                let (program, program_name) = handler.extend_if_error(super::test_utils::parse_program(
+                    source,
+                    handler,
+                    node_builder,
+                    import_stubs.clone(),
+                ))?;
+                import_stubs.insert(Symbol::intern(&program_name), program.into());
                 if handler.err_count() != 0 {
                     return Err(());
                 }
             }
 
             StubType::FromAleo => {
-                if let Some((library_name, library_source)) = super::test_utils::extract_library_header(source) {
-                    // Handle library dependencies (always Leo dependencies).
-                    let library = handler.extend_if_error(super::test_utils::parse_library(
-                        &library_name,
-                        library_source,
-                        handler,
-                        node_builder,
-                    ))?;
-
-                    import_stubs.insert(Symbol::intern(&library_name), library.into());
-                } else {
-                    // Handle program dependencies. Treat them as Aleo dependencies by fully compiling them individually first.
-
-                    // Before compiling, register this program as a parent of all known libraries
-                    // so that library constants are visible during compilation.
-                    let program_name_for_parents =
-                        handler.extend_if_error(super::test_utils::extract_program_name(source, handler))?;
-                    let program_symbol = Symbol::intern(&program_name_for_parents);
-                    for stub in import_stubs.values_mut() {
-                        if stub.is_library() {
-                            stub.add_parent(program_symbol);
-                        }
+                // Register this program as a parent of all known libraries so that library
+                // constants are visible during compilation.
+                let program_name_for_parents =
+                    handler.extend_if_error(super::test_utils::extract_program_name(source, handler))?;
+                let program_symbol = Symbol::intern(&program_name_for_parents);
+                for stub in import_stubs.values_mut() {
+                    if stub.is_library() {
+                        stub.add_parent(program_symbol);
                     }
-
-                    let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
-                        source,
-                        handler,
-                        node_builder,
-                        import_stubs.clone(),
-                    ))?;
-
-                    // Parse the bytecode as an Aleo program.
-                    // Note that this function checks that the bytecode is well-formed.
-                    add_aleo_program(&programs.primary.bytecode)?;
-
-                    let program = handler.extend_if_error(
-                        disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
-                            .map_err(|err| err.into()),
-                    )?;
-
-                    import_stubs.insert(Symbol::intern(&program_name), program.into());
-
-                    if handler.err_count() != 0 {
-                        return Err(());
-                    }
-
-                    bytecodes.push(programs.primary.bytecode);
                 }
-            }
-        };
-    }
 
-    // In FromLeo mode, insert aleo stubs AFTER all Leo programs in import_stubs.
-    // This mirrors the real-world ordering where the package manager may place FromAleo stubs
-    // after FromLeo stubs in the compilation unit order.
-    if stub_type == StubType::FromLeo {
-        for (name, (stub, _)) in &aleo_lookup {
-            import_stubs.insert(*name, stub.clone());
+                let (programs, program_name) = handler.extend_if_error(super::test_utils::whole_compile(
+                    source,
+                    handler,
+                    node_builder,
+                    import_stubs.clone(),
+                ))?;
+
+                // Note: also validates that the bytecode is well-formed.
+                add_aleo_program(&programs.primary.bytecode)?;
+                let program = handler.extend_if_error(
+                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
+                        .map_err(|err| err.into()),
+                )?;
+                import_stubs.insert(Symbol::intern(&program_name), program.into());
+
+                if handler.err_count() != 0 {
+                    return Err(());
+                }
+
+                bytecodes.push(programs.primary.bytecode);
+            }
         }
     }
 
@@ -224,13 +172,10 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
         return Err(());
     }
 
-    // Add imports but only if the imports are in Leo form. Aleo stubs are added earlier.
+    // In FromLeo mode, register compiled import bytecodes (the Leo dependencies that were
+    // compiled as part of the final program). Aleo stubs were already registered during the
+    // dependency loop above.
     if stub_type == StubType::FromLeo {
-        // Register aleo stubs in the Process first so that compiled imports
-        // (which may depend on them) can be validated.
-        for (_, (_, aleo_source)) in &aleo_lookup {
-            add_aleo_program(aleo_source)?;
-        }
         for import in &compiled.imports {
             add_aleo_program(&import.bytecode)?;
             bytecodes.push(import.bytecode.clone());

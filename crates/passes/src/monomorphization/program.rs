@@ -275,6 +275,11 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         // 5. FromLibrary/FromAleo stubs are processed AFTER program_scopes, so that
         //    reconstruct_library can collect monomorphized composites from reconstructed_composites.
 
+        // Capture the original stub insertion order before partitioning, so we can
+        // reassemble stubs in their original order after processing.  The type-checking
+        // pass that runs after monomorphization depends on this order.
+        let stub_key_order: Vec<_> = input.stubs.keys().cloned().collect();
+
         // Partition stubs early (non-consuming borrow not possible, so partition now and
         // process in two phases).
         let (from_leo_stubs, other_stubs): (Vec<_>, Vec<_>) =
@@ -388,8 +393,18 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
         let other_stubs: indexmap::IndexMap<_, _> =
             other_stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
 
-        // Combine stubs (FromLeo first, then others) preserving stable ordering.
-        let stubs = from_leo_stubs.into_iter().chain(other_stubs).collect();
+        let mut from_leo_map = from_leo_stubs;
+        let mut other_map = other_stubs;
+        let stubs = stub_key_order
+            .into_iter()
+            .map(|id| {
+                let stub = from_leo_map
+                    .swap_remove(&id)
+                    .or_else(|| other_map.swap_remove(&id))
+                    .expect("every stub key must appear in exactly one partition");
+                (id, stub)
+            })
+            .collect();
 
         // Reconstruct modules after `self.reconstructed_composites` and `self.reconstructed_functions`
         // have been populated.
