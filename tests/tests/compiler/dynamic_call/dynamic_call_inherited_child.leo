@@ -16,6 +16,6 @@ program test.aleo: Extended {
     }
 
     fn main(target: field, x: u64) -> u64 {
-        return Extended@(target)/double_val(x);
+        return Extended@(target)::double_val(x);
     }
 }

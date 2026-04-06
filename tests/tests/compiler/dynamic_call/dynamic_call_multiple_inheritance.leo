@@ -19,8 +19,8 @@ program test.aleo: Calculator {
     }
 
     fn main(target: field, x: u32, y: u32) -> u32 {
-        let s: u32 = Adder@(target)/sum(x, y);
-        let p: u32 = Multiplier@(target)/product(x, y);
+        let s: u32 = Adder@(target)::sum(x, y);
+        let p: u32 = Multiplier@(target)::product(x, y);
         return s + p;
     }
 }

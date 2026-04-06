@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Regression test: `leo test` on a program that imports a library (calc_lib),
+# where that library internally calls functions from a second library (base_lib).
+# The test program imports both libraries directly.
+#
+# Before the fix this panicked in function inlining because TypeChecking cannot
+# see transitive library dependencies, so call-graph edges for inter-library
+# calls are missing.  The missing edges cause the wrong post-order, which means
+# a library function is visited before its callee is in `reconstructed_functions`.
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+
+echo "--- leo test (should succeed) ---"
+${LEO_BIN} --disable-update-check test

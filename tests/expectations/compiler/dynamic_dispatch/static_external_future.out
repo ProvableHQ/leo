@@ -1,0 +1,33 @@
+program credits.aleo;
+
+record credits:
+    owner as address.private;
+    amount as u64.private;
+
+function transfer_public_to_private:
+    input r0 as address.private;
+    input r1 as u64.private;
+    cast r0 r1 into r2 as credits.record;
+    async transfer_public_to_private into r3;
+    output r2 as credits.record;
+    output r3 as credits.aleo/transfer_public_to_private.future;
+
+finalize transfer_public_to_private:
+    assert.eq 1u8 1u8;
+// --- Next Program --- //
+import credits.aleo;
+program test_static.aleo;
+
+function test_withdraw_private:
+    input r0 as u64.private;
+    call credits.aleo/transfer_public_to_private self.signer r0 into r1 r2;
+    async test_withdraw_private r2 into r3;
+    output r1 as credits.aleo/credits.record;
+    output r3 as test_static.aleo/test_withdraw_private.future;
+
+finalize test_withdraw_private:
+    input r0 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;

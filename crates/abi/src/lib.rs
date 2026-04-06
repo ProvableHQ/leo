@@ -205,6 +205,9 @@ fn convert_function_input(ty: &ast::Type, ctx: &Ctx) -> abi::FunctionInput {
             program: comp_ty.path.program().map(|s| s.to_string()),
         });
     }
+    if matches!(ty, ast::Type::DynRecord) {
+        return abi::FunctionInput::DynamicRecord;
+    }
     abi::FunctionInput::Plaintext(convert_plaintext(ty))
 }
 
@@ -374,8 +377,7 @@ fn collect_from_function_output(ty: &abi::FunctionOutput, program_name: &str, us
                 used.insert(rec_ref.path.clone());
             }
         }
-        abi::FunctionOutput::Final => {}
-        abi::FunctionOutput::DynamicRecord => {}
+        abi::FunctionOutput::Final | abi::FunctionOutput::DynamicRecord => {}
     }
 }
 

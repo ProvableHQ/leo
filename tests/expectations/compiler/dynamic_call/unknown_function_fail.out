@@ -1,5 +1,5 @@
 Error [ETYC0372005]: Unknown function `test.aleo::Foo::baz`
-    --> compiler-test:11:29
+    --> compiler-test:11:30
      |
-  11 |         return Foo@(target)/baz(1u32);
-     |                             ^^^
+  11 |         return Foo@(target)::baz(1u32);
+     |                              ^^^

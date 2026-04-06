@@ -1,0 +1,5 @@
+Error [ETYC0372179]: Cannot cast `test.aleo::Foo` to `dyn record`: only concrete record types can be cast to `dyn record`.
+    --> compiler-test:8:16
+     |
+   8 |         return f as dyn record;
+     |                ^

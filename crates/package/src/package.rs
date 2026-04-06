@@ -150,11 +150,23 @@ impl Package {
         let name_no_aleo = package_name.strip_suffix(".aleo").unwrap_or(&package_name);
 
         if is_library {
-            // Create empty lib.leo
+            // Create lib.leo with a placeholder function.
             let lib_path = source_path.join("lib.leo");
 
-            std::fs::write(&lib_path, "").map_err(|e| {
+            std::fs::write(&lib_path, lib_template(name_no_aleo)).map_err(|e| {
                 UtilError::util_file_io_error(format_args!("Failed to write `{}`", lib_path.display()), e)
+            })?;
+
+            // Create tests directory with a starter test file.
+            let tests_path = full_path.join(TESTS_DIRECTORY);
+
+            std::fs::create_dir(&tests_path)
+                .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+
+            let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
+
+            std::fs::write(&test_file_path, lib_test_template(name_no_aleo)).map_err(|e| {
+                UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
             })?;
         } else {
             // Create main.leo
@@ -473,7 +485,7 @@ import {name}.aleo;
 program test_{name}.aleo {{
     @test
     @should_fail
-    fn do_nothing() {{
+    fn test_main_fails() {{
         let result: u32 = {name}.aleo::main(2u32, 3u32);
         assert_eq(result, 3u32);
     }}
@@ -481,11 +493,33 @@ program test_{name}.aleo {{
     @noupgrade
     constructor() {{}}
 }}
+"#
+    )
+}
 
-@test
-script test_it() {{
-    let result: u32 = {name}.aleo::main(1u32, 2u32);
-    assert_eq(result, 3u32);
+fn lib_template(name: &str) -> String {
+    format!(
+        r#"// The '{name}' library.
+
+// Returns the identity of x.
+fn example(x: u32) -> u32 {{
+    return x;
+}}
+"#
+    )
+}
+
+fn lib_test_template(name: &str) -> String {
+    format!(
+        r#"// The 'test_{name}' test program.
+program test_{name}.aleo {{
+    @test
+    fn test_example() {{
+        assert_eq({name}::example(42u32), 42u32);
+    }}
+
+    @noupgrade
+    constructor() {{}}
 }}
 "#
     )

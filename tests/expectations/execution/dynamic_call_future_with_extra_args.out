@@ -64,7 +64,7 @@ finalize main:
 constructor:
     assert.eq edition 0u16;
 verified: true
-status: aborted
+status: accepted
 {
   "transitions": [
     {

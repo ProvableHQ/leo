@@ -8,6 +8,6 @@ program test.aleo: Foo {
     }
 
     fn main(target: u32) -> u32 {
-        return Foo@(target)/bar();
+        return Foo@(target)::bar();
     }
 }

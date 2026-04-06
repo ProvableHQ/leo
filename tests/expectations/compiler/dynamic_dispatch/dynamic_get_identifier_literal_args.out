@@ -1,0 +1,15 @@
+program test.aleo;
+
+mapping result:
+    key as address.public;
+    value as u64.public;
+
+function check:
+    input r0 as address.private;
+    async check r0 into r1;
+    output r1 as test.aleo/check.future;
+
+finalize check:
+    input r0 as address.public;
+    get.dynamic 'some_program' 'aleo' 'balances'[r0] into r1 as u64;
+    set r1 into result[r0];

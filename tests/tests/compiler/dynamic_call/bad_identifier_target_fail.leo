@@ -8,6 +8,6 @@ program test.aleo: Adder {
     }
 
     fn main(target: u32, x: u32, y: u32) -> u32 {
-        return Adder@(target)/sum(x, y);
+        return Adder@(target)::sum(x, y);
     }
 }

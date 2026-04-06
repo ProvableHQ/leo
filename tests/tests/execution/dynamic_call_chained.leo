@@ -38,7 +38,7 @@ interface Middle {
 
 program middle.aleo: Middle {
     fn relay(leaf_target: field, val: u32) -> (u32, Final) {
-        let (result, f): (u32, Final) = leaf.aleo::Leaf@(leaf_target)/process(val);
+        let (result, f): (u32, Final) = leaf.aleo::Leaf@(leaf_target)::process(val);
         return (
             result,
             final {
@@ -57,7 +57,7 @@ import middle.aleo;
 
 program top_caller.aleo {
     fn main(middle_target: field, leaf_target: field, val: u32) -> (u32, Final) {
-        let (result, f): (u32, Final) = middle.aleo::Middle@(middle_target)/relay(leaf_target, val);
+        let (result, f): (u32, Final) = middle.aleo::Middle@(middle_target)::relay(leaf_target, val);
         return (
             result,
             final {

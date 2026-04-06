@@ -1,4 +1,4 @@
-Error [ETYC0372180]: Interface definitions are not allowed inside library modules.
+Error [ETYC0372186]: Interface definitions are not allowed inside library modules.
     --> ops.leo:1:1
      |
    1 | interface Addable {

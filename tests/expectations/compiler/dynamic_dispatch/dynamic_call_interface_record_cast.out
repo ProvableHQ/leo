@@ -1,0 +1,7 @@
+program router.aleo;
+
+function dispatch:
+    input r0 as field.private;
+    input r1 as dynamic.record;
+    call.dynamic r0 'aleo' 'transfer' with r1 (as dynamic.record) into r2 (as dynamic.record);
+    output r2 as dynamic.record;

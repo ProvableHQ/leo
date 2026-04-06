@@ -1,0 +1,1 @@
+Output 'r4' does not match the expected output operand type: expected 'dynamic.future', found 'test.aleo/main.future'

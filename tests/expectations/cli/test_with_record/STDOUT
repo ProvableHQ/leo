@@ -1,0 +1,22 @@
+--- leo test (program with record, should succeed) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'my_program.aleo'
+       Leo     5 statements before dead code elimination.
+       Leo     5 statements after dead code elimination.
+       Leo     The program checksum is: '[32u8, 215u8, 139u8, 153u8, 2u8, 205u8, 164u8, 76u8, 101u8, 152u8, 142u8, 209u8, 119u8, 54u8, 128u8, 25u8, 178u8, 241u8, 182u8, 203u8, 99u8, 32u8, 39u8, 38u8, 132u8, 175u8, 47u8, 148u8, 127u8, 233u8, 200u8, 184u8]'.
+       Leo     Program size: 0.39 KB / 500.00 KB
+       Leo ✅ Compiled 'my_program.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+       Leo 🔨 Compiling 'test_my_program.aleo'
+       Leo     12 statements before dead code elimination.
+       Leo     12 statements after dead code elimination.
+       Leo     The program checksum is: '[131u8, 107u8, 31u8, 81u8, 117u8, 189u8, 35u8, 79u8, 214u8, 164u8, 229u8, 255u8, 189u8, 116u8, 103u8, 214u8, 55u8, 203u8, 16u8, 66u8, 226u8, 110u8, 236u8, 233u8, 8u8, 29u8, 75u8, 62u8, 141u8, 152u8, 212u8, 48u8]'.
+       Leo     Program size: 0.27 KB / 500.00 KB
+       Leo ✅ Compiled 'test_my_program.aleo' into Aleo instructions.
+       Leo     Import 'my_program.aleo': checksum = '[32u8, 215u8, 139u8, 153u8, 2u8, 205u8, 164u8, 76u8, 101u8, 152u8, 142u8, 209u8, 119u8, 54u8, 128u8, 25u8, 178u8, 241u8, 182u8, 203u8, 99u8, 32u8, 39u8, 38u8, 132u8, 175u8, 47u8, 148u8, 127u8, 233u8, 200u8, 184u8]'
+       Leo Loading the ledger from storage...
+1 / 1 tests passed.
+PASSED: test_my_program.aleo/test_double_amount

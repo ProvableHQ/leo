@@ -553,6 +553,11 @@ _signature_verify
 _snark_verify
 _snark_verify_batch
 _final_run
+_dynamic_call
+_dynamic_contains
+_dynamic_get
+_dynamic_get_or_use
+__dynamic__
 _serialize_to_bits
 _serialize_to_bits_raw
 _deserialize_from_bits

@@ -1,0 +1,14 @@
+{
+  "program": "calc_lib",
+  "version": "0.1.0",
+  "description": "Calculator library that depends on base_lib.",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "base_lib",
+      "location": "local",
+      "path": "../base_lib",
+      "edition": null
+    }
+  ]
+}

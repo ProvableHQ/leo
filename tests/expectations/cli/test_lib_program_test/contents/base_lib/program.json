@@ -1,0 +1,6 @@
+{
+  "program": "base_lib",
+  "version": "0.1.0",
+  "description": "Base math library with no dependencies.",
+  "license": "MIT"
+}

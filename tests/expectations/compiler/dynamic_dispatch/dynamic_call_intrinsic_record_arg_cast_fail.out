@@ -1,0 +1,5 @@
+Error [ETYC0372003]: Expected type `dyn record` but type `()` was found
+    --> compiler-test:9:34
+     |
+   9 |         let result: dyn record = _dynamic_call::[Token, Token](prog, net, func, t);
+     |                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

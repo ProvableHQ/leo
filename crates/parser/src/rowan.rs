@@ -43,6 +43,9 @@ use leo_span::{
 /// Type parameters and const arguments extracted from a `CONST_ARG_LIST` node.
 type ConstArgList = (Vec<(leo_ast::Type, Span)>, Vec<leo_ast::Expression>);
 
+/// Annotated types with visibility modes, used for `_dynamic_call` input/return types.
+type AnnotatedTypes = Vec<(leo_ast::Mode, leo_ast::Type, Span)>;
+
 /// Parent declarations for inheritance
 type Parents = Vec<(Span, leo_ast::Type)>;
 
@@ -166,8 +169,16 @@ impl<'a> ConversionContext<'a> {
         arguments: Vec<leo_ast::Expression>,
         span: Span,
     ) -> leo_ast::Expression {
-        leo_ast::IntrinsicExpression { name, type_parameters: Vec::new(), arguments, span, id: self.builder.next_id() }
-            .into()
+        leo_ast::IntrinsicExpression {
+            name,
+            type_parameters: Vec::new(),
+            input_types: Vec::new(),
+            return_types: Vec::new(),
+            arguments,
+            span,
+            id: self.builder.next_id(),
+        }
+        .into()
     }
 
     /// Create an empty block for error recovery.
@@ -264,6 +275,7 @@ impl<'a> ConversionContext<'a> {
             TYPE_OPTIONAL => self.type_optional_to_type(node)?,
             TYPE_FINAL => self.type_final_to_type(node)?,
             TYPE_MAPPING => self.type_mapping_to_type(node)?,
+            TYPE_DYN_RECORD => leo_ast::Type::DynRecord,
             ERROR => {
                 // Parse errors already emitted by emit_parse_errors().
                 leo_ast::Type::Err
@@ -285,39 +297,49 @@ impl<'a> ConversionContext<'a> {
 
     /// Convert a TYPE_LOCATOR node to a Type.
     ///
-    /// TYPE_LOCATOR represents `program.aleo::Type` or `program.aleo`.
+    /// TYPE_LOCATOR represents `program.aleo::Type`.
     fn type_locator_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_LOCATOR);
 
-        // Extract IDENT tokens for program and type name
+        // Extract IDENT tokens for program and (optional) type name.
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
+        let program_token = idents.next();
+        let name_token = idents.next();
 
-        if let (Some(program_token), Some(name_token)) = (idents.next(), idents.next()) {
-            // Convert program token into Identifier
-            let program_ident = self.to_identifier(&program_token);
-            let type_ident = self.to_identifier(&name_token);
+        // Find KW_ALEO in the tokens — always present in a TYPE_LOCATOR node.
+        let kw_aleo_token =
+            tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
 
-            // Find KW_ALEO in the tokens — required
-            let kw_aleo_token =
-                tokens(node).find(|t| t.kind() == KW_ALEO).expect("TYPE_LOCATOR should contain `aleo` keyword");
+        let network_ident = leo_ast::Identifier {
+            name: Symbol::intern("aleo"),
+            span: self.token_span(&kw_aleo_token),
+            id: self.builder.next_id(),
+        };
 
-            let network_ident = leo_ast::Identifier {
-                name: Symbol::intern("aleo"),
-                span: self.token_span(&kw_aleo_token),
-                id: self.builder.next_id(),
-            };
-
-            // ProgramId always has network
-            let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
-
-            let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
-            let path = leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
-
-            // Extract const arguments from CONST_ARG_LIST child node
-            let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-            Ok(leo_ast::CompositeType { path, const_arguments }.into())
-        } else {
-            panic!("TYPE_LOCATOR should contain both a program and type identifier: {:?}", node.text())
+        match (program_token, name_token) {
+            (Some(program_token), Some(name_token)) => {
+                // Normal case: program.aleo::Type
+                let program_ident = self.to_identifier(&program_token);
+                let type_ident = self.to_identifier(&name_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let path_span = Span::new(program_id.name.span.lo, type_ident.span.hi);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), type_ident, path_span, self.builder.next_id());
+                let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
+                Ok(leo_ast::CompositeType { path, const_arguments }.into())
+            }
+            (Some(program_token), None) => {
+                // program.aleo without ::Type — a program ID used as a type reference.
+                let program_ident = self.to_identifier(&program_token);
+                let program_id = leo_ast::ProgramId { name: program_ident, network: network_ident };
+                let span = self.content_span(node);
+                let path =
+                    leo_ast::Path::new(Some(program_id), Vec::new(), program_ident, span, self.builder.next_id());
+                Ok(leo_ast::CompositeType { path, const_arguments: Vec::new() }.into())
+            }
+            _ => {
+                panic!("TYPE_LOCATOR should contain at least a program IDENT: {:?}", node.text())
+            }
         }
     }
 
@@ -704,14 +726,23 @@ impl<'a> ConversionContext<'a> {
     /// Extract type parameters and const arguments from a CONST_ARG_LIST child, if present.
     ///
     /// In the rowan CST, `CONST_ARG_LIST` children are either type nodes (for
-    /// intrinsic type parameters like `Deserialize::[u32]`) or expression nodes
+    /// intrinsic type parameters like `Deserialize::[u32]`), `DYNAMIC_CALL_RETURN_TYPE`
+    /// nodes (for visibility-annotated types like `public u64`), or expression nodes
     /// (for const generic arguments like `Foo::[N]`).
     fn extract_const_arg_list(&self, node: &SyntaxNode) -> Result<ConstArgList> {
         let mut type_parameters = Vec::new();
         let mut const_arguments = Vec::new();
         if let Some(arg_list) = children(node).find(|n| n.kind() == CONST_ARG_LIST) {
             for child in children(&arg_list) {
-                if child.kind().is_type() {
+                if child.kind() == DYNAMIC_CALL_RETURN_TYPE {
+                    // Visibility-annotated type: extract the inner type (visibility
+                    // is extracted separately when building return_types).
+                    if let Some(type_node) = children(&child).find(|n| n.kind().is_type()) {
+                        let span = self.content_span(&child);
+                        let ty = self.to_type(&type_node)?;
+                        type_parameters.push((ty, span));
+                    }
+                } else if child.kind().is_type() {
                     let span = self.content_span(&child);
                     let ty = self.to_type(&child)?;
                     type_parameters.push((ty, span));
@@ -722,6 +753,71 @@ impl<'a> ConversionContext<'a> {
             }
         }
         Ok((type_parameters, const_arguments))
+    }
+
+    /// Extract input and return types with visibility for `_dynamic_call` from the CST.
+    ///
+    /// Rule: the last type parameter is the return type, all preceding are input types.
+    /// - `_dynamic_call::[u64](...)` — return u64, no input annotations
+    /// - `_dynamic_call::[public u32, u64](...)` — input: public u32, return: u64
+    /// - `_dynamic_call::[public u32, public u32, (u32, u32)](...)` — two inputs, tuple return
+    ///
+    /// Tuple return types are unpacked into individual elements.
+    /// Visibility prefixes (public/private/constant) are extracted from `DYNAMIC_CALL_RETURN_TYPE` nodes.
+    fn extract_dynamic_call_types(
+        &self,
+        callee_node: &SyntaxNode,
+        type_parameters: &[(leo_ast::Type, Span)],
+    ) -> Result<(AnnotatedTypes, AnnotatedTypes)> {
+        let Some(arg_list) = children(callee_node).find(|n| n.kind() == CONST_ARG_LIST) else {
+            return Ok((Vec::new(), Vec::new()));
+        };
+
+        // Collect all annotated type entries with their modes.
+        let mut all_entries = Vec::new();
+
+        for child in children(&arg_list) {
+            if child.kind() == DYNAMIC_CALL_RETURN_TYPE {
+                let mode = tokens(&child).find_map(|tok| token_kind_to_mode(tok.kind())).unwrap_or(leo_ast::Mode::None);
+                all_entries.push(mode);
+            } else if child.kind().is_type() {
+                all_entries.push(leo_ast::Mode::None);
+            }
+        }
+
+        // Split: everything except the last is input types, the last is return type.
+        if type_parameters.is_empty() {
+            return Ok((Vec::new(), Vec::new()));
+        }
+
+        let mut input_types = Vec::new();
+        let mut return_types = Vec::new();
+
+        let last_idx = type_parameters.len() - 1;
+        for (i, ((ty, sp), mode)) in type_parameters.iter().zip(all_entries.iter()).enumerate() {
+            if i < last_idx {
+                // Input type entry.
+                input_types.push((*mode, ty.clone(), *sp));
+            } else {
+                // Last entry: return type.
+                // - Unit `()` means void return (empty return_types).
+                // - Tuple `(T1, T2)` is unpacked into individual elements.
+                // - Anything else is a single return type.
+                match ty {
+                    leo_ast::Type::Unit => {}
+                    leo_ast::Type::Tuple(tuple) => {
+                        for elem in tuple.elements() {
+                            return_types.push((*mode, elem.clone(), *sp));
+                        }
+                    }
+                    _ => {
+                        return_types.push((*mode, ty.clone(), *sp));
+                    }
+                }
+            }
+        }
+
+        Ok((input_types, return_types))
     }
 
     /// Convert a CALL_EXPR node to a CallExpression.
@@ -757,9 +853,41 @@ impl<'a> ConversionContext<'a> {
             let module = function.qualifier()[0].name;
             let name = function.identifier().name;
             if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, name) {
-                return Ok(
-                    leo_ast::IntrinsicExpression { name: intrinsic_name, type_parameters, arguments, span, id }.into()
-                );
+                return Ok(leo_ast::IntrinsicExpression {
+                    name: intrinsic_name,
+                    type_parameters,
+                    input_types: Vec::new(),
+                    return_types: Vec::new(),
+                    arguments,
+                    span,
+                    id,
+                }
+                .into());
+            }
+        }
+
+        // Bare intrinsic calls (e.g. `_dynamic_call::[u64](args)`).
+        // These have no qualifier and the identifier starts with `_`.
+        if function.user_program().is_none() && function.qualifier().is_empty() {
+            let name = function.identifier().name;
+            if leo_ast::Intrinsic::from_symbol(name, &type_parameters).is_some() {
+                // For _dynamic_call, split type parameters into input_types and return_types.
+                // Rule: last type param is the return type, all preceding are input types.
+                let (input_types, return_types) = if name == leo_span::sym::_dynamic_call {
+                    self.extract_dynamic_call_types(&callee_node, &type_parameters)?
+                } else {
+                    (Vec::new(), Vec::new())
+                };
+                return Ok(leo_ast::IntrinsicExpression {
+                    name,
+                    type_parameters,
+                    input_types,
+                    return_types,
+                    arguments,
+                    span,
+                    id,
+                }
+                .into());
             }
         }
 
@@ -785,39 +913,39 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Collect expression children: first is target, optional second is network
-        // (if inside the @(...) before the /), rest are arguments.
+        // (if inside the @(...) before the ::), rest are arguments.
         // We detect which expressions are "inside the parens" vs "arguments" by
-        // looking at the SLASH token position. Expressions before SLASH are
-        // target/network, expressions after are arguments.
-        let slash_offset = tokens(node).find(|t| t.kind() == SLASH).map(|t| t.text_range().start());
+        // looking at the :: token position after the @(...). Expressions before ::
+        // are target/network, expressions after are arguments.
+        let separator_offset = tokens(node).filter(|t| t.kind() == COLON_COLON).last().map(|t| t.text_range().start());
 
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
 
-        let mut pre_slash = Vec::new();
-        let mut post_slash = Vec::new();
+        let mut pre_sep = Vec::new();
+        let mut post_sep = Vec::new();
         for child in &expr_children {
-            if let Some(slash_off) = slash_offset {
-                if child.text_range().start() < slash_off {
-                    pre_slash.push(child);
+            if let Some(sep_off) = separator_offset {
+                if child.text_range().start() < sep_off {
+                    pre_sep.push(child);
                 } else {
-                    post_slash.push(child);
+                    post_sep.push(child);
                 }
             } else {
-                // No slash found (error recovery), treat all as pre-slash
-                pre_slash.push(child);
+                // No separator found (error recovery), treat all as pre
+                pre_sep.push(child);
             }
         }
 
-        let target = if let Some(target_node) = pre_slash.first() {
+        let target = if let Some(target_node) = pre_sep.first() {
             self.to_expression(target_node)?
         } else {
             self.error_expression(span)
         };
 
         let network =
-            if let Some(network_node) = pre_slash.get(1) { Some(self.to_expression(network_node)?) } else { None };
+            if let Some(network_node) = pre_sep.get(1) { Some(self.to_expression(network_node)?) } else { None };
 
-        let arguments = post_slash.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
+        let arguments = post_sep.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
         Ok(leo_ast::DynamicCallExpression { interface, target_program: target, network, function, arguments, span, id }
             .into())

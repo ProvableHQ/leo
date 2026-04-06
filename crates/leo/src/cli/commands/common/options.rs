@@ -302,27 +302,30 @@ pub fn get_consensus_version_from_height(seek_height: u32, heights: &[u32]) -> R
         }
     };
     // Convert the index to a consensus version.
-    Ok(number_to_consensus_version(index + 1))
+    number_to_consensus_version(index + 1)
 }
 
 // A helper to convert an index to a consensus version.
-pub fn number_to_consensus_version(index: usize) -> ConsensusVersion {
+pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
     match index {
-        1 => ConsensusVersion::V1,
-        2 => ConsensusVersion::V2,
-        3 => ConsensusVersion::V3,
-        4 => ConsensusVersion::V4,
-        5 => ConsensusVersion::V5,
-        6 => ConsensusVersion::V6,
-        7 => ConsensusVersion::V7,
-        8 => ConsensusVersion::V8,
-        9 => ConsensusVersion::V9,
-        10 => ConsensusVersion::V10,
-        11 => ConsensusVersion::V11,
-        12 => ConsensusVersion::V12,
-        13 => ConsensusVersion::V13,
-        14 => ConsensusVersion::V14,
-        _ => panic!("Invalid consensus version: {index}"),
+        1 => Ok(ConsensusVersion::V1),
+        2 => Ok(ConsensusVersion::V2),
+        3 => Ok(ConsensusVersion::V3),
+        4 => Ok(ConsensusVersion::V4),
+        5 => Ok(ConsensusVersion::V5),
+        6 => Ok(ConsensusVersion::V6),
+        7 => Ok(ConsensusVersion::V7),
+        8 => Ok(ConsensusVersion::V8),
+        9 => Ok(ConsensusVersion::V9),
+        10 => Ok(ConsensusVersion::V10),
+        11 => Ok(ConsensusVersion::V11),
+        12 => Ok(ConsensusVersion::V12),
+        13 => Ok(ConsensusVersion::V13),
+        14 => Ok(ConsensusVersion::V14),
+        _ => Err(CliError::custom(format!(
+            "Invalid consensus version: {index}. You may need to update Leo to support this version."
+        ))
+        .into()),
     }
 }
 

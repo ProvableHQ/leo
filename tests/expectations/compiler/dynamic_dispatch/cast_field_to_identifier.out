@@ -1,0 +1,6 @@
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    cast r0 into r1 as identifier;
+    output r1 as identifier.private;

@@ -79,6 +79,11 @@ pub enum Intrinsic {
     // Note. `Deserialize` cannot be instantiated via `from_symbols` as it requires a type argument.
     Deserialize(DeserializeVariant, Type),
 
+    DynamicCall,
+    DynamicContains,
+    DynamicGet,
+    DynamicGetOrUse,
+
     SelfAddress,
     SelfCaller,
     SelfChecksum,
@@ -107,8 +112,17 @@ impl Intrinsic {
             sym::_block_height => Self::BlockHeight,
             sym::_block_timestamp => Self::BlockTimestamp,
             sym::_network_id => Self::NetworkId,
-            sym::_deserialize_from_bits => Self::Deserialize(DeserializeVariant::FromBits, type_parameters[0].0.clone()),
-            sym::_deserialize_from_bits_raw => Self::Deserialize(DeserializeVariant::FromBitsRaw, type_parameters[0].0.clone()),
+            sym::_deserialize_from_bits => {
+                // The type parameter count is validated in the type checker. Use `Type::Err` as a
+                // placeholder when the parameter is absent so that `from_symbol` always returns
+                // `Some`, allowing the type checker to emit a targeted diagnostic.
+                let ty = type_parameters.first().map_or(Type::Err, |(t, _)| t.clone());
+                Self::Deserialize(DeserializeVariant::FromBits, ty)
+            }
+            sym::_deserialize_from_bits_raw => {
+                let ty = type_parameters.first().map_or(Type::Err, |(t, _)| t.clone());
+                Self::Deserialize(DeserializeVariant::FromBitsRaw, ty)
+            }
             sym::_group_gen => Self::GroupGen,
             sym::_aleo_generator => Self::AleoGenerator,
             sym::_aleo_generator_powers => Self::AleoGeneratorPowers,
@@ -644,6 +658,11 @@ impl Intrinsic {
 
             sym::_serialize_to_bits => Self::Serialize(SerializeVariant::ToBits),
             sym::_serialize_to_bits_raw => Self::Serialize(SerializeVariant::ToBitsRaw),
+
+            sym::_dynamic_call => Self::DynamicCall,
+            sym::_dynamic_contains => Self::DynamicContains,
+            sym::_dynamic_get => Self::DynamicGet,
+            sym::_dynamic_get_or_use => Self::DynamicGetOrUse,
 
             _ => return None,
         })
@@ -1251,6 +1270,12 @@ impl Intrinsic {
 
             Self::Serialize(_) => 1,
             Self::Deserialize(_, _) => 1,
+
+            // Variable arity (min 3); full validation in check_dynamic_call().
+            Self::DynamicCall => 3,
+            Self::DynamicContains => 4,
+            Self::DynamicGet => 4,
+            Self::DynamicGetOrUse => 5,
         }
     }
 
@@ -1276,8 +1301,13 @@ impl Intrinsic {
             | Intrinsic::VectorPop
             | Intrinsic::VectorSwapRemove
             | Intrinsic::SnarkVerify
-            | Intrinsic::SnarkVerifyBatch => true,
-            Intrinsic::Commit(_, _)
+            | Intrinsic::SnarkVerifyBatch
+            | Intrinsic::DynamicContains
+            | Intrinsic::DynamicGet
+            | Intrinsic::DynamicGetOrUse => true,
+            // DynamicCall is transition-only, not finalize. Validated separately.
+            Intrinsic::DynamicCall
+            | Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap
             | Intrinsic::OptionalUnwrapOr
@@ -1324,7 +1354,11 @@ impl Intrinsic {
             | Intrinsic::MappingSet
             | Intrinsic::MappingGetOrUse
             | Intrinsic::MappingContains
-            | Intrinsic::VectorSwapRemove => false,
+            | Intrinsic::VectorSwapRemove
+            | Intrinsic::DynamicCall
+            | Intrinsic::DynamicContains
+            | Intrinsic::DynamicGet
+            | Intrinsic::DynamicGetOrUse => false,
 
             Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)

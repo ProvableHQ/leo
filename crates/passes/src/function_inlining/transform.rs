@@ -89,16 +89,17 @@ impl ProgramReconstructor for TransformVisitor<'_> {
         // Note: This must be done after the functions have been reconstructed to ensure that every callee function has been inlined.
         let constructor = input.constructor.map(|constructor| self.reconstruct_constructor(constructor));
 
-        // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions)
+        // Partition reconstructed functions: retain library functions for later stub scopes to look up,
+        // and collect only top-level functions from the current scope for output.
+        let all_reconstructed = core::mem::take(&mut self.reconstructed_functions);
+        let (library_fns, current_fns): (Vec<_>, Vec<_>) =
+            all_reconstructed.into_iter().partition(|(loc, _)| loc.program != self.program);
+        self.reconstructed_functions = library_fns;
+        let functions = current_fns
             .into_iter()
             .filter_map(|(loc, f)| {
-                // Only emit functions that belong to the current program scope and have a single-segment
-                // path (no module prefix). Library functions and module-nested functions have all been
-                // inlined at their call sites and must not appear as standalone functions in output.
-                if loc.program != self.program {
-                    return None;
-                }
+                // Emit only single-segment paths; Functions in submodules have all been
+                // inlined at their call sites and must not appear as standalone functions in the output.
                 loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f))
             })
             .collect();

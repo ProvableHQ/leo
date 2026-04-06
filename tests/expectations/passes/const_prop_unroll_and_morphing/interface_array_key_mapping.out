@@ -1,0 +1,7 @@
+program test.aleo {
+    const N: u32 = 2u32;
+    mapping allowances: [address; 2] => u128;
+    fn foo() {
+    }
+}
+
