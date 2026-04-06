@@ -48,6 +48,17 @@ impl Interface {
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
+
+    /// Returns `true` if `ty` is a composite type whose name matches a record declared in this interface.
+    pub fn is_record_type(&self, ty: &Type) -> bool {
+        if let Type::Composite(ct) = ty
+            && let Some(loc) = ct.path.try_global_location()
+            && let Some(&name) = loc.path.first()
+        {
+            return self.records.iter().any(|(n, _)| *n == name);
+        }
+        false
+    }
 }
 
 impl PartialEq for Interface {
