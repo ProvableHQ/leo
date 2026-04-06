@@ -26,6 +26,18 @@ pub enum Mode {
     Public,
 }
 
+impl Mode {
+    /// Are the modes considered equal as far as the Leo user is concerned?
+    ///
+    /// In particular, `None` defaults to `Private`.
+    pub fn eq_user(&self, other: &Mode) -> bool {
+        match (self, other) {
+            (Self::None | Self::Private, Self::None | Self::Private) => true,
+            (a, b) => a == b,
+        }
+    }
+}
+
 impl fmt::Display for Mode {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Mode::*;
