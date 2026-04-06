@@ -161,7 +161,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                     return None;
                                 }
                                 Some(cm)
-                                    if !cm.type_.eq_user(&parent_member.type_) || cm.mode != parent_member.mode =>
+                                    if !cm.type_.eq_user(&parent_member.type_)
+                                        || !cm.mode.eq_user(&parent_member.mode) =>
                                 {
                                     self.state.handler.emit_err(
                                         CheckInterfacesError::conflicting_record_field(
@@ -424,12 +425,12 @@ impl<'a> CheckInterfacesVisitor<'a> {
             // Parameter types must match.
             input_a.type_.eq_user(&input_b.type_) &&
             // Parameter modes must match.
-            input_a.mode == input_b.mode
+            input_a.mode.eq_user(&input_b.mode)
         }) &&
 
         // Output must match.
         a.output.len() == b.output.len() &&
-        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| output_a.type_.eq_user(&output_b.type_) && output_a.mode == output_b.mode) &&
+        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| output_a.type_.eq_user(&output_b.type_) && output_a.mode.eq_user(&output_b.mode)) &&
 
         // Const parameters must match.
         a.const_parameters.len() == b.const_parameters.len() &&
@@ -456,14 +457,14 @@ impl<'a> CheckInterfacesVisitor<'a> {
             // Parameter types must match.
             func_input.type_.eq_user(&proto_input.type_) &&
             // Parameter modes must match.
-            func_input.mode == proto_input.mode
+            func_input.mode.eq_user(&proto_input.mode)
         }) &&
 
         // Output must match.
         func.output.len() == proto.output.len() &&
 
         func.output.iter().zip(proto.output.iter()).all(
-            |(func_output, proto_output)| func_output.type_.eq_user(&proto_output.type_) && func_output.mode == proto_output.mode) &&
+            |(func_output, proto_output)| func_output.type_.eq_user(&proto_output.type_) && func_output.mode.eq_user(&proto_output.mode)) &&
 
         // Const parameters must match.
         func.const_parameters.len() == proto.const_parameters.len() &&
@@ -506,7 +507,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             child.members.iter().any(|child_member| {
                 child_member.identifier.name == parent_member.identifier.name
                     && child_member.type_.eq_user(&parent_member.type_)
-                    && child_member.mode == parent_member.mode
+                    && child_member.mode.eq_user(&parent_member.mode)
             })
         })
     }
@@ -523,7 +524,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => return Some((required_member.identifier.name, required_member, None)),
                 Some(actual_member) => {
                     if !actual_member.type_.eq_user(&required_member.type_)
-                        || actual_member.mode != required_member.mode
+                        || !actual_member.mode.eq_user(&required_member.mode)
                     {
                         return Some((required_member.identifier.name, required_member, Some(actual_member)));
                     }
