@@ -53,6 +53,10 @@ pub use self::parser::*;
 mod static_analyzer;
 pub use self::static_analyzer::*;
 
+/// Contains the CEI Analyzer warning definitions.
+mod cei_analyzer;
+pub use self::cei_analyzer::*;
+
 /// Contains the Type Checker error definitions.
 mod type_checker;
 pub use self::type_checker::*;
@@ -182,6 +186,9 @@ pub enum LeoWarning {
     /// Represents a Type Checker Warning in a Leo Warning.
     #[error(transparent)]
     TypeCheckerWarning(#[from] TypeCheckerWarning),
+    /// Represents a CEI Analyzer Warning in a Leo Warning.
+    #[error(transparent)]
+    CeiAnalyzerWarning(#[from] CeiAnalyzerWarning),
 }
 
 impl LeoWarning {
@@ -193,6 +200,7 @@ impl LeoWarning {
             ParserWarning(warning) => warning.warning_code(),
             TypeCheckerWarning(warning) => warning.warning_code(),
             StaticAnalyzerWarning(warning) => warning.warning_code(),
+            CeiAnalyzerWarning(warning) => warning.warning_code(),
         }
     }
 }

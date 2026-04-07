@@ -1,0 +1,33 @@
+program dep.aleo;
+
+mapping shared:
+    key as u32.public;
+    value as u32.public;
+
+function do_thing:
+    input r0 as u32.private;
+    async do_thing r0 into r1;
+    output r1 as dep.aleo/do_thing.future;
+
+finalize do_thing:
+    input r0 as u32.public;
+    set r0 into shared[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/do_thing r0 into r1;
+    async do_work r1 r0 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/do_thing.future;
+    input r1 as u32.public;
+    set r1 into balances[0u32];
+    await r0;

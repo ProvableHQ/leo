@@ -1,0 +1,36 @@
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/update r0 into r1;
+    async do_work r1 r0 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as u32.public;
+    get.or_use balances[0u32] 0u32 into r2;
+    add r2 r1 into r3;
+    set r3 into balances[0u32];
+    set r1 into balances[1u32];
+    await r0;

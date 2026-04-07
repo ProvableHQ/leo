@@ -1,0 +1,50 @@
+Warning [WCEI03713002]: Call to `caller.aleo::read_and_store` (which contains checks or effects) occurs after an interaction (Final.run()).
+    --> compiler-test:30:5
+     |
+  30 |     read_and_store(target, key);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping results:
+    key as address.public;
+    value as u64.public;
+
+function do_work:
+    input r0 as u32.private;
+    input r1 as field.private;
+    input r2 as address.private;
+    call dep.aleo/update r0 into r3;
+    async do_work r3 r1 r2 into r4;
+    output r4 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as field.public;
+    input r2 as address.public;
+    await r0;
+    get.dynamic r1 'aleo' 'balances'[r2] into r3 as u64;
+    set r3 into results[r2];
+
+constructor:
+    assert.eq edition 0u16;

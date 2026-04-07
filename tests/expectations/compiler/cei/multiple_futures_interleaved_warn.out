@@ -1,0 +1,60 @@
+Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    --> compiler-test:19:5
+     |
+  19 |     Mapping::set(results, 0u32, a);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+program dep_a.aleo;
+
+mapping data_a:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep_a.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into data_a[0u32];
+// --- Next Program --- //
+program dep_b.aleo;
+
+mapping data_b:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep_b.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into data_b[0u32];
+// --- Next Program --- //
+import dep_a.aleo;
+import dep_b.aleo;
+program caller.aleo;
+
+mapping results:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep_a.aleo/update r0 into r1;
+    add r0 1u32 into r2;
+    call dep_b.aleo/update r2 into r3;
+    async do_work r1 r3 r0 into r4;
+    output r4 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep_a.aleo/update.future;
+    input r1 as dep_b.aleo/update.future;
+    input r2 as u32.public;
+    await r0;
+    set r2 into results[0u32];
+    await r1;

@@ -1,3 +1,10 @@
+Warning [WCEI03713004]: Value `result` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+    --> compiler-test:14:24
+     |
+  14 |                 finish(result.1);
+     |                        ^^^^^^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
 program credits.aleo;
 
 record credits:

@@ -1,0 +1,53 @@
+Warning [WCEI03713000]: Check operation `_mapping_get_or_use` occurs after an interaction (Final.run()).
+    --> compiler-test:18:20
+     |
+  18 |     let old: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    --> compiler-test:20:5
+     |
+  20 |     Mapping::set(balances, 0u32, old + a);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/update r0 into r1;
+    add r0 1u32 into r2;
+    call dep.aleo/update r2 into r3;
+    async do_work r1 r3 r0 into r4;
+    output r4 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as dep.aleo/update.future;
+    input r2 as u32.public;
+    await r0;
+    get.or_use balances[0u32] 0u32 into r3;
+    add r3 r2 into r4;
+    set r4 into balances[0u32];
+    await r1;

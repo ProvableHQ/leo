@@ -1,0 +1,44 @@
+Warning [WCEI03713004]: Value `val` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    --> compiler-test:17:42
+     |
+  17 |             Mapping::set(balances, 0u32, val);
+     |                                          ^^^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+program exchange.aleo;
+
+mapping rates:
+    key as u32.public;
+    value as u64.public;
+
+function get_rate:
+    input r0 as u32.private;
+    async get_rate r0 into r1;
+    output 100u64 as u64.private;
+    output r1 as exchange.aleo/get_rate.future;
+
+finalize get_rate:
+    input r0 as u32.public;
+    get.or_use rates[r0] 0u64 into r1;
+    set r1 into rates[r0];
+// --- Next Program --- //
+import exchange.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u64.public;
+
+function do_work:
+    input r0 as u32.private;
+    call exchange.aleo/get_rate r0 into r1 r2;
+    gt r0 5u32 into r3;
+    ternary r3 r1 0u64 into r4;
+    async do_work r4 r2 into r5;
+    output r5 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as u64.public;
+    input r1 as exchange.aleo/get_rate.future;
+    set r0 into balances[0u32];
+    await r1;

@@ -1,0 +1,84 @@
+Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    --> compiler-test:23:5
+     |
+  23 |     Mapping::set(balances, 0u32, a);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+Warning [WSAZ0374000]: Not all paths through the function run all Finals. 3/4 paths contain at least one Final that is never run.
+    --> compiler-test:13:1
+     |
+  13 | final fn finalize_do_work(f: Final, a: u32) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  14 |     // [I] Interaction hidden deep in nested conditionals
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |     if a > 0u32 {
+     |     ^^^^^^^^^^^^^
+  16 |         if a > 10u32 {
+     |         ^^^^^^^^^^^^^^
+  17 |             if a > 100u32 {
+     |             ^^^^^^^^^^^^^^^
+  18 |                 f.run();
+     |                 ^^^^^^^^
+  19 |             }
+     |             ^
+  20 |         }
+     |         ^
+  21 |     }
+     |     ^
+  22 |     // [E] Effect after nested conditional — should warn since some path has interaction
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  23 |     Mapping::set(balances, 0u32, a);
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  24 | }
+     | ^
+     |
+     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/update r0 into r1;
+    async do_work r1 r0 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as u32.public;
+    gt r1 0u32 into r2;
+    branch.eq r2 false to end_then_0_0;
+    gt r1 10u32 into r3;
+    branch.eq r3 false to end_then_1_2;
+    gt r1 100u32 into r4;
+    branch.eq r4 false to end_then_2_4;
+    await r0;
+    branch.eq true true to end_otherwise_2_5;
+    position end_then_2_4;
+    position end_otherwise_2_5;
+    branch.eq true true to end_otherwise_1_3;
+    position end_then_1_2;
+    position end_otherwise_1_3;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    set r1 into balances[0u32];

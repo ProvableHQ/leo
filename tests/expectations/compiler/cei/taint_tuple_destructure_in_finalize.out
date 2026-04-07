@@ -1,0 +1,52 @@
+Warning [WCEI03713004]: Value `rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    --> compiler-test:11:39
+     |
+  11 |             let (a, b): (u64, u64) = (rate, amount);
+     |                                       ^^^^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+Warning [WCEI03713004]: Value `a` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    --> compiler-test:13:40
+     |
+  13 |             Mapping::set(balances, id, a);
+     |                                        ^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+program exchange.aleo;
+
+mapping rates:
+    key as u32.public;
+    value as u64.public;
+
+function get_rate:
+    input r0 as u32.private;
+    async get_rate r0 into r1;
+    output 100u64 as u64.private;
+    output r1 as exchange.aleo/get_rate.future;
+
+finalize get_rate:
+    input r0 as u32.public;
+    get.or_use rates[r0] 0u64 into r1;
+    set r1 into rates[r0];
+// --- Next Program --- //
+import exchange.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u64.public;
+
+function do_work:
+    input r0 as u32.private;
+    input r1 as u64.private;
+    call exchange.aleo/get_rate r0 into r2 r3;
+    async do_work r2 r1 r0 r3 into r4;
+    output r4 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as u64.public;
+    input r1 as u64.public;
+    input r2 as u32.public;
+    input r3 as exchange.aleo/get_rate.future;
+    set r0 into balances[r2];
+    await r3;
