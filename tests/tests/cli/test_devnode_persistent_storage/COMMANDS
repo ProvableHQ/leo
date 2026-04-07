@@ -38,7 +38,7 @@ wait_for_devnode() {
 $LEO_BIN --disable-update-check devnode start \
   --socket-addr "127.0.0.1:${PORT}" \
   --private-key "$PRIVATE_KEY" \
-  --ledger-path "$LEDGER_DIR" \
+  --storage "$LEDGER_DIR" \
   >/dev/null 2>&1 &
 PID=$!
 
@@ -90,7 +90,7 @@ done
 $LEO_BIN --disable-update-check devnode start \
   --socket-addr "127.0.0.1:${PORT}" \
   --private-key "$PRIVATE_KEY" \
-  --ledger-path "$LEDGER_DIR" \
+  --storage "$LEDGER_DIR" \
   >/dev/null 2>&1 &
 PID=$!
 

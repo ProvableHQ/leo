@@ -51,11 +51,11 @@ pub struct Start {
     #[clap(short = 'm', long, help = "disables automatic block creation after broadcast", default_value = "false")]
     pub(crate) manual_block_creation: bool,
     /// Optional flag for persisting the ledger to disk. If not set, the ledger will be stored in memory and will not persist across restarts.
-    #[clap(short = 'l', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
-    pub(crate) ledger_path: Option<PathBuf>,
-    /// If set alongside --ledger-path, clears the ledger directory before starting.
-    #[clap(short = 'c', long, help = "clears the ledger directory before starting", default_value = "false")]
-    pub(crate) clean: bool,
+    #[clap(short = 's', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
+    pub(crate) storage: Option<String>,
+    /// If set alongside --storage, clears the ledger directory before starting.
+    #[clap(short = 'c', long, help = "Remove existing devnode storage before starting", default_value = "false", requires = "storage")]
+    pub(crate) clear_storage: bool,
 }
 
 impl Command for Start {
@@ -99,9 +99,10 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
-    match command.ledger_path {
-        Some(path) => {
-            if command.clean && path.exists() {
+    match command.storage {
+        Some(path_string) => {
+            let path = PathBuf::from(path_string);
+            if command.clear_storage && path.exists() {
                 for entry in std::fs::read_dir(&path)
                     .map_err(|e| CliError::custom(format!("Failed to read ledger directory: {e}")))?
                 {
