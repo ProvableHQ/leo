@@ -1745,6 +1745,11 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type_is_valid(inner, span);
             }
 
+            // Vector types can only be used in storage declarations.
+            Type::Vector(_) => {
+                self.emit_err(TypeCheckerError::vector_type_only_in_storage(span));
+            }
+
             Type::Address
             | Type::Boolean
             | Type::Composite(_)
@@ -1757,7 +1762,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
-            | Type::Vector(_)
             | Type::Numeric
             | Type::Err => {} // Do nothing.
         }
@@ -1900,8 +1904,17 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Scalar
             | Type::Numeric
-            | Type::Err
-            | Type::Vector(_) => {} // valid
+            | Type::Err => {} // valid
+            Type::Vector(vector_type) => {
+                let element_ty = vector_type.element_type();
+                match element_ty {
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
+                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    _ => {}
+                }
+                self.assert_storage_type_is_valid(element_ty, span);
+            }
         }
     }
 

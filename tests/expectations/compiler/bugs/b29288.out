@@ -1,0 +1,5 @@
+program scratch.aleo;
+
+function foo:
+    input r0 as u8.private;
+    output 0u8 as u8.private;
