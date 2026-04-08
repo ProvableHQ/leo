@@ -54,7 +54,13 @@ pub struct Start {
     #[clap(short = 's', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
     pub(crate) storage: Option<String>,
     /// If set alongside --storage, clears the ledger directory before starting.
-    #[clap(short = 'c', long, help = "Remove existing devnode storage before starting", default_value = "false", requires = "storage")]
+    #[clap(
+        short = 'c',
+        long,
+        help = "Remove existing devnode storage before starting",
+        default_value = "false",
+        requires = "storage"
+    )]
     pub(crate) clear_storage: bool,
 }
 
