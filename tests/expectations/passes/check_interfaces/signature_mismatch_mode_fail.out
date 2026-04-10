@@ -1,0 +1,15 @@
+Error [ECHI03712004]: Function `transfer` does not match the signature required by interface `test.aleo/Transferable`.
+Expected:
+fn transfer(public amount: u64) -> u64
+Found:
+fn transfer(amount: u64) -> u64
+    --> test:11:5
+     |
+  11 |     fn transfer(amount: u64) -> u64 {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |         return amount;
+     |         ^^^^^^^^^^^^^^
+  13 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.

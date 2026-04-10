@@ -1,0 +1,37 @@
+Error [ECHI03712004]: Function `external_transfer` does not match the signature required by interface `lib.aleo/HasMixed`.
+Expected:
+fn external_transfer(t: other.aleo::Token) -> other.aleo::Token
+Found:
+fn external_transfer(t: test.aleo::Token) -> test.aleo::Token
+    --> compiler-test:15:5
+     |
+  15 |     fn external_transfer(t: Token) -> Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  16 |         return t;
+     |         ^^^^^^^^^
+  17 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:5:1
+     |
+   5 | 
+   6 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   7 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   8 |         ..
+     |         ^^
+   9 |     }
+     |     ^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372083]: A program must have at least one entry point fn.
+    --> compiler-test:9:9
+     |
+   9 | program other.aleo {
+     |         ^^^^^^^^^^

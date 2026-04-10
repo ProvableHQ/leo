@@ -1,0 +1,62 @@
+Error [ECHI03712001]: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+    --> compiler-test:17:1
+     |
+  17 | interface ICombined: IAbstract + IConcrete {}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Ensure both interfaces define the same signature for this member, or rename one of them.
+Error [ECHI03712001]: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+    --> compiler-test:17:1
+     |
+  17 | interface ICombined: IAbstract + IConcrete {}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Ensure both interfaces define the same signature for this member, or rename one of them.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:5:1
+     |
+   5 | 
+   6 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   7 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   8 |         ..
+     |         ^^
+   9 |     }
+     |     ^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712001]: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+    --> compiler-test:17:1
+     |
+  17 | interface ICombined: IAbstract + IConcrete {}
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = Ensure both interfaces define the same signature for this member, or rename one of them.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:5:1
+     |
+   5 | 
+   6 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   7 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   8 |         ..
+     |         ^^
+   9 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:5:1
+     |
+   5 | 
+   6 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   7 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   8 |         ..
+     |         ^^
+   9 |     }
+     |     ^

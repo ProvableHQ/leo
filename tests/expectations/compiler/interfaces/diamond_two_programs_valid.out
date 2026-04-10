@@ -1,0 +1,117 @@
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^
+program lib1.aleo;
+
+function dummy:
+// --- Next Program --- //
+program lib2.aleo;
+
+function dummy:
+// --- Next Program --- //
+import lib1.aleo;
+import lib2.aleo;
+program test.aleo;
+
+record Token:
+    owner as address.private;
+
+function transfer:
+    input r0 as Token.record;
+    cast r0.owner into r1 as Token.record;
+    output r1 as Token.record;
+
+function stake:
+    input r0 as Token.record;
+    cast r0.owner into r1 as Token.record;
+    output r1 as Token.record;
+
+function main:
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib1.aleo/ILeft` not found.
+    --> compiler-test:5:20
+     |
+   5 | program test.aleo: lib1.aleo::ILeft + lib2.aleo::IRight {
+     |                    ^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Error [ECHI03712000]: Interface `lib2.aleo/IRight` not found.
+    --> compiler-test:5:39
+     |
+   5 | program test.aleo: lib1.aleo::ILeft + lib2.aleo::IRight {
+     |                                       ^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^

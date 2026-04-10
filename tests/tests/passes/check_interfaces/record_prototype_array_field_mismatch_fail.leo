@@ -1,7 +1,6 @@
 // Test: interface record prototype specifies a field with array type [u8; 32], but
-// the implementing program provides [u8; 16]. Should produce record_field_type_mismatch.
-// This verifies that visit_record_prototype's member-type visitation makes field type
-// information available for validation — not just for preventing const-prop panics.
+// the implementing program provides [u8; 16]. The field types differ in array length,
+// so this should fail with a record_field_type_mismatch error.
 
 interface Vault {
     record Entry {

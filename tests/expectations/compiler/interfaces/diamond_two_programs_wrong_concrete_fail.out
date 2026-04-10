@@ -1,0 +1,121 @@
+Error [ECHI03712004]: Function `transfer` does not match the signature required by interface `lib1.aleo/ILeft`.
+Expected:
+fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token
+Found:
+fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token
+    --> compiler-test:11:5
+     |
+  11 |     fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  12 |         return t;
+     |         ^^^^^^^^^
+  13 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Error [ECHI03712004]: Function `stake` does not match the signature required by interface `lib2.aleo/IRight`.
+Expected:
+fn stake(t: lib2.aleo::Token) -> lib2.aleo::Token
+Found:
+fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token
+    --> compiler-test:15:5
+     |
+  15 |     fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  16 |         return t;
+     |         ^^^^^^^^^
+  17 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `lib1.aleo/ILeft` not found.
+    --> compiler-test:5:20
+     |
+   5 | program test.aleo: lib1.aleo::ILeft + lib2.aleo::IRight {
+     |                    ^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Error [ECHI03712000]: Interface `lib2.aleo/IRight` not found.
+    --> compiler-test:5:39
+     |
+   5 | program test.aleo: lib1.aleo::ILeft + lib2.aleo::IRight {
+     |                                       ^^^^^^^^^^^^^^^^^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:11:1
+     |
+  11 | 
+  12 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  13 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  14 |         ..
+     |         ^^
+  15 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:4:1
+     |
+   4 | 
+   5 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   6 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+   7 |         ..
+     |         ^^
+   8 |     }
+     |     ^

@@ -1,0 +1,82 @@
+Error [ECHI03712004]: Function `fn2` does not match the signature required by interface `parent.aleo/IP`.
+Expected:
+fn fn2(t: parent.aleo::Token) -> parent.aleo::Token
+Found:
+fn fn2(t: other.aleo::Token) -> other.aleo::Token
+    --> compiler-test:16:5
+     |
+  16 |     fn fn2(t: other.aleo::Token) -> other.aleo::Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  17 |         return t;
+     |         ^^^^^^^^^
+  18 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Error [ECHI03712004]: Function `fn1` does not match the signature required by interface `parent.aleo/IP`.
+Expected:
+fn fn1(t: grandparent.aleo::Token) -> grandparent.aleo::Token
+Found:
+fn fn1(t: other.aleo::Token) -> other.aleo::Token
+    --> compiler-test:12:5
+     |
+  12 |     fn fn1(t: other.aleo::Token) -> other.aleo::Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  13 |         return t;
+     |         ^^^^^^^^^
+  14 |     }
+     |     ^
+     |
+     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:12:1
+     |
+  12 | 
+  13 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  14 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  15 |         ..
+     |         ^^
+  16 |     }
+     |     ^
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ECHI03712000]: Interface `grandparent.aleo/IGP` not found.
+    --> compiler-test:4:1
+     |
+   4 | interface IP: grandparent.aleo::IGP {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   5 |     fn fn2(t: Token) -> Token;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   6 | }
+     | ^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:12:1
+     |
+  12 | 
+  13 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  14 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  15 |         ..
+     |         ^^
+  16 |     }
+     |     ^
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> compiler-test:12:1
+     |
+  12 | 
+  13 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  14 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  15 |         ..
+     |         ^^
+  16 |     }
+     |     ^
