@@ -61,8 +61,8 @@ pub struct LeoDevnet {
     pub(crate) num_clients: usize,
     #[clap(short = 'n', long, help = "Network (mainnet=0, testnet=1, canary=2)", default_value = "testnet")]
     pub(crate) network: NetworkName,
-    #[clap(long, help = "Ledger / log root directory", default_value = "./")]
-    pub(crate) storage: String,
+    #[clap(short = 's', long, help = "Ledger / log root directory", default_value = "./")]
+    pub(crate) storage: PathBuf,
     #[clap(long, help = "Path to snarkOS binary. If it does not exist, set `--install` to build it at this path.")]
     pub(crate) snarkos: Option<PathBuf>,
     #[clap(long, help = "Required features for snarkOS (e.g. `test_network`)", value_delimiter = ',')]
@@ -80,7 +80,7 @@ pub struct LeoDevnet {
     pub(crate) consensus_heights: Option<Vec<u32>>,
     #[clap(long, help = "Run nodes in tmux (only available on Unix)")]
     pub(crate) tmux: bool,
-    #[clap(long, help = "snarkOS verbosity (0-4)", default_value = "1")]
+    #[clap(short = 'v', long, help = "snarkOS verbosity (0-4)", default_value = "1")]
     pub(crate) verbosity: u8,
     #[clap(long, short = 'y', help = "Skip confirmation prompts and proceed with the devnet startup")]
     pub(crate) yes: bool,
@@ -92,7 +92,7 @@ pub struct LeoDevnet {
     pub(crate) bft_port: Option<u16>,
     #[clap(long, help = "Base metrics port (each validator uses base + dev_index)")]
     pub(crate) metrics_port: Option<u16>,
-    #[clap(long, help = "Remove existing devnet storage before starting")]
+    #[clap(short = 'c', long, help = "Remove existing devnet storage before starting")]
     pub(crate) clear_storage: bool,
     #[clap(long, help = "Only clean devnet storage (ledgers, node data, logs) without starting")]
     pub(crate) clean_only: bool,
@@ -190,7 +190,7 @@ impl LeoDevnet {
         println!("  • Network: {}", self.network);
         println!("  • Validators: {}", self.num_validators);
         println!("  • Clients: {}", self.num_clients);
-        println!("  • Storage: {}", self.storage);
+        println!("  • Storage: {}", self.storage.display());
         if self.install {
             println!("  • Installing snarkOS at: {}", snarkos.display());
             if let Some(ref version) = self.snarkos_version {
@@ -272,16 +272,15 @@ impl LeoDevnet {
         // 3. Resolve storage & create log dir
         //───────────────────────────────────────────────────────────────────
         // Create the storage directory if it does not exist.
-        let storage = PathBuf::from(&self.storage);
-        if !storage.exists() {
-            std::fs::create_dir_all(&storage)
-                .context(format!("Failed to create storage directory: {}", self.storage))?;
-        } else if !storage.is_dir() {
-            bail!("The storage path `{}` is not a directory.", self.storage);
+        if !self.storage.exists() {
+            std::fs::create_dir_all(&self.storage)
+                .context(format!("Failed to create storage directory: {}", self.storage.display()))?;
+        } else if !self.storage.is_dir() {
+            bail!("The storage path `{}` is not a directory.", self.storage.display());
         }
         // Resolve the storage directory to its canonical form.
-        let storage =
-            canonicalize(&storage).with_context(|| format!("Failed to resolve storage path: {}", self.storage))?;
+        let storage = canonicalize(&self.storage)
+            .with_context(|| format!("Failed to resolve storage path: {}", self.storage.display()))?;
 
         // Optionally clear previous devnet artifacts before starting.
         if self.clear_storage {
@@ -620,18 +619,20 @@ impl LeoDevnet {
         }
         let snarkos = canonicalize(snarkos_path)?;
 
-        let storage = PathBuf::from(&self.storage);
-        if !storage.exists() {
-            println!("Storage path `{}` does not exist. Nothing to clean.", self.storage);
+        if !self.storage.exists() {
+            println!("Storage path `{}` does not exist. Nothing to clean.", self.storage.display());
             return Ok(());
         }
-        if !storage.is_dir() {
-            bail!("Storage path `{}` is not a directory.", self.storage);
+        if !self.storage.is_dir() {
+            bail!("Storage path `{}` is not a directory.", self.storage.display());
         }
-        let storage = canonicalize(&storage)?;
+        let storage = canonicalize(&self.storage)?;
 
         let total_nodes = self.num_validators + self.num_clients;
-        if !confirm(&format!("\nClean devnet storage for {total_nodes} nodes in `{}`?", self.storage), self.yes)? {
+        if !confirm(
+            &format!("\nClean devnet storage for {total_nodes} nodes in `{}`?", self.storage.display()),
+            self.yes,
+        )? {
             println!("Aborted.");
             return Ok(());
         }

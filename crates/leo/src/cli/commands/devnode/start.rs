@@ -48,19 +48,13 @@ pub struct Start {
     #[clap(short = 'g', long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
     /// Enable manual block creation mode.
-    #[clap(short = 'm', long, help = "disables automatic block creation after broadcast", default_value = "false")]
+    #[clap(short = 'm', long, help = "disables automatic block creation after broadcast")]
     pub(crate) manual_block_creation: bool,
     /// Optional flag for persisting the ledger to disk. If not set, the ledger will be stored in memory and will not persist across restarts.
     #[clap(short = 's', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
-    pub(crate) storage: Option<String>,
+    pub(crate) storage: Option<PathBuf>,
     /// If set alongside --storage, clears the ledger directory before starting.
-    #[clap(
-        short = 'c',
-        long,
-        help = "Remove existing devnode storage before starting",
-        default_value = "false",
-        requires = "storage"
-    )]
+    #[clap(short = 'c', long, help = "Remove existing devnode storage before starting", requires = "storage")]
     pub(crate) clear_storage: bool,
 }
 
@@ -106,8 +100,7 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
     match command.storage {
-        Some(path_string) => {
-            let path = PathBuf::from(path_string);
+        Some(path) => {
             if command.clear_storage && path.exists() {
                 for entry in std::fs::read_dir(&path)
                     .map_err(|e| CliError::custom(format!("Failed to read ledger directory: {e}")))?
