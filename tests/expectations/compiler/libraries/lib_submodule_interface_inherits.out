@@ -1,0 +1,13 @@
+program main.aleo;
+
+function area:
+    output 100u32 as u32.private;
+
+function perimeter:
+    output 40u32 as u32.private;
+
+function side_count:
+    output 4u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
