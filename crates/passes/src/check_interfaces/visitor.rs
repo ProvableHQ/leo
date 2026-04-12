@@ -690,8 +690,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Validate that record prototypes don't specify `owner` with a type other than `address`.
-    fn validate_record_prototypes(&mut self, interfaces: &[(Symbol, Interface)]) {
-        for (_, interface) in interfaces {
+    fn validate_record_prototypes<'b>(&mut self, interfaces: impl IntoIterator<Item = &'b Interface>) {
+        for interface in interfaces {
             for (_, record_proto) in &interface.records {
                 for member in &record_proto.members {
                     if member.identifier.name == sym::owner && member.type_ != Type::Address {
@@ -788,10 +788,6 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
             prefixed.extend(module.interfaces.iter().map(|(_, i)| (module.path.clone(), i.clone())));
         }
 
-        // Build a flat list (without prefix) for callers that don't need location info.
-        let all_interfaces: Vec<(Symbol, Interface)> =
-            prefixed.iter().map(|(_, i)| (i.identifier.name, i.clone())).collect();
-
         self.build_inheritance_graph(&prefixed, &[]);
 
         // Check for cycles.
@@ -803,7 +799,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         }
 
         // Validate record prototypes (e.g. owner must be address).
-        self.validate_record_prototypes(&all_interfaces);
+        self.validate_record_prototypes(prefixed.iter().map(|(_, i)| i));
 
         // Flatten all interfaces to catch conflicting member inheritance, using the same
         // prefixed paths so the Location matches the symbol table entries.
@@ -848,7 +844,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         }
 
         // Validate record prototypes (e.g. owner must be address).
-        self.validate_record_prototypes(&input.interfaces);
+        self.validate_record_prototypes(input.interfaces.iter().map(|(_, i)| i));
 
         // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {

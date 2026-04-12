@@ -386,7 +386,6 @@ pub trait ProgramVisitor: AstVisitor {
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
-        input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
     }
 
     fn visit_composite(&mut self, input: &Composite) {
