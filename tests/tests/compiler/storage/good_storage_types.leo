@@ -12,6 +12,7 @@ program good_storage_tests.aleo {
     storage field_storage: field;
     storage group_storage: group;
     storage address_storage: address;
+    storage signature_storage: signature;
     storage u32_storage: u32;
     storage i8_storage: i8;
 
@@ -21,6 +22,7 @@ program good_storage_tests.aleo {
     storage array_u32: [u32; 3];
     storage array_bool: [bool; 2];
     storage array_address: [address; 2];
+    storage array_signature: [signature; 2];
     storage array_struct: [MyStruct; 2];
 
     // --- Vectors ---

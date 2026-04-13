@@ -25,6 +25,10 @@ mapping address_storage__:
     key as boolean.public;
     value as address.public;
 
+mapping signature_storage__:
+    key as boolean.public;
+    value as signature.public;
+
 mapping u32_storage__:
     key as boolean.public;
     value as u32.public;
@@ -48,6 +52,10 @@ mapping array_bool__:
 mapping array_address__:
     key as boolean.public;
     value as [address; 2u32].public;
+
+mapping array_signature__:
+    key as boolean.public;
+    value as [signature; 2u32].public;
 
 mapping array_struct__:
     key as boolean.public;

@@ -1844,9 +1844,6 @@ impl TypeCheckingVisitor<'_> {
             Type::DynRecord => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("dyn record", span));
             }
-            Type::Signature => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("signature", span));
-            }
             Type::Future(_) => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("future", span));
             }
@@ -1896,7 +1893,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_storage_type_is_valid(element_ty, span);
             }
 
-            // Everything else (integers, bool, group, etc.)
+            // Everything else (integers, bool, group, signature, etc.)
             Type::Address
             | Type::Boolean
             | Type::Field
@@ -1904,6 +1901,7 @@ impl TypeCheckingVisitor<'_> {
             | Type::Ident(_)
             | Type::Integer(_)
             | Type::Scalar
+            | Type::Signature
             | Type::Numeric
             | Type::Err => {} // valid
             Type::Vector(vector_type) => {
