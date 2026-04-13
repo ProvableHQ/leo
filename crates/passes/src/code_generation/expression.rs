@@ -199,8 +199,21 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
         let (left, left_instructions) = self.visit_expression(&input.left);
         let (right, right_instructions) = self.visit_expression(&input.right);
-        let left = left.expect("Trying to operate on an empty expression");
-        let right = right.expect("Trying to operate on an empty expression");
+
+        let (left, right) = match (left, right) {
+            (Some(l), Some(r)) => (l, r),
+            (None, None) => {
+                // Both operands are Unit type. Only equality comparisons are valid; the result is constant.
+                let mut instructions = left_instructions;
+                instructions.extend(right_instructions);
+                return match input.op {
+                    BinaryOperation::Eq => (AleoExpr::Bool(true), instructions),
+                    BinaryOperation::Neq => (AleoExpr::Bool(false), instructions),
+                    _ => panic!("Non-equality binary operations cannot have Unit-type operands."),
+                };
+            }
+            _ => panic!("Both operands of a binary expression must have the same type."),
+        };
 
         let dest_reg = self.next_register();
 

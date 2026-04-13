@@ -1,3 +1,7 @@
+interface Iface {
+    fn iface_fn::[N: u32](x: u32) -> u32;
+}
+
 @no_inline
 fn foo1::[N: u32](x: u32) -> u32 {
     return N;

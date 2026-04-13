@@ -189,6 +189,23 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         });
     }
 
+    fn visit_interface(&mut self, input: &Interface) {
+        // Entry point functions declared in interfaces cannot have const generic parameters.
+        for (_, prototype) in &input.functions {
+            if !prototype.const_parameters.is_empty() {
+                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                    "Entry point functions",
+                    prototype.identifier.span,
+                ));
+            }
+        }
+        // Delegate type-visiting to the default implementation.
+        input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
+        input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
+        input.mappings.iter().for_each(|m| self.visit_mapping(m));
+        input.storages.iter().for_each(|s| self.visit_storage_variable(s));
+    }
+
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
         self.scope_state.program_name = Some(input.stub_id.as_symbol());

@@ -1150,9 +1150,9 @@ create_messages!(
     }
 
     @formatted
-    only_inline_can_have_const_generics {
-        args: (),
-        msg: format!("Only inlined functions can have generic const parameters."),
+    cannot_have_const_generics {
+        args: (kind: impl Display),
+        msg: format!("{kind} cannot have generic const parameters."),
         help: None,
     }
 
@@ -1522,5 +1522,12 @@ create_messages!(
         args: (),
         msg: format!("Vector types can only be used in storage declarations."),
         help: None,
+    }
+
+    @formatted
+    multi_identifier_definition_requires_tuple {
+        args: (type_: impl Display),
+        msg: format!("A definition with multiple identifiers requires a tuple on the right-hand side, but found type `{type_}`."),
+        help: Some("Use a tuple expression, e.g. `let (a, b) = (x, y);`.".to_string()),
     }
 );

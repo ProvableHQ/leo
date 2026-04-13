@@ -195,6 +195,14 @@ pub trait AstVisitor {
         for (ty, _) in &input.type_parameters {
             self.visit_type(ty);
         }
+        // `input_types` and `return_types` are derived from `type_parameters` at parse time, but
+        // are reconstructed independently during path resolution and must be visited separately.
+        for (_, ty, _) in &input.input_types {
+            self.visit_type(ty);
+        }
+        for (_, ty, _) in &input.return_types {
+            self.visit_type(ty);
+        }
         input.arguments.iter().for_each(|arg| {
             self.visit_expression(arg, &Default::default());
         });

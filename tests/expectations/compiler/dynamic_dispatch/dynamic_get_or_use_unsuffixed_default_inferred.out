@@ -1,0 +1,16 @@
+program test.aleo;
+
+function get:
+    input r0 as field.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    input r3 as u64.private;
+    async get r0 r1 r2 r3 into r4;
+    output r4 as test.aleo/get.future;
+
+finalize get:
+    input r0 as field.public;
+    input r1 as field.public;
+    input r2 as field.public;
+    input r3 as u64.public;
+    get.or_use.dynamic r0 r1 r2[r3] 1u64 into r4 as u64;

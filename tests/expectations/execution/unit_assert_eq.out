@@ -1,0 +1,48 @@
+program test.aleo;
+
+mapping values:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    input r0 as u32.public;
+    async main r0 into r1;
+    output r1 as test.aleo/main.future;
+
+finalize main:
+    input r0 as u32.public;
+    set r0 into values[r0];
+    set r0 into values[r0];
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1jfcjz7yerg0k8lvey2mc6sfq022263sng9kunmngs3wszezkqv8snlkucd",
+      "program": "test.aleo",
+      "function": "main",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7773034874610117133230516208382923742290004600358329673188095387730767902690field",
+          "value": "5u32"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6507007117229272484477344824608470491166824174191595712441883272056843115716field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: main,\n  arguments: [\n    5u32\n  ]\n}"
+        }
+      ],
+      "tpk": "3692622213593196582239088403386301302928630797329676351131222279372480359426group",
+      "tcm": "3696696342970920102486901480960985333336648147126379294698152091542749337271field",
+      "scm": "4396256668744344446249151407765855403536642777056702396775934577520814761469field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

@@ -1,0 +1,5 @@
+program test.aleo;
+
+function main:
+    call.dynamic 'a' 'aleo' 'b' with 1u64 (as u64.public) into r0 (as u64.private);
+    output r0 as u64.private;

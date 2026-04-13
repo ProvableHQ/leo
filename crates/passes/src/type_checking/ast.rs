@@ -2188,8 +2188,29 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let tuple_type = match (&input.type_, inferred_type.clone()) {
                     (Some(Type::Tuple(tuple_type)), _) => tuple_type.clone(),
                     (None, Type::Tuple(tuple_type)) => tuple_type.clone(),
+                    (None, rhs_type) => {
+                        // No annotation and the RHS is not a tuple. Emit a diagnostic and set all
+                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // a known type after type checking, preventing downstream panics.
+                        if !matches!(rhs_type, Type::Err) {
+                            self.emit_err(TypeCheckerError::multi_identifier_definition_requires_tuple(
+                                rhs_type,
+                                input.span(),
+                            ));
+                        }
+                        for identifier in identifiers {
+                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                        }
+                        return;
+                    }
                     _ => {
-                        // This is an error but should have been emitted earlier. Just exit here.
+                        // This is a type error: no tuple type could be determined for this binding.
+                        // An error should have been emitted by the expression visitor. Set all
+                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // a known type after type checking, preventing downstream panics.
+                        for identifier in identifiers {
+                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                        }
                         return;
                     }
                 };

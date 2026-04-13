@@ -64,6 +64,10 @@ impl AstReconstructor for DisambiguateVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         input.type_parameters =
             input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
+        input.input_types =
+            input.input_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
+        input.return_types =
+            input.return_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
         input.arguments = input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg, &()).0).collect();
 
         if input.name == Symbol::intern("__unresolved_get") {

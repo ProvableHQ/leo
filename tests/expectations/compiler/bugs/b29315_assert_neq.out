@@ -1,0 +1,14 @@
+program test.aleo;
+
+mapping m:
+    key as u32.public;
+    value as u32.public;
+
+function foo:
+    async foo into r0;
+    output r0 as test.aleo/foo.future;
+
+finalize foo:
+    set 0u32 into m[0u32];
+    set 0u32 into m[0u32];
+    assert.eq false true;

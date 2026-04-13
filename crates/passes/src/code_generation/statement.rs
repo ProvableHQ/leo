@@ -64,27 +64,27 @@ impl CodeGeneratingVisitor<'_> {
             AssertVariant::AssertEq(left, right) => {
                 let (left, left_stmts) = self.visit_expression(left);
                 let (right, right_stmts) = self.visit_expression(right);
-                let left = left.expect("Trying to assert an empty expression.");
-                let right = right.expect("Trying to assert an empty expression.");
-                let assert_instruction = AleoStmt::AssertEq(left, right);
-
-                // Concatenate the instructions.
                 let mut instructions = left_stmts;
                 instructions.extend(right_stmts);
-                instructions.push(assert_instruction);
+                match (left, right) {
+                    (Some(left), Some(right)) => instructions.push(AleoStmt::AssertEq(left, right)),
+                    // Unit == Unit is trivially true; no instruction is needed.
+                    (None, None) => {}
+                    _ => panic!("Both operands of assert_eq must have the same type."),
+                }
                 instructions
             }
             AssertVariant::AssertNeq(left, right) => {
                 let (left, left_stmts) = self.visit_expression(left);
                 let (right, right_stmts) = self.visit_expression(right);
-                let left = left.expect("Trying to assert an empty expression.");
-                let right = right.expect("Trying to assert an empty expression.");
-                let assert_instruction = AleoStmt::AssertNeq(left, right);
-
-                // Concatenate the instructions.
                 let mut instructions = left_stmts;
                 instructions.extend(right_stmts);
-                instructions.push(assert_instruction);
+                match (left, right) {
+                    (Some(left), Some(right)) => instructions.push(AleoStmt::AssertNeq(left, right)),
+                    // Unit != Unit is trivially false; emit an instruction that always fails.
+                    (None, None) => instructions.push(AleoStmt::AssertEq(AleoExpr::Bool(false), AleoExpr::Bool(true))),
+                    _ => panic!("Both operands of assert_neq must have the same type."),
+                }
                 instructions
             }
         }
