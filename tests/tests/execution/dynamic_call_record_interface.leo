@@ -2,16 +2,17 @@
 seed = 123456789
 
 [case]
-program = "caller.aleo"
-function = "main"
-input = ["aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs", "50u64"]
+program = "router.aleo"
+function = "dispatch"
+input = ["50u64"]
 */
 
 interface TokenOps {
+    record Token;
     fn double_balance(t: Token) -> Token;
 }
 
-program token_impl.aleo: TokenOps {
+program vault.aleo: TokenOps {
     record Token {
         owner: address,
         balance: u64,
@@ -21,7 +22,8 @@ program token_impl.aleo: TokenOps {
         return Token { owner: t.owner, balance: t.balance * 2u64 };
     }
 
-    fn get_initial(balance: u64) -> Token {
+    // Mints a token owned by the transaction signer.
+    fn mint(balance: u64) -> Token {
         return Token { owner: self.signer, balance };
     }
 
@@ -30,15 +32,16 @@ program token_impl.aleo: TokenOps {
 }
 
 // --- Next Program --- //
-import token_impl.aleo;
+import vault.aleo;
 
-program caller.aleo {
+// router.aleo does not implement TokenOps — it is a pure dispatcher that routes
+// dyn record tokens to any program that implements the interface at runtime.
+program router.aleo {
 
-    fn main(owner: address, balance: u64) -> u64 {
-        let t: token_impl.aleo::Token = token_impl.aleo::get_initial(balance);
-        let result: dyn record = token_impl.aleo::TokenOps@('token_impl')::double_balance(t as dyn record);
-        let b: u64 = result.balance;
-        return b;
+    fn dispatch(balance: u64) -> u64 {
+        let token: dyn record = vault.aleo::mint(balance) as dyn record;
+        let result: dyn record = vault.aleo::TokenOps@('vault')::double_balance(token);
+        return result.balance;
     }
 
     @noupgrade

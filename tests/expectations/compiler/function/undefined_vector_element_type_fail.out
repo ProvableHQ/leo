@@ -1,0 +1,5 @@
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:3:12
+     |
+   3 |     fn foo(a: [Nonexistent]) -> bool {
+     |            ^^^^^^^^^^^^^^^^

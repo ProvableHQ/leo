@@ -75,22 +75,6 @@ impl CodeGeneratingVisitor<'_> {
 
         match &self.state.ast {
             Ast::Program(program) => {
-                // Register all composites and mappings first for Aleo
-                // stubs since they are added afterterwards and are not in a
-                // topological order
-                for stub in program.stubs.values() {
-                    if let leo_ast::Stub::FromAleo { program, .. } = stub {
-                        for (name, _) in &program.mappings {
-                            self.global_mapping
-                                .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), name.to_string());
-                        }
-                        for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
-                            self.composite_mapping
-                                .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), *is_record);
-                        }
-                    }
-                }
-
                 for stub in program.stubs.values() {
                     match stub {
                         leo_ast::Stub::FromLeo { program, .. } => {
@@ -116,7 +100,19 @@ impl CodeGeneratingVisitor<'_> {
                                 bytecode: bytecode.to_string(),
                             });
                         }
-                        leo_ast::Stub::FromAleo { .. } | leo_ast::Stub::FromLibrary { .. } => {}
+                        leo_ast::Stub::FromAleo { program, .. } => {
+                            for (name, _) in &program.mappings {
+                                self.global_mapping
+                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), name.to_string());
+                            }
+                            for (name, leo_ast::Composite { is_record, .. }) in &program.composites {
+                                self.composite_mapping
+                                    .insert(Location::new(program.stub_id.as_symbol(), vec![*name]), *is_record);
+                            }
+                        }
+                        leo_ast::Stub::FromLibrary { .. } => {
+                            // no-op
+                        }
                     }
                 }
             }

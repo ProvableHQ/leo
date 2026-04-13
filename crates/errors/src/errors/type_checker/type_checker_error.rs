@@ -1516,4 +1516,11 @@ create_messages!(
         msg: format!("Dynamic call returns record type `{record_type}`, but dynamic calls return `dyn record`."),
         help: Some("Dynamic calls cannot return concrete record types. Access fields on the returned `dyn record` with type annotations: `let x: u64 = result.field;`".to_string()),
     }
+
+    @formatted
+    vector_type_only_in_storage {
+        args: (),
+        msg: format!("Vector types can only be used in storage declarations."),
+        help: None,
+    }
 );
