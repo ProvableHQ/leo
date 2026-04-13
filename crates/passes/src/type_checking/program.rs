@@ -202,8 +202,8 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         // Delegate type-visiting to the default implementation.
         input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
         input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
-        input.mappings.iter().for_each(|m| self.visit_mapping(m));
-        input.storages.iter().for_each(|s| self.visit_storage_variable(s));
+        input.mappings.iter().for_each(|m| self.visit_mapping_prototype(m));
+        input.storages.iter().for_each(|s| self.visit_storage_variable_prototype(s));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
