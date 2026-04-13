@@ -338,7 +338,7 @@ impl CompilationUnit {
 ///
 /// This needs to be done when collecting local dependencies from manifests which
 /// may be located at different places on the file system.
-fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
     if let Some(path) = &mut dependency.path
         && !path.is_absolute()
     {
