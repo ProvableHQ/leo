@@ -1,9 +1,14 @@
-Error [ETYC0372186]: Interface definitions are not allowed inside library modules.
-    --> token_types.leo:2:1
-     |
-   2 | interface TokenStorage {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^
-   3 |     mapping allowances: [address; 2] => u128;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   4 | }
-     | ^
+library token_lib {
+module token_types {
+}
+
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn foo() {
+    }
+}
+
