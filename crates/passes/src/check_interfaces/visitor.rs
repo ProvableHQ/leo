@@ -118,6 +118,12 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // interface — including module-level ones seeded from the program's `parents` list.
         // `transitive_closure` therefore returns the correct ancestor set for both top-level
         // and module-level interfaces.
+        //
+        // Cycle freedom is guaranteed: `build_inheritance_graph` detects cycles and reports
+        // errors before `flatten_interface` is ever called on a cyclic interface. The caller
+        // (`check_program_implements_interface`) always invokes `flatten_interface` after the
+        // graph has been fully built and validated, so no self-cycles can appear in
+        // `all_ancestors`.
         let all_ancestors = self.inheritance_graph.transitive_closure(location);
 
         for ancestor_location in &all_ancestors {
@@ -230,10 +236,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                 _ => {} // Field matches, continue checking.
                             }
                         }
+                    } else {
+                        // Compatible - child's version takes precedence. Add an alias under the
+                        // parent's abstract location so inherited function prototypes are recognized.
+                        flattened.records.push((parent_loc.clone(), existing_record));
                     }
-                    // Compatible - child's version takes precedence. Add an alias under the
-                    // parent's abstract location so inherited function prototypes are recognized.
-                    flattened.records.push((parent_loc.clone(), existing_record));
                 } else {
                     // Add parent's record.
                     flattened.records.push((parent_loc.clone(), parent_record.clone()));
@@ -639,6 +646,10 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Check if all parent record fields exist in child with matching types and modes.
+    ///
+    /// Extra fields in `child` beyond those required by `parent` are permitted by design:
+    /// prototype records that end with `..` act as partial specifications, so the implementing
+    /// record may carry additional fields.
     fn record_fields_compatible(child: &RecordPrototype, parent: &RecordPrototype) -> bool {
         parent.members.iter().all(|parent_member| {
             child.members.iter().any(|child_member| {
@@ -650,7 +661,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Find the first mismatching field between a required record prototype and an actual record.
-    /// Returns Some((field_name, expected_member, found_member_or_none)) if mismatch found.
+    /// Returns `Some((field_name, expected_member, found_member_or_none))` if a mismatch is found.
+    ///
+    /// Only the fields listed in `required` are checked; extra fields in `actual` beyond those
+    /// required are permitted by design (prototype records with `..` allow additional fields in
+    /// the implementing record).
     fn find_record_field_mismatch<'b>(
         required: &'b RecordPrototype,
         actual: &'b Composite,
