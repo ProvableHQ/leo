@@ -493,8 +493,6 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // Input parameters must match exactly.
         a.input.len() == b.input.len() &&
         a.input.iter().zip(b.input.iter()).all(|(input_a, input_b)| {
-            // Parameter names must match.
-            input_a.identifier.name == input_b.identifier.name &&
             // Parameter types must match.
             Self::proto_type_eq(&input_a.type_, &input_b.type_, prototype_record_locations) &&
             // Parameter modes must match.
@@ -599,8 +597,6 @@ impl<'a> CheckInterfacesVisitor<'a> {
         func.input.len() == proto.input.len() &&
 
         func.input.iter().zip(proto.input.iter()).all(|(func_input, proto_input)| {
-            // Parameter names must match.
-            func_input.identifier.name == proto_input.identifier.name &&
             // Parameter types must match.
             self.concrete_type_matches_proto(&func_input.type_, &proto_input.type_, prototype_record_locations) &&
             // Parameter modes must match.

@@ -12,7 +12,7 @@ fn process(v: u64) -> u32
   14 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Error [ECHI03712002]: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`.
     --> compiler-test:7:1
      |

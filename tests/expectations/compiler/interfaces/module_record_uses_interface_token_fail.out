@@ -12,7 +12,7 @@ fn transfer(t: lib.aleo::Token) -> lib.aleo::Token
   12 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     --> compiler-test:13:1
      |

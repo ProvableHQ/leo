@@ -12,7 +12,7 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
    8 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Error [ECHI03712003]: Program `test.aleo` implements interface `lib.aleo/HasToken` but is missing the required record `Token`.
     --> compiler-test:5:1
      |

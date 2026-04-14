@@ -1,0 +1,8 @@
+program test.aleo {
+    fn transfer(sender: address, qty: u64) -> u64 {
+        return qty;
+    }
+    fn main() {
+    }
+}
+

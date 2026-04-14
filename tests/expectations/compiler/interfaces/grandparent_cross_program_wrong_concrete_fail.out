@@ -12,7 +12,7 @@ fn fn2(t: other.aleo::Token) -> other.aleo::Token
   18 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Error [ECHI03712004]: Function `fn1` does not match the signature required by interface `parent.aleo/IP`.
 Expected:
 fn fn1(t: grandparent.aleo::Token) -> grandparent.aleo::Token
@@ -27,7 +27,7 @@ fn fn1(t: other.aleo::Token) -> other.aleo::Token
   14 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     --> compiler-test:12:1
      |

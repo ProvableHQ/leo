@@ -12,7 +12,7 @@ fn f1(t: other.aleo::Token) -> other.aleo::Token
   11 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     --> interfaces.leo:3:1
      |
