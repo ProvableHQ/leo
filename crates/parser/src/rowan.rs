@@ -2412,11 +2412,17 @@ impl<'a> ConversionContext<'a> {
 
         // Annotation names can be identifiers or keywords (e.g. @program, @test).
         // The name is the first IDENT or keyword token after `@`.
-        let name_token =
-            tokens(node).find(|t| t.kind() == IDENT || t.kind().is_keyword()).expect("annotation should have name");
-        let name = Symbol::intern(name_token.text());
-        let name_span = self.token_span(&name_token);
-        let identifier = leo_ast::Identifier { name, span: name_span, id: self.builder.next_id() };
+        let identifier = match tokens(node).find(|t| t.kind() == IDENT || t.kind().is_keyword()) {
+            Some(name_token) => {
+                let name = Symbol::intern(name_token.text());
+                let name_span = self.token_span(&name_token);
+                leo_ast::Identifier { name, span: name_span, id: self.builder.next_id() }
+            }
+            None => {
+                self.emit_unexpected_str("annotation name", node.text(), span);
+                self.error_identifier(span)
+            }
+        };
 
         // Parse annotation key-value pairs from ANNOTATION_PAIR child nodes.
         let map = children(node)

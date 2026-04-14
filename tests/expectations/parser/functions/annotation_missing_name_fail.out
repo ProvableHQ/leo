@@ -1,0 +1,19 @@
+Error [EPAR0370047]: expected annotation name
+    --> test:1:2
+     |
+   1 | @@
+     |  ^
+Error [EPAR0370047]: expected `import`, `program`, or module item at top level
+    --> test:2:5
+     |
+   2 | fn f() {}
+     |     ^
+Error [EPAR0370027]: Missing a program scope in a Leo file.
+    --> test:1:1
+     |
+   1 | @@
+     | ^^
+   2 | fn f() {}
+     | ^^^^^^^^^
+     |
+     = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
