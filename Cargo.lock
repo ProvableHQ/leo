@@ -2234,7 +2234,7 @@ dependencies = [
  "num-format",
  "once_cell",
  "parking_lot",
- "rand 0.8.5",
+ "rand 0.9.4",
  "rand_chacha 0.3.1",
  "rayon",
  "regex",
