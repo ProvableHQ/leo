@@ -576,25 +576,28 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        // Step into an async block
-        self.async_block_id = Some(input.block.id);
-
         // A few restrictions
         if self.scope_state.is_conditional {
             self.emit_err(TypeCheckerError::final_block_in_conditional(input.span));
+            return Type::Err;
         }
 
         if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
             self.emit_err(TypeCheckerError::illegal_final_block_location(input.span));
+            return Type::Err;
         }
 
         if self.scope_state.already_contains_an_async_block {
             self.emit_err(TypeCheckerError::multiple_final_blocks_not_allowed(input.span));
+            return Type::Err;
         }
 
         if self.scope_state.has_called_finalize {
             panic!("Finalize has been called before this final block");
         }
+
+        // Step into the async block only after all validation checks pass.
+        self.async_block_id = Some(input.block.id);
 
         self.visit_block(&input.block);
 
