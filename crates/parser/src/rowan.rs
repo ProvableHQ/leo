@@ -989,8 +989,17 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Get the method name (IDENT or keyword token after DOT).
+        // `find_name_after_dot` can return keyword tokens because the grammar
+        // accepts them in field/method name position for error recovery (e.g.
+        // `x.assert()`). `to_identifier` asserts IDENT, so handle keywords
+        // separately: emit a diagnostic and use an error placeholder.
         let method_name = match find_name_after_dot(node) {
-            Some(method_token) => self.to_identifier(&method_token),
+            Some(method_token) if method_token.kind() == IDENT => self.to_identifier(&method_token),
+            Some(method_token) => {
+                let token_span = self.token_span(&method_token);
+                self.emit_unexpected_str("identifier", method_token.text(), token_span);
+                self.error_identifier(token_span)
+            }
             None => {
                 self.emit_unexpected_str("method name in method call", node.text(), span);
                 return Ok(self.error_expression(span));
