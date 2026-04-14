@@ -1,0 +1,11 @@
+Error [ECMP0376015]: This block contains 33 `set`/`remove` mapping commands, but the maximum allowed is 32.
+    --> compiler-test:5:22
+     |
+   5 |         return final {
+     |                      ^
+   6 |             write_a();
+     |             ^^^^^^^^^^
+   7 |             write_b();
+     |             ^^^^^^^^^^
+   8 |         };
+     |         ^
