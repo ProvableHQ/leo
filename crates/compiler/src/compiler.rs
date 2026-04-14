@@ -253,6 +253,10 @@ impl Compiler {
 
     /// Runs all frontend passes: NameValidation through StaticAnalyzing.
     pub fn frontend_passes(&mut self) -> Result<()> {
+        // Bail out if the parser already found errors.  The error-recovering parser may have
+        // produced ErrExpression nodes in the AST, which would cause panics in later passes.
+        self.state.handler.last_err()?;
+
         self.do_pass::<NameValidation>(())?;
         self.do_pass::<GlobalVarsCollection>(())?;
         self.do_pass::<PathResolution>(())?;
