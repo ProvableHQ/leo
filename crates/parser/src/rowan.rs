@@ -381,19 +381,38 @@ impl<'a> ConversionContext<'a> {
     fn type_array_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_ARRAY);
 
-        let element_node = children(node).find(|n| n.kind().is_type()).expect("array type should have element type");
-        let element_type = self.to_type(&element_node)?;
-        let length_expr = self.array_length_to_expression(node)?;
-        Ok(leo_ast::ArrayType { element_type: Box::new(element_type), length: Box::new(length_expr) }.into())
+        match children(node).find(|n| n.kind().is_type()) {
+            Some(element_node) => {
+                let element_type = self.to_type(&element_node)?;
+                let length_expr = self.array_length_to_expression(node)?;
+                Ok(leo_ast::ArrayType { element_type: Box::new(element_type), length: Box::new(length_expr) }.into())
+            }
+            None => {
+                // Error recovery: the rowan parser produced a TYPE_ARRAY with no element type.
+                let span = self.to_span(node);
+                self.emit_unexpected_str("element type", node.text(), span);
+                Ok(leo_ast::Type::Err)
+            }
+        }
     }
 
     /// Convert a TYPE_VECTOR node to a VectorType.
     fn type_vector_to_type(&self, node: &SyntaxNode) -> Result<leo_ast::Type> {
         debug_assert_eq!(node.kind(), TYPE_VECTOR);
 
-        let element_node = children(node).find(|n| n.kind().is_type()).expect("vector type should have element type");
-        let element_type = self.to_type(&element_node)?;
-        Ok(leo_ast::VectorType { element_type: Box::new(element_type) }.into())
+        match children(node).find(|n| n.kind().is_type()) {
+            Some(element_node) => {
+                let element_type = self.to_type(&element_node)?;
+                Ok(leo_ast::VectorType { element_type: Box::new(element_type) }.into())
+            }
+            None => {
+                // Error recovery: the rowan parser produced a TYPE_VECTOR with no element type
+                // (e.g. `[]` or `[1]` where the content is not a valid type).
+                let span = self.to_span(node);
+                self.emit_unexpected_str("element type", node.text(), span);
+                Ok(leo_ast::Type::Err)
+            }
+        }
     }
 
     /// Extract the array length expression from a TYPE_ARRAY node.
