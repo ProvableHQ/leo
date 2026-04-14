@@ -12,7 +12,7 @@ fn mint(owner: address) -> test.aleo::Coin
    9 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Error [ECHI03712003]: Program `test.aleo` implements interface `token_lib/itoken::TokenInterface` but is missing the required record `Token`.
     --> test:1:1
      |

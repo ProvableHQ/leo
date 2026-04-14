@@ -5,12 +5,12 @@ interface Processor {
 }
 
 program test.aleo: Processor {
-    // Wrong parameter name: 'mult' instead of 'multiplier'
-    fn process(value: u64, mult: u64) -> u64 {
-        return value * mult;
+    // Wrong parameter type: `u32` instead of `u64`
+    fn process(value: u64, multiplier: u32) -> u64 {
+        return value;
     }
 
     fn main(x: u64) -> u64 {
-        return process(x, 2u64);
+        return process(x, 2u32);
     }
 }

@@ -12,22 +12,7 @@ fn foo() -> u32
   10 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
-Error [ECHI03712004]: Function `bar` does not match the signature required by interface `test.aleo/AbstractProgram`.
-Expected:
-fn bar(a: u64) -> ()
-Found:
-fn bar(b: u64) -> ()
-    --> compiler-test:12:5
-     |
-  12 |     fn bar(b: u64) {
-     |     ^^^^^^^^^^^^^^^^
-  13 |         return 0;
-     |         ^^^^^^^^^
-  14 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
 Error [ECHI03712004]: Function `baz` does not match the signature required by interface `test.aleo/AbstractProgram`.
 Expected:
 fn baz(a: u64, b: u8, c: u32) -> Final<Fn()>
@@ -38,4 +23,4 @@ fn baz(a: u32, b: u8, c: u32) -> ()
   16 |     fn baz(a: u32, b: u8, c: u32) {}
      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.
