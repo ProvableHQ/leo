@@ -1,0 +1,12 @@
+Error [EPAR0370009]: unexpected string: expected 'a.aleo::', found 'identifier'
+    --> test:1:10
+     |
+   1 | fn f() { a.aleo::; }
+     |          ^^^^^^^^
+Error [EPAR0370027]: Missing a program scope in a Leo file.
+    --> test:1:1
+     |
+   1 | fn f() { a.aleo::; }
+     | ^^^^^^^^^^^^^^^^^^^^
+     |
+     = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.

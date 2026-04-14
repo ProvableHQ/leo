@@ -1385,29 +1385,37 @@ impl<'a> ConversionContext<'a> {
     /// Locator nodes have the structure: `IDENT DOT KW_ALEO COLON_COLON IDENT [COLON_COLON CONST_ARG_LIST]`.
     /// The first IDENT is the program name, the second (after SLASH) is the type/function name.
     fn locator_tokens_to_path(&self, node: &SyntaxNode) -> Result<leo_ast::Path> {
+        let span = self.to_span(node);
         let mut idents = tokens(node).filter(|t| t.kind() == IDENT);
-        let program_token = idents.next().expect("locator should have program IDENT");
-        let name_token = idents.next().expect("locator should have name IDENT");
 
-        // Convert program token into Identifier
-        let program_ident = self.to_identifier(&program_token);
-
-        // Detect `KW_ALEO` — required
-        let kw_aleo_token = tokens(node).find(|t| t.kind() == KW_ALEO).expect("locator should have `aleo` keyword");
+        // Error recovery: emit a diagnostic and use a placeholder if a token is absent.
+        let program_ident = match idents.next() {
+            Some(token) => self.to_identifier(&token),
+            None => {
+                self.emit_unexpected_str("program name", node.text(), span);
+                self.error_identifier(span)
+            }
+        };
 
         let network_ident = leo_ast::Identifier {
             name: Symbol::intern("aleo"),
-            span: self.token_span(&kw_aleo_token),
+            span: tokens(node).find(|t| t.kind() == KW_ALEO).map(|t| self.token_span(&t)).unwrap_or(span),
             id: self.builder.next_id(),
         };
 
-        // Wrap into ProgramId — network is never None
         let program = leo_ast::ProgramId { name: program_ident, network: network_ident };
 
-        // Name identifier (type name)
-        let name = self.to_identifier(&name_token);
-        let path_span = Span::new(program.name.span.lo, name.span.hi);
+        // Error recovery: the rowan parser only bumps the name IDENT `if self.at(IDENT)`,
+        // so a non-IDENT token after `::` (e.g. `a.aleo::;`) produces a locator with no name.
+        let name = match idents.next() {
+            Some(token) => self.to_identifier(&token),
+            None => {
+                self.emit_unexpected_str("identifier", node.text(), span);
+                self.error_identifier(span)
+            }
+        };
 
+        let path_span = Span::new(program.name.span.lo, name.span.hi);
         Ok(leo_ast::Path::new(Some(program), Vec::new(), name, path_span, self.builder.next_id()))
     }
 
