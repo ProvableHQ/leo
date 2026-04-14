@@ -11,11 +11,11 @@ program test.aleo {
     fn nested2(s: test.aleo::S, t: test.aleo::T) -> (test.aleo::S, test.aleo::T) {
         let t#x$0 = t.x;
         let t#y$1 = t.y;
-        let t#y$1#0$3 = t#y$1[0u8];
-        let t#y$1#1$4 = t#y$1[1u8];
+        let t#y$1#0$3 = t#y$1[0u32];
+        let t#y$1#1$4 = t#y$1[1u32];
         let t#y$1#1$4#x$6 = t#y$1#1$4.x;
         let t#y$1#1$4#y$7 = t#y$1#1$4.y;
-        let t#y$1#2$5 = t#y$1[2u8];
+        let t#y$1#2$5 = t#y$1[2u32];
         let t#z$2 = t.z;
         t#y$1#1$4 = s;
         t#y$1#1$4#x$6 = t#y$1#1$4.x;
