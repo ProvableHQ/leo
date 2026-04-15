@@ -81,7 +81,7 @@ impl<'a> WriteTransformingVisitor<'a> {
             for (i, member) in members.iter().cloned().enumerate() {
                 // Create a definition for each array index.
                 let index = Literal::integer(
-                    IntegerType::U8,
+                    IntegerType::U32,
                     i.to_string(),
                     Default::default(),
                     self.state.node_builder.next_id(),
