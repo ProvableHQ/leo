@@ -31,6 +31,7 @@ use leo_ast::{
     UpgradeVariant,
     Variant,
 };
+use leo_errors::CompilerError;
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
@@ -304,6 +305,26 @@ impl<'a> CodeGeneratingVisitor<'a> {
             statements.insert(0, AleoStmt::AssertEq(AleoExpr::Bool(true), AleoExpr::Bool(true)));
         }
 
+        // Check the write command limit for finalize blocks.
+        // FinalFn calls are always inlined into the combined Finalize body checked below,
+        // so checking them individually would only produce redundant duplicate errors.
+        if matches!(function.variant, Variant::Finalize) {
+            let max_writes = match self.state.network {
+                NetworkName::MainnetV0 => MainnetV0::LATEST_MAX_WRITES(),
+                NetworkName::TestnetV0 => TestnetV0::LATEST_MAX_WRITES(),
+                NetworkName::CanaryV0 => CanaryV0::LATEST_MAX_WRITES(),
+            };
+            let write_count =
+                statements.iter().filter(|s| matches!(s, AleoStmt::Set(..) | AleoStmt::Remove(..))).count();
+            if write_count > max_writes as usize {
+                self.state.handler.emit_err(CompilerError::too_many_write_commands(
+                    write_count,
+                    max_writes,
+                    function.span,
+                ));
+            }
+        }
+
         match function.variant {
             Variant::FinalFn => None,
             Variant::EntryPoint => {
@@ -329,6 +350,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         self.variable_mapping.insert(sym::SelfLower, AleoExpr::Reg(AleoReg::Self_));
         self.variable_mapping.insert(sym::block, AleoExpr::Reg(AleoReg::Block));
         self.variable_mapping.insert(sym::network, AleoExpr::Reg(AleoReg::Network));
+
+        // Save the span before the local `constructor` variable shadows the parameter.
+        let span = constructor.span;
 
         // Get the upgrade variant.
         let upgrade_variant = constructor
@@ -381,14 +405,26 @@ impl<'a> CodeGeneratingVisitor<'a> {
             }
         };
 
-        // Check that the constructor is well-formed.
-        if let Err(e) = match self.state.network {
-            NetworkName::MainnetV0 => check_snarkvm_constructor::<MainnetV0>(&constructor),
-            NetworkName::TestnetV0 => check_snarkvm_constructor::<TestnetV0>(&constructor),
-            NetworkName::CanaryV0 => check_snarkvm_constructor::<CanaryV0>(&constructor),
-        } {
-            panic!("Compilation produced an invalid constructor: {e}");
+        // Check the write command limit first, giving a precise diagnostic.
+        let max_writes = match self.state.network {
+            NetworkName::MainnetV0 => MainnetV0::LATEST_MAX_WRITES(),
+            NetworkName::TestnetV0 => TestnetV0::LATEST_MAX_WRITES(),
+            NetworkName::CanaryV0 => CanaryV0::LATEST_MAX_WRITES(),
         };
+        let write_count =
+            constructor.statements.iter().filter(|s| matches!(s, AleoStmt::Set(..) | AleoStmt::Remove(..))).count();
+        if write_count > max_writes as usize {
+            self.state.handler.emit_err(CompilerError::too_many_write_commands(write_count, max_writes, span));
+        } else {
+            // Validate with snarkVM. Any violation not already caught above is a compiler bug.
+            if let Err(e) = match self.state.network {
+                NetworkName::MainnetV0 => check_snarkvm_constructor::<MainnetV0>(&constructor),
+                NetworkName::TestnetV0 => check_snarkvm_constructor::<TestnetV0>(&constructor),
+                NetworkName::CanaryV0 => check_snarkvm_constructor::<CanaryV0>(&constructor),
+            } {
+                panic!("Compilation produced an invalid constructor: {e}");
+            }
+        }
 
         // Return the constructor string.
         constructor
