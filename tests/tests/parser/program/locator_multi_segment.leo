@@ -1,0 +1,27 @@
+// Parser test: multi-segment locator paths — `program.aleo::module::item` and
+// `program.aleo::a::b::item` — in expression and type positions.
+
+program test.aleo {
+    fn expr_two_segments() -> u32 {
+        let x: u32 = child.aleo::sub::CONST;
+        return x;
+    }
+
+    fn expr_three_segments() -> u32 {
+        let x: u32 = child.aleo::a::b::CONST;
+        return x;
+    }
+
+    fn type_two_segments(x: child.aleo::sub::MyType) -> child.aleo::sub::MyType {
+        return x;
+    }
+
+    fn type_three_segments(x: child.aleo::a::b::MyType) -> child.aleo::a::b::MyType {
+        return x;
+    }
+
+    fn single_segment_still_works() -> u32 {
+        let x: u32 = child.aleo::CONST;
+        return x;
+    }
+}

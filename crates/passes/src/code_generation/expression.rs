@@ -560,9 +560,8 @@ impl CodeGeneratingVisitor<'_> {
                 "Type checking guarantees that imported and stub programs are present."
             );
 
-            let [function_name] = &function_location.path[..] else {
-                panic!("paths to external functions can only have a single segment at this stage.")
-            };
+            let function_name =
+                function_location.path.last().expect("type checking guarantees external function path is non-empty");
             AleoStmt::Call(format!("{}/{}", callee_program, function_name), arguments, destinations.clone())
         } else if func_symbol.function.variant.is_finalize() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())

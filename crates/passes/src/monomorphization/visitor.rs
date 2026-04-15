@@ -85,18 +85,25 @@ impl MonomorphizationVisitor<'_> {
         let monomorphized_name =
             leo_span::Symbol::intern(&format!("{}::[{}]", path.identifier().name, const_arguments.iter().format(", ")));
 
-        // Compute the storage location for the monomorphized composite:
-        // - Library composites stay under their own library program (e.g. `math_lib/["Foo::[1u32]"]`),
-        //   just as module composites stay in their module. `reconstruct_library` picks them up
-        //   naturally and code generation inlines them into the consuming program's bytecode.
-        // - Local composites stay in the same program scope.
-        let storage_loc = if original_loc.program != self.program {
-            Location::new(original_loc.program, vec![monomorphized_name])
-        } else {
-            let mut path_segs = original_loc.path[..original_loc.path.len() - 1].to_vec();
-            path_segs.push(monomorphized_name);
-            Location::new(original_loc.program, path_segs)
-        };
+        // Compute the storage location for the monomorphized composite.
+        //
+        // All composites — local, library, and external FromLeo — preserve their module path:
+        // the prefix is kept and only the last segment (the struct name) is replaced with the
+        // monomorphized name. For example:
+        //   - local `types::Vec`       → `types::Vec::[3u32]`
+        //   - library `lib::dep::Foo`  → `lib::dep::Foo::[3u32]`
+        //   - external `child::sub::T` → `child::sub::T::[3u32]`
+        //
+        // Top-level composites (path length 1) are unaffected: `path[..0]` is empty,
+        // so the result is just `[Name::[args]]`.
+        //
+        // Preserving the full path is necessary for correctness when two submodules in the same
+        // library define structs with the same name: flattening would cause the second
+        // monomorphized entry to silently overwrite the first in the symbol table.
+        let mut path_segs = Vec::with_capacity(original_loc.path.len());
+        path_segs.extend_from_slice(&original_loc.path[..original_loc.path.len() - 1]);
+        path_segs.push(monomorphized_name);
+        let storage_loc = Location::new(original_loc.program, path_segs);
 
         // Build the new path pointing directly to the storage location.
         let new_composite_path =

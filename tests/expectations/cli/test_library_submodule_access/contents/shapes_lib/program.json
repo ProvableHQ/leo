@@ -1,0 +1,8 @@
+{
+  "program": "shapes_lib",
+  "version": "0.1.0",
+  "description": "Library with a geometry submodule containing Point and helpers.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

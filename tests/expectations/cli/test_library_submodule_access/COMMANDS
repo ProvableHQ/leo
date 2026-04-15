@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Tests that leo test runs correctly on a program that uses structs,
+# constants, and functions from submodules of an imported Leo library.
+
+LEO_BIN=${1}
+
+echo "--- leo add --local (add shapes_lib dep to my_app) ---"
+cd my_app || exit 1
+${LEO_BIN} --disable-update-check add shapes_lib --local ../shapes_lib
+
+echo "--- leo test (should pass all submodule assertions) ---"
+${LEO_BIN} --disable-update-check test

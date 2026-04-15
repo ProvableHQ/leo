@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Tests that a Leo program can build successfully when it accesses structs,
+# constants, and functions from submodules of an imported external .aleo program.
+
+LEO_BIN=${1}
+
+cd consumer || exit 1
+
+echo "--- leo build (access provider.aleo submodule items) ---"
+${LEO_BIN} --disable-update-check build
