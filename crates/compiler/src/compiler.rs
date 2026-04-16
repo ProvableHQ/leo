@@ -609,7 +609,17 @@ impl Compiler {
                 }
                 map
             }
-            Ast::Library(_) => IndexMap::new(),
+            Ast::Library(_) => {
+                // Libraries have no explicit `imports` field; their dependencies are expressed
+                // indirectly through parent relations on the stubs map. A stub is a dep of this
+                // library iff its parent set contains the library's own name.
+                let library_name = Symbol::intern(self.program_name.as_ref().unwrap());
+                self.import_stubs
+                    .iter()
+                    .filter(|(_, stub)| stub.parents().contains(&library_name))
+                    .map(|(name, _)| (*name, Span::default()))
+                    .collect()
+            }
         };
 
         // Initialize the exploration queue with the root’s direct imports.
@@ -664,17 +674,72 @@ impl Compiler {
             }
         }
 
-        // Only Programs store stubs on the AST (at least for now).
-        if let Ast::Program(program) = &mut self.state.ast {
-            program.stubs = self
-                .import_stubs
-                .iter()
-                .filter(|(symbol, _)| explored.contains(*symbol))
-                .map(|(symbol, stub)| (*symbol, stub.clone()))
-                .collect();
+        // Collect all reachable stubs and store them on the AST.
+        let reachable: IndexMap<Symbol, Stub> = self
+            .import_stubs
+            .iter()
+            .filter(|(symbol, _)| explored.contains(*symbol))
+            .map(|(symbol, stub)| (*symbol, stub.clone()))
+            .collect();
+        match &mut self.state.ast {
+            Ast::Program(program) => program.stubs = reachable,
+            Ast::Library(library) => library.stubs = reachable,
         }
 
         Ok(())
+    }
+
+    /// Builds a library: parses the source, resolves import stubs, and runs all frontend passes.
+    ///
+    /// Unlike [`Self::compile`], this does not run monomorphisation, lowerings, or code generation.
+    /// No bytecode is produced. Returns the validated library AST, which callers can convert into
+    /// a [`Stub`] for downstream units in the same build graph.
+    pub fn build_library(
+        &mut self,
+        library_name: Symbol,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+    ) -> Result<Library> {
+        self.parse_library(library_name, source, filename, modules)?;
+        self.add_import_stubs()?;
+        self.frontend_passes()?;
+
+        match &self.state.ast {
+            Ast::Library(library) => Ok(library.clone()),
+            Ast::Program(_) => unreachable!("expected Library AST"),
+        }
+    }
+
+    /// Builds a library from a source file and its associated module files in the same directory tree.
+    pub fn build_library_from_directory(
+        &mut self,
+        library_name: Symbol,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+    ) -> Result<Library> {
+        self.build_library_from_directory_with_file_source(
+            library_name,
+            entry_file_path,
+            source_directory,
+            &DiskFileSource,
+        )
+    }
+
+    /// Builds a library from a source file using the given file source.
+    pub fn build_library_from_directory_with_file_source(
+        &mut self,
+        library_name: Symbol,
+        entry_file_path: impl AsRef<Path>,
+        source_directory: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Library> {
+        let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
+
+        let module_refs: Vec<(&str, FileName)> =
+            modules_owned.iter().map(|(src, fname)| (src.as_str(), fname.clone())).collect();
+
+        self.build_library(library_name, &source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
     }
 }
 

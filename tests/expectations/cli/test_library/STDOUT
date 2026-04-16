@@ -5,20 +5,38 @@ add network to library exit code: 213
 --- leo build (should succeed) ---
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 --- leo run (should fail) ---
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 run exit code: 213
 --- leo execute (should fail) ---
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 execute exit code: 213
 --- leo deploy (should fail) ---
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 deploy exit code: 213
 --- leo test (should fail) ---
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 test exit code: 213
 --- leo upgrade (should fail) ---
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
 upgrade exit code: 213
 --- leo clean on library (should succeed) ---
 clean exit code: 0
