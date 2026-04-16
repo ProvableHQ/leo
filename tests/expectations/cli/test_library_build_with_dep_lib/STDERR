@@ -1,0 +1,2 @@
+--- leo add --local base_lib (should succeed) ---
+--- leo build (should succeed: library-to-library reference) ---

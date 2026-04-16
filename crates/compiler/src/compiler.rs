@@ -203,6 +203,13 @@ impl Compiler {
             self.state.network,
         )?);
 
+        // Downstream passes (e.g. `add_import_stubs`) read `program_name` to identify the
+        // current compilation target. Libraries don't embed their own name in the source the
+        // way programs do, so adopt the name supplied by the caller if none was pre-set.
+        if self.program_name.is_none() {
+            self.program_name = Some(library_name.to_string());
+        }
+
         Ok(())
     }
 
@@ -748,7 +755,7 @@ mod tests {
     use super::Compiler;
 
     use leo_ast::{NetworkName, NodeBuilder};
-    use leo_errors::Handler;
+    use leo_errors::{BufferEmitter, Handler};
     use leo_span::{Symbol, create_session_if_not_set_then, file_source::InMemoryFileSource};
 
     use std::{path::PathBuf, rc::Rc};
@@ -796,6 +803,43 @@ mod tests {
                 library.consts.iter().any(|(name, _)| *name == Symbol::intern("OFFSET")),
                 "expected const `OFFSET` in library"
             );
+        });
+    }
+
+    #[test]
+    fn build_library_from_directory_in_memory_rejects_type_error() {
+        create_session_if_not_set_then(|_| {
+            let mut source = InMemoryFileSource::new();
+            // `true + 1u32` must be rejected by type checking.
+            source
+                .set(PathBuf::from("/badlib/src/lib.leo"), "fn broken() -> u32 {\n    return true + 1u32;\n}\n".into());
+
+            // Capture errors in a buffer so the test can inspect them without writing to stderr.
+            let emitter = BufferEmitter::new();
+            let handler = Handler::new(emitter.clone());
+            let node_builder = Rc::new(NodeBuilder::default());
+            let mut compiler = Compiler::new(
+                Some("badlib".into()),
+                false,
+                handler,
+                node_builder,
+                PathBuf::from("/unused"),
+                None,
+                IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+
+            let result = compiler.build_library_from_directory_with_file_source(
+                Symbol::intern("badlib"),
+                "/badlib/src/lib.leo",
+                "/badlib/src",
+                &source,
+            );
+
+            assert!(result.is_err(), "expected build_library to fail on a library with a type error");
+
+            let errors = emitter.extract_errs().to_string();
+            assert!(errors.contains("ETYC"), "expected a type-checking error (prefix `ETYC`) but captured:\n{errors}");
         });
     }
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Tests that `leo build` on a library primary runs path resolution and
+# reports references to undeclared symbols inside library function bodies.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo build (should fail: undefined name in library) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

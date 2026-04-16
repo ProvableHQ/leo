@@ -1,0 +1,9 @@
+--- leo add --local base_lib (should succeed) ---
+       Leo ✅ Added local dependency `base_lib` at path `../base_lib`.
+--- leo build (should succeed: library-to-library reference) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Building library 'top_lib'
+       Leo ✅ Validated 'top_lib'.
+build exit code: 0
