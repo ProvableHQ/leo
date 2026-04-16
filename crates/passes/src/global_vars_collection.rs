@@ -44,6 +44,7 @@ use crate::{CompilerState, Pass, VariableSymbol, VariableType};
 
 use leo_ast::{
     AleoProgram,
+    Ast,
     AstVisitor,
     ConstDeclaration,
     Library,
@@ -77,12 +78,10 @@ impl Pass for GlobalVarsCollection {
             parents: IndexSet::new(),
         };
 
-        ast.visit(
-            |program| visitor.visit_program(program),
-            |_library| {
-                // no-op for libraries
-            },
-        );
+        match &ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
@@ -197,6 +196,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
 
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.modules.values().for_each(|m| self.visit_module(m));
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

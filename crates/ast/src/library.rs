@@ -16,7 +16,7 @@
 
 use leo_span::Symbol;
 
-use crate::{Composite, ConstDeclaration, Function, Indent, Interface, Module};
+use crate::{Composite, ConstDeclaration, Function, Indent, Interface, Module, Stub};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -39,10 +39,18 @@ pub struct Library {
     pub functions: Vec<(Symbol, Function)>,
     /// The interface definitions in this library.
     pub interfaces: Vec<(Symbol, Interface)>,
+    /// Stubs for imported programs/libraries.
+    ///
+    /// Populated by `Compiler::add_import_stubs`; empty in freshly-parsed libraries.
+    pub stubs: IndexMap<Symbol, Stub>,
 }
 
 impl fmt::Display for Library {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (_, stub) in self.stubs.iter() {
+            writeln!(f, "{stub}")?;
+        }
+
         writeln!(f, "library {} {{", self.name)?;
 
         for (_, interface) in self.interfaces.iter() {

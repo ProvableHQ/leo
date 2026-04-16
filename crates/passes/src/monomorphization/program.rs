@@ -98,6 +98,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 }))
                 .collect(),
             interfaces: input.interfaces,
+            stubs: input.stubs,
         }
     }
 

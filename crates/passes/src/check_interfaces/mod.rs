@@ -19,7 +19,7 @@ use visitor::*;
 
 use crate::{CompilerState, Pass};
 
-use leo_ast::ProgramVisitor;
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::Result;
 
 /// A pass to validate interface inheritance soundness.
@@ -41,13 +41,10 @@ impl Pass for CheckInterfaces {
 
         let mut visitor = CheckInterfacesVisitor::new(state);
 
-        // Explicitly handle both variants; library is a no-op for now
-        ast.visit(
-            |program| visitor.visit_program(program),
-            |_library| {
-                // no-op for library
-            },
-        );
+        match &ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;

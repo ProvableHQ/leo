@@ -61,6 +61,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces,
+            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
         };
         self.program = prev_program;
         library

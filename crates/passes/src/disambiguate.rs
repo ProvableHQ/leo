@@ -35,10 +35,10 @@ impl Pass for Disambiguate {
 
         let mut visitor = DisambiguateVisitor { state };
 
-        let ast = ast.map(
-            |program| visitor.reconstruct_program(program),
-            |library| library, // no-op for libraries
-        );
+        let ast = match ast {
+            Ast::Program(program) => Ast::Program(visitor.reconstruct_program(program)),
+            Ast::Library(library) => Ast::Library(visitor.reconstruct_library(library)),
+        };
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
