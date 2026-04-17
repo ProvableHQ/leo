@@ -1,5 +1,5 @@
-// Negative test: calling a function from a submodule of an external program is
-// not supported — submodule functions are not exported to Aleo bytecode.
+// Positive test: calling a function from a submodule of an external program is
+// supported — the submodule function is inlined at the call site.
 
 program child.aleo {
     fn top_fn(x: u32) -> u32 {
@@ -21,7 +21,7 @@ fn helper(x: u32) -> u32 {
 import child.aleo;
 
 program parent.aleo {
-    fn bad_call(x: u32) -> u32 {
+    fn call_helper(x: u32) -> u32 {
         return child.aleo::utils::helper(x);
     }
 

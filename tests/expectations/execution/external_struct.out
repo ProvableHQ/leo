@@ -51,12 +51,6 @@ record BooHoo:
     val as u32.private;
     woo as Woo.private;
 
-function create_wrapper:
-    call child.aleo/create into r0 r1;
-    call child.aleo/create into r2 r3;
-    output r2 as child.aleo/Foo.private;
-    output r3 as child.aleo/Boo.record;
-
 function create_another_wrapper:
     call child.aleo/create into r0 r1;
     cast 1u32 2u32 into r2 as Woo;
@@ -66,6 +60,12 @@ function create_another_wrapper:
     output r1 as child.aleo/Boo.record;
     output r3 as BooHoo.record;
     output r4 as Woo.private;
+
+function create_wrapper:
+    call child.aleo/create into r0 r1;
+    call child.aleo/create into r2 r3;
+    output r2 as child.aleo/Foo.private;
+    output r3 as child.aleo/Boo.record;
 // --- Next Program --- //
 import child.aleo;
 import parent.aleo;

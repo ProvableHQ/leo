@@ -30,6 +30,35 @@
   "storage_variables": [],
   "functions": [
     {
+      "name": "double_amount",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "x",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
       "name": "mint",
       "is_final": false,
       "inputs": [
@@ -62,35 +91,6 @@
                 "Token"
               ],
               "program": "my_program.aleo"
-            }
-          },
-          "mode": "None"
-        }
-      ]
-    },
-    {
-      "name": "double_amount",
-      "is_final": false,
-      "inputs": [
-        {
-          "name": "x",
-          "ty": {
-            "Plaintext": {
-              "Primitive": {
-                "UInt": "U64"
-              }
-            }
-          },
-          "mode": "None"
-        }
-      ],
-      "outputs": [
-        {
-          "ty": {
-            "Plaintext": {
-              "Primitive": {
-                "UInt": "U64"
-              }
             }
           },
           "mode": "None"

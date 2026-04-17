@@ -156,5 +156,5 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
     }
 
     // Step 3: Build symbol that ends with `?`.
-    Symbol::intern(&format!("\"{}?\"", display_type(ty)))
+    Symbol::intern(&format!("{}?", display_type(ty)))
 }

@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Replacer};
+use crate::{CompilerState, Replacer, common::items_at_path};
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{
+    AstReconstructor,
     CallExpression,
     Composite,
     CompositeExpression,
@@ -26,8 +27,12 @@ use leo_ast::{
     Function,
     Identifier,
     Location,
+    Module,
     Path,
+    Program,
     ProgramReconstructor,
+    ProgramScope,
+    Statement,
 };
 use leo_span::Symbol;
 
@@ -44,11 +49,8 @@ pub struct MonomorphizationVisitor<'a> {
     /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
     /// the functions not the names of the monomorphized versions.
     pub monomorphized_functions: IndexSet<Location>,
-    /// A map of reconstructed functions in the current program scope.
+    /// A map of reconstructed composites in the current program scope.
     pub reconstructed_composites: IndexMap<Location, Composite>,
-    /// A set of all functions that have been monomorphized at least once. This keeps track of the _original_ names of
-    /// the functions not the names of the monomorphized versions.
-    pub monomorphized_composites: IndexSet<Location>,
     /// A vector of all the calls to const generic functions that have not been resolved.
     pub unresolved_calls: Vec<CallExpression>,
     /// A vector of all the composite expressions of const generic composites that have not been resolved.
@@ -149,13 +151,77 @@ impl MonomorphizationVisitor<'_> {
             composite.const_parameters = vec![];
             composite.id = self.state.node_builder.next_id();
 
-            // Keep track of the new composite in case other composites need it.
+            // Keep track of the new composite in case other composites need it. The generic
+            // original is dropped later by filtering on `const_parameters.is_empty()`.
             self.reconstructed_composites.insert(storage_loc.clone(), composite);
-
-            // Now keep track of the composite we just monomorphized
-            self.monomorphized_composites.insert(original_loc.clone());
         }
 
         new_composite_path
+    }
+
+    /// Assembles a `Module` from the already-populated `reconstructed_*` maps. Interfaces are
+    /// reconstructed because they may reference composites that have been monomorphized.
+    /// `input.program_name` is used (not `self.program`) because a nested `reconstruct_program`
+    /// call on a `Stub::FromLeo` dependency may have moved `self.program` off the module's own
+    /// program.
+    pub(super) fn assemble_module(&mut self, input: Module) -> Module {
+        Module {
+            composites: items_at_path(&self.reconstructed_composites, input.program_name, &input.path).collect(),
+            functions: items_at_path(&self.reconstructed_functions, input.program_name, &input.path).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            ..input
+        }
+    }
+
+    /// Assembles a `FromLeo` stub's program from the already-populated `reconstructed_*` maps.
+    /// `input.stubs` is always empty on a stub's program (only the top-level `Program` carries
+    /// stubs), so it passes through unchanged.
+    pub(super) fn assemble_from_leo_program(&mut self, input: Program) -> Program {
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.assemble_from_leo_scope(id, scope))).collect();
+        let modules = input.modules.into_iter().map(|(mid, m)| (mid, self.assemble_module(m))).collect();
+        Program { program_scopes, modules, stubs: input.stubs, imports: input.imports }
+    }
+
+    /// Assembles a single ProgramScope for a FromLeo stub from `reconstructed_*`.
+    fn assemble_from_leo_scope(&mut self, program_name: Symbol, input: ProgramScope) -> ProgramScope {
+        // Exclude generic composites that have been monomorphized — only their concrete
+        // specializations should appear in the output.
+        let composites = items_at_path(&self.reconstructed_composites, program_name, &[])
+            .filter(|(_, c)| c.const_parameters.is_empty())
+            .collect();
+
+        // Entry-point functions must appear before finalize functions so the type checker
+        // can populate `async_function_callers` before visiting finalizers.
+        let (entry_points, non_entry_points): (Vec<_>, Vec<_>) =
+            items_at_path(&self.reconstructed_functions, program_name, &[]).partition(|(_, f)| f.variant.is_entry());
+        let functions: Vec<_> = entry_points.into_iter().chain(non_entry_points).collect();
+
+        // Reconstruct other items that might reference monomorphized composites.
+        let mappings = input.mappings.into_iter().map(|(id, m)| (id, self.reconstruct_mapping(m))).collect();
+        let storage_variables =
+            input.storage_variables.into_iter().map(|(id, sv)| (id, self.reconstruct_storage_variable(sv))).collect();
+        let consts = input
+            .consts
+            .into_iter()
+            .map(|(i, c)| match self.reconstruct_const(c) {
+                (Statement::Const(declaration), _) => (i, declaration),
+                _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+            })
+            .collect();
+        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
+
+        ProgramScope {
+            program_id: input.program_id,
+            parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),
+            composites,
+            mappings,
+            storage_variables,
+            functions,
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            constructor,
+            consts,
+            span: input.span,
+        }
     }
 }

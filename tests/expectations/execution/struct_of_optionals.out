@@ -1,24 +1,24 @@
 program test.aleo;
 
-struct Optional__DOnC9eGtnsJ:
+struct Optional__DmN5CQ9hzeK:
     is_some as boolean;
     val as u64;
 
 struct Foo:
-    x as Optional__DOnC9eGtnsJ;
+    x as Optional__DmN5CQ9hzeK;
 
 function main:
-    cast true 10u64 into r0 as Optional__DOnC9eGtnsJ;
-    cast r0.is_some r0.val into r1 as Optional__DOnC9eGtnsJ;
+    cast true 10u64 into r0 as Optional__DmN5CQ9hzeK;
+    cast r0.is_some r0.val into r1 as Optional__DmN5CQ9hzeK;
     cast r1 into r2 as Foo;
-    cast false 0u64 into r3 as Optional__DOnC9eGtnsJ;
-    cast r3.is_some r3.val into r4 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r3 as Optional__DmN5CQ9hzeK;
+    cast r3.is_some r3.val into r4 as Optional__DmN5CQ9hzeK;
     cast r4 into r5 as Foo;
-    cast true 30u64 into r6 as Optional__DOnC9eGtnsJ;
-    cast r6.is_some r6.val into r7 as Optional__DOnC9eGtnsJ;
+    cast true 30u64 into r6 as Optional__DmN5CQ9hzeK;
+    cast r6.is_some r6.val into r7 as Optional__DmN5CQ9hzeK;
     cast r7 into r8 as Foo;
-    cast false 0u64 into r9 as Optional__DOnC9eGtnsJ;
-    cast r9.is_some r9.val into r10 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r9 as Optional__DmN5CQ9hzeK;
+    cast r9.is_some r9.val into r10 as Optional__DmN5CQ9hzeK;
     cast r10 into r11 as Foo;
     cast r2 r5 r8 r11 into r12 as [Foo; 4u32];
     ternary r12[0u32].x.is_some r12[0u32].x.val 0u64 into r13;

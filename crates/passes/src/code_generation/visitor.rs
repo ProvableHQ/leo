@@ -255,12 +255,11 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // === Case 4: Matches special form like `path::to::Name?` (last always ends with `?`) ===
-        if last.ends_with("?\"") {
+        if last.ends_with('?') {
             // Because the last segment of `path` always ends with `?` in case 3, we can guarantee
             // that there will be no conflicts with case 2 (which doesn't allow `?` anywhere).
             //
             // The produced name here will be of the form: `Optional__JZCpIGdQvEZ`.
-            // The suffix after the `__` cannot conflict with the suffix in case 2 because of the `?`
             return Some(generate_hashed_name(path, "Optional"));
         }
 

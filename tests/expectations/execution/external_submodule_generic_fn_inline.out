@@ -1,0 +1,29 @@
+program child.aleo;
+
+function identity:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function scale_once:
+    input r0 as u32.private;
+    mul r0 3u32 into r1;
+    output r1 as u32.private;
+
+function scale_twice:
+    input r0 as u32.private;
+    mul r0 4u32 into r1;
+    add r1 r1 into r2;
+    output r2 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 18u32
+status: success
+output: 24u32

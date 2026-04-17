@@ -1,47 +1,47 @@
 program test_hash_and_commit.aleo;
 
-struct Optional__K4XRQPOk9yX:
+struct Optional__7o6su2Uhzht:
     is_some as boolean;
     val as field;
 
-struct Optional__8aTicnNTOvk:
+struct Optional__9SsWRr2WG5s:
     is_some as boolean;
     val as group;
 
 struct S:
-    x as Optional__K4XRQPOk9yX;
-    y as Optional__8aTicnNTOvk;
+    x as Optional__7o6su2Uhzht;
+    y as Optional__9SsWRr2WG5s;
 
-struct Optional__3FgA2LC7NnF:
+struct Optional__9bKza3QPqox:
     is_some as boolean;
     val as S;
 
-struct Optional__GCjgE2f9kbt:
+struct Optional__FmbEL2f0le5:
     is_some as boolean;
-    val as [Optional__K4XRQPOk9yX; 3u32];
+    val as [Optional__7o6su2Uhzht; 3u32];
 
 struct Outer:
-    inner as Optional__3FgA2LC7NnF;
-    arr as Optional__GCjgE2f9kbt;
+    inner as Optional__9bKza3QPqox;
+    arr as Optional__FmbEL2f0le5;
 
-struct Optional__IsLXQFUQ9Dr:
+struct Optional__1KvQghcZ5e5:
     is_some as boolean;
     val as Outer;
 
 function hash:
     input r0 as field.private;
     input r1 as group.private;
-    cast true r0 into r2 as Optional__K4XRQPOk9yX;
-    cast false 0group into r3 as Optional__8aTicnNTOvk;
+    cast true r0 into r2 as Optional__7o6su2Uhzht;
+    cast false 0group into r3 as Optional__9SsWRr2WG5s;
     cast r2 r3 into r4 as S;
-    cast true r4 into r5 as Optional__3FgA2LC7NnF;
-    cast true 1field into r6 as Optional__K4XRQPOk9yX;
-    cast false 0field into r7 as Optional__K4XRQPOk9yX;
-    cast true 3field into r8 as Optional__K4XRQPOk9yX;
-    cast r6 r7 r8 into r9 as [Optional__K4XRQPOk9yX; 3u32];
-    cast true r9 into r10 as Optional__GCjgE2f9kbt;
+    cast true r4 into r5 as Optional__9bKza3QPqox;
+    cast true 1field into r6 as Optional__7o6su2Uhzht;
+    cast false 0field into r7 as Optional__7o6su2Uhzht;
+    cast true 3field into r8 as Optional__7o6su2Uhzht;
+    cast r6 r7 r8 into r9 as [Optional__7o6su2Uhzht; 3u32];
+    cast true r9 into r10 as Optional__FmbEL2f0le5;
     cast r5 r10 into r11 as Outer;
-    cast true r11 into r12 as Optional__IsLXQFUQ9Dr;
+    cast true r11 into r12 as Optional__1KvQghcZ5e5;
     hash.bhp256 r12 into r13 as field;
     hash.bhp512 r12 into r14 as field;
     hash.bhp768 r12 into r15 as field;
@@ -56,17 +56,17 @@ function commit:
     input r0 as field.private;
     input r1 as group.private;
     input r2 as scalar.private;
-    cast false 0field into r3 as Optional__K4XRQPOk9yX;
-    cast true r1 into r4 as Optional__8aTicnNTOvk;
+    cast false 0field into r3 as Optional__7o6su2Uhzht;
+    cast true r1 into r4 as Optional__9SsWRr2WG5s;
     cast r3 r4 into r5 as S;
-    cast true r5 into r6 as Optional__3FgA2LC7NnF;
-    cast true 10field into r7 as Optional__K4XRQPOk9yX;
-    cast true 20field into r8 as Optional__K4XRQPOk9yX;
-    cast false 0field into r9 as Optional__K4XRQPOk9yX;
-    cast r7 r8 r9 into r10 as [Optional__K4XRQPOk9yX; 3u32];
-    cast true r10 into r11 as Optional__GCjgE2f9kbt;
+    cast true r5 into r6 as Optional__9bKza3QPqox;
+    cast true 10field into r7 as Optional__7o6su2Uhzht;
+    cast true 20field into r8 as Optional__7o6su2Uhzht;
+    cast false 0field into r9 as Optional__7o6su2Uhzht;
+    cast r7 r8 r9 into r10 as [Optional__7o6su2Uhzht; 3u32];
+    cast true r10 into r11 as Optional__FmbEL2f0le5;
     cast r6 r11 into r12 as Outer;
-    cast true r12 into r13 as Optional__IsLXQFUQ9Dr;
+    cast true r12 into r13 as Optional__1KvQghcZ5e5;
     commit.bhp256 r13 r2 into r14 as field;
     commit.bhp512 r13 r2 into r15 as field;
     commit.bhp768 r13 r2 into r16 as field;

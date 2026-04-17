@@ -39,6 +39,39 @@
   "storage_variables": [],
   "functions": [
     {
+      "name": "sum_channels",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "c",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
       "name": "make_color",
       "is_final": false,
       "inputs": [
@@ -86,39 +119,6 @@
                   "Color"
                 ],
                 "program": "provider.aleo"
-              }
-            }
-          },
-          "mode": "None"
-        }
-      ]
-    },
-    {
-      "name": "sum_channels",
-      "is_final": false,
-      "inputs": [
-        {
-          "name": "c",
-          "ty": {
-            "Plaintext": {
-              "Struct": {
-                "path": [
-                  "colors",
-                  "Color"
-                ],
-                "program": "provider.aleo"
-              }
-            }
-          },
-          "mode": "None"
-        }
-      ],
-      "outputs": [
-        {
-          "ty": {
-            "Plaintext": {
-              "Primitive": {
-                "UInt": "U32"
               }
             }
           },

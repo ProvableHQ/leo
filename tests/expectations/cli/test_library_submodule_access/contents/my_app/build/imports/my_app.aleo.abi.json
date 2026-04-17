@@ -6,40 +6,6 @@
   "storage_variables": [],
   "functions": [
     {
-      "name": "rect_area",
-      "is_final": false,
-      "inputs": [
-        {
-          "name": "r",
-          "ty": {
-            "Plaintext": {
-              "Struct": {
-                "path": [
-                  "shapes_lib",
-                  "geometry",
-                  "Rect"
-                ],
-                "program": "shapes_lib"
-              }
-            }
-          },
-          "mode": "None"
-        }
-      ],
-      "outputs": [
-        {
-          "ty": {
-            "Plaintext": {
-              "Primitive": {
-                "UInt": "U32"
-              }
-            }
-          },
-          "mode": "None"
-        }
-      ]
-    },
-    {
       "name": "make_rect",
       "is_final": false,
       "inputs": [
@@ -99,6 +65,40 @@
                   "Rect"
                 ],
                 "program": "shapes_lib"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "rect_area",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "r",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "shapes_lib",
+                  "geometry",
+                  "Rect"
+                ],
+                "program": "shapes_lib"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
               }
             }
           },

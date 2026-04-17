@@ -1,6 +1,6 @@
 program test.aleo;
 
-struct Optional__EsDmm5O6sv6:
+struct Optional__JzunLORyB8U:
     is_some as boolean;
     val as u32;
 
@@ -22,36 +22,36 @@ function increment:
 finalize increment:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u32 into r1;
-    cast true r1 into r2 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r3 as Optional__EsDmm5O6sv6;
+    cast true r1 into r2 as Optional__JzunLORyB8U;
+    cast false 0u32 into r3 as Optional__JzunLORyB8U;
     ternary r0 r2.is_some r3.is_some into r4;
     ternary r0 r2.val r3.val into r5;
-    cast r4 r5 into r6 as Optional__EsDmm5O6sv6;
+    cast r4 r5 into r6 as Optional__JzunLORyB8U;
     contains counter__[false] into r7;
     get.or_use counter__[false] 0u32 into r8;
-    cast true r8 into r9 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r10 as Optional__EsDmm5O6sv6;
+    cast true r8 into r9 as Optional__JzunLORyB8U;
+    cast false 0u32 into r10 as Optional__JzunLORyB8U;
     ternary r7 r9.is_some r10.is_some into r11;
     ternary r7 r9.val r10.val into r12;
-    cast r11 r12 into r13 as Optional__EsDmm5O6sv6;
+    cast r11 r12 into r13 as Optional__JzunLORyB8U;
     ternary r6.is_some r13.val 0u32 into r14;
     add r14 1u32 into r15;
     set r15 into counter__[false];
     contains counter__[false] into r16;
     get.or_use counter__[false] 0u32 into r17;
-    cast true r17 into r18 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r19 as Optional__EsDmm5O6sv6;
+    cast true r17 into r18 as Optional__JzunLORyB8U;
+    cast false 0u32 into r19 as Optional__JzunLORyB8U;
     ternary r16 r18.is_some r19.is_some into r20;
     ternary r16 r18.val r19.val into r21;
-    cast r20 r21 into r22 as Optional__EsDmm5O6sv6;
+    cast r20 r21 into r22 as Optional__JzunLORyB8U;
     assert.eq r22.is_some true;
     contains counter__[false] into r23;
     get.or_use counter__[false] 0u32 into r24;
-    cast true r24 into r25 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r26 as Optional__EsDmm5O6sv6;
+    cast true r24 into r25 as Optional__JzunLORyB8U;
+    cast false 0u32 into r26 as Optional__JzunLORyB8U;
     ternary r23 r25.is_some r26.is_some into r27;
     ternary r23 r25.val r26.val into r28;
-    cast r27 r28 into r29 as Optional__EsDmm5O6sv6;
+    cast r27 r28 into r29 as Optional__JzunLORyB8U;
     is.eq r29.val r15 into r30;
     assert.eq r30 true;
 

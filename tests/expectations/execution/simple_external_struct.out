@@ -5,15 +5,15 @@ struct Foo:
     y as u32;
     z as u32;
 
-function main1:
-    input r0 as Foo.private;
-
 function main2:
     input r0 as u32.private;
     input r1 as u32.private;
     input r2 as u32.private;
     cast r0 r1 r2 into r3 as Foo;
     output r3 as Foo.private;
+
+function main1:
+    input r0 as Foo.private;
 
 constructor:
     assert.eq edition 0u16;
@@ -26,9 +26,6 @@ struct Foo:
     z as u32;
     w as u32;
 
-function main1:
-    input r0 as Foo.private;
-
 function main2:
     input r0 as u32.private;
     input r1 as u32.private;
@@ -36,6 +33,9 @@ function main2:
     input r3 as u32.private;
     cast r0 r1 r2 r3 into r4 as Foo;
     output r4 as Foo.private;
+
+function main1:
+    input r0 as Foo.private;
 
 constructor:
     assert.eq edition 0u16;

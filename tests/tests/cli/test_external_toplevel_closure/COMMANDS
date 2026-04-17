@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Tests that a Leo program can call a file-level `fn` (closure) defined in an
+# external Leo program. The single call site trips the inliner's call-count
+# heuristic, so `foo` is inlined at the call site and the regenerated child
+# stub drops it as dead code.
+
+LEO_BIN=${1}
+
+cd parent || exit 1
+
+echo "--- leo build (call child.aleo top-level closure) ---"
+${LEO_BIN} --disable-update-check build

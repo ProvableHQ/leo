@@ -1,0 +1,15 @@
+{
+  "program": "parent.aleo",
+  "version": "0.1.0",
+  "description": "Parent program that calls a file-level closure in child.aleo.",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "child.aleo",
+      "location": "local",
+      "path": "../child",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
