@@ -52,20 +52,16 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         (CompositeExpression { members, ..input }.into(), statements)
     }
 
-    /// Reconstructs ternary expressions over arrays, composites, and tuples, accumulating any statements that are generated.
-    /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
-    /// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:
+    /// Reconstructs ternary expressions. Tuple operands are destructured element-wise and record
+    /// operands are destructured field-wise, since the Aleo `ternary` instruction only accepts
+    /// plaintext operands. Ternaries over literal, array, and plaintext struct types are left
+    /// intact; `ConsensusVersion::V15` accepts these as direct operands (snarkVM PR #3222).
+    ///
+    /// Example: `cond ? (a, b) : (c, d)` flattens to:
     /// ```leo
     /// let var$0 = cond ? a : c;
     /// let var$1 = cond ? b : d;
     /// (var$0, var$1)
-    /// ```
-    /// For composites, the ternary expression `cond ? a : b`, where `a` and `b` are both composites `Foo { bar: u8, baz: u8 }`, is flattened into the following:
-    /// ```leo
-    /// let var$0 = cond ? a.bar : b.bar;
-    /// let var$1 = cond ? a.baz : b.baz;
-    /// let var$2 = Foo { bar: var$0, baz: var$1 };
-    /// var$2
     /// ```
     fn reconstruct_ternary(
         &mut self,
@@ -94,39 +90,32 @@ impl AstReconstructor for FlatteningVisitor<'_> {
         }
 
         match &if_true_type {
-            Type::Array(if_true_type) => self.ternary_array(
-                if_true_type,
-                &input.condition,
-                &as_identifier(input.if_true),
-                &as_identifier(input.if_false),
-            ),
-            Type::Composite(if_true_type) => {
-                let composite_location = if_true_type.path.expect_global_location();
-                // Get the composite definitions.
-                let composite_path = if_true_type.path.clone();
-                let if_true_type = self
-                    .state
-                    .symbol_table
-                    .lookup_struct(self.program, composite_location)
-                    .or_else(|| self.state.symbol_table.lookup_record(self.program, composite_location))
-                    .expect("This definition should exist")
-                    .clone();
-
-                self.ternary_composite(
-                    &composite_path,
-                    &if_true_type,
-                    &input.condition,
-                    &as_identifier(input.if_true),
-                    &as_identifier(input.if_false),
-                )
-            }
             Type::Tuple(if_true_type) => {
                 self.ternary_tuple(if_true_type, &input.condition, &input.if_true, &input.if_false)
             }
-            _ => {
-                // There's nothing to be done - SSA has guaranteed that `if_true` and `if_false` are identifiers,
-                // so there's not even any point in reconstructing them.
+            Type::Composite(composite_type) => {
+                // The Aleo `ternary` instruction accepts plaintext structs but not records, so we
+                // destructure record ternaries field-wise and leave struct ternaries intact.
+                let composite_location = composite_type.path.expect_global_location();
+                if let Some(record) = self.state.symbol_table.lookup_record(self.program, composite_location) {
+                    let composite_path = composite_type.path.clone();
+                    let record = record.clone();
+                    self.ternary_composite(
+                        &composite_path,
+                        &record,
+                        &input.condition,
+                        &as_identifier(input.if_true),
+                        &as_identifier(input.if_false),
+                    )
+                } else {
+                    assert!(matches!(&input.if_true, Expression::Path(..)));
+                    assert!(matches!(&input.if_false, Expression::Path(..)));
 
+                    (input.into(), Default::default())
+                }
+            }
+            _ => {
+                // SSA guarantees both branches are identifiers, so nothing else needs rewriting.
                 assert!(matches!(&input.if_true, Expression::Path(..)));
                 assert!(matches!(&input.if_false, Expression::Path(..)));
 

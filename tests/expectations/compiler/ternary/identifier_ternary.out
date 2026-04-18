@@ -1,0 +1,13 @@
+program test.aleo;
+
+function select:
+    input r0 as boolean.private;
+    input r1 as identifier.private;
+    input r2 as identifier.private;
+    ternary r0 r1 r2 into r3;
+    output r3 as identifier.private;
+
+function select_literal:
+    input r0 as boolean.private;
+    ternary r0 'foo' 'bar' into r1;
+    output r1 as identifier.private;

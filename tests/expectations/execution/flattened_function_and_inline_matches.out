@@ -19,16 +19,12 @@ closure foo:
     sub r0 r1 into r7;
     add r6 r2.a into r8;
     add r7 r2.b into r9;
-    ternary r5 r4.c.c r4.c.c into r10;
-    cast r10 into r11 as Extra;
-    ternary r5 r4.a r4.a into r12;
-    ternary r5 r4.b r4.b into r13;
-    cast r12 r13 r11 into r14 as Data;
-    ternary r5 r0 r8 into r15;
-    ternary r5 r1 r9 into r16;
-    output r15 as u8;
-    output r16 as u8;
-    output r14 as Data;
+    ternary r5 r0 r8 into r10;
+    ternary r5 r1 r9 into r11;
+    ternary r5 r4 r4 into r12;
+    output r10 as u8;
+    output r11 as u8;
+    output r12 as Data;
 
 function bar:
     input r0 as boolean.private;
@@ -43,21 +39,13 @@ function bar:
     call foo r8.a r7 r8 into r15 r16 r17;
     ternary r1 r12 r15 into r18;
     ternary r1 r13 r16 into r19;
-    ternary r1 r14.c.c r17.c.c into r20;
-    cast r20 into r21 as Extra;
-    ternary r1 r14.a r17.a into r22;
-    ternary r1 r14.b r17.b into r23;
-    cast r22 r23 r21 into r24 as Data;
-    ternary r0 r9 r18 into r25;
-    ternary r0 r10 r19 into r26;
-    ternary r0 r11.c.c r24.c.c into r27;
-    cast r27 into r28 as Extra;
-    ternary r0 r11.a r24.a into r29;
-    ternary r0 r11.b r24.b into r30;
-    cast r29 r30 r28 into r31 as Data;
-    output r25 as u8.private;
-    output r26 as u8.private;
-    output r31 as Data.private;
+    ternary r1 r14 r17 into r20;
+    ternary r0 r9 r18 into r21;
+    ternary r0 r10 r19 into r22;
+    ternary r0 r11 r20 into r23;
+    output r21 as u8.private;
+    output r22 as u8.private;
+    output r23 as Data.private;
 
 closure floo:
     input r0 as u8;
@@ -70,16 +58,12 @@ closure floo:
     sub r0 r1 into r7;
     add r6 r2.a into r8;
     add r7 r2.b into r9;
-    ternary r5 r4.c.c r4.c.c into r10;
-    cast r10 into r11 as Extra;
-    ternary r5 r4.a r4.a into r12;
-    ternary r5 r4.b r4.b into r13;
-    cast r12 r13 r11 into r14 as Data;
-    ternary r5 r0 r8 into r15;
-    ternary r5 r1 r9 into r16;
-    output r15 as u8;
-    output r16 as u8;
-    output r14 as Data;
+    ternary r5 r0 r8 into r10;
+    ternary r5 r1 r9 into r11;
+    ternary r5 r4 r4 into r12;
+    output r10 as u8;
+    output r11 as u8;
+    output r12 as Data;
 
 function blar:
     input r0 as boolean.private;
@@ -94,21 +78,13 @@ function blar:
     call floo r8.a r7 r8 into r15 r16 r17;
     ternary r1 r12 r15 into r18;
     ternary r1 r13 r16 into r19;
-    ternary r1 r14.c.c r17.c.c into r20;
-    cast r20 into r21 as Extra;
-    ternary r1 r14.a r17.a into r22;
-    ternary r1 r14.b r17.b into r23;
-    cast r22 r23 r21 into r24 as Data;
-    ternary r0 r9 r18 into r25;
-    ternary r0 r10 r19 into r26;
-    ternary r0 r11.c.c r24.c.c into r27;
-    cast r27 into r28 as Extra;
-    ternary r0 r11.a r24.a into r29;
-    ternary r0 r11.b r24.b into r30;
-    cast r29 r30 r28 into r31 as Data;
-    output r25 as u8.private;
-    output r26 as u8.private;
-    output r31 as Data.private;
+    ternary r1 r14 r17 into r20;
+    ternary r0 r9 r18 into r21;
+    ternary r0 r10 r19 into r22;
+    ternary r0 r11 r20 into r23;
+    output r21 as u8.private;
+    output r22 as u8.private;
+    output r23 as Data.private;
 
 constructor:
     assert.eq edition 0u16;

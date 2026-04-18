@@ -1,0 +1,39 @@
+program test.aleo;
+
+mapping u32_map:
+    key as u32.public;
+    value as u32.public;
+
+mapping field_map:
+    key as u32.public;
+    value as field.public;
+
+mapping addr_map:
+    key as u32.public;
+    value as address.public;
+
+function update:
+    input r0 as boolean.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as field.private;
+    input r4 as field.private;
+    input r5 as address.private;
+    input r6 as address.private;
+    async update r0 r1 r2 r3 r4 r5 r6 into r7;
+    output r7 as test.aleo/update.future;
+
+finalize update:
+    input r0 as boolean.public;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    input r3 as field.public;
+    input r4 as field.public;
+    input r5 as address.public;
+    input r6 as address.public;
+    ternary r0 r1 r2 into r7;
+    ternary r0 r3 r4 into r8;
+    ternary r0 r5 r6 into r9;
+    set r7 into u32_map[0u32];
+    set r8 into field_map[0u32];
+    set r9 into addr_map[0u32];

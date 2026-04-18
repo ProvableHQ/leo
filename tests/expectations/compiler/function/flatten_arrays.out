@@ -17,16 +17,8 @@ closure foo:
     cast r8 r9 into r10 as [u8; 2u32];
     cast r10 into r11 as Data;
     cast r5 r11 into r12 as [Data; 2u32];
-    ternary r6 r7[0u32].data[0u32] r12[0u32].data[0u32] into r13;
-    ternary r6 r7[0u32].data[1u32] r12[0u32].data[1u32] into r14;
-    cast r13 r14 into r15 as [u8; 2u32];
-    cast r15 into r16 as Data;
-    ternary r6 r7[1u32].data[0u32] r12[1u32].data[0u32] into r17;
-    ternary r6 r7[1u32].data[1u32] r12[1u32].data[1u32] into r18;
-    cast r17 r18 into r19 as [u8; 2u32];
-    cast r19 into r20 as Data;
-    cast r16 r20 into r21 as [Data; 2u32];
-    output r21 as [Data; 2u32];
+    ternary r6 r7 r12 into r13;
+    output r13 as [Data; 2u32];
 
 function bar:
     input r0 as boolean.private;
@@ -37,22 +29,6 @@ function bar:
     call foo r4[0u32].data[0u32] r4[1u32].data[1u32] into r5;
     call foo r4[1u32].data[0u32] r4[0u32].data[1u32] into r6;
     call foo r4[0u32].data[1u32] r4[1u32].data[0u32] into r7;
-    ternary r1 r6[0u32].data[0u32] r7[0u32].data[0u32] into r8;
-    ternary r1 r6[0u32].data[1u32] r7[0u32].data[1u32] into r9;
-    cast r8 r9 into r10 as [u8; 2u32];
-    cast r10 into r11 as Data;
-    ternary r1 r6[1u32].data[0u32] r7[1u32].data[0u32] into r12;
-    ternary r1 r6[1u32].data[1u32] r7[1u32].data[1u32] into r13;
-    cast r12 r13 into r14 as [u8; 2u32];
-    cast r14 into r15 as Data;
-    cast r11 r15 into r16 as [Data; 2u32];
-    ternary r0 r5[0u32].data[0u32] r16[0u32].data[0u32] into r17;
-    ternary r0 r5[0u32].data[1u32] r16[0u32].data[1u32] into r18;
-    cast r17 r18 into r19 as [u8; 2u32];
-    cast r19 into r20 as Data;
-    ternary r0 r5[1u32].data[0u32] r16[1u32].data[0u32] into r21;
-    ternary r0 r5[1u32].data[1u32] r16[1u32].data[1u32] into r22;
-    cast r21 r22 into r23 as [u8; 2u32];
-    cast r23 into r24 as Data;
-    cast r20 r24 into r25 as [Data; 2u32];
-    output r25 as [Data; 2u32].private;
+    ternary r1 r6 r7 into r8;
+    ternary r0 r5 r8 into r9;
+    output r9 as [Data; 2u32].private;

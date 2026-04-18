@@ -53,12 +53,11 @@ function with_tuples:
 function in_conditional:
     input r0 as T.private;
     input r1 as boolean.private;
-    ternary r1 1u8 r0.x into r2;
-    ternary r1 r0.z.x 2u8 into r3;
-    ternary r1 r0.z.y 3u32 into r4;
-    cast r3 r4 into r5 as S;
-    cast r2 r0.y r5 into r6 as T;
-    output r6 as T.private;
+    cast 2u8 3u32 into r2 as S;
+    ternary r1 1u8 r0.x into r3;
+    ternary r1 r0.z r2 into r4;
+    cast r3 r0.y r4 into r5 as T;
+    output r5 as T.private;
 
 function f_record:
     async f_record into r0;

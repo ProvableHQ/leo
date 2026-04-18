@@ -1,0 +1,20 @@
+program test.aleo;
+
+struct Point:
+    x as u32;
+    y as u32;
+    z as u32;
+
+function select:
+    input r0 as boolean.private;
+    input r1 as [Point; 4u32].private;
+    input r2 as [Point; 4u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [Point; 4u32].private;
+
+function select_element:
+    input r0 as boolean.private;
+    input r1 as [Point; 4u32].private;
+    input r2 as [Point; 4u32].private;
+    ternary r0 r1[0u32] r2[1u32] into r3;
+    output r3 as Point.private;

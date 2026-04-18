@@ -26,19 +26,14 @@ finalize measure:
     cast 0u32 0u32 into r2 as Point__7VbTm7beYPk;
     cast r1 r2 into r3 as Rect__yHB5zqEAd9;
     get.or_use current__[false] r3 into r4;
-    cast 0u32 0u32 into r5 as Point__7VbTm7beYPk;
+    cast true r4 into r5 as Optional__93SfMrvy3aW;
     cast 0u32 0u32 into r6 as Point__7VbTm7beYPk;
-    cast r5 r6 into r7 as Rect__yHB5zqEAd9;
-    ternary r0 r4.top_left.x r7.top_left.x into r8;
-    ternary r0 r4.top_left.y r7.top_left.y into r9;
-    cast r8 r9 into r10 as Point__7VbTm7beYPk;
-    ternary r0 r4.bottom_right.x r7.bottom_right.x into r11;
-    ternary r0 r4.bottom_right.y r7.bottom_right.y into r12;
-    cast r11 r12 into r13 as Point__7VbTm7beYPk;
-    cast r10 r13 into r14 as Rect__yHB5zqEAd9;
-    cast r0 r14 into r15 as Optional__93SfMrvy3aW;
-    assert.eq r15.is_some true;
-    assert.eq r15.val.top_left.x r15.val.top_left.x;
+    cast 0u32 0u32 into r7 as Point__7VbTm7beYPk;
+    cast r6 r7 into r8 as Rect__yHB5zqEAd9;
+    cast false r8 into r9 as Optional__93SfMrvy3aW;
+    ternary r0 r5 r9 into r10;
+    assert.eq r10.is_some true;
+    assert.eq r10.val.top_left.x r10.val.top_left.x;
 
 constructor:
     assert.eq edition 0u16;

@@ -1,0 +1,29 @@
+program test.aleo;
+
+function select_u32:
+    input r0 as boolean.private;
+    input r1 as [u32; 8u32].private;
+    input r2 as [u32; 8u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [u32; 8u32].private;
+
+function select_bool:
+    input r0 as boolean.private;
+    input r1 as [boolean; 4u32].private;
+    input r2 as [boolean; 4u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [boolean; 4u32].private;
+
+function select_field:
+    input r0 as boolean.private;
+    input r1 as [field; 3u32].private;
+    input r2 as [field; 3u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [field; 3u32].private;
+
+function select_nested:
+    input r0 as boolean.private;
+    input r1 as [[u8; 2u32]; 3u32].private;
+    input r2 as [[u8; 2u32]; 3u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [[u8; 2u32]; 3u32].private;

@@ -1,0 +1,39 @@
+program test.aleo;
+
+struct Point:
+    x as u32;
+    y as u32;
+
+struct Segment:
+    lo as Point;
+    hi as Point;
+    tag as u32;
+
+mapping segs:
+    key as u32.public;
+    value as Segment.public;
+
+function update:
+    input r0 as boolean.private;
+    input r1 as Segment.private;
+    input r2 as Segment.private;
+    async update r0 r1 r2 into r3;
+    output r3 as test.aleo/update.future;
+
+finalize update:
+    input r0 as boolean.public;
+    input r1 as Segment.public;
+    input r2 as Segment.public;
+    ternary r0 r1 r2 into r3;
+    set r3 into segs[0u32];
+
+constructor:
+    assert.eq edition 0u16;
+verified: false
+status: none
+null
+
+verified: false
+status: none
+null
+
