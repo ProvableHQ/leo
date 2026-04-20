@@ -175,6 +175,7 @@ impl LibraryConsumer for SsaFormingVisitor<'_> {
             structs: input.structs,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             interfaces: input.interfaces,
+            stubs: input.stubs,
         };
         self.program = prev_program;
         library

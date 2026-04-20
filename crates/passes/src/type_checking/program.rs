@@ -179,10 +179,12 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
         input.modules.values().for_each(|m| {
             self.visit_module(m);
         });
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 
     fn visit_interface(&mut self, input: &Interface) {

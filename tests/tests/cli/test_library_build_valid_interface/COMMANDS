@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Tests that `leo build` on a library primary accepts a well-formed interface
+# definition alongside regular library functions.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo build (should succeed: valid interface library) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

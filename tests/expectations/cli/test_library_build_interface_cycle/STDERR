@@ -1,0 +1,5 @@
+--- leo build (should fail: cyclic interfaces) ---
+Error [ECHI03712010]: Cyclic interface inheritance detected: my_lib/B -> my_lib/A -> my_lib/B
+     |
+     = Interface inheritance must be acyclic. Remove the circular dependency.
+
