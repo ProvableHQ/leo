@@ -106,7 +106,7 @@ use crate::Pass;
 
 use analysis::AnalysisVisitor;
 use indexmap::IndexMap;
-use leo_ast::{ProgramReconstructor, ProgramVisitor};
+use leo_ast::{UnitReconstructor, UnitVisitor};
 use leo_errors::Result;
 use leo_span::Symbol;
 use transform::TransformVisitor;

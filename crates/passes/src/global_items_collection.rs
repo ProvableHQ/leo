@@ -50,9 +50,9 @@ use leo_ast::{
     Module,
     OptionalType,
     ProgramScope,
-    ProgramVisitor,
     StorageVariable,
     Type,
+    UnitVisitor,
 };
 use leo_errors::Result;
 use leo_span::Symbol;
@@ -70,7 +70,7 @@ impl Pass for GlobalItemsCollection {
 
     fn do_pass(_input: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = GlobalItemsCollectionVisitor { state, program_name: Symbol::intern(""), module: vec![] };
+        let mut visitor = GlobalItemsCollectionVisitor { state, unit_name: Symbol::intern(""), module: vec![] };
 
         match &ast {
             Ast::Program(program) => visitor.visit_program(program),
@@ -87,7 +87,7 @@ struct GlobalItemsCollectionVisitor<'a> {
     /// The state of the compiler.
     state: &'a mut CompilerState,
     /// The current program name.
-    program_name: Symbol,
+    unit_name: Symbol,
     /// The current module name.
     module: Vec<Symbol>,
 }
@@ -110,14 +110,14 @@ impl AstVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_const(&mut self, input: &ConstDeclaration) {
         // Just set the type of the const in the symbol table.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        self.state.symbol_table.set_global_type(&Location::new(self.program_name, const_path), input.type_.clone());
+        self.state.symbol_table.set_global_type(&Location::new(self.unit_name, const_path), input.type_.clone());
     }
 }
 
-impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
+impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
-        self.program_name = input.program_id.as_symbol();
+        self.unit_name = input.program_id.as_symbol();
 
         // Visit the program scope
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -132,7 +132,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     }
 
     fn visit_module(&mut self, input: &Module) {
-        self.program_name = input.program_name;
+        self.unit_name = input.unit_name;
         self.in_module_scope(&input.path.clone(), |slf| {
             input.composites.iter().for_each(|(_, c)| slf.visit_composite(c));
             input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
@@ -148,12 +148,12 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
             // While records are not allowed in submodules, we stll use their full name in the records table.
             // We don't expect the full name to have more than a single Symbol though.
             if let Err(err) =
-                self.state.symbol_table.insert_record(Location::new(self.program_name, full_name), input.clone())
+                self.state.symbol_table.insert_record(Location::new(self.unit_name, full_name), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
         } else if let Err(err) =
-            self.state.symbol_table.insert_struct(Location::new(self.program_name, full_name.clone()), input.clone())
+            self.state.symbol_table.insert_struct(Location::new(self.unit_name, full_name.clone()), input.clone())
         {
             self.state.handler.emit_err(err);
         }
@@ -162,7 +162,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_mapping(&mut self, input: &Mapping) {
         // Set the type of the variable associated with the mapping in the symbol table.
         self.state.symbol_table.set_global_type(
-            &Location::new(self.program_name, vec![input.identifier.name]),
+            &Location::new(self.unit_name, vec![input.identifier.name]),
             Type::Mapping(MappingType {
                 key: Box::new(input.key_type.clone()),
                 value: Box::new(input.value_type.clone()),
@@ -179,12 +179,12 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
             _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
         };
 
-        self.state.symbol_table.set_global_type(&Location::new(self.program_name, vec![input.identifier.name]), type_);
+        self.state.symbol_table.set_global_type(&Location::new(self.unit_name, vec![input.identifier.name]), type_);
     }
 
     fn visit_function(&mut self, input: &Function) {
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
-        let loc = Location::new(self.program_name, full_name);
+        let loc = Location::new(self.unit_name, full_name);
         if let Err(err) = self.state.symbol_table.insert_function(loc, input.clone()) {
             self.state.handler.emit_err(err);
         }
@@ -193,14 +193,14 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_interface(&mut self, input: &Interface) {
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
         if let Err(err) =
-            self.state.symbol_table.insert_interface(Location::new(self.program_name, full_name), input.clone())
+            self.state.symbol_table.insert_interface(Location::new(self.unit_name, full_name), input.clone())
         {
             self.state.handler.emit_err(err);
         }
     }
 
     fn visit_library(&mut self, input: &Library) {
-        self.program_name = input.name;
+        self.unit_name = input.name;
 
         input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
@@ -213,7 +213,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
-        self.program_name = input.stub_id.as_symbol();
+        self.unit_name = input.stub_id.as_symbol();
 
         input.functions.iter().for_each(|(_, c)| self.visit_function_stub(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite_stub(c));
@@ -222,7 +222,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {
         // Construct the location for the function.
-        let location = Location::new(self.program_name, vec![input.name()]);
+        let location = Location::new(self.unit_name, vec![input.name()]);
         // Initialize the function symbol.
         if let Err(err) = self.state.symbol_table.insert_function(location.clone(), Function::from(input.clone())) {
             self.state.handler.emit_err(err);
@@ -237,7 +237,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
             let name = Symbol::intern(&format!("finalize/{}", input.name()));
             if let Err(err) = self.state.symbol_table.attach_finalizer(
                 location,
-                Location::new(self.program_name, vec![name]),
+                Location::new(self.unit_name, vec![name]),
                 Vec::new(),
                 Vec::new(),
             ) {
@@ -248,15 +248,13 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
 
     fn visit_composite_stub(&mut self, input: &Composite) {
         if input.is_record {
-            if let Err(err) = self
-                .state
-                .symbol_table
-                .insert_record(Location::new(self.program_name, vec![input.name()]), input.clone())
+            if let Err(err) =
+                self.state.symbol_table.insert_record(Location::new(self.unit_name, vec![input.name()]), input.clone())
             {
                 self.state.handler.emit_err(err);
             }
         } else if let Err(err) =
-            self.state.symbol_table.insert_struct(Location::new(self.program_name, vec![input.name()]), input.clone())
+            self.state.symbol_table.insert_struct(Location::new(self.unit_name, vec![input.name()]), input.clone())
         {
             self.state.handler.emit_err(err);
         }

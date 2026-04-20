@@ -55,7 +55,7 @@ impl<'a> TransformVisitor<'a> {
     }
 }
 
-impl ProgramReconstructor for TransformVisitor<'_> {
+impl UnitReconstructor for TransformVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         let top_level_program = input.program_id.as_symbol();
         self.program = top_level_program;
@@ -459,7 +459,7 @@ impl TransformVisitor<'_> {
     /// Assembles a Module for a FromLeo stub from reconstructed_functions.
     fn assemble_module(&self, input: Module) -> Module {
         Module {
-            functions: items_at_path(&self.reconstructed_functions, input.program_name, &input.path).collect(),
+            functions: items_at_path(&self.reconstructed_functions, input.unit_name, &input.path).collect(),
             ..input
         }
     }

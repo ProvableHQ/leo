@@ -55,7 +55,7 @@ pub struct RemoveUnreachableVisitor<'state> {
     pub has_return: bool,
 }
 
-impl ProgramReconstructor for RemoveUnreachableVisitor<'_> {
+impl UnitReconstructor for RemoveUnreachableVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         self.has_return = false;
         let res = Function {

@@ -62,8 +62,8 @@ pub struct Compiled {
 pub struct Compiler {
     /// The path to where the compiler outputs all generated files.
     output_directory: PathBuf,
-    /// The program name,
-    pub program_name: Option<String>,
+    /// The name of the compilation unit (program or library).
+    pub unit_name: Option<String>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
     /// State.
@@ -112,8 +112,8 @@ impl Compiler {
         // Check that the name of its program scope matches the expected name.
         // Note that parsing enforces that there is exactly one program scope in a file.
         let program_scope = program.program_scopes.values().next().unwrap();
-        if let Some(program_name) = &self.program_name {
-            if program_name != &program_scope.program_id.as_symbol().to_string() {
+        if let Some(unit_name) = &self.unit_name {
+            if unit_name != &program_scope.program_id.as_symbol().to_string() {
                 return Err(CompilerError::program_name_should_match_file_name(
                     program_scope.program_id.as_symbol(),
                     // If this is a test, use the filename as the expected name.
@@ -123,14 +123,14 @@ impl Compiler {
                             filename.to_string().split("/").last().expect("Could not get file name")
                         )
                     } else {
-                        format!("`{program_name}` (specified in `program.json`)")
+                        format!("`{unit_name}` (specified in `program.json`)")
                     },
                     program_scope.program_id.span(),
                 )
                 .into());
             }
         } else {
-            self.program_name = Some(program_scope.program_id.as_symbol().to_string());
+            self.unit_name = Some(program_scope.program_id.as_symbol().to_string());
         }
 
         self.state.ast = Ast::Program(program);
@@ -203,11 +203,11 @@ impl Compiler {
             self.state.network,
         )?);
 
-        // Downstream passes (e.g. `add_import_stubs`) read `program_name` to identify the
+        // Downstream passes (e.g. `add_import_stubs`) read `unit_name` to identify the
         // current compilation target. Libraries don't embed their own name in the source the
         // way programs do, so adopt the name supplied by the caller if none was pre-set.
-        if self.program_name.is_none() {
-            self.program_name = Some(library_name.to_string());
+        if self.unit_name.is_none() {
+            self.unit_name = Some(library_name.to_string());
         }
 
         Ok(())
@@ -216,7 +216,7 @@ impl Compiler {
     /// Returns a new Leo compiler.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        expected_program_name: Option<String>,
+        expected_unit_name: Option<String>,
         is_test: bool,
         handler: Handler,
         node_builder: Rc<NodeBuilder>,
@@ -234,7 +234,7 @@ impl Compiler {
                 ..Default::default()
             },
             output_directory,
-            program_name: expected_program_name,
+            unit_name: expected_unit_name,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
             statements_before_dce: 0,
@@ -384,7 +384,7 @@ impl Compiler {
 
         // Build the primary compiled program.
         let primary = CompiledProgram {
-            name: self.program_name.clone().unwrap(),
+            name: self.unit_name.clone().unwrap(),
             bytecode: bytecodes.primary_bytecode,
             abi: primary_abi,
         };
@@ -546,12 +546,12 @@ impl Compiler {
                 if self.compiler_options.ast_spans_enabled {
                     program.to_json_file(
                         self.output_directory.clone(),
-                        &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
+                        &format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap()),
                     )?;
                 } else {
                     program.to_json_file_without_keys(
                         self.output_directory.clone(),
-                        &format!("{}.{file_suffix}", self.program_name.as_ref().unwrap()),
+                        &format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap()),
                         &["_span", "span"],
                     )?;
                 }
@@ -565,7 +565,7 @@ impl Compiler {
 
     /// Writes the AST to a file (Leo syntax, not JSON).
     fn write_ast(&self, file_suffix: &str) -> Result<()> {
-        let filename = format!("{}.{file_suffix}", self.program_name.as_ref().unwrap());
+        let filename = format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap());
         let full_filename = self.output_directory.join(&filename);
 
         let contents = match &self.state.ast {
@@ -606,7 +606,7 @@ impl Compiler {
                 // Add any libraries that have this program as a parent
                 for (stub_name, stub) in &self.import_stubs {
                     if matches!(stub, Stub::FromLibrary { .. })
-                        && stub.parents().contains(&Symbol::intern(self.program_name.as_ref().unwrap()))
+                        && stub.parents().contains(&Symbol::intern(self.unit_name.as_ref().unwrap()))
                     {
                         map.insert(
                             *stub_name,
@@ -620,7 +620,7 @@ impl Compiler {
                 // Libraries have no explicit `imports` field; their dependencies are expressed
                 // indirectly through parent relations on the stubs map. A stub is a dep of this
                 // library iff its parent set contains the library's own name.
-                let library_name = Symbol::intern(self.program_name.as_ref().unwrap());
+                let library_name = Symbol::intern(self.unit_name.as_ref().unwrap());
                 self.import_stubs
                     .iter()
                     .filter(|(_, stub)| stub.parents().contains(&library_name))
@@ -633,7 +633,7 @@ impl Compiler {
         let mut to_explore: Vec<(Symbol, Span)> = initial_imports.iter().map(|(sym, span)| (*sym, *span)).collect();
 
         // If this is a named program, set the main program as the parent of its direct imports.
-        if let Some(main_program_name) = self.program_name.clone() {
+        if let Some(main_program_name) = self.unit_name.clone() {
             let main_symbol = Symbol::intern(&main_program_name);
             for import in initial_imports.keys() {
                 if let Some(child_stub) = self.import_stubs.get_mut(import) {
@@ -650,7 +650,7 @@ impl Compiler {
             // Look up the corresponding stub.
             let Some(stub) = self.import_stubs.get(&import_symbol) else {
                 return Err(CompilerError::imported_program_not_found(
-                    self.program_name.as_ref().unwrap(),
+                    self.unit_name.as_ref().unwrap(),
                     import_symbol,
                     span,
                 )

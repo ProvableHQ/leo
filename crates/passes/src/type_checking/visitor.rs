@@ -536,7 +536,7 @@ impl TypeCheckingVisitor<'_> {
             bail!("structs are not supported")
         }
 
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
         // Returns true if the given expression is a local path in the current program.
         let is_local_path = |expr: &Expression| -> bool {
             matches!(expr, Expression::Path(path)
@@ -2010,13 +2010,13 @@ impl TypeCheckingVisitor<'_> {
             // this async function.
             let mut caller_finalizers = self
                 .async_function_callers
-                .get(&Location::new(self.scope_state.program_name.unwrap(), function_path))
+                .get(&Location::new(self.scope_state.unit_name.unwrap(), function_path))
                 .map(|callers| {
                     callers
                         .iter()
                         .flat_map(|caller| {
                             let caller = Location::new(caller.program, caller.path.clone());
-                            self.state.symbol_table.lookup_function(self.scope_state.program_name.unwrap(), &caller)
+                            self.state.symbol_table.lookup_function(self.scope_state.unit_name.unwrap(), &caller)
                         })
                         .flat_map(|fn_symbol| fn_symbol.finalizer.clone())
                 })
@@ -2269,13 +2269,13 @@ impl TypeCheckingVisitor<'_> {
     /// Wrapper around lookup_struct and lookup_record that additionally records all structs and records that are
     /// used in the program.
     pub fn lookup_composite(&mut self, loc: &Location) -> Option<Composite> {
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
         let record_comp = self.state.symbol_table.lookup_record(current_program, loc);
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(current_program, loc));
         // Record the usage.
         if let Some(s) = comp {
             // If it's a struct or internal record, mark it used.
-            if !s.is_record || Some(loc.program) == self.scope_state.program_name {
+            if !s.is_record || Some(loc.program) == self.scope_state.unit_name {
                 self.used_composites.insert(loc.clone());
             }
         }
@@ -2349,7 +2349,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn is_external_record(&self, ty: &Type) -> bool {
         if let Type::Composite(typ) = &ty {
-            let this_program = self.scope_state.program_name.unwrap();
+            let this_program = self.scope_state.unit_name.unwrap();
             let composite_location = typ.path.expect_global_location();
             composite_location.program != this_program
                 && self.state.symbol_table.lookup_record(this_program, composite_location).is_some()

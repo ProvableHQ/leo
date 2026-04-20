@@ -25,7 +25,7 @@ use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::collections::{BTreeMap, HashMap};
 
-impl ProgramVisitor for TypeCheckingVisitor<'_> {
+impl UnitVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
@@ -51,10 +51,10 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        let program_name = input.program_id.as_symbol();
+        let unit_name = input.program_id.as_symbol();
 
         // Set the current program name.
-        self.scope_state.program_name = Some(program_name);
+        self.scope_state.unit_name = Some(unit_name);
 
         // Collect a map from record names to their spans
         let record_info: BTreeMap<String, leo_span::Span> = input
@@ -154,7 +154,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
     fn visit_module(&mut self, input: &Module) {
         let parent_module = self.scope_state.module_name.clone();
         // Set the current program name.
-        self.scope_state.program_name = Some(input.program_name);
+        self.scope_state.unit_name = Some(input.unit_name);
         self.scope_state.module_name = input.path.clone();
 
         // Typecheck each const definition, and append to symbol table.
@@ -175,7 +175,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_library(&mut self, input: &Library) {
         // Set the scope state.
-        self.scope_state.program_name = Some(input.name);
+        self.scope_state.unit_name = Some(input.name);
 
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -206,7 +206,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
         // Set the scope state.
-        self.scope_state.program_name = Some(input.stub_id.as_symbol());
+        self.scope_state.unit_name = Some(input.stub_id.as_symbol());
         self.scope_state.is_stub = true;
 
         // Cannot have constant declarations in stubs.
@@ -338,7 +338,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                     .cloned()
                     .chain(std::iter::once(input.identifier.name))
                     .collect::<Vec<Symbol>>();
-                let this_program = self.scope_state.program_name.unwrap();
+                let this_program = self.scope_state.unit_name.unwrap();
                 let composite_location = Location::new(this_program, composite_path);
                 if let Type::Composite(composite_member_type) = type_ {
                     // Note that since there are no cycles in the program dependency graph, there are no cycles in the
@@ -590,7 +590,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         if let UpgradeVariant::Checksum { mapping, key, key_type } = &upgrade_variant {
             // Look up the mapping type.
             let Some(VariableSymbol { type_: Some(Type::Mapping(mapping_type)), .. }) =
-                self.state.symbol_table.lookup_global(self.scope_state.program_name.unwrap(), mapping)
+                self.state.symbol_table.lookup_global(self.scope_state.unit_name.unwrap(), mapping)
             else {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),
@@ -672,7 +672,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 .collect();
 
             finalize_input_map.insert(
-                Location::new(self.scope_state.program_name.unwrap(), vec![input.identifier.name]),
+                Location::new(self.scope_state.unit_name.unwrap(), vec![input.identifier.name]),
                 resolved_inputs,
             );
         }

@@ -28,7 +28,7 @@ pub struct DeadCodeEliminatingVisitor<'a> {
     pub used_variables: IndexSet<Symbol>,
 
     /// The name of the program currently being processed.
-    pub program_name: Symbol,
+    pub unit_name: Symbol,
 
     /// How many statements were in the AST before DCE?
     pub statements_before: u32,

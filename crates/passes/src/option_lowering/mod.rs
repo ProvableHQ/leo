@@ -67,7 +67,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, CompositeType, ProgramReconstructor as _, Type};
+use leo_ast::{ArrayType, CompositeType, Type, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 

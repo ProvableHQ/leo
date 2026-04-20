@@ -30,9 +30,9 @@ use leo_ast::{
     Module,
     Path,
     Program,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
+    UnitReconstructor,
 };
 use leo_span::Symbol;
 
@@ -161,13 +161,13 @@ impl MonomorphizationVisitor<'_> {
 
     /// Assembles a `Module` from the already-populated `reconstructed_*` maps. Interfaces are
     /// reconstructed because they may reference composites that have been monomorphized.
-    /// `input.program_name` is used (not `self.program`) because a nested `reconstruct_program`
+    /// `input.unit_name` is used (not `self.program`) because a nested `reconstruct_program`
     /// call on a `Stub::FromLeo` dependency may have moved `self.program` off the module's own
-    /// program.
+    /// compilation unit.
     pub(super) fn assemble_module(&mut self, input: Module) -> Module {
         Module {
-            composites: items_at_path(&self.reconstructed_composites, input.program_name, &input.path).collect(),
-            functions: items_at_path(&self.reconstructed_functions, input.program_name, &input.path).collect(),
+            composites: items_at_path(&self.reconstructed_composites, input.unit_name, &input.path).collect(),
+            functions: items_at_path(&self.reconstructed_functions, input.unit_name, &input.path).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
             ..input
         }

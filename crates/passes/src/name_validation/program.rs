@@ -18,7 +18,7 @@ use super::NameValidationVisitor;
 
 use leo_ast::*;
 
-impl ProgramVisitor for NameValidationVisitor<'_> {
+impl UnitVisitor for NameValidationVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         input.stubs.iter().for_each(|(_symbol, stub)| self.visit_stub(stub));
         input.modules.values().for_each(|module| self.visit_module(module));

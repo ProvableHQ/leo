@@ -26,7 +26,7 @@ pub struct ScopeState {
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
     /// Current program name.
-    pub(crate) program_name: Option<Symbol>,
+    pub(crate) unit_name: Option<Symbol>,
     /// Current module name.
     pub(crate) module_name: Vec<Symbol>,
     /// Whether or not we are currently traversing a stub.
@@ -53,7 +53,7 @@ impl ScopeState {
             function: None,
             variant: None,
             has_return: false,
-            program_name: None,
+            unit_name: None,
             module_name: vec![],
             is_stub: false,
             futures: IndexMap::new(),
@@ -91,7 +91,7 @@ impl ScopeState {
             .collect::<Vec<Symbol>>();
 
         Location::new(
-            self.program_name.expect("Only call ScopeState::location when visiting a function or function stub."),
+            self.unit_name.expect("Only call ScopeState::location when visiting a function or function stub."),
             function_path,
         )
     }

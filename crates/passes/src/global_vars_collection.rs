@@ -52,9 +52,9 @@ use leo_ast::{
     Mapping,
     Module,
     ProgramScope,
-    ProgramVisitor,
     StorageVariable,
     Stub,
+    UnitVisitor,
 };
 use leo_errors::Result;
 use leo_span::Symbol;
@@ -73,7 +73,7 @@ impl Pass for GlobalVarsCollection {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = GlobalVarsCollectionVisitor {
             state,
-            program_name: Symbol::intern(""),
+            unit_name: Symbol::intern(""),
             module: vec![],
             parents: IndexSet::new(),
         };
@@ -93,7 +93,7 @@ struct GlobalVarsCollectionVisitor<'a> {
     /// The state of the compiler.
     state: &'a mut CompilerState,
     /// The current program name.
-    program_name: Symbol,
+    unit_name: Symbol,
     /// The current module name.
     module: Vec<Symbol>,
     /// The set of programs that import the program we're visiting.
@@ -119,7 +119,7 @@ impl AstVisitor for GlobalVarsCollectionVisitor<'_> {
         // Just add the const to the symbol table without validating it; that will happen later
         // in type checking.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        if let Err(err) = self.state.symbol_table.insert_variable(self.program_name, &const_path, VariableSymbol {
+        if let Err(err) = self.state.symbol_table.insert_variable(self.unit_name, &const_path, VariableSymbol {
             type_: None,
             span: input.place.span,
             declaration: VariableType::Const,
@@ -129,13 +129,13 @@ impl AstVisitor for GlobalVarsCollectionVisitor<'_> {
     }
 }
 
-impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
+impl UnitVisitor for GlobalVarsCollectionVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set current program name
-        self.program_name = input.program_id.as_symbol();
+        self.unit_name = input.program_id.as_symbol();
 
         // Update the `imports` map in the symbol table.
-        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+        self.state.symbol_table.add_imported_by(self.unit_name, &self.parents);
 
         // Visit the program scope
         input.parents.iter().for_each(|(_, c)| self.visit_type(c));
@@ -145,7 +145,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
     }
 
     fn visit_module(&mut self, input: &Module) {
-        self.program_name = input.program_name;
+        self.unit_name = input.unit_name;
         self.in_module_scope(&input.path.clone(), |slf| {
             input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
         })
@@ -153,7 +153,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
 
     fn visit_mapping(&mut self, input: &Mapping) {
         if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
+            Location::new(self.unit_name, vec![input.identifier.name]),
             VariableSymbol { type_: None, span: input.span, declaration: VariableType::Storage },
         ) {
             self.state.handler.emit_err(err);
@@ -162,7 +162,7 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
 
     fn visit_storage_variable(&mut self, input: &StorageVariable) {
         if let Err(err) = self.state.symbol_table.insert_global(
-            Location::new(self.program_name, vec![input.identifier.name]),
+            Location::new(self.unit_name, vec![input.identifier.name]),
             VariableSymbol { type_: None, span: input.span, declaration: VariableType::Storage },
         ) {
             self.state.handler.emit_err(err);
@@ -187,12 +187,12 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
     }
 
     fn visit_library(&mut self, input: &Library) {
-        self.program_name = input.name;
+        self.unit_name = input.name;
 
         // Update the `imports` map in the symbol table.
-        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+        self.state.symbol_table.add_imported_by(self.unit_name, &self.parents);
 
-        self.state.symbol_table.add_as_library(self.program_name);
+        self.state.symbol_table.add_as_library(self.unit_name);
 
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.modules.values().for_each(|m| self.visit_module(m));
@@ -200,10 +200,10 @@ impl ProgramVisitor for GlobalVarsCollectionVisitor<'_> {
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
-        self.program_name = input.stub_id.as_symbol();
+        self.unit_name = input.stub_id.as_symbol();
 
         // Update the `imports` map in the symbol table.
-        self.state.symbol_table.add_imported_by(self.program_name, &self.parents);
+        self.state.symbol_table.add_imported_by(self.unit_name, &self.parents);
 
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
     }

@@ -22,7 +22,7 @@ use crate::*;
 
 // TODO: The Visitor and Reconstructor patterns need a redesign so that the default implementation can easily be invoked though its implemented in an overriding trait.
 // Here is a pattern that seems to work
-// trait ProgramVisitor {
+// trait UnitVisitor {
 //     // The trait method that can be overridden
 //     fn visit_program_scope(&mut self);
 //
@@ -34,7 +34,7 @@ use crate::*;
 //
 // struct YourStruct;
 //
-// impl ProgramVisitor for YourStruct {
+// impl UnitVisitor for YourStruct {
 //     fn visit_program_scope(&mut self) {
 //         println!("Do custom stuff.");
 //         // Call the default implementation
@@ -343,8 +343,8 @@ pub trait AstVisitor {
     }
 }
 
-/// A Visitor trait for the program represented by the AST.
-pub trait ProgramVisitor: AstVisitor {
+/// A Visitor trait for a compilation unit (program or library) represented by the AST.
+pub trait UnitVisitor: AstVisitor {
     fn visit_program(&mut self, input: &Program) {
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
         input.modules.values().for_each(|module| self.visit_module(module));

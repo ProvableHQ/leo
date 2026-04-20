@@ -16,10 +16,10 @@
 
 use super::MonomorphizationVisitor;
 use crate::common::{items_at_path, program_composites, program_functions, stub_composites, stub_functions};
-use leo_ast::{AstReconstructor, Library, Program, ProgramReconstructor, ProgramScope, Statement, Stub, Variant};
+use leo_ast::{AstReconstructor, Library, Program, ProgramScope, Statement, Stub, UnitReconstructor, Variant};
 use leo_span::sym;
 
-impl ProgramReconstructor for MonomorphizationVisitor<'_> {
+impl UnitReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         // Unreached library functions are dropped: code generation skips library stubs
         // entirely, and nothing downstream reads un-inlined library bodies. Only functions
