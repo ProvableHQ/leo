@@ -1,3 +1,8 @@
 program test.aleo;
 
+record Token:
+    owner as address.private;
+    amount as u64.private;
+    metadata as u32.private;
+
 function main:

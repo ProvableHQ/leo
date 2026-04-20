@@ -1,0 +1,28 @@
+--- leo add --local (add shapes_lib dep to my_app) ---
+       Leo ✅ Added local dependency `shapes_lib` at path `../shapes_lib`.
+--- leo test (should pass all submodule assertions) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'my_app.aleo'
+       Leo     56 statements before dead code elimination.
+       Leo     56 statements after dead code elimination.
+       Leo     The program checksum is: '[24u8, 44u8, 204u8, 243u8, 73u8, 18u8, 55u8, 114u8, 139u8, 108u8, 57u8, 162u8, 92u8, 228u8, 93u8, 111u8, 120u8, 13u8, 185u8, 3u8, 174u8, 223u8, 8u8, 225u8, 195u8, 48u8, 47u8, 173u8, 184u8, 83u8, 34u8, 126u8]'.
+       Leo     Program size: 1.05 KB / 500.00 KB
+       Leo ✅ Compiled 'my_app.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+       Leo 🔨 Compiling 'test_my_app.aleo'
+       Leo     74 statements before dead code elimination.
+       Leo     74 statements after dead code elimination.
+       Leo     The program checksum is: '[150u8, 104u8, 238u8, 132u8, 190u8, 173u8, 251u8, 218u8, 96u8, 144u8, 117u8, 39u8, 6u8, 175u8, 168u8, 83u8, 61u8, 70u8, 145u8, 182u8, 239u8, 25u8, 219u8, 129u8, 210u8, 207u8, 218u8, 112u8, 73u8, 150u8, 126u8, 26u8]'.
+       Leo     Program size: 0.64 KB / 500.00 KB
+       Leo ✅ Compiled 'test_my_app.aleo' into Aleo instructions.
+       Leo     Import 'my_app.aleo': checksum = '[24u8, 44u8, 204u8, 243u8, 73u8, 18u8, 55u8, 114u8, 139u8, 108u8, 57u8, 162u8, 92u8, 228u8, 93u8, 111u8, 120u8, 13u8, 185u8, 3u8, 174u8, 223u8, 8u8, 225u8, 195u8, 48u8, 47u8, 173u8, 184u8, 83u8, 34u8, 126u8]'
+       Leo Loading the ledger from storage...
+       Leo Loading the ledger from storage...
+       Leo Loading the ledger from storage...
+3 / 3 tests passed.
+PASSED: test_my_app.aleo/test_rect_area
+PASSED: test_my_app.aleo/test_unit_side
+PASSED: test_my_app.aleo/test_scaled_area

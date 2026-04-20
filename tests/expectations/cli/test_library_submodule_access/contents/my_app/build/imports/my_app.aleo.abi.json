@@ -1,0 +1,172 @@
+{
+  "program": "my_app.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "rect_area",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "r",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "shapes_lib",
+                  "geometry",
+                  "Rect"
+                ],
+                "program": "shapes_lib"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "make_rect",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "x0",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "y0",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "x1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "y1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "shapes_lib",
+                  "geometry",
+                  "Rect"
+                ],
+                "program": "shapes_lib"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "unit_side",
+      "is_final": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "scaled_area",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "r",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "shapes_lib",
+                  "geometry",
+                  "Rect"
+                ],
+                "program": "shapes_lib"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "factor",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

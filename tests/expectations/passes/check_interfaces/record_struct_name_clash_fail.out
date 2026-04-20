@@ -1,0 +1,36 @@
+Error [ECHI03712003]: Program `test.aleo` implements interface `test.aleo/IToken` but is missing the required record `Token`.
+    --> test:14:1
+     |
+  14 | program test.aleo: IToken {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  15 |     struct Token {
+     |     ^^^^^^^^^^^^^^
+  16 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  17 |         amount: u64,
+     |         ^^^^^^^^^^^^
+  18 |     }
+     |     ^
+  19 | 
+  20 |     fn mint(owner: address) -> Token {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  21 |         return Token { owner: owner, amount: 0u64 };
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  22 |     }
+     |     ^
+  23 | }
+     | ^
+     |
+     = Add a record definition with the specified name.
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> test:7:1
+     |
+   7 | 
+   8 |     record Token {
+     |     ^^^^^^^^^^^^^^
+   9 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  10 |         ..
+     |         ^^
+  11 |     }
+     |     ^

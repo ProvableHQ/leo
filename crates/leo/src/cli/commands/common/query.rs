@@ -55,10 +55,20 @@ pub fn get_public_balance<N: Network>(
 
 // A helper function to query for the latest block height.
 #[allow(dead_code)]
-pub fn get_latest_block_height(endpoint: &str, network: NetworkName, context: &Context) -> Result<u32> {
+pub fn get_latest_block_height(
+    endpoint: &str,
+    network: NetworkName,
+    context: &Context,
+    network_retries: u32,
+) -> Result<u32> {
     // Query the latest block height.
     let height = LeoQuery {
-        env_override: EnvOptions { endpoint: Some(endpoint.to_string()), network: Some(network), ..Default::default() },
+        env_override: EnvOptions {
+            endpoint: Some(endpoint.to_string()),
+            network: Some(network),
+            network_retries,
+            ..Default::default()
+        },
         command: QueryCommands::Block {
             command: LeoBlock {
                 id: None,
@@ -138,6 +148,7 @@ pub fn load_latest_programs_from_network<N: Network>(
     program_id: ProgramID<N>,
     network: NetworkName,
     endpoint: &str,
+    network_retries: u32,
 ) -> Result<Vec<(Program<N>, Option<u16>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
@@ -170,6 +181,7 @@ pub fn load_latest_programs_from_network<N: Network>(
                 network,
                 endpoint,
                 true,
+                network_retries,
             )
             .map_err(|_| CliError::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
             let ProgramData::Bytecode(program_src) = program.data else {

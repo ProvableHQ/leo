@@ -1,0 +1,77 @@
+program grandchild.aleo;
+
+struct Pixel__IGTLBASL9CZ:
+    r as u32;
+    g as u32;
+    b as u32;
+
+function make_pixel:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    cast r0 r1 r2 into r3 as Pixel__IGTLBASL9CZ;
+    output r3 as Pixel__IGTLBASL9CZ.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import grandchild.aleo;
+program child.aleo;
+
+function blend:
+    input r0 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+    input r1 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+    add r0.r r1.r into r2;
+    add r0.g r1.g into r3;
+    add r0.b r1.b into r4;
+    cast r2 r3 r4 into r5 as grandchild.aleo/Pixel__IGTLBASL9CZ;
+    output r5 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+
+function scale_pixel:
+    input r0 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+    input r1 as u32.private;
+    mul r0.r r1 into r2;
+    mul r0.g r1 into r3;
+    mul r0.b r1 into r4;
+    cast r2 r3 r4 into r5 as grandchild.aleo/Pixel__IGTLBASL9CZ;
+    output r5 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import grandchild.aleo;
+import child.aleo;
+program parent.aleo;
+
+function sum_pixel:
+    input r0 as grandchild.aleo/Pixel__IGTLBASL9CZ.private;
+    add r0.r r0.g into r1;
+    add r1 r0.b into r2;
+    output r2 as u32.private;
+
+function blend_and_sum:
+    cast 1u32 2u32 3u32 into r0 as grandchild.aleo/Pixel__IGTLBASL9CZ;
+    cast 4u32 5u32 6u32 into r1 as grandchild.aleo/Pixel__IGTLBASL9CZ;
+    call child.aleo/blend r0 r1 into r2;
+    add r2.r r2.g into r3;
+    add r3 r2.b into r4;
+    output r4 as u32.private;
+
+function pipeline:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    call grandchild.aleo/make_pixel r0 r1 r2 into r3;
+    call child.aleo/scale_pixel r3 2u32 into r4;
+    add r4.r r4.g into r5;
+    add r5 r4.b into r6;
+    output r6 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 6u32
+status: success
+output: 21u32
+status: success
+output: 120u32

@@ -1545,14 +1545,15 @@ impl TypeCheckingVisitor<'_> {
         }
         for (i, arg) in input.arguments.iter().skip(3).enumerate() {
             let expected = input.input_types.get(i).map(|(_, t, _)| t.clone());
-            self.visit_expression(arg, &expected);
+            self.visit_expression_reject_numeric(arg, &expected);
         }
 
-        // Reject `constant` visibility on input and return types.
-        for (mode, _, sp) in input.input_types.iter().chain(input.return_types.iter()) {
+        // Validate input and return types: reject constant visibility and undefined composite types.
+        for (mode, ty, sp) in input.input_types.iter().chain(input.return_types.iter()) {
             if matches!(mode, Mode::Constant) {
                 self.emit_err(TypeCheckerError::dynamic_call_constant_not_allowed(*sp));
             }
+            self.assert_type_is_valid(ty, *sp);
         }
 
         // Determine return type. Unit `()` is normalized to empty return_types at parse time.
@@ -1627,9 +1628,9 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Arg 4 (key): any type.
+        // Arg 4 (key): any type, but must be fully typed (unsuffixed literals are rejected).
         if input.arguments.len() > 3 {
-            self.visit_expression(&input.arguments[3], &None);
+            self.visit_expression_reject_numeric(&input.arguments[3], &None);
         }
 
         // Determine return type.
@@ -1745,6 +1746,11 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type_is_valid(inner, span);
             }
 
+            // Vector types can only be used in storage declarations.
+            Type::Vector(_) => {
+                self.emit_err(TypeCheckerError::vector_type_only_in_storage(span));
+            }
+
             Type::Address
             | Type::Boolean
             | Type::Composite(_)
@@ -1757,7 +1763,6 @@ impl TypeCheckingVisitor<'_> {
             | Type::Integer(_)
             | Type::Scalar
             | Type::Signature
-            | Type::Vector(_)
             | Type::Numeric
             | Type::Err => {} // Do nothing.
         }
@@ -1839,9 +1844,6 @@ impl TypeCheckingVisitor<'_> {
             Type::DynRecord => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("dyn record", span));
             }
-            Type::Signature => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("signature", span));
-            }
             Type::Future(_) => {
                 self.emit_err(TypeCheckerError::invalid_storage_type("future", span));
             }
@@ -1891,7 +1893,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_storage_type_is_valid(element_ty, span);
             }
 
-            // Everything else (integers, bool, group, etc.)
+            // Everything else (integers, bool, group, signature, etc.)
             Type::Address
             | Type::Boolean
             | Type::Field
@@ -1899,9 +1901,19 @@ impl TypeCheckingVisitor<'_> {
             | Type::Ident(_)
             | Type::Integer(_)
             | Type::Scalar
+            | Type::Signature
             | Type::Numeric
-            | Type::Err
-            | Type::Vector(_) => {} // valid
+            | Type::Err => {} // valid
+            Type::Vector(vector_type) => {
+                let element_ty = vector_type.element_type();
+                match element_ty {
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
+                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    _ => {}
+                }
+                self.assert_storage_type_is_valid(element_ty, span);
+            }
         }
     }
 
@@ -2027,11 +2039,25 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Ensure that `@no_inline` is not used on functions with generic const parameters.
-        if !function.const_parameters.is_empty()
-            && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
-        {
-            self.emit_err(TypeCheckerError::only_inline_can_have_const_generics(function.identifier.span()));
+        // Const generic parameters can only be monomorphized at inline call sites.  Reject them on
+        // any function that will never be inlined or that does not support inlining.
+        if !function.const_parameters.is_empty() {
+            if function.annotations.iter().any(|a| a.identifier.name == sym::no_inline) {
+                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                    "Functions annotated with `@no_inline`",
+                    function.identifier.span(),
+                ));
+            } else if matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
+                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                    "Entry point functions",
+                    function.identifier.span(),
+                ));
+            } else if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
+                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                    "`final fn` functions",
+                    function.identifier.span(),
+                ));
+            }
         }
 
         // Ensure that `@no_inline` is not used on `final fn` functions.
@@ -2256,26 +2282,15 @@ impl TypeCheckingVisitor<'_> {
         comp.cloned()
     }
 
-    /// Returns `true` if `ty` is a composite type whose underlying definition is a record.
-    pub fn is_record_type(&mut self, ty: &Type) -> bool {
-        if let Type::Composite(ct) = ty
-            && let Some(comp) = self.lookup_composite(ct.path.expect_global_location())
-        {
-            return comp.is_record;
-        }
-        false
-    }
-
-    /// Replaces any record-typed composites with `Type::DynRecord`.
-    /// Only recurses into tuples — records cannot be nested inside structs or arrays.
-    pub fn replace_records_with_dyn_record(&mut self, ty: &Type) -> Type {
+    /// Replaces interface record types with `Type::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &Type, interface: &Interface) -> Type {
         match ty {
             Type::DynRecord => Type::DynRecord,
             Type::Tuple(tuple) => Type::Tuple(TupleType::new(
-                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t)).collect(),
+                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t, interface)).collect(),
             )),
             other => {
-                if self.is_record_type(other) {
+                if interface.is_record_type(other) {
                     Type::DynRecord
                 } else {
                     other.clone()

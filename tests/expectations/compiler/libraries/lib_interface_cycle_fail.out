@@ -1,0 +1,3 @@
+Error [ECHI03712010]: Cyclic interface inheritance detected: cyclic_lib/B -> cyclic_lib/A -> cyclic_lib/B
+     |
+     = Interface inheritance must be acyclic. Remove the circular dependency.

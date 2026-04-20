@@ -4,19 +4,19 @@ resolver = "3"
 
 [workspace.dependencies]
 # leo dependencies
-leo-abi             = { path = "./crates/abi",              version = "=4.0.0" }
-leo-abi-types       = { path = "./crates/abi-types",        version = "=4.0.0" }
-leo-ast             = { path = "./crates/ast",              version = "=4.0.0" }
-leo-compiler        = { path = "./crates/compiler",         version = "=4.0.0" }
-leo-disassembler    = { path = "./crates/disassembler",     version = "=4.0.0" }
-leo-errors          = { path = "./crates/errors",           version = "=4.0.0" }
-leo-fmt             = { path = "./crates/fmt",              version = "=4.0.0" }
-leo-package         = { path = "./crates/package",          version = "=4.0.0" }
-leo-parser          = { path = "./crates/parser",           version = "=4.0.0" }
-leo-parser-rowan    = { path = "./crates/parser-rowan",     version = "=4.0.0" }
-leo-passes          = { path = "./crates/passes",           version = "=4.0.0" }
-leo-span            = { path = "./crates/span",             version = "=4.0.0" }
-leo-test-framework  = { path = "./crates/test-framework",   version = "=4.0.0" }
+leo-abi             = { path = "./crates/abi",              version = "=4.0.1" }
+leo-abi-types       = { path = "./crates/abi-types",        version = "=4.0.1" }
+leo-ast             = { path = "./crates/ast",              version = "=4.0.1" }
+leo-compiler        = { path = "./crates/compiler",         version = "=4.0.1" }
+leo-disassembler    = { path = "./crates/disassembler",     version = "=4.0.1" }
+leo-errors          = { path = "./crates/errors",           version = "=4.0.1" }
+leo-fmt             = { path = "./crates/fmt",              version = "=4.0.1" }
+leo-package         = { path = "./crates/package",          version = "=4.0.1" }
+leo-parser          = { path = "./crates/parser",           version = "=4.0.1" }
+leo-parser-rowan    = { path = "./crates/parser-rowan",     version = "=4.0.1" }
+leo-passes          = { path = "./crates/passes",           version = "=4.0.1" }
+leo-span            = { path = "./crates/span",             version = "=4.0.1" }
+leo-test-framework  = { path = "./crates/test-framework",   version = "=4.0.1" }
 # third party dependencies
 aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
@@ -40,9 +40,12 @@ expect-test        = "1.5"
 fxhash             = "0.2"
 http               = "1"
 indexmap           = { version = "2.6", features = [ "serde" ] }
+line-index         = "0.1"
 is-terminal        = "0.4"
 itertools          = "0.14"
 logos              = "0.16"
+lsp-server         = "0.7"
+lsp-types          = "0.97"
 num-format         = "0.4"
 num-traits         = "0.2"
 once_cell          = "1.21"

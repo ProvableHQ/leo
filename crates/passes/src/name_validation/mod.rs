@@ -23,7 +23,7 @@ use visitor::*;
 
 use crate::{CompilerState, Pass};
 
-use leo_ast::ProgramVisitor;
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::Result;
 
 /// A pass to validate names.
@@ -40,12 +40,10 @@ impl Pass for NameValidation {
     fn do_pass(_: Self::Input, state: &mut CompilerState) -> Result<Self::Output> {
         let mut visitor = NameValidationVisitor { handler: &mut state.handler };
 
-        state.ast.visit(
-            |program| visitor.visit_program(program),
-            |_library| {
-                // no-op for libraries
-            },
-        );
+        match &state.ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         state.handler.last_err()?;
         Ok(())

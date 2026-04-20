@@ -1150,9 +1150,9 @@ create_messages!(
     }
 
     @formatted
-    only_inline_can_have_const_generics {
-        args: (),
-        msg: format!("Only inlined functions can have generic const parameters."),
+    cannot_have_const_generics {
+        args: (kind: impl Display),
+        msg: format!("{kind} cannot have generic const parameters."),
         help: None,
     }
 
@@ -1515,5 +1515,19 @@ create_messages!(
         args: (record_type: impl Display),
         msg: format!("Dynamic call returns record type `{record_type}`, but dynamic calls return `dyn record`."),
         help: Some("Dynamic calls cannot return concrete record types. Access fields on the returned `dyn record` with type annotations: `let x: u64 = result.field;`".to_string()),
+    }
+
+    @formatted
+    vector_type_only_in_storage {
+        args: (),
+        msg: format!("Vector types can only be used in storage declarations."),
+        help: None,
+    }
+
+    @formatted
+    multi_identifier_definition_requires_tuple {
+        args: (type_: impl Display),
+        msg: format!("A definition with multiple identifiers requires a tuple on the right-hand side, but found type `{type_}`."),
+        help: Some("Use a tuple expression, e.g. `let (a, b) = (x, y);`.".to_string()),
     }
 );

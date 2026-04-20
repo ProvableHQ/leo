@@ -22,13 +22,16 @@ use leo_ast::{
     CompositeType,
     Function,
     FunctionPrototype,
+    Interface,
+    Library,
     Location,
-    Mapping,
+    MappingPrototype,
     Member,
+    Program,
     ProgramScope,
     ProgramVisitor,
     RecordPrototype,
-    StorageVariable,
+    StorageVariablePrototype,
     Type,
 };
 use leo_errors::{CheckInterfacesError, Color, Label};
@@ -41,9 +44,11 @@ use leo_ast::common::{DiGraph, DiGraphError};
 #[derive(Clone, Debug)]
 struct FlattenedInterface {
     functions: Vec<(Symbol, FunctionPrototype)>,
-    records: Vec<(Symbol, RecordPrototype)>,
-    mappings: Vec<Mapping>,
-    storages: Vec<StorageVariable>,
+    /// Prototype record entries keyed by their fully-qualified location in the defining interface's program.
+    /// May contain alias entries for same-named records inherited from parent interfaces.
+    records: Vec<(Location, RecordPrototype)>,
+    mappings: Vec<MappingPrototype>,
+    storages: Vec<StorageVariablePrototype>,
 }
 
 pub struct CheckInterfacesVisitor<'a> {
@@ -52,7 +57,7 @@ pub struct CheckInterfacesVisitor<'a> {
     current_program: Symbol,
     /// Cache of flattened interfaces (with all inherited members).
     flattened_interfaces: IndexMap<Location, FlattenedInterface>,
-    /// Interface inheritance graph
+    /// Interface inheritance graph — used for cycle detection and ancestor lookup.
     inheritance_graph: DiGraph<Location>,
 }
 
@@ -67,7 +72,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Flatten an interface by collecting all inherited members.
-    /// Detects conflicts during flattening. Assumes cycles have already been checked.
+    ///
+    /// Detects conflicts during flattening. Cycles have already been detected by
+    /// `build_inheritance_graph` + `post_order` before this is called (including for
+    /// module-level interfaces, which are seeded into the graph from the program's
+    /// `parents` list).
     fn flatten_interface(&mut self, location: &Location, location_span: Span) -> Option<FlattenedInterface> {
         // Check cache first.
         if let Some(flattened) = self.flattened_interfaces.get(location) {
@@ -83,35 +92,67 @@ impl<'a> CheckInterfacesVisitor<'a> {
         let interface_span = interface.span;
 
         // Start with the interface's own members.
+        // The prototype record location includes any module prefix from the interface's own location
+        // so that types referencing the record inside the same module resolve to the same path.
+        // This covers both submodules of the current program (e.g. `interfaces::IFoo`) and
+        // submodules of external programs, even though the latter are not yet reachable.
+        // The path must have at least one element (the interface name itself).
+        assert!(!location.path.is_empty(), "interface location must have a non-empty path");
+        let interface_module = &location.path[..location.path.len() - 1];
         let mut flattened = FlattenedInterface {
             functions: interface.functions.clone(),
-            records: interface.records.clone(),
+            records: interface
+                .records
+                .iter()
+                .map(|(name, proto)| {
+                    let mut record_path = interface_module.to_vec();
+                    record_path.push(*name);
+                    (Location::new(location.program, record_path), proto.clone())
+                })
+                .collect(),
             mappings: interface.mappings.clone(),
             storages: interface.storages.clone(),
         };
+        // `interface` borrow ends here (NLL).
 
-        // Merge members from all parent interfaces (supports multiple inheritance).
+        // Merge members from all ancestor interfaces (supports multiple inheritance).
+        //
+        // `build_inheritance_graph` populates the inheritance graph with every reachable
+        // interface — including module-level ones seeded from the program's `parents` list.
+        // `transitive_closure` therefore returns the correct ancestor set for both top-level
+        // and module-level interfaces.
+        //
+        // Cycle freedom is guaranteed: `build_inheritance_graph` detects cycles and reports
+        // errors before `flatten_interface` is ever called on a cyclic interface. The caller
+        // (`check_program_implements_interface`) always invokes `flatten_interface` after the
+        // graph has been fully built and validated, so no self-cycles can appear in
+        // `all_ancestors`.
+        let all_ancestors = self.inheritance_graph.transitive_closure(location);
 
-        let all_parents = self.inheritance_graph.transitive_closure(location);
-
-        for parent_location in &all_parents {
-            let Some(parent_interface) =
-                self.state.symbol_table.lookup_interface(self.current_program, parent_location)
+        for ancestor_location in &all_ancestors {
+            let Some(ancestor_interface) =
+                self.state.symbol_table.lookup_interface(self.current_program, ancestor_location)
             else {
-                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(parent_location, interface_span));
+                self.state
+                    .handler
+                    .emit_err(CheckInterfacesError::interface_not_found(ancestor_location, interface_span));
                 return None;
             };
 
-            let parent_interface_name = parent_interface.identifier.name;
-            let parent_interface_span = parent_interface.identifier.span;
+            let parent_interface_name = ancestor_interface.identifier.name;
+            let parent_interface_span = ancestor_interface.identifier.span;
 
-            let parent_flattened = self.flatten_interface(parent_location, parent_interface_span)?;
+            let parent_flattened = self.flatten_interface(ancestor_location, parent_interface_span)?;
+
+            // Build the set of prototype record locations across both child and parent.
+            let inheritance_prototype_locations: IndexSet<Location> =
+                flattened.records.iter().chain(parent_flattened.records.iter()).map(|(loc, _)| loc.clone()).collect();
 
             // Merge parent functions, checking for conflicts.
             for (name, parent_func) in &parent_flattened.functions {
                 if let Some((_, existing_func)) = flattened.functions.iter().find(|(n, _)| n == name) {
                     // Same name exists - check if compatible.
-                    if !Self::prototypes_match(existing_func, parent_func) {
+                    if !self.prototypes_match(existing_func, parent_func, &inheritance_prototype_locations) {
                         self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
                             name,
                             interface_name,
@@ -128,10 +169,20 @@ impl<'a> CheckInterfacesVisitor<'a> {
             }
 
             // Merge parent records, checking for field conflicts.
-            for (name, parent_record) in &parent_flattened.records {
-                if let Some((_, existing_record)) = flattened.records.iter().find(|(n, _)| n == name) {
-                    // Same record name exists - check if fields are compatible.
-                    if !Self::record_fields_compatible(existing_record, parent_record) {
+            for (parent_loc, parent_record) in &parent_flattened.records {
+                let parent_name =
+                    parent_loc.path.last().expect("prototype record location always has a name component");
+
+                // Clone to avoid holding an immutable borrow while potentially pushing below.
+                let existing = flattened
+                    .records
+                    .iter()
+                    .find(|(l, _)| l.path.last() == Some(parent_name))
+                    .map(|(l, r)| (l.clone(), r.clone()));
+
+                if let Some((_, existing_record)) = existing {
+                    // Same name exists - check if fields are compatible.
+                    if !Self::record_fields_compatible(&existing_record, parent_record) {
                         // Find the specific field that conflicts for the error message.
                         for parent_member in &parent_record.members {
                             let child_member = existing_record
@@ -144,7 +195,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                     self.state.handler.emit_err(
                                         CheckInterfacesError::conflicting_record_field(
                                             parent_member.identifier.name,
-                                            name,
+                                            parent_name,
                                             interface_name,
                                             parent_interface_name,
                                             interface_span,
@@ -161,12 +212,13 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                     return None;
                                 }
                                 Some(cm)
-                                    if !cm.type_.eq_user(&parent_member.type_) || cm.mode != parent_member.mode =>
+                                    if !cm.type_.eq_user(&parent_member.type_)
+                                        || !cm.mode.eq_user(&parent_member.mode) =>
                                 {
                                     self.state.handler.emit_err(
                                         CheckInterfacesError::conflicting_record_field(
                                             parent_member.identifier.name,
-                                            name,
+                                            parent_name,
                                             interface_name,
                                             parent_interface_name,
                                             interface_span,
@@ -187,11 +239,14 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                 _ => {} // Field matches, continue checking.
                             }
                         }
+                    } else {
+                        // Compatible - child's version takes precedence. Add an alias under the
+                        // parent's abstract location so inherited function prototypes are recognized.
+                        flattened.records.push((parent_loc.clone(), existing_record));
                     }
-                    // Compatible or child is superset - child's version takes precedence.
                 } else {
                     // Add parent's record.
-                    flattened.records.push((*name, parent_record.clone()));
+                    flattened.records.push((parent_loc.clone(), parent_record.clone()));
                 }
             }
 
@@ -242,7 +297,6 @@ impl<'a> CheckInterfacesVisitor<'a> {
             }
         }
 
-        // Cache the result.
         self.flattened_interfaces.insert(location.clone(), flattened.clone());
         Some(flattened)
     }
@@ -262,6 +316,10 @@ impl<'a> CheckInterfacesVisitor<'a> {
             None => return, // Error already emitted.
         };
 
+        // Collect the set of prototype record locations required by this interface.
+        let prototype_record_locations: IndexSet<Location> =
+            flattened.records.iter().map(|(loc, _)| loc.clone()).collect();
+
         // Check all required functions are implemented.
         for (func_name, required_proto) in &flattened.functions {
             let func_location = Location::new(program_name, vec![*func_name]);
@@ -269,7 +327,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
             match self.state.symbol_table.lookup_function(program_name, &func_location) {
                 Some(func_symbol) => {
                     // Function exists - check signature matches exactly.
-                    if !Self::function_matches_prototype(&func_symbol.function, required_proto) {
+                    if !self.function_matches_prototype(
+                        &func_symbol.function,
+                        required_proto,
+                        &prototype_record_locations,
+                    ) {
                         self.state.handler.emit_err(CheckInterfacesError::signature_mismatch(
                             func_name,
                             interface_location,
@@ -291,8 +353,15 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
 
         // Check all required records are declared with required fields.
-        for (record_name, required_record) in &flattened.records {
-            let record_location = Location::new(program_name, vec![*record_name]);
+        // Deduplicate by name since `flattened.records` may contain alias entries.
+        let mut validated_record_names: IndexSet<Symbol> = IndexSet::new();
+        for (prototype_loc, required_record) in &flattened.records {
+            let record_name = *prototype_loc.path.last().expect("prototype record location always has a name");
+            if !validated_record_names.insert(record_name) {
+                continue;
+            }
+
+            let record_location = Location::new(program_name, vec![record_name]);
 
             match self.state.symbol_table.lookup_record(program_name, &record_location) {
                 Some(program_record) => {
@@ -415,26 +484,28 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Check if two FunctionPrototypes have matching signatures.
-    fn prototypes_match(a: &FunctionPrototype, b: &FunctionPrototype) -> bool {
+    fn prototypes_match(
+        &self,
+        a: &FunctionPrototype,
+        b: &FunctionPrototype,
+        prototype_record_locations: &IndexSet<Location>,
+    ) -> bool {
         // Input parameters must match exactly.
         a.input.len() == b.input.len() &&
         a.input.iter().zip(b.input.iter()).all(|(input_a, input_b)| {
-            // Parameter names must match.
-            input_a.identifier.name == input_b.identifier.name &&
             // Parameter types must match.
-            input_a.type_.eq_user(&input_b.type_) &&
+            Self::proto_type_eq(&input_a.type_, &input_b.type_, prototype_record_locations) &&
             // Parameter modes must match.
-            input_a.mode == input_b.mode
+            input_a.mode.eq_user(&input_b.mode)
         }) &&
 
         // Output must match.
         a.output.len() == b.output.len() &&
-        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| output_a.type_.eq_user(&output_b.type_) && output_a.mode == output_b.mode) &&
+        a.output.iter().zip(b.output.iter()).all(|(output_a, output_b)| Self::proto_type_eq(&output_a.type_, &output_b.type_, prototype_record_locations) && output_a.mode.eq_user(&output_b.mode)) &&
 
         // Const parameters must match.
         a.const_parameters.len() == b.const_parameters.len() &&
         a.const_parameters.iter().zip(b.const_parameters.iter()).all(|(const_a, const_b)| const_a.type_.eq_user(&const_b.type_)) &&
-
 
         //TODO: we may want to check certain annotations, but they are not significant yet
         // // Annotations must match.
@@ -442,28 +513,101 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // a.annotations.iter().zip(b.annotations.iter()).all(|(ann_a, ann_b)| ann_a == ann_b) &&
 
         // Output type must match (including Final).
-        a.output_type.eq_user(&b.output_type)
+        Self::proto_type_eq(&a.output_type, &b.output_type, prototype_record_locations)
+    }
+
+    /// Compare two prototype types. If both sides name the same prototype record, match by name;
+    /// otherwise require exact equality.
+    fn proto_type_eq(a: &Type, b: &Type, prototype_record_locations: &IndexSet<Location>) -> bool {
+        Self::record_type_eq(a, b, prototype_record_locations, None)
+    }
+
+    /// Compare a concrete type against a prototype type. If the prototype names a prototype record,
+    /// the concrete type must have the same name and belong to `self.current_program`.
+    fn concrete_type_matches_proto(
+        &self,
+        concrete: &Type,
+        proto: &Type,
+        prototype_record_locations: &IndexSet<Location>,
+    ) -> bool {
+        Self::record_type_eq(concrete, proto, prototype_record_locations, Some(self.current_program))
+    }
+
+    /// Core type comparison with prototype-record awareness.
+    ///
+    /// Interface prototype records are placeholders: they declare that the implementing program
+    /// must define a record with the same name locally. Only the implementing program's own record
+    /// (one whose program field equals `concrete_program`) satisfies the requirement; a record
+    /// borrowed from any other program does not, even if the name matches.
+    ///
+    /// When `concrete_program` is `None` (proto-to-proto mode), a prototype composite in `rhs`
+    /// matches `lhs` only when `lhs` is also a prototype with the same record name.
+    /// When `concrete_program` is `Some(prog)` (concrete-to-proto mode), a prototype composite
+    /// in `rhs` matches `lhs` only when `lhs` has the same name and `lhs.program == prog`.
+    fn record_type_eq(
+        lhs: &Type,
+        rhs: &Type,
+        prototype_record_locations: &IndexSet<Location>,
+        concrete_program: Option<Symbol>,
+    ) -> bool {
+        match (lhs, rhs) {
+            (Type::Composite(lc), Type::Composite(rc)) => {
+                if let Some(rhs_loc) = rc.path.try_global_location()
+                    && prototype_record_locations.contains(rhs_loc)
+                {
+                    let Some(lhs_loc) = lc.path.try_global_location() else {
+                        return false;
+                    };
+                    let name_match = lhs_loc.path.last() == rhs_loc.path.last();
+                    return match concrete_program {
+                        Some(prog) => {
+                            if lhs_loc.program != prog {
+                                return false;
+                            }
+                            // Records in the implementing program are always top-level definitions;
+                            // they cannot live inside a submodule of the program.
+                            assert_eq!(lhs_loc.path.len(), 1, "concrete record path must be a single element");
+                            name_match
+                        }
+                        None => name_match && prototype_record_locations.contains(lhs_loc),
+                    };
+                }
+                lhs.eq_user(rhs)
+            }
+            (Type::Tuple(lt), Type::Tuple(rt)) => {
+                lt.elements.len() == rt.elements.len()
+                    && lt
+                        .elements
+                        .iter()
+                        .zip(rt.elements.iter())
+                        .all(|(le, re)| Self::record_type_eq(le, re, prototype_record_locations, concrete_program))
+            }
+            _ => lhs.eq_user(rhs),
+        }
     }
 
     /// Check if a Function matches a FunctionPrototype exactly.
-    fn function_matches_prototype(func: &Function, proto: &FunctionPrototype) -> bool {
+    fn function_matches_prototype(
+        &self,
+        func: &Function,
+        proto: &FunctionPrototype,
+        prototype_record_locations: &IndexSet<Location>,
+    ) -> bool {
         // Input parameters must match exactly.
         func.input.len() == proto.input.len() &&
 
         func.input.iter().zip(proto.input.iter()).all(|(func_input, proto_input)| {
-            // Parameter names must match.
-            func_input.identifier.name == proto_input.identifier.name &&
             // Parameter types must match.
-            func_input.type_.eq_user(&proto_input.type_) &&
+            self.concrete_type_matches_proto(&func_input.type_, &proto_input.type_, prototype_record_locations) &&
             // Parameter modes must match.
-            func_input.mode == proto_input.mode
+            func_input.mode.eq_user(&proto_input.mode)
         }) &&
 
         // Output must match.
         func.output.len() == proto.output.len() &&
 
         func.output.iter().zip(proto.output.iter()).all(
-            |(func_output, proto_output)| func_output.type_.eq_user(&proto_output.type_) && func_output.mode == proto_output.mode) &&
+            |(func_output, proto_output)| self.concrete_type_matches_proto(&func_output.type_, &proto_output.type_, prototype_record_locations) && func_output.mode.eq_user(&proto_output.mode)) &&
 
         // Const parameters must match.
         func.const_parameters.len() == proto.const_parameters.len() &&
@@ -475,11 +619,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
         // func.annotations.iter().zip(proto.annotations.iter()).all(|(ann_func, ann_proto)| ann_func == ann_proto) &&
 
         // Output type must match (including Final).
-        func.output_type.eq_user(&proto.output_type)
+        self.concrete_type_matches_proto(&func.output_type, &proto.output_type, prototype_record_locations)
     }
 
     fn format_prototype_signature(proto: &FunctionPrototype) -> String {
-        let inputs: Vec<String> = proto.input.iter().map(|i| format!("{}: {}", i.identifier.name, i.type_)).collect();
+        let inputs: Vec<String> = proto.input.iter().map(|i| i.to_string()).collect();
         format!(
             "{}fn {}({}) -> {}",
             proto.annotations.iter().map(|ann| format!("{ann}\n")).collect::<Vec<String>>().join(""),
@@ -490,7 +634,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     fn format_function_signature(func: &Function) -> String {
-        let inputs: Vec<String> = func.input.iter().map(|i| format!("{}: {}", i.identifier.name, i.type_)).collect();
+        let inputs: Vec<String> = func.input.iter().map(|i| i.to_string()).collect();
         format!(
             "{}fn {}({}) -> {}",
             func.annotations.iter().map(|ann| format!("{ann}\n")).collect::<Vec<String>>().join(""),
@@ -501,18 +645,26 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Check if all parent record fields exist in child with matching types and modes.
+    ///
+    /// Extra fields in `child` beyond those required by `parent` are permitted by design:
+    /// prototype records that end with `..` act as partial specifications, so the implementing
+    /// record may carry additional fields.
     fn record_fields_compatible(child: &RecordPrototype, parent: &RecordPrototype) -> bool {
         parent.members.iter().all(|parent_member| {
             child.members.iter().any(|child_member| {
                 child_member.identifier.name == parent_member.identifier.name
                     && child_member.type_.eq_user(&parent_member.type_)
-                    && child_member.mode == parent_member.mode
+                    && child_member.mode.eq_user(&parent_member.mode)
             })
         })
     }
 
     /// Find the first mismatching field between a required record prototype and an actual record.
-    /// Returns Some((field_name, expected_member, found_member_or_none)) if mismatch found.
+    /// Returns `Some((field_name, expected_member, found_member_or_none))` if a mismatch is found.
+    ///
+    /// Only the fields listed in `required` are checked; extra fields in `actual` beyond those
+    /// required are permitted by design (prototype records with `..` allow additional fields in
+    /// the implementing record).
     fn find_record_field_mismatch<'b>(
         required: &'b RecordPrototype,
         actual: &'b Composite,
@@ -523,7 +675,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 None => return Some((required_member.identifier.name, required_member, None)),
                 Some(actual_member) => {
                     if !actual_member.type_.eq_user(&required_member.type_)
-                        || actual_member.mode != required_member.mode
+                        || !actual_member.mode.eq_user(&required_member.mode)
                     {
                         return Some((required_member.identifier.name, required_member, Some(actual_member)));
                     }
@@ -534,8 +686,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Validate that record prototypes don't specify `owner` with a type other than `address`.
-    fn validate_record_prototypes(&mut self, input: &ProgramScope) {
-        for (_, interface) in &input.interfaces {
+    fn validate_record_prototypes<'b>(&mut self, interfaces: impl IntoIterator<Item = &'b Interface>) {
+        for interface in interfaces {
             for (_, record_proto) in &interface.records {
                 for member in &record_proto.members {
                     if member.identifier.name == sym::owner && member.type_ != Type::Address {
@@ -550,17 +702,26 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
     }
 
-    fn build_inheritance_graph(&mut self, input: &ProgramScope) {
-        // Populate graph with current program interfaces
+    fn build_inheritance_graph(&mut self, interfaces: &[(Vec<Symbol>, Interface)], extra_seeds: &[(Location, Span)]) {
+        // Populate graph with the given interfaces as seeds.
+        // Each entry is (module_prefix, interface) where module_prefix is the path to the
+        // containing module (empty for top-level, e.g. [ops] for a submodule named ops).
         let mut queue: IndexSet<(Location, Span)> = IndexSet::new();
         let mut processed: IndexSet<Location> = IndexSet::new();
-        for (_, interface) in &input.interfaces {
-            let location = Location::new(self.current_program, vec![interface.identifier.name]);
+        for (prefix, interface) in interfaces {
+            let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
+            let location = Location::new(self.current_program, path);
             let span = interface.identifier.span;
             queue.insert((location, span));
         }
 
-        while let Some((location, location_span)) = queue.pop() {
+        // Also seed with extra locations (e.g. interfaces directly implemented by the program scope)
+        // so that cross-program cycles are detected during BFS.
+        for (location, span) in extra_seeds {
+            queue.insert((location.clone(), *span));
+        }
+
+        while let Some((location, _location_span)) = queue.pop() {
             if processed.contains(&location) {
                 continue;
             }
@@ -569,15 +730,17 @@ impl<'a> CheckInterfacesVisitor<'a> {
             let interface = match self.state.symbol_table.lookup_interface(self.current_program, &location) {
                 Some(p) => p.clone(),
                 None => {
-                    self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
-                    return;
+                    // Skip silently; `flatten_interface` is the authoritative source for this error.
+                    processed.insert(location);
+                    continue;
                 }
             };
 
             for (parent_span, parent_type) in &interface.parents {
                 let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
                     self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span));
-                    return;
+                    // Continue processing remaining parents and other queued interfaces.
+                    continue;
                 };
                 let parent_location =
                     parent_path.try_global_location().expect("Locations should have been resolved by now");
@@ -599,10 +762,78 @@ impl AstVisitor for CheckInterfacesVisitor<'_> {
 }
 
 impl ProgramVisitor for CheckInterfacesVisitor<'_> {
+    fn visit_program(&mut self, input: &Program) {
+        // Visit stubs first so that library interface caches are fully populated
+        // before check_program_implements_interface runs in visit_program_scope.
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+        input.modules.values().for_each(|module| self.visit_module(module));
+        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_library(&mut self, input: &Library) {
+        // Visit stubs first so that library interface caches from dependencies are fully populated
+        // before cycle detection and flattening run below.
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+
+        self.current_program = input.name;
+        // Reset the inheritance graph for this new scope.
+        self.inheritance_graph = DiGraph::default();
+
+        // Collect interfaces with their module-path prefix so that build_inheritance_graph can
+        // construct the correct Location (matching how global_items_collection registered them).
+        // Top-level library interfaces use an empty prefix; submodule interfaces use the module path.
+        let mut prefixed: Vec<(Vec<Symbol>, Interface)> =
+            input.interfaces.iter().map(|(_, i)| (vec![], i.clone())).collect();
+        for module in input.modules.values() {
+            prefixed.extend(module.interfaces.iter().map(|(_, i)| (module.path.clone(), i.clone())));
+        }
+
+        self.build_inheritance_graph(&prefixed, &[]);
+
+        // Check for cycles.
+        if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
+            self.state.handler.emit_err(CheckInterfacesError::cyclic_interface_inheritance(
+                path.iter().map(|loc| loc.to_string()).collect::<Vec<_>>().join(" -> "),
+            ));
+            return;
+        }
+
+        // Validate record prototypes (e.g. owner must be address).
+        self.validate_record_prototypes(prefixed.iter().map(|(_, i)| i));
+
+        // Flatten all interfaces to catch conflicting member inheritance, using the same
+        // prefixed paths so the Location matches the symbol table entries.
+        for (prefix, interface) in &prefixed {
+            let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
+            let location = Location::new(self.current_program, path);
+            self.flatten_interface(&location, interface.identifier.span);
+        }
+    }
+
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         self.current_program = input.program_id.as_symbol();
+        // Reset the inheritance graph for this new scope.
+        self.inheritance_graph = DiGraph::default();
 
-        self.build_inheritance_graph(input);
+        // Program-scope interfaces are always at the top level (no module prefix).
+        let prefixed: Vec<(Vec<Symbol>, Interface)> =
+            input.interfaces.iter().map(|(_, i)| (vec![], i.clone())).collect();
+
+        // Also seed from parent interfaces implemented by this program scope so that cross-program
+        // cycles involving those interfaces are detected during BFS.
+        let parent_seeds: Vec<(Location, Span)> = input
+            .parents
+            .iter()
+            .filter_map(|(span, parent_type)| {
+                if let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type {
+                    parent_path.try_global_location().map(|loc| (loc.clone(), *span))
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        self.build_inheritance_graph(&prefixed, &parent_seeds);
 
         // Check for cycles using post_order traversal.
         if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
@@ -613,7 +844,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         }
 
         // Validate record prototypes (e.g. owner must be address).
-        self.validate_record_prototypes(input);
+        self.validate_record_prototypes(input.interfaces.iter().map(|(_, i)| i));
 
         // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {

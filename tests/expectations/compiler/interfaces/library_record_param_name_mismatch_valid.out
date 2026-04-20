@@ -1,0 +1,11 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u128.private;
+
+function transfer_private:
+    input r0 as Token.record;
+
+constructor:
+    assert.eq edition 0u16;

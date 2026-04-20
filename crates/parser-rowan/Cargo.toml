@@ -16,7 +16,7 @@
 
 [package]
 name = "leo-parser-rowan"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["The Leo Team <leo@provable.com>"]
 description = "Rowan-based lossless parser for Leo"
 homepage = "https://leo-lang.org"

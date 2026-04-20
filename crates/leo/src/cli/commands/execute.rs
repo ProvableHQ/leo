@@ -19,7 +19,7 @@ use super::*;
 use super::common::load_extra_programs_into_vm;
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network};
+use leo_package::{Package, ProgramData, fetch_program_from_network, retry_network_call};
 
 use aleo_std::StorageMode;
 use rand::{CryptoRng, Rng};
@@ -110,7 +110,15 @@ impl Command for LeoExecute {
         // Get the endpoint, accounting for overrides.
         let endpoint = get_endpoint(&self.env_override.endpoint)?;
         // If the current directory is a valid Leo package, then build it.
-        if Package::from_directory_no_graph(path, home_path, Some(network), Some(&endpoint)).is_ok() {
+        if Package::from_directory_no_graph(
+            path,
+            home_path,
+            Some(network),
+            Some(&endpoint),
+            self.env_override.network_retries,
+        )
+        .is_ok()
+        {
             let package = LeoBuild {
                 env_override: self.env_override.clone(),
                 options: {
@@ -303,8 +311,14 @@ fn handle_execute<A: Aleo>(
         parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
 
     // Get the consensus version.
-    let consensus_version =
-        get_consensus_version(&command.extra.consensus_version, &endpoint, network, &consensus_heights, &context)?;
+    let consensus_version = get_consensus_version(
+        &command.extra.consensus_version,
+        &endpoint,
+        network,
+        &consensus_heights,
+        &context,
+        command.env_override.network_retries,
+    )?;
 
     // Build the config for JSON output.
     let config = Some(Config {
@@ -327,7 +341,13 @@ fn handle_execute<A: Aleo>(
         record.is_some(),
         &command.action,
         consensus_version,
-        &check_task_for_warnings(&endpoint, network, &programs, consensus_version),
+        &check_task_for_warnings(
+            &endpoint,
+            network,
+            &programs,
+            consensus_version,
+            command.env_override.network_retries,
+        ),
         command.skip_execute_proof,
     );
 
@@ -354,7 +374,13 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_latest_programs_from_network(&context, program_id, network, &endpoint)?;
+        programs = load_latest_programs_from_network(
+            &context,
+            program_id,
+            network,
+            &endpoint,
+            command.env_override.network_retries,
+        )?;
     };
 
     // Add the programs to the VM.
@@ -371,7 +397,14 @@ fn handle_execute<A: Aleo>(
 
     // Load any extra programs specified via `--with`.
     if !command.with.is_empty() {
-        load_extra_programs_into_vm::<A::Network>(&command.with, &vm, &context, network, Some(&endpoint))?;
+        load_extra_programs_into_vm::<A::Network>(
+            &command.with,
+            &vm,
+            &context,
+            network,
+            Some(&endpoint),
+            command.env_override.network_retries,
+        )?;
     }
 
     // Generate the authorization (the method differs based on skip_execute_proof).
@@ -394,8 +427,8 @@ fn handle_execute<A: Aleo>(
 
     // Generate the transaction (the method differs based on skip_execute_proof).
     let (output_name, output, response) = if command.skip_execute_proof {
-        // Get the state root.
-        let state_root = query.current_state_root()?;
+        // Get the state root, retrying on transient network failures.
+        let state_root = retry_network_call(command.env_override.network_retries, || query.current_state_root())?;
 
         // Create an execution without the proof.
         let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
@@ -517,7 +550,8 @@ fn handle_execute<A: Aleo>(
             fee_transaction_id = Some(Transaction::from_fee(fee.clone())?.id().to_string());
         }
         let id = transaction.id().to_string();
-        let height_before = check_transaction::current_height(&endpoint, network)?;
+        let height_before =
+            check_transaction::current_height(&endpoint, network, command.env_override.network_retries)?;
         // Broadcast the transaction to the network.
         let (message, status) =
             handle_broadcast(&format!("{endpoint}/{network}/transaction/broadcast"), &transaction, &program_name)?;
@@ -532,6 +566,7 @@ fn handle_execute<A: Aleo>(
                     height_before + 1,
                     command.extra.max_wait,
                     command.extra.blocks_to_check,
+                    command.env_override.network_retries,
                 )?;
                 let confirmed = tx_status == Some(TransactionStatus::Accepted);
                 if confirmed {
@@ -585,11 +620,14 @@ fn check_task_for_warnings<N: Network>(
     network: NetworkName,
     programs: &[(Program<N>, Option<u16>)],
     consensus_version: ConsensusVersion,
+    network_retries: u32,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
     for (program, _) in programs {
         // Check if the program exists on the network.
-        if let Ok(remote_program) = fetch_program_from_network(&program.id().to_string(), endpoint, network) {
+        if let Ok(remote_program) =
+            fetch_program_from_network(&program.id().to_string(), endpoint, network, network_retries)
+        {
             // Parse the program.
             let remote_program = match Program::<N>::from_str(&remote_program) {
                 Ok(program) => program,
@@ -613,7 +651,7 @@ fn check_task_for_warnings<N: Network>(
         }
     }
     // Check for a consensus version mismatch.
-    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network) {
+    if let Err(e) = check_consensus_version_mismatch(consensus_version, endpoint, network, network_retries) {
         warnings.push(format!("{e}. In some cases, the execution may fail"));
     }
     warnings

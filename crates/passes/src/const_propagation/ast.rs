@@ -198,12 +198,16 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        // Reconstruct type parameters so that const identifiers inside array lengths are
-        // replaced with their evaluated values. This ensures, for example, `[u32; N]` where
-        // `const N: u32 = 5;` becomes `[u32; 5]`, and that unresolved lengths are
-        // reported via `array_length_not_evaluated` at the fixed point.
+        // Reconstruct type parameters, input types, and return types so that const identifiers
+        // inside array lengths are replaced with their evaluated values. This ensures, for
+        // example, `[u32; N]` where `const N: u32 = 5;` becomes `[u32; 5]`, and that unresolved
+        // lengths are reported via `array_length_not_evaluated` at the fixed point.
         input.type_parameters =
             input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
+        input.input_types =
+            input.input_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
+        input.return_types =
+            input.return_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
 
         let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters)
             .expect("Type checking guarantees this is valid.");

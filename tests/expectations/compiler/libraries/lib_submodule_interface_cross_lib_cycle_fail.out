@@ -1,0 +1,22 @@
+Error [ECHI03712000]: Interface `lib_a/lib_b::sub::Middle` not found.
+    --> compiler-test:1:1
+     |
+   1 | interface Top : lib_b::sub::Middle {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   2 |     fn top_fn() -> u32;
+     |     ^^^^^^^^^^^^^^^^^^^
+   3 | }
+     | ^
+     |
+     = Make sure the interface is defined in the current program or an imported program.
+Error [ECHI03712000]: Interface `lib_a/lib_b::sub::Middle` not found.
+    --> compiler-test:1:1
+     |
+   1 | interface Top : lib_b::sub::Middle {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   2 |     fn top_fn() -> u32;
+     |     ^^^^^^^^^^^^^^^^^^^
+   3 | }
+     | ^
+     |
+     = Make sure the interface is defined in the current program or an imported program.

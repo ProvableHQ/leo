@@ -237,6 +237,16 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             _ => {
                 input.type_parameters =
                     input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
+                input.input_types = input
+                    .input_types
+                    .into_iter()
+                    .map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span))
+                    .collect();
+                input.return_types = input
+                    .return_types
+                    .into_iter()
+                    .map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span))
+                    .collect();
                 let statements: Vec<_> = input
                     .arguments
                     .iter_mut()

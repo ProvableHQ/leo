@@ -201,6 +201,7 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
         false, // no_local
         Some(BENCH_NETWORK),
         None, // no endpoint needed for local-only fixtures
+        2,
     ) {
         Ok(package) => package,
         Err(err) => {

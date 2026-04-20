@@ -1,0 +1,16 @@
+program test.aleo;
+
+mapping values:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    input r0 as u32.public;
+    async main r0 into r1;
+    output r1 as test.aleo/main.future;
+
+finalize main:
+    input r0 as u32.public;
+    set r0 into values[r0];
+    set r0 into values[r0];
+    assert.eq false true;

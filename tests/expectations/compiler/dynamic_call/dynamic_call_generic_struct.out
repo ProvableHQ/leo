@@ -1,0 +1,14 @@
+program test.aleo;
+
+struct Slot__LbJovpLEwVd:
+    val as u32;
+
+function store:
+    input r0 as Slot__LbJovpLEwVd.private;
+    output r0.val as u32.private;
+
+function main:
+    input r0 as field.private;
+    input r1 as Slot__LbJovpLEwVd.private;
+    call.dynamic r0 'aleo' 'store' with r1 (as Slot__LbJovpLEwVd.private) into r2 (as u32.private);
+    output r2 as u32.private;

@@ -1,0 +1,3 @@
+Error [ECHI03712010]: Cyclic interface inheritance detected: cyclic/mod_b::B -> cyclic/mod_a::A -> cyclic/mod_b::B
+     |
+     = Interface inheritance must be acyclic. Remove the circular dependency.

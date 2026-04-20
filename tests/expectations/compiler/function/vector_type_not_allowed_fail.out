@@ -1,0 +1,40 @@
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:14:5
+     |
+  14 |     data: [u32]
+     |     ^^^^^^^^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:26:9
+     |
+  26 |         data: [u32]
+     |         ^^^^^^^^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:30:5
+     |
+  30 |     mapping my_map: [u32] => u32;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:33:5
+     |
+  33 |     mapping my_map2: u32 => [u32];
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:3:8
+     |
+   3 | fn foo(a: [u32]) -> u32 {
+     |        ^^^^^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:8:13
+     |
+   8 | fn bar() -> [u32] {
+     |             ^^^^^
+Error [ETYC0372117]: Expected type `[u32]` but type `u32` was found.
+    --> compiler-test:9:12
+     |
+   9 |     return 0u32;
+     |            ^^^^
+Error [ETYC0372189]: Vector types can only be used in storage declarations.
+    --> compiler-test:18:8
+     |
+  18 | fn baz(a: [[u32]; 3]) -> u32 {
+     |        ^^^^^^^^^^^^^

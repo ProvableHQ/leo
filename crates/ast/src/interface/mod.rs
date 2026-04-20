@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mapping, Node, NodeID, StorageVariable, Type, indent_display::Indent};
+use crate::{Identifier, Node, NodeID, Type, indent_display::Indent};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-pub use prototypes::{FunctionPrototype, RecordPrototype};
+pub use prototypes::{FunctionPrototype, MappingPrototype, RecordPrototype, StorageVariablePrototype};
 
 mod prototypes;
 
@@ -38,15 +38,26 @@ pub struct Interface {
     pub functions: Vec<(Symbol, FunctionPrototype)>,
     /// A vector of record prototypes.
     pub records: Vec<(Symbol, RecordPrototype)>,
-    /// A vector of mapping declarations.
-    pub mappings: Vec<Mapping>,
-    /// A vector of storage declarations.
-    pub storages: Vec<StorageVariable>,
+    /// A vector of mapping prototypes.
+    pub mappings: Vec<MappingPrototype>,
+    /// A vector of storage variable prototypes.
+    pub storages: Vec<StorageVariablePrototype>,
 }
 
 impl Interface {
     pub fn name(&self) -> Symbol {
         self.identifier.name
+    }
+
+    /// Returns `true` if `ty` is a composite type whose name matches a record declared in this interface.
+    pub fn is_record_type(&self, ty: &Type) -> bool {
+        if let Type::Composite(ct) = ty
+            && let Some(loc) = ct.path.try_global_location()
+            && let Some(&name) = loc.path.first()
+        {
+            return self.records.iter().any(|(n, _)| *n == name);
+        }
+        false
     }
 }
 

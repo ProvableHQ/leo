@@ -576,25 +576,28 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        // Step into an async block
-        self.async_block_id = Some(input.block.id);
-
         // A few restrictions
         if self.scope_state.is_conditional {
             self.emit_err(TypeCheckerError::final_block_in_conditional(input.span));
+            return Type::Err;
         }
 
         if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
             self.emit_err(TypeCheckerError::illegal_final_block_location(input.span));
+            return Type::Err;
         }
 
         if self.scope_state.already_contains_an_async_block {
             self.emit_err(TypeCheckerError::multiple_final_blocks_not_allowed(input.span));
+            return Type::Err;
         }
 
         if self.scope_state.has_called_finalize {
             panic!("Finalize has been called before this final block");
         }
+
+        // Step into the async block only after all validation checks pass.
+        self.async_block_id = Some(input.block.id);
 
         self.visit_block(&input.block);
 
@@ -1087,8 +1090,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(input.arguments.iter()) {
             let proto_type = expected_input.type_().clone();
-            if self.is_record_type(&proto_type) {
-                let actual_type = self.visit_expression(argument, &Some(Type::DynRecord));
+            if interface.is_record_type(&proto_type) {
+                // Visit without an expected type so only the explicit error below fires.
+                let actual_type = self.visit_expression(argument, &None);
                 if !matches!(actual_type, Type::DynRecord | Type::Err) {
                     self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
                         &proto_type,
@@ -1100,9 +1104,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        // If the output type contains a Future, mark it as coming from a dynamic call.
-        // Replace any record types in the output with `dyn record`.
-        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type);
+        // Replace interface record types in the output with `dyn record`, then check for futures.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type, &interface);
         let contains_future = match &output_type {
             Type::Future(..) => true,
             Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
@@ -2188,8 +2191,29 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let tuple_type = match (&input.type_, inferred_type.clone()) {
                     (Some(Type::Tuple(tuple_type)), _) => tuple_type.clone(),
                     (None, Type::Tuple(tuple_type)) => tuple_type.clone(),
+                    (None, rhs_type) => {
+                        // No annotation and the RHS is not a tuple. Emit a diagnostic and set all
+                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // a known type after type checking, preventing downstream panics.
+                        if !matches!(rhs_type, Type::Err) {
+                            self.emit_err(TypeCheckerError::multi_identifier_definition_requires_tuple(
+                                rhs_type,
+                                input.span(),
+                            ));
+                        }
+                        for identifier in identifiers {
+                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                        }
+                        return;
+                    }
                     _ => {
-                        // This is an error but should have been emitted earlier. Just exit here.
+                        // This is a type error: no tuple type could be determined for this binding.
+                        // An error should have been emitted by the expression visitor. Set all
+                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // a known type after type checking, preventing downstream panics.
+                        for identifier in identifiers {
+                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                        }
                         return;
                     }
                 };

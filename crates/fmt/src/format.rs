@@ -526,6 +526,15 @@ fn compute_fn_suffix_width(fn_node: &SyntaxNode) -> usize {
 fn format_annotation(node: &SyntaxNode, out: &mut Output) {
     emit_leading_comments(node, out);
     let has_paren = has_token(node, L_PAREN);
+    // A well-formed annotation has an IDENT or keyword name token after the `@`.
+    // If the name is missing (error-recovery node), omit the trailing newline so
+    // that a following `@` remains directly adjacent.  This preserves the rowan
+    // parse-tree structure: a newline between two `@` signs causes the parser to
+    // take the trivia-recovery path, emitting a different error than when `@@`
+    // appear on the same line.
+    let has_name = node
+        .children_with_tokens()
+        .any(|e| matches!(e, SyntaxElement::Token(t) if t.kind() == IDENT || t.kind().is_keyword()));
 
     for elem in node.children_with_tokens() {
         match elem {
@@ -572,7 +581,9 @@ fn format_annotation(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Node(_) => {}
         }
     }
-    out.newline();
+    if has_name {
+        out.newline();
+    }
 }
 
 fn format_composite(node: &SyntaxNode, out: &mut Output) {

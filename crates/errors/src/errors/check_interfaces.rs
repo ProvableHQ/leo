@@ -66,7 +66,7 @@ create_messages!(
              Found:\n\
              {found}"
         ),
-        help: Some("Function signatures must match exactly: same parameter names, types, modes, order, and return type.".to_string()),
+        help: Some("Function signatures must match exactly: same parameter types, modes, order, and return type.".to_string()),
     }
 
     @formatted

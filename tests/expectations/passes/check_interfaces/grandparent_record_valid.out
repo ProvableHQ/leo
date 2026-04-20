@@ -1,0 +1,28 @@
+Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    --> test:8:1
+     |
+   8 | 
+   9 |     record Token {
+     |     ^^^^^^^^^^^^^^
+  10 |         owner: address,
+     |         ^^^^^^^^^^^^^^^
+  11 |         ..
+     |         ^^
+  12 |     }
+     |     ^
+program test.aleo {
+    record Token {
+        owner: address,
+        amount: u64,
+    }
+    fn mint(owner: address) -> test.aleo::Token {
+        return test.aleo::Token { owner: owner, amount: 0u64 };
+    }
+    fn transfer(t: test.aleo::Token, to: address) -> test.aleo::Token {
+        return test.aleo::Token { owner: to, amount: t.amount };
+    }
+    fn burn(t: test.aleo::Token) -> address {
+        return t.owner;
+    }
+}
+

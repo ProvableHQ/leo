@@ -199,8 +199,21 @@ impl CodeGeneratingVisitor<'_> {
     fn visit_binary(&mut self, input: &BinaryExpression) -> (AleoExpr, Vec<AleoStmt>) {
         let (left, left_instructions) = self.visit_expression(&input.left);
         let (right, right_instructions) = self.visit_expression(&input.right);
-        let left = left.expect("Trying to operate on an empty expression");
-        let right = right.expect("Trying to operate on an empty expression");
+
+        let (left, right) = match (left, right) {
+            (Some(l), Some(r)) => (l, r),
+            (None, None) => {
+                // Both operands are Unit type. Only equality comparisons are valid; the result is constant.
+                let mut instructions = left_instructions;
+                instructions.extend(right_instructions);
+                return match input.op {
+                    BinaryOperation::Eq => (AleoExpr::Bool(true), instructions),
+                    BinaryOperation::Neq => (AleoExpr::Bool(false), instructions),
+                    _ => panic!("Non-equality binary operations cannot have Unit-type operands."),
+                };
+            }
+            _ => panic!("Both operands of a binary expression must have the same type."),
+        };
 
         let dest_reg = self.next_register();
 
@@ -547,9 +560,8 @@ impl CodeGeneratingVisitor<'_> {
                 "Type checking guarantees that imported and stub programs are present."
             );
 
-            let [function_name] = &function_location.path[..] else {
-                panic!("paths to external functions can only have a single segment at this stage.")
-            };
+            let function_name =
+                function_location.path.last().expect("type checking guarantees external function path is non-empty");
             AleoStmt::Call(format!("{}/{}", callee_program, function_name), arguments, destinations.clone())
         } else if func_symbol.function.variant.is_finalize() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
@@ -625,7 +637,7 @@ impl CodeGeneratingVisitor<'_> {
             .iter()
             .map(|inp| {
                 let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
-                self.dynamic_call_input_type(&inp.type_, viz)
+                self.dynamic_call_input_type(&inp.type_, viz, Some(&interface))
             })
             .collect();
 
@@ -648,8 +660,11 @@ impl CodeGeneratingVisitor<'_> {
 
         // Determine output types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
-        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
-            func_proto.output.iter().map(|out| self.dynamic_call_output_type(&out.type_, out.mode)).collect();
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
+            .output
+            .iter()
+            .map(|out| self.dynamic_call_output_type(&out.type_, out.mode, Some(&interface)))
+            .collect();
 
         // Emit CallDynamic instruction.
         instructions.push(AleoStmt::CallDynamic(
@@ -695,7 +710,7 @@ impl CodeGeneratingVisitor<'_> {
                 .iter()
                 .map(|(mode, type_, _)| {
                     let viz = AleoVisibility::maybe_from(*mode).or(Some(AleoVisibility::Private));
-                    self.dynamic_call_input_type(type_, viz)
+                    self.dynamic_call_input_type(type_, viz, None)
                 })
                 .collect()
         } else {
@@ -711,7 +726,7 @@ impl CodeGeneratingVisitor<'_> {
                         .get(&arg.id())
                         .expect("Type checking guarantees argument types are in the type table");
                     let viz = Some(AleoVisibility::Private);
-                    self.dynamic_call_input_type(&ty, viz)
+                    self.dynamic_call_input_type(&ty, viz, None)
                 })
                 .collect()
         };
@@ -724,8 +739,11 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         // Determine output types with visibility annotations.
-        let output_types: Vec<(AleoType, Option<AleoVisibility>)> =
-            input.return_types.iter().map(|(mode, type_, _)| self.dynamic_call_output_type(type_, *mode)).collect();
+        let output_types: Vec<(AleoType, Option<AleoVisibility>)> = input
+            .return_types
+            .iter()
+            .map(|(mode, type_, _)| self.dynamic_call_output_type(type_, *mode, None))
+            .collect();
 
         instructions.push(AleoStmt::CallDynamic(
             prog,

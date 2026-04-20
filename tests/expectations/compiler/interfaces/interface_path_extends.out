@@ -17,13 +17,6 @@ function set:
 Note: Treating dependencies as Aleo produces different results:
 
 Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
-    --> compiler-test:4:21
-     |
-   4 | interface Extended: lib.aleo::Base {
-     |                     ^^^^^^^^^^^^^^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
-Error [ECHI03712000]: Interface `lib.aleo/Base` not found.
     --> compiler-test:4:1
      |
    4 | interface Extended: lib.aleo::Base {

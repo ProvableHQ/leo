@@ -1,0 +1,5 @@
+Error [ECHI03712014]: Field `owner` in record prototype `Token` must have type `address`, found `u32`. The `owner` field of a record is always `address`.
+    --> tokens.leo:4:9
+     |
+   4 |         owner: u32,  // must be `address`
+     |         ^^^^^^^^^^

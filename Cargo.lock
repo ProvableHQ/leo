@@ -1350,6 +1350,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fluent-uri"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17c704e9dbe1ddd863da1e6ff3567795087b1eb201ce80d8fa81162e1516500d"
+dependencies = [
+ "bitflags 1.3.2",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2145,7 +2154,7 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 
 [[package]]
 name = "leo-abi"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "indexmap",
  "leo-abi-types",
@@ -2155,14 +2164,14 @@ dependencies = [
 
 [[package]]
 name = "leo-abi-types"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "leo-ast"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -2195,7 +2204,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2222,7 +2231,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "leo-ast",
  "leo-errors",
@@ -2232,7 +2241,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -2247,7 +2256,7 @@ dependencies = [
 
 [[package]]
 name = "leo-fmt"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "clap",
  "colored 3.1.1",
@@ -2263,7 +2272,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -2326,8 +2335,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-lsp"
+version = "4.0.1"
+dependencies = [
+ "anyhow",
+ "crossbeam-channel",
+ "leo-package",
+ "leo-parser-rowan",
+ "line-index",
+ "lsp-server",
+ "lsp-types",
+ "serde_json",
+ "tempfile",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "leo-package"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -2342,7 +2368,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -2357,7 +2383,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-rowan"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "expect-test",
  "leo-errors",
@@ -2368,7 +2394,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "anyhow",
  "base62",
@@ -2393,7 +2419,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "fxhash",
  "indexmap",
@@ -2403,7 +2429,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "rayon",
  "similar",
@@ -2459,6 +2485,16 @@ dependencies = [
  "cc",
  "pkg-config",
  "vcpkg",
+]
+
+[[package]]
+name = "line-index"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e27e0ed5a392a7f5ba0b3808a2afccff16c64933312c84b57618b49d1209bd2"
+dependencies = [
+ "nohash-hasher",
+ "text-size",
 ]
 
 [[package]]
@@ -2540,6 +2576,32 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
+
+[[package]]
+name = "lsp-server"
+version = "0.7.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d6ada348dbc2703cbe7637b2dda05cff84d3da2819c24abcb305dd613e0ba2e"
+dependencies = [
+ "crossbeam-channel",
+ "log",
+ "serde",
+ "serde_derive",
+ "serde_json",
+]
+
+[[package]]
+name = "lsp-types"
+version = "0.97.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53353550a17c04ac46c585feb189c2db82154fc84b79c7a66c96c2c644f66071"
+dependencies = [
+ "bitflags 1.3.2",
+ "fluent-uri",
+ "serde",
+ "serde_json",
+ "serde_repr",
+]
 
 [[package]]
 name = "lz4-sys"
@@ -2646,6 +2708,12 @@ dependencies = [
  "cfg_aliases",
  "libc",
 ]
+
+[[package]]
+name = "nohash-hasher"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
 name = "nom"
@@ -3711,6 +3779,17 @@ dependencies = [
  "itoa",
  "serde",
  "serde_core",
+]
+
+[[package]]
+name = "serde_repr"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "175ee3e80ae9982737ca543e96133087cbd9a485eecc3bc4de9c1a37b47ea59c"
+dependencies = [
+ "proc-macro2",
+ "quote 1.0.45",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -5368,7 +5447,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 
 [[package]]
 name = "tree-sitter-leo"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "cc",
  "leo-parser-rowan",

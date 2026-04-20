@@ -133,4 +133,12 @@ create_messages!(
         help: None,
     }
 
+    /// For when a finalize block or custom constructor exceeds the maximum number of `set`/`remove` commands.
+    @formatted
+    too_many_write_commands {
+        args: (actual: impl Display, max: impl Display),
+        msg: format!("This block contains {actual} `set`/`remove` mapping commands, but the maximum allowed is {max}."),
+        help: None,
+    }
+
 );

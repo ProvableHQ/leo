@@ -1,7 +1,7 @@
 [package]
 name = "tree-sitter-leo"
 description = "Rust bindings and tests for the Leo tree-sitter grammar"
-version = "4.0.0"
+version = "4.0.1"
 authors = ["Provable"]
 license = "GPL-3.0-only"
 readme = "README.md"

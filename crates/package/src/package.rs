@@ -200,6 +200,7 @@ impl Package {
         home_path: Q,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -210,6 +211,7 @@ impl Package {
             /* no_local */ false,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -222,6 +224,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -232,6 +235,7 @@ impl Package {
             no_local,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -244,6 +248,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -254,6 +259,7 @@ impl Package {
             no_local,
             network,
             endpoint,
+            network_retries,
         )
     }
 
@@ -296,6 +302,7 @@ impl Package {
         no_local: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
+        network_retries: u32,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -311,6 +318,10 @@ impl Package {
             let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
 
             let mut digraph = DiGraph::<Symbol>::new(Default::default());
+
+            // Pre-collect all declared dependencies from the manifest tree so that
+            // .aleo file import classification doesn't depend on processing order.
+            let declared_deps = collect_declared_deps(&path, &manifest, with_tests)?;
 
             let first_dependency = Dependency {
                 name: manifest.program.clone(),
@@ -349,6 +360,8 @@ impl Package {
                     &mut digraph,
                     no_cache,
                     no_local,
+                    network_retries,
+                    &declared_deps,
                 )?;
             }
 
@@ -377,11 +390,10 @@ impl Package {
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
         no_local: bool,
+        network_retries: u32,
+        declared_deps: &IndexMap<Symbol, Dependency>,
     ) -> Result<()> {
         let name_symbol = symbol(&new.name)?;
-
-        // Get the existing dependencies.
-        let dependencies = map.clone().into_iter().map(|(name, (dep, _))| (name, dep)).collect();
 
         let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
@@ -402,7 +414,7 @@ impl Package {
                     (Some(path), Location::Local) if !no_local => {
                         // It's a local dependency.
                         if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
-                            CompilationUnit::from_aleo_path(name_symbol, path, &dependencies)?
+                            CompilationUnit::from_aleo_path(name_symbol, path, declared_deps)?
                         } else {
                             CompilationUnit::from_package_path(name_symbol, path)?
                         }
@@ -420,7 +432,15 @@ impl Package {
                         let Some(network) = network else {
                             return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
                         };
-                        CompilationUnit::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache)?
+                        CompilationUnit::fetch(
+                            name_symbol,
+                            new.edition,
+                            home_path,
+                            network,
+                            endpoint,
+                            no_cache,
+                            network_retries,
+                        )?
                     }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
@@ -446,6 +466,8 @@ impl Package {
                 graph,
                 no_cache,
                 no_local,
+                network_retries,
+                declared_deps,
             )?;
         }
 
@@ -523,4 +545,53 @@ program test_{name}.aleo {{
 }}
 "#
     )
+}
+
+/// Walk the manifest tree and collect all declared dependencies.
+///
+/// This gives `parse_dependencies_from_aleo` full knowledge of which programs are
+/// declared as local dependencies, regardless of the order they appear in the manifest.
+/// Without this, `.aleo` file imports are classified against a snapshot of
+/// already-processed dependencies, requiring the user to list them in topological order.
+fn collect_declared_deps(
+    root_path: &Path,
+    manifest: &Manifest,
+    with_tests: bool,
+) -> Result<IndexMap<Symbol, Dependency>> {
+    let mut declared = IndexMap::new();
+    collect_declared_deps_recursive(root_path, manifest, with_tests, &mut declared)?;
+    Ok(declared)
+}
+
+fn collect_declared_deps_recursive(
+    base_path: &Path,
+    manifest: &Manifest,
+    include_dev: bool,
+    declared: &mut IndexMap<Symbol, Dependency>,
+) -> Result<()> {
+    let deps = manifest.dependencies.iter().flatten();
+    let dev: Vec<&Dependency> =
+        if include_dev { manifest.dev_dependencies.iter().flatten().collect() } else { Vec::new() };
+    for dep in deps.chain(dev) {
+        let dep = canonicalize_dependency_path_relative_to(base_path, dep.clone())?;
+        let sym = symbol(&dep.name)?;
+        // Only recurse into newly discovered dependencies to avoid infinite
+        // recursion on circular manifests (cycles are caught later by
+        // `DiGraph::post_order`).
+        let Entry::Vacant(e) = declared.entry(sym) else {
+            continue;
+        };
+        e.insert(dep.clone());
+        if dep.location == Location::Local
+            && let Some(path) = &dep.path
+        {
+            let manifest_path = path.join(MANIFEST_FILENAME);
+            if path.is_dir() && manifest_path.exists() {
+                let child = Manifest::read_from_file(manifest_path)?;
+                // dev_dependencies are not transitive.
+                collect_declared_deps_recursive(path, &child, false, declared)?;
+            }
+        }
+    }
+    Ok(())
 }

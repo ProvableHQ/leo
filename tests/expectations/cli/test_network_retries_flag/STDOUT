@@ -1,0 +1,7 @@
+build: --network-retries OK
+run: --network-retries OK
+execute: --network-retries OK
+deploy: --network-retries OK
+upgrade: --network-retries OK
+query: --network-retries OK
+synthesize: --network-retries OK

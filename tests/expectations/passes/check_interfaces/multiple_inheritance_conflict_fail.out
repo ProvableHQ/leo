@@ -12,4 +12,4 @@ fn get_value() -> u64
   14 |     }
      |     ^
      |
-     = Function signatures must match exactly: same parameter names, types, modes, order, and return type.
+     = Function signatures must match exactly: same parameter types, modes, order, and return type.

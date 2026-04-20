@@ -1,4 +1,4 @@
-program token_impl.aleo;
+program vault.aleo;
 
 record Token:
     owner as address.private;
@@ -10,7 +10,7 @@ function double_balance:
     cast r0.owner r1 into r2 as Token.record;
     output r2 as Token.record;
 
-function get_initial:
+function mint:
     input r0 as u64.private;
     cast self.signer r0 into r1 as Token.record;
     output r1 as Token.record;
@@ -18,17 +18,16 @@ function get_initial:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import token_impl.aleo;
-program caller.aleo;
+import vault.aleo;
+program router.aleo;
 
-function main:
-    input r0 as address.private;
-    input r1 as u64.private;
-    call token_impl.aleo/get_initial r1 into r2;
-    cast r2 into r3 as dynamic.record;
-    call.dynamic 'token_impl' 'aleo' 'double_balance' with r3 (as dynamic.record) into r4 (as dynamic.record);
-    get.record.dynamic r4.balance into r5 as u64;
-    output r5 as u64.private;
+function dispatch:
+    input r0 as u64.private;
+    call vault.aleo/mint r0 into r1;
+    cast r1 into r2 as dynamic.record;
+    call.dynamic 'vault' 'aleo' 'double_balance' with r2 (as dynamic.record) into r3 (as dynamic.record);
+    get.record.dynamic r3.balance into r4 as u64;
+    output r4 as u64.private;
 
 constructor:
     assert.eq edition 0u16;

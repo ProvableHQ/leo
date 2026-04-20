@@ -351,10 +351,11 @@ impl FlatteningVisitor<'_> {
         }
         // Otherwise, push a dummy return statement to the end of the block.
         else {
+            let unit_id = self.state.node_builder.next_id();
+            self.state.type_table.insert(unit_id, Type::Unit);
             block.statements.push(
                 ReturnStatement {
-                    expression: UnitExpression { span: Default::default(), id: self.state.node_builder.next_id() }
-                        .into(),
+                    expression: UnitExpression { span: Default::default(), id: unit_id }.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 }

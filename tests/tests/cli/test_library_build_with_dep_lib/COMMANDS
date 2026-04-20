@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Tests that `leo build` on a library primary successfully resolves
+# cross-library references: `top_lib` references a constant defined in
+# `base_lib` via `base_lib::BASE_VALUE`.
+
+LEO_BIN=${1}
+
+cd top_lib || exit 1
+
+echo "--- leo add --local base_lib (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add base_lib --local ../base_lib
+
+echo "--- leo build (should succeed: library-to-library reference) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

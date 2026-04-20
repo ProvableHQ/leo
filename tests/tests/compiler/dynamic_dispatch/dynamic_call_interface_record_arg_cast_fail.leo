@@ -1,9 +1,11 @@
-// FAIL: Dynamic call with interface passes concrete record instead of dyn record.
+// FAIL: A non-implementing caller passes a concrete record to a dynamic call.
+// Record arguments to interface dynamic calls must always be dyn record.
 interface TokenOps {
+    record Token;
     fn transfer(t: Token) -> Token;
 }
 
-program test.aleo: TokenOps {
+program vault.aleo: TokenOps {
     record Token {
         owner: address,
         amount: u64,
@@ -13,8 +15,21 @@ program test.aleo: TokenOps {
         return t;
     }
 
-    fn main(target: field, t: Token) -> dyn record {
-        return test.aleo::TokenOps@(target)::transfer(t);
+    fn mint(owner: address, amount: u64) -> Token {
+        return Token { owner, amount };
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+// --- Next Program --- //
+import vault.aleo;
+
+program caller.aleo {
+    fn route(target: field, owner: address, amount: u64) -> dyn record {
+        let t: vault.aleo::Token = vault.aleo::mint(owner, amount);
+        return vault.aleo::TokenOps@(target)::transfer(t);
     }
 
     @noupgrade

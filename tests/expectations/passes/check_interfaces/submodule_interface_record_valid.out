@@ -1,0 +1,24 @@
+library token_lib {
+module itoken {
+}
+
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    record Token {
+        owner: address,
+        balance: u128,
+    }
+    fn transfer(input: test.aleo::Token, recipient: address, amount: u128) -> (test.aleo::Token, test.aleo::Token) {
+        let to: test.aleo::Token = test.aleo::Token { owner: recipient, balance: amount };
+        let change: test.aleo::Token = test.aleo::Token { owner: input.owner, balance: input.balance - amount };
+        return (to, change);
+    }
+    fn mint(recipient: address, amount: u128) -> test.aleo::Token {
+        return test.aleo::Token { owner: recipient, balance: amount };
+    }
+}
+

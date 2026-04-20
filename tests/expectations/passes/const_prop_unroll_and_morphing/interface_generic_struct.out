@@ -1,0 +1,10 @@
+program test.aleo {
+    struct Pair::[4u32] {
+        first: u32,
+        second: u32,
+    }
+    fn combine(a: test.aleo::Pair::[4u32], b: test.aleo::Pair::[4u32]) -> test.aleo::Pair::[4u32] {
+        return test.aleo::Pair::[4u32] { first: a.first + b.first, second: a.second + b.second };
+    }
+}
+

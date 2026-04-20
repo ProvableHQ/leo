@@ -1,0 +1,13 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    record Entry {
+        owner: address,
+        data: [u8; 32],
+    }
+    fn deposit(e: test.aleo::Entry) -> u64 {
+        return 0u64;
+    }
+}
+

@@ -1,0 +1,12 @@
+Error [ETYC0372017]: The type `test.aleo::Unknown` is not found in the current scope.
+    --> compiler-test:8:32
+     |
+   8 |         return _dynamic_call::[(u32, Unknown)](target, net, func);
+     |                                ^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372003]: Expected type `(u32, u32)` but type `(u32, test.aleo::Unknown)` was found
+    --> compiler-test:8:16
+     |
+   8 |         return _dynamic_call::[(u32, Unknown)](target, net, func);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

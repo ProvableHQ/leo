@@ -1,0 +1,7 @@
+Error [ETYC0372151]: `final` blocks are not allowed inside conditional blocks.
+    --> compiler-test:10:34
+     |
+  10 |             let ignored: Final = final { };
+     |                                  ^^^^^^^^^
+     |
+     = Refactor your code to move the `final` block outside of the conditional block.

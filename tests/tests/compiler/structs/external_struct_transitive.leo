@@ -1,16 +1,3 @@
-import base.aleo;
-
-program middle.aleo {
-    fn wrap_data(x: u32, y: u32) -> base.aleo::Data {
-        return base.aleo::Data { x: x, y: y };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-// --- Next Program --- //
-
 // --- aleo stub --- //
 program base.aleo;
 
@@ -26,6 +13,19 @@ function make_data:
 
 constructor:
     assert.eq edition 0u16;
+
+// --- Next Program --- //
+
+import base.aleo;
+
+program middle.aleo {
+    fn wrap_data(x: u32, y: u32) -> base.aleo::Data {
+        return base.aleo::Data { x: x, y: y };
+    }
+
+    @noupgrade
+    constructor() {}
+}
 
 // --- Next Program --- //
 

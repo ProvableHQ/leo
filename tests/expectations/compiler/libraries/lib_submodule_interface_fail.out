@@ -1,9 +1,0 @@
-Error [ETYC0372186]: Interface definitions are not allowed inside library modules.
-    --> ops.leo:1:1
-     |
-   1 | interface Addable {
-     | ^^^^^^^^^^^^^^^^^^^
-   2 |     fn add(a: u32, b: u32) -> u32;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   3 | }
-     | ^

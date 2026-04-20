@@ -146,6 +146,12 @@ impl BlockToFunctionRewriter<'_> {
                             return vec![];
                         };
 
+                        // The type checker has already emitted an error for this out-of-bounds access;
+                        // return no inputs so compilation can continue to report all diagnostics.
+                        if index >= elements.len() {
+                            return vec![];
+                        }
+
                         let synthetic_name = format!("\"{symbol}.{index}\"");
                         let synthetic_symbol = Symbol::intern(&synthetic_name);
                         let identifier = make_identifier(slf, synthetic_symbol);

@@ -1,0 +1,36 @@
+import credits.aleo;
+program program_b.aleo;
+
+function withdraw:
+    input r0 as address.private;
+    input r1 as u64.public;
+    call credits.aleo/transfer_public_to_private r0 r1 into r2 r3;
+    async withdraw r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as program_b.aleo/withdraw.future;
+
+finalize withdraw:
+    input r0 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import credits.aleo;
+import program_b.aleo;
+program program_a.aleo;
+
+function payout:
+    input r0 as address.private;
+    input r1 as u64.public;
+    call credits.aleo/transfer_public_to_private r0 r1 into r2 r3;
+    async payout r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as program_a.aleo/payout.future;
+
+finalize payout:
+    input r0 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;

@@ -138,7 +138,8 @@ impl Type {
                 .all(|(left_type, right_type)| left_type.eq_user(right_type)),
             (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
-                // If either composite still has const generic arguments, treat them as equal.
+                // If either composite still has const generic arguments, treat them as equal;
+                // monomorphization and a subsequent type-checking pass will handle mismatches.
                 if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
                     return true;
                 }

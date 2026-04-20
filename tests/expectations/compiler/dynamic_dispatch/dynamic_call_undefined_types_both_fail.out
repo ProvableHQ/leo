@@ -1,0 +1,24 @@
+Error [ETYC0372117]: Expected type `test.aleo::BadInput` but type `u32` was found.
+    --> compiler-test:7:86
+     |
+   7 |         return _dynamic_call::[public BadInput, (u32, BadReturn)](target, net, func, x);
+     |                                                                                      ^
+Error [ETYC0372017]: The type `test.aleo::BadInput` is not found in the current scope.
+    --> compiler-test:7:32
+     |
+   7 |         return _dynamic_call::[public BadInput, (u32, BadReturn)](target, net, func, x);
+     |                                ^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372017]: The type `test.aleo::BadReturn` is not found in the current scope.
+    --> compiler-test:7:49
+     |
+   7 |         return _dynamic_call::[public BadInput, (u32, BadReturn)](target, net, func, x);
+     |                                                 ^^^^^^^^^^^^^^^^
+     |
+     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+Error [ETYC0372003]: Expected type `(u32, u32)` but type `(u32, test.aleo::BadReturn)` was found
+    --> compiler-test:7:16
+     |
+   7 |         return _dynamic_call::[public BadInput, (u32, BadReturn)](target, net, func, x);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

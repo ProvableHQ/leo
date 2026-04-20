@@ -40,11 +40,6 @@ Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn re
      |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = Try moving this `final` block into an entry point fn or a script function.
-Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
-    --> compiler-test:18:20
-     |
-  18 |     return final { finalize_mint(receiver, amount); };
-     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Error [ETYC0372083]: A program must have at least one entry point fn.
     --> compiler-test:1:9
      |

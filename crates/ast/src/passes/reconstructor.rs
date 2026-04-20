@@ -203,6 +203,12 @@ pub trait AstReconstructor {
     ) -> (Expression, Self::AdditionalOutput) {
         input.type_parameters =
             input.type_parameters.into_iter().map(|(ty, span)| (self.reconstruct_type(ty).0, span)).collect();
+        // `input_types` and `return_types` are derived from `type_parameters` at parse time and
+        // must be reconstructed independently so that composite type paths are resolved.
+        input.input_types =
+            input.input_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
+        input.return_types =
+            input.return_types.into_iter().map(|(mode, ty, span)| (mode, self.reconstruct_type(ty).0, span)).collect();
         input.arguments =
             input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg, &Default::default()).0).collect();
         (input.into(), Default::default())
@@ -602,6 +608,8 @@ pub trait ProgramReconstructor: AstReconstructor {
                 .collect(),
             structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
         }
     }
 
@@ -669,8 +677,27 @@ pub trait ProgramReconstructor: AstReconstructor {
             id: input.id,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_prototype(f))).collect(),
             records: input.records.into_iter().map(|(i, f)| (i, self.reconstruct_record_prototype(f))).collect(),
-            mappings: input.mappings.into_iter().map(|f| self.reconstruct_mapping(f)).collect(),
-            storages: input.storages.into_iter().map(|f| self.reconstruct_storage_variable(f)).collect(),
+            mappings: input.mappings.into_iter().map(|m| self.reconstruct_mapping_prototype(m)).collect(),
+            storages: input.storages.into_iter().map(|s| self.reconstruct_storage_variable_prototype(s)).collect(),
+        }
+    }
+
+    fn reconstruct_mapping_prototype(&mut self, input: MappingPrototype) -> MappingPrototype {
+        MappingPrototype {
+            identifier: input.identifier,
+            key_type: self.reconstruct_type(input.key_type).0,
+            value_type: self.reconstruct_type(input.value_type).0,
+            span: input.span,
+            id: input.id,
+        }
+    }
+
+    fn reconstruct_storage_variable_prototype(&mut self, input: StorageVariablePrototype) -> StorageVariablePrototype {
+        StorageVariablePrototype {
+            identifier: input.identifier,
+            type_: self.reconstruct_type(input.type_).0,
+            span: input.span,
+            id: input.id,
         }
     }
 

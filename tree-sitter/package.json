@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-leo",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Leo grammar for tree-sitter",
   "repository": "https://github.com/ProvableHQ/leo/tree/master/tree-sitter",
   "license": "GPL-3.0-only",

@@ -88,11 +88,6 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // Typecheck each interface definition.
-        for (_, interface) in input.interfaces.iter() {
-            self.visit_interface(interface);
-        }
-
         // Typecheck each mapping definition.
         let mut mapping_count = 0;
         for (_, mapping) in input.mappings.iter() {
@@ -112,6 +107,11 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
+
+        // Typecheck each interface definition. This populates the type table for expressions inside interface
+        // prototypes (e.g. array lengths in record member types or function signatures), preventing panics in
+        // later passes such as const propagation.
+        input.interfaces.iter().for_each(|(_, iface)| self.visit_interface(iface));
 
         // Typecheck each function definitions.
         let mut transition_count = 0;
@@ -164,7 +164,7 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
 
         // Typecheck each interface definition.
-        input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
+        input.interfaces.iter().for_each(|(_, iface)| self.visit_interface(iface));
 
         for (_, function) in input.functions.iter() {
             self.visit_function(function);
@@ -179,14 +179,29 @@ impl ProgramVisitor for TypeCheckingVisitor<'_> {
 
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+        input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
         input.modules.values().for_each(|m| {
-            // Interfaces are not allowed in library modules; report every one found.
-            for (_, iface) in m.interfaces.iter() {
-                self.emit_err(TypeCheckerError::interfaces_not_allowed_in_library_modules(iface.span()));
-            }
             self.visit_module(m);
         });
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+    }
+
+    fn visit_interface(&mut self, input: &Interface) {
+        // Entry point functions declared in interfaces cannot have const generic parameters.
+        for (_, prototype) in &input.functions {
+            if !prototype.const_parameters.is_empty() {
+                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                    "Entry point functions",
+                    prototype.identifier.span,
+                ));
+            }
+        }
+        // Delegate type-visiting to the default implementation.
+        input.functions.iter().for_each(|(_, f)| self.visit_function_prototype(f));
+        input.records.iter().for_each(|(_, r)| self.visit_record_prototype(r));
+        input.mappings.iter().for_each(|m| self.visit_mapping_prototype(m));
+        input.storages.iter().for_each(|s| self.visit_storage_variable_prototype(s));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {

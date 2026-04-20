@@ -1,11 +1,11 @@
 program generic_struct_mod.aleo;
 
-struct Buffer__DoCXqwzGY1V:
+struct Buffer__81ZwGzLxqlH:
     data as [u32; 3u32];
 
 function main:
     cast 7u32 7u32 7u32 into r0 as [u32; 3u32];
-    cast r0 into r1 as Buffer__DoCXqwzGY1V;
+    cast r0 into r1 as Buffer__81ZwGzLxqlH;
     output r1.data[0u32] as u32.private;
 
 constructor:
