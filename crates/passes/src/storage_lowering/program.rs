@@ -22,16 +22,16 @@ use leo_ast::{
     Library,
     Location,
     Mapping,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
     StorageVariable,
     Type,
+    UnitReconstructor,
     VectorType,
 };
 use leo_span::Symbol;
 
-impl ProgramReconstructor for StorageLoweringVisitor<'_> {
+impl UnitReconstructor for StorageLoweringVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         let prev_program = self.program;
         self.program = input.name;

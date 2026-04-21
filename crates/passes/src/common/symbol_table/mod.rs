@@ -268,57 +268,57 @@ impl SymbolTable {
         self.interfaces.iter()
     }
 
-    /// Access a struct by this location if it exists and is accessible from program named `current_program`.
-    pub fn lookup_struct(&self, current_program: Symbol, loc: &Location) -> Option<&Composite> {
-        if self.is_visible(current_program, &loc.program) { self.structs.get(loc) } else { None }
+    /// Access a struct by this location if it exists and is accessible from the compilation unit `current_unit`.
+    pub fn lookup_struct(&self, current_unit: Symbol, loc: &Location) -> Option<&Composite> {
+        if self.is_visible(current_unit, &loc.program) { self.structs.get(loc) } else { None }
     }
 
-    /// Access a record at this location if it exists and is accessible from program named `current_program`.
-    pub fn lookup_record(&self, current_program: Symbol, location: &Location) -> Option<&Composite> {
-        if self.is_visible(current_program, &location.program) { self.records.get(location) } else { None }
+    /// Access a record at this location if it exists and is accessible from the compilation unit `current_unit`.
+    pub fn lookup_record(&self, current_unit: Symbol, location: &Location) -> Option<&Composite> {
+        if self.is_visible(current_unit, &location.program) { self.records.get(location) } else { None }
     }
 
-    /// Access a function by this name if it exists and is accessible from program named `current_program`.
-    pub fn lookup_function(&self, current_program: Symbol, location: &Location) -> Option<&FunctionSymbol> {
-        if self.is_visible(current_program, &location.program) { self.functions.get(location) } else { None }
+    /// Access a function by this name if it exists and is accessible from the compilation unit `current_unit`.
+    pub fn lookup_function(&self, current_unit: Symbol, location: &Location) -> Option<&FunctionSymbol> {
+        if self.is_visible(current_unit, &location.program) { self.functions.get(location) } else { None }
     }
 
-    /// Returns true if `location` refers to an entry point in a different program than
-    /// `current_program`. Cross-program entry-point calls must be emitted as direct Aleo `call`
-    /// instructions — inlining an entry-point body into a different program would lose its
-    /// transition semantics (record creation, signing, finalize scheduling).
-    pub fn is_cross_program_entry(&self, current_program: Symbol, location: &Location) -> bool {
-        location.program != current_program
+    /// Returns true if `location` refers to an entry point in a different compilation unit than
+    /// `current_unit`. Cross-unit entry-point calls must be emitted as direct Aleo `call`
+    /// instructions — inlining an entry-point body into a different compilation unit would lose
+    /// its transition semantics (record creation, signing, finalize scheduling).
+    pub fn is_cross_program_entry(&self, current_unit: Symbol, location: &Location) -> bool {
+        location.program != current_unit
             && self
-                .lookup_function(current_program, location)
+                .lookup_function(current_unit, location)
                 .expect("the symbol table must know about every callee at this stage")
                 .function
                 .variant
                 .is_entry()
     }
 
-    /// Access an interface by this name if it exists and is accessible from program named `current_program`.
-    pub fn lookup_interface(&self, current_program: Symbol, location: &Location) -> Option<&Interface> {
-        if self.is_visible(current_program, &location.program) { self.interfaces.get(location) } else { None }
+    /// Access an interface by this name if it exists and is accessible from the compilation unit `current_unit`.
+    pub fn lookup_interface(&self, current_unit: Symbol, location: &Location) -> Option<&Interface> {
+        if self.is_visible(current_unit, &location.program) { self.interfaces.get(location) } else { None }
     }
 
-    /// Attempts to look up a variable by a path from program named `current_program`.
+    /// Attempts to look up a variable by a path from the compilation unit `current_unit`.
     ///
-    /// First, it tries to resolve the symbol as a global using the full path under the given program.
+    /// First, it tries to resolve the symbol as a global using the full path under the given compilation unit.
     /// If that fails and the path is non-empty, it falls back to resolving the last component
     /// of the path as a local symbol.
     ///
     /// # Arguments
     ///
-    /// * `program` - The root symbol representing the program or module context.
+    /// * `current_unit` - The root symbol representing the compilation unit context.
     /// * `path` - A `Path`.
     ///
     /// # Returns
     ///
     /// An `Option<VariableSymbol>` containing the resolved symbol if found, otherwise `None`.
-    pub fn lookup_path(&self, current_program: Symbol, path: &Path) -> Option<VariableSymbol> {
+    pub fn lookup_path(&self, current_unit: Symbol, path: &Path) -> Option<VariableSymbol> {
         if let Some(loc) = path.try_global_location() {
-            self.lookup_global(current_program, loc).cloned()
+            self.lookup_global(current_unit, loc).cloned()
         } else if let Some(sym) = path.try_local_symbol() {
             self.lookup_local(sym)
         } else {
@@ -486,12 +486,8 @@ impl SymbolTable {
         None
     }
 
-    pub fn lookup_global_const(&self, current_program: Symbol, location: &Location) -> Option<Expression> {
-        if self.is_visible(current_program, &location.program) {
-            self.global_consts.get(location).cloned()
-        } else {
-            None
-        }
+    pub fn lookup_global_const(&self, current_unit: Symbol, location: &Location) -> Option<Expression> {
+        if self.is_visible(current_unit, &location.program) { self.global_consts.get(location).cloned() } else { None }
     }
 
     /// Insert a struct at this location.
@@ -530,9 +526,9 @@ impl SymbolTable {
     }
 
     /// Access the global variable at this location if it exists and is visible
-    /// from the given `current_program`.
-    pub fn lookup_global(&self, current_program: Symbol, location: &Location) -> Option<&VariableSymbol> {
-        if self.is_visible(current_program, &location.program) { self.globals.get(location) } else { None }
+    /// from the given `current_unit`.
+    pub fn lookup_global(&self, current_unit: Symbol, location: &Location) -> Option<&VariableSymbol> {
+        if self.is_visible(current_unit, &location.program) { self.globals.get(location) } else { None }
     }
 
     /// Sets the type of a local using its name. Returns `false` if the local is not found.

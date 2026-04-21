@@ -76,12 +76,12 @@ use indexmap::IndexMap;
 
 pub struct BlockToFunctionRewriter<'a> {
     state: &'a mut CompilerState,
-    current_program: Symbol,
+    current_unit: Symbol,
 }
 
 impl<'a> BlockToFunctionRewriter<'a> {
-    pub fn new(state: &'a mut CompilerState, current_program: Symbol) -> Self {
-        Self { state, current_program }
+    pub fn new(state: &'a mut CompilerState, current_unit: Symbol) -> Self {
+        Self { state, current_unit }
     }
 }
 
@@ -321,7 +321,7 @@ impl BlockToFunctionRewriter<'_> {
         // Create the call expression to invoke the function.
         let call_to_function = CallExpression {
             function: Path::from(make_identifier(self, function_name))
-                .to_global(Location::new(self.current_program, vec![function_name])),
+                .to_global(Location::new(self.current_unit, vec![function_name])),
             const_arguments: vec![],
             arguments,
             span: input.span,

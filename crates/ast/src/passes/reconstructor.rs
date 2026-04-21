@@ -571,8 +571,8 @@ pub trait AstReconstructor {
     }
 }
 
-/// A Reconstructor trait for the program represented by the AST.
-pub trait ProgramReconstructor: AstReconstructor {
+/// A Reconstructor trait for a compilation unit (program or library) represented by the AST.
+pub trait UnitReconstructor: AstReconstructor {
     fn reconstruct_program(&mut self, input: Program) -> Program {
         let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
         let program_scopes =
@@ -653,7 +653,7 @@ pub trait ProgramReconstructor: AstReconstructor {
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
         Module {
-            program_name: input.program_name,
+            unit_name: input.unit_name,
             path: input.path,
             consts: input
                 .consts

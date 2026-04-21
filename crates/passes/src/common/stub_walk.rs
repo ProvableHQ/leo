@@ -112,7 +112,7 @@ fn module_functions<'a>(
 ) -> impl Iterator<Item = (Location, &'a Function)> {
     m.functions.iter().map(move |(name, f)| {
         let full: Vec<Symbol> = path.iter().copied().chain(std::iter::once(*name)).collect();
-        (Location::new(m.program_name, full), f)
+        (Location::new(m.unit_name, full), f)
     })
 }
 
@@ -121,6 +121,6 @@ fn module_composites<'a>(
 ) -> impl Iterator<Item = (Location, &'a Composite)> {
     m.composites.iter().map(move |(name, c)| {
         let full: Vec<Symbol> = path.iter().copied().chain(std::iter::once(*name)).collect();
-        (Location::new(m.program_name, full), c)
+        (Location::new(m.unit_name, full), c)
     })
 }

@@ -19,7 +19,7 @@ use visitor::*;
 
 use crate::{CompilerState, Pass};
 
-use leo_ast::{Ast, ProgramVisitor};
+use leo_ast::{Ast, UnitVisitor};
 use leo_errors::Result;
 
 /// A pass to validate interface inheritance soundness.

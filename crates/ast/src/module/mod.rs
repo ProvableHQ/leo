@@ -18,7 +18,7 @@
 //! typically corresponding to a file or logical unit of code. It stores all
 //! relevant definitions associated with a module, including:
 //!
-//! - The name of the program the module belongs to (`program_name`)
+//! - The name of the program the module belongs to (`unit_name`)
 //! - The hierarchical path identifying the module (`path`)
 //! - A list of constant declarations (`consts`)
 //! - A list of composite type definitions (`composites`)
@@ -37,8 +37,8 @@ use serde::{Deserialize, Serialize};
 /// Stores the abstract syntax tree of a Leo module.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Module {
-    /// The name of the program that this module belongs to.
-    pub program_name: Symbol,
+    /// The name of the compilation unit (program or library) that this module belongs to.
+    pub unit_name: Symbol,
     /// The path to the module.
     pub path: Vec<Symbol>,
     /// A vector of const definitions.

@@ -26,12 +26,12 @@ use leo_ast::{
     Module,
     Node,
     Output,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
+    UnitReconstructor,
 };
 
-impl ProgramReconstructor for ConstPropagationVisitor<'_> {
+impl UnitReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: ProgramScope) -> ProgramScope {
         self.program = input.program_id.as_symbol();
 
@@ -61,7 +61,7 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
-        self.program = input.program_name;
+        self.program = input.unit_name;
         self.in_module_scope(&input.path.clone(), |slf| {
             Module {
                 // Reconstruct consts firsts
@@ -73,7 +73,7 @@ impl ProgramReconstructor for ConstPropagationVisitor<'_> {
                         _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                     })
                     .collect(),
-                program_name: input.program_name,
+                unit_name: input.unit_name,
                 path: input.path,
                 // Skip generic composites (those with const parameters): their types cannot be
                 // fully evaluated until they are monomorphized into the consuming program's scope.

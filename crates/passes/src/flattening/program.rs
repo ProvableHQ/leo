@@ -22,13 +22,13 @@ use leo_ast::{
     Expression,
     Function,
     Library,
-    ProgramReconstructor,
     ProgramScope,
     ReturnStatement,
     Statement,
+    UnitReconstructor,
 };
 
-impl ProgramReconstructor for FlatteningVisitor<'_> {
+impl UnitReconstructor for FlatteningVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         let prev_program = self.program;
         self.program = input.name;

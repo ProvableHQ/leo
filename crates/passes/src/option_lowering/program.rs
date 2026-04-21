@@ -25,13 +25,13 @@ use leo_ast::{
     Module,
     Output,
     Program,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
+    UnitReconstructor,
 };
 use leo_span::Symbol;
 
-impl ProgramReconstructor for OptionLoweringVisitor<'_> {
+impl UnitReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
         let prev_program = self.program;
         self.program = input.name;
@@ -81,12 +81,11 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
             }
         }
         for (module_path, module) in &input.modules {
-            self.program = module.program_name;
+            self.program = module.unit_name;
             for (_, c) in &module.composites {
                 let full_name = module_path.iter().cloned().chain(std::iter::once(c.name())).collect::<Vec<Symbol>>();
                 let new_composite = self.reconstruct_composite(c.clone());
-                self.reconstructed_composites
-                    .insert(Location::new(module.program_name, full_name), new_composite.clone());
+                self.reconstructed_composites.insert(Location::new(module.unit_name, full_name), new_composite.clone());
             }
         }
 
@@ -150,7 +149,7 @@ impl ProgramReconstructor for OptionLoweringVisitor<'_> {
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
-        self.program = input.program_name;
+        self.program = input.unit_name;
         self.in_module_scope(&input.path.clone(), |slf| Module {
             consts: input
                 .consts

@@ -18,7 +18,7 @@ use leo_ast::*;
 
 use super::UnrollingVisitor;
 
-impl ProgramReconstructor for UnrollingVisitor<'_> {
+impl UnitReconstructor for UnrollingVisitor<'_> {
     fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
         // Set the current program.
         self.program = input.stub_id.as_symbol();

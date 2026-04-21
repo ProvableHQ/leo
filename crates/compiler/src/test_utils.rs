@@ -65,7 +65,7 @@ pub fn whole_compile(
     let filename = FileName::Custom("compiler-test".into());
     let bytecodes = compiler.compile(&main_source, filename, &module_refs)?;
 
-    Ok((bytecodes, compiler.program_name.unwrap()))
+    Ok((bytecodes, compiler.unit_name.unwrap()))
 }
 
 /// Parses a Leo source string into an AST `Program` without generating bytecode.
@@ -103,7 +103,7 @@ pub fn parse_program(
     let filename = FileName::Custom("compiler-test".into());
     let program = compiler.parse_and_return_program(&main_source, filename, &module_refs)?;
 
-    Ok((program, compiler.program_name.unwrap()))
+    Ok((program, compiler.unit_name.unwrap()))
 }
 
 /// Parses a Leo library from the given source for use in compiler tests.

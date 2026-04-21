@@ -2040,7 +2040,7 @@ impl<'a> ConversionContext<'a> {
         // Sort functions: entry points first
         functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
-        Ok(leo_ast::Module { program_name, path, consts, composites, functions, interfaces })
+        Ok(leo_ast::Module { unit_name: program_name, path, consts, composites, functions, interfaces })
     }
 
     /// Convert a syntax node to a program (main file).

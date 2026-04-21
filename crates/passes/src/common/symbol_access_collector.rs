@@ -22,7 +22,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{AstVisitor, Expression, Node as _, Path, ProgramVisitor, TupleAccess, Type};
+use leo_ast::{AstVisitor, Expression, Node as _, Path, TupleAccess, Type, UnitVisitor};
 
 use indexmap::IndexSet;
 
@@ -61,4 +61,4 @@ impl AstVisitor for SymbolAccessCollector<'_> {
     }
 }
 
-impl ProgramVisitor for SymbolAccessCollector<'_> {}
+impl UnitVisitor for SymbolAccessCollector<'_> {}

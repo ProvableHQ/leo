@@ -19,7 +19,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::UnitReconstructor as _;
 
 use leo_errors::Result;
 

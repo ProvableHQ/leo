@@ -57,7 +57,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{Ast, ProgramReconstructor as _};
+use leo_ast::{Ast, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -81,7 +81,7 @@ impl Pass for ProcessingAsync {
         let mut visitor = ProcessingAsyncVisitor {
             state,
             max_inputs: input.max_inputs,
-            current_program: Symbol::intern(""),
+            current_unit: Symbol::intern(""),
             current_function: Symbol::intern(""),
             new_async_functions: Vec::new(),
             modified: false,

@@ -261,7 +261,7 @@ impl TypeCheckingVisitor<'_> {
     /// - assignments in async functions or async blocks outside the allowed conditional scope,
     /// - assignments to variables outside an async block’s scope.
     pub fn visit_path_assign(&mut self, input: &Path) -> AssignTargetInfo {
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
 
         // Lookup the variable in the symbol table
         let Some(var) = self.state.symbol_table.lookup_path(current_program, input) else {
@@ -609,7 +609,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // just inspect how the async block would look like as an async function in order to
         // populate the map `async_function_input_types`.
         let mut block_to_function_rewriter =
-            BlockToFunctionRewriter::new(self.state, self.scope_state.program_name.unwrap());
+            BlockToFunctionRewriter::new(self.state, self.scope_state.unit_name.unwrap());
         let (new_function, _) =
             block_to_function_rewriter.rewrite_block(&input.block, Symbol::intern("unused"), Variant::Finalize);
 
@@ -625,7 +625,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
-            Location::new(self.scope_state.program_name.unwrap(), vec![Symbol::intern(&format!(
+            Location::new(self.scope_state.unit_name.unwrap(), vec![Symbol::intern(&format!(
                 "finalize/{}",
                 self.scope_state.function.unwrap(),
             ))]),
@@ -1037,7 +1037,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_dynamic_call(&mut self, input: &DynamicCallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
 
         // Look up the interface in the symbol table.
         let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
@@ -1120,7 +1120,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
         let callee_location = input.function.expect_global_location();
         let callee_program = callee_location.program;
         let callee_path = callee_location.path.clone();
@@ -1144,7 +1144,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ),
             Variant::EntryPoint
                 if matches!(func.variant, Variant::EntryPoint)
-                    && callee_program == self.scope_state.program_name.unwrap() =>
+                    && callee_program == self.scope_state.unit_name.unwrap() =>
             {
                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_entry_point_fn(input.span))
             }
@@ -1271,7 +1271,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         let caller_program =
-            self.scope_state.program_name.expect("`program_name` is always set before traversing a program scope");
+            self.scope_state.unit_name.expect("`unit_name` is always set before traversing a compilation unit");
         // Note: Constructors are added to the call graph under the `constructor` symbol.
         // This is safe since `constructor` is a reserved token and cannot be used as a function name.
         let caller_function = if self.scope_state.is_constructor {
@@ -1348,7 +1348,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 .expect("Failed to attach finalizer");
             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
             self.async_function_callers
-                .entry(Location::new(self.scope_state.program_name.unwrap(), callee_path.clone()))
+                .entry(Location::new(self.scope_state.unit_name.unwrap(), callee_path.clone()))
                 .or_default()
                 .insert(self.scope_state.location());
 
@@ -1515,7 +1515,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     None => {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`.
                         // Therefore, lookup a local or a global in the symbol table with the member name.
-                        let current_program = self.scope_state.program_name.unwrap();
+                        let current_program = self.scope_state.unit_name.unwrap();
                         let var = self.state.symbol_table.lookup_local(actual.identifier.name).or_else(|| {
                             self.state
                                 .symbol_table
@@ -1555,7 +1555,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         if composite.is_record {
             // Ensure that we're not instantating an external record
-            if composite_location.program != self.scope_state.program_name.unwrap() {
+            if composite_location.program != self.scope_state.unit_name.unwrap() {
                 self.state
                     .handler
                     .emit_err(TypeCheckerError::cannot_instantiate_external_record(composite_location, input.span()));
@@ -1595,7 +1595,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_path(&mut self, input: &Path, expected: &Self::AdditionalInput) -> Self::Output {
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
@@ -2324,7 +2324,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let caller_path =
             self.scope_state.module_name.iter().cloned().chain(std::iter::once(caller_name)).collect::<Vec<Symbol>>();
 
-        let current_program = self.scope_state.program_name.unwrap();
+        let current_program = self.scope_state.unit_name.unwrap();
 
         let func_symbol = self
             .state

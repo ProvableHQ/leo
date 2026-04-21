@@ -25,7 +25,7 @@ pub struct StaticAnalyzingVisitor<'a> {
     /// Struct to store the state relevant to checking all futures are awaited.
     pub await_checker: AwaitChecker,
     /// The current program name.
-    pub current_program: Symbol,
+    pub current_unit: Symbol,
     /// The variant of the function that we are currently traversing.
     pub variant: Option<Variant>,
     /// Whether or not a non-async external call has been seen in this function.
@@ -79,7 +79,7 @@ impl StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(self.current_program, function_path.expect_global_location())
+            .lookup_function(self.current_unit, function_path.expect_global_location())
             .expect("Type checking guarantees functions are present.");
 
         // If it is not an async transition, return.
@@ -95,7 +95,7 @@ impl StaticAnalyzingVisitor<'_> {
         let async_function = self
             .state
             .symbol_table
-            .lookup_function(self.current_program, &finalizer.location)
+            .lookup_function(self.current_unit, &finalizer.location)
             .expect("Type checking guarantees functions are present.");
 
         // If the async function takes a future as an argument, emit an error.
@@ -119,7 +119,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
 
     fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
         let function_location = input.function.expect_global_location();
-        let caller_program = self.current_program;
+        let caller_program = self.current_unit;
         let callee_program = function_location.program;
 
         // If the function call is an external async transition, then for all async calls that follow a non-async call,
@@ -134,7 +134,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         let func_symbol = self
             .state
             .symbol_table
-            .lookup_function(self.current_program, input.function.expect_global_location())
+            .lookup_function(self.current_unit, input.function.expect_global_location())
             .expect("Type checking guarantees functions exist.");
 
         if func_symbol.function.variant == Variant::EntryPoint && !func_symbol.function.has_final_output() {

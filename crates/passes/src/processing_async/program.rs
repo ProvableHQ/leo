@@ -22,12 +22,12 @@ use leo_ast::{
     Input,
     Node,
     Output,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
+    UnitReconstructor,
 };
 
-impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
+impl UnitReconstructor for ProcessingAsyncVisitor<'_> {
     /// Reconstructs a `ProgramScope` by rewriting all contained elements:
     /// - Updates the current program context.
     /// - Reconstructs all functions using `reconstruct_function`.
@@ -39,7 +39,7 @@ impl ProgramReconstructor for ProcessingAsyncVisitor<'_> {
     /// components have gone through transformation.
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Set the current program context
-        self.current_program = input.program_id.as_symbol();
+        self.current_unit = input.program_id.as_symbol();
 
         // Reconstruct all functions and store them temporarily. This process also populates
         // `new_async_functions`.

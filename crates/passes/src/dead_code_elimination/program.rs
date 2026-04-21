@@ -16,18 +16,18 @@
 
 use super::DeadCodeEliminatingVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, Location, ProgramReconstructor, UpgradeVariant};
+use leo_ast::{AstReconstructor, Constructor, Function, Location, UnitReconstructor, UpgradeVariant};
 use leo_errors::StaticAnalyzerError;
 
-impl ProgramReconstructor for DeadCodeEliminatingVisitor<'_> {
+impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
-        self.program_name = input.program_id.as_symbol();
+        self.unit_name = input.program_id.as_symbol();
         input.functions = input
             .functions
             .into_iter()
             .filter(|(name, fun)| {
                 use leo_ast::Variant::*;
-                let location = Location::new(self.program_name, vec![*name]);
+                let location = Location::new(self.unit_name, vec![*name]);
                 let call_count = *self.state.call_count.get(&location).unwrap();
 
                 match fun.variant {

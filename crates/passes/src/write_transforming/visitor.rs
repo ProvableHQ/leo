@@ -267,7 +267,7 @@ impl WriteTransformingFiller<'_> {
             }
         }
         for (_, module) in program.modules.iter() {
-            self.0.program = module.program_name;
+            self.0.program = module.unit_name;
             for (_, function) in module.functions.iter() {
                 self.visit_block(&function.block);
             }

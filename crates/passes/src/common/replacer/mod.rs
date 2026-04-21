@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, ProgramReconstructor, Statement};
+use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, Statement, UnitReconstructor};
 
 use crate::CompilerState;
 
@@ -131,4 +131,4 @@ where
     }
 }
 
-impl<F> ProgramReconstructor for Replacer<'_, F> where F: Fn(&Expression) -> Expression {}
+impl<F> UnitReconstructor for Replacer<'_, F> where F: Fn(&Expression) -> Expression {}

@@ -67,7 +67,7 @@
 
 use crate::Pass;
 
-use leo_ast::{CompositeExpression, CompositeType, ProgramReconstructor as _};
+use leo_ast::{CompositeExpression, CompositeType, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
