@@ -8,13 +8,6 @@ struct Rect__FrGrwpvu3zJ:
     top_left as Point__AyDZp1FeJ4R;
     bottom_right as Point__AyDZp1FeJ4R;
 
-function rect_area:
-    input r0 as Rect__FrGrwpvu3zJ.private;
-    sub r0.bottom_right.x r0.top_left.x into r1;
-    sub r0.bottom_right.y r0.top_left.y into r2;
-    mul r1 r2 into r3;
-    output r3 as u32.private;
-
 function make_rect:
     input r0 as u32.private;
     input r1 as u32.private;
@@ -24,6 +17,13 @@ function make_rect:
     cast r2 r3 into r5 as Point__AyDZp1FeJ4R;
     cast r4 r5 into r6 as Rect__FrGrwpvu3zJ;
     output r6 as Rect__FrGrwpvu3zJ.private;
+
+function rect_area:
+    input r0 as Rect__FrGrwpvu3zJ.private;
+    sub r0.bottom_right.x r0.top_left.x into r1;
+    sub r0.bottom_right.y r0.top_left.y into r2;
+    mul r1 r2 into r3;
+    output r3 as u32.private;
 
 function unit_side:
     output 1u32 as u32.private;

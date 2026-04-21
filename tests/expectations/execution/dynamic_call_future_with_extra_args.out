@@ -21,7 +21,7 @@ constructor:
 import setter_impl.aleo;
 program setter_caller.aleo;
 
-struct Optional__EsDmm5O6sv6:
+struct Optional__JzunLORyB8U:
     is_some as boolean;
     val as u32;
 
@@ -45,18 +45,18 @@ finalize main:
     await r0;
     contains local_count__[false] into r2;
     get.or_use local_count__[false] 0u32 into r3;
-    cast true r3 into r4 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r5 as Optional__EsDmm5O6sv6;
+    cast true r3 into r4 as Optional__JzunLORyB8U;
+    cast false 0u32 into r5 as Optional__JzunLORyB8U;
     ternary r2 r4.is_some r5.is_some into r6;
     ternary r2 r4.val r5.val into r7;
-    cast r6 r7 into r8 as Optional__EsDmm5O6sv6;
+    cast r6 r7 into r8 as Optional__JzunLORyB8U;
     contains local_count__[false] into r9;
     get.or_use local_count__[false] 0u32 into r10;
-    cast true r10 into r11 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r12 as Optional__EsDmm5O6sv6;
+    cast true r10 into r11 as Optional__JzunLORyB8U;
+    cast false 0u32 into r12 as Optional__JzunLORyB8U;
     ternary r9 r11.is_some r12.is_some into r13;
     ternary r9 r11.val r12.val into r14;
-    cast r13 r14 into r15 as Optional__EsDmm5O6sv6;
+    cast r13 r14 into r15 as Optional__JzunLORyB8U;
     ternary r8.is_some r15.val 0u32 into r16;
     add r16 r1 into r17;
     set r17 into local_count__[false];

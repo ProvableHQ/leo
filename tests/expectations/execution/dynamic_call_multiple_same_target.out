@@ -1,6 +1,6 @@
 program math_impl.aleo;
 
-struct Optional__EsDmm5O6sv6:
+struct Optional__JzunLORyB8U:
     is_some as boolean;
     val as u32;
 
@@ -20,18 +20,18 @@ finalize compute:
     input r0 as u32.public;
     contains total__[false] into r1;
     get.or_use total__[false] 0u32 into r2;
-    cast true r2 into r3 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r4 as Optional__EsDmm5O6sv6;
+    cast true r2 into r3 as Optional__JzunLORyB8U;
+    cast false 0u32 into r4 as Optional__JzunLORyB8U;
     ternary r1 r3.is_some r4.is_some into r5;
     ternary r1 r3.val r4.val into r6;
-    cast r5 r6 into r7 as Optional__EsDmm5O6sv6;
+    cast r5 r6 into r7 as Optional__JzunLORyB8U;
     contains total__[false] into r8;
     get.or_use total__[false] 0u32 into r9;
-    cast true r9 into r10 as Optional__EsDmm5O6sv6;
-    cast false 0u32 into r11 as Optional__EsDmm5O6sv6;
+    cast true r9 into r10 as Optional__JzunLORyB8U;
+    cast false 0u32 into r11 as Optional__JzunLORyB8U;
     ternary r8 r10.is_some r11.is_some into r12;
     ternary r8 r10.val r11.val into r13;
-    cast r12 r13 into r14 as Optional__EsDmm5O6sv6;
+    cast r12 r13 into r14 as Optional__JzunLORyB8U;
     ternary r7.is_some r14.val 0u32 into r15;
     add r15 r0 into r16;
     set r16 into total__[false];

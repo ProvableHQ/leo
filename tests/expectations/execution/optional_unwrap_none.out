@@ -1,24 +1,24 @@
 program unwrap_none_test.aleo;
 
-struct Optional__DOnC9eGtnsJ:
+struct Optional__DmN5CQ9hzeK:
     is_some as boolean;
     val as u64;
 
 struct MaybeValue:
-    val as Optional__DOnC9eGtnsJ;
+    val as Optional__DmN5CQ9hzeK;
 
-struct Optional__8hhrPm4c3KB:
+struct Optional__3aph2JMPtnA:
     is_some as boolean;
     val as u8;
 
 function unwrap_none:
-    cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r0 as Optional__3aph2JMPtnA;
     assert.eq r0.is_some true;
     gt r0.val 0u8 into r1;
     assert.eq r1 true;
 
 function unwrap_struct_field_none:
-    cast false 0u64 into r0 as Optional__DOnC9eGtnsJ;
+    cast false 0u64 into r0 as Optional__DmN5CQ9hzeK;
     cast r0 into r1 as MaybeValue;
     assert.eq r1.val.is_some true;
     gt r1.val.val 0u64 into r2;

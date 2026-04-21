@@ -1,0 +1,12 @@
+--- leo build (call child.aleo top-level closure) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'parent.aleo'
+       Leo     4 statements before dead code elimination.
+       Leo     4 statements after dead code elimination.
+       Leo     The program checksum is: '[222u8, 3u8, 196u8, 87u8, 184u8, 192u8, 111u8, 151u8, 134u8, 128u8, 255u8, 10u8, 60u8, 187u8, 32u8, 83u8, 93u8, 218u8, 173u8, 214u8, 123u8, 88u8, 83u8, 83u8, 224u8, 167u8, 54u8, 208u8, 36u8, 210u8, 109u8, 69u8]'.
+       Leo     Program size: 0.13 KB / 500.00 KB
+       Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
+       Leo     Import 'child.aleo': checksum = '[13u8, 159u8, 189u8, 165u8, 153u8, 228u8, 68u8, 149u8, 32u8, 212u8, 198u8, 89u8, 84u8, 99u8, 168u8, 177u8, 75u8, 40u8, 177u8, 103u8, 64u8, 157u8, 149u8, 3u8, 244u8, 170u8, 16u8, 188u8, 1u8, 23u8, 203u8, 193u8]'
+       Leo ✅ Generated ABI at 'build/abi.json'.

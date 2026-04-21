@@ -1,0 +1,8 @@
+{
+  "program": "child.aleo",
+  "version": "0.1.0",
+  "description": "Child program that exposes a file-level closure alongside its entry point.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

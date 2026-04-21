@@ -552,21 +552,27 @@ impl CodeGeneratingVisitor<'_> {
             destinations.push(self.next_register());
         }
 
-        // Need to determine the program the function originated from as well as if the function has a finalize block.
+        // Resolve the callee's name as it should appear in Aleo bytecode. Entry-point names are
+        // always legal Leo identifiers; closure callees can carry monomorphized names like
+        // `foo::[5u32]` that need to be legalized. Same rule applies whether the call is
+        // same-program or cross-program.
+        let resource_name = || match func_symbol.function.variant {
+            Variant::EntryPoint => input.function.identifier().to_string(),
+            _ => Self::legalize_path(&function_location.path)
+                .expect("type checking guarantees the callee path is legalizable"),
+        };
+
         let call_instruction = if caller_program != callee_program {
             // All external functions must be defined as stubs.
             assert!(
                 self.program.stubs.get(&callee_program).is_some(),
                 "Type checking guarantees that imported and stub programs are present."
             );
-
-            let function_name =
-                function_location.path.last().expect("type checking guarantees external function path is non-empty");
-            AleoStmt::Call(format!("{}/{}", callee_program, function_name), arguments, destinations.clone())
+            AleoStmt::Call(format!("{}/{}", callee_program, resource_name()), arguments, destinations.clone())
         } else if func_symbol.function.variant.is_finalize() {
             AleoStmt::Async(self.current_function.unwrap().identifier.to_string(), arguments, destinations.clone())
         } else {
-            AleoStmt::Call(input.function.identifier().to_string(), arguments, destinations.clone())
+            AleoStmt::Call(resource_name(), arguments, destinations.clone())
         };
 
         // Push the call instruction to the list of instructions.

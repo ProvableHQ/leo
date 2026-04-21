@@ -1,0 +1,5 @@
+Error [ETYC0372143]: Functions annotated with `@no_inline` cannot have generic const parameters.
+    --> compiler-test:6:4
+     |
+   6 | fn scale::[N: u32](x: u32) -> u32 {
+     |    ^^^^^

@@ -1,0 +1,33 @@
+program a.aleo;
+
+function entry:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program b.aleo;
+
+function entry:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import a.aleo;
+import b.aleo;
+program parent.aleo;
+
+function call_both:
+    input r0 as u32.private;
+    add r0 100u32 into r1;
+    mul r0 10u32 into r2;
+    add r1 r2 into r3;
+    output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 155u32

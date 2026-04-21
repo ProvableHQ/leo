@@ -1,0 +1,27 @@
+program child.aleo;
+
+struct Pair__2Avv5epyKtU:
+    a as u32;
+    b as u32;
+
+function identity:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function use_pair:
+    input r0 as u32.private;
+    mul r0 3u32 into r1;
+    cast r0 r1 into r2 as child.aleo/Pair__2Avv5epyKtU;
+    add r2.a r2.b into r3;
+    output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 20u32

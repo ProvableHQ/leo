@@ -283,6 +283,20 @@ impl SymbolTable {
         if self.is_visible(current_program, &location.program) { self.functions.get(location) } else { None }
     }
 
+    /// Returns true if `location` refers to an entry point in a different program than
+    /// `current_program`. Cross-program entry-point calls must be emitted as direct Aleo `call`
+    /// instructions — inlining an entry-point body into a different program would lose its
+    /// transition semantics (record creation, signing, finalize scheduling).
+    pub fn is_cross_program_entry(&self, current_program: Symbol, location: &Location) -> bool {
+        location.program != current_program
+            && self
+                .lookup_function(current_program, location)
+                .expect("the symbol table must know about every callee at this stage")
+                .function
+                .variant
+                .is_entry()
+    }
+
     /// Access an interface by this name if it exists and is accessible from program named `current_program`.
     pub fn lookup_interface(&self, current_program: Symbol, location: &Location) -> Option<&Interface> {
         if self.is_visible(current_program, &location.program) { self.interfaces.get(location) } else { None }

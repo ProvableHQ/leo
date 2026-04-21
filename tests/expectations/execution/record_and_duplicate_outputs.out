@@ -4,15 +4,15 @@ record R:
     owner as address.private;
     x as field.private;
 
+function make:
+    cast self.signer 0field into r0 as R.record;
+    output r0 as R.record;
+
 function input_output:
     input r0 as R.record;
     cast r0.owner r0.x into r1 as R.record;
     output 1u8 as u8.private;
     output r1 as R.record;
-
-function make:
-    cast self.signer 0field into r0 as R.record;
-    output r0 as R.record;
 
 constructor:
     assert.eq edition 0u16;
@@ -24,14 +24,14 @@ struct S:
     x as field;
     y as field;
 
+function pass_through:
+    input r0 as test0.aleo/R.record;
+    output r0 as test0.aleo/R.record;
+
 function check_clone:
     call test0.aleo/make into r0;
     call test0.aleo/input_output r0 into r1 r2;
     output r2 as test0.aleo/R.record;
-
-function pass_through:
-    input r0 as test0.aleo/R.record;
-    output r0 as test0.aleo/R.record;
 
 function foo:
     input r0 as group.private;
