@@ -1,0 +1,67 @@
+program factory.aleo;
+
+struct Atom__Dnr7ZcA2EXI:
+    n as u32;
+
+struct Core__6z1xuJtF5OT:
+    a as Atom__Dnr7ZcA2EXI;
+    tag as u32;
+
+struct Capsule__CKJ9uYgKLhI:
+    c as Core__6z1xuJtF5OT;
+    extra as u32;
+
+struct Optional__9frvj8law46:
+    is_some as boolean;
+    val as Capsule__CKJ9uYgKLhI;
+
+mapping latest__:
+    key as boolean.public;
+    value as Capsule__CKJ9uYgKLhI.public;
+
+function make:
+    async make into r0;
+    output r0 as factory.aleo/make.future;
+
+finalize make:
+    contains latest__[false] into r0;
+    cast 0u32 into r1 as Atom__Dnr7ZcA2EXI;
+    cast r1 0u32 into r2 as Core__6z1xuJtF5OT;
+    cast r2 0u32 into r3 as Capsule__CKJ9uYgKLhI;
+    get.or_use latest__[false] r3 into r4;
+    cast true r4 into r5 as Optional__9frvj8law46;
+    cast 0u32 into r6 as Atom__Dnr7ZcA2EXI;
+    cast r6 0u32 into r7 as Core__6z1xuJtF5OT;
+    cast r7 0u32 into r8 as Capsule__CKJ9uYgKLhI;
+    cast false r8 into r9 as Optional__9frvj8law46;
+    ternary r0 r5.val.c.a.n r9.val.c.a.n into r10;
+    cast r10 into r11 as Atom__Dnr7ZcA2EXI;
+    ternary r0 r5.val.c.tag r9.val.c.tag into r12;
+    cast r11 r12 into r13 as Core__6z1xuJtF5OT;
+    ternary r0 r5.val.extra r9.val.extra into r14;
+    cast r13 r14 into r15 as Capsule__CKJ9uYgKLhI;
+    ternary r0 r5.is_some r9.is_some into r16;
+    cast r16 r15 into r17 as Optional__9frvj8law46;
+    assert.eq r17.is_some true;
+    contains latest__[false] into r18;
+    cast 0u32 into r19 as Atom__Dnr7ZcA2EXI;
+    cast r19 0u32 into r20 as Core__6z1xuJtF5OT;
+    cast r20 0u32 into r21 as Capsule__CKJ9uYgKLhI;
+    get.or_use latest__[false] r21 into r22;
+    cast true r22 into r23 as Optional__9frvj8law46;
+    cast 0u32 into r24 as Atom__Dnr7ZcA2EXI;
+    cast r24 0u32 into r25 as Core__6z1xuJtF5OT;
+    cast r25 0u32 into r26 as Capsule__CKJ9uYgKLhI;
+    cast false r26 into r27 as Optional__9frvj8law46;
+    ternary r18 r23.val.c.a.n r27.val.c.a.n into r28;
+    cast r28 into r29 as Atom__Dnr7ZcA2EXI;
+    ternary r18 r23.val.c.tag r27.val.c.tag into r30;
+    cast r29 r30 into r31 as Core__6z1xuJtF5OT;
+    ternary r18 r23.val.extra r27.val.extra into r32;
+    cast r31 r32 into r33 as Capsule__CKJ9uYgKLhI;
+    ternary r18 r23.is_some r27.is_some into r34;
+    cast r34 r33 into r35 as Optional__9frvj8law46;
+    assert.eq r35.val.c.a.n r35.val.c.a.n;
+
+constructor:
+    assert.eq edition 0u16;
