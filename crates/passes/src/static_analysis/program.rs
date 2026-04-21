@@ -133,5 +133,6 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
         input.modules.values().for_each(|m| self.visit_module(m));
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 }

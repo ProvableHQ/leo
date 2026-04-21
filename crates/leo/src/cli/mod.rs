@@ -23,5 +23,7 @@ pub use commands::*;
 mod helpers;
 pub use helpers::*;
 
+pub mod plugin;
+
 #[cfg(test)]
 mod tests;

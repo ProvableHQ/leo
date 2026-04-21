@@ -49,7 +49,6 @@ leo-ast           = { workspace = true }
 leo-compiler      = { workspace = true }
 leo-disassembler  = { workspace = true }
 leo-errors        = { workspace = true }
-leo-fmt           = { workspace = true }
 leo-package       = { workspace = true }
 leo-span          = { workspace = true }
 # third party dependencies

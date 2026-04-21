@@ -26,7 +26,7 @@ use visitor::*;
 use self::scope_state::ScopeState;
 use crate::{CompilerState, Pass};
 
-use leo_ast::{CallGraph, CompositeGraph, NetworkName, ProgramVisitor};
+use leo_ast::{Ast, CallGraph, CompositeGraph, NetworkName, ProgramVisitor};
 use leo_errors::Result;
 
 use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
@@ -114,12 +114,10 @@ impl Pass for TypeChecking {
             async_block_id: None,
         };
 
-        ast.visit(
-            |program| visitor.visit_program(program),
-            |_library| {
-                // no-op for libraries
-            },
-        );
+        match &ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         visitor.state.handler.last_err()?;
 

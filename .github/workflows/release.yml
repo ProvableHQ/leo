@@ -41,7 +41,10 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release --locked --features noconfig && strip target/release/leo
+          cargo build --package leo-lang --release --locked --features noconfig &&
+          cargo build --package leo-fmt --release --locked &&
+          strip target/release/leo &&
+          strip target/release/leo-fmt
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -51,9 +54,9 @@ jobs:
       - name: Zip Artifact
         run: |
           mkdir tempdir
-          mv target/release/leo tempdir
+          mv target/release/leo target/release/leo-fmt tempdir
           cd tempdir
-          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip leo leo-fmt
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-gnu.zip .
 
@@ -101,11 +104,14 @@ jobs:
             bash -lc "
               rustup target add x86_64-unknown-linux-musl &&
               cd /home/rust/src &&
-              cargo build --target x86_64-unknown-linux-musl --release --locked --package leo-lang --features noconfig
+              cargo build --target x86_64-unknown-linux-musl --release --locked --package leo-lang --features noconfig &&
+              cargo build --target x86_64-unknown-linux-musl --release --locked --package leo-fmt
             "
 
       - name: Check Binary
-        run: file target/x86_64-unknown-linux-musl/release/leo
+        run: |
+          file target/x86_64-unknown-linux-musl/release/leo
+          file target/x86_64-unknown-linux-musl/release/leo-fmt
 
       - id: get_version
         uses: battila7/get-version-action@v2
@@ -113,10 +119,10 @@ jobs:
       - name: Zip Artifact
         run: |
           mkdir tempdir
-          cp target/x86_64-unknown-linux-musl/release/leo tempdir
-          strip tempdir/leo
+          cp target/x86_64-unknown-linux-musl/release/leo target/x86_64-unknown-linux-musl/release/leo-fmt tempdir
+          strip tempdir/leo tempdir/leo-fmt
           cd tempdir
-          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip leo leo-fmt
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip .
 
@@ -156,7 +162,10 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release --locked && strip target/release/leo
+          cargo build --package leo-lang --release --locked &&
+          cargo build --package leo-fmt --release --locked &&
+          strip target/release/leo &&
+          strip target/release/leo-fmt
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -166,9 +175,9 @@ jobs:
       - name: Zip Artifact
         run: |
           mkdir tempdir
-          mv target/release/leo tempdir
+          mv target/release/leo target/release/leo-fmt tempdir
           cd tempdir
-          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip leo leo-fmt
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-apple-darwin.zip .
 
@@ -219,7 +228,10 @@ jobs:
           SDKROOT=$(xcrun --sdk macosx --show-sdk-path) \
           MACOSX_DEPLOYMENT_TARGET=$(xcrun --sdk macosx --show-sdk-platform-version) \
           cargo build --package leo-lang --release --locked --target=aarch64-apple-darwin --features noconfig
-          strip target/aarch64-apple-darwin/release/leo
+          SDKROOT=$(xcrun --sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun --sdk macosx --show-sdk-platform-version) \
+          cargo build --package leo-fmt --release --locked --target=aarch64-apple-darwin
+          strip target/aarch64-apple-darwin/release/leo target/aarch64-apple-darwin/release/leo-fmt
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -229,9 +241,9 @@ jobs:
       - name: Zip Artifact
         run: |
           mkdir tempdir
-          mv target/aarch64-apple-darwin/release/leo tempdir
+          mv target/aarch64-apple-darwin/release/leo target/aarch64-apple-darwin/release/leo-fmt tempdir
           cd tempdir
-          zip -r leo.zip leo
+          zip -r leo.zip leo leo-fmt
           cp leo.zip leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
@@ -290,6 +302,7 @@ jobs:
       - name: Build Leo
         run: |
           cargo build --package leo-lang --release --locked --features noconfig
+          cargo build --package leo-fmt --release --locked
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -298,7 +311,7 @@ jobs:
 
       - name: Zip Artifact
         run: |
-          Compress-Archive target/release/leo.exe leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip 
+          Compress-Archive target/release/leo.exe,target/release/leo-fmt.exe leo-${{ steps.get_version.outputs.version }}-x86_64-pc-windows-msvc.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1

@@ -2161,7 +2161,15 @@ impl<'a> ConversionContext<'a> {
             self.collect_library_item(&child, &mut consts, &mut structs, &mut functions, &mut interfaces)?;
         }
 
-        Ok(leo_ast::Library { name, modules: indexmap::IndexMap::new(), consts, structs, functions, interfaces })
+        Ok(leo_ast::Library {
+            name,
+            modules: indexmap::IndexMap::new(),
+            consts,
+            structs,
+            functions,
+            interfaces,
+            stubs: indexmap::IndexMap::new(),
+        })
     }
 
     /// Extract a ProgramId from an IMPORT node. Guarantees `network` is always present.

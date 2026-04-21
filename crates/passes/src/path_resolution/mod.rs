@@ -42,7 +42,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::{Ast, ProgramReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -65,10 +65,10 @@ impl Pass for PathResolution {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = PathResolutionVisitor { state, program: Symbol::intern(""), module: Vec::new() };
 
-        let ast = ast.map(
-            |program| visitor.reconstruct_program(program),
-            |library| library, // no-op for libraries
-        );
+        let ast = match ast {
+            Ast::Program(program) => Ast::Program(visitor.reconstruct_program(program)),
+            Ast::Library(library) => Ast::Library(visitor.reconstruct_library(library)),
+        };
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;

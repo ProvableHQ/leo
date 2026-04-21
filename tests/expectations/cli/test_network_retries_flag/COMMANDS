@@ -6,7 +6,7 @@
 LEO_BIN=${1}
 
 for cmd in build run execute deploy upgrade query synthesize; do
-    if ${LEO_BIN} --disable-update-check "${cmd}" --help 2>&1 | grep -q "\-\-network-retries"; then
+    if ${LEO_BIN} --disable-update-check "${cmd}" --help 2>&1 | grep -qF -- '--network-retries'; then
         echo "${cmd}: --network-retries OK"
     else
         echo "${cmd}: --network-retries MISSING"

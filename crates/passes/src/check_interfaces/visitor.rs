@@ -771,6 +771,10 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
     }
 
     fn visit_library(&mut self, input: &Library) {
+        // Visit stubs first so that library interface caches from dependencies are fully populated
+        // before cycle detection and flattening run below.
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+
         self.current_program = input.name;
         // Reset the inheritance graph for this new scope.
         self.inheritance_graph = DiGraph::default();

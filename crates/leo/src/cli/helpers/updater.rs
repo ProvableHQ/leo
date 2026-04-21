@@ -84,6 +84,52 @@ impl Updater {
         Ok(status)
     }
 
+    /// Best-effort update of bundled plugin binaries (currently just `leo-fmt`).
+    ///
+    /// Downloads the release archive a second time and extracts the plugin binary
+    /// into the same directory as the current `leo` executable. Prints a warning
+    /// on failure rather than aborting.
+    pub fn update_bundled_plugins(show_output: bool, version: Option<&str>) {
+        const BUNDLED_PLUGINS: &[&str] = &["leo-fmt"];
+
+        let install_dir = match std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf)) {
+            Some(dir) => dir,
+            None => {
+                tracing::warn!("Could not determine leo install directory; skipping plugin update");
+                return;
+            }
+        };
+
+        for plugin in BUNDLED_PLUGINS {
+            if show_output {
+                tracing::info!("Updating bundled plugin '{plugin}'...");
+            }
+            let mut update = github::Update::configure();
+            update
+                .repo_owner(Self::LEO_REPO_OWNER)
+                .repo_name(Self::LEO_REPO_NAME)
+                .bin_name(plugin)
+                .bin_install_path(&install_dir)
+                .current_version(env!("CARGO_PKG_VERSION"))
+                .show_download_progress(show_output)
+                .no_confirm(true)
+                .show_output(show_output);
+            if let Some(ver) = version {
+                update.target_version_tag(ver);
+            }
+            match update.build().and_then(|u| u.update()) {
+                Ok(_) => {
+                    if show_output {
+                        tracing::info!("Successfully updated '{plugin}'");
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!("Failed to update bundled plugin '{plugin}': {e}");
+                }
+            }
+        }
+    }
+
     /// Check if there is an available update for `leo` and return the newest release.
     pub fn update_available() -> Result<String> {
         let updater = github::Update::configure()

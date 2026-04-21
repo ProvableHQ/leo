@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Tests that `leo build` on a library primary runs `CheckInterfaces` and
+# rejects inheritance cycles between interfaces declared in the library.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo build (should fail: cyclic interfaces) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

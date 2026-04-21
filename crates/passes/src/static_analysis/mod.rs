@@ -26,7 +26,7 @@ use visitor::*;
 
 use crate::Pass;
 
-use leo_ast::ProgramVisitor;
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -49,12 +49,10 @@ impl Pass for StaticAnalyzing {
             non_async_external_call_seen: false,
         };
 
-        ast.visit(
-            |program| visitor.visit_program(program),
-            |_library| {
-                // no-op for libraries
-            },
-        );
+        match &ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;

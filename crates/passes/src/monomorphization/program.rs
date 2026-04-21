@@ -38,6 +38,7 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                 .collect(),
             functions: items_at_path(&self.reconstructed_functions, input.name, &[]).collect(),
             interfaces: input.interfaces,
+            stubs: input.stubs,
         }
     }
 

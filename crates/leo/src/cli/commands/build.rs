@@ -146,6 +146,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     // Use the flag already computed by Package during dependency resolution rather than
     // re-checking the filesystem. The main program is always last in topological order.
+    let primary_name = package.compilation_units.last().map(|p| p.name);
     let is_library = package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false);
     if !is_library {
         for dir in [&outputs_directory, &build_directory, &imports_directory] {
@@ -268,18 +269,35 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 }
 
                 if unit.kind.is_library() {
-                    // Just parse the library for now. TODO: we should run a few frontend passes to validate semantics.
-                    let library = parse_leo_source_directory_library(
-                        source,
-                        &source_dir,
-                        unit.name,
-                        &handler,
-                        &node_builder,
-                        command.options.clone(),
-                        network,
-                    )?;
-                    // Bail out if the library had parse errors (the error-recovering parser
-                    // produces ErrExpression nodes that would panic in later passes).
+                    // The primary library runs the full frontend (name validation through static
+                    // analysis) so type errors, undefined names, and interface cycles are caught
+                    // even when no downstream program consumes the library. Non-primary library
+                    // dependencies are parsed only; their semantics are validated when their own
+                    // `leo build` is run.
+                    let library = if primary_name == Some(unit.name) {
+                        build_leo_source_directory_library(
+                            source,
+                            &source_dir,
+                            unit.name,
+                            &handler,
+                            &node_builder,
+                            command.options.clone(),
+                            stubs.clone(),
+                            network,
+                        )?
+                    } else {
+                        parse_leo_source_directory_library(
+                            source,
+                            &source_dir,
+                            unit.name,
+                            &handler,
+                            &node_builder,
+                            command.options.clone(),
+                            network,
+                        )?
+                    };
+                    // Bail out if any errors were collected (parse errors produce ErrExpression
+                    // nodes that would panic in later passes, and frontend-pass errors surface here).
                     handler.last_err()?;
                     // Compute parents from dep_graph
                     let mut library_stub: Stub = library.into();
@@ -497,4 +515,38 @@ fn parse_leo_source_directory_library(
 
     // Parse the Leo program into an AST.
     compiler.parse_library_from_directory(library_name, entry_file_path, source_directory)
+}
+
+/// Builds a library by running all frontend passes. Does not generate bytecode.
+#[allow(clippy::too_many_arguments)]
+fn build_leo_source_directory_library(
+    entry_file_path: &Path,
+    source_directory: &Path,
+    library_name: Symbol,
+    handler: &Handler,
+    node_builder: &Rc<NodeBuilder>,
+    options: BuildOptions,
+    stubs: IndexMap<Symbol, Stub>,
+    network: NetworkName,
+) -> Result<leo_ast::Library> {
+    // Print a newline for better formatting.
+    println!();
+    tracing::info!("🔨 Building library '{library_name}'");
+
+    let mut compiler = Compiler::new(
+        Some(library_name.to_string()),
+        false,
+        handler.clone(),
+        Rc::clone(node_builder),
+        std::path::PathBuf::default(),
+        Some(options.into()),
+        stubs,
+        network,
+    );
+
+    let library = compiler.build_library_from_directory(library_name, entry_file_path, source_directory)?;
+
+    tracing::info!("✅ Validated '{library_name}'.");
+
+    Ok(library)
 }

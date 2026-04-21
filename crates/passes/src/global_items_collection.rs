@@ -36,6 +36,7 @@ use crate::{CompilerState, Pass};
 
 use leo_ast::{
     AleoProgram,
+    Ast,
     AstVisitor,
     Composite,
     ConstDeclaration,
@@ -71,13 +72,10 @@ impl Pass for GlobalItemsCollection {
         let ast = std::mem::take(&mut state.ast);
         let mut visitor = GlobalItemsCollectionVisitor { state, program_name: Symbol::intern(""), module: vec![] };
 
-        ast.visit(
-            |program| visitor.visit_program(program),
-            |library| {
-                // no-op for libraries
-                let _ = library;
-            },
-        );
+        match &ast {
+            Ast::Program(program) => visitor.visit_program(program),
+            Ast::Library(library) => visitor.visit_library(library),
+        }
 
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
@@ -211,6 +209,7 @@ impl ProgramVisitor for GlobalItemsCollectionVisitor<'_> {
         input.modules.values().for_each(|m| {
             self.visit_module(m);
         });
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
 
     fn visit_aleo_program(&mut self, input: &AleoProgram) {
