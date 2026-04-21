@@ -25,6 +25,11 @@ edition = "2024"
 rust-version = "1.94.1"
 readme = "../../README.md"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/leo-v{ version }/leo-v{ version }-{ target }.zip"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "zip"
+
 [lib]
 path = "src/lib.rs"
 
