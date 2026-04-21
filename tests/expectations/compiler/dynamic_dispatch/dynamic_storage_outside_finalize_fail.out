@@ -1,0 +1,15 @@
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:9:23
+     |
+   9 |         let v: u64? = Counter@(target)::total;
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:14:23
+     |
+  14 |         let v: u64? = Counter@(target)::entries.get(i);
+     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
+    --> compiler-test:19:16
+     |
+  19 |         return Counter@(target)::entries.len();
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

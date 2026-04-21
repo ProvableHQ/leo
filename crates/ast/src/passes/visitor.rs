@@ -114,7 +114,7 @@ pub trait AstVisitor {
             Expression::Async(async_) => self.visit_async(async_, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
-            Expression::DynamicCall(dc) => self.visit_dynamic_call(dc, additional),
+            Expression::DynamicOp(op) => self.visit_dynamic_op(op, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
             Expression::Composite(composite_) => self.visit_composite_init(composite_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
@@ -175,19 +175,20 @@ pub trait AstVisitor {
         Default::default()
     }
 
-    fn visit_dynamic_call(
-        &mut self,
-        input: &DynamicCallExpression,
-        _additional: &Self::AdditionalInput,
-    ) -> Self::Output {
+    fn visit_dynamic_op(&mut self, input: &DynamicOpExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_type(&input.interface);
         self.visit_expression(&input.target_program, &Default::default());
         if let Some(ref network) = input.network {
             self.visit_expression(network, &Default::default());
         }
-        input.arguments.iter().for_each(|expr| {
-            self.visit_expression(expr, &Default::default());
-        });
+        match &input.kind {
+            DynamicOpKind::Call { arguments, .. } | DynamicOpKind::Op { arguments, .. } => {
+                arguments.iter().for_each(|expr| {
+                    self.visit_expression(expr, &Default::default());
+                });
+            }
+            DynamicOpKind::Read { .. } => {}
+        }
         Default::default()
     }
 

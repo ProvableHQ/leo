@@ -27,10 +27,12 @@ use leo_ast::{
     CastExpression,
     CompositeExpression,
     CompositeType,
-    DynamicCallExpression,
+    DynamicOpExpression,
+    DynamicOpKind,
     Expression,
     FromStrRadix,
     IntegerType,
+    Interface,
     Intrinsic,
     IntrinsicExpression,
     Literal,
@@ -90,7 +92,7 @@ impl CodeGeneratingVisitor<'_> {
 
             Expression::Intrinsic(expr) => self.visit_intrinsic(expr),
 
-            Expression::DynamicCall(expr) => some_expr(self.visit_dynamic_call(expr)),
+            Expression::DynamicOp(expr) => some_expr(self.visit_dynamic_op(expr)),
             Expression::Async(..) => {
                 panic!("`AsyncExpression`s should not be in the AST at this phase of compilation.")
             }
@@ -582,37 +584,28 @@ impl CodeGeneratingVisitor<'_> {
         (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
     }
 
-    fn visit_dynamic_call(&mut self, input: &DynamicCallExpression) -> (AleoExpr, Vec<AleoStmt>) {
-        let caller_program = self.program_id.expect("Dynamic calls only appear within programs.").as_symbol();
-
-        // Look up the interface and function prototype from the symbol table.
-
+    /// Looks up the interface declared in a dynamic op from the symbol table.
+    ///
+    /// Panics if the interface type is not a composite or the symbol table entry is missing (both
+    /// are guaranteed by the type checker).
+    fn lookup_dynamic_op_interface(&self, input: &DynamicOpExpression) -> Interface {
+        let caller_program = self.program_id.expect("Dynamic ops only appear within programs.").as_symbol();
         let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
-            panic!("Dynamic calls can only be done over interface types");
+            panic!("Dynamic ops can only be done over interface types, got `{}`", input.interface);
         };
         let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
-        let interface = self
-            .state
+        self.state
             .symbol_table
             .lookup_interface(caller_program, interface_location)
-            .expect("Type checking guarantees interfaces exist")
-            .clone();
+            .expect("Type checking guarantees interface exists")
+            .clone()
+    }
 
-        let (_, func_proto) = interface
-            .functions
-            .iter()
-            .find(|(name, _)| *name == input.function.name)
-            .expect("Type checking guarantees function exists in interface");
-        let func_proto = func_proto.clone();
-
-        let mut instructions = vec![];
-
-        // Codegen the target expression → PROG operand (a field value in a register).
-        let (target_expr, target_instructions) = self.visit_expression(&input.target_program);
-        instructions.extend(target_instructions);
-        let prog = target_expr.expect("Target must produce a value.");
-
-        // NET operand: use provided network or default to 'aleo'.
+    /// Emits code for the PROG and NET operands shared by all dynamic instructions.
+    fn emit_prog_net(&mut self, input: &DynamicOpExpression, instructions: &mut Vec<AleoStmt>) -> (AleoExpr, AleoExpr) {
+        let (prog_expr, prog_instructions) = self.visit_expression(&input.target_program);
+        instructions.extend(prog_instructions);
+        let prog = prog_expr.expect("Target must produce a value.");
         let net = if let Some(network) = &input.network {
             let (net_expr, net_instructions) = self.visit_expression(network);
             instructions.extend(net_instructions);
@@ -620,13 +613,86 @@ impl CodeGeneratingVisitor<'_> {
         } else {
             AleoExpr::RawName("'aleo'".to_string())
         };
+        (prog, net)
+    }
+
+    fn visit_dynamic_op(&mut self, input: &DynamicOpExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        match &input.kind {
+            DynamicOpKind::Call { .. } => self.visit_dynamic_function_call(input),
+            DynamicOpKind::Op { .. } => self.visit_dynamic_mapping_op(input),
+            DynamicOpKind::Read { .. } => {
+                panic!("`DynamicOpKind::Read` should be lowered by `StorageLowering` before code generation.")
+            }
+        }
+    }
+
+    /// Generates code for `Interface@(target)::mapping.op(args)`.
+    ///
+    /// `StorageLowering` has already converted `storage` sugar (bare singleton reads, vector
+    /// `.get` / `.len`) into intrinsic forms, so every surviving `DynamicOpKind::Op` targets a
+    /// mapping declared on the interface and `op` is one of `get`, `get_or_use`, `contains`.
+    fn visit_dynamic_mapping_op(&mut self, input: &DynamicOpExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let DynamicOpKind::Op { member, op, arguments } = &input.kind else {
+            panic!("visit_dynamic_mapping_op expects a DynamicOpKind::Op");
+        };
+        let op_name = op.name;
+
+        let interface = self.lookup_dynamic_op_interface(input);
+        let mapping_proto = interface
+            .mappings
+            .iter()
+            .find(|m| m.identifier.name == member.name)
+            .expect("StorageLowering guarantees only mapping ops reach codegen");
+
+        let mut instructions = vec![];
+        let (prog, net) = self.emit_prog_net(input, &mut instructions);
+        let mapping = AleoExpr::RawName(format!("'{}'", member.name));
+
+        let (key_expr, key_instructions) = self.visit_expression(&arguments[0]);
+        instructions.extend(key_instructions);
+        let key = key_expr.expect("Key must produce a value.");
+
+        let dest = self.next_register();
+        let stmt = if op_name == sym::contains {
+            AleoStmt::ContainsDynamic(prog, net, mapping, key, dest.clone())
+        } else if op_name == sym::get {
+            let value_ty = self.visit_type(&mapping_proto.value_type);
+            AleoStmt::GetDynamic(prog, net, mapping, key, dest.clone(), value_ty)
+        } else {
+            debug_assert_eq!(op_name, sym::get_or_use);
+            let (default_expr, default_instructions) = self.visit_expression(&arguments[1]);
+            instructions.extend(default_instructions);
+            let default = default_expr.expect("Default must produce a value.");
+            let value_ty = self.visit_type(&mapping_proto.value_type);
+            AleoStmt::GetOrUseDynamic(prog, net, mapping, key, default, dest.clone(), value_ty)
+        };
+        instructions.push(stmt);
+
+        (AleoExpr::Reg(dest), instructions)
+    }
+
+    /// Generates code for `Interface@(target)::func(args)`.
+    fn visit_dynamic_function_call(&mut self, input: &DynamicOpExpression) -> (AleoExpr, Vec<AleoStmt>) {
+        let DynamicOpKind::Call { function, arguments } = &input.kind else {
+            panic!("visit_dynamic_function_call expects a DynamicOpKind::Call");
+        };
+
+        let interface = self.lookup_dynamic_op_interface(input);
+
+        let (_, func_proto) = interface
+            .functions
+            .iter()
+            .find(|(name, _)| *name == function.name)
+            .expect("Type checking guarantees function exists in interface");
+
+        let mut instructions = vec![];
+        let (prog, net) = self.emit_prog_net(input, &mut instructions);
 
         // FUN operand: the function name as an identifier literal.
-        let fun = AleoExpr::RawName(format!("'{}'", input.function.name));
+        let fun = AleoExpr::RawName(format!("'{}'", function.name));
 
         // Codegen arguments.
-        let arguments: Vec<AleoExpr> = input
-            .arguments
+        let arguments: Vec<AleoExpr> = arguments
             .iter()
             .filter_map(|argument| {
                 let (argument, argument_instructions) = self.visit_expression(argument);
@@ -648,21 +714,15 @@ impl CodeGeneratingVisitor<'_> {
             .collect();
 
         // Allocate output registers.
-        let mut destinations = Vec::new();
-        match func_proto.output_type.clone() {
-            t if t.is_empty() => {}
+        let num_destinations = match &func_proto.output_type {
+            t if t.is_empty() => 0,
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
-                len => {
-                    for _ in 0..len {
-                        destinations.push(self.next_register());
-                    }
-                }
+                len => len,
             },
-            _ => {
-                destinations.push(self.next_register());
-            }
-        }
+            _ => 1,
+        };
+        let destinations: Vec<AleoReg> = (0..num_destinations).map(|_| self.next_register()).collect();
 
         // Determine output types from the function prototype.
         // call.dynamic requires explicit visibility on every type; default Mode::None to Private.
@@ -672,18 +732,11 @@ impl CodeGeneratingVisitor<'_> {
             .map(|out| self.dynamic_call_output_type(&out.type_, out.mode, Some(&interface)))
             .collect();
 
-        // Emit CallDynamic instruction.
-        instructions.push(AleoStmt::CallDynamic(
-            prog,
-            net,
-            fun,
-            arguments,
-            input_types,
-            destinations.clone(),
-            output_types,
-        ));
+        let dest_exprs: Vec<AleoExpr> = destinations.iter().cloned().map(AleoExpr::Reg).collect();
 
-        (AleoExpr::Tuple(destinations.into_iter().map(AleoExpr::Reg).collect()), instructions)
+        instructions.push(AleoStmt::CallDynamic(prog, net, fun, arguments, input_types, destinations, output_types));
+
+        (AleoExpr::Tuple(dest_exprs), instructions)
     }
 
     /// Generates code for `_dynamic_call` intrinsic.

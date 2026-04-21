@@ -128,7 +128,7 @@ pub trait AstReconstructor {
             Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, additional),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, additional),
             Expression::Call(call) => self.reconstruct_call(*call, additional),
-            Expression::DynamicCall(dc) => self.reconstruct_dynamic_call(*dc, additional),
+            Expression::DynamicOp(op) => self.reconstruct_dynamic_op(*op, additional),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, additional),
             Expression::Composite(composite_) => self.reconstruct_composite_init(composite_, additional),
             Expression::Err(err) => self.reconstruct_err(err, additional),
@@ -284,24 +284,34 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_dynamic_call(
+    fn reconstruct_dynamic_op(
         &mut self,
-        input: DynamicCallExpression,
+        input: DynamicOpExpression,
         _additional: &Self::AdditionalInput,
     ) -> (Expression, Self::AdditionalOutput) {
-        (
-            DynamicCallExpression {
-                interface: self.reconstruct_type(input.interface).0,
-                target_program: self.reconstruct_expression(input.target_program, &Default::default()).0,
-                network: input.network.map(|n| self.reconstruct_expression(n, &Default::default()).0),
-                arguments: input
-                    .arguments
+        let interface = self.reconstruct_type(input.interface).0;
+        let target_program = self.reconstruct_expression(input.target_program, &Default::default()).0;
+        let network = input.network.map(|n| self.reconstruct_expression(n, &Default::default()).0);
+        let kind = match input.kind {
+            DynamicOpKind::Call { function, arguments } => DynamicOpKind::Call {
+                function,
+                arguments: arguments
                     .into_iter()
                     .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
                     .collect(),
-                ..input
-            }
-            .into(),
+            },
+            DynamicOpKind::Read { storage } => DynamicOpKind::Read { storage },
+            DynamicOpKind::Op { member, op, arguments } => DynamicOpKind::Op {
+                member,
+                op,
+                arguments: arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
+            },
+        };
+        (
+            DynamicOpExpression { interface, target_program, network, kind, span: input.span, id: input.id }.into(),
             Default::default(),
         )
     }

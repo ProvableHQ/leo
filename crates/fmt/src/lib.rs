@@ -305,6 +305,20 @@ mod tests {
     }
 
     #[test]
+    fn formats_dynamic_read_expression() {
+        let source = "program test.aleo{fn main(target:address)->u32{return Counter@(target)::total;}}\n";
+        let expected = "program test.aleo {\n    fn main(target: address) -> u32 {\n        return Counter@(target)::total;\n    }\n}\n";
+        assert_eq!(format_source(source), expected);
+    }
+
+    #[test]
+    fn formats_dynamic_read_with_network() {
+        let source = "program test.aleo{fn main()->u32{return counter_impl.aleo::Counter@('foo','aleo')::total;}}\n";
+        let expected = "program test.aleo {\n    fn main() -> u32 {\n        return counter_impl.aleo::Counter@('foo', 'aleo')::total;\n    }\n}\n";
+        assert_eq!(format_source(source), expected);
+    }
+
+    #[test]
     fn preserves_dyn_record_type_and_cast() {
         let source = "program test.aleo{record Token{owner:address,balance:u64}fn main(t:Token)->dyn record{let d:dyn record=t as dyn record;return d;}}\n";
         let expected = "program test.aleo {\n    record Token {\n        owner: address,\n        balance: u64,\n    }\n\n    fn main(t: Token) -> dyn record {\n        let d: dyn record = t as dyn record;\n        return d;\n    }\n}\n";

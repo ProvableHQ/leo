@@ -1514,7 +1514,7 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn check_dynamic_call(&mut self, input: &IntrinsicExpression, expected: &Option<Type>) -> Type {
+    pub fn check_dynamic_call_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Option<Type>) -> Type {
         let span = input.span();
 
         self.validate_dynamic_call_scope(span);
@@ -1577,7 +1577,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Validates `_dynamic_contains`, `_dynamic_get`, and `_dynamic_get_or_use` intrinsics.
-    pub fn check_dynamic_mapping_op(
+    pub fn check_dynamic_mapping_intrinsic(
         &mut self,
         intrinsic: Intrinsic,
         input: &IntrinsicExpression,
@@ -1649,7 +1649,10 @@ impl TypeCheckingVisitor<'_> {
             _ => unreachable!(),
         };
 
-        self.assert_and_return_type(return_type, expected, span)
+        // Use `maybe_assert_type` (lenient coercion) rather than `assert_and_return_type` (strict
+        // equality) so that e.g. `_dynamic_get_or_use::<T>(..)` satisfies an expected `T?` context.
+        self.maybe_assert_type(&return_type, expected, span);
+        return_type
     }
 
     /// Emits an error if the composite member is a record type.
@@ -2430,5 +2433,250 @@ impl TypeCheckingVisitor<'_> {
             }
         }
         true
+    }
+
+    /// Emits an error if the current scope is not a `final` block or function.
+    fn require_final_scope(&mut self, span: Span) {
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
+            && self.async_block_id.is_none()
+        {
+            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span));
+        }
+    }
+
+    /// Checks that `target_program` is a `field` or `identifier` and that the optional `network` is an `identifier`.
+    fn check_dynamic_op_target_and_network(&mut self, input: &DynamicOpExpression) {
+        let target_type = self.visit_expression(&input.target_program, &None);
+        if !matches!(target_type, Type::Field | Type::Identifier | Type::Err) {
+            self.emit_err(TypeCheckerError::type_should_be2(
+                &target_type,
+                "`field` or `identifier`",
+                input.target_program.span(),
+            ));
+        }
+        if let Some(ref network) = input.network {
+            self.visit_expression(network, &Some(Type::Identifier));
+        }
+    }
+
+    /// Type-checks `Interface@(target)::member.op(args)`.
+    ///
+    /// `member` may refer to either a mapping (supporting `get`, `get_or_use`, `contains`)
+    /// or a vector storage variable (supporting `get`, `len`).
+    pub fn check_dynamic_mapping_op(
+        &mut self,
+        input: &DynamicOpExpression,
+        interface: &Interface,
+        expected: &Option<Type>,
+    ) -> Type {
+        let DynamicOpKind::Op { member, op, arguments } = &input.kind else {
+            panic!("check_dynamic_mapping_op expects a DynamicOpKind::Op");
+        };
+        let op_name = op.name;
+        let span = input.span;
+
+        self.require_final_scope(span);
+        self.check_dynamic_op_target_and_network(input);
+
+        // Mapping case.
+        if let Some(mapping_proto) = interface.mappings.iter().find(|m| m.identifier.name == member.name) {
+            let key_type = mapping_proto.key_type.clone();
+            let value_type = mapping_proto.value_type.clone();
+
+            let return_type = if op_name == sym::get {
+                if arguments.len() != 1 {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    return Type::Err;
+                }
+                self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
+                value_type
+            } else if op_name == sym::contains {
+                if arguments.len() != 1 {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    return Type::Err;
+                }
+                self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
+                Type::Boolean
+            } else if op_name == sym::get_or_use {
+                if arguments.len() != 2 {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(2, arguments.len(), span));
+                    return Type::Err;
+                }
+                self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
+                self.visit_expression(&arguments[1], &Some(value_type.clone()));
+                value_type
+            } else {
+                self.emit_err(TypeCheckerError::custom(
+                    format!("Unknown mapping operation `{op_name}`. Expected `get`, `get_or_use`, or `contains`."),
+                    op.span,
+                ));
+                return Type::Err;
+            };
+
+            return self.assert_and_return_type(return_type, expected, span);
+        }
+
+        // Storage variable case: only vectors support `.op(args)`; singletons use the bare read form.
+        if let Some(storage_proto) = interface.storages.iter().find(|s| s.identifier.name == member.name) {
+            let Type::Vector(vector_ty) = &storage_proto.type_ else {
+                self.emit_err(TypeCheckerError::custom(
+                    format!("`{member}` is a singleton storage variable; read it as `Interface@(target)::{member}` without `.` or arguments."),
+                    span,
+                ));
+                return Type::Err;
+            };
+            let element_type = (*vector_ty.element_type).clone();
+
+            let return_type = if op_name == sym::get {
+                if arguments.len() != 1 {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    return Type::Err;
+                }
+                self.visit_expression(&arguments[0], &Some(Type::Integer(IntegerType::U32)));
+                // Vector `.get(i)` on external storage yields `Option<element_type>`.
+                Type::Optional(OptionalType { inner: Box::new(element_type) })
+            } else if op_name == sym::len {
+                if !arguments.is_empty() {
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(0, arguments.len(), span));
+                    return Type::Err;
+                }
+                // Vector `.len()` on external storage yields `u32`.
+                Type::Integer(IntegerType::U32)
+            } else {
+                self.emit_err(TypeCheckerError::custom(
+                    format!("Unknown vector operation `{op_name}`. Expected `get` or `len`."),
+                    op.span,
+                ));
+                return Type::Err;
+            };
+
+            return self.assert_and_return_type(return_type, expected, span);
+        }
+
+        self.emit_err(TypeCheckerError::unknown_sym(
+            "mapping or storage variable",
+            format!("{}::{}", input.interface, member),
+            member.span,
+        ));
+        Type::Err
+    }
+
+    /// Type-checks `Interface@(target)::storage_name` (bare read of a singleton storage variable).
+    pub fn check_dynamic_read(
+        &mut self,
+        input: &DynamicOpExpression,
+        interface: &Interface,
+        expected: &Option<Type>,
+    ) -> Type {
+        let DynamicOpKind::Read { storage } = &input.kind else {
+            panic!("check_dynamic_read expects a DynamicOpKind::Read");
+        };
+        let span = input.span;
+
+        self.require_final_scope(span);
+        self.check_dynamic_op_target_and_network(input);
+
+        // Look up the storage prototype.
+        let Some(storage_proto) = interface.storages.iter().find(|s| s.identifier.name == storage.name) else {
+            if interface.mappings.iter().any(|m| m.identifier.name == storage.name) {
+                self.emit_err(TypeCheckerError::custom(
+                    format!(
+                        "`{storage}` is a mapping; read a value with `{}::{storage}.get(key)` or `.get_or_use(key, default)`.",
+                        input.interface
+                    ),
+                    span,
+                ));
+            } else {
+                self.emit_err(TypeCheckerError::unknown_sym(
+                    "storage variable",
+                    format!("{}::{}", input.interface, storage),
+                    storage.span,
+                ));
+            }
+            return Type::Err;
+        };
+
+        // Vectors cannot be read with the bare form; they require `.get(i)`.
+        if matches!(storage_proto.type_, Type::Vector(_)) {
+            self.emit_err(TypeCheckerError::custom(
+                format!(
+                    "`{}` is a vector storage variable; read an element with `{}::{}.get(index)`.",
+                    storage, input.interface, storage
+                ),
+                span,
+            ));
+            return Type::Err;
+        }
+
+        // Singleton reads yield `Option<declared_type>`.
+        let return_type = Type::Optional(OptionalType { inner: Box::new(storage_proto.type_.clone()) });
+        self.assert_and_return_type(return_type, expected, span)
+    }
+
+    /// Type-checks `Interface@(target)::func(args)`.
+    pub fn check_dynamic_function_call(
+        &mut self,
+        input: &DynamicOpExpression,
+        interface: &Interface,
+        expected: &Option<Type>,
+    ) -> Type {
+        let DynamicOpKind::Call { function, arguments } = &input.kind else {
+            panic!("check_dynamic_function_call expects a DynamicOpKind::Call");
+        };
+
+        // Find the function prototype in the interface.
+        let Some((_, func_proto)) = interface.functions.iter().find(|(name, _)| *name == function.name) else {
+            self.emit_err(TypeCheckerError::unknown_sym(
+                "function",
+                format!("{}::{}", input.interface, function),
+                function.span,
+            ));
+            return Type::Err;
+        };
+        let func_proto = func_proto.clone();
+
+        self.validate_dynamic_call_scope(input.span);
+
+        self.check_dynamic_op_target_and_network(input);
+
+        // Check argument count.
+        if func_proto.input.len() != arguments.len() {
+            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                func_proto.input.len(),
+                arguments.len(),
+                input.span(),
+            ));
+        }
+
+        // Check argument types. Record-typed parameters require `dyn record` at the call site.
+        for (expected_input, argument) in func_proto.input.iter().zip(arguments.iter()) {
+            let proto_type = expected_input.type_().clone();
+            if interface.is_record_type(&proto_type) {
+                // Visit without an expected type so only the explicit error below fires.
+                let actual_type = self.visit_expression(argument, &None);
+                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                    self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
+                        &proto_type,
+                        argument.span(),
+                    ));
+                }
+            } else {
+                self.visit_expression(argument, &Some(proto_type));
+            }
+        }
+
+        // Replace interface record types in the output with `dyn record`, then check for futures.
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type, interface);
+        let contains_future = match &output_type {
+            Type::Future(..) => true,
+            Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
+            _ => false,
+        };
+        if contains_future {
+            self.scope_state.call_location = Some(Location::dynamic());
+        }
+
+        // Return the function prototype's output type.
+        self.assert_and_return_type(output_type, expected, input.span())
     }
 }

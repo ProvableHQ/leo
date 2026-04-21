@@ -607,6 +607,93 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         (input.into(), statements)
     }
 
+    fn reconstruct_dynamic_op(
+        &mut self,
+        mut input: DynamicOpExpression,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        match input.kind {
+            // Bare storage read: `Interface@(target)::name` → ternary over contains/get_or_use.
+            DynamicOpKind::Read { storage } => {
+                self.lower_dynamic_read(input.interface, input.target_program, input.network, storage, input.span)
+            }
+
+            // Storage member op: vector `.get(i)` and `.len()` are lowered here so that codegen
+            // only ever sees mapping ops. Mapping ops are left in place, recursing into
+            // subexpressions so nested lowering applies.
+            DynamicOpKind::Op { member, op, arguments } => {
+                let interface = self.lookup_interface_from_type(&input.interface);
+                let vector_storage = interface
+                    .storages
+                    .iter()
+                    .find(|s| s.identifier.name == member.name && matches!(s.type_, Type::Vector(_)))
+                    .cloned();
+
+                if let Some(storage_proto) = vector_storage {
+                    let Type::Vector(VectorType { element_type }) = storage_proto.type_ else {
+                        unreachable!("filtered above");
+                    };
+                    if op.name == sym::get {
+                        return self.lower_dynamic_vector_get(
+                            input.target_program,
+                            input.network,
+                            member,
+                            *element_type,
+                            arguments,
+                            input.span,
+                        );
+                    }
+                    debug_assert_eq!(op.name, sym::len, "type checking guarantees vector ops are `get` or `len`");
+                    return self.lower_dynamic_vector_len(input.target_program, input.network, member, input.span);
+                }
+
+                // Mapping op — keep the DynamicOp shape, recurse into subexpressions.
+                let mut stmts = Vec::new();
+                let (tp, s) = self.reconstruct_expression(input.target_program, &());
+                stmts.extend(s);
+                input.target_program = tp;
+                if let Some(n) = input.network {
+                    let (ne, s) = self.reconstruct_expression(n, &());
+                    stmts.extend(s);
+                    input.network = Some(ne);
+                }
+                let new_arguments = arguments
+                    .into_iter()
+                    .map(|arg| {
+                        let (e, s) = self.reconstruct_expression(arg, &());
+                        stmts.extend(s);
+                        e
+                    })
+                    .collect();
+                input.kind = DynamicOpKind::Op { member, op, arguments: new_arguments };
+                (input.into(), stmts)
+            }
+
+            // Function call: leave in place, recurse into subexpressions.
+            DynamicOpKind::Call { function, arguments } => {
+                let mut stmts = Vec::new();
+                let (tp, s) = self.reconstruct_expression(input.target_program, &());
+                stmts.extend(s);
+                input.target_program = tp;
+                if let Some(n) = input.network {
+                    let (ne, s) = self.reconstruct_expression(n, &());
+                    stmts.extend(s);
+                    input.network = Some(ne);
+                }
+                let new_arguments = arguments
+                    .into_iter()
+                    .map(|arg| {
+                        let (e, s) = self.reconstruct_expression(arg, &());
+                        stmts.extend(s);
+                        e
+                    })
+                    .collect();
+                input.kind = DynamicOpKind::Call { function, arguments: new_arguments };
+                (input.into(), stmts)
+            }
+        }
+    }
+
     fn reconstruct_cast(&mut self, input: CastExpression, _addiional: &()) -> (Expression, Self::AdditionalOutput) {
         let (expression, statements) = self.reconstruct_expression(input.expression, &());
         (CastExpression { expression, ..input }.into(), statements)
@@ -854,7 +941,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         let (reconstructed_expression, statements) = self.reconstruct_expression(input.expression, &Default::default());
         if !matches!(
             reconstructed_expression,
-            Expression::Call(_) | Expression::DynamicCall(_) | Expression::Intrinsic(_)
+            Expression::Call(_) | Expression::DynamicOp(_) | Expression::Intrinsic(_)
         ) {
             (
                 ExpressionStatement {
