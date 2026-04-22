@@ -10,12 +10,10 @@ function mint_token:
     input r2 as field.private;
     hash.psd2 r2 into r3 as field;
     is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
-    cast r0 r1 into r5 as Token.record;
-    cast r0 0u64 into r6 as Token.record;
-    ternary r4 r5.owner r6.owner into r7;
-    ternary r4 r5.amount r6.amount into r8;
-    cast r7 r8 into r9 as Token.record;
-    output r9 as Token.record;
+    ternary r4 r0 r0 into r5;
+    ternary r4 r1 0u64 into r6;
+    cast r5 r6 into r7 as Token.record;
+    output r7 as Token.record;
 
 function mint_token2:
     input r0 as address.private;
@@ -23,9 +21,7 @@ function mint_token2:
     input r2 as field.private;
     hash.psd2 r2 into r3 as field;
     is.eq 7202470996857839225873911078012225723419856133099120809866608931983814353616field r3 into r4;
-    cast r0 r1 into r5 as Token.record;
-    cast r0 0u64 into r6 as Token.record;
-    ternary r4 r5.owner r6.owner into r7;
-    ternary r4 r5.amount r6.amount into r8;
-    cast r7 r8 into r9 as Token.record;
-    output r9 as Token.record;
+    ternary r4 r0 r0 into r5;
+    ternary r4 r1 0u64 into r6;
+    cast r5 r6 into r7 as Token.record;
+    output r7 as Token.record;

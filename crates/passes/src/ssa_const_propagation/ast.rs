@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::SsaConstPropagationVisitor;
+use super::{SsaConstPropagationVisitor, visitor::is_atom};
 
 use leo_ast::{
     const_eval::{self, Value},
     *,
 };
 use leo_errors::StaticAnalyzerError;
+use leo_span::Symbol;
+
+use indexmap::IndexMap;
 
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
@@ -46,6 +49,44 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             // No constant value for this variable, keep the path as is.
             (input.into(), None)
         }
+    }
+
+    /// Reconstruct a member access. If the inner expression is a local path whose
+    /// binding was built from a composite literal with atom-valued fields, forward
+    /// the access directly to the stored atom. This is scalar replacement of
+    /// aggregates for short-lived struct values — the struct itself is left for
+    /// dead-code elimination to remove once all field accesses are forwarded.
+    fn reconstruct_member_access(
+        &mut self,
+        mut input: MemberAccess,
+        _additional: &(),
+    ) -> (Expression, Self::AdditionalOutput) {
+        let (inner, _) = self.reconstruct_expression(input.inner, &());
+        input.inner = inner;
+
+        if let Expression::Path(path) = &input.inner
+            && let Some(name) = path.try_local_symbol()
+            && let Some(fields) = self.atom_fielded_composites.get(&name)
+            && let Some(atom) = fields.get(&input.name.name)
+        {
+            self.changed = true;
+            // Recompute the atom's Value so downstream folding sees the forwarded
+            // constant (literals evaluate directly; paths look up tracked constants).
+            let opt_value = match atom {
+                Expression::Literal(lit) => {
+                    let ty = self.state.type_table.get(&lit.id());
+                    const_eval::literal_to_value(lit, &ty).ok()
+                }
+                Expression::Path(p) => p.try_local_symbol().and_then(|s| self.constants.get(&s).cloned()),
+                // Unreachable: `reconstruct_definition` only populates
+                // `atom_fielded_composites` with fields passing `is_atom`,
+                // which restricts to `Path`/`Literal`.
+                _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
+            };
+            return (atom.clone(), opt_value);
+        }
+
+        (input.into(), None)
     }
 
     /// Reconstruct a literal expression and convert it to a Value.
@@ -143,6 +184,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         input: TernaryExpression,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
+        let ternary_span = input.span();
         let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
 
         match cond_value.and_then(|v| v.try_into().ok()) {
@@ -154,16 +196,42 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 self.changed = true;
                 self.reconstruct_expression(input.if_false, &())
             }
-            _ => (
-                TernaryExpression {
-                    condition: cond,
-                    if_true: self.reconstruct_expression(input.if_true, &()).0,
-                    if_false: self.reconstruct_expression(input.if_false, &()).0,
-                    ..input
+            _ => {
+                let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
+                let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
+
+                // Boolean branch folding: collapse a bool-literal-branched ternary.
+                // Commonly arises after composite forwarding erases an `is_some`-style
+                // flag that was selected across a ternary.
+                let if_true_bool = if_true_value.as_ref().and_then(|v| bool::try_from(v.clone()).ok());
+                let if_false_bool = if_false_value.as_ref().and_then(|v| bool::try_from(v.clone()).ok());
+                match (if_true_bool, if_false_bool) {
+                    // `cond ? true : false` -> `cond`.
+                    (Some(true), Some(false)) => {
+                        self.changed = true;
+                        return (cond, None);
+                    }
+                    // `cond ? false : true` -> `!cond`.
+                    (Some(false), Some(true)) => {
+                        self.changed = true;
+                        let id = self.state.node_builder.next_id();
+                        self.state.type_table.insert(id, Type::Boolean);
+                        let not_cond =
+                            UnaryExpression { op: UnaryOperation::Not, receiver: cond, span: ternary_span, id };
+                        return (not_cond.into(), None);
+                    }
+                    // `cond ? b : b` -> `b` for the same bool literal `b`. The
+                    // condition is an SSA atom at this point, so dropping it is
+                    // side-effect-free.
+                    (Some(a), Some(b)) if a == b => {
+                        self.changed = true;
+                        return (if_true, if_true_value);
+                    }
+                    _ => {}
                 }
-                .into(),
-                None,
-            ),
+
+                (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None)
+            }
         }
     }
 
@@ -261,7 +329,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
     /* Statements */
     /// Reconstruct a definition statement. If the RHS evaluates to a constant, track it
-    /// in the constants map for propagation.
+    /// in the constants map for propagation. Additionally, when the RHS is a composite
+    /// literal whose fields are all atoms (paths or literals), record the field-to-atom
+    /// mapping so that subsequent `x.field` accesses can be forwarded without
+    /// rematerializing the struct.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Reconstruct the RHS expression first.
         let (new_value, opt_value) = self.reconstruct_expression(input.value, &());
@@ -278,6 +349,23 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                         }
                     }
                 }
+            }
+        } else if let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) =
+            (&input.place, &new_value)
+        {
+            // Only track when every field initializer is an atom, since the field
+            // expression will be cloned into every forwarded use-site.
+            let mut fields: IndexMap<Symbol, Expression> = IndexMap::with_capacity(composite.members.len());
+            let all_atoms = composite.members.iter().all(|member| {
+                let Some(expr) = &member.expression else { return false };
+                if !is_atom(expr) {
+                    return false;
+                }
+                fields.insert(member.identifier.name, expr.clone());
+                true
+            });
+            if all_atoms {
+                self.atom_fielded_composites.insert(identifier.name, fields);
             }
         }
 

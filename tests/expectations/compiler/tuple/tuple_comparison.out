@@ -70,12 +70,10 @@ function test_all:
     assert.eq true true;
     assert.eq true true;
     assert.eq true true;
-    cast 9u32 8u32 into r24 as S;
-    cast 9u32 7u32 into r25 as S;
-    assert.eq r24.a r24.a;
-    assert.eq r24.b r24.b;
-    assert.neq r24.a r25.a;
-    assert.neq r24.b r25.b;
+    assert.eq 9u32 9u32;
+    assert.eq 8u32 8u32;
+    assert.neq 9u32 9u32;
+    assert.neq 8u32 7u32;
     assert.eq 1u32 1u32;
     assert.eq 2u32 2u32;
     assert.eq 3u32 3u32;

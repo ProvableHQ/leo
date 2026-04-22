@@ -19,14 +19,13 @@ function unwrap_none:
 
 function unwrap_struct_field_none:
     cast false 0u64 into r0 as Optional__DmN5CQ9hzeK;
-    cast r0 into r1 as MaybeValue;
-    assert.eq r1.val.is_some true;
-    gt r1.val.val 0u64 into r2;
-    assert.eq r2 true;
+    assert.eq r0.is_some true;
+    gt r0.val 0u64 into r1;
+    assert.eq r1 true;
 
 constructor:
     assert.eq edition 0u16;
 status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r0.is_some true;) at index 1 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()
-status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r1.val.is_some true;) at index 2 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r0.is_some true;) at index 1 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()

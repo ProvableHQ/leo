@@ -27,10 +27,7 @@ finalize foo:
     set r1 into some_verrry_l__len__5biJXePTdHq[false];
     contains some_very_long_sto__3ynimxWUALp[false] into r2;
     get.or_use some_very_long_sto__3ynimxWUALp[false] 0u8 into r3;
-    cast true r3 into r4 as Optional__3aph2JMPtnA;
-    cast false 0u8 into r5 as Optional__3aph2JMPtnA;
-    ternary r2 r4.is_some r5.is_some into r6;
-    ternary r2 r4.val r5.val into r7;
-    cast r6 r7 into r8 as Optional__3aph2JMPtnA;
-    assert.eq r8.is_some true;
-    set r8.val into some_verrry_long_s__F3Lfva7X0lK[r0];
+    ternary r2 r3 0u8 into r4;
+    cast r2 r4 into r5 as Optional__3aph2JMPtnA;
+    assert.eq r5.is_some true;
+    set r5.val into some_verrry_long_s__F3Lfva7X0lK[r0];

@@ -12,8 +12,8 @@ closure foo:
     cast r4 into r5 as Data;
     is.eq r0 r1 into r6;
     cast r3 r5 into r7 as [Data; 2u32];
-    mul 2u8 r3.data[0u32] into r8;
-    mul 4u8 r5.data[1u32] into r9;
+    mul 2u8 r2[0u32] into r8;
+    mul 4u8 r4[1u32] into r9;
     cast r8 r9 into r10 as [u8; 2u32];
     cast r10 into r11 as Data;
     cast r5 r11 into r12 as [Data; 2u32];

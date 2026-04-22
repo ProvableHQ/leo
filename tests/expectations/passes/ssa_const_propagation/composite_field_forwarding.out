@@ -1,0 +1,23 @@
+program test.aleo {
+    struct Pair {
+        a: u32,
+        b: u32,
+    }
+    fn literal_fields() -> u32 {
+        let $var$0 = 1u32;
+        let $var$1 = 2u32;
+        let s$#2 = test.aleo::Pair { a: 1u32, b: 2u32 };
+        let $var$3 = 1u32;
+        let $var$4 = 2u32;
+        let $var$5 = 3u32;
+        return 3u32;
+    }
+    fn path_fields(p$$6: u32, q$$7: u32) -> u32 {
+        let s$#8 = test.aleo::Pair { a: p$$6, b: q$$7 };
+        let $var$9 = p$$6;
+        let $var$10 = q$$7;
+        let $var$11 = $var$9 + $var$10;
+        return $var$11;
+    }
+}
+

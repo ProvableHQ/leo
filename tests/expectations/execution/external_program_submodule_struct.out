@@ -19,9 +19,8 @@ program parent.aleo;
 function sum_local_struct:
     input r0 as u32.private;
     input r1 as u32.private;
-    cast r0 r1 into r2 as child.aleo/Point__A2e5UeHolpJ;
-    add r2.x r2.y into r3;
-    output r3 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
 
 function sum_via_child:
     input r0 as u32.private;

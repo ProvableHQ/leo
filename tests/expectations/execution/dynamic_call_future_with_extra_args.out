@@ -45,14 +45,11 @@ finalize main:
     await r0;
     contains local_count__[false] into r2;
     get.or_use local_count__[false] 0u32 into r3;
-    cast true r3 into r4 as Optional__JzunLORyB8U;
-    cast false 0u32 into r5 as Optional__JzunLORyB8U;
-    ternary r2 r4.is_some r5.is_some into r6;
-    ternary r2 r4.val r5.val into r7;
-    cast r6 r7 into r8 as Optional__JzunLORyB8U;
-    ternary r8.is_some r8.val 0u32 into r9;
-    add r9 r1 into r10;
-    set r10 into local_count__[false];
+    ternary r2 r3 0u32 into r4;
+    cast r2 r4 into r5 as Optional__JzunLORyB8U;
+    ternary r5.is_some r5.val 0u32 into r6;
+    add r6 r1 into r7;
+    set r7 into local_count__[false];
 
 constructor:
     assert.eq edition 0u16;

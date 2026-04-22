@@ -24,14 +24,11 @@ finalize oob_get:
     get.or_use vec__len__[false] 0u32 into r2;
     lt 0u32 r2 into r3;
     get.or_use vec__[0u32] 0u32 into r4;
-    cast true r4 into r5 as Optional__JzunLORyB8U;
-    cast false 0u32 into r6 as Optional__JzunLORyB8U;
-    ternary r3 r5.is_some r6.is_some into r7;
-    ternary r3 r5.val r6.val into r8;
-    cast r7 r8 into r9 as Optional__JzunLORyB8U;
-    cast false 0u32 into r10 as Optional__JzunLORyB8U;
-    is.eq r9 r10 into r11;
-    assert.eq r11 true;
+    ternary r3 r4 0u32 into r5;
+    cast r3 r5 into r6 as Optional__JzunLORyB8U;
+    cast false 0u32 into r7 as Optional__JzunLORyB8U;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
 
 function oob_set:
     async oob_set into r0;
@@ -80,14 +77,11 @@ finalize oob_pop:
     ternary r3 r4 r2 into r5;
     set r5 into vec__len__[false];
     get.or_use vec__[r4] 0u32 into r6;
-    cast true r6 into r7 as Optional__JzunLORyB8U;
-    cast false 0u32 into r8 as Optional__JzunLORyB8U;
-    ternary r3 r7.is_some r8.is_some into r9;
-    ternary r3 r7.val r8.val into r10;
-    cast r9 r10 into r11 as Optional__JzunLORyB8U;
-    cast false 0u32 into r12 as Optional__JzunLORyB8U;
-    is.eq r11 r12 into r13;
-    assert.eq r13 true;
+    ternary r3 r6 0u32 into r7;
+    cast r3 r7 into r8 as Optional__JzunLORyB8U;
+    cast false 0u32 into r9 as Optional__JzunLORyB8U;
+    is.eq r8 r9 into r10;
+    assert.eq r10 true;
 
 constructor:
     assert.eq edition 0u16;

@@ -12,11 +12,10 @@ function maybe_origin:
     input r0 as boolean.private;
     cast 0u32 0u32 into r1 as Point__7VbTm7beYPk;
     cast false r1 into r2 as Optional__7G49nMxvEkY;
-    cast 0u32 0u32 into r3 as Point__7VbTm7beYPk;
-    ternary r2.is_some r2.val.x r3.x into r4;
-    ternary r2.is_some r2.val.y r3.y into r5;
-    cast r4 r5 into r6 as Point__7VbTm7beYPk;
-    output r6.x as u32.private;
+    ternary r2.is_some r2.val.x 0u32 into r3;
+    ternary r2.is_some r2.val.y 0u32 into r4;
+    cast r3 r4 into r5 as Point__7VbTm7beYPk;
+    output r5.x as u32.private;
 
 constructor:
     assert.eq edition 0u16;

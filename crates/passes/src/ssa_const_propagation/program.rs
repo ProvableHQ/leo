@@ -54,21 +54,25 @@ impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_function(&mut self, mut input: Function) -> Function {
-        // Reset the constants map for each function.
-        // In SSA form, each function has its own scope, so we can clear the map.
+        // Reset the per-function maps.
+        // In SSA form, each function has its own scope, so we can clear the maps.
         self.constants.clear();
+        self.atom_fielded_composites.clear();
         // Traverse the function body.
         input.block = self.reconstruct_block(input.block).0;
         self.constants.clear();
+        self.atom_fielded_composites.clear();
         input
     }
 
     fn reconstruct_constructor(&mut self, mut input: Constructor) -> Constructor {
-        // Reset the constants map for each constructor.
+        // Reset the per-constructor maps.
         self.constants.clear();
+        self.atom_fielded_composites.clear();
         // Traverse the constructor body.
         input.block = self.reconstruct_block(input.block).0;
         self.constants.clear();
+        self.atom_fielded_composites.clear();
         input
     }
 }

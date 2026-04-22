@@ -1,0 +1,15 @@
+program test.aleo {
+    struct Flag {
+        active: bool,
+        payload: u32,
+    }
+    fn main(x$$0: u32, y$$1: u32) -> u32 {
+        let $var$2 = true;
+        let f$#3 = test.aleo::Flag { active: true, payload: x$$0 };
+        let $var$4 = true;
+        let $var$5 = x$$0;
+        let $var$6 = $var$5;
+        return $var$6;
+    }
+}
+

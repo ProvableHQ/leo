@@ -29,21 +29,18 @@ finalize make:
     cast r1 0u32 into r2 as Core__6z1xuJtF5OT;
     cast r2 0u32 into r3 as Capsule__CKJ9uYgKLhI;
     get.or_use latest__[false] r3 into r4;
-    cast true r4 into r5 as Optional__9frvj8law46;
-    cast 0u32 into r6 as Atom__Dnr7ZcA2EXI;
-    cast r6 0u32 into r7 as Core__6z1xuJtF5OT;
-    cast r7 0u32 into r8 as Capsule__CKJ9uYgKLhI;
-    cast false r8 into r9 as Optional__9frvj8law46;
-    ternary r0 r5.val.c.a.n r9.val.c.a.n into r10;
-    cast r10 into r11 as Atom__Dnr7ZcA2EXI;
-    ternary r0 r5.val.c.tag r9.val.c.tag into r12;
-    cast r11 r12 into r13 as Core__6z1xuJtF5OT;
-    ternary r0 r5.val.extra r9.val.extra into r14;
-    cast r13 r14 into r15 as Capsule__CKJ9uYgKLhI;
-    ternary r0 r5.is_some r9.is_some into r16;
-    cast r16 r15 into r17 as Optional__9frvj8law46;
-    assert.eq r17.is_some true;
-    assert.eq r17.val.c.a.n r17.val.c.a.n;
+    cast 0u32 into r5 as Atom__Dnr7ZcA2EXI;
+    cast r5 0u32 into r6 as Core__6z1xuJtF5OT;
+    cast r6 0u32 into r7 as Capsule__CKJ9uYgKLhI;
+    ternary r0 r4.c.a.n r7.c.a.n into r8;
+    cast r8 into r9 as Atom__Dnr7ZcA2EXI;
+    ternary r0 r4.c.tag r7.c.tag into r10;
+    cast r9 r10 into r11 as Core__6z1xuJtF5OT;
+    ternary r0 r4.extra r7.extra into r12;
+    cast r11 r12 into r13 as Capsule__CKJ9uYgKLhI;
+    cast r0 r13 into r14 as Optional__9frvj8law46;
+    assert.eq r14.is_some true;
+    assert.eq r14.val.c.a.n r14.val.c.a.n;
 
 constructor:
     assert.eq edition 0u16;

@@ -9,6 +9,4 @@ function main:
     or r3 r4 into r5;
     or r5 r1 into r6;
     assert.eq r6 true;
-    ternary r2 false false into r7;
-    ternary r1 true r7 into r8;
-    output r8 as boolean.private;
+    output r1 as boolean.private;

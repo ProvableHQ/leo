@@ -9,28 +9,24 @@ struct Foo:
 
 function main:
     cast true 10u64 into r0 as Optional__DmN5CQ9hzeK;
-    cast r0.is_some r0.val into r1 as Optional__DmN5CQ9hzeK;
-    cast r1 into r2 as Foo;
-    cast false 0u64 into r3 as Optional__DmN5CQ9hzeK;
-    cast r3.is_some r3.val into r4 as Optional__DmN5CQ9hzeK;
+    cast r0 into r1 as Foo;
+    cast false 0u64 into r2 as Optional__DmN5CQ9hzeK;
+    cast r2 into r3 as Foo;
+    cast true 30u64 into r4 as Optional__DmN5CQ9hzeK;
     cast r4 into r5 as Foo;
-    cast true 30u64 into r6 as Optional__DmN5CQ9hzeK;
-    cast r6.is_some r6.val into r7 as Optional__DmN5CQ9hzeK;
-    cast r7 into r8 as Foo;
-    cast false 0u64 into r9 as Optional__DmN5CQ9hzeK;
-    cast r9.is_some r9.val into r10 as Optional__DmN5CQ9hzeK;
-    cast r10 into r11 as Foo;
-    cast r2 r5 r8 r11 into r12 as [Foo; 4u32];
-    ternary r12[0u32].x.is_some r12[0u32].x.val 0u64 into r13;
-    add 0u64 r13 into r14;
-    ternary r12[1u32].x.is_some r12[1u32].x.val 1u64 into r15;
+    cast false 0u64 into r6 as Optional__DmN5CQ9hzeK;
+    cast r6 into r7 as Foo;
+    cast r1 r3 r5 r7 into r8 as [Foo; 4u32];
+    ternary r8[0u32].x.is_some r8[0u32].x.val 0u64 into r9;
+    add 0u64 r9 into r10;
+    ternary r8[1u32].x.is_some r8[1u32].x.val 1u64 into r11;
+    add r10 r11 into r12;
+    ternary r8[2u32].x.is_some r8[2u32].x.val 4u64 into r13;
+    add r12 r13 into r14;
+    ternary r8[3u32].x.is_some r8[3u32].x.val 9u64 into r15;
     add r14 r15 into r16;
-    ternary r12[2u32].x.is_some r12[2u32].x.val 4u64 into r17;
-    add r16 r17 into r18;
-    ternary r12[3u32].x.is_some r12[3u32].x.val 9u64 into r19;
-    add r18 r19 into r20;
-    is.eq r20 50u64 into r21;
-    assert.eq r21 true;
+    is.eq r16 50u64 into r17;
+    assert.eq r17 true;
 
 constructor:
     assert.eq edition 0u16;

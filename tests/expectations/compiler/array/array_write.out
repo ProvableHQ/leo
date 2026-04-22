@@ -53,19 +53,17 @@ function with_tuples:
 function in_conditional:
     input r0 as T.private;
     input r1 as boolean.private;
-    cast 2u8 3u32 into r2 as S;
-    ternary r1 1u8 r0.x into r3;
-    ternary r1 r0.z.x r2.x into r4;
-    ternary r1 r0.z.y r2.y into r5;
-    cast r4 r5 into r6 as S;
-    cast r3 r0.y r6 into r7 as T;
-    output r7 as T.private;
+    ternary r1 1u8 r0.x into r2;
+    ternary r1 r0.z.x 2u8 into r3;
+    ternary r1 r0.z.y 3u32 into r4;
+    cast r3 r4 into r5 as S;
+    cast r2 r0.y r5 into r6 as T;
+    output r6 as T.private;
 
 function f_record:
     async f_record into r0;
-    cast self.signer 1u8 into r1 as R.record;
-    cast r1.owner 2u8 into r2 as R.record;
-    output r2 as R.record;
+    cast self.signer 2u8 into r1 as R.record;
+    output r1 as R.record;
     output r0 as test.aleo/f_record.future;
 
 finalize f_record:

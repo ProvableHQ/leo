@@ -5,5 +5,4 @@ struct Foo:
 
 function main:
     input r0 as u32.private;
-    cast r0 into r1 as Foo;
-    output r1.x as u32.private;
+    output r0 as u32.private;

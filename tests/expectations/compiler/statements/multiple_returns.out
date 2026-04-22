@@ -3,5 +3,4 @@ program test.aleo;
 function main:
     input r0 as u32.private;
     is.eq r0 3u32 into r1;
-    ternary r1 true false into r2;
-    output r2 as boolean.private;
+    output r1 as boolean.private;

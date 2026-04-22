@@ -6,27 +6,23 @@ struct Optional__DmN5CQ9hzeK:
 
 function main:
     cast true 1u64 into r0 as Optional__DmN5CQ9hzeK;
-    cast r0.is_some r0.val into r1 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r2 as Optional__DmN5CQ9hzeK;
-    cast r2.is_some r2.val into r3 as Optional__DmN5CQ9hzeK;
-    cast true 3u64 into r4 as Optional__DmN5CQ9hzeK;
-    cast r4.is_some r4.val into r5 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r6 as Optional__DmN5CQ9hzeK;
-    cast r6.is_some r6.val into r7 as Optional__DmN5CQ9hzeK;
-    cast r1 r3 r5 r7 into r8 as [Optional__DmN5CQ9hzeK; 4u32];
-    ternary r8[0u32].is_some r8[0u32].val 0u64 into r9;
-    add 0u64 r9 into r10;
-    ternary r8[1u32].is_some r8[1u32].val 1u64 into r11;
+    cast false 0u64 into r1 as Optional__DmN5CQ9hzeK;
+    cast true 3u64 into r2 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r3 as Optional__DmN5CQ9hzeK;
+    cast r0 r1 r2 r3 into r4 as [Optional__DmN5CQ9hzeK; 4u32];
+    ternary r4[0u32].is_some r4[0u32].val 0u64 into r5;
+    add 0u64 r5 into r6;
+    ternary r4[1u32].is_some r4[1u32].val 1u64 into r7;
+    add r6 r7 into r8;
+    ternary r4[2u32].is_some r4[2u32].val 4u64 into r9;
+    add r8 r9 into r10;
+    ternary r4[3u32].is_some r4[3u32].val 9u64 into r11;
     add r10 r11 into r12;
-    ternary r8[2u32].is_some r8[2u32].val 4u64 into r13;
-    add r12 r13 into r14;
-    ternary r8[3u32].is_some r8[3u32].val 9u64 into r15;
-    add r14 r15 into r16;
-    is.eq r16 14u64 into r17;
-    assert.eq r17 true;
-    cast r16 into r18 as u64;
-    output r16 as u64.private;
-    output r18 as u64.private;
+    is.eq r12 14u64 into r13;
+    assert.eq r13 true;
+    cast r12 into r14 as u64;
+    output r12 as u64.private;
+    output r14 as u64.private;
 
 constructor:
     assert.eq edition 0u16;
