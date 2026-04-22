@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Program that uses structs, consts, and functions from shapes_lib submodules.",
   "license": "MIT",
-  "leo": "4.0.1",
+  "leo": "4.0.2",
   "dependencies": [
     {
       "name": "shapes_lib",
