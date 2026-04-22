@@ -1,0 +1,58 @@
+program base.aleo;
+
+struct Data:
+    x as u32;
+    y as u32;
+
+function make_data:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    cast r0 r1 into r2 as Data;
+    output r2 as Data.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import base.aleo;
+program wrapper.aleo;
+
+struct Optional__99uEaDA8ual:
+    is_some as boolean;
+    val as base.aleo/Data;
+
+mapping latest__:
+    key as boolean.public;
+    value as base.aleo/Data.public;
+
+function peek:
+    async peek into r0;
+    output r0 as wrapper.aleo/peek.future;
+
+finalize peek:
+    contains latest__[false] into r0;
+    cast 0u32 0u32 into r1 as base.aleo/Data;
+    get.or_use latest__[false] r1 into r2;
+    cast true r2 into r3 as Optional__99uEaDA8ual;
+    cast 0u32 0u32 into r4 as base.aleo/Data;
+    cast false r4 into r5 as Optional__99uEaDA8ual;
+    ternary r0 r3.val.x r5.val.x into r6;
+    ternary r0 r3.val.y r5.val.y into r7;
+    cast r6 r7 into r8 as base.aleo/Data;
+    ternary r0 r3.is_some r5.is_some into r9;
+    cast r9 r8 into r10 as Optional__99uEaDA8ual;
+    assert.eq r10.is_some true;
+    contains latest__[false] into r11;
+    cast 0u32 0u32 into r12 as base.aleo/Data;
+    get.or_use latest__[false] r12 into r13;
+    cast true r13 into r14 as Optional__99uEaDA8ual;
+    cast 0u32 0u32 into r15 as base.aleo/Data;
+    cast false r15 into r16 as Optional__99uEaDA8ual;
+    ternary r11 r14.val.x r16.val.x into r17;
+    ternary r11 r14.val.y r16.val.y into r18;
+    cast r17 r18 into r19 as base.aleo/Data;
+    ternary r11 r14.is_some r16.is_some into r20;
+    cast r20 r19 into r21 as Optional__99uEaDA8ual;
+    assert.eq r21.val.x r21.val.x;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,0 +1,66 @@
+program canvas.aleo;
+
+struct Point__7VbTm7beYPk:
+    x as u32;
+    y as u32;
+
+struct Rect__yHB5zqEAd9:
+    top_left as Point__7VbTm7beYPk;
+    bottom_right as Point__7VbTm7beYPk;
+
+struct Optional__93SfMrvy3aW:
+    is_some as boolean;
+    val as Rect__yHB5zqEAd9;
+
+mapping current__:
+    key as boolean.public;
+    value as Rect__yHB5zqEAd9.public;
+
+function measure:
+    async measure into r0;
+    output r0 as canvas.aleo/measure.future;
+
+finalize measure:
+    contains current__[false] into r0;
+    cast 0u32 0u32 into r1 as Point__7VbTm7beYPk;
+    cast 0u32 0u32 into r2 as Point__7VbTm7beYPk;
+    cast r1 r2 into r3 as Rect__yHB5zqEAd9;
+    get.or_use current__[false] r3 into r4;
+    cast true r4 into r5 as Optional__93SfMrvy3aW;
+    cast 0u32 0u32 into r6 as Point__7VbTm7beYPk;
+    cast 0u32 0u32 into r7 as Point__7VbTm7beYPk;
+    cast r6 r7 into r8 as Rect__yHB5zqEAd9;
+    cast false r8 into r9 as Optional__93SfMrvy3aW;
+    ternary r0 r5.val.top_left.x r9.val.top_left.x into r10;
+    ternary r0 r5.val.top_left.y r9.val.top_left.y into r11;
+    cast r10 r11 into r12 as Point__7VbTm7beYPk;
+    ternary r0 r5.val.bottom_right.x r9.val.bottom_right.x into r13;
+    ternary r0 r5.val.bottom_right.y r9.val.bottom_right.y into r14;
+    cast r13 r14 into r15 as Point__7VbTm7beYPk;
+    cast r12 r15 into r16 as Rect__yHB5zqEAd9;
+    ternary r0 r5.is_some r9.is_some into r17;
+    cast r17 r16 into r18 as Optional__93SfMrvy3aW;
+    assert.eq r18.is_some true;
+    contains current__[false] into r19;
+    cast 0u32 0u32 into r20 as Point__7VbTm7beYPk;
+    cast 0u32 0u32 into r21 as Point__7VbTm7beYPk;
+    cast r20 r21 into r22 as Rect__yHB5zqEAd9;
+    get.or_use current__[false] r22 into r23;
+    cast true r23 into r24 as Optional__93SfMrvy3aW;
+    cast 0u32 0u32 into r25 as Point__7VbTm7beYPk;
+    cast 0u32 0u32 into r26 as Point__7VbTm7beYPk;
+    cast r25 r26 into r27 as Rect__yHB5zqEAd9;
+    cast false r27 into r28 as Optional__93SfMrvy3aW;
+    ternary r19 r24.val.top_left.x r28.val.top_left.x into r29;
+    ternary r19 r24.val.top_left.y r28.val.top_left.y into r30;
+    cast r29 r30 into r31 as Point__7VbTm7beYPk;
+    ternary r19 r24.val.bottom_right.x r28.val.bottom_right.x into r32;
+    ternary r19 r24.val.bottom_right.y r28.val.bottom_right.y into r33;
+    cast r32 r33 into r34 as Point__7VbTm7beYPk;
+    cast r31 r34 into r35 as Rect__yHB5zqEAd9;
+    ternary r19 r24.is_some r28.is_some into r36;
+    cast r36 r35 into r37 as Optional__93SfMrvy3aW;
+    assert.eq r37.val.top_left.x r37.val.top_left.x;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,0 +1,21 @@
+program twofold.aleo;
+
+struct Optional__JzunLORyB8U:
+    is_some as boolean;
+    val as u32;
+
+struct Optional__5pP29m2ClNT:
+    is_some as boolean;
+    val as u32;
+
+function compute:
+    input r0 as u32.private;
+    cast false 0u32 into r1 as Optional__JzunLORyB8U;
+    ternary r1.is_some r1.val r0 into r2;
+    cast false 0u32 into r3 as Optional__5pP29m2ClNT;
+    ternary r3.is_some r3.val r2 into r4;
+    mul r4 2u32 into r5;
+    output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

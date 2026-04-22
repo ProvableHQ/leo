@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Iterators over the functions and composites in a `Program`, `Library`, or `Stub`.
+//! Iterators over the functions and composites defined in a `Program`, `Library`, or `Stub`,
+//! plus `items_at_path` for filtering a `Location`-keyed map at a given module path.
 //!
-//! Used by passes like monomorphization and function inlining to seed their lookup maps with
-//! every Leo-AST-backed definition reachable from the top-level program — including those hidden
-//! behind `FromLeo` and `FromLibrary` stubs. `FromAleo` stubs are skipped because their bodies
-//! live in Aleo bytecode and are not walkable as AST.
+//! Used by passes like monomorphization, function inlining, and option lowering to seed their
+//! lookup maps with every Leo-AST-backed definition reachable from the top-level program —
+//! including those hidden behind `FromLeo` and `FromLibrary` stubs. `FromAleo` stubs are skipped
+//! because their bodies live in Aleo bytecode and are not walkable as AST.
 
 use indexmap::IndexMap;
 use leo_ast::{Composite, Function, Library, Location, Program, Stub};

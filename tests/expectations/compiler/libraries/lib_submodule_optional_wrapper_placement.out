@@ -1,0 +1,20 @@
+program consumer.aleo;
+
+struct Optional__ERfM1j1qbAs:
+    is_some as boolean;
+    val as u32;
+
+struct Thing__3u5BloN95qc:
+    v as Optional__ERfM1j1qbAs;
+
+function compute:
+    input r0 as u32.private;
+    cast false 0u32 into r1 as Optional__ERfM1j1qbAs;
+    ternary r1.is_some r1.val r0 into r2;
+    cast true r2 into r3 as Optional__ERfM1j1qbAs;
+    cast r3 into r4 as Thing__3u5BloN95qc;
+    ternary r4.v.is_some r4.v.val 0u32 into r5;
+    output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
