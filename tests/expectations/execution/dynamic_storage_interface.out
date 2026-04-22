@@ -25,25 +25,15 @@ finalize bump:
     input r0 as u64.public;
     contains counter__[false] into r1;
     get.or_use counter__[false] 0u64 into r2;
-    cast true r2 into r3 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r4 as Optional__DmN5CQ9hzeK;
-    ternary r1 r3.is_some r4.is_some into r5;
-    ternary r1 r3.val r4.val into r6;
-    cast r5 r6 into r7 as Optional__DmN5CQ9hzeK;
-    contains counter__[false] into r8;
-    get.or_use counter__[false] 0u64 into r9;
-    cast true r9 into r10 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r11 as Optional__DmN5CQ9hzeK;
-    ternary r8 r10.is_some r11.is_some into r12;
-    ternary r8 r10.val r11.val into r13;
-    cast r12 r13 into r14 as Optional__DmN5CQ9hzeK;
-    ternary r7.is_some r14.val 0u64 into r15;
-    add r15 1u64 into r16;
-    set r16 into counter__[false];
-    get.or_use entries__len__[false] 0u32 into r17;
-    add r17 1u32 into r18;
-    set r18 into entries__len__[false];
-    set r0 into entries__[r17];
+    ternary r1 r2 0u64 into r3;
+    cast r1 r3 into r4 as Optional__DmN5CQ9hzeK;
+    ternary r4.is_some r4.val 0u64 into r5;
+    add r5 1u64 into r6;
+    set r6 into counter__[false];
+    get.or_use entries__len__[false] 0u32 into r7;
+    add r7 1u32 into r8;
+    set r8 into entries__len__[false];
+    set r0 into entries__[r7];
 
 function check_counter:
     input r0 as field.private;
@@ -56,13 +46,10 @@ finalize check_counter:
     input r1 as u64.public;
     contains.dynamic r0 'aleo' 'counter__'[false] into r2;
     get.or_use.dynamic r0 'aleo' 'counter__'[false] 0u64 into r3 as u64;
-    cast true r3 into r4 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r5 as Optional__DmN5CQ9hzeK;
-    ternary r2 r4.is_some r5.is_some into r6;
-    ternary r2 r4.val r5.val into r7;
-    cast r6 r7 into r8 as Optional__DmN5CQ9hzeK;
-    assert.eq r8.is_some true;
-    assert.eq r8.val r1;
+    ternary r2 r3 0u64 into r4;
+    cast r2 r4 into r5 as Optional__DmN5CQ9hzeK;
+    assert.eq r5.is_some true;
+    assert.eq r5.val r1;
 
 function check_entry:
     input r0 as field.private;
@@ -78,13 +65,10 @@ finalize check_entry:
     get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r3 as u32;
     lt r1 r3 into r4;
     get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r5 as u64;
-    cast true r5 into r6 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r7 as Optional__DmN5CQ9hzeK;
-    ternary r4 r6.is_some r7.is_some into r8;
-    ternary r4 r6.val r7.val into r9;
-    cast r8 r9 into r10 as Optional__DmN5CQ9hzeK;
-    assert.eq r10.is_some true;
-    assert.eq r10.val r2;
+    ternary r4 r5 0u64 into r6;
+    cast r4 r6 into r7 as Optional__DmN5CQ9hzeK;
+    assert.eq r7.is_some true;
+    assert.eq r7.val r2;
 
 function check_entry_oob:
     input r0 as field.private;
@@ -98,14 +82,11 @@ finalize check_entry_oob:
     get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r2 as u32;
     lt r1 r2 into r3;
     get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r4 as u64;
-    cast true r4 into r5 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r6 as Optional__DmN5CQ9hzeK;
-    ternary r3 r5.is_some r6.is_some into r7;
-    ternary r3 r5.val r6.val into r8;
-    cast r7 r8 into r9 as Optional__DmN5CQ9hzeK;
-    cast false 0u64 into r10 as Optional__DmN5CQ9hzeK;
-    is.eq r9 r10 into r11;
-    assert.eq r11 true;
+    ternary r3 r4 0u64 into r5;
+    cast r3 r5 into r6 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r7 as Optional__DmN5CQ9hzeK;
+    is.eq r6 r7 into r8;
+    assert.eq r8 true;
 
 function check_len:
     input r0 as field.private;
