@@ -35,21 +35,7 @@ finalize unwrap_info:
     ternary r0 r3.is_some r5.is_some into r12;
     cast r12 r11 into r13 as Optional__An66AtVsP75;
     assert.eq r13.is_some true;
-    contains token_info__[false] into r14;
-    cast 0u128 0u128 0u8 0u128 0u128 into r15 as TokenInfo__CxbbwT70PGX;
-    get.or_use token_info__[false] r15 into r16;
-    cast true r16 into r17 as Optional__An66AtVsP75;
-    cast 0u128 0u128 0u8 0u128 0u128 into r18 as TokenInfo__CxbbwT70PGX;
-    cast false r18 into r19 as Optional__An66AtVsP75;
-    ternary r14 r17.val.name r19.val.name into r20;
-    ternary r14 r17.val.symbol r19.val.symbol into r21;
-    ternary r14 r17.val.decimals r19.val.decimals into r22;
-    ternary r14 r17.val.supply r19.val.supply into r23;
-    ternary r14 r17.val.max_supply r19.val.max_supply into r24;
-    cast r20 r21 r22 r23 r24 into r25 as TokenInfo__CxbbwT70PGX;
-    ternary r14 r17.is_some r19.is_some into r26;
-    cast r26 r25 into r27 as Optional__An66AtVsP75;
-    assert.eq r27.val.decimals 8u8;
+    assert.eq r13.val.decimals 8u8;
 
 constructor:
     assert.eq edition 0u16;

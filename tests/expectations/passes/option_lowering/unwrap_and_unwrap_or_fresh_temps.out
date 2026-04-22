@@ -1,0 +1,16 @@
+program test.aleo {
+    struct u32? {
+        is_some: bool,
+        val: u32,
+    }
+    fn main(x: u32, d: u32) -> u32 {
+        let a: test.aleo::u32? = test.aleo::u32? { is_some: true, val: x };
+        let $opt$0 = a;
+        assert($opt$0.is_some);
+        let first: u32 = $opt$0.val;
+        let $opt$1 = a;
+        let second: u32 = $opt$1.is_some ? $opt$1.val : d;
+        return first + second;
+    }
+}
+

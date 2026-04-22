@@ -1,0 +1,20 @@
+library opt_lib {
+    struct u32? {
+        is_some: bool,
+        val: u32,
+    }
+    fn maybe(x: u32) -> u32? {
+        return u32? { is_some: true, val: x };
+    }
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn main(x: u32, d: u32) -> u32 {
+        let $opt$0 = opt_lib::maybe(x);
+        return $opt$0.is_some ? $opt$0.val : d;
+    }
+}
+

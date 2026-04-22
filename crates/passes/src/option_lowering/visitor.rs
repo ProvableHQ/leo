@@ -173,6 +173,15 @@ impl OptionLoweringVisitor<'_> {
         struct_expr.into()
     }
 
+    /// Binds `expr` to a fresh temporary and returns both the `let` statement and a
+    /// `Path` expression that references the temporary.
+    pub fn bind_optional_receiver(&mut self, expr: Expression) -> (Statement, Expression) {
+        let name = self.state.assigner.unique_symbol("$opt", "$");
+        let ident = Identifier::new(name, self.state.node_builder.next_id());
+        let stmt = self.state.assigner.simple_definition(ident, expr, self.state.node_builder.next_id());
+        (stmt, Path::from(ident).to_local().into())
+    }
+
     /// Inserts (or reuses) a compiler-generated struct representing `Optional<T>`.
     ///
     /// The struct has two fields:

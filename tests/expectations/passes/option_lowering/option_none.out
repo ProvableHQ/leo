@@ -5,8 +5,9 @@ program test.aleo {
     }
     fn main(flag: bool) -> u32 {
         let result: test.aleo::u32? = test.aleo::u32? { is_some: false, val: 0u32 };
-        assert(result.is_some);
-        return result.val;
+        let $opt$0 = result;
+        assert($opt$0.is_some);
+        return $opt$0.val;
     }
 }
 

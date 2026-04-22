@@ -39,23 +39,7 @@ finalize pick:
     ternary r0 r4.is_some r7.is_some into r14;
     cast r14 r13 into r15 as Optional__93SfMrvy3aW;
     assert.eq r15.is_some true;
-    contains selection__[false] into r16;
-    cast 0u32 0u32 into r17 as Point__7VbTm7beYPk;
-    cast r17 0u32 0u32 into r18 as Rect__2UBYikAziAq;
-    get.or_use selection__[false] r18 into r19;
-    cast true r19 into r20 as Optional__93SfMrvy3aW;
-    cast 0u32 0u32 into r21 as Point__7VbTm7beYPk;
-    cast r21 0u32 0u32 into r22 as Rect__2UBYikAziAq;
-    cast false r22 into r23 as Optional__93SfMrvy3aW;
-    ternary r16 r20.val.top_left.x r23.val.top_left.x into r24;
-    ternary r16 r20.val.top_left.y r23.val.top_left.y into r25;
-    cast r24 r25 into r26 as Point__7VbTm7beYPk;
-    ternary r16 r20.val.size_x r23.val.size_x into r27;
-    ternary r16 r20.val.size_y r23.val.size_y into r28;
-    cast r26 r27 r28 into r29 as Rect__2UBYikAziAq;
-    ternary r16 r20.is_some r23.is_some into r30;
-    cast r30 r29 into r31 as Optional__93SfMrvy3aW;
-    assert.eq r31.val.top_left.x r31.val.top_left.x;
+    assert.eq r15.val.top_left.x r15.val.top_left.x;
 
 constructor:
     assert.eq edition 0u16;

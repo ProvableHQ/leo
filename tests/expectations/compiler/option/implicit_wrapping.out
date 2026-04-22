@@ -25,29 +25,22 @@ struct Optional__8r9D5P05auT:
 function basic_implicit_return:
     cast true 5u8 into r0 as Optional__3aph2JMPtnA;
     assert.eq r0.is_some true;
-    cast true 5u8 into r1 as Optional__3aph2JMPtnA;
-    output r1.val as u8.private;
+    output r0.val as u8.private;
 
 function basic_implicit_argument:
     cast true 42u8 into r0 as Optional__3aph2JMPtnA;
     ternary r0.is_some r0.val 100u8 into r1;
     output r1 as u8.private;
 
-closure basic_implicit_ternary_:
-    input r0 as boolean;
+function basic_implicit_ternary:
+    input r0 as boolean.private;
     cast true 10u8 into r1 as Optional__3aph2JMPtnA;
     cast false 0u8 into r2 as Optional__3aph2JMPtnA;
     ternary r0 r1.is_some r2.is_some into r3;
     ternary r0 r1.val r2.val into r4;
     cast r3 r4 into r5 as Optional__3aph2JMPtnA;
-    output r5 as Optional__3aph2JMPtnA;
-
-function basic_implicit_ternary:
-    input r0 as boolean.private;
-    call basic_implicit_ternary_ r0 into r1;
-    assert.eq r1.is_some true;
-    call basic_implicit_ternary_ r0 into r2;
-    output r2.val as u8.private;
+    assert.eq r5.is_some true;
+    output r5.val as u8.private;
 
 function basic_implicit_reassignment:
     cast true 99u8 into r0 as Optional__3aph2JMPtnA;
@@ -65,21 +58,12 @@ function complex_implicit_return:
     cast r6 into r7 as Wrapper;
     cast true r7 into r8 as Optional__90gnFMeDKTp;
     assert.eq r8.is_some true;
-    cast true 8u8 into r9 as Optional__3aph2JMPtnA;
-    cast r9 into r10 as Foo;
-    cast true r10 into r11 as Optional__DH9PtMwOkLt;
-    cast false 0u8 into r12 as Optional__3aph2JMPtnA;
-    cast r12 into r13 as Foo;
-    cast false r13 into r14 as Optional__DH9PtMwOkLt;
-    cast r11 r14 into r15 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r15 into r16 as Wrapper;
-    cast true r16 into r17 as Optional__90gnFMeDKTp;
-    assert.eq r17.val.arr[0u32].is_some true;
-    assert.eq r17.val.arr[0u32].val.x.is_some true;
-    assert.eq r17.val.arr[1u32].is_some true;
-    assert.eq r17.val.arr[1u32].val.x.is_some true;
-    cast r17.val.arr[0u32].val.x.val r17.val.arr[1u32].val.x.val into r18 as [u8; 2u32];
-    output r18 as [u8; 2u32].private;
+    assert.eq r8.val.arr[0u32].is_some true;
+    assert.eq r8.val.arr[0u32].val.x.is_some true;
+    assert.eq r8.val.arr[1u32].is_some true;
+    assert.eq r8.val.arr[1u32].val.x.is_some true;
+    cast r8.val.arr[0u32].val.x.val r8.val.arr[1u32].val.x.val into r9 as [u8; 2u32];
+    output r9 as [u8; 2u32].private;
 
 function complex_implicit_argument:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
@@ -96,8 +80,8 @@ function complex_implicit_argument:
     ternary r8.val.arr[0u32].val.x.is_some r8.val.arr[0u32].val.x.val 0u8 into r9;
     output r9 as u8.private;
 
-closure complex_implicit_ternary_:
-    input r0 as boolean;
+function complex_implicit_ternary:
+    input r0 as boolean.private;
     cast true 99u8 into r1 as Optional__3aph2JMPtnA;
     cast r1 into r2 as Foo;
     cast true r2 into r3 as Optional__DH9PtMwOkLt;
@@ -129,19 +113,13 @@ closure complex_implicit_ternary_:
     cast r28 into r29 as Wrapper;
     ternary r0 r9.is_some r15.is_some into r30;
     cast r30 r29 into r31 as Optional__90gnFMeDKTp;
-    output r31 as Optional__90gnFMeDKTp;
-
-function complex_implicit_ternary:
-    input r0 as boolean.private;
-    call complex_implicit_ternary_ r0 into r1;
-    assert.eq r1.is_some true;
-    call complex_implicit_ternary_ r0 into r2;
-    assert.eq r2.val.arr[0u32].is_some true;
-    assert.eq r2.val.arr[0u32].val.x.is_some true;
-    assert.eq r2.val.arr[1u32].is_some true;
-    assert.eq r2.val.arr[1u32].val.x.is_some true;
-    cast r2.val.arr[0u32].val.x.val r2.val.arr[1u32].val.x.val into r3 as [u8; 2u32];
-    output r3 as [u8; 2u32].private;
+    assert.eq r31.is_some true;
+    assert.eq r31.val.arr[0u32].is_some true;
+    assert.eq r31.val.arr[0u32].val.x.is_some true;
+    assert.eq r31.val.arr[1u32].is_some true;
+    assert.eq r31.val.arr[1u32].val.x.is_some true;
+    cast r31.val.arr[0u32].val.x.val r31.val.arr[1u32].val.x.val into r32 as [u8; 2u32];
+    output r32 as [u8; 2u32].private;
 
 function complex_implicit_reassignment:
     cast true 7u8 into r0 as Optional__3aph2JMPtnA;

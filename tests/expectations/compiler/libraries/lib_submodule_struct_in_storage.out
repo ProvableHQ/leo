@@ -29,20 +29,9 @@ finalize area:
     ternary r0 r3.is_some r5.is_some into r9;
     cast r9 r8 into r10 as Optional__6BCOGVZlT0d;
     assert.eq r10.is_some true;
-    contains bbox__[false] into r11;
-    cast 0u32 0u32 into r12 as Rect__ANLpT5iOmJt;
-    get.or_use bbox__[false] r12 into r13;
-    cast true r13 into r14 as Optional__6BCOGVZlT0d;
-    cast 0u32 0u32 into r15 as Rect__ANLpT5iOmJt;
-    cast false r15 into r16 as Optional__6BCOGVZlT0d;
-    ternary r11 r14.val.width r16.val.width into r17;
-    ternary r11 r14.val.height r16.val.height into r18;
-    cast r17 r18 into r19 as Rect__ANLpT5iOmJt;
-    ternary r11 r14.is_some r16.is_some into r20;
-    cast r20 r19 into r21 as Optional__6BCOGVZlT0d;
-    mul r21.val.width r21.val.height into r22;
-    mul r21.val.width r21.val.height into r23;
-    assert.eq r22 r23;
+    mul r10.val.width r10.val.height into r11;
+    mul r10.val.width r10.val.height into r12;
+    assert.eq r11 r12;
 
 constructor:
     assert.eq edition 0u16;

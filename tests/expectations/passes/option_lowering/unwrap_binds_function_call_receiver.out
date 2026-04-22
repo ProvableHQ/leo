@@ -1,0 +1,14 @@
+program test.aleo {
+    struct u32? {
+        is_some: bool,
+        val: u32,
+    }
+    fn main(x: u32, d: u32) -> u32 {
+        let $opt$0 = test.aleo::maybe(x);
+        return $opt$0.is_some ? $opt$0.val : d;
+    }
+}
+    fn maybe(x: u32) -> test.aleo::u32? {
+        return test.aleo::u32? { is_some: true, val: x };
+    }
+

@@ -5,15 +5,21 @@ program test.aleo {
     }
     fn assign_optional_from_unwrap() -> u32 {
         let a: test.aleo::u32? = test.aleo::u32? { is_some: true, val: 5u32 };
-        assert(a.is_some);
-        let b: test.aleo::u32? = test.aleo::u32? { is_some: true, val: a.val };
-        assert(a.is_some);
-        let c: test.aleo::u32? = test.aleo::u32? { is_some: true, val: a.val + 7u32 };
-        let d: test.aleo::u32? = test.aleo::u32? { is_some: true, val: a.is_some ? a.val : 0 };
-        assert(b.is_some);
-        assert(c.is_some);
-        assert(d.is_some);
-        return b.val + c.val + d.val;
+        let $opt$0 = a;
+        assert($opt$0.is_some);
+        let b: test.aleo::u32? = test.aleo::u32? { is_some: true, val: $opt$0.val };
+        let $opt$1 = a;
+        assert($opt$1.is_some);
+        let c: test.aleo::u32? = test.aleo::u32? { is_some: true, val: $opt$1.val + 7u32 };
+        let $opt$2 = a;
+        let d: test.aleo::u32? = test.aleo::u32? { is_some: true, val: $opt$2.is_some ? $opt$2.val : 0 };
+        let $opt$3 = b;
+        assert($opt$3.is_some);
+        let $opt$4 = c;
+        assert($opt$4.is_some);
+        let $opt$5 = d;
+        assert($opt$5.is_some);
+        return $opt$3.val + $opt$4.val + $opt$5.val;
     }
 }
 

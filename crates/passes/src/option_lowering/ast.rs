@@ -153,9 +153,13 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let (reconstructed_optional_expr, mut stmts) =
                     self.reconstruct_expression(optional_expr.clone(), &None);
 
-                // Access `.val` and `.is_some` from reconstructed expression
+                // Bind the receiver so `.is_some` and `.val` don't duplicate its subtree.
+                let (bind_stmt, receiver) = self.bind_optional_receiver(reconstructed_optional_expr);
+                stmts.push(bind_stmt);
+
+                // Access `.val` and `.is_some` from the bound receiver.
                 let val_access = MemberAccess {
-                    inner: reconstructed_optional_expr.clone(),
+                    inner: receiver.clone(),
                     name: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
@@ -167,7 +171,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 self.state.type_table.insert(val_access.id(), *inner);
 
                 let is_some_access = MemberAccess {
-                    inner: reconstructed_optional_expr.clone(),
+                    inner: receiver,
                     name: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
@@ -176,7 +180,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
 
                 // Create assertion: ensure `is_some` is `true`.
                 let assert_stmt = AssertStatement {
-                    variant: AssertVariant::Assert(is_some_access.clone().into()),
+                    variant: AssertVariant::Assert(is_some_access.into()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 };
@@ -204,9 +208,12 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 let (reconstructed_fallback_expr, stmts2) =
                     self.reconstruct_expression(default_expr.clone(), &Some(*expected_inner_type.clone()));
 
-                // Access `.val` and `.is_some` from reconstructed expression
+                // Bind the receiver so `.is_some` and `.val` don't duplicate its subtree.
+                let (bind_stmt, receiver) = self.bind_optional_receiver(reconstructed_optional_expr);
+
+                // Access `.val` and `.is_some` from the bound receiver.
                 let val_access = MemberAccess {
-                    inner: reconstructed_optional_expr.clone(),
+                    inner: receiver.clone(),
                     name: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
@@ -214,7 +221,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 self.state.type_table.insert(val_access.id(), *expected_inner_type.clone());
 
                 let is_some_access = MemberAccess {
-                    inner: reconstructed_optional_expr,
+                    inner: receiver,
                     name: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
@@ -232,6 +239,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                 self.state.type_table.insert(ternary_expr.id(), *expected_inner_type);
 
                 stmts1.extend(stmts2);
+                stmts1.push(bind_stmt);
                 (ternary_expr.into(), stmts1)
             }
             _ => {

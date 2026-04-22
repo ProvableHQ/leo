@@ -28,8 +28,7 @@ struct Optional__8r9D5P05auT:
 function basic_implicit_return:
     cast true 5u8 into r0 as Optional__3aph2JMPtnA;
     assert.eq r0.is_some true;
-    cast true 5u8 into r1 as Optional__3aph2JMPtnA;
-    output r1.val as u8.private;
+    output r0.val as u8.private;
 
 function basic_implicit_argument:
     cast true 42u8 into r0 as Optional__3aph2JMPtnA;
@@ -68,36 +67,9 @@ function complex_implicit_return:
     cast r6 into r7 as Wrapper;
     cast true r7 into r8 as Optional__90gnFMeDKTp;
     assert.eq r8.is_some true;
-    cast true 8u8 into r9 as Optional__3aph2JMPtnA;
-    cast r9 into r10 as Foo;
-    cast true r10 into r11 as Optional__DH9PtMwOkLt;
-    cast false 0u8 into r12 as Optional__3aph2JMPtnA;
-    cast r12 into r13 as Foo;
-    cast false r13 into r14 as Optional__DH9PtMwOkLt;
-    cast r11 r14 into r15 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r15 into r16 as Wrapper;
-    cast true r16 into r17 as Optional__90gnFMeDKTp;
-    assert.eq r17.val.arr[0u32].is_some true;
-    cast true 8u8 into r18 as Optional__3aph2JMPtnA;
-    cast r18 into r19 as Foo;
-    cast true r19 into r20 as Optional__DH9PtMwOkLt;
-    cast false 0u8 into r21 as Optional__3aph2JMPtnA;
-    cast r21 into r22 as Foo;
-    cast false r22 into r23 as Optional__DH9PtMwOkLt;
-    cast r20 r23 into r24 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r24 into r25 as Wrapper;
-    cast true r25 into r26 as Optional__90gnFMeDKTp;
-    assert.eq r26.val.arr[0u32].val.x.is_some true;
-    cast true 8u8 into r27 as Optional__3aph2JMPtnA;
-    cast r27 into r28 as Foo;
-    cast true r28 into r29 as Optional__DH9PtMwOkLt;
-    cast false 0u8 into r30 as Optional__3aph2JMPtnA;
-    cast r30 into r31 as Foo;
-    cast false r31 into r32 as Optional__DH9PtMwOkLt;
-    cast r29 r32 into r33 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r33 into r34 as Wrapper;
-    cast true r34 into r35 as Optional__90gnFMeDKTp;
-    output r35.val.arr[0u32].val.x.val as u8.private;
+    assert.eq r8.val.arr[0u32].is_some true;
+    assert.eq r8.val.arr[0u32].val.x.is_some true;
+    output r8.val.arr[0u32].val.x.val as u8.private;
 
 function complex_implicit_argument:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
