@@ -1,0 +1,5 @@
+Error [ETYC0372156]: Unknown mapping operation `remove`. Expected `get`, `get_or_use`, or `contains`.
+    --> compiler-test:13:29
+     |
+  13 |     Bank@(target)::balances.remove(key);
+     |                             ^^^^^^

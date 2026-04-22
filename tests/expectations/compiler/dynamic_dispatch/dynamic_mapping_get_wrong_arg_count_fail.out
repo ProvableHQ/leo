@@ -1,0 +1,5 @@
+Error [ETYC0372006]: Call expected `1` args, but got `2`
+    --> compiler-test:13:20
+     |
+  13 |     let val: u64 = Bank@(target)::balances.get(key, 0u64);
+     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

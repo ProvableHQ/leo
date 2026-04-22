@@ -1,0 +1,368 @@
+program logger.aleo;
+
+struct Optional__DmN5CQ9hzeK:
+    is_some as boolean;
+    val as u64;
+
+mapping counter__:
+    key as boolean.public;
+    value as u64.public;
+
+mapping entries__:
+    key as u32.public;
+    value as u64.public;
+
+mapping entries__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function bump:
+    input r0 as u64.private;
+    async bump r0 into r1;
+    output r1 as logger.aleo/bump.future;
+
+finalize bump:
+    input r0 as u64.public;
+    contains counter__[false] into r1;
+    get.or_use counter__[false] 0u64 into r2;
+    cast true r2 into r3 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r4 as Optional__DmN5CQ9hzeK;
+    ternary r1 r3.is_some r4.is_some into r5;
+    ternary r1 r3.val r4.val into r6;
+    cast r5 r6 into r7 as Optional__DmN5CQ9hzeK;
+    contains counter__[false] into r8;
+    get.or_use counter__[false] 0u64 into r9;
+    cast true r9 into r10 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r11 as Optional__DmN5CQ9hzeK;
+    ternary r8 r10.is_some r11.is_some into r12;
+    ternary r8 r10.val r11.val into r13;
+    cast r12 r13 into r14 as Optional__DmN5CQ9hzeK;
+    ternary r7.is_some r14.val 0u64 into r15;
+    add r15 1u64 into r16;
+    set r16 into counter__[false];
+    get.or_use entries__len__[false] 0u32 into r17;
+    add r17 1u32 into r18;
+    set r18 into entries__len__[false];
+    set r0 into entries__[r17];
+
+function check_counter:
+    input r0 as field.private;
+    input r1 as u64.private;
+    async check_counter r0 r1 into r2;
+    output r2 as logger.aleo/check_counter.future;
+
+finalize check_counter:
+    input r0 as field.public;
+    input r1 as u64.public;
+    contains.dynamic r0 'aleo' 'counter__'[false] into r2;
+    get.or_use.dynamic r0 'aleo' 'counter__'[false] 0u64 into r3 as u64;
+    cast true r3 into r4 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r5 as Optional__DmN5CQ9hzeK;
+    ternary r2 r4.is_some r5.is_some into r6;
+    ternary r2 r4.val r5.val into r7;
+    cast r6 r7 into r8 as Optional__DmN5CQ9hzeK;
+    assert.eq r8.is_some true;
+    assert.eq r8.val r1;
+
+function check_entry:
+    input r0 as field.private;
+    input r1 as u32.private;
+    input r2 as u64.private;
+    async check_entry r0 r1 r2 into r3;
+    output r3 as logger.aleo/check_entry.future;
+
+finalize check_entry:
+    input r0 as field.public;
+    input r1 as u32.public;
+    input r2 as u64.public;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r3 as u32;
+    lt r1 r3 into r4;
+    get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r5 as u64;
+    cast true r5 into r6 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r7 as Optional__DmN5CQ9hzeK;
+    ternary r4 r6.is_some r7.is_some into r8;
+    ternary r4 r6.val r7.val into r9;
+    cast r8 r9 into r10 as Optional__DmN5CQ9hzeK;
+    assert.eq r10.is_some true;
+    assert.eq r10.val r2;
+
+function check_entry_oob:
+    input r0 as field.private;
+    input r1 as u32.private;
+    async check_entry_oob r0 r1 into r2;
+    output r2 as logger.aleo/check_entry_oob.future;
+
+finalize check_entry_oob:
+    input r0 as field.public;
+    input r1 as u32.public;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r2 as u32;
+    lt r1 r2 into r3;
+    get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r4 as u64;
+    cast true r4 into r5 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r6 as Optional__DmN5CQ9hzeK;
+    ternary r3 r5.is_some r6.is_some into r7;
+    ternary r3 r5.val r6.val into r8;
+    cast r7 r8 into r9 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r10 as Optional__DmN5CQ9hzeK;
+    is.eq r9 r10 into r11;
+    assert.eq r11 true;
+
+function check_len:
+    input r0 as field.private;
+    input r1 as u32.private;
+    async check_len r0 r1 into r2;
+    output r2 as logger.aleo/check_len.future;
+
+finalize check_len:
+    input r0 as field.public;
+    input r1 as u32.public;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r2 as u32;
+    assert.eq r2 r1;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1lt0knc464pvsj8vz8mv6hrrx0g2w0vvfq2dwmkd302cxeh6hlv8smhuzvx",
+      "program": "logger.aleo",
+      "function": "bump",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "632265720186924243409081052197704521705997972115762558046493572425308789884field",
+          "value": "ciphertext1qyqdxy64havm7vrrv88wf4ppwrxv2v5a6zdxv8ntzmnp7dcjfvkk2zqwsrtsm"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6663972477147784006518514005073752167673013001913020683128580106706584176812field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: bump,\n  arguments: [\n    10u64\n  ]\n}"
+        }
+      ],
+      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
+      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1kl287q70yrk0kzppkcdulgwuk644su6fvukn2956yg6z3780dvgs78pkyn",
+      "program": "logger.aleo",
+      "function": "bump",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7393046868593245479101777094855106221123672146854395544540120982275975779206field",
+          "value": "ciphertext1qyqx9saj2rmxpr4585ma89u3hpvsnanwx2xw5r0l7yj7x0celmjd6ygpu95u0"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5797740370651708277028581063712647627745736864402804412388999148300715497778field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: bump,\n  arguments: [\n    20u64\n  ]\n}"
+        }
+      ],
+      "tpk": "4435182414136183130262225239916202916754973933386625330210643288715243337617group",
+      "tcm": "850142209754567944166319722250339409916042600529796761178314418357457776240field",
+      "scm": "6880818639492575671344261738303779886148232533224264415621330306086981058639field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1sjnu2fdf4wtkmhmlthhr5xvh99fns2t3vw7fkk9fvrnfdcmzvggqxrkj5v",
+      "program": "logger.aleo",
+      "function": "check_counter",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4079006191393675311251112369541775905637776192028127257618297927723899232123field",
+          "value": "ciphertext1qgqwmngfan27r4c053gjdcja73fmu448tvhlluuepgrqavfnc8wdvy0vpzgx05pu08gqpapsmlm6m30w0yrn734up85xt2jsfvlqz6a3q5r6eur4"
+        },
+        {
+          "type": "private",
+          "id": "1095616806518118663889144716809788490826472567871294618279449652786075560967field",
+          "value": "ciphertext1qyqzhjexvydz3l27ey9qk0v4gmywtlj2g89tjkrwa3ymr5j50mx62zcqtx3k5"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7711906405327390079534530731760235974325835444480203507456125554543965930815field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: check_counter,\n  arguments: [\n    125779852095340field,\n    2u64\n  ]\n}"
+        }
+      ],
+      "tpk": "2522887999940374826698654126645535027810075514268095352773581615775304946572group",
+      "tcm": "1804215531425177261902248378301676324038494384555044966602196492783038681001field",
+      "scm": "3550506856681924294077270970505890072867776518575635158053618611174190675462field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1mchhet4sv6x9fe4t765957s833dydp66tjv6k4df7jq3rut285rsf4ct2k",
+      "program": "logger.aleo",
+      "function": "check_entry",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7899081735691939273112118264538143068394175580085949537028836429672439913120field",
+          "value": "ciphertext1qgqgxzzf2zuyq36cag6ul8evcftm8pu89dze38vdrcvqzyxzj5zzkqwzyggrznsztvsa29a58yamaf9pejyp06ghxyrq6tq0fg5udzgeqcxas266"
+        },
+        {
+          "type": "private",
+          "id": "6294886298537983888012186860415797430739497989894324097008523920756470759263field",
+          "value": "ciphertext1qyq9kj6jh9g2dzcn2tr4v2exl0u3cxtf2q43pyzc7mfduzfzm22uzzgdvnww7"
+        },
+        {
+          "type": "private",
+          "id": "5385442430269755358121974762568891278985131470539761763402649308326982004262field",
+          "value": "ciphertext1qyqdl0ghdgayvpwvp0kuplk0x0tfn93kt5jjjx5ydgujs3hp87z45qsuctscn"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5571970684750583597056541736733690016532845940375254097268268157246156197567field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: check_entry,\n  arguments: [\n    125779852095340field,\n    0u32,\n    10u64\n  ]\n}"
+        }
+      ],
+      "tpk": "6060197335674172363144850410502281312781694387277365216513387164100734934168group",
+      "tcm": "1584660705981876771993043374418972780034313834621129725205833195234558363129field",
+      "scm": "3947453824222718726231568557530022093561558870139768932707177944233799344247field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1jwzl6v67kcsjlaj4we6e3g2hesr48g4805ess4427jgqzs9695pqz66hfa",
+      "program": "logger.aleo",
+      "function": "check_entry",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7005816750236820706652480706691645963712516487918892246715710964029679957792field",
+          "value": "ciphertext1qgqpq6mpzq9xxux6aqwk9zr2my3v5xpzucwc2y6eazc7myst76py5z60a8fsfh6j2slg90dapm3hxstlkaenm08ycura5ux23xy4lv7npyqlvq6v"
+        },
+        {
+          "type": "private",
+          "id": "1941126981181291249979694752623560235109076567130842912566062305929000347505field",
+          "value": "ciphertext1qyq2pjp3355p7jdf68znjwe2l8rkkdutsaacm7ch52xpqs3gd2zpyrc8tzcwj"
+        },
+        {
+          "type": "private",
+          "id": "4868052151066283779318798651758977700184318112576786176659806703784078398515field",
+          "value": "ciphertext1qyqqt9qa5jx6esje2avyr48tfvrfuzjyqdcfq7fmpkkvr9k3dvtv6qs8gccwe"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2648544519727096251975426586636004605256340736451309733062467181662408118719field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: check_entry,\n  arguments: [\n    125779852095340field,\n    1u32,\n    20u64\n  ]\n}"
+        }
+      ],
+      "tpk": "5501575527267754697309838948653136094413849704757357265871953615905434807714group",
+      "tcm": "3392303923123661994474116113089681841231799041552322339994431473109132331435field",
+      "scm": "117046142058200674656358384736938896580651446460123257837828454048778883036field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1p2zu02rkcje96sfa90c7llwwaj6xh4gql4smh3tgxv89t5g6tcpq0hrqxk",
+      "program": "logger.aleo",
+      "function": "check_entry_oob",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5578084566320648781762966958943407175808950085215281358681421429517859578539field",
+          "value": "ciphertext1qgqx3h9nrxhqj6jxfwrt8sqyeukyw5ggcw9c9gnj4vnze38dpmsggys002j522rp9qrax8pna3w2hafsg6jzlwhn0f6vgzxvtj9lg8ccpv64aw89"
+        },
+        {
+          "type": "private",
+          "id": "6896267116820308745051384428760697940796302350844847606850314488035513111257field",
+          "value": "ciphertext1qyqt6ft86rtkaxvzpp9m0n7j5an56fucrzr3qa9985lhgtqyvecckys8y4pka"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4418557498532713257731021057516480485008510223773787816380963204443190768744field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: check_entry_oob,\n  arguments: [\n    125779852095340field,\n    99u32\n  ]\n}"
+        }
+      ],
+      "tpk": "3532762458625321599141060623467596614319941243060133069432406976651174585051group",
+      "tcm": "5727814722991207302030100971915222233635245413201173967467886521605170678504field",
+      "scm": "8338039324173612187490851717605430230652886096836584967856164246213016910057field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1jjr2zw6akkysnr08fnryu5hshuzfpelnwp30rw27eydpxz6s5gfqtk3xvu",
+      "program": "logger.aleo",
+      "function": "check_len",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6060438818422619004468553451014789151677436021718844757266064183606800115597field",
+          "value": "ciphertext1qgqdgq7ysr68wcpmlvsqggtkh7wxve30d257kk3lr20qgcxvcssl7ytwyt9uk37lvgjyq9e2j0zcftjfuxmzln6xzh6a60awvrsf3803puf22q0t"
+        },
+        {
+          "type": "private",
+          "id": "7582735262707929177039352632611615040872691291000116752854942658871698806029field",
+          "value": "ciphertext1qyqglxs7f6ws6cp6d4uswlldfmceg57gk5092eqyc2s8mk679tfqqzc6k6tzl"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8173103443050342229406016359381087875030875079378861155154243498701360280876field",
+          "value": "{\n  program_id: logger.aleo,\n  function_name: check_len,\n  arguments: [\n    125779852095340field,\n    2u32\n  ]\n}"
+        }
+      ],
+      "tpk": "2957572463448044047572302283090774174789875296427157043680251670334182136991group",
+      "tcm": "5310187864470640489792802185373139747670761851167134875372720775567455039533field",
+      "scm": "2731867544474854882155293186906946790245760852362359709206582236422383834612field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

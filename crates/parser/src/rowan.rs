@@ -538,7 +538,7 @@ impl<'a> ConversionContext<'a> {
             BINARY_EXPR => self.binary_expr_to_expression(node)?,
             UNARY_EXPR => self.unary_expr_to_expression(node)?,
             CALL_EXPR => self.call_expr_to_expression(node)?,
-            DYNAMIC_CALL_EXPR => self.dynamic_call_expr_to_expression(node)?,
+            DYNAMIC_OP_EXPR => self.dynamic_op_expr_to_expression(node)?,
             METHOD_CALL_EXPR => self.method_call_expr_to_expression(node)?,
             FIELD_EXPR => self.field_expr_to_expression(node)?,
             TUPLE_ACCESS_EXPR => self.tuple_access_expr_to_expression(node)?,
@@ -909,9 +909,14 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::CallExpression { function, const_arguments, arguments, span, id }.into())
     }
 
-    /// Convert a DYNAMIC_CALL_EXPR node to an expression.
-    fn dynamic_call_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
-        debug_assert_eq!(node.kind(), DYNAMIC_CALL_EXPR);
+    /// Convert a `DYNAMIC_OP_EXPR` node to a `DynamicOpExpression`.
+    ///
+    /// Three surface forms distinguished by the presence of `DOT` / `L_PAREN` after `::`:
+    /// - `Interface@(target[, net])::func(args)` → `DynamicOpKind::Call`
+    /// - `Interface@(target[, net])::member.op(args)` → `DynamicOpKind::Op`
+    /// - `Interface@(target[, net])::storage_name` → `DynamicOpKind::Read`
+    fn dynamic_op_expr_to_expression(&self, node: &SyntaxNode) -> Result<leo_ast::Expression> {
+        debug_assert_eq!(node.kind(), DYNAMIC_OP_EXPR);
         let span = self.content_span(node);
         let id = self.builder.next_id();
 
@@ -921,40 +926,27 @@ impl<'a> ConversionContext<'a> {
             .next()
             .expect("Parser guarantees a type")?;
 
-        let function = if let Some(token) = tokens(node).find(|t| t.kind() == IDENT) {
-            self.to_identifier(&token)
-        } else {
-            self.error_identifier(span)
-        };
-
-        // Collect expression children: first is target, optional second is network
-        // (if inside the @(...) before the ::), rest are arguments.
-        // We detect which expressions are "inside the parens" vs "arguments" by
-        // looking at the :: token position after the @(...). Expressions before ::
-        // are target/network, expressions after are arguments.
+        // The last `::` separates the target/network expressions from the member/function name.
+        // (Earlier `::` tokens may belong to the interface type path, e.g. `foo.aleo::Interface`.)
         let separator_offset = tokens(node).filter(|t| t.kind() == COLON_COLON).last().map(|t| t.text_range().start());
+
+        // A DOT token inside the node (after `::`) indicates the `::member.op(args)` form.
+        let dot_offset = tokens(node).find(|t| t.kind() == DOT).map(|t| t.text_range().start());
+
+        // Whether a call-argument list is present after `::name` (or `::member.op`).
+        let has_call_parens =
+            tokens(node).any(|t| t.kind() == L_PAREN && Some(t.text_range().start()) > separator_offset);
 
         let expr_children: Vec<_> = children(node).filter(|n| n.kind().is_expression()).collect();
 
-        let mut pre_sep = Vec::new();
-        let mut post_sep = Vec::new();
-        for child in &expr_children {
-            if let Some(sep_off) = separator_offset {
-                if child.text_range().start() < sep_off {
-                    pre_sep.push(child);
-                } else {
-                    post_sep.push(child);
-                }
-            } else {
-                // No separator found (error recovery), treat all as pre
-                pre_sep.push(child);
-            }
-        }
+        let (pre_sep, post_sep): (Vec<_>, Vec<_>) = expr_children.iter().partition(|child| match separator_offset {
+            Some(sep_off) => child.text_range().start() < sep_off,
+            None => true,
+        });
 
-        let target = if let Some(target_node) = pre_sep.first() {
-            self.to_expression(target_node)?
-        } else {
-            self.error_expression(span)
+        let target = match pre_sep.first() {
+            Some(target_node) => self.to_expression(target_node)?,
+            None => self.error_expression(span),
         };
 
         let network =
@@ -962,8 +954,34 @@ impl<'a> ConversionContext<'a> {
 
         let arguments = post_sep.iter().map(|n| self.to_expression(n)).collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::DynamicCallExpression { interface, target_program: target, network, function, arguments, span, id }
-            .into())
+        let kind = if let Some(dot_pos) = dot_offset {
+            // `::member.op(args)` form.
+            let member = tokens(node)
+                .find(|t| t.kind() == IDENT && t.text_range().start() < dot_pos)
+                .map(|t| self.to_identifier(&t))
+                .unwrap_or_else(|| self.error_identifier(span));
+            let op = tokens(node)
+                .find(|t| t.kind() == IDENT && t.text_range().start() > dot_pos)
+                .map(|t| self.to_identifier(&t))
+                .unwrap_or_else(|| self.error_identifier(span));
+            leo_ast::DynamicOpKind::Op { member, op, arguments }
+        } else if has_call_parens {
+            // `::func(args)` form.
+            let function = tokens(node)
+                .find(|t| t.kind() == IDENT)
+                .map(|t| self.to_identifier(&t))
+                .unwrap_or_else(|| self.error_identifier(span));
+            leo_ast::DynamicOpKind::Call { function, arguments }
+        } else {
+            // `::storage` bare read form.
+            let storage = tokens(node)
+                .find(|t| t.kind() == IDENT)
+                .map(|t| self.to_identifier(&t))
+                .unwrap_or_else(|| self.error_identifier(span));
+            leo_ast::DynamicOpKind::Read { storage }
+        };
+
+        Ok(leo_ast::DynamicOpExpression { interface, target_program: target, network, kind, span, id }.into())
     }
 
     /// Convert a METHOD_CALL_EXPR node to the appropriate expression.

@@ -16,7 +16,7 @@
 
 use crate::TypeTable;
 
-use leo_ast::{AstVisitor, Expression, Function, Intrinsic, Node, Type};
+use leo_ast::{AstVisitor, DynamicOpKind, Expression, Function, Intrinsic, Node, Type};
 use leo_errors::{Handler, StaticAnalyzerError};
 
 /// Error if futures are used improperly.
@@ -57,7 +57,8 @@ impl AstVisitor for FutureChecker<'_> {
 
     fn visit_expression(&mut self, input: &Expression, additional: &Self::AdditionalInput) -> Self::Output {
         use Position::*;
-        let is_call = matches!(input, Expression::Call(..) | Expression::DynamicCall(..))
+        let is_call = matches!(input, Expression::Call(..))
+            || matches!(input, Expression::DynamicOp(op) if matches!(op.kind, DynamicOpKind::Call { .. }))
             || matches!(input, Expression::Intrinsic(e) if e.name == leo_span::sym::_dynamic_call);
         let is_async_block = matches!(input, Expression::Async(..));
         match self.type_table.get(&input.id()) {
@@ -96,7 +97,7 @@ impl AstVisitor for FutureChecker<'_> {
             Expression::Async(async_) => self.visit_async(async_, &Position::Misc),
             Expression::Binary(binary) => self.visit_binary(binary, &Position::Misc),
             Expression::Call(call) => self.visit_call(call, &Position::Misc),
-            Expression::DynamicCall(dc) => self.visit_dynamic_call(dc, &Position::Misc),
+            Expression::DynamicOp(op) => self.visit_dynamic_op(op, &Position::Misc),
             Expression::Cast(cast) => self.visit_cast(cast, &Position::Misc),
             Expression::Composite(composite) => self.visit_composite_init(composite, &Position::Misc),
             Expression::Err(err) => self.visit_err(err, &Position::Misc),

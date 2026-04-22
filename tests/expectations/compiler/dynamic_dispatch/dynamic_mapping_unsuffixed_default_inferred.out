@@ -1,0 +1,12 @@
+program test.aleo;
+
+function query:
+    input r0 as field.private;
+    input r1 as address.private;
+    async query r0 r1 into r2;
+    output r2 as test.aleo/query.future;
+
+finalize query:
+    input r0 as field.public;
+    input r1 as address.public;
+    get.or_use.dynamic r0 'aleo' 'balances'[r1] 0u64 into r2 as u64;

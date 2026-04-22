@@ -73,7 +73,7 @@ where
                 Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
                 Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
                 Expression::Call(call) => self.reconstruct_call(*call, &()),
-                Expression::DynamicCall(dc) => self.reconstruct_dynamic_call(*dc, &()),
+                Expression::DynamicOp(op) => self.reconstruct_dynamic_op(*op, &()),
                 Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
                 Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
                 Expression::Err(err) => self.reconstruct_err(err, &()),

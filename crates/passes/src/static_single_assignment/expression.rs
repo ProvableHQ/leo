@@ -25,7 +25,8 @@ use leo_ast::{
     Composite,
     CompositeExpression,
     CompositeFieldInitializer,
-    DynamicCallExpression,
+    DynamicOpExpression,
+    DynamicOpKind,
     Expression,
     ExpressionConsumer,
     IntrinsicExpression,
@@ -139,7 +140,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
         )
     }
 
-    fn consume_dynamic_call(&mut self, input: DynamicCallExpression) -> Self::Output {
+    fn consume_dynamic_op(&mut self, input: DynamicOpExpression) -> Self::Output {
         let mut statements = Vec::new();
 
         let (target, mut target_stmts) = self.consume_expression_and_define(input.target_program);
@@ -151,17 +152,33 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             n
         });
 
-        let arguments = input
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                let (argument, mut stmts) = self.consume_expression_and_define(argument);
-                statements.append(&mut stmts);
-                argument
-            })
-            .collect();
+        let kind = match input.kind {
+            DynamicOpKind::Call { function, arguments } => {
+                let arguments = arguments
+                    .into_iter()
+                    .map(|argument| {
+                        let (argument, mut stmts) = self.consume_expression_and_define(argument);
+                        statements.append(&mut stmts);
+                        argument
+                    })
+                    .collect();
+                DynamicOpKind::Call { function, arguments }
+            }
+            DynamicOpKind::Read { storage } => DynamicOpKind::Read { storage },
+            DynamicOpKind::Op { member, op, arguments } => {
+                let arguments = arguments
+                    .into_iter()
+                    .map(|argument| {
+                        let (argument, mut stmts) = self.consume_expression_and_define(argument);
+                        statements.append(&mut stmts);
+                        argument
+                    })
+                    .collect();
+                DynamicOpKind::Op { member, op, arguments }
+            }
+        };
 
-        (DynamicCallExpression { target_program: target, network, arguments, ..input }.into(), statements)
+        (DynamicOpExpression { target_program: target, network, kind, ..input }.into(), statements)
     }
 
     /// Consumes a cast expression, accumulating any statements that are generated.

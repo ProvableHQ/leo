@@ -30,7 +30,7 @@ pub trait ExpressionConsumer {
             Expression::Async(async_) => self.consume_async(async_),
             Expression::Binary(binary) => self.consume_binary(*binary),
             Expression::Call(call) => self.consume_call(*call),
-            Expression::DynamicCall(dc) => self.consume_dynamic_call(*dc),
+            Expression::DynamicOp(op) => self.consume_dynamic_op(*op),
             Expression::Cast(cast) => self.consume_cast(*cast),
             Expression::Composite(composite_) => self.consume_composite_init(composite_),
             Expression::Err(err) => self.consume_err(err),
@@ -61,7 +61,7 @@ pub trait ExpressionConsumer {
 
     fn consume_call(&mut self, _input: CallExpression) -> Self::Output;
 
-    fn consume_dynamic_call(&mut self, _input: DynamicCallExpression) -> Self::Output;
+    fn consume_dynamic_op(&mut self, _input: DynamicOpExpression) -> Self::Output;
 
     fn consume_cast(&mut self, _input: CastExpression) -> Self::Output;
 

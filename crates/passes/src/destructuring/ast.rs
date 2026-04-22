@@ -437,11 +437,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 self.tuples.insert(identifier.name, identifiers);
                 (Statement::dummy(), statements)
             }
-            (
-                Single(identifier),
-                rhs @ (Expression::Call(..) | Expression::DynamicCall(..)),
-                Type::Tuple(tuple_type),
-            ) => {
+            (Single(identifier), rhs @ (Expression::Call(..) | Expression::DynamicOp(..)), Type::Tuple(tuple_type)) => {
                 let definition_stmt = self.assign_tuple(rhs, identifier.name);
 
                 let Statement::Definition(DefinitionStatement {
@@ -499,7 +495,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
             }
             (
                 m @ Multiple(..),
-                value @ (Expression::Call(..) | Expression::DynamicCall(..) | Expression::Intrinsic(..)),
+                value @ (Expression::Call(..) | Expression::DynamicOp(..) | Expression::Intrinsic(..)),
                 Type::Tuple(..),
             ) => {
                 // Just reconstruct the statement.
