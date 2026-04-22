@@ -3550,6 +3550,10 @@
     "named": true
   },
   {
+    "type": "identifier",
+    "named": false
+  },
+  {
     "type": "if",
     "named": false
   },

@@ -4087,6 +4087,10 @@
         },
         {
           "type": "STRING",
+          "value": "identifier"
+        },
+        {
+          "type": "STRING",
           "value": "i8"
         },
         {
