@@ -29,11 +29,10 @@ pub struct OptionLoweringVisitor<'a> {
     pub module: Vec<Symbol>,
     // The name of the current function, if we're inside one.
     pub function: Option<Symbol>,
-    // The newly created structs. Each struct correspond to a converted optional type. All these
-    // structs are to be inserted in the program scope.
-    pub new_structs: IndexMap<Location, Composite>,
-    // The reconstructed composites. These are the new versions of the existing composites in the program.
-    pub reconstructed_composites: IndexMap<Location, Composite>,
+    // All composites visible to this pass, keyed by owning unit and path. Holds user-defined
+    // composites (registered during phase 1) and generated Optional wrapper structs (inserted on
+    // demand by `insert_optional_wrapper_struct`, always at path length 1).
+    pub composites: IndexMap<Location, Composite>,
 }
 
 impl OptionLoweringVisitor<'_> {
@@ -66,7 +65,7 @@ impl OptionLoweringVisitor<'_> {
         });
 
         // Fully lower the type before proceeding. This also ensures that all required structs
-        // are actually registered in `self.new_structs`.
+        // are actually registered.
         let lowered_inner_type = self.reconstruct_type(ty).0;
 
         // Create or get an optional wrapper struct for `lowered_inner_type`
@@ -118,21 +117,24 @@ impl OptionLoweringVisitor<'_> {
         });
 
         // Fully lower the type before proceeding. This also ensures that all required composites
-        // are actually registered in `self.new_structs`.
+        // are actually registered.
         let lowered_inner_type = self.reconstruct_type(inner_ty.clone()).0;
 
         // Even though the `val` field of the struct will not be used as long as `is_some` is
         // `false`, we still have to set it to something. We choose "zero", whatever "zero" means
         // for each type.
 
-        // Instead of relying on the symbol table (which does not get updated in this pass), we rely on the set of
-        // reconstructed composites which is produced for all program scopes and all modules before doing anything else.
-        let reconstructed_composites = &self.reconstructed_composites;
+        // The symbol table is not updated during this pass, so resolve composite members through
+        // the pass-local registry populated by phase 1.
+        let composites = &self.composites;
         let struct_lookup = |loc: &Location| {
-            reconstructed_composites
-                .get(loc) // check the new version of existing composites 
-                .or_else(|| self.new_structs.get(loc)) // check the newly produced structs
-                .expect("must exist by construction")
+            composites
+                .get(loc)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "no composite registered for {loc:?}; phase-1 collect_composites_* must register every referenced composite"
+                    )
+                })
                 .members
                 .iter()
                 .map(|mem| (mem.identifier.name, mem.type_.clone()))
@@ -182,7 +184,7 @@ impl OptionLoweringVisitor<'_> {
     pub fn insert_optional_wrapper_struct(&mut self, ty: &Type) -> Symbol {
         let struct_name = crate::make_optional_struct_symbol(ty);
 
-        self.new_structs.entry(Location::new(self.program, vec![struct_name])).or_insert_with(|| Composite {
+        self.composites.entry(Location::new(self.program, vec![struct_name])).or_insert_with(|| Composite {
             identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
             const_parameters: vec![], // this is not a generic struct
             members: vec![

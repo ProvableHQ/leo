@@ -26,8 +26,8 @@ pub use rename_table::*;
 mod replacer;
 pub use replacer::*;
 
-mod stub_walk;
-pub use stub_walk::*;
+mod item_walkers;
+pub use item_walkers::*;
 
 mod symbol_access_collector;
 pub use symbol_access_collector::*;

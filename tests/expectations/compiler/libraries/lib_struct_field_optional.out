@@ -1,0 +1,18 @@
+program bank.aleo;
+
+struct Optional__EJ8P9BQtc8W:
+    is_some as boolean;
+    val as u64;
+
+struct Balance__Ffn8747pljt:
+    amount as u64;
+    supply as Optional__EJ8P9BQtc8W;
+
+function compute:
+    input r0 as u64.private;
+    cast false 0u64 into r1 as Optional__EJ8P9BQtc8W;
+    cast r0 r1 into r2 as Balance__Ffn8747pljt;
+    output r2.amount as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

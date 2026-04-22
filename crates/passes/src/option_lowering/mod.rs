@@ -67,7 +67,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, CompositeType, Type, UnitReconstructor as _};
+use leo_ast::{ArrayType, Ast, CompositeType, Type, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -96,13 +96,19 @@ impl Pass for OptionLowering {
             program: Symbol::intern(""),
             module: vec![],
             function: None,
-            new_structs: IndexMap::new(),
-            reconstructed_composites: IndexMap::new(),
+            composites: IndexMap::new(),
         };
+
+        // Phase 1: walk the entire AST and register every composite in `self.composites`,
+        // so that later `wrap_none` lookups can find zero values for structs defined
+        // anywhere in the program — including libraries and imported Aleo programs.
+        if let Ast::Program(program) = &ast {
+            visitor.collect_composites_from_program(program);
+        }
 
         let ast = ast.map(
             |program| visitor.reconstruct_program(program),
-            |library| library, // no-op for libraries
+            |library| library, // Libraries are only lowered as part of a consumer program.
         );
 
         visitor.state.handler.last_err()?;

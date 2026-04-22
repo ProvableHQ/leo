@@ -438,7 +438,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     .symbol_table
                     .lookup_record(self.program, composite_location)
                     .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
-                    .or_else(|| self.new_structs.get(composite_location))
+                    .or_else(|| self.composites.get(composite_location))
                     .expect("guaranteed by type checking");
 
                 let const_parameters = composite_def.const_parameters.iter().map(|param| param.type_.clone()).collect();
