@@ -1,0 +1,12 @@
+# markdownlint rules. Defaults on, with a handful of common overrides.
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+default: true
+
+# Line length: Leo docs have long prose lines; don't enforce hard wraps.
+MD013: false
+
+# Allow inline HTML (sometimes used for images / anchors).
+MD033: false
+
+# First line doesn't need to be an H1 (many files start with front-matter-ish intros).
+MD041: false
