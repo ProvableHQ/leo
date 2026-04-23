@@ -317,6 +317,28 @@ jobs:
           paths:
             - ~/.cargo
 
+  docs-lint:
+    docker:
+      - image: "cimg/node:20.18"
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Install markdown linters
+          command: npm install -g markdown-link-check@3.13.7 markdownlint-cli@0.43.0
+      - run:
+          name: markdownlint
+          command: markdownlint --config .markdownlint.yaml 'documentation/**/*.md'
+      - run:
+          name: Check documentation links
+          no_output_timeout: 10m
+          command: |
+            rc=0
+            while IFS= read -r -d '' f; do
+              markdown-link-check --config .mlc_config.json --quiet "$f" || rc=1
+            done < <(find documentation -name '*.md' -print0)
+            exit $rc
+
   leo-executable:
     executor: linux-executor
     resource_class: xlarge
@@ -401,6 +423,7 @@ workflows:
   code-quality:
     jobs:
       - check-style-clippy-docs
+      - docs-lint
 
   leo-executable:
     jobs:
