@@ -37,9 +37,25 @@ git push <repo-url> leo-fmt-v1.0.0
 Pushing a tag matching `*-v[0-9]*` triggers `.github/workflows/release-crate.yml`:
 
 1. **Prepare** - Parses the tag, locates the crate by matching its `[[bin]]`
-   name, and verifies the tag version matches `Cargo.toml`.
+   name, verifies the tag version matches `Cargo.toml`, and creates the tag if
+   it doesn't already exist (for manual dispatch triggers).
 2. **Build** - Compiles the binary for all supported targets.
 3. **Release** - Creates a GitHub Release and uploads platform ZIPs.
+
+The workflow is fully idempotent - every job is safe to re-run.
+
+## Re-triggering a Failed Release
+
+If a release fails (build error, infra issue, etc.), re-trigger it from the CLI:
+
+```bash
+gh workflow run release-crate.yml -f tag=leo-fmt-v4.0.1
+```
+
+Or from the GitHub Actions UI: find the failed run and click **Re-run all jobs**.
+
+The same dispatch mechanism also works as an alternative to `release.sh` - it
+creates the tag automatically if it doesn't exist yet.
 
 ## Supported Targets
 

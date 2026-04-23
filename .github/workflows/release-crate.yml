@@ -1,8 +1,19 @@
+# Build and publish cross-platform release binaries for a workspace binary crate.
+# Triggered by per-crate git tags (e.g. leo-fmt-v1.0.0) or manual dispatch.
+# Fully idempotent - safe to re-run on failure.
 name: Release Crate
 
 on:
   push:
     tags: ['*-v[0-9]*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Tag to release (e.g. leo-fmt-v4.0.1). Creates the tag if it
+          doesn't exist. NOTE: Use the [[bin]] name, not the crate name
+          (e.g. leo-v4.0.2, NOT leo-lang-v4.0.2).
+        required: true
 
 env:
   RUST_BACKTRACE: 0
@@ -11,7 +22,10 @@ jobs:
   prepare:
     name: Prepare Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
+      tag: ${{ steps.parse.outputs.tag }}
       bin-name: ${{ steps.parse.outputs.bin-name }}
       version: ${{ steps.parse.outputs.version }}
       crate-name: ${{ steps.find.outputs.crate-name }}
@@ -19,11 +33,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Parse Tag
         id: parse
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
           # Split on last occurrence of "-v" followed by a digit.
           BIN_NAME="${TAG%-v[0-9]*}"
           VERSION="${TAG#"$BIN_NAME"-v}"
@@ -31,6 +47,7 @@ jobs:
             echo "::error::Failed to parse tag '$TAG'"
             exit 1
           fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "bin-name=$BIN_NAME" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Parsed tag: bin=$BIN_NAME version=$VERSION"
@@ -60,6 +77,7 @@ jobs:
           CRATE_NAME="$(grep '^name' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')"
           TOML_VERSION="$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')"
 
+          # Verify the tag matches the actual crate tag.
           if [ "$TOML_VERSION" != "$VERSION" ]; then
             echo "::error::Tag version ($VERSION) does not match $FOUND version ($TOML_VERSION)"
             exit 1
@@ -68,6 +86,17 @@ jobs:
           echo "crate-name=$CRATE_NAME" >> "$GITHUB_OUTPUT"
           echo "crate-dir=$CRATE_DIR" >> "$GITHUB_OUTPUT"
           echo "Found crate: name=$CRATE_NAME dir=$CRATE_DIR"
+
+      - name: Ensure Tag Exists
+        run: |
+          TAG="${{ steps.parse.outputs.tag }}"
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists"
+          else
+            echo "Creating tag $TAG"
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
 
   build:
     name: Build (${{ matrix.target }})
@@ -90,6 +119,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -214,7 +245,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ needs.prepare.outputs.tag }}
           name: "${{ needs.prepare.outputs.bin-name }} v${{ needs.prepare.outputs.version }}"
           files: "*.zip"
         env:
