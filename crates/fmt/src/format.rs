@@ -1463,12 +1463,10 @@ fn collect_return_type_entries(node: &SyntaxNode) -> Vec<ReturnTypeEntry> {
                         }
                         break;
                     }
-                    COMMA if in_tuple => {
-                        if current_type.is_some() || !current_visibility.is_empty() {
-                            entries.push(ReturnTypeEntry { visibility: current_visibility, ty: current_type });
-                            current_visibility = Vec::new();
-                            current_type = None;
-                        }
+                    COMMA if in_tuple && (current_type.is_some() || !current_visibility.is_empty()) => {
+                        entries.push(ReturnTypeEntry { visibility: current_visibility, ty: current_type });
+                        current_visibility = Vec::new();
+                        current_type = None;
                     }
                     KW_PUBLIC | KW_PRIVATE | KW_CONSTANT if in_tuple => {
                         current_visibility.push(tok.text().to_string());
@@ -4025,10 +4023,8 @@ fn has_internal_binary_comment(node: &SyntaxNode) -> bool {
     let mut expr_nodes_seen = 0usize;
     for elem in node.children_with_tokens() {
         match elem {
-            SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK) => {
-                if expr_nodes_seen < 2 {
-                    return true;
-                }
+            SyntaxElement::Token(tok) if matches!(tok.kind(), COMMENT_LINE | COMMENT_BLOCK) && expr_nodes_seen < 2 => {
+                return true;
             }
             SyntaxElement::Node(child) => {
                 if expr_nodes_seen == 0 && has_internal_binary_comment(&child) {
