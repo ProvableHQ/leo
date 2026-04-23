@@ -4,45 +4,50 @@ set -euo pipefail
 # Create and push a release tag for a binary crate.
 #
 # Usage:
-#   ./scripts/release.sh <binary-name>
+#   ./scripts/release.sh <crate-name>
 #
 # Examples:
-#   ./scripts/release.sh leo        # Tags leo-v4.0.1 (version from crates/leo/Cargo.toml)
+#   ./scripts/release.sh leo-lang   # Tags leo-lang-v4.0.1
 #   ./scripts/release.sh leo-fmt    # Tags leo-fmt-v4.0.1
 
-BIN_NAME="${1:-}"
-if [ -z "$BIN_NAME" ]; then
-  echo "Usage: $0 <binary-name>"
-  echo "Available binaries:"
-  grep -rl '^\[\[bin\]\]' crates/*/Cargo.toml | while read -r toml; do
-    name=$(grep -A5 '^\[\[bin\]\]' "$toml" | grep '^name' | head -1 | sed 's/.*= *"\(.*\)"/\1/')
-    version=$(grep '^version' "$toml" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
-    echo "  $name (v$version)"
+CRATE_NAME="${1:-}"
+if [ -z "$CRATE_NAME" ]; then
+  echo "Usage: $0 <crate-name>"
+  echo "Available binary crates:"
+  for toml in crates/*/Cargo.toml; do
+    if grep -q '^\[\[bin\]\]' "$toml"; then
+      name=$(grep '^name' "$toml" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
+      version=$(grep '^version' "$toml" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
+      echo "  $name (v$version)"
+    fi
   done
   exit 1
 fi
 
-# Find the crate whose [[bin]] section declares a matching name.
-# Uses -A5 to tolerate comments or blank lines between [[bin]] and name.
+# Find the crate by its package name.
 FOUND=""
 for toml in crates/*/Cargo.toml; do
-  if grep -A5 '^\[\[bin\]\]' "$toml" | grep -q "^name = \"$BIN_NAME\""; then
+  if grep -q "^name = \"$CRATE_NAME\"" "$toml"; then
     FOUND="$toml"
     break
   fi
 done
 
 if [ -z "$FOUND" ]; then
-  echo "Error: no crate found with binary name '$BIN_NAME'"
+  echo "Error: no crate found with name '$CRATE_NAME'"
+  exit 1
+fi
+
+if ! grep -q '^\[\[bin\]\]' "$FOUND"; then
+  echo "Error: crate '$CRATE_NAME' has no [[bin]] entries"
   exit 1
 fi
 
 VERSION=$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
 REPO_URL=$(grep '^repository' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
-TAG="${BIN_NAME}-v${VERSION}"
+TAG="${CRATE_NAME}-v${VERSION}"
 
 echo "Crate:   $(dirname "$FOUND")"
-echo "Binary:  $BIN_NAME"
 echo "Version: $VERSION"
 echo "Tag:     $TAG"
 echo "Push to: $REPO_URL"

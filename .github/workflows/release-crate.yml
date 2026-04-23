@@ -1,5 +1,5 @@
 # Build and publish cross-platform release binaries for a workspace binary crate.
-# Triggered by per-crate git tags (e.g. leo-fmt-v1.0.0) or manual dispatch.
+# Triggered by per-crate git tags (e.g. leo-lang-v4.0.1) or manual dispatch.
 # Fully idempotent - safe to re-run on failure.
 name: Release Crate
 
@@ -10,9 +10,9 @@ on:
     inputs:
       tag:
         description: >-
-          Tag to release (e.g. leo-fmt-v4.0.1). Creates the tag if it
-          doesn't exist. NOTE: Use the [[bin]] name, not the crate name
-          (e.g. leo-v4.0.2, NOT leo-lang-v4.0.2).
+          Tag to release (e.g. leo-lang-v4.0.1, leo-fmt-v1.0.0). Uses the
+          crate name from Cargo.toml, not the binary name. Creates the git
+          tag if it doesn't already exist.
         required: true
 
 env:
@@ -26,10 +26,9 @@ jobs:
       contents: write
     outputs:
       tag: ${{ steps.parse.outputs.tag }}
-      bin-name: ${{ steps.parse.outputs.bin-name }}
+      crate-name: ${{ steps.parse.outputs.crate-name }}
       version: ${{ steps.parse.outputs.version }}
-      crate-name: ${{ steps.find.outputs.crate-name }}
-      crate-dir: ${{ steps.find.outputs.crate-dir }}
+      bins: ${{ steps.find.outputs.bins }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,51 +40,52 @@ jobs:
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           # Split on last occurrence of "-v" followed by a digit.
-          BIN_NAME="${TAG%-v[0-9]*}"
-          VERSION="${TAG#"$BIN_NAME"-v}"
-          if [ -z "$BIN_NAME" ] || [ -z "$VERSION" ]; then
+          CRATE_NAME="${TAG%-v[0-9]*}"
+          VERSION="${TAG#"$CRATE_NAME"-v}"
+          if [ -z "$CRATE_NAME" ] || [ -z "$VERSION" ]; then
             echo "::error::Failed to parse tag '$TAG'"
             exit 1
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "bin-name=$BIN_NAME" >> "$GITHUB_OUTPUT"
+          echo "crate-name=$CRATE_NAME" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Parsed tag: bin=$BIN_NAME version=$VERSION"
+          echo "Parsed tag: crate=$CRATE_NAME version=$VERSION"
 
       - name: Find Crate
         id: find
         run: |
-          BIN_NAME="${{ steps.parse.outputs.bin-name }}"
+          CRATE_NAME="${{ steps.parse.outputs.crate-name }}"
           VERSION="${{ steps.parse.outputs.version }}"
 
-          # Search for a crate whose [[bin]] section declares a matching name.
-          # Uses -A5 to tolerate comments or blank lines between [[bin]] and name.
+          # Find the crate by its package name.
           FOUND=""
           for toml in crates/*/Cargo.toml; do
-            if grep -A5 '^\[\[bin\]\]' "$toml" | grep -q "^name = \"$BIN_NAME\""; then
+            if grep -q "^name = \"$CRATE_NAME\"" "$toml"; then
               FOUND="$toml"
               break
             fi
           done
 
           if [ -z "$FOUND" ]; then
-            echo "::error::No crate found with binary name '$BIN_NAME'"
+            echo "::error::No crate found with name '$CRATE_NAME'"
             exit 1
           fi
 
-          CRATE_DIR="$(dirname "$FOUND")"
-          CRATE_NAME="$(grep '^name' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')"
           TOML_VERSION="$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')"
-
-          # Verify the tag matches the actual crate tag.
           if [ "$TOML_VERSION" != "$VERSION" ]; then
             echo "::error::Tag version ($VERSION) does not match $FOUND version ($TOML_VERSION)"
             exit 1
           fi
 
-          echo "crate-name=$CRATE_NAME" >> "$GITHUB_OUTPUT"
-          echo "crate-dir=$CRATE_DIR" >> "$GITHUB_OUTPUT"
-          echo "Found crate: name=$CRATE_NAME dir=$CRATE_DIR"
+          # Collect all [[bin]] names from this crate.
+          BINS="$(grep -A5 '^\[\[bin\]\]' "$FOUND" | grep '^name' | sed 's/.*= *"\(.*\)"/\1/' | tr '\n' ' ' | xargs)"
+          if [ -z "$BINS" ]; then
+            echo "::error::No [[bin]] entries found in $FOUND"
+            exit 1
+          fi
+
+          echo "bins=$BINS" >> "$GITHUB_OUTPUT"
+          echo "Found crate: dir=$(dirname "$FOUND") bins=$BINS"
 
       - name: Ensure Tag Exists
         run: |
@@ -184,43 +184,41 @@ jobs:
                 ${{ steps.flags.outputs.features }}
             "
 
-      - name: Determine Binary Path
-        id: bin-path
+      - name: Collect Binaries
+        id: bins
         shell: bash
         run: |
-          BIN="${{ needs.prepare.outputs.bin-name }}"
+          BINS="${{ needs.prepare.outputs.bins }}"
           case "${{ matrix.target }}" in
-            x86_64-pc-windows-msvc)
-              echo "path=target/release/${BIN}.exe" >> "$GITHUB_OUTPUT"
-              ;;
-            aarch64-apple-darwin)
-              echo "path=target/aarch64-apple-darwin/release/${BIN}" >> "$GITHUB_OUTPUT"
-              ;;
-            x86_64-unknown-linux-musl)
-              echo "path=target/x86_64-unknown-linux-musl/release/${BIN}" >> "$GITHUB_OUTPUT"
-              ;;
-            *)
-              echo "path=target/release/${BIN}" >> "$GITHUB_OUTPUT"
-              ;;
+            x86_64-pc-windows-msvc)   DIR="target/release";                                  EXT=".exe" ;;
+            aarch64-apple-darwin)     DIR="target/aarch64-apple-darwin/release";              EXT="" ;;
+            x86_64-unknown-linux-musl) DIR="target/x86_64-unknown-linux-musl/release";       EXT="" ;;
+            *)                        DIR="target/release";                                  EXT="" ;;
           esac
+          PATHS=""
+          for bin in $BINS; do
+            PATHS="$PATHS $DIR/${bin}${EXT}"
+          done
+          echo "paths=$PATHS" >> "$GITHUB_OUTPUT"
 
-      - name: Strip Binary
+      - name: Strip Binaries
         if: runner.os != 'Windows'
-        run: strip ${{ steps.bin-path.outputs.path }}
+        run: strip ${{ steps.bins.outputs.paths }}
 
       - name: Package (Unix)
         if: runner.os != 'Windows'
         run: |
-          ARCHIVE="${{ needs.prepare.outputs.bin-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
-          zip -j "$ARCHIVE" ${{ steps.bin-path.outputs.path }}
+          ARCHIVE="${{ needs.prepare.outputs.crate-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
+          zip -j "$ARCHIVE" ${{ steps.bins.outputs.paths }}
           echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
 
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $archive = "${{ needs.prepare.outputs.bin-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
-          Compress-Archive "${{ steps.bin-path.outputs.path }}" $archive
+          $archive = "${{ needs.prepare.outputs.crate-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
+          $paths = "${{ steps.bins.outputs.paths }}".Trim() -split '\s+'
+          Compress-Archive -Path $paths -DestinationPath $archive
           echo "ARCHIVE=$archive" >> $env:GITHUB_ENV
 
       - name: Upload Artifact
@@ -246,7 +244,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.tag }}
-          name: "${{ needs.prepare.outputs.bin-name }} v${{ needs.prepare.outputs.version }}"
+          name: "${{ needs.prepare.outputs.crate-name }} v${{ needs.prepare.outputs.version }}"
           files: "*.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

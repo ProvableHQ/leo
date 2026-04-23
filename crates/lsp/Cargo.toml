@@ -12,7 +12,7 @@ license = "GPL-3.0"
 edition = "2024"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/leo-lsp-v{ version }/leo-lsp-v{ version }-{ target }.zip"
+pkg-url = "{ repo }/releases/download/{ name }-v{ version }/{ name }-v{ version }-{ target }.zip"
 bin-dir = "{ bin }{ binary-ext }"
 pkg-fmt = "zip"
 
