@@ -1,6 +1,6 @@
 [package]
 name = "leo-lsp"
-version = "4.0.1"
+version = "4.0.2"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Language Server Protocol implementation for Leo"
 homepage = "https://leo-lang.org"

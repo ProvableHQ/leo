@@ -2420,12 +2420,10 @@ impl TypeCheckingVisitor<'_> {
                         }
                     }
                 }
-                Type::Field | Type::Scalar => {
-                    if has_nondecimal_prefix(s) {
-                        // This is not checked in the parser for unsuffixed numerals. So do that here.
-                        self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
-                        return false;
-                    }
+                // This is not checked in the parser for unsuffixed numerals. So do that here.
+                Type::Field | Type::Scalar if has_nondecimal_prefix(s) => {
+                    self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                    return false;
                 }
                 _ => {
                     // Other types aren't expected here

@@ -61,6 +61,10 @@ impl AstVisitor for FutureChecker<'_> {
             || matches!(input, Expression::DynamicOp(op) if matches!(op.kind, DynamicOpKind::Call { .. }))
             || matches!(input, Expression::Intrinsic(e) if e.name == leo_span::sym::_dynamic_call);
         let is_async_block = matches!(input, Expression::Async(..));
+        // The nested `if`s below must not be collapsed into match guards: doing so changes
+        // semantics because later arms would pick up the fall-through when the inner `if` is
+        // false, causing spurious errors.
+        #[allow(clippy::collapsible_match, clippy::collapsible_if)]
         match self.type_table.get(&input.id()) {
             Some(Type::Future(..)) if is_call | is_async_block => {
                 // A call producing a Future may appear in any of these positions.
