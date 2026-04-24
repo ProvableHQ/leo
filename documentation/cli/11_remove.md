@@ -20,12 +20,12 @@ where `<NAME>` is the name of the imported program.
 
 See the **[Dependency Management](./../guides/02_dependencies.md)** guide for more details.
 
-### Flags:
+## Flags
 
-#### `--all`
+### `--all`
 
 Removes all dependencies (or dev dependencies, if used with --dev).
 
-#### `-dev`
+### `-dev`
 
 Removes dev dependencies.

@@ -27,32 +27,32 @@ Each output of this command includes:
 
 This enables better understanding of program size and key management.
 
-### Flags:
+## Flags
 
-#### `--network <NETWORK>`
+### `--network <NETWORK>`
 
 Specifies the network to deploy to. Overrides any `NETWORK` environment variable set manually or in a `.env` file. Valid network names are `testnet`, `mainnet`, and `canary`.
 
-#### `--endpoint <ENDPOINT>`
+### `--endpoint <ENDPOINT>`
 
 The endpoint to deploy to. Overrides any `ENDPOINT` environment variable set manually or in a `.env` file.
 
-#### `--network-retries <N>`
+### `--network-retries <N>`
 
 Number of times to retry a network request on transient transport failure, with exponential backoff (1 s, 2 s, 4 s, … capped at 64 s). Overrides the `NETWORK_RETRIES` environment variable. Defaults to `2`. HTTP errors (4xx/5xx) and broadcast calls are not retried.
 
-#### `--local`
+### `--local`
 
-#### `-l`
+### `-l`
 
 Specifies that the keys should be generated for the local Leo project in the current working directory.
 
-#### `--skip <SKIP>`
+### `--skip <SKIP>`
 
-#### `-s <SKIP>`
+### `-s <SKIP>`
 
 Specifies to skip the key generation for any function names that contain the provided substrings
 
-#### `--save <SAVE_DIRECTORY>`
+### `--save <SAVE_DIRECTORY>`
 
 The directory to save the key files to. If the provided path does not exist, it will be created in your current working directory.

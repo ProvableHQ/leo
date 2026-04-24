@@ -235,6 +235,7 @@ id_numbers.clear();
 
 - `clear()` does not actually remove any values from the vector. It simply sets the length to `0`.
 - Similarly, `swap_remove()` and `pop()` do not physically remove values. They reduce the length by `1`, ensuring the final element is no longer accessible.
+
   :::
 
 ### Usage

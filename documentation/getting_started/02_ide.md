@@ -28,7 +28,7 @@ The Leo team also maintains a plugin for a number of different editors. If you d
 
 [//]: # "![](./images/vscode.png)"
 
-Download the editor here: https://code.visualstudio.com/download.
+Download the editor here: <https://code.visualstudio.com/download>.
 
 #### Install
 
@@ -44,7 +44,7 @@ Download the editor here: https://code.visualstudio.com/download.
 
 [//]: # "![](./images/sublime.png)  "
 
-Download the editor here: https://www.sublimetext.com/download.
+Download the editor here: <https://www.sublimetext.com/download>.
 Aleo instruction support for Sublime's LSP plugin is provided through a language-server.
 
 #### Install
@@ -63,7 +63,7 @@ Follow these steps to toggle the `Leo` syntax highlighting, hover, and tokens.
 
 [//]: # "![](./images/intellij.png)"
 
-Download the editor here: https://www.jetbrains.com/idea/download/.
+Download the editor here: <https://www.jetbrains.com/idea/download/>.
 
 #### Install
 

@@ -12,19 +12,19 @@ This guide covers every breaking change and shows how to update your code.
 
 ## Quick Reference
 
-| 3.5 Syntax                         | 4.0 Syntax                                                    |
-| ---------------------------------- | ------------------------------------------------------------- |
-| `transition foo()`                 | `fn foo()` (inside `program {}`)                              |
-| `async transition foo() -> Future` | `fn foo() -> Final`                                           |
-| `function foo()`                   | `fn foo()` (outside `program {}`)                             |
+| 3.5 Syntax                         | 4.0 Syntax                                                   |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `transition foo()`                 | `fn foo()` (inside `program {}`)                             |
+| `async transition foo() -> Future` | `fn foo() -> Final`                                          |
+| `function foo()`                   | `fn foo()` (outside `program {}`)                            |
 | `async function foo()`             | `final { ... }` block (see [below](#asyncfinalize-to-final)) |
-| `inline foo()`                     | `fn foo()` (outside `program {}`)                             |
-| `Future` (type)                    | `Final`                                                       |
-| `async { ... }`                    | `final { ... }`                                               |
-| `f.await()`                        | `f.run()`                                                     |
-| `@test script foo()`               | `@test fn foo()` (inside `program {}`)                        |
-| `async constructor()`              | `constructor()`                                               |
-| `foo.aleo/bar`                     | `foo.aleo::bar`                                               |
+| `inline foo()`                     | `fn foo()` (outside `program {}`)                            |
+| `Future` (type)                    | `Final`                                                      |
+| `async { ... }`                    | `final { ... }`                                              |
+| `f.await()`                        | `f.run()`                                                    |
+| `@test script foo()`               | `@test fn foo()` (inside `program {}`)                       |
+| `async constructor()`              | `constructor()`                                              |
+| `foo.aleo/bar`                     | `foo.aleo::bar`                                              |
 
 ## Function Declaration Keywords
 

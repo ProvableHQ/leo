@@ -51,7 +51,7 @@ cd tictactoe
 - [Step 3: Player 1 makes the third move.](#step3)
 - [Step 4: and so on...](#step4)
 
-## <a id="step0"></a> Create a new board.
+## <a id="step0"></a> Create a new board
 
 We generate the board, and then the players take turns executing the `make_move` function.
 
@@ -63,7 +63,7 @@ The output provided is the new state of the board and an evaluation of who won t
 leo run new
 ```
 
-## <a id="step1"></a> Player 1 makes a move.
+## <a id="step1"></a> Player 1 makes a move
 
 Have player 1 make the first move.
 
@@ -71,7 +71,7 @@ Have player 1 make the first move.
 leo run make_move 1u8 1u8 1u8 "{ r1: { c1: 0u8, c2: 0u8, c3: 0u8 }, r2: { c1: 0u8, c2: 0u8, c3: 0u8 }, r3: { c1: 0u8, c2: 0u8, c3: 0u8 } }"
 ```
 
-## <a id="step2"></a> Player 2 makes a move.
+## <a id="step2"></a> Player 2 makes a move
 
 Have player 2 make the second move.
 
@@ -79,7 +79,7 @@ Have player 2 make the second move.
 leo run make_move 2u8 2u8 2u8 "{ r1: { c1: 1u8, c2: 0u8, c3: 0u8 }, r2: { c1: 0u8, c2: 0u8, c3: 0u8 }, r3: { c1: 0u8, c2: 0u8, c3: 0u8 } }"
 ```
 
-## <a id="step3"></a> Player 1 makes a move.
+## <a id="step3"></a> Player 1 makes another move
 
 Have player 1 make the third move.
 
@@ -87,7 +87,7 @@ Have player 1 make the third move.
 leo run make_move 1u8 3u8 1u8 "{ r1: { c1: 1u8, c2: 0u8, c3: 0u8 }, r2: { c1: 0u8, c2: 2u8, c3: 0u8 }, r3: { c1: 0u8, c2: 0u8, c3: 0u8 } }"
 ```
 
-## <a id="step4"></a> and so on...
+## <a id="step4"></a> and so on
 
 If you follow the run script till the end, you'll see the players make a draw, with an output of `0u64`.
 

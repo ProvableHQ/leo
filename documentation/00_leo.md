@@ -9,7 +9,7 @@ sidebar_label: Leo
 Leo is an open-source, statically-typed, imperative programming language designed for building private applications on the Aleo blockchain.
 It abstracts the complexities of zero-knowledge cryptography, enabling developers to create secure, privacy-preserving applications while abstracting technical complexities.
 
-### Key Features
+## Key Features
 
 - **Intuitive Syntax.** Influenced by languages like JavaScript and Rust, Leo offers a familiar and readable syntax, making it accessible to a wide range of developers.
 - **Seamless Aleo Integration.** Specifically designed for the Aleo blockchain, Leo ensures smooth deployment and management of applications within Aleo's zero-knowledge ecosystem.

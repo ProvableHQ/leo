@@ -42,7 +42,7 @@ The output should look like this:
       Address  aleo1...
 ```
 
-### Flags:
+### Flags
 
 #### `--seed <SEED>`
 
@@ -50,7 +50,7 @@ The output should look like this:
 
 Specifies a particular numeric value to use as the seed for the random number generator (RNG)
 
-#### `--write `
+#### `--write`
 
 #### `-w`
 
@@ -78,9 +78,9 @@ leo account import <PRIVATE_KEY>
 
 where `<PRIVATE_KEY>` is your private key.
 
-### Flags:
+### Flags
 
-#### `--write `
+#### `--write`
 
 #### `-w`
 
@@ -106,7 +106,7 @@ Assuming either the current working directory is a Leo project or the `$PRIVATE_
 leo account sign --message <MESSAGE>
 ```
 
-### Flags:
+### Flags
 
 #### `--message <MESSAGE>`
 
@@ -128,7 +128,7 @@ Explicitly specifies the private key to sign the message with. Overrides any pri
 
 Alternative way to explicitly specify the private key by reading from a text file at path `<PRIVATE_KEY_FILE>`. Overrides any private key in `.env` file or `$PRIVATE_KEY` environment variable.
 
-#### `--raw `
+#### `--raw`
 
 #### `-r`
 
@@ -152,7 +152,7 @@ leo account verify --address <ADDRESS> --signature <SIGNATURE> --message <MESSAG
 
 where `<MESSAGE>` is the message, `<SIGNATURE>` is the signature of that message, and `<ADDRESS>` is the address of the account that generated the signature.
 
-### Flags:
+### Flags
 
 #### `--address <ADDRESS>`
 
@@ -184,7 +184,7 @@ This flag is required!
 
 Specifies the message that was signed.
 
-#### `--raw `
+#### `--raw`
 
 #### `-r`
 
@@ -214,7 +214,7 @@ If you do not specify either the key or key file, the CLI will attempt to use th
 
 If the private key does not correspond to the owner of the record, the decryption will fail.
 
-### Flags:
+### Flags
 
 #### `-c <CIPHERTEXT>`
 

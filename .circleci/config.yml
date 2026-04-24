@@ -325,7 +325,7 @@ jobs:
       - checkout
       - run:
           name: Install markdown linters
-          command: npm install -g markdown-link-check@3.13.7 markdownlint-cli@0.43.0
+          command: npm install -g markdown-link-check@3.13.7 markdownlint-cli@0.47.0
       - run:
           name: markdownlint
           command: markdownlint --config .markdownlint.yaml 'documentation/**/*.md'

@@ -34,23 +34,23 @@ where `<NAME>` is the name of the imported program.
 Libraries can only be added as local dependencies. Use `--local` to add a library.
 :::
 
-### Flags:
+## Flags
 
-#### `--local <LOCAL> `
+### `--local <LOCAL>`
 
-#### `-l <LOCAL>`
+### `-l <LOCAL>`
 
 Specifies that the dependency to be added is a local program or library located at path `<LOCAL>`. This can be the root directory for a Leo project, the root directory for a Leo library, or a path directly to an already compiled `.aleo` file.
 
-#### `--network`
+### `--network`
 
-#### `-n `
+### `-n`
 
 Specifies that the dependency to be added is a remote program currently deployed onchain. The network that it will be pulled from will be the same as the one specified in by the `NETWORK` variable in `.env`
 
-#### `--edition <EDITION> `
+### `--edition <EDITION>`
 
-#### `-e <EDITION>`
+### `-e <EDITION>`
 
 Specifies the expected edition of the program being imported. Only passing this flag will assume that the program is being imported from the network.
 
@@ -58,13 +58,13 @@ Specifies the expected edition of the program being imported. Only passing this 
 Do not use this feature unless you know what you are doing!
 :::
 
-#### `--dev`
+### `--dev`
 
 Specifies that the imported program is a development dependency and should not be used in production
 
-#### `--clear`
+### `--clear`
 
-#### `-c`
+### `-c`
 
 Clears all previous dependencies.
 

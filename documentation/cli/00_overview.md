@@ -47,35 +47,35 @@ You can print the list of commands by running `leo --help`
 
 These flags are available to use alongside all commands in the Leo CLI.
 
-#### `--help`
+### `--help`
 
-#### `-h`
+### `-h`
 
 Prints available commands and flags.
 
-#### `--version`
+### `--version`
 
-#### `-V`
+### `-V`
 
 Prints the currently installed version of Leo.
 
-#### `-q`
+### `-q`
 
 Suppresses the CLI output.
 
-#### `-d`
+### `-d`
 
 Prints out additional information for debugging if possible.
 
-#### `--path <PATH>`
+### `--path <PATH>`
 
 Specifies the path to Leo program root folder. Defaults to `./`.
 
-#### `--home <HOME>`
+### `--home <HOME>`
 
 Specifies the path to the `.aleo` program registry. This is where programs downloaded from the network will be cached. Defaults to `~/.aleo/registry`.
 
-#### `--json-output[=<PATH>]`
+### `--json-output[=<PATH>]`
 
 Saves structured JSON output to disk.
 
