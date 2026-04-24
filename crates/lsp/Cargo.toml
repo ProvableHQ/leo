@@ -11,6 +11,11 @@ include = [ "Cargo.toml", "src", "tests", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/{ name }-v{ version }/{ name }-v{ version }-{ target }.zip"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "zip"
+
 [lib]
 path = "src/lib.rs"
 

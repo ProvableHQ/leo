@@ -51,7 +51,7 @@ pub struct DisambiguateVisitor<'state> {
     pub state: &'state mut CompilerState,
 }
 
-impl ProgramReconstructor for DisambiguateVisitor<'_> {}
+impl UnitReconstructor for DisambiguateVisitor<'_> {}
 
 impl AstReconstructor for DisambiguateVisitor<'_> {
     type AdditionalInput = ();

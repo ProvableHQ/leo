@@ -270,10 +270,10 @@ pub fn load_source_fixture(source_path: &Path) -> Result<FixtureData, String> {
 
 /// Creates a fresh [`Compiler`] with all fixture dependencies pre-loaded.
 pub fn create_compiler(fixture: &FixtureData) -> Compiler {
-    let expected_program_name = if fixture.program_name.is_empty() { None } else { Some(fixture.program_name.clone()) };
+    let expected_unit_name = if fixture.program_name.is_empty() { None } else { Some(fixture.program_name.clone()) };
 
     Compiler::new(
-        expected_program_name,
+        expected_unit_name,
         false,
         Handler::default(),
         Rc::new(NodeBuilder::default()),
@@ -286,10 +286,10 @@ pub fn create_compiler(fixture: &FixtureData) -> Compiler {
 
 /// Creates a lightweight [`Compiler`] with no import stubs for parse-only benchmarks.
 pub fn create_parse_only_compiler(fixture: &FixtureData) -> Compiler {
-    let expected_program_name = if fixture.program_name.is_empty() { None } else { Some(fixture.program_name.clone()) };
+    let expected_unit_name = if fixture.program_name.is_empty() { None } else { Some(fixture.program_name.clone()) };
 
     Compiler::new(
-        expected_program_name,
+        expected_unit_name,
         false,
         Handler::default(),
         Rc::new(NodeBuilder::default()),

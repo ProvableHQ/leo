@@ -16,7 +16,16 @@
 
 use crate::CompilerState;
 
-use leo_ast::{BinaryOperation, Expression, Identifier, LiteralVariant, Node as _, Path, UnaryOperation};
+use leo_ast::{
+    BinaryOperation,
+    DynamicOpKind,
+    Expression,
+    Identifier,
+    LiteralVariant,
+    Node as _,
+    Path,
+    UnaryOperation,
+};
 use leo_span::Symbol;
 
 use std::collections::HashMap;
@@ -114,7 +123,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::TupleAccess(_)
             | Expression::Unary(_)
             | Expression::Unit(_)
-            | Expression::DynamicCall(_) => return None,
+            | Expression::DynamicOp(_) => return None,
         };
 
         Some(value)
@@ -231,13 +240,18 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
 
-            Expression::DynamicCall(dc) => {
-                self.try_atom(&mut dc.target_program)?;
-                if let Some(ref mut network) = dc.network {
+            Expression::DynamicOp(op) => {
+                self.try_atom(&mut op.target_program)?;
+                if let Some(ref mut network) = op.network {
                     self.try_atom(network)?;
                 }
-                for arg in &mut dc.arguments {
-                    self.try_atom(arg)?;
+                match &mut op.kind {
+                    DynamicOpKind::Call { arguments, .. } | DynamicOpKind::Op { arguments, .. } => {
+                        for arg in arguments {
+                            self.try_atom(arg)?;
+                        }
+                    }
+                    DynamicOpKind::Read { .. } => {}
                 }
                 return Some((expression, false));
             }

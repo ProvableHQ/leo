@@ -228,7 +228,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let function_name = match function.variant {
             Variant::FinalFn => return None,
             Variant::EntryPoint => function.identifier.to_string(),
-            Variant::Fn => function.identifier.to_string(),
+            // Closures may carry monomorphized names like `foo::[5u32]` that aren't legal Aleo
+            // identifiers, so legalize them.
+            Variant::Fn => Self::legalize_path(&[function.identifier.name])
+                .expect("type checking guarantees the function path is legalizable"),
             Variant::Finalize => self.finalize_caller.unwrap().to_string(),
         };
 

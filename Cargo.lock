@@ -2298,7 +2298,6 @@ dependencies = [
  "leo-compiler",
  "leo-disassembler",
  "leo-errors",
- "leo-fmt",
  "leo-package",
  "leo-span",
  "libc",

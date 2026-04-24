@@ -19,10 +19,10 @@ use super::StaticAnalyzingVisitor;
 use leo_ast::{Type, *};
 use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 
-impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
+impl UnitVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         // Set the current program name.
-        self.current_program = input.program_id.as_symbol();
+        self.current_unit = input.program_id.as_symbol();
         // Do the default implementation for visiting the program scope.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
@@ -126,7 +126,7 @@ impl ProgramVisitor for StaticAnalyzingVisitor<'_> {
     }
 
     fn visit_library(&mut self, input: &leo_ast::Library) {
-        self.current_program = input.name;
+        self.current_unit = input.name;
 
         // The rest is identical to the default implementation
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));

@@ -61,7 +61,7 @@ function main_2:
     is.neq r4.data[0u32][1u32] r4.data[1u32][0u32] into r5;
     is.neq r4.data[0u32][2u32] r4.data[2u32][0u32] into r6;
     is.neq r4.data[1u32][2u32] r4.data[2u32][1u32] into r7;
-    ternary r7 false true into r8;
+    not r7 into r8;
     ternary r6 false r8 into r9;
     ternary r5 false r9 into r10;
     output r10 as boolean.private;

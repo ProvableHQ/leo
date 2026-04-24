@@ -1,12 +1,13 @@
 program test.aleo {
-    struct "u32?" {
+    struct u32? {
         is_some: bool,
         val: u32,
     }
     fn main(flag: bool) -> u32 {
-        let result: test.aleo::"u32?" = test.aleo::"u32?" { is_some: false, val: 0u32 };
-        assert(result.is_some);
-        return result.val;
+        let result: test.aleo::u32? = test.aleo::u32? { is_some: false, val: 0u32 };
+        let $opt$0 = result;
+        assert($opt$0.is_some);
+        return $opt$0.val;
     }
 }
 

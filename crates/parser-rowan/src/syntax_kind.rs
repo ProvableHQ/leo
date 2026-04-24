@@ -547,8 +547,11 @@ define_syntax_kinds! {
     FINAL_EXPR,
     /// Tuple access: `a.0`
     TUPLE_ACCESS_EXPR,
-    /// Dynamic call: `Interface @ (target) :: function(args)`
-    DYNAMIC_CALL_EXPR,
+    /// Dynamic interface access. Covers three surface forms:
+    /// - function call: `Interface @ (target) :: func(args)`
+    /// - storage/vector op: `Interface @ (target) :: member.op(args)`
+    /// - singleton bare read: `Interface @ (target) :: storage`
+    DYNAMIC_OP_EXPR,
 
     // ==========================================================================
     // Composite Nodes - Types
@@ -739,7 +742,7 @@ impl SyntaxKind {
                     | NETWORK_KW_EXPR
                     | PAREN_EXPR
                     | FINAL_EXPR
-                    | DYNAMIC_CALL_EXPR
+                    | DYNAMIC_OP_EXPR
             )
     }
 

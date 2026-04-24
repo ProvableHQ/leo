@@ -802,6 +802,7 @@ module.exports = grammar({
       'scalar',
       'signature',
       'string',
+      'identifier',
       'i8',
       'i16',
       'i32',

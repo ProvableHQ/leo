@@ -1,0 +1,26 @@
+program test.aleo;
+
+struct Optional__DmN5CQ9hzeK:
+    is_some as boolean;
+    val as u64;
+
+function maybe_query:
+    input r0 as field.private;
+    input r1 as u32.private;
+    input r2 as boolean.private;
+    async maybe_query r0 r1 r2 into r3;
+    output r3 as test.aleo/maybe_query.future;
+
+finalize maybe_query:
+    input r0 as field.public;
+    input r1 as u32.public;
+    input r2 as boolean.public;
+    branch.eq r2 false to end_then_0_0;
+    contains.dynamic r0 'aleo' 'total__'[false] into r3;
+    get.or_use.dynamic r0 'aleo' 'total__'[false] 0u64 into r4 as u64;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r5 as u32;
+    get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r6 as u64;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r7 as u32;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;

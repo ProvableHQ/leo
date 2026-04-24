@@ -1,0 +1,10 @@
+program test.aleo;
+
+function query:
+    input r0 as field.private;
+    async query r0 into r1;
+    output r1 as test.aleo/query.future;
+
+finalize query:
+    input r0 as field.public;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r1 as u32;

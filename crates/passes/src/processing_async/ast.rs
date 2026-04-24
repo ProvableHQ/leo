@@ -29,7 +29,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         let finalize_fn_name = self.state.assigner.unique_symbol(self.current_function, "$");
 
         // Convert the block into a function and a function call.
-        let mut block_to_function_rewriter = BlockToFunctionRewriter::new(self.state, self.current_program);
+        let mut block_to_function_rewriter = BlockToFunctionRewriter::new(self.state, self.current_unit);
         let (function, call_to_finalize) =
             block_to_function_rewriter.rewrite_block(&input.block, finalize_fn_name, Variant::Finalize);
 

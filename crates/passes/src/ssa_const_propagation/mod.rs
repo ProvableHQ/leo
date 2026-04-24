@@ -22,7 +22,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::UnitReconstructor as _;
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -49,6 +49,7 @@ impl Pass for SsaConstPropagation {
                 state,
                 program: Symbol::intern(""),
                 constants: Default::default(),
+                atom_fielded_composites: Default::default(),
                 changed: false,
             };
 

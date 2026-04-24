@@ -16,9 +16,9 @@
 
 use super::WriteTransformingVisitor;
 
-use leo_ast::{AstReconstructor as _, Constructor, Function, ProgramReconstructor};
+use leo_ast::{AstReconstructor as _, Constructor, Function, UnitReconstructor};
 
-impl ProgramReconstructor for WriteTransformingVisitor<'_> {
+impl UnitReconstructor for WriteTransformingVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         // Since the input parameters may be composites or arrays that are written to,
         // we may need to define variable members.

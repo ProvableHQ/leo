@@ -355,8 +355,13 @@ impl Parser<'_, '_> {
         Some(m.complete(self, INDEX_EXPR))
     }
 
-    /// Parse dynamic call expression: `expr@(expr)::func(args)`.
-    fn parse_dynamic_call_expr(&mut self, lhs: CompletedMarker) -> Option<CompletedMarker> {
+    /// Parse a dynamic interface access expression.
+    ///
+    /// Supports three forms:
+    /// - `expr@(expr)::func(args)` — dynamic function call
+    /// - `expr@(expr)::storage_name.op(args)` — dynamic mapping/vector access
+    /// - `expr@(expr)::storage_name` — dynamic singleton storage read
+    fn parse_dynamic_op_expr(&mut self, lhs: CompletedMarker) -> Option<CompletedMarker> {
         let m = lhs.precede(self);
 
         self.bump_any(); // @
@@ -368,8 +373,19 @@ impl Parser<'_, '_> {
         }
         self.expect(R_PAREN);
         self.expect(COLON_COLON);
-        if self.at(IDENT) {
-            self.bump_any(); // function name
+        self.expect(IDENT); // function name or storage name
+
+        // Bare read form: no `.op(...)` and no `(...)` arguments.
+        if !self.at(DOT) && !self.at(L_PAREN) {
+            return Some(m.complete(self, DYNAMIC_OP_EXPR));
+        }
+
+        // Check for storage access form: `::storage_name.op(args)`
+        if self.at(DOT) {
+            self.bump_any(); // .
+            if self.at(IDENT) {
+                self.bump_any(); // operation name (get, contains, get_or_use)
+            }
         }
         // parse call arguments
         self.expect(L_PAREN);
@@ -383,7 +399,7 @@ impl Parser<'_, '_> {
             }
         }
         self.expect(R_PAREN);
-        Some(m.complete(self, DYNAMIC_CALL_EXPR))
+        Some(m.complete(self, DYNAMIC_OP_EXPR))
     }
 
     /// Parse call expression: `expr(args)`.
@@ -662,7 +678,7 @@ impl Parser<'_, '_> {
             // Check for dynamic call: Interface @ ( target [, network] ) :: function ( args )
             if self.at(AT) {
                 let cm = m.complete(self, TYPE_LOCATOR);
-                return self.parse_dynamic_call_expr(cm);
+                return self.parse_dynamic_op_expr(cm);
             }
 
             let kind = if is_locator { PATH_LOCATOR_EXPR } else { PROGRAM_REF_EXPR };
@@ -716,7 +732,7 @@ impl Parser<'_, '_> {
         // Check for dynamic call: Interface @ ( target [, network] ) :: function ( args )
         if self.at(AT) {
             let cm = m.complete(self, TYPE_PATH);
-            return self.parse_dynamic_call_expr(cm);
+            return self.parse_dynamic_op_expr(cm);
         }
 
         Some(m.complete(self, PATH_EXPR))
@@ -860,7 +876,7 @@ mod tests {
     fn parse_expr_dynamic_call_basic() {
         check_expr("Adder@(target)::sum(x, y)", expect![[r#"
             ROOT@0..25
-              DYNAMIC_CALL_EXPR@0..25
+              DYNAMIC_OP_EXPR@0..25
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -885,7 +901,7 @@ mod tests {
     fn parse_expr_dynamic_call_identifier_target() {
         check_expr("Adder@('foo')::sum(x, y)", expect![[r#"
             ROOT@0..24
-              DYNAMIC_CALL_EXPR@0..24
+              DYNAMIC_OP_EXPR@0..24
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -910,7 +926,7 @@ mod tests {
     fn parse_expr_dynamic_call_with_network() {
         check_expr("Adder@('foo', 'aleo')::sum(x, y)", expect![[r#"
             ROOT@0..32
-              DYNAMIC_CALL_EXPR@0..32
+              DYNAMIC_OP_EXPR@0..32
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -939,7 +955,7 @@ mod tests {
     fn parse_expr_dynamic_call_no_args() {
         check_expr("Adder@(target)::sum()", expect![[r#"
             ROOT@0..21
-              DYNAMIC_CALL_EXPR@0..21
+              DYNAMIC_OP_EXPR@0..21
                 TYPE_PATH@0..5
                   IDENT@0..5 "Adder"
                 AT@5..6 "@"
@@ -951,6 +967,115 @@ mod tests {
                 IDENT@16..19 "sum"
                 L_PAREN@19..20 "("
                 R_PAREN@20..21 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_storage_access() {
+        check_expr("Bank@(target)::balances.get(key)", expect![[r#"
+            ROOT@0..32
+              DYNAMIC_OP_EXPR@0..32
+                TYPE_PATH@0..4
+                  IDENT@0..4 "Bank"
+                AT@4..5 "@"
+                L_PAREN@5..6 "("
+                PATH_EXPR@6..12
+                  IDENT@6..12 "target"
+                R_PAREN@12..13 ")"
+                COLON_COLON@13..15 "::"
+                IDENT@15..23 "balances"
+                DOT@23..24 "."
+                IDENT@24..27 "get"
+                L_PAREN@27..28 "("
+                PATH_EXPR@28..31
+                  IDENT@28..31 "key"
+                R_PAREN@31..32 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_storage_access_missing_storage_name() {
+        // Error-recovery path: `::.get(key)` has no storage-name IDENT before DOT.
+        // The CST keeps the DOT and the trailing IDENT so downstream passes can detect the
+        // malformed form and the rowan-to-AST conversion can fall back to `error_identifier`.
+        check_expr("Bank@(target)::.get(key)", expect![[r#"
+            ROOT@0..24
+              DYNAMIC_OP_EXPR@0..24
+                TYPE_PATH@0..4
+                  IDENT@0..4 "Bank"
+                AT@4..5 "@"
+                L_PAREN@5..6 "("
+                PATH_EXPR@6..12
+                  IDENT@6..12 "target"
+                R_PAREN@12..13 ")"
+                COLON_COLON@13..15 "::"
+                DOT@15..16 "."
+                IDENT@16..19 "get"
+                L_PAREN@19..20 "("
+                PATH_EXPR@20..23
+                  IDENT@20..23 "key"
+                R_PAREN@23..24 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_storage_access_missing_op() {
+        // Error-recovery path: `::balances.(key)` has a DOT but no op IDENT.
+        check_expr("Bank@(target)::balances.(key)", expect![[r#"
+            ROOT@0..29
+              DYNAMIC_OP_EXPR@0..29
+                TYPE_PATH@0..4
+                  IDENT@0..4 "Bank"
+                AT@4..5 "@"
+                L_PAREN@5..6 "("
+                PATH_EXPR@6..12
+                  IDENT@6..12 "target"
+                R_PAREN@12..13 ")"
+                COLON_COLON@13..15 "::"
+                IDENT@15..23 "balances"
+                DOT@23..24 "."
+                L_PAREN@24..25 "("
+                PATH_EXPR@25..28
+                  IDENT@25..28 "key"
+                R_PAREN@28..29 ")"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_read() {
+        check_expr("Bank@(target)::total", expect![[r#"
+            ROOT@0..20
+              DYNAMIC_OP_EXPR@0..20
+                TYPE_PATH@0..4
+                  IDENT@0..4 "Bank"
+                AT@4..5 "@"
+                L_PAREN@5..6 "("
+                PATH_EXPR@6..12
+                  IDENT@6..12 "target"
+                R_PAREN@12..13 ")"
+                COLON_COLON@13..15 "::"
+                IDENT@15..20 "total"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_dynamic_read_with_network() {
+        check_expr("Bank@('foo', 'aleo')::total", expect![[r#"
+            ROOT@0..27
+              DYNAMIC_OP_EXPR@0..27
+                TYPE_PATH@0..4
+                  IDENT@0..4 "Bank"
+                AT@4..5 "@"
+                L_PAREN@5..6 "("
+                LITERAL_IDENT@6..11
+                  IDENT_LIT@6..11 "'foo'"
+                COMMA@11..12 ","
+                WHITESPACE@12..13 " "
+                LITERAL_IDENT@13..19
+                  IDENT_LIT@13..19 "'aleo'"
+                R_PAREN@19..20 ")"
+                COLON_COLON@20..22 "::"
+                IDENT@22..27 "total"
         "#]]);
     }
 

@@ -173,11 +173,22 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
 
     let commands_path = test_context_directory.path().join("COMMANDS");
 
+    // Ensure plugin binaries (e.g. `leo-fmt`) in the same target directory as
+    // `leo` are discoverable via PATH during integration tests.
+    let leo_dir = Path::new(BINARY_PATH).parent().expect("leo binary must reside in a directory");
+    let path_with_leo_dir = {
+        let orig = env::var_os("PATH").unwrap_or_default();
+        let mut dirs = vec![leo_dir.to_path_buf()];
+        dirs.extend(env::split_paths(&orig));
+        env::join_paths(dirs).expect("failed to join PATH entries")
+    };
+
     // Allocate 12 consecutive ports in one call to avoid range overlap between
     // the three port types (REST, node, BFT) needed by the 4-validator devnet.
     let devnet_base = find_free_port_range(12);
     let output = Command::new(&commands_path)
         .arg(BINARY_PATH)
+        .env("PATH", &path_with_leo_dir)
         .env("LEO_DEVNODE_PORT", port.to_string())
         .env("LEO_DEVNET_REST_PORT", devnet_base.to_string())
         .env("LEO_DEVNET_NODE_PORT", (devnet_base + 4).to_string())

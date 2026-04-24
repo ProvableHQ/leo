@@ -1,38 +1,38 @@
 program unary_ops_unsuffixed.aleo;
 
-struct Optional__ArToIDU52JP:
+struct Optional__LDaTFs7R9lV:
     is_some as boolean;
     val as i8;
 
-struct Optional__1pdH6zSByBB:
+struct Optional__29g5iOancAc:
     is_some as boolean;
     val as i16;
 
-struct Optional__9p9J8sbl23N:
+struct Optional__CI2lf3EvJat:
     is_some as boolean;
     val as i32;
 
-struct Optional__5sKIb96heV9:
+struct Optional__GfbJUku6XoG:
     is_some as boolean;
     val as i64;
 
-struct Optional__F9VPlVJMrn6:
+struct Optional__KL3cDgKUnaT:
     is_some as boolean;
     val as i128;
 
-struct Optional__K4XRQPOk9yX:
+struct Optional__7o6su2Uhzht:
     is_some as boolean;
     val as field;
 
-struct Optional__DbbQYuLaHdi:
+struct Optional__ATAkdHctJwx:
     is_some as boolean;
     val as boolean;
 
-struct Optional__8hhrPm4c3KB:
+struct Optional__3aph2JMPtnA:
     is_some as boolean;
     val as u8;
 
-struct Optional__ehTh6DmpRN:
+struct Optional__H2QyNyZ20sa:
     is_some as boolean;
     val as u16;
 

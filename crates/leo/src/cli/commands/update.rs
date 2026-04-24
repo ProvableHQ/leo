@@ -53,9 +53,10 @@ impl Command for LeoUpdate {
                 Err(error) => tracing::info!("Failed to list the available versions of Leo\n{error}\n"),
             },
             false => {
-                let result = Updater::update(!self.quiet, self.name);
-                if !self.quiet {
-                    match result {
+                let show_output = !self.quiet;
+                let result = Updater::update(show_output, self.name.clone());
+                if show_output {
+                    match &result {
                         Ok(status) => {
                             if status.uptodate() {
                                 tracing::info!("\nLeo is already on the latest version")
@@ -65,6 +66,9 @@ impl Command for LeoUpdate {
                         }
                         Err(e) => tracing::info!("\nFailed to update Leo to the latest version\n{e}\n"),
                     }
+                }
+                if result.is_ok() {
+                    Updater::update_bundled_plugins(show_output, self.name.as_deref());
                 }
             }
         }

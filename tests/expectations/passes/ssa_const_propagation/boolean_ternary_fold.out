@@ -1,0 +1,31 @@
+program test.aleo {
+    fn fold_to_cond(cond$$0: bool) -> bool {
+        let $var$1 = true;
+        let $var$2 = false;
+        let $var$3 = cond$$0;
+        return $var$3;
+    }
+    fn fold_to_not_cond(cond$$4: bool) -> bool {
+        let $var$5 = false;
+        let $var$6 = true;
+        let $var$7 = cond$$4.not();
+        return $var$7;
+    }
+    fn fold_both_true(cond$$8: bool) -> bool {
+        let $var$9 = true;
+        let $var$10 = true;
+        let $var$11 = true;
+        return true;
+    }
+    fn fold_both_false(cond$$12: bool) -> bool {
+        let $var$13 = false;
+        let $var$14 = false;
+        let $var$15 = false;
+        return false;
+    }
+    fn no_fold_variable(cond$$16: bool, a$$17: bool, b$$18: bool) -> bool {
+        let $var$19 = cond$$16 ? a$$17 : b$$18;
+        return $var$19;
+    }
+}
+

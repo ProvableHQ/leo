@@ -1,32 +1,31 @@
 program unwrap_none_test.aleo;
 
-struct Optional__DOnC9eGtnsJ:
+struct Optional__DmN5CQ9hzeK:
     is_some as boolean;
     val as u64;
 
 struct MaybeValue:
-    val as Optional__DOnC9eGtnsJ;
+    val as Optional__DmN5CQ9hzeK;
 
-struct Optional__8hhrPm4c3KB:
+struct Optional__3aph2JMPtnA:
     is_some as boolean;
     val as u8;
 
 function unwrap_none:
-    cast false 0u8 into r0 as Optional__8hhrPm4c3KB;
+    cast false 0u8 into r0 as Optional__3aph2JMPtnA;
     assert.eq r0.is_some true;
     gt r0.val 0u8 into r1;
     assert.eq r1 true;
 
 function unwrap_struct_field_none:
-    cast false 0u64 into r0 as Optional__DOnC9eGtnsJ;
-    cast r0 into r1 as MaybeValue;
-    assert.eq r1.val.is_some true;
-    gt r1.val.val 0u64 into r2;
-    assert.eq r2 true;
+    cast false 0u64 into r0 as Optional__DmN5CQ9hzeK;
+    assert.eq r0.is_some true;
+    gt r0.val 0u64 into r1;
+    assert.eq r1 true;
 
 constructor:
     assert.eq edition 0u16;
 status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r0.is_some true;) at index 1 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()
-status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r1.val.is_some true;) at index 2 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq r0.is_some true;) at index 1 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()

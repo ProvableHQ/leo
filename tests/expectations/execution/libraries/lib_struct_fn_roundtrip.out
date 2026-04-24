@@ -5,10 +5,9 @@ struct Wrap__7dHW66DosY9:
 
 function roundtrip:
     input r0 as u32.private;
-    cast r0 into r1 as Wrap__7dHW66DosY9;
-    mul r1.val 2u32 into r2;
-    cast r2 into r3 as Wrap__7dHW66DosY9;
-    output r3.val as u32.private;
+    mul r0 2u32 into r1;
+    cast r1 into r2 as Wrap__7dHW66DosY9;
+    output r2.val as u32.private;
 
 constructor:
     assert.eq edition 0u16;

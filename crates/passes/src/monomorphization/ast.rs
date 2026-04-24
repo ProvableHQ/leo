@@ -26,12 +26,13 @@ use leo_ast::{
     Expression,
     Identifier,
     Node as _,
-    ProgramReconstructor as _,
     Type,
+    UnitReconstructor as _,
 };
 
 use indexmap::IndexMap;
 use itertools::{Either, Itertools};
+use leo_span::Symbol;
 
 impl<'a> MonomorphizationVisitor<'a> {
     /// Evaluates the given constant arguments if possible.
@@ -93,7 +94,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             Expression::Async(async_) => self.reconstruct_async(async_, &()),
             Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
             Expression::Call(call) => self.reconstruct_call(*call, &()),
-            Expression::DynamicCall(dc) => self.reconstruct_dynamic_call(*dc, &()),
+            Expression::DynamicOp(op) => self.reconstruct_dynamic_op(*op, &()),
             Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
             Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
             Expression::Err(err) => self.reconstruct_err(err, &()),
@@ -122,11 +123,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let callee_loc = input_call.function.expect_global_location();
-        let callee_program = callee_loc.program;
 
-        // Skip calls to external programs that are not libraries (cross-program calls).
-        // Library functions and current-program functions (including modules) proceed below.
-        if callee_program != self.program && !self.state.symbol_table.is_library(callee_program) {
+        // Cross-program entry-point calls stay as direct Aleo `call`s and don't need
+        // monomorphization. Everything else falls through: generic callees are monomorphized
+        // below, non-generic ones bail at the `const_arguments.is_empty()` check.
+        if self.state.symbol_table.is_cross_program_entry(self.program, callee_loc) {
             return (input_call.into(), Default::default());
         }
 
@@ -152,11 +153,11 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
 
         // Generate a unique name for the monomorphized function based on const arguments.
         //
-        // For a function `fn foo::[x: u32, y: u32](..)`, the generated name would be `"foo::[1u32, 2u32]"` for a call
-        // that sets `x` to `1u32` and `y` to `2u32`. We know this name is safe to use because it's not a valid
-        // identifier in the user code.
-        let new_callee_path = input_call.function.clone().with_updated_last_symbol(leo_span::Symbol::intern(&format!(
-            "\"{}::[{}]\"",
+        // For a function `fn foo::[x: u32, y: u32](..)`, the generated name would be `foo::[1u32, 2u32]` for a call
+        // that sets `x` to `1u32` and `y` to `2u32`. This name is not a valid Leo identifier (contains `::` and `[`)
+        // so it cannot collide with any user-defined function name; it is legalized in codegen.
+        let new_callee_path = input_call.function.clone().with_updated_last_symbol(Symbol::intern(&format!(
+            "{}::[{}]",
             input_call.function.identifier().name,
             evaluated_const_args.iter().format(", ")
         )));

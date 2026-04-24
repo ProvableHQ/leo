@@ -81,6 +81,125 @@
       ]
     },
     {
+      "name": "average",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "blend_twice",
+      "is_final": false,
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "c",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "colors",
+                  "Color"
+                ],
+                "program": "provider.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
       "name": "channel_count",
       "is_final": false,
       "inputs": [],

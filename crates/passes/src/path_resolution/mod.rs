@@ -42,7 +42,7 @@
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramReconstructor as _};
+use leo_ast::{Ast, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 

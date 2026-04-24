@@ -7,10 +7,7 @@ struct Pair__7KbQeHqAtW2:
     y as u32;
 
 function main:
-    cast 10u32 into r0 as Pair__AcaVJBlG8VV;
-    cast 20u32 into r1 as Pair__7KbQeHqAtW2;
-    add r0.x r1.y into r2;
-    output r2 as u32.private;
+    output 30u32 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

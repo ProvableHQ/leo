@@ -175,7 +175,7 @@ impl CodeGeneratingVisitor<'_> {
             }
             (
                 DefinitionPlace::Multiple(identifiers),
-                Expression::Call(_) | Expression::DynamicCall(_) | Expression::Intrinsic(_),
+                Expression::Call(_) | Expression::DynamicOp(_) | Expression::Intrinsic(_),
             ) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 let Some(AleoExpr::Tuple(elems)) = operand else {

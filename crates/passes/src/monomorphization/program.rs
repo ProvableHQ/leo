@@ -15,64 +15,19 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::MonomorphizationVisitor;
-use leo_ast::{
-    AstReconstructor,
-    Library,
-    Location,
-    Module,
-    Program,
-    ProgramReconstructor,
-    ProgramScope,
-    Statement,
-    Stub,
-    Variant,
-};
-use leo_span::{Symbol, sym};
+use crate::common::{items_at_path, program_composites, program_functions, stub_composites, stub_functions};
+use leo_ast::{AstReconstructor, Library, Program, ProgramScope, Statement, Stub, UnitReconstructor, Variant};
+use leo_span::sym;
 
-impl ProgramReconstructor for MonomorphizationVisitor<'_> {
+impl UnitReconstructor for MonomorphizationVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
-        // Collect the (re-)constructed versions of library composites that were processed
-        // during reconstruct_program_scope. We filter by the library's program name so that
-        // only composites belonging to this library are included.
-        //
-        // This ensures the library stub is updated with correct field types after monomorphization
-        // (e.g., `Bar.f` pointing to the consuming program's monomorphized `Foo::[42u32]`).
-
-        // Seed `reconstructed_functions` with non-generic library module functions.
-        // These functions are not processed by the main reconstruction loop (which only handles
-        // generic library functions and current-program functions), so we process them here via
-        // `reconstruct_function` to update any composite type references (e.g., a non-generic
-        // function that constructs or returns a generic composite with concrete const arguments).
-        // Without this, the composite expressions in the function body and its signature would
-        // still reference the generic composite location rather than the monomorphized one.
-        for (module_path, module) in &input.modules {
-            for (name, f) in &module.functions {
-                if f.const_parameters.is_empty() {
-                    let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
-                    let loc = Location::new(input.name, path);
-                    if !self.reconstructed_functions.contains_key(&loc) {
-                        let processed = self.reconstruct_function(f.clone());
-                        self.reconstructed_functions.insert(loc, processed);
-                    }
-                }
-            }
-        }
-
+        // Unreached library functions are dropped: code generation skips library stubs
+        // entirely, and nothing downstream reads un-inlined library bodies. Only functions
+        // the DFS actually monomorphized (i.e. the ones callers reach) make it through.
         Library {
             name: input.name,
-            // Reconstruct each module, which collects its monomorphized composites and functions
-            // from reconstructed_composites/reconstructed_functions via reconstruct_module.
-            modules: input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect(),
-            structs: self
-                .reconstructed_composites
-                .iter()
-                .filter_map(|(loc, c)| {
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
-                        .map(|(last, _)| (*last, c.clone()))
-                })
-                .collect(),
+            modules: input.modules.into_iter().map(|(id, m)| (id, self.assemble_module(m))).collect(),
+            structs: items_at_path(&self.reconstructed_composites, input.name, &[]).collect(),
             consts: input
                 .consts
                 .into_iter()
@@ -81,107 +36,86 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
                     _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
                 })
                 .collect(),
-            // Collect top-level library function instances. Non-generic functions are kept from
-            // the original input; generic functions are superseded by their reconstructed versions
-            // in `reconstructed_functions`. Excluding generic originals prevents duplicates that
-            // would cause TypeChecking to report "defined multiple times" errors on the next
-            // iteration.
-            functions: input
-                .functions
-                .into_iter()
-                .filter(|(_, f)| f.const_parameters.is_empty())
-                .chain(self.reconstructed_functions.iter().filter_map(|(loc, f)| {
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| rest.is_empty() && loc.program == input.name)
-                        .map(|(last, _)| (*last, f.clone()))
-                }))
-                .collect(),
+            functions: items_at_path(&self.reconstructed_functions, input.name, &[]).collect(),
             interfaces: input.interfaces,
             stubs: input.stubs,
         }
     }
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        // Set the current program name from the input.
-        self.program = input.program_id.as_symbol();
+        let top_level_program = input.program_id.as_symbol();
+        self.program = top_level_program;
 
-        // We first reconstruct all composites. Composite fields can instantiate other generic composites that we need to handle
-        // first. We'll then address composite expressions and other compoiste type instantiations.
+        // Composites first: a composite field may instantiate another generic composite, so
+        // post-order makes sure dependencies are monomorphized before their users.
         let composite_order = self.state.composite_graph.post_order().unwrap();
 
-        // Reconstruct composites in post-order.
         for loc in &composite_order {
             if let Some(composite) = self.composite_map.swap_remove(loc) {
-                // Perform monomorphization or other reconstruction logic.
                 let reconstructed_composite = self.reconstruct_composite(composite);
-                // Store the reconstructed composite under its original location.
-                // For library composites loc.program != self.program; preserving the library
-                // program name here is what allows monomorphize_composite to find them later.
-                // Both the program-scope and module output-collection loops filter by
-                // `loc.program == self.program`, so library entries stay invisible to the output.
                 self.reconstructed_composites.insert(loc.clone(), reconstructed_composite);
             }
         }
 
-        // If there are some local composites left in `composite_map`, that means these are dead
-        // composites since they do not show up in `composite_graph`. Therefore, they won't be
-        // reconstructed, implying a change in the reconstructed program.
-        if !self.composite_map.is_empty() {
+        // Any current-program composite left in `composite_map` is dead code; note that and
+        // drop it so downstream passes re-run. External leftovers are fine — they just aren't
+        // referenced by the composite graph and will flow through unchanged into stubs.
+        if self.composite_map.keys().any(|loc| loc.program == self.program) {
             self.changed = true;
         }
 
-        // Next, handle generic functions
-        //
-        // Compute a post-order traversal of the call graph. This ensures that functions are processed after all their callees.
-        // Make sure to only compute the post order by considering the entry points of the program, which are `async transition`, `transition` and `function`.
-        // We must consider entry points to ignore const generic inlines that have already been monomorphized but never called.
+        // DFS the call graph from every program's entry points, constructors, and non-generic
+        // fns. External roots are included so that generic closures called only from within an
+        // imported program (e.g. child's `main` calling child's own `foo::[42u32]()`) still get
+        // monomorphized during the current compilation; otherwise their call sites would escape
+        // unrewritten and later passes would see dangling const-parameter references.
+        // `post_order_with_filter` only limits roots, so the outer filter is still needed to
+        // drop transitive non-candidates. The unwrap is safe — type checking proves acyclicity.
         let order = self
             .state
             .call_graph
             .post_order_with_filter(|location| {
-                // Filter out locations that are not from this program.
-                if location.program != self.program {
-                    return false;
-                }
-                // Allow constructors.
-                if location.program == self.program && location.path == vec![sym::constructor] {
+                if location.path.as_slice() == [sym::constructor] {
                     return true;
                 }
                 self.function_map
                     .get(location)
                     .map(|f| {
                         matches!(f.variant, Variant::EntryPoint)
-                            | (f.variant == Variant::Fn && f.const_parameters.is_empty())
+                            || (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)
             })
-            .unwrap() // This unwrap is safe because the type checker guarantees an acyclic graph.
+            .unwrap()
             .into_iter()
-            .filter(|location| {
-                // Always include current-program functions.
-                if location.program == self.program {
-                    return true;
-                }
-                // Also include generic library functions reachable from the current program.
-                // Non-generic library functions need no monomorphization and are handled by
-                // the early-return in `reconstruct_call` (no const arguments).
-                self.state.symbol_table.is_library(location.program)
-                    && self.function_map.get(location).map(|f| !f.const_parameters.is_empty()).unwrap_or(false)
-            })
+            .filter(|location| self.function_map.contains_key(location))
             .collect::<Vec<_>>();
 
         for function_name in &order {
-            // Reconstruct functions in post-order.
+            // `self.program` is set per-function so `reconstruct_call` can see cross-program
+            // calls from the callee's perspective.
+            self.program = function_name.program;
             if let Some(function) = self.function_map.swap_remove(function_name) {
-                // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
-                // Add the reconstructed function to the mapping.
                 self.reconstructed_functions.insert(function_name.clone(), reconstructed_function);
             }
         }
 
-        // Now reconstruct mappings and storage variables
+        self.program = top_level_program;
+
+        // External items not reached by the DFS are carried through unchanged so stubs can
+        // pick them up; current-program leftovers are dead code and intentionally dropped.
+        for (loc, f) in std::mem::take(&mut self.function_map) {
+            if loc.program != self.program {
+                self.reconstructed_functions.entry(loc).or_insert(f);
+            }
+        }
+        for (loc, c) in std::mem::take(&mut self.composite_map) {
+            if loc.program != self.program {
+                self.reconstructed_composites.entry(loc).or_insert(c);
+            }
+        }
+
         let mappings =
             input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
         let storage_variables = input
@@ -190,7 +124,6 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
             .collect();
 
-        // Then consts
         let consts = input
             .consts
             .into_iter()
@@ -200,51 +133,34 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             })
             .collect();
 
-        // Reconstruct the constructor last, as it cannot be called by any other function.
+        // The constructor is reconstructed last because nothing can call it.
         let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
 
-        // Now retain only functions that are either not yet monomorphized or are still referenced by calls.
+        // Drop original generic functions whose monomorphized instances have replaced them,
+        // unless they are still referenced by unresolved calls that later passes will retry.
         self.reconstructed_functions.retain(|l, _| {
             let is_monomorphized = self.monomorphized_functions.contains(l);
             let is_still_called = self.unresolved_calls.iter().any(|c| c.function.expect_global_location() == l);
             !is_monomorphized || is_still_called
         });
 
-        // Move reconstructed functions into the final `ProgramScope`.
-        // Make sure to place transitions before all the other functions.
-        let (transitions, mut non_transitions): (Vec<_>, Vec<_>) =
-            self.reconstructed_functions.clone().into_iter().partition(|(_, f)| f.variant.is_entry());
+        // Collect only current-program top-level functions for this scope, then reorder so
+        // entry points precede finalize functions — the type checker expects that order.
+        let (entry_points, non_entry_points): (Vec<_>, Vec<_>) =
+            items_at_path(&self.reconstructed_functions, self.program, &[]).partition(|(_, f)| f.variant.is_entry());
+        let functions: Vec<_> = entry_points.into_iter().chain(non_entry_points).collect();
 
-        let mut all_functions = transitions;
-        all_functions.append(&mut non_transitions);
-
-        // Return the fully reconstructed scope with updated functions.
         ProgramScope {
             program_id: input.program_id,
             parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),
-            composites: self
-                .reconstructed_composites
-                .iter()
-                .filter_map(|(loc, c)| {
-                    // Only consider composites defined at program scope within the same program.
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| rest.is_empty() && loc.program == self.program)
-                        .map(|(last, _)| (*last, c.clone()))
-                })
+            // Exclude generic composites that have been monomorphized — only their concrete
+            // specializations should appear in the output.
+            composites: items_at_path(&self.reconstructed_composites, self.program, &[])
+                .filter(|(_, c)| c.const_parameters.is_empty())
                 .collect(),
             mappings,
             storage_variables,
-            functions: all_functions
-                .iter()
-                .filter_map(|(loc, f)| {
-                    // Only consider functions defined at program scope within the same program.
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| rest.is_empty() && loc.program == self.program)
-                        .map(|(last, _)| (*last, f.clone()))
-                })
-                .collect(),
+            functions,
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
             constructor,
             consts,
@@ -253,145 +169,54 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
-        // STUB ORDERING INVARIANT
-        //
-        // The ordering of operations in this function is critical for correctness:
-        //
-        // 1. FromLeo stubs are processed FIRST (before the current program's scope).
-        //    Each FromLeo stub recursively calls reconstruct_program for the dependency,
-        //    which populates `reconstructed_composites` with the dependency's composites.
-        //    This means that when the current program's scope is processed, any composites
-        //    from FromLeo dependencies (e.g. `child.aleo::Bar`) are already available for
-        //    monomorphization.
-        //
-        // 2. The current program's composite_map and function_map are populated AFTER
-        //    FromLeo stubs are processed (since each FromLeo recursive call clears and
-        //    repopulates these maps for its own scope).
-        //
-        // 3. Library composites (from FromLibrary stubs) are added to composite_map so
-        //    they are processed in reconstruct_program_scope (their field types updated).
-        //
-        // 4. program_scopes are processed AFTER FromLeo stubs and after composite_map is
-        //    populated for the current program.
-        //
-        // 5. FromLibrary/FromAleo stubs are processed AFTER program_scopes, so that
-        //    reconstruct_library can collect monomorphized composites from reconstructed_composites.
-
-        // Capture the original stub insertion order before partitioning, so we can
-        // reassemble stubs in their original order after processing.  The type-checking
-        // pass that runs after monomorphization depends on this order.
-        let stub_key_order: Vec<_> = input.stubs.keys().cloned().collect();
-
-        // Partition stubs early (non-consuming borrow not possible, so partition now and
-        // process in two phases).
-        let (from_leo_stubs, other_stubs): (Vec<_>, Vec<_>) =
-            input.stubs.into_iter().partition(|(_, stub)| matches!(stub, Stub::FromLeo { .. }));
-
-        // Pre-Phase 1: Seed composite_map with library composites BEFORE recursing into
-        // FromLeo stubs. This is critical for correctness: when a FromLeo dependency
-        // (e.g. `helper.aleo`) uses library structs, its inner `Program` may not carry the
-        // library stubs (they are only present on the top-level compilation unit). By inserting
-        // the library composites here — before the recursive call — they are already in
-        // composite_map when the inner call's Phase 2 retains non-previous-program entries.
-        // Entries that are already in reconstructed_composites (processed by a prior inner call)
-        // will be silently skipped by the composite_order loop via `swap_remove` returning None.
-        other_stubs.iter().for_each(|(_, stub)| {
-            if let Stub::FromLibrary { library, .. } = stub {
-                library.structs.iter().for_each(|(name, c)| {
-                    self.composite_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| c.clone());
-                });
-                // Seed function_map with library function definitions so that reconstruct_call can
-                // inline them into the consuming program under mangled names.
-                library.functions.iter().for_each(|(name, f)| {
-                    self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
-                });
-                // Seed composite_map and function_map with items from library submodules.
-                library.modules.iter().for_each(|(module_path, m)| {
-                    m.composites.iter().for_each(|(name, c)| {
-                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
-                        self.composite_map.entry(Location::new(library.name, path)).or_insert_with(|| c.clone());
-                    });
-                    m.functions.iter().for_each(|(name, f)| {
-                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
-                        self.function_map.entry(Location::new(library.name, path)).or_insert_with(|| f.clone());
-                    });
-                });
-            }
-        });
-
-        // Phase 1: Process FromLeo stubs.
-        // This recursively calls reconstruct_program for each dependency, populating
-        // reconstructed_composites with their composites before the current scope runs.
-        let from_leo_stubs: indexmap::IndexMap<_, _> =
-            from_leo_stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
-
-        // Phase 2: Set up for the current program.
-        // After processing FromLeo stubs, reset and populate composite_map / function_map
-        // for the current program's scope.
-        //
-        // IMPORTANT: Instead of clearing composite_map entirely, we only remove composites
-        // belonging to the previous program (self.program). Library composites (loc.program !=
-        // self.program) are retained so that deeply nested FromLeo programs — whose inner
-        // Program objects may not carry library stubs — can still access them.
-        let prev_program = self.program;
-        self.composite_map.retain(|loc, _| loc.program != prev_program);
-        // Retain library functions (analogous to composite_map.retain above) so that deeply-nested
-        // FromLeo programs — whose inner Program objects may not carry library stubs — can still
-        // inline library functions when their scopes are processed.
-        self.function_map.retain(|loc, _| self.state.symbol_table.is_library(loc.program));
-
+        // Seed `function_map` and `composite_map` with every definition reachable from this
+        // program (stubs, libraries, current program). A single DFS from the current program's
+        // entry points then monomorphizes all of them in one pass; cross-program edges in the
+        // call graph make recursive per-stub passes unnecessary. Current-program inserts come
+        // last so they override any stub placeholders for overlapping keys.
         self.program =
             *input.program_scopes.first().expect("a program must have a single program scope at this stage").0;
 
-        // Populate `self.function_map` using the functions in the program scopes and the modules.
-        input
-            .modules
-            .iter()
-            .flat_map(|(module_path, m)| {
-                m.functions.iter().map(move |(name, f)| {
-                    (module_path.iter().cloned().chain(std::iter::once(*name)).collect(), f.clone())
-                })
-            })
-            .chain(
-                input
-                    .program_scopes
-                    .iter()
-                    .flat_map(|(_, scope)| scope.functions.iter().map(|(name, f)| (vec![*name], f.clone()))),
-            )
-            .for_each(|(full_name, f)| {
-                self.function_map.insert(Location::new(self.program, full_name), f);
-            });
+        for (_, stub) in &input.stubs {
+            for (loc, f) in stub_functions(stub) {
+                self.function_map.entry(loc).or_insert_with(|| f.clone());
+            }
+            for (loc, c) in stub_composites(stub) {
+                self.composite_map.entry(loc).or_insert_with(|| c.clone());
+            }
+        }
+        for (loc, f) in program_functions(&input) {
+            self.function_map.insert(loc, f.clone());
+        }
+        for (loc, c) in program_composites(&input) {
+            self.composite_map.insert(loc, c.clone());
+        }
 
-        // Populate `self.composite_map` using the composites in the program scopes and the modules.
-        input
-            .modules
-            .iter()
-            .flat_map(|(module_path, m)| {
-                m.composites.iter().map(move |(name, f)| {
-                    (module_path.iter().cloned().chain(std::iter::once(*name)).collect(), f.clone())
-                })
-            })
-            .chain(
-                input
-                    .program_scopes
-                    .iter()
-                    .flat_map(|(_, scope)| scope.composites.iter().map(|(name, f)| (vec![*name], f.clone()))),
-            )
-            .for_each(|(full_name, f)| {
-                self.composite_map.insert(Location::new(self.program, full_name), f);
-            });
+        // Type checking depends on stubs coming out in the original insertion order, so
+        // snapshot the keys before partitioning.
+        let stub_key_order: Vec<_> = input.stubs.keys().cloned().collect();
+        let (from_leo_stubs, other_stubs): (Vec<_>, Vec<_>) =
+            input.stubs.into_iter().partition(|(_, stub)| matches!(stub, Stub::FromLeo { .. }));
 
-        // Phase 3: Process the current program's scope.
-        // composite_map now has:
-        //   - the current program's own composites,
-        //   - library composites from FromLibrary stubs.
-        // reconstructed_composites now has composites from all FromLeo dependencies.
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
 
-        // Phase 4: Process FromLibrary/FromAleo stubs AFTER program_scopes.
-        // reconstruct_library collects monomorphized composites from reconstructed_composites,
-        // which is now populated with the current program's library composite instances.
+        // `FromLeo` stubs are reassembled from the already-populated `reconstructed_*` maps.
+        let from_leo_stubs: indexmap::IndexMap<_, _> = from_leo_stubs
+            .into_iter()
+            .map(|(id, stub)| {
+                let stub = match stub {
+                    Stub::FromLeo { program, parents } => {
+                        Stub::FromLeo { program: self.assemble_from_leo_program(program), parents }
+                    }
+                    other => other,
+                };
+                (id, stub)
+            })
+            .collect();
+
+        // Library/Aleo stubs run after program scopes because `reconstruct_library` pulls
+        // monomorphized composites out of `reconstructed_composites`.
         let other_stubs: indexmap::IndexMap<_, _> =
             other_stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
 
@@ -408,49 +233,10 @@ impl ProgramReconstructor for MonomorphizationVisitor<'_> {
             })
             .collect();
 
-        // Reconstruct modules after `self.reconstructed_composites` and `self.reconstructed_functions`
-        // have been populated.
         Program {
             stubs,
             program_scopes,
-            modules: input.modules.into_iter().map(|(id, module)| (id, self.reconstruct_module(module))).collect(),
-            ..input
-        }
-    }
-
-    fn reconstruct_module(&mut self, input: Module) -> Module {
-        // Here we're reconstructing composites and functions from `reconstructed_functions` and
-        // `reconstructed_composites` based on their paths and whether they match the module path.
-        // Use `input.program_name` rather than `self.program` since `self.program` may have been
-        // updated by a nested reconstruct_program call (e.g., for a Stub::FromLeo dependency).
-        Module {
-            composites: self
-                .reconstructed_composites
-                .iter()
-                .filter_map(|(loc, c)| {
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
-                        .map(|(last, _)| (*last, c.clone()))
-                })
-                .collect(),
-
-            // Collect functions for this module from `reconstructed_functions`. Non-generic
-            // functions are included because the main reconstruction loop processes all
-            // reachable functions (both generic and non-generic). Generic originals are
-            // excluded because only their monomorphized specializations are relevant.
-            functions: self
-                .reconstructed_functions
-                .iter()
-                .filter_map(|(loc, f)| {
-                    loc.path
-                        .split_last()
-                        .filter(|(_, rest)| *rest == input.path && loc.program == input.program_name)
-                        .map(|(last, _)| (*last, f.clone()))
-                })
-                .collect(),
-            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
-
+            modules: input.modules.into_iter().map(|(id, module)| (id, self.assemble_module(module))).collect(),
             ..input
         }
     }

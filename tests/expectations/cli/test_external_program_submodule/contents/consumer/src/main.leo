@@ -25,6 +25,21 @@ program consumer.aleo {
         return provider.aleo::sum_channels(white);
     }
 
+    // Call a submodule helper directly — it is inlined into consumer's bytecode.
+    fn average(a: provider.aleo::colors::Color, b: provider.aleo::colors::Color) -> provider.aleo::colors::Color {
+        return provider.aleo::colors::blend(a, b);
+    }
+
+    // Call the submodule helper twice — both call sites are inlined independently.
+    fn blend_twice(
+        a: provider.aleo::colors::Color,
+        b: provider.aleo::colors::Color,
+        c: provider.aleo::colors::Color,
+    ) -> provider.aleo::colors::Color {
+        let ab: provider.aleo::colors::Color = provider.aleo::colors::blend(a, b);
+        return provider.aleo::colors::blend(ab, c);
+    }
+
     // Use provider's top-level constant.
     fn channel_count() -> u32 {
         return provider.aleo::CHANNELS;

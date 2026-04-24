@@ -18,7 +18,7 @@ use crate::cli::{commands::*, context::*, helpers::*};
 use clap::Parser;
 use leo_errors::{CliError, Result};
 use serde::Serialize;
-use std::{path::PathBuf, process::exit};
+use std::{ffi::OsString, path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
@@ -74,11 +74,6 @@ enum Commands {
         #[clap(flatten)]
         command: LeoExecute,
     },
-    #[clap(name = "fmt", about = "Format Leo source files")]
-    Fmt {
-        #[clap(flatten)]
-        command: LeoFormat,
-    },
     #[clap(about = "Deploy a program")]
     Deploy {
         #[clap(flatten)]
@@ -129,6 +124,8 @@ enum Commands {
         #[clap(flatten)]
         command: LeoSynthesize,
     },
+    #[clap(about = "List installed leo plugins")]
+    Plugins,
     #[clap(about = "Update the Leo CLI")]
     Update {
         #[clap(flatten)]
@@ -139,6 +136,9 @@ enum Commands {
         #[clap(flatten)]
         command: LeoUpgrade,
     },
+    /// Dispatch to an external `leo-<name>` plugin.
+    #[clap(external_subcommand)]
+    External(Vec<OsString>),
 }
 
 impl Commands {
@@ -149,7 +149,6 @@ impl Commands {
             Commands::Run { .. } => "run",
             Commands::Test { .. } => "test",
             Commands::Execute { .. } => "execute",
-            Commands::Fmt { .. } => "fmt",
             Commands::Deploy { .. } => "deploy",
             Commands::Devnet { .. } => "devnet",
             Commands::Devnode { .. } => "devnode",
@@ -160,8 +159,10 @@ impl Commands {
             Commands::Remove { .. } => "remove",
             Commands::Clean { .. } => "clean",
             Commands::Synthesize { .. } => "synthesize",
+            Commands::Plugins => "plugins",
             Commands::Update { .. } => "update",
             Commands::Upgrade { .. } => "upgrade",
+            Commands::External(_) => "external",
         }
     }
 }
@@ -245,12 +246,17 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         }
         Commands::Clean { command } => command.try_execute(context)?,
         Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
-        Commands::Fmt { command } => command.try_execute(context)?,
         Commands::Devnet { command } => command.try_execute(context)?,
         Commands::Devnode { command } => command.try_execute(context)?,
         Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),
         Commands::Test { command } => command_output = Some(JsonOutput::Test(command.execute(context)?)),
         Commands::Execute { command } => command_output = Some(JsonOutput::Execute(command.execute(context)?)),
+        Commands::Plugins => crate::cli::plugin::print_all(),
+        Commands::External(args) => {
+            let (name, plugin_args) = args.split_first().expect("external subcommand requires a name");
+            let name = format!("leo-{}", name.to_string_lossy());
+            crate::cli::plugin::exec(&name, plugin_args, Some(&context.dir()?))?;
+        }
         Commands::Remove { command } => command.try_execute(context)?,
         Commands::Synthesize { command } => command_output = Some(JsonOutput::Synthesize(command.execute(context)?)),
         Commands::Update { command } => command.try_execute(context)?,

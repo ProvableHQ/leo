@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, Replacer, SsaFormingInput, static_single_assignment::visitor::SsaFormingVisitor};
+use crate::{
+    CompilerState,
+    Replacer,
+    SsaFormingInput,
+    common::{items_at_path, program_functions, stub_functions},
+    static_single_assignment::visitor::SsaFormingVisitor,
+};
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{Function, Location, *};
@@ -25,8 +31,8 @@ pub struct TransformVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Functions that should always be inlined.
     pub always_inline: IndexSet<Vec<Symbol>>,
-    /// A map of reconstructed functions in the current program scope.
-    pub reconstructed_functions: Vec<(Location, Function)>,
+    /// A map of reconstructed functions, keyed by `Location` for O(1) lookup during inlining.
+    pub reconstructed_functions: IndexMap<Location, Function>,
     /// The main program.
     pub program: Symbol,
     /// A map to provide faster lookup of functions.
@@ -49,60 +55,59 @@ impl<'a> TransformVisitor<'a> {
     }
 }
 
-impl ProgramReconstructor for TransformVisitor<'_> {
+impl UnitReconstructor for TransformVisitor<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        // Set the program name.
-        self.program = input.program_id.as_symbol();
+        let top_level_program = input.program_id.as_symbol();
+        self.program = top_level_program;
 
-        // Get the post-order ordering of the call graph.
-        // Note that the post-order always contains all nodes in the call graph.
-        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        // Keep full Location (program + path) to ensure correct lookups.
-        let order: Vec<Location> = self
-            .state
-            .call_graph
-            .post_order_with_filter(|location| location.program == self.program)
-            .unwrap()
-            .into_iter()
-            .collect();
+        // DFS starts from every function in `function_map` (across all programs) and follows
+        // call edges through program boundaries, producing a post-order that places callees
+        // before callers. Transitively-reached nodes that aren't in `function_map` (e.g.
+        // `FromAleo` stub entry points) stay in the order and are skipped by `shift_remove`
+        // below. The unwrap is safe: type checking guarantees the call graph is acyclic.
+        let order =
+            self.state.call_graph.post_order_with_filter(|location| self.function_map.contains_key(location)).unwrap();
 
-        // Reconstruct and accumulate each of the functions in post-order.
+        // `self.program` is set per-function so `reconstruct_call` can see cross-program calls
+        // from the callee's perspective.
         for function_location in order {
-            // None: If `function_location` is not in `function_map`, then it must be an external function.
-            // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
+            self.program = function_location.program;
             if let Some(function) = self.function_map.shift_remove(&function_location) {
-                // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
-                // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.push((function_location.clone(), reconstructed_function));
+                self.reconstructed_functions.insert(function_location, reconstructed_function);
             }
         }
 
-        // Drop any library functions that were not reachable from this program (dead library code).
-        // They are not needed and would fail the sanity check below.
-        self.function_map.retain(|loc, _| !self.state.symbol_table.is_library(loc.program));
+        self.program = top_level_program;
 
-        // This is a sanity check to ensure that all non-library functions in the program scope have been processed.
-        assert!(self.function_map.is_empty(), "All functions in the program should have been processed.");
+        // Unprocessed external functions are carried through for stub assembly; current-program
+        // leftovers are dead code and intentionally dropped.
+        for (loc, f) in std::mem::take(&mut self.function_map) {
+            if loc.program != self.program {
+                self.reconstructed_functions.entry(loc).or_insert(f);
+            }
+        }
 
-        // Reconstruct the constructor.
-        // Note: This must be done after the functions have been reconstructed to ensure that every callee function has been inlined.
+        // The constructor is reconstructed after functions because it may call inlined ones.
         let constructor = input.constructor.map(|constructor| self.reconstruct_constructor(constructor));
 
-        // Partition reconstructed functions: retain library functions for later stub scopes to look up,
-        // and collect only top-level functions from the current scope for output.
+        // Split current-program top-level functions off for this scope; keep the rest in
+        // `reconstructed_functions` so stub assembly can pick them up.
         let all_reconstructed = core::mem::take(&mut self.reconstructed_functions);
-        let (library_fns, current_fns): (Vec<_>, Vec<_>) =
-            all_reconstructed.into_iter().partition(|(loc, _)| loc.program != self.program);
-        self.reconstructed_functions = library_fns;
-        let functions = current_fns
-            .into_iter()
-            .filter_map(|(loc, f)| {
-                // Emit only single-segment paths; Functions in submodules have all been
-                // inlined at their call sites and must not appear as standalone functions in the output.
-                loc.path.split_last().filter(|(_, rest)| rest.is_empty()).map(|(last, _)| (*last, f))
-            })
-            .collect();
+        let mut functions = Vec::new();
+        for (loc, f) in all_reconstructed {
+            if loc.program != self.program {
+                self.reconstructed_functions.insert(loc, f);
+                continue;
+            }
+            // Module functions have been inlined at their call sites and must not appear as
+            // standalone functions, so emit only single-segment paths.
+            if let Some((last, rest)) = loc.path.split_last()
+                && rest.is_empty()
+            {
+                functions.push((*last, f));
+            }
+        }
 
         ProgramScope {
             program_id: input.program_id,
@@ -159,64 +164,36 @@ impl ProgramReconstructor for TransformVisitor<'_> {
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
-        // Populate `self.function_map` using the functions in the program scopes and the modules.
-        // Use full Location (program + path) as keys to avoid collisions between programs.
-        input
-            .modules
-            .iter()
-            .flat_map(|(module_path, m)| {
-                let program = m.program_name;
-                m.functions.iter().map(move |(name, f)| {
-                    let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
-                    (Location::new(program, path), f.clone())
-                })
-            })
-            .chain(input.program_scopes.iter().flat_map(|(program_name, scope)| {
-                scope.functions.iter().map(move |(name, f)| (Location::new(*program_name, vec![*name]), f.clone()))
-            }))
-            .for_each(|(location, f)| {
-                self.function_map.insert(location, f);
-            });
+        // Seed `function_map` with every function definition reachable from this program (stubs,
+        // libraries, and the current program). Then a single DFS over the call graph processes
+        // all of them in post-order; recursive per-stub passes are unnecessary. Current-program
+        // inserts come last so they override any stub placeholders.
+        self.program =
+            *input.program_scopes.first().expect("a program must have a single program scope at this stage").0;
 
-        // Populate `function_map` with library functions from FromLibrary stubs.
-        // Library functions are inlined at call sites just like module functions.
-        input.stubs.iter().for_each(|(_, stub)| {
-            if let Stub::FromLibrary { library, .. } = stub {
-                library.functions.iter().for_each(|(name, f)| {
-                    self.function_map.entry(Location::new(library.name, vec![*name])).or_insert_with(|| f.clone());
-                });
-                // Also seed module functions from the library.
-                library.modules.iter().for_each(|(module_path, m)| {
-                    m.functions.iter().for_each(|(name, f)| {
-                        let path: Vec<Symbol> = module_path.iter().cloned().chain(std::iter::once(*name)).collect();
-                        self.function_map.entry(Location::new(library.name, path)).or_insert_with(|| f.clone());
-                    });
-                });
+        for (_, stub) in &input.stubs {
+            for (loc, f) in stub_functions(stub) {
+                self.function_map.entry(loc).or_insert_with(|| f.clone());
             }
-        });
+        }
+        for (loc, f) in program_functions(&input) {
+            self.function_map.insert(loc, f.clone());
+        }
 
-        // Reconstruct program scopes. Inline functions defined in modules will be traversed
-        // using the call graph and reconstructed in the right order.
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.reconstruct_program_scope(scope))).collect();
 
-        // Process FromLeo stubs so that FinalFn functions are inlined within them.
-        // This is necessary because code generation will emit bytecode for FromLeo stubs,
-        // and FinalFn functions cannot exist as standalone functions in bytecode.
+        // Reassemble `FromLeo` stubs directly from `reconstructed_functions`. FromAleo and
+        // FromLibrary stubs have nothing to inline here — their functions are either already
+        // in Aleo bytecode or have been inlined at their call sites.
         let stubs = input
             .stubs
             .into_iter()
-            .map(|(name, stub)| {
-                match stub {
-                    Stub::FromLeo { program, parents } => {
-                        let processed_program = self.reconstruct_program(program);
-                        (name, Stub::FromLeo { program: processed_program, parents })
-                    }
-                    // FromAleo stubs don't have Leo AST, so nothing to inline.
-                    other @ Stub::FromAleo { .. } => (name, other),
-                    // Similarly, nothing to do for libraries.
-                    other @ Stub::FromLibrary { .. } => (name, other),
+            .map(|(name, stub)| match stub {
+                Stub::FromLeo { program, parents } => {
+                    (name, Stub::FromLeo { program: self.assemble_from_leo_program(program), parents })
                 }
+                other @ (Stub::FromAleo { .. } | Stub::FromLibrary { .. }) => (name, other),
             })
             .collect();
 
@@ -232,19 +209,16 @@ impl AstReconstructor for TransformVisitor<'_> {
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let function_location = input.function.expect_global_location();
 
-        // Pass through calls to external programs (non-library). Library functions and module
-        // functions are always inlined; only true cross-program calls are left as-is.
-        if function_location.program != self.program && !self.state.symbol_table.is_library(function_location.program) {
+        // Cross-program entry-point calls are always emitted as direct Aleo `call`s — inlining
+        // an entry-point body into a different program would lose its transition semantics.
+        if self.state.symbol_table.is_cross_program_entry(self.program, function_location) {
             return (input.into(), Default::default());
         }
 
-        // Lookup the reconstructed callee function.
-        // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        // Use full Location (program + path) to ensure correct lookup across multiple programs.
-        let (_, callee) = self
+        // Post-order traversal guarantees the callee is already reconstructed.
+        let callee = self
             .reconstructed_functions
-            .iter()
-            .find(|(loc, _)| loc == function_location)
+            .get(function_location)
             .expect("guaranteed to exist due to post-order traversal of the call graph.");
 
         let call_count_ref = self.state.call_count.get_mut(function_location).expect("Guaranteed by type checking");
@@ -253,7 +227,7 @@ impl AstReconstructor for TransformVisitor<'_> {
 
         // Mandatory inlining conditions
         let mandatory_cond = |cond: bool, msg: &str| -> bool {
-            if has_no_inline_annotation {
+            if cond && has_no_inline_annotation {
                 self.state.handler.emit_warning(TypeCheckerWarning::no_inline_ignored(
                     callee.identifier.name,
                     msg,
@@ -265,21 +239,21 @@ impl AstReconstructor for TransformVisitor<'_> {
 
         let optional_cond = |cond: bool| -> bool { !has_no_inline_annotation && cond };
 
-        let should_inline = mandatory_cond(
-            function_location.program == self.program && function_location.path.len() > 1,
-            "this is a module function",
-        ) || match callee.variant {
-            // Always inline library functions (they cannot exist as standalone Aleo functions).
-            _ if self.state.symbol_table.is_library(function_location.program) => {
-                mandatory_cond(true, "this is a library function")
-            }
-            Variant::FinalFn => mandatory_cond(true, "this is a final fn"),
-            Variant::Fn => {
-                mandatory_cond(
+        // Submodule functions are always inlined: Aleo resources are flat identifiers, so there
+        // is no bytecode representation for `path::nested::fn`. This applies identically to
+        // current-program and cross-program submodule callees.
+        let should_inline = mandatory_cond(function_location.path.len() > 1, "this is a module function")
+            || match callee.variant {
+                // Always inline library functions (they cannot exist as standalone Aleo functions).
+                _ if self.state.symbol_table.is_library(function_location.program) => {
+                    mandatory_cond(true, "this is a library function")
+                }
+                Variant::FinalFn => mandatory_cond(true, "this is a final fn"),
+                Variant::Fn => {
+                    mandatory_cond(
                     self.is_onchain,
                     "the function is called from an on-chain context (constructor or finalize)",
                 ) ||
-                mandatory_cond(!callee.const_parameters.is_empty(), "the function has const parameters") ||
                 mandatory_cond(callee.input.len() > 16, "this function has more than 16 arguments") ||
                 mandatory_cond(
                     Self::names_optional_type(&callee.output_type),
@@ -299,9 +273,9 @@ impl AstReconstructor for TransformVisitor<'_> {
                 optional_cond(callee.input.is_empty()) ||
                 // Has only empty arguments
                 optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
-            }
-            Variant::EntryPoint | Variant::Finalize => false,
-        };
+                }
+                Variant::EntryPoint | Variant::Finalize => false,
+            };
 
         // Inline the callee function, if required, otherwise, return the call expression.
         if should_inline {
@@ -442,5 +416,51 @@ impl AstReconstructor for TransformVisitor<'_> {
     /// Loop unrolling unrolls and removes iteration statements from the program.
     fn reconstruct_iteration(&mut self, _: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         panic!("`IterationStatement`s should not be in the AST at this phase of compilation.");
+    }
+}
+
+// Private helpers for stub assembly.
+impl TransformVisitor<'_> {
+    /// Assembles a `FromLeo` stub's program from `reconstructed_functions`. `input.stubs` is
+    /// always empty on a stub's program (only the top-level `Program` carries stubs), so it
+    /// passes through unchanged.
+    fn assemble_from_leo_program(&self, input: Program) -> Program {
+        let program_scopes =
+            input.program_scopes.into_iter().map(|(id, scope)| (id, self.assemble_from_leo_scope(id, scope))).collect();
+        let modules = input.modules.into_iter().map(|(mid, m)| (mid, self.assemble_module(m))).collect();
+        Program { program_scopes, modules, stubs: input.stubs, imports: input.imports }
+    }
+
+    /// Assembles a single ProgramScope for a FromLeo stub from reconstructed_functions.
+    fn assemble_from_leo_scope(&self, program_name: Symbol, input: ProgramScope) -> ProgramScope {
+        // Entry-point functions must appear before finalize functions so the type checker
+        // can populate async_function_callers before visiting finalizers. Top-level closures
+        // stay in the stub — same-program callers (in the stub's own entry points) and cross-
+        // program callers (in the compilation unit) both emit direct `call`s into them, so
+        // removing them would leave dangling references in the emitted bytecode.
+        let (entry_points, non_entry_points): (Vec<_>, Vec<_>) =
+            items_at_path(&self.reconstructed_functions, program_name, &[]).partition(|(_, f)| f.variant.is_entry());
+        let functions: Vec<_> = entry_points.into_iter().chain(non_entry_points).collect();
+
+        ProgramScope {
+            program_id: input.program_id,
+            parents: input.parents,
+            composites: input.composites,
+            mappings: input.mappings,
+            storage_variables: input.storage_variables,
+            functions,
+            interfaces: input.interfaces,
+            constructor: input.constructor,
+            consts: input.consts,
+            span: input.span,
+        }
+    }
+
+    /// Assembles a Module for a FromLeo stub from reconstructed_functions.
+    fn assemble_module(&self, input: Module) -> Module {
+        Module {
+            functions: items_at_path(&self.reconstructed_functions, input.unit_name, &input.path).collect(),
+            ..input
+        }
     }
 }

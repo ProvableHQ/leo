@@ -1,0 +1,250 @@
+# Build and publish cross-platform release binaries for a workspace binary crate.
+# Triggered by per-crate git tags (e.g. leo-lang-v4.0.1) or manual dispatch.
+# Fully idempotent - safe to re-run on failure.
+name: Release Crate
+
+on:
+  push:
+    tags: ['*-v[0-9]*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Tag to release (e.g. leo-lang-v4.0.1, leo-fmt-v1.0.0). Uses the
+          crate name from Cargo.toml, not the binary name. Creates the git
+          tag if it doesn't already exist.
+        required: true
+
+env:
+  RUST_BACKTRACE: 0
+
+jobs:
+  prepare:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.parse.outputs.tag }}
+      crate-name: ${{ steps.parse.outputs.crate-name }}
+      version: ${{ steps.parse.outputs.version }}
+      bins: ${{ steps.find.outputs.bins }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse Tag
+        id: parse
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          # Split on last occurrence of "-v" followed by a digit.
+          CRATE_NAME="${TAG%-v[0-9]*}"
+          VERSION="${TAG#"$CRATE_NAME"-v}"
+          if [ -z "$CRATE_NAME" ] || [ -z "$VERSION" ]; then
+            echo "::error::Failed to parse tag '$TAG'"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "crate-name=$CRATE_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Parsed tag: crate=$CRATE_NAME version=$VERSION"
+
+      - name: Find Crate
+        id: find
+        run: |
+          CRATE_NAME="${{ steps.parse.outputs.crate-name }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+
+          # Find the crate by its package name.
+          FOUND=""
+          for toml in crates/*/Cargo.toml; do
+            if grep -q "^name = \"$CRATE_NAME\"" "$toml"; then
+              FOUND="$toml"
+              break
+            fi
+          done
+
+          if [ -z "$FOUND" ]; then
+            echo "::error::No crate found with name '$CRATE_NAME'"
+            exit 1
+          fi
+
+          TOML_VERSION="$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')"
+          if [ "$TOML_VERSION" != "$VERSION" ]; then
+            echo "::error::Tag version ($VERSION) does not match $FOUND version ($TOML_VERSION)"
+            exit 1
+          fi
+
+          # Collect all [[bin]] names from this crate.
+          BINS="$(grep -A5 '^\[\[bin\]\]' "$FOUND" | grep '^name' | sed 's/.*= *"\(.*\)"/\1/' | tr '\n' ' ' | xargs)"
+          if [ -z "$BINS" ]; then
+            echo "::error::No [[bin]] entries found in $FOUND"
+            exit 1
+          fi
+
+          echo "bins=$BINS" >> "$GITHUB_OUTPUT"
+          echo "Found crate: dir=$(dirname "$FOUND") bins=$BINS"
+
+      - name: Ensure Tag Exists
+        run: |
+          TAG="${{ steps.parse.outputs.tag }}"
+          if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists"
+          else
+            echo "Creating tag $TAG"
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: prepare
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-14-large
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      - name: Add Target
+        if: matrix.target == 'aarch64-apple-darwin'
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Verify Cargo.lock
+        shell: bash
+        run: test -f Cargo.lock || (echo "::error::Cargo.lock missing" && exit 1)
+
+      - name: Determine Build Flags
+        id: flags
+        shell: bash
+        run: |
+          FEATURES=""
+          TARGET_FLAG=""
+          if [ "${{ needs.prepare.outputs.crate-name }}" = "leo-lang" ]; then
+            FEATURES="--features noconfig"
+          fi
+          if [ "${{ matrix.target }}" = "aarch64-apple-darwin" ]; then
+            TARGET_FLAG="--target aarch64-apple-darwin"
+          elif [ "${{ matrix.target }}" = "x86_64-unknown-linux-musl" ]; then
+            TARGET_FLAG="--target x86_64-unknown-linux-musl"
+          fi
+          echo "features=$FEATURES" >> "$GITHUB_OUTPUT"
+          echo "target-flag=$TARGET_FLAG" >> "$GITHUB_OUTPUT"
+
+      # Standard build (linux-gnu, macos, windows)
+      - name: Build
+        if: matrix.target != 'x86_64-unknown-linux-musl'
+        shell: bash
+        run: |
+          cargo build \
+            --package ${{ needs.prepare.outputs.crate-name }} \
+            --release --locked \
+            ${{ steps.flags.outputs.features }} \
+            ${{ steps.flags.outputs.target-flag }}
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      # Musl build via Docker
+      - name: Build (musl)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          docker run \
+            -v ${{ github.workspace }}:/home/rust/src \
+            --rm \
+            -t docker.io/blackdex/rust-musl:x86_64-musl-stable \
+            bash -lc "
+              rustup target add x86_64-unknown-linux-musl &&
+              cd /home/rust/src &&
+              cargo build \
+                --package ${{ needs.prepare.outputs.crate-name }} \
+                --target x86_64-unknown-linux-musl \
+                --release --locked \
+                ${{ steps.flags.outputs.features }}
+            "
+
+      - name: Collect Binaries
+        id: bins
+        shell: bash
+        run: |
+          BINS="${{ needs.prepare.outputs.bins }}"
+          case "${{ matrix.target }}" in
+            x86_64-pc-windows-msvc)   DIR="target/release";                                  EXT=".exe" ;;
+            aarch64-apple-darwin)     DIR="target/aarch64-apple-darwin/release";              EXT="" ;;
+            x86_64-unknown-linux-musl) DIR="target/x86_64-unknown-linux-musl/release";       EXT="" ;;
+            *)                        DIR="target/release";                                  EXT="" ;;
+          esac
+          PATHS=""
+          for bin in $BINS; do
+            PATHS="$PATHS $DIR/${bin}${EXT}"
+          done
+          echo "paths=$PATHS" >> "$GITHUB_OUTPUT"
+
+      - name: Strip Binaries
+        if: runner.os != 'Windows'
+        run: strip ${{ steps.bins.outputs.paths }}
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          ARCHIVE="${{ needs.prepare.outputs.crate-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
+          zip -j "$ARCHIVE" ${{ steps.bins.outputs.paths }}
+          echo "ARCHIVE=$ARCHIVE" >> "$GITHUB_ENV"
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = "${{ needs.prepare.outputs.crate-name }}-v${{ needs.prepare.outputs.version }}-${{ matrix.target }}.zip"
+          $paths = "${{ steps.bins.outputs.paths }}".Trim() -split '\s+'
+          Compress-Archive -Path $paths -DestinationPath $archive
+          echo "ARCHIVE=$archive" >> $env:GITHUB_ENV
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: ${{ env.ARCHIVE }}
+
+  release:
+    name: Publish Release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          name: "${{ needs.prepare.outputs.crate-name }} v${{ needs.prepare.outputs.version }}"
+          files: "*.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

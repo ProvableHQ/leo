@@ -41,8 +41,8 @@ pub use cast::*;
 mod composite_init;
 pub use composite_init::*;
 
-mod dynamic_call;
-pub use dynamic_call::*;
+mod dynamic_op;
+pub use dynamic_op::*;
 
 mod err;
 pub use err::*;
@@ -89,8 +89,9 @@ pub enum Expression {
     Intrinsic(Box<IntrinsicExpression>),
     /// A call expression, e.g., `my_fun(args)`.
     Call(Box<CallExpression>),
-    /// A dynamic call expression, e.g., `MyInterface @ (target) :: foobar(args)`.
-    DynamicCall(Box<DynamicCallExpression>),
+    /// A dynamic operation against an interface, e.g., `MyInterface @ (target) :: foobar(args)`,
+    /// `MyInterface @ (target) :: counter`, or `MyInterface @ (target) :: entries.get(i)`.
+    DynamicOp(Box<DynamicOpExpression>),
     /// A cast expression, e.g., `42u32 as u8`.
     Cast(Box<CastExpression>),
     /// An expression of type "error".
@@ -133,7 +134,7 @@ impl Node for Expression {
             Async(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
-            DynamicCall(n) => n.span(),
+            DynamicOp(n) => n.span(),
             Cast(n) => n.span(),
             Composite(n) => n.span(),
             Err(n) => n.span(),
@@ -158,7 +159,7 @@ impl Node for Expression {
             Async(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            DynamicCall(n) => n.set_span(span),
+            DynamicOp(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Composite(n) => n.set_span(span),
             Err(n) => n.set_span(span),
@@ -183,7 +184,7 @@ impl Node for Expression {
             Async(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
-            DynamicCall(n) => n.id(),
+            DynamicOp(n) => n.id(),
             Cast(n) => n.id(),
             Composite(n) => n.id(),
             Path(n) => n.id(),
@@ -208,7 +209,7 @@ impl Node for Expression {
             Async(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
-            DynamicCall(n) => n.set_id(id),
+            DynamicOp(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
             Composite(n) => n.set_id(id),
             Path(n) => n.set_id(id),
@@ -235,7 +236,7 @@ impl fmt::Display for Expression {
             Async(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            DynamicCall(n) => n.fmt(f),
+            DynamicOp(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Composite(n) => n.fmt(f),
             Err(n) => n.fmt(f),
@@ -267,7 +268,7 @@ impl Expression {
             Binary(e) => e.precedence(),
             Cast(_) => 12,
             Ternary(_) => 0,
-            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | DynamicCall(_) | Composite(_) | Err(_) | Intrinsic(_)
+            Array(_) | ArrayAccess(_) | Async(_) | Call(_) | DynamicOp(_) | Composite(_) | Err(_) | Intrinsic(_)
             | Path(_) | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => 20,
         }
     }
@@ -324,7 +325,7 @@ impl Expression {
             // We may be indirectly referring to an impure item
             // This analysis could be more granular
             Expression::Call(..)
-            | Expression::DynamicCall(..)
+            | Expression::DynamicOp(..)
             | Expression::Err(..)
             | Expression::Async(..)
             | Expression::Cast(..) => false,

@@ -64,7 +64,7 @@ impl AstReconstructor for Duplicator<'_> {
             Expression::Call(e) => self.reconstruct_call(*e, &()),
             Expression::Cast(e) => self.reconstruct_cast(*e, &()),
             Expression::Composite(e) => self.reconstruct_composite_init(e, &()),
-            Expression::DynamicCall(e) => self.reconstruct_dynamic_call(*e, &()),
+            Expression::DynamicOp(e) => self.reconstruct_dynamic_op(*e, &()),
             Expression::Err(e) => self.reconstruct_err(e, &()),
             Expression::Intrinsic(e) => self.reconstruct_intrinsic(*e, &()),
             Expression::Literal(e) => self.reconstruct_literal(e, &()),

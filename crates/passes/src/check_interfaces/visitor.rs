@@ -29,10 +29,10 @@ use leo_ast::{
     Member,
     Program,
     ProgramScope,
-    ProgramVisitor,
     RecordPrototype,
     StorageVariablePrototype,
     Type,
+    UnitVisitor,
 };
 use leo_errors::{CheckInterfacesError, Color, Label};
 use leo_span::{Span, Symbol, sym};
@@ -54,7 +54,7 @@ struct FlattenedInterface {
 pub struct CheckInterfacesVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Current program name being processed.
-    current_program: Symbol,
+    current_unit: Symbol,
     /// Cache of flattened interfaces (with all inherited members).
     flattened_interfaces: IndexMap<Location, FlattenedInterface>,
     /// Interface inheritance graph — used for cycle detection and ancestor lookup.
@@ -65,7 +65,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
     pub fn new(state: &'a mut CompilerState) -> Self {
         Self {
             state,
-            current_program: Symbol::intern(""),
+            current_unit: Symbol::intern(""),
             flattened_interfaces: IndexMap::new(),
             inheritance_graph: DiGraph::default(),
         }
@@ -83,7 +83,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             return Some(flattened.clone());
         }
 
-        let Some(interface) = self.state.symbol_table.lookup_interface(self.current_program, location) else {
+        let Some(interface) = self.state.symbol_table.lookup_interface(self.current_unit, location) else {
             self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
             return None;
         };
@@ -131,7 +131,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
         for ancestor_location in &all_ancestors {
             let Some(ancestor_interface) =
-                self.state.symbol_table.lookup_interface(self.current_program, ancestor_location)
+                self.state.symbol_table.lookup_interface(self.current_unit, ancestor_location)
             else {
                 self.state
                     .handler
@@ -523,14 +523,14 @@ impl<'a> CheckInterfacesVisitor<'a> {
     }
 
     /// Compare a concrete type against a prototype type. If the prototype names a prototype record,
-    /// the concrete type must have the same name and belong to `self.current_program`.
+    /// the concrete type must have the same name and belong to `self.current_unit`.
     fn concrete_type_matches_proto(
         &self,
         concrete: &Type,
         proto: &Type,
         prototype_record_locations: &IndexSet<Location>,
     ) -> bool {
-        Self::record_type_eq(concrete, proto, prototype_record_locations, Some(self.current_program))
+        Self::record_type_eq(concrete, proto, prototype_record_locations, Some(self.current_unit))
     }
 
     /// Core type comparison with prototype-record awareness.
@@ -710,7 +710,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
         let mut processed: IndexSet<Location> = IndexSet::new();
         for (prefix, interface) in interfaces {
             let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
-            let location = Location::new(self.current_program, path);
+            let location = Location::new(self.current_unit, path);
             let span = interface.identifier.span;
             queue.insert((location, span));
         }
@@ -727,7 +727,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             }
             self.inheritance_graph.add_node(location.clone());
 
-            let interface = match self.state.symbol_table.lookup_interface(self.current_program, &location) {
+            let interface = match self.state.symbol_table.lookup_interface(self.current_unit, &location) {
                 Some(p) => p.clone(),
                 None => {
                     // Skip silently; `flatten_interface` is the authoritative source for this error.
@@ -761,7 +761,7 @@ impl AstVisitor for CheckInterfacesVisitor<'_> {
     type Output = ();
 }
 
-impl ProgramVisitor for CheckInterfacesVisitor<'_> {
+impl UnitVisitor for CheckInterfacesVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Visit stubs first so that library interface caches are fully populated
         // before check_program_implements_interface runs in visit_program_scope.
@@ -775,7 +775,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         // before cycle detection and flattening run below.
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
 
-        self.current_program = input.name;
+        self.current_unit = input.name;
         // Reset the inheritance graph for this new scope.
         self.inheritance_graph = DiGraph::default();
 
@@ -805,13 +805,13 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
         // prefixed paths so the Location matches the symbol table entries.
         for (prefix, interface) in &prefixed {
             let path: Vec<Symbol> = prefix.iter().cloned().chain(std::iter::once(interface.identifier.name)).collect();
-            let location = Location::new(self.current_program, path);
+            let location = Location::new(self.current_unit, path);
             self.flatten_interface(&location, interface.identifier.span);
         }
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
-        self.current_program = input.program_id.as_symbol();
+        self.current_unit = input.program_id.as_symbol();
         // Reset the inheritance graph for this new scope.
         self.inheritance_graph = DiGraph::default();
 
@@ -848,7 +848,7 @@ impl ProgramVisitor for CheckInterfacesVisitor<'_> {
 
         // Flatten all interfaces in this program scope.
         for (_, interface) in &input.interfaces {
-            let location = Location::new(self.current_program, vec![interface.identifier.name]);
+            let location = Location::new(self.current_unit, vec![interface.identifier.name]);
             // This will validate inheritance and cache the result.
             self.flatten_interface(&location, interface.identifier.span);
         }

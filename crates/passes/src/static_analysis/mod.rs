@@ -26,7 +26,7 @@ use visitor::*;
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramVisitor};
+use leo_ast::{Ast, UnitVisitor};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -44,7 +44,7 @@ impl Pass for StaticAnalyzing {
         let mut visitor = StaticAnalyzingVisitor {
             state,
             await_checker: AwaitChecker::new(),
-            current_program: Symbol::intern(""),
+            current_unit: Symbol::intern(""),
             variant: None,
             non_async_external_call_seen: false,
         };

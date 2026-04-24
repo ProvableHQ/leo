@@ -75,7 +75,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         // Expressions
         k if k.is_literal_node() => format_literal(node, out),
         CALL_EXPR => format_call(node, out),
-        DYNAMIC_CALL_EXPR => format_dynamic_call(node, out),
+        DYNAMIC_OP_EXPR => format_dynamic_op(node, out),
         METHOD_CALL_EXPR => format_method_call(node, out),
         BINARY_EXPR => format_binary(node, out),
         PATH_EXPR | PATH_LOCATOR_EXPR | PROGRAM_REF_EXPR => format_path(node, out),
@@ -2469,7 +2469,7 @@ fn format_method_call(node: &SyntaxNode, out: &mut Output) {
     }
 }
 
-fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
+fn format_dynamic_op(node: &SyntaxNode, out: &mut Output) {
     if has_deep_comment(node) {
         write_node_verbatim(node, out);
         return;
@@ -2480,7 +2480,7 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
         return;
     };
 
-    // Find the last :: token — this is the separator between @(target) and function name.
+    // Find the last :: token — this is the separator between @(target) and the member.
     // (Earlier :: tokens may be part of the interface type path, e.g. `foo.aleo::Interface`.)
     let Some(sep_offset) = node
         .children_with_tokens()
@@ -2494,6 +2494,12 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
         return;
     };
 
+    // A bare storage read has no `(` after the separator; call and op forms do.
+    let has_call_parens = node.children_with_tokens().any(|elem| match elem {
+        SyntaxElement::Token(tok) => tok.kind() == L_PAREN && tok.text_range().start() > sep_offset,
+        _ => false,
+    });
+
     let exprs: Vec<_> = node.children().filter(|child| child.kind().is_expression()).collect();
     let (pre_sep, args): (Vec<_>, Vec<_>) =
         exprs.into_iter().partition(|child| child.text_range().start() < sep_offset);
@@ -2503,18 +2509,26 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
         return;
     };
 
+    // Extract the member expression after `::`. This is one of:
+    // - a single IDENT for a function call or bare read: `::func` or `::storage`
+    // - `ident.ident` for a storage op: `::member.op`
     let mut saw_sep = false;
-    let Some(function_name) = node.children_with_tokens().find_map(|elem| match elem {
-        SyntaxElement::Token(tok) if tok.kind() == COLON_COLON => {
-            saw_sep = true;
-            None
+    let mut member_name = String::new();
+    for elem in node.children_with_tokens() {
+        match elem {
+            SyntaxElement::Token(tok) if tok.kind() == COLON_COLON => {
+                saw_sep = true;
+            }
+            SyntaxElement::Token(tok) if saw_sep && (tok.kind() == IDENT || tok.kind() == DOT) => {
+                member_name.push_str(tok.text());
+            }
+            _ => {}
         }
-        SyntaxElement::Token(tok) if saw_sep && tok.kind() == IDENT => Some(tok.text().to_string()),
-        _ => None,
-    }) else {
+    }
+    if member_name.is_empty() {
         write_node_verbatim(node, out);
         return;
-    };
+    }
 
     format_node(&interface, out);
     out.write("@(");
@@ -2524,7 +2538,12 @@ fn format_dynamic_call(node: &SyntaxNode, out: &mut Output) {
         format_node(network, out);
     }
     out.write(")::");
-    out.write(&function_name);
+    out.write(&member_name);
+
+    // Bare read has no argument list.
+    if !has_call_parens {
+        return;
+    }
 
     if args.is_empty() {
         out.write("()");

@@ -25,7 +25,7 @@ pub struct ProcessingAsyncVisitor<'a> {
     /// on the number of variables captured by an `async` block.
     pub max_inputs: usize,
     /// The name of the current program being processed
-    pub current_program: Symbol,
+    pub current_unit: Symbol,
     /// The name of the current function being processed
     pub current_function: Symbol,
     /// A map of reconstructed functions in the current program scope.

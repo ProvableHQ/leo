@@ -3,10 +3,10 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'consumer.aleo'
-       Leo     33 statements before dead code elimination.
-       Leo     33 statements after dead code elimination.
-       Leo     The program checksum is: '[227u8, 120u8, 234u8, 5u8, 113u8, 131u8, 110u8, 206u8, 35u8, 207u8, 135u8, 188u8, 166u8, 74u8, 134u8, 11u8, 235u8, 200u8, 255u8, 72u8, 113u8, 99u8, 109u8, 22u8, 144u8, 204u8, 73u8, 78u8, 63u8, 153u8, 54u8, 161u8]'.
-       Leo     Program size: 0.60 KB / 500.00 KB
+       Leo     79 statements before dead code elimination.
+       Leo     79 statements after dead code elimination.
+       Leo     The program checksum is: '[180u8, 223u8, 5u8, 182u8, 121u8, 236u8, 70u8, 205u8, 63u8, 169u8, 165u8, 193u8, 163u8, 145u8, 151u8, 8u8, 17u8, 113u8, 67u8, 189u8, 228u8, 154u8, 198u8, 1u8, 132u8, 217u8, 135u8, 148u8, 97u8, 216u8, 215u8, 171u8]'.
+       Leo     Program size: 1.69 KB / 500.00 KB
        Leo ✅ Compiled 'consumer.aleo' into Aleo instructions.
-       Leo     Import 'provider.aleo': checksum = '[84u8, 205u8, 93u8, 143u8, 24u8, 220u8, 117u8, 235u8, 108u8, 104u8, 181u8, 9u8, 166u8, 64u8, 159u8, 106u8, 44u8, 235u8, 198u8, 147u8, 105u8, 13u8, 10u8, 190u8, 29u8, 205u8, 82u8, 163u8, 80u8, 107u8, 45u8, 97u8]'
+       Leo     Import 'provider.aleo': checksum = '[65u8, 143u8, 101u8, 10u8, 122u8, 113u8, 65u8, 0u8, 200u8, 13u8, 10u8, 147u8, 182u8, 18u8, 16u8, 101u8, 135u8, 136u8, 47u8, 202u8, 209u8, 17u8, 150u8, 249u8, 134u8, 116u8, 3u8, 5u8, 53u8, 167u8, 16u8, 6u8]'
        Leo ✅ Generated ABI at 'build/abi.json'.

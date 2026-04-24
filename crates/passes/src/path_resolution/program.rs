@@ -29,12 +29,12 @@ use leo_ast::{
     Member,
     Module,
     Output,
-    ProgramReconstructor,
     ProgramScope,
     Statement,
+    UnitReconstructor,
 };
 
-impl ProgramReconstructor for PathResolutionVisitor<'_> {
+impl UnitReconstructor for PathResolutionVisitor<'_> {
     fn reconstruct_aleo_program(&mut self, input: AleoProgram) -> AleoProgram {
         self.program = input.stub_id.as_symbol();
         AleoProgram {
@@ -99,9 +99,9 @@ impl ProgramReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
-        self.program = input.program_name;
+        self.program = input.unit_name;
         self.in_module_scope(&input.path.clone(), |slf| Module {
-            program_name: input.program_name,
+            unit_name: input.unit_name,
             path: input.path,
             composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),

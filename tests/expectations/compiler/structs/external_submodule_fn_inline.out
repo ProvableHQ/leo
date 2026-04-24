@@ -1,0 +1,30 @@
+program child.aleo;
+
+function top_fn:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function call_helper:
+    input r0 as u32.private;
+    mul r0 2u32 into r1;
+    output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown function `child.aleo::utils::helper`
+    --> compiler-test:7:16
+     |
+   7 |         return child.aleo::utils::helper(x);
+     |                ^^^^^^^^^^^^^^^^^^^^^^^^^

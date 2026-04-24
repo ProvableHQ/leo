@@ -16,7 +16,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor;
+use leo_ast::UnitReconstructor;
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 

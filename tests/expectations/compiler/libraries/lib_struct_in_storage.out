@@ -1,0 +1,38 @@
+program test.aleo;
+
+struct TokenInfo__CxbbwT70PGX:
+    name as u128;
+    symbol as u128;
+    decimals as u8;
+    supply as u128;
+    max_supply as u128;
+
+struct Optional__An66AtVsP75:
+    is_some as boolean;
+    val as TokenInfo__CxbbwT70PGX;
+
+mapping token_info__:
+    key as boolean.public;
+    value as TokenInfo__CxbbwT70PGX.public;
+
+function unwrap_info:
+    async unwrap_info into r0;
+    output r0 as test.aleo/unwrap_info.future;
+
+finalize unwrap_info:
+    contains token_info__[false] into r0;
+    cast 0u128 0u128 0u8 0u128 0u128 into r1 as TokenInfo__CxbbwT70PGX;
+    get.or_use token_info__[false] r1 into r2;
+    cast 0u128 0u128 0u8 0u128 0u128 into r3 as TokenInfo__CxbbwT70PGX;
+    ternary r0 r2.name r3.name into r4;
+    ternary r0 r2.symbol r3.symbol into r5;
+    ternary r0 r2.decimals r3.decimals into r6;
+    ternary r0 r2.supply r3.supply into r7;
+    ternary r0 r2.max_supply r3.max_supply into r8;
+    cast r4 r5 r6 r7 r8 into r9 as TokenInfo__CxbbwT70PGX;
+    cast r0 r9 into r10 as Optional__An66AtVsP75;
+    assert.eq r10.is_some true;
+    assert.eq r10.val.decimals 8u8;
+
+constructor:
+    assert.eq edition 0u16;

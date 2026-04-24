@@ -16,9 +16,9 @@
 
 use super::DestructuringVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, ProgramReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, UnitReconstructor};
 
-impl ProgramReconstructor for DestructuringVisitor<'_> {
+impl UnitReconstructor for DestructuringVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         // Set the `is_onchain` flag before reconstructing the block.
         // Note: There is no need to reset this flag as it is appropriately assigned before visiting a function or constructor.

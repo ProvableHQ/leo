@@ -51,7 +51,7 @@
 
 use crate::Pass;
 
-use leo_ast::ProgramReconstructor as _;
+use leo_ast::UnitReconstructor as _;
 use leo_errors::Result;
 
 mod ast;
@@ -80,7 +80,7 @@ impl Pass for DeadCodeEliminating {
         let mut visitor = DeadCodeEliminatingVisitor {
             state,
             used_variables: Default::default(),
-            program_name: Default::default(),
+            unit_name: Default::default(),
             statements_before: 0,
             statements_after: 0,
         };

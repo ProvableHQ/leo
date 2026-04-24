@@ -30,8 +30,20 @@ pub struct SsaConstPropagationVisitor<'a> {
     /// Maps variable names to their constant values.
     /// Only variables assigned constant values are tracked here.
     pub constants: IndexMap<Symbol, Value>,
+    /// Maps variable names bound to a composite RHS — where every field
+    /// initializer is an atom — to the atom each field was initialized with.
+    /// Used to forward `x.field` to the stored atom without rematerializing
+    /// the enclosing struct — effectively scalarizing short-lived aggregates.
+    pub atom_fielded_composites: IndexMap<Symbol, IndexMap<Symbol, Expression>>,
     /// Have we actually modified the program at all?
     pub changed: bool,
+}
+
+/// An "atom" is an expression simple enough to substitute for another use-site
+/// without re-running arbitrary effects or duplicating work. Post-SSA, paths
+/// and literals are the only expression shapes that round-trip freely.
+pub fn is_atom(expr: &Expression) -> bool {
+    matches!(expr, Expression::Path(_) | Expression::Literal(_))
 }
 
 impl SsaConstPropagationVisitor<'_> {

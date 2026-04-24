@@ -14,15 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Performs monomorphization of const generic functions within a `ProgramScope`.
+//! Monomorphizes const generic functions and composites across every program reachable from the
+//! top-level compilation unit.
 //!
-//! This pass identifies all `inline` functions that take const generic parameters (e.g., `foo::[N: u32]()`)
-//! and replaces each unique instantiation (e.g., `foo::[3]()`, `foo::[7]()`) with a concrete version of the function
-//! where the const parameter is replaced with its actual value. These concrete instances are generated, added to the
-//! reconstructed function list, and inserted into the final program scope.
-//!
-//! If a function has been monomorphized and is no longer referenced by any unresolved calls,
-//! it will be removed from the reconstructed functions and pruned from the call graph.
+//! Each unique instantiation of a const generic function (`foo::[3u32]()`, `foo::[7u32]()`) or
+//! composite (`Vec::[3u32]`, `Vec::[5u32]`) is replaced with a concrete specialization in which
+//! the const parameters are substituted with their literal values. Specializations are given a
+//! unique name (e.g. `foo::[3u32]`) and inserted alongside — or, when the original generic is no
+//! longer referenced, in place of — their source definition.
 //!
 //! ### Example
 //!
@@ -36,15 +35,39 @@
 //! }
 //! ```
 //!
-//! In the example above:
-//! - `foo::[3u32]()` and `foo::[7u32]()` are two distinct instantiations of `foo::[N]`.
-//! - This pass will generate two monomorphized versions of `foo`, one for each unique const argument `M` and `P`.
-//! - These are inserted into the output `ProgramScope` as separate functions with unique names.
-//! - If `foo::[N]` is no longer referenced in any calls, the original generic function is removed.
+//! Two concrete versions of `foo` are generated — one per const argument — and the original
+//! generic `foo::[N]` is pruned once no unresolved call refers to it.
+//!
+//! ### Algorithm
+//!
+//! The pass is a single holistic walk, not a recursive per-stub pass. Conceptually:
+//!
+//! 1. **Seed** `function_map` and `composite_map` with every function and composite reachable
+//!    from the top-level `Program` — its own scopes and modules, plus the contents of every
+//!    `FromLeo`, `FromLibrary`, and `FromAleo` stub. Inserts from the current program come last
+//!    so they override any stub placeholders.
+//! 2. **Specialize composites** in post-order of the composite graph. A composite field may
+//!    instantiate another generic composite, so callees must be monomorphized before their users.
+//!    Specialized composites preserve their full module path (`types::Vec` → `types::Vec::[3u32]`)
+//!    to prevent same-named structs in different submodules from colliding.
+//! 3. **Specialize functions** via a post-order DFS over the call graph. Roots are every
+//!    program's entry points, constructors, and non-generic top-level `fn`s — external roots
+//!    included, so a generic closure called only from within an imported program still gets
+//!    rewritten. `self.program` is set to each callee's own program during traversal so
+//!    cross-program edges are interpreted from the callee's perspective.
+//! 4. **Carry through** external definitions the DFS did not reach (they are still needed for
+//!    stub assembly); drop current-program leftovers as dead code.
+//! 5. **Assemble stubs** from the now-populated `reconstructed_*` maps. `FromLeo` stubs are
+//!    rebuilt directly; `FromLibrary` stubs are reconstructed so their items pick up any
+//!    monomorphized composite references.
+//! 6. **Prune originals**: an original generic is removed once every call to it has been
+//!    rewritten to a specialization. If unresolved calls remain, the original is kept so
+//!    subsequent runs of this pass (inside the `ConstPropUnrollAndMorphing` fixed-point loop)
+//!    can finish the job.
 
 use crate::Pass;
 
-use leo_ast::{CompositeExpression, CompositeType, ProgramReconstructor as _};
+use leo_ast::{CompositeExpression, CompositeType, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -86,7 +109,6 @@ impl Pass for Monomorphization {
             composite_map: indexmap::IndexMap::new(),
             monomorphized_functions: indexmap::IndexSet::new(),
             reconstructed_composites: indexmap::IndexMap::new(),
-            monomorphized_composites: indexmap::IndexSet::new(),
             unresolved_calls: Vec::new(),
             unresolved_composite_exprs: Vec::new(),
             unresolved_composite_types: Vec::new(),

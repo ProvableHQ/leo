@@ -14,7 +14,8 @@ fn types(
     g: u64?,
     h: Final,
     i: Final<Fn(u32, address) -> field>,
-    j: mapping address => u64
+    j: mapping address => u64,
+    k: identifier
 ) -> (public u32, private Token) {
     return (1u32, token);
 }
@@ -78,7 +79,10 @@ fn types(
         (identifier)
         (mapping_type
           (primitive_type)
-          (primitive_type))))
+          (primitive_type)))
+      (parameter
+        (identifier)
+        (primitive_type)))
     (return_type
       (return_type_item
         (visibility)

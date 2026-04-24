@@ -12,10 +12,9 @@ struct Bar__IEGwqtYsUsS:
 function main:
     input r0 as Bar__DI7sPAg0NJ0.private;
     cast r0.arr[0u32] r0.arr[0u32] r0.arr[0u32] r0.arr[0u32] into r1 as [u32; 4u32];
-    cast r1 into r2 as Bar__IEGwqtYsUsS;
-    cast r2.arr[1u32] r2.arr[1u32] r2.arr[1u32] into r3 as [u32; 3u32];
-    cast r3 into r4 as Bar__5Qh5JlRc8cY;
-    output r4 as Bar__5Qh5JlRc8cY.private;
+    cast r1[1u32] r1[1u32] r1[1u32] into r2 as [u32; 3u32];
+    cast r2 into r3 as Bar__5Qh5JlRc8cY;
+    output r3 as Bar__5Qh5JlRc8cY.private;
 // --- Next Program --- //
 import child.aleo;
 program parent.aleo;

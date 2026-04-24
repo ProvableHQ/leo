@@ -17,7 +17,7 @@
 //! Analysis phase of the ForceInlineConversion pass.
 
 use indexmap::IndexSet;
-use leo_ast::{AstVisitor, AsyncExpression, CallExpression, ErrExpression, Function, ProgramVisitor, Variant};
+use leo_ast::{AstVisitor, AsyncExpression, CallExpression, ErrExpression, Function, UnitVisitor, Variant};
 use leo_span::Symbol;
 
 #[derive(Debug)]
@@ -67,7 +67,7 @@ impl AstVisitor for AnalysisVisitor {
     }
 }
 
-impl ProgramVisitor for AnalysisVisitor {
+impl UnitVisitor for AnalysisVisitor {
     fn visit_function(&mut self, input: &Function) {
         // Save previous variant
         let prev_variant = self.current_variant;

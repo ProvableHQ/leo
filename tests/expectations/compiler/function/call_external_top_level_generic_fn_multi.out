@@ -1,0 +1,44 @@
+program child.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+
+closure add_const__8xKecbxJ8IK:
+    input r0 as u32;
+    add r0 10u32 into r1;
+    output r1 as u32;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function main:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    call child.aleo/add_const__8xKecbxJ8IK r0 into r2;
+    call child.aleo/add_const__8xKecbxJ8IK r1 into r3;
+    add r2 r3 into r4;
+    output r4 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+Error [ETYC0372005]: Unknown function `child.aleo::add_const`
+    --> compiler-test:7:22
+     |
+   7 |         let a: u32 = child.aleo::add_const::[10u32](x);
+     |                      ^^^^^^^^^^^^^^^^^^^^^
+Error [ETYC0372005]: Unknown function `child.aleo::add_const`
+    --> compiler-test:8:22
+     |
+   8 |         let b: u32 = child.aleo::add_const::[10u32](y);
+     |                      ^^^^^^^^^^^^^^^^^^^^^

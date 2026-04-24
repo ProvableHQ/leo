@@ -4,74 +4,74 @@ struct Point:
     x as u8;
     y as u8;
 
-struct Optional__8hhrPm4c3KB:
+struct Optional__3aph2JMPtnA:
     is_some as boolean;
     val as u8;
 
-struct Optional__F9VPlVJMrn6:
+struct Optional__KL3cDgKUnaT:
     is_some as boolean;
     val as i128;
 
-struct Optional__6Uxqmb23WYh:
+struct Optional__7G49nMxvEkY:
     is_some as boolean;
     val as Point;
 
-struct Optional__DgH3wxYjBqC:
+struct Optional__1FkZoeRVWxu:
     is_some as boolean;
     val as [u8; 2u32];
 
 function u8_some_eq_none:
-    cast true 5u8 into r0 as Optional__8hhrPm4c3KB;
-    cast false 0u8 into r1 as Optional__8hhrPm4c3KB;
+    cast true 5u8 into r0 as Optional__3aph2JMPtnA;
+    cast false 0u8 into r1 as Optional__3aph2JMPtnA;
     is.eq r0 r1 into r2;
     output r2 as boolean.private;
 
 function i128_none_eq_none:
-    cast false 0i128 into r0 as Optional__F9VPlVJMrn6;
-    cast false 0i128 into r1 as Optional__F9VPlVJMrn6;
+    cast false 0i128 into r0 as Optional__KL3cDgKUnaT;
+    cast false 0i128 into r1 as Optional__KL3cDgKUnaT;
     is.eq r0 r1 into r2;
     output r2 as boolean.private;
 
 function u8_some_eq_some:
-    cast true 42u8 into r0 as Optional__8hhrPm4c3KB;
-    cast true 42u8 into r1 as Optional__8hhrPm4c3KB;
+    cast true 42u8 into r0 as Optional__3aph2JMPtnA;
+    cast true 42u8 into r1 as Optional__3aph2JMPtnA;
     is.eq r0 r1 into r2;
     output r2 as boolean.private;
 
 function i128_some_neq_some:
-    cast true 100i128 into r0 as Optional__F9VPlVJMrn6;
-    cast true -50i128 into r1 as Optional__F9VPlVJMrn6;
+    cast true 100i128 into r0 as Optional__KL3cDgKUnaT;
+    cast true -50i128 into r1 as Optional__KL3cDgKUnaT;
     is.neq r0 r1 into r2;
     output r2 as boolean.private;
 
 function struct_some_eq_some:
     cast 1u8 2u8 into r0 as Point;
-    cast true r0 into r1 as Optional__6Uxqmb23WYh;
+    cast true r0 into r1 as Optional__7G49nMxvEkY;
     cast 1u8 2u8 into r2 as Point;
-    cast true r2 into r3 as Optional__6Uxqmb23WYh;
+    cast true r2 into r3 as Optional__7G49nMxvEkY;
     is.eq r1 r3 into r4;
     output r4 as boolean.private;
 
 function struct_some_neq_none:
     cast 5u8 9u8 into r0 as Point;
-    cast true r0 into r1 as Optional__6Uxqmb23WYh;
+    cast true r0 into r1 as Optional__7G49nMxvEkY;
     cast 0u8 0u8 into r2 as Point;
-    cast false r2 into r3 as Optional__6Uxqmb23WYh;
+    cast false r2 into r3 as Optional__7G49nMxvEkY;
     is.neq r1 r3 into r4;
     output r4 as boolean.private;
 
 function array_some_eq_some:
     cast 7u8 8u8 into r0 as [u8; 2u32];
-    cast true r0 into r1 as Optional__DgH3wxYjBqC;
-    cast true r0 into r2 as Optional__DgH3wxYjBqC;
+    cast true r0 into r1 as Optional__1FkZoeRVWxu;
+    cast true r0 into r2 as Optional__1FkZoeRVWxu;
     is.eq r1 r2 into r3;
     output r3 as boolean.private;
 
 function array_some_neq_some:
     cast 1u8 2u8 into r0 as [u8; 2u32];
-    cast true r0 into r1 as Optional__DgH3wxYjBqC;
+    cast true r0 into r1 as Optional__1FkZoeRVWxu;
     cast 3u8 4u8 into r2 as [u8; 2u32];
-    cast true r2 into r3 as Optional__DgH3wxYjBqC;
+    cast true r2 into r3 as Optional__1FkZoeRVWxu;
     is.neq r1 r3 into r4;
     output r4 as boolean.private;
 

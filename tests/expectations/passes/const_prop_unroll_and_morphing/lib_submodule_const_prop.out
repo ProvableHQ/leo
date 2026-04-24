@@ -1,6 +1,6 @@
 library math_lib {
 module ops {
-    fn "scale::[4u32]"(x: u32) -> u32 {
+    fn scale::[4u32](x: u32) -> u32 {
         return x * 4u32;
     }
 }
@@ -12,7 +12,7 @@ program test.aleo {
     async constructor() {
     }
     fn main(x: u32) -> u32 {
-        return math_lib::ops::"scale::[4u32]"(x);
+        return math_lib::ops::scale::[4u32](x);
     }
 }
 

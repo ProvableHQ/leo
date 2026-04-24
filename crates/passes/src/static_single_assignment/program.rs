@@ -200,10 +200,10 @@ impl ModuleConsumer for SsaFormingVisitor<'_> {
     type Output = Module;
 
     fn consume_module(&mut self, input: Module) -> Self::Output {
-        self.program = input.program_name;
+        self.program = input.unit_name;
         Module {
             path: input.path,
-            program_name: self.program,
+            unit_name: self.program,
             composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             interfaces: input.interfaces,

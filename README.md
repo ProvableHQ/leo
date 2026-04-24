@@ -40,16 +40,16 @@ Leo is an imperative, statically-typed programming language built for writing pr
 
 Welcome to the Leo programming language.
 
-Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to 
+Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to
 integrate private applications into your stack. Leo compiles to circuits making zero-knowledge proofs practical.
 
 The syntax of Leo is influenced by traditional programming languages like JavaScript, Scala, and Rust, with a strong emphasis on readability and ease-of-use.
 Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.
 
-Leo is one part of a greater ecosystem for building private applications on [Aleo](https://leo-lang.org/). 
+Leo is one part of a greater ecosystem for building private applications on [Aleo](https://leo-lang.org/).
 The language is currently in an alpha stage and is subject to breaking changes.
 
-## ⚙️️ Build Guide 
+## ⚙️️ Build Guide
 
 ### 🦀 Install Rust
 
@@ -60,12 +60,12 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   ```
 
-- Windows (64-bit):  
-  
+- Windows (64-bit):
+
   Download the [Windows 64-bit executable](https://win.rustup.rs/x86_64) and follow the on-screen instructions.
 
-- Windows (32-bit):  
-  
+- Windows (32-bit):
+
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
 
 ### 📦 Download using Cargo
@@ -73,7 +73,7 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
 If you don't intend to work on the Leo compiler itself, you can install the latest Leo release with:
 
 ```bash
-cargo install leo-lang
+cargo install leo-lang leo-fmt
 ```
 
 Now to use leo, in your terminal, run:
@@ -91,13 +91,15 @@ as follows:
 git clone https://github.com/ProvableHQ/leo
 cd leo
 
-# Install 'leo'
+# Install 'leo' and bundled plugins
 cargo install --path crates/leo
+cargo install --path crates/fmt
 ```
 
 ### 🦁 Update from Leo
 
-You can update Leo to the latest released version using the following command:
+You can update Leo and its plugins to the latest released version using the
+following command:
 
 ```bash
 leo update
@@ -141,7 +143,7 @@ If the issue still persists, please [open an issue](https://github.com/ProvableH
 * [Homepage](https://docs.leo-lang.org/)
 
 ## 🤝 Contributing
- 
+
 Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 ## 🛡️ License

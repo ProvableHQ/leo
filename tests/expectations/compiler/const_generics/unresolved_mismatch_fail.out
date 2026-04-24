@@ -1,5 +1,5 @@
-Error [ECMP0376012]: Unable to resolve composite expression `foo.aleo::Foo`. A non-const expression was provided where a const generic parameter is required.
-    --> compiler-test:15:18
+Error [ETYC0372005]: Unknown struct or record `foo.aleo::Foo`
+    --> compiler-test:15:12
      |
   15 |     return Foo::[2 * N * x] { x: 0 };
-     |                  ^^^^^^^^^
+     |            ^^^

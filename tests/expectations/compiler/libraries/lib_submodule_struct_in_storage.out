@@ -1,0 +1,34 @@
+program rects.aleo;
+
+struct Rect__ANLpT5iOmJt:
+    width as u32;
+    height as u32;
+
+struct Optional__6BCOGVZlT0d:
+    is_some as boolean;
+    val as Rect__ANLpT5iOmJt;
+
+mapping bbox__:
+    key as boolean.public;
+    value as Rect__ANLpT5iOmJt.public;
+
+function area:
+    async area into r0;
+    output r0 as rects.aleo/area.future;
+
+finalize area:
+    contains bbox__[false] into r0;
+    cast 0u32 0u32 into r1 as Rect__ANLpT5iOmJt;
+    get.or_use bbox__[false] r1 into r2;
+    cast 0u32 0u32 into r3 as Rect__ANLpT5iOmJt;
+    ternary r0 r2.width r3.width into r4;
+    ternary r0 r2.height r3.height into r5;
+    cast r4 r5 into r6 as Rect__ANLpT5iOmJt;
+    cast r0 r6 into r7 as Optional__6BCOGVZlT0d;
+    assert.eq r7.is_some true;
+    mul r7.val.width r7.val.height into r8;
+    mul r7.val.width r7.val.height into r9;
+    assert.eq r8 r9;
+
+constructor:
+    assert.eq edition 0u16;

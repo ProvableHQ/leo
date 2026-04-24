@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, ProgramReconstructor, Statement};
+use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, Statement, UnitReconstructor};
 
 use crate::CompilerState;
 
@@ -73,7 +73,7 @@ where
                 Expression::ArrayAccess(access) => self.reconstruct_array_access(*access, &()),
                 Expression::Binary(binary) => self.reconstruct_binary(*binary, &()),
                 Expression::Call(call) => self.reconstruct_call(*call, &()),
-                Expression::DynamicCall(dc) => self.reconstruct_dynamic_call(*dc, &()),
+                Expression::DynamicOp(op) => self.reconstruct_dynamic_op(*op, &()),
                 Expression::Cast(cast) => self.reconstruct_cast(*cast, &()),
                 Expression::Composite(composite) => self.reconstruct_composite_init(composite, &()),
                 Expression::Err(err) => self.reconstruct_err(err, &()),
@@ -131,4 +131,4 @@ where
     }
 }
 
-impl<F> ProgramReconstructor for Replacer<'_, F> where F: Fn(&Expression) -> Expression {}
+impl<F> UnitReconstructor for Replacer<'_, F> where F: Fn(&Expression) -> Expression {}

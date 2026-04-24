@@ -1,0 +1,17 @@
+program test.aleo {
+    struct Inner {
+        v: u32,
+    }
+    struct Outer {
+        inner: test.aleo::Inner,
+    }
+    fn main() -> u32 {
+        let $var$0 = 42u32;
+        let i$#1 = test.aleo::Inner { v: 42u32 };
+        let o$#2 = test.aleo::Outer { inner: i$#1 };
+        let $var$3 = i$#1;
+        let $var$4 = $var$3.v;
+        return $var$4;
+    }
+}
+
