@@ -30,16 +30,16 @@ If you'd like to install a specific version of Leo, you can do so by passing the
 leo update --name v3.0.0
 ```
 
-### Flags:
+## Flags
 
-#### `--list`
+### `--list`
 
-#### `-l`
+### `-l`
 
 Lists all available versions of Leo.
 
-#### `--name`
+### `--name`
 
-#### `-n`
+### `-n`
 
 An optional release name if you wish to install a specific version of Leo. By default, the command will look for the latest release.

@@ -172,7 +172,3 @@ Output
 ```
 
 You'll see here the withdrawal function creates a new private record for the user containing all 266 withdrawn tokens, and then outputs finalization data which will be run on-chain.
-
-```
-
-```

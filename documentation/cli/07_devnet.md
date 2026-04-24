@@ -28,9 +28,9 @@ The default ENDPOINT for a local devnet is `http://localhost:3030`
 
 <!-- markdown-link-check-enable -->
 
-### Flags:
+## Flags
 
-#### `--snarkos <SNARKOS>`
+### `--snarkos <SNARKOS>`
 
 Specifies the path to the installed snarkOS binary.
 
@@ -38,23 +38,23 @@ Specifies the path to the installed snarkOS binary.
 This flag is required!
 :::
 
-#### `--snarkos-features <FEATURES>`
+### `--snarkos-features <FEATURES>`
 
 Specifies which features of snarkOS to use (e.g. `test_network`)
 
-#### `--install`
+### `--install`
 
 Installs (or reinstalls) snarkOS at the provided `--snarkos` path with the given `--snarkos-features`.
 
 <!-- markdown-link-check-disable -->
 
-#### `--snarkos-version <SNARKOS_VERSION>`
+### `--snarkos-version <SNARKOS_VERSION>`
 
 Specifies which version of snarkOS to use or install. Defaults to latest version on [crates.io](https://crates.io/crates/snarkos)
 
 <!-- markdown-link-check-enable -->
 
-#### `--consensus-heights <CONSENSUS_HEIGHTS> `
+### `--consensus-heights <CONSENSUS_HEIGHTS>`
 
 Optional blocks heights to use for each successive consensus upgrade. Must have `--snarkos-features test_network` enabled as well.
 
@@ -64,15 +64,15 @@ The following will enable Consensus_V0 at block 0, Consensus_V1 at block 1, etc.
 --consensus-heights 0,1,2,3....
 ```
 
-#### `--storage <STORAGE>`
+### `--storage <STORAGE>`
 
 Root directory path for snarkOS ledgers and logs. Defaults to `./`
 
-#### `--clear-storage`
+### `--clear-storage`
 
 Clear existing snarkOS ledgers before starting the devnet
 
-#### `--network <NETWORK_ID>`
+### `--network <NETWORK_ID>`
 
 Specifies what the network ID of the devnet will be.
 
@@ -82,18 +82,18 @@ Specifies what the network ID of the devnet will be.
 |  1  | Testnet (default) |
 |  2  |      Canary       |
 
-#### `--tmux`
+### `--tmux`
 
 Run devnet nodes in tmux (only available on Unix-based systems)
 
-#### `--num-validators <NUM_VALIDATORS>`
+### `--num-validators <NUM_VALIDATORS>`
 
 Number of validators to use in snarkOS. Defaults to 4.
 
-#### `--num-clients <NUM_CLIENTS>`
+### `--num-clients <NUM_CLIENTS>`
 
 Number of clients to use in snarkOS. Defaults to 2.
 
-#### `--verbosity <VERBOSITY>`
+### `--verbosity <VERBOSITY>`
 
 Specifies the verbosity of snarkOS (0-4). Defaults to 1.

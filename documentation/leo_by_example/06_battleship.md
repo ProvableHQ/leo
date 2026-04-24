@@ -112,7 +112,7 @@ The output is a board_state record owned by Player 1.
 Notice that the `game_started` flag is false, as well as the composite ship configuration `ships`. 1157459741006397447u64 to a binary bitstring becomes `0001000000010000000111111000000010000000100000001000000000000111`,
 or laid out in columns and rows:
 
-```
+```text
 0 0 0 1 0 0 0 0
 0 0 0 1 0 0 0 0
 0 0 0 1 1 1 1 1
@@ -127,7 +127,7 @@ or laid out in columns and rows:
 
 Now, we can offer a battleship game to player 2. Run `offer_battleship` with the record you just created:
 
-```
+```bash
 leo run offer_battleship "{
   owner: aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private,
   hits_and_misses: 0u64.private,
@@ -199,7 +199,7 @@ leo run initialize_board 31u64 2207646875648u64 224u64 9042383626829824u64 aleo1
 
 Note, the output ships here is 9044591273705727u64, which in a bitstring is:
 
-```
+```text
 0 0 1 0 0 0 0 0
 0 0 1 0 0 0 1 0
 0 0 0 0 0 0 1 0
@@ -433,7 +433,7 @@ leo run play "{
 
 As before, both a `board_state.record` and `move.record` are created. The `board_state.record` now contains 3u64 as the `played_tiles`, which looks like this in bitstring form:
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -500,7 +500,7 @@ leo run play "{
 ✅ Executed 'battleship.aleo::play'
 ```
 
-## 10. Who Wins?
+## 10. Who Wins
 
 Play continues back and forth between Player 1 and Player 2. When one player has a total of 14 flipped bits in their `hits_and_misses` field on their `board_state.record`, they have won the game.
 
@@ -525,7 +525,7 @@ Broadly speaking, we can follow this general strategy:
 Most battleship representations in programs use a 64 character string or an array of arrays (8 arrays of 8 elements each) to model the board state. Unfortunately, Leo language don't represent strings well yet, nor can we use for or while loops. Luckily for us, Aleo has the unsigned 64 bit integer type, or u64. To represent every space on a battleship board, from top left to bottom right, we can use each bit in a u64. For example, an empty board would be:
 0u64 =
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -539,28 +539,30 @@ Most battleship representations in programs use a 64 character string or an arra
 Battleship is played with 4 different ship types - a ship of length 5, length 4, length 3, and length 2. Some versions of battleship have an extra length 3 ship or another extra ship type, however, we will stick to the most basic version for this project. In order to be a valid ship placement, a ship must be placed vertically or horizontally (no diagonals). On a physical board, a ship cannot break across rows or intersect with another ship, but ships are allowed to touch one another.
 
 Similar to how we represent a board with a u64 bitstring, we can represent a ship horizontally as a bitstring. We "flip" the bits to represent a ship:
-| Length | Bitstring | u64 |
-| ------ | --------- | --- |
-| 5 | 11111 | 31u64|
-| 4 | 1111 | 15u64|
-| 3 | 111 | 7u64 |
-| 2 | 11 | 3u64 |
+
+| Length | Bitstring | u64   |
+| ------ | --------- | ----- |
+| 5      | 11111     | 31u64 |
+| 4      | 1111      | 15u64 |
+| 3      | 111       | 7u64  |
+| 2      | 11        | 3u64  |
 
 We can also represent a ship vertically as a bitstring. To show this, we need 7 "unflipped" bits (zeroes) in between the flipped bits so that the bits are adjacent vertically.
-| Length | Bitstring | u64 |
-| --- | --- | --- |
-| 5 | 1 00000001 00000001 00000001 00000001 | 4311810305u64 |
-| 4 | 1 00000001 00000001 00000001 | 16843009u64 |
-| 3 | 1 00000001 00000001 | 65793u64 |
-| 2 | 1 00000001 | 257u64 |
+
+| Length | Bitstring                             | u64           |
+| ------ | ------------------------------------- | ------------- |
+| 5      | 1 00000001 00000001 00000001 00000001 | 4311810305u64 |
+| 4      | 1 00000001 00000001 00000001          | 16843009u64   |
+| 3      | 1 00000001 00000001                   | 65793u64      |
+| 2      | 1 00000001                            | 257u64        |
 
 With a board model and ship bitstring models, we can now place ships on a board.
 
-### Examples of valid board configurations:
+### Examples of valid board configurations
 
 17870284429256033024u64
 
-```
+```text
 1 1 1 1 1 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 1
@@ -573,7 +575,7 @@ With a board model and ship bitstring models, we can now place ships on a board.
 
 16383u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -586,7 +588,7 @@ With a board model and ship bitstring models, we can now place ships on a board.
 
 2157505700798988545u64
 
-```
+```text
 0 0 0 1 1 1 0 1
 1 1 1 1 0 0 0 1
 0 0 0 0 0 0 0 0
@@ -597,12 +599,12 @@ With a board model and ship bitstring models, we can now place ships on a board.
 0 0 0 0 0 0 0 1
 ```
 
-### Examples of invalid board configurations:
+### Examples of invalid board configurations
 
 Ships overlapping the bottom ship:  
 67503903u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -616,7 +618,7 @@ Ships overlapping the bottom ship:
 Diagonal ships:  
 9242549787790754436u64
 
-```
+```text
 1 0 0 0 0 0 0 0
 0 1 0 0 0 1 0 0
 0 0 1 0 0 0 1 0
@@ -630,7 +632,7 @@ Diagonal ships:
 Ships splitting across rows and columns:  
 1297811850814034450u64
 
-```
+```text
 0 0 0 1 0 0 1 0
 0 0 0 0 0 0 1 0
 1 1 0 0 0 0 0 1
@@ -662,7 +664,7 @@ If a ship is valid vertically or horizontally, then we know the ship is valid. W
 
 ### Bit Counting
 
-See the "c_bitcount" closure to follow along with the code. 50 years ago, MIT AI Laboratory published HAKMEM, which was a series of tricks and hacks to speed up processing for bitwise operations. https://w3.pppl.gov/~hammett/work/2009/AIM-239-ocr.pdf We turned to HAKMEM 169 for bitcounting inspiration, although we've tweaked our implementation to be (hopefully) easier to understand. Before diving into details, let's build some intuition.
+See the "c_bitcount" closure to follow along with the code. 50 years ago, MIT AI Laboratory published HAKMEM, which was a series of tricks and hacks to speed up processing for bitwise operations. <https://w3.pppl.gov/~hammett/work/2009/AIM-239-ocr.pdf> We turned to HAKMEM 169 for bitcounting inspiration, although we've tweaked our implementation to be (hopefully) easier to understand. Before diving into details, let's build some intuition.
 
 Let a,b,c,d be either 0 or 1. Given a polynomial 8a + 4b + 2c + d, how do we find the summation of a + b + c + d? If we subtract subsets of this polynomial, we'll be left with the summation.
 
@@ -683,7 +685,7 @@ Step 5: =0011 = 3u64
 To make this process work for any bit-length number, where the sum of the bits is left in groups of 4 bits, we'll need to use some bit-masking, so that the sum of one group of 4 does not interfere with the next group of 4.
 With a larger starting number, like 1111 0001 0111 0110, we will need the following bit maskings:
 
-```
+```text
 For A >> 1, we'll use 0111 0111 0111 .... (in u64, this is 8608480567731124087u64)
 For A >> 2, we'll use 0011 0011 0011 .... (in u64, this is 3689348814741910323u64)
 For A >> 3, we'll use 0001 0001 0001 .... (in u64, this is 1229782938247303441u64)
@@ -691,7 +693,7 @@ For A >> 3, we'll use 0001 0001 0001 .... (in u64, this is 1229782938247303441u6
 
 For example, finding the sums of groups of 4 with a 16-bit number we'll call A to yield the bit sum number B:
 
-```
+```text
 A:    1111 0001 0111 0110
 A>>1: 0111 1000 1011 1011
 A>>2: 0011 1100 0101 1101
@@ -716,7 +718,7 @@ B:    0100 0001 0011 0010
 
 The next step is to combine the summation of each of those 4-bit groups into sums of 8-bit groups. To do this, we'll use another bit trick. We will shift this number B to the right by 4 (B >> 4), and add that back to B. Then, we'll apply a bit masking of 0000 1111 0000 1111 .... (in u64, this is 1085102592571150095u64) to yield the sums of bits in groups of 8, a number we'll call C.
 
-```
+```text
 B:    0100 0001 0011 0010
 B>>4: 0000 0100 0001 0011
       0100 0101 0100 0101
@@ -733,7 +735,7 @@ At this point, we've gone from a bit sum in groups of 4 to bit sums in groups of
 
 A full summary of abbreviated steps to get the bit count, starting with a 64 bit integer A (closely following the c_bitcount closure in the verify.aleo code):
 
-```
+```text
 let A = 64 unsigned bit integer
 let B = A - (A>>1 & 8608480567731124087u64) - (A>>2 & 3689348814741910323u64) - (A>>3 & 1229782938247303441u64)
 let C = (B - B>>4) & 1085102592571150095u64
@@ -745,7 +747,7 @@ bit count = C mod 255u64
 Given a ship's placement on the board and its bitstring representation (horizontally or vertically), we can determine if the bits are adjacent. Follow the c_adjacency_check closure in verify.aleo. Given the ship of length 2, we know it's horizontal bitstring is 11 (3u64) and it's vertical bitstring is 100000001 (257u64). If on the board, the ship starts at the bottom right corner, its horizontal ship placement string would be:  
 3u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -759,7 +761,7 @@ Given a ship's placement on the board and its bitstring representation (horizont
 Vertical ship placement:  
 257u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -773,7 +775,7 @@ Vertical ship placement:
 If we move the ship to the left one column:  
 Horizontal 6u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -786,7 +788,7 @@ Horizontal 6u64
 
 Vertical 514u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -800,7 +802,7 @@ Vertical 514u64
 If we move the ship up one row:  
 Horizontal 768u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -813,7 +815,7 @@ Horizontal 768u64
 
 Vertical 65792u64
 
-```
+```text
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -836,7 +838,7 @@ Follow the c_horizontal_check closure in verify.aleo to follow the code. Assume 
 
 The horizontal case must be checked because a split row bitstring could still contain a ship with adjacent bits. To make this check easier, we will condense the 64 bitstring into an 8 bitstring by taking it modulo 255. If we assume that a bitstring is not splitting a row, then taking the ship placement bitstring modulo 255 will yield an 8 bit valid bitstring. If the original ship placement bitstring is not valid, then we will have an invalid 8 bit bitstring. E.g.:
 
-```
+```text
 1 1 1 0 0 0 0 0
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -849,7 +851,7 @@ The horizontal case must be checked because a split row bitstring could still co
 
 mod 255 = 11100000 (valid)
 
-```
+```text
 0 0 0 0 0 0 0 1
 1 1 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -870,7 +872,7 @@ Any power of 2 will have a single bit flipped. If we subtract 1 from that number
 
 E.g.
 
-```
+```text
 8:   1000
 8-1: 0111
 8&7: 0000 == 0

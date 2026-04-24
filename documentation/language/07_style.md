@@ -11,7 +11,7 @@ There are many conventions that are unique to the Leo language and the circuits 
 
 This guide is a living document.
 As new Leo programming conventions arise and old ones become obsolete this guide should reflect the changes.
-Feel free to add your comments and recommendations [here](#contributing).
+Feel free to add your comments and recommendations in the [Contributing](#contributing) section.
 
 ## Content
 
@@ -33,7 +33,7 @@ if (condition) {
 return condition ? a : b;
 ```
 
-#### Why?
+#### Why
 
 Ternary expressions are the cheapest form of conditional.
 We can resolve the _first expression_ and _second expression_ values before evaluating the _condition_.
@@ -100,7 +100,7 @@ program example.aleo {
 
 When the same helper functions, constants, or `struct` definitions appear in more than one program, move them into a library. This avoids duplicating constraints and makes maintenance easier.
 
-```
+```text
 packages/
 ├── math_utils/   ← shared library
 │   └── src/lib.leo
@@ -122,7 +122,7 @@ Repeating a multi-step computation inline in several programs multiplies the con
 
 When a library grows beyond a few hundred lines, split it across submodules named after their responsibility (`geometry.leo`, `encoding.leo`, etc.) and keep `lib.leo` as the public surface re-exporting common items.
 
-```
+```text
 math_utils/
 ├── src/
 │   ├── lib.leo        ← public API
@@ -138,7 +138,7 @@ Library package names follow the same snake_case rule as programs. Prefer a sing
 
 For maximal code cleanliness and readability, take full advantage of Leo's module system:
 
-```
+```text
 src
 ├── constants.leo
 ├── utils.leo

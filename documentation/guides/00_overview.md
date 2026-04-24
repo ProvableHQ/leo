@@ -8,7 +8,7 @@ sidebar_label: Overview
 
 There's a lot to learn about Leo! To help tame the complexity, we've put together some explainers that you may find helpful.
 
-## Basic:
+## Basic
 
 - [**The Finalization Model**](./01_finalization.md) - Learn the fundamentals of the offchain/onchain computation model of Aleo.
 

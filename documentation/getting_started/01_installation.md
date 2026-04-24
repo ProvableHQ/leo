@@ -37,19 +37,21 @@ This will generate the executable at `~/.cargo/bin/leo`.
 </TabItem>
 <TabItem value="prebuilt">
 
-## MacOS (Apple Silicon):
+## MacOS (Apple Silicon)
 
-1.  **[Download Leo for Apple Silicon (MacOS)](https://github.com/ProvableHQ/leo/releases/latest/download/leo.zip)**
-2.  Extract the `.zip` file
-3.  Open a terminal and navigate to the extracted directory.
-4.  Run `chmod +x leo` to make the file executable
-5.  Move `leo` to `/usr/local/bin` to use it system wide.
+1. **[Download Leo for Apple Silicon (MacOS)](https://github.com/ProvableHQ/leo/releases/latest/download/leo.zip)**
+2. Extract the `.zip` file
+3. Open a terminal and navigate to the extracted directory.
+4. Run `chmod +x leo` to make the file executable
+5. Move `leo` to `/usr/local/bin` to use it system wide.
 
-        mv leo /usr/local/bin
+   ```bash
+   mv leo /usr/local/bin
+   ```
 
-6.  Run `leo --version` to confirm installation
+6. Run `leo --version` to confirm installation
 
-## Other Platforms:
+## Other Platforms
 
 - **[Browse all Leo releases](https://github.com/ProvableHQ/leo/releases)**
 
@@ -84,7 +86,7 @@ cargo install --path .
 
 This will generate the executable at `~/.cargo/bin/leo`.
 
-#### To use Leo, run:
+### To use Leo, run
 
 ```bash
 leo

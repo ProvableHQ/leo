@@ -28,9 +28,9 @@ On invoking the build command, Leo automatically creates a `build/⁠` and `outp
 
 The build also generates an **ABI file** at `build/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/10_abi.md) for details on the format and type lowering specification.
 
-### Flags:
+## Flags
 
-```
+```text
 --offline
     Enables offline mode.
 --enable-ast-spans

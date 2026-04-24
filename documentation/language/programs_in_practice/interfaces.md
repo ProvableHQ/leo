@@ -19,7 +19,7 @@ program must provide. Interfaces are a compile-time concept and have no impact o
 They are only useful as a way to enforce structural contracts — ensuring that any program claiming to implement
 an interface actually provides all required functions, records, mappings, and storage variables — and to enable
 dynamic calls, where the caller knows *what* it can call without knowing *which* program it is calling at
-runtime. Interfaces can be declared outside the `program {}` block, in a submodule, or in a library package 
+runtime. Interfaces can be declared outside the `program {}` block, in a submodule, or in a library package
 (including library submodules).
 
 ```leo
@@ -159,10 +159,13 @@ fn route_transfer_dynamic(token_program: identifier, to: address, amount: u64) {
 ```
 
 The syntax is:
-```
+
+```text
 Interface@(target)::method(args)
 ```
+
 where:
+
 - `Interface` is the interface name.
 - `target` is an `identifier` value (or `field`) resolved at runtime — the name of the program to call into.
 - `method` is the function to invoke.
@@ -192,7 +195,7 @@ The only valid network identifier currently is `aleo`.
 
 An interface that declares a `mapping` can also be used to read that mapping on a runtime-determined program. The syntax mirrors dynamic calls, but with a mapping name in place of a method name and a trailing read operation:
 
-```
+```text
 Interface@(target[, network])::mapping.get(key)
 Interface@(target[, network])::mapping.contains(key)
 Interface@(target[, network])::mapping.get_or_use(key, default)
@@ -257,7 +260,7 @@ When the reader is inside the same program that declares the interface, drop the
 
 Interfaces that declare [`storage`](../02_structure.md#storage) variables support dynamic reads with the same pattern. Storage reads always return an `Option<T>`:
 
-```
+```text
 Interface@(target[, network])::singleton            // Option<T>
 Interface@(target[, network])::vector.get(index)    // Option<T>
 Interface@(target[, network])::vector.len()         // u32

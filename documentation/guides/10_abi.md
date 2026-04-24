@@ -21,7 +21,7 @@ The Leo compiler generates an **Application Binary Interface (ABI)** alongside c
 
 When you run `leo build`, the compiler generates ABI files alongside the compiled `.aleo` bytecode:
 
-```
+```text
 build/
 ├── main.aleo          # Compiled Aleo bytecode
 ├── abi.json           # ABI for your program
@@ -308,7 +308,7 @@ Most Leo types map directly to Aleo types:
 
 Leo's optional type (`T?`) is lowered to a struct with two fields:
 
-```
+```text
 T?  -->  struct { is_some: bool, val: T }
 ```
 
@@ -324,7 +324,7 @@ program example.aleo {
 
 **Aleo representation:**
 
-```
+```text
 struct "u32?" {
     is_some as boolean;
     val as u32;
@@ -345,7 +345,7 @@ let arr: [u64?; 2] = [1u64, none];
 
 Lowers to an array of structs:
 
-```
+```json
 [
     "u64?" { is_some: true, val: 1u64 },
     "u64?" { is_some: false, val: 0u64 }
@@ -356,7 +356,7 @@ Lowers to an array of structs:
 
 Leo's storage vectors (`storage vec: Vector<T>`) are lowered to two mappings:
 
-```
+```text
 storage vec: Vector<T>
     -->
 mapping vec__: u32 => T        // Elements indexed by position
@@ -379,7 +379,7 @@ program example.aleo {
 
 **Aleo representation:**
 
-```
+```text
 mapping history__:
     key as u32.public;
     value as u64.public;
@@ -398,7 +398,7 @@ To read a storage vector:
 
 Tuples are expanded into multiple registers in Aleo bytecode:
 
-```
+```text
 (T1, T2, T3)  -->  r0: T1, r1: T2, r2: T3
 ```
 
@@ -414,7 +414,7 @@ program example.aleo {
 
 **Aleo bytecode:**
 
-```
+```text
 function swap:
     input r0 as u32.private;
     input r1 as u32.private;

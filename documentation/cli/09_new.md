@@ -25,8 +25,8 @@ This command will create a new directory with the given name.
 
 See [Project Layout](./../language/01_layout.md) for more details.
 
-### Flags:
+## Flags
 
-#### `--library`
+### `--library`
 
 Creates a new Leo library instead of a program. A library provides reusable logic that can be imported by other Leo programs or libraries using `leo add --local`, but cannot be deployed or executed on its own. The generated project includes a `tests/` directory with a starter test file.

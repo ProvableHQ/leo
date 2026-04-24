@@ -90,7 +90,7 @@ Ctrl+b :select-window -t {NODE_ID}
 Ctrl+b :kill-session
 ```
 
-See the full `leo devnet` CLI documentation [here](./../cli/07_devnet.md)
+See the full [`leo devnet` CLI documentation](./../cli/07_devnet.md).
 
 ## Usage
 
@@ -176,7 +176,7 @@ leo query transaction {TRANSACTION_ID}
 
 The transaction API endpoint is instructive in verifying whether a transaction succeeded or failed. Since both successful and failed transactions execute a fee transaction, if only the fee transaction appears, that is a clear indication that the transaction has failed. Note that on the Testnet and on Mainnet, failed transactions still require a fee since the network is performing a computation.
 
-A full list of API endpoints is available [here](https://docs.explorer.provable.com/docs/api/v2/intro)
+A [full list of API endpoints](https://docs.explorer.provable.com/docs/api/v2/intro) is available in the explorer documentation.
 
 ## Record Scanning
 

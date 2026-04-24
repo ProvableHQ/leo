@@ -46,7 +46,7 @@ leo query block 0 --network mainnet --endpoint https://api.explorer.provable.com
 leo query block ab1sm6kyqle2ftg4z8gegafqrjy0jwjhzu6fmy73726dgszrtxhxvfqha0eee --network mainnet --endpoint https://api.explorer.provable.com/v1
 ```
 
-### Flags:
+### Flags
 
 #### `--network <NETWORK>`
 
@@ -126,7 +126,7 @@ leo query transaction <ID>
 
 where `<ID>` is the ID of the transaction. The transaction will be returned in JSON format.
 
-### Flags:
+### Flags
 
 #### `--network <NETWORK>`
 
@@ -192,7 +192,7 @@ You can also use this to query specific mappings and mapping values from a given
 leo query program credits.aleo --mapping-value account <YOUR_ADDRESS>
 ```
 
-### Flags:
+### Flags
 
 #### `--network <NETWORK>`
 
@@ -210,7 +210,7 @@ Number of times to retry a network request on transient transport failure, with 
 
 Lists all mappings defined in the latest deployed edition of the program.
 
-#### `--mapping-value <MAPPING> <KEY> `
+#### `--mapping-value <MAPPING> <KEY>`
 
 Get the value corresponding to the specified mapping and key. Will return `null` if key is not present in mapping.
 
@@ -226,7 +226,7 @@ The edition of the program is set to `0` upon initial deployment and is incremen
 
 This command queries the latest stateroot of a given network.
 
-### Flags:
+### Flags
 
 #### `--network <NETWORK>`
 
@@ -246,7 +246,7 @@ Number of times to retry a network request on transient transport failure, with 
 
 This command queries the current validator committee for a given network.
 
-### Flags:
+### Flags
 
 #### `--network <NETWORK>`
 
@@ -282,7 +282,7 @@ To query transmissions:
 leo query mempool --transmissions
 ```
 
-### Flags:
+### Flags
 
 #### `--transactions`
 
@@ -314,7 +314,7 @@ This command queries peer information for a node on a given network.
 This command can only be run with a custom endpoint. Using the official Provable API endpoint will fail.
 :::
 
-### Flags:
+### Flags
 
 #### `--metrics`
 

@@ -47,9 +47,9 @@ won't attempt to parse them as options:
 leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
 ```
 
-### Flags:
+## Flags
 
-```
+```text
 --with <WITH>...
     Comma-separated list of additional programs to load into the VM at runtime.
     Each entry can be a path to a local `.aleo` bytecode file or the name of a

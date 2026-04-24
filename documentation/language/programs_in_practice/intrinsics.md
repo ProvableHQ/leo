@@ -18,7 +18,7 @@ Only valid in transition contexts — it cannot be used inside `final fn` functi
 
 ### Syntax
 
-```
+```text
 _dynamic_call::[TYPE_PARAMS](prog, net, func, ...args)
 ```
 

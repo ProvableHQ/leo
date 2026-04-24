@@ -11,7 +11,7 @@ Leo programs can import functionality from other programs and libraries. Any imp
 - **Network dependencies**: Programs already deployed on the Aleo network, fetched as pre-compiled bytecode.
 - **Local dependencies**: Code on your filesystem; either Leo code compiled from source, Aleo Instructions code, or a Leo library.
 
-### Programs vs. Libraries
+## Programs vs. Libraries
 
 A regular Leo **program** has an on-chain identity (`program foo.aleo { }`), can hold mappings and records, and is deployed to the Aleo network. A Leo **library** is a source-only package containing structs, constants, and helper functions with no on-chain footprint — all library code is inlined into programs that use it at compile time. Libraries can only be local dependencies; they are never deployed.
 

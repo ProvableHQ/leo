@@ -119,7 +119,7 @@ Now let's compile and run the program.
 
 To compile the program, run:
 
-```
+```bash
 leo build
 ```
 
@@ -170,8 +170,8 @@ Leo 🧹 Cleaned the build directory ./hello/build
 
 ## Next Steps
 
-To learn more about the Leo language and its syntax, start [here](./../language/00_overview.md).
+To learn more about the Leo language and its syntax, start with the [language overview](./../language/00_overview.md).
 
-To learn more about how to use the Leo CLI, start [here](./../cli/00_overview.md).
+To learn more about how to use the Leo CLI, start with the [CLI overview](./../cli/00_overview.md).
 
 To get started with some sample projects, check out the **Leo By Example** section.

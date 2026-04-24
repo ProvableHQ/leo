@@ -22,9 +22,9 @@ where `<TEST_NAME>` is the string to match against the qualified name of each te
 
 Check out the [**Testing**](./../guides/08_testing.md) guide for more information.
 
-### Flags:
+## Flags
 
-```
+```text
 --offline
     Enables offline mode.
 --enable-ast-spans

@@ -102,7 +102,7 @@ Constants can be declared in four scopes:
 
 Constants are also supported in [libraries](./06_libraries.md), which are separate packages containing reusable code. A library's root file and its submodules may declare constants, accessible from any dependent package as `library::CONST_NAME` or `library::path::to::submodule::CONST_NAME`.
 
-**Accessibility across packages:** Global and program-scope constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. The following are not yet supported: 
+**Accessibility across packages:** Global and program-scope constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. The following are not yet supported:
 
 1. Accessing a constant from a submodule of an imported program
 2. Accessing an imported program's constant from within a submodule of the current program

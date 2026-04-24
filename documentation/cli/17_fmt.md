@@ -34,7 +34,7 @@ leo fmt --check
 
 ![leo fmt --check](../img/leo_fmt_check.png)
 
-### Flags:
+### Flags
 
 #### `--check`
 

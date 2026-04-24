@@ -10,63 +10,63 @@ toc_max_heading_level: 3
 
 ## Table of Contents
 
-| Name                                                        | Description                                               |
-| ----------------------------------------------------------- | :-------------------------------------------------------- |
-| [abs](#abs)                                                 | Absolute value                                            |
-| [abs_wrapped](#abs_wrapped)                                 | Wrapping absolute value                                   |
-| [add](#add)                                                 | Addition                                                  |
-| [add_wrapped](#add_wrapped)                                 | Wrapping addition                                         |
-| [and](#and)                                                 | Conjunction                                               |
-| [assert](#assert)                                           | Assert boolean true                                       |
-| [assert_eq](#assert_eq)                                     | Assert equality                                           |
-| [assert_neq](#assert_neq)                                   | Assert non-equality                                       |
-| [block.height](#blockheight)                                | Fetch the latest block height                             |
-| [block.timestamp](#blocktimestamp)                          | Fetch the latest block timestamp                          |
-| [Deserialize:from_bits::[TYPE] ](#deserializefrom_bitstype) | Deserialize bits to a data type                           |
-| [div](#div)                                                 | Division                                                  |
-| [div_wrapped](#div_wrapped)                                 | Wrapping division operation                               |
-| [double](#double)                                           | Double                                                    |
-| [group::GEN](#groupgen)                                     | group generator                                           |
-| [Aleo::generator](#aleogenerator)                                   | Aleo group generator constant                             |
-| [Aleo::generator_powers](#aleogenerator_powers)                     | Precomputed Aleo generator powers `[group; 251]`          |
-| [gt](#gt)                                                   | Greater than comparison                                   |
-| [gte](#gte)                                                 | Greater than or equal to comparison                       |
-| [inv](#inv)                                                 | Multiplicative inverse                                    |
-| [eq](#eq)                                                   | Equality comparison                                       |
-| [neq](#neq)                                                 | Non-equality comparison                                   |
-| [lt](#lt)                                                   | Less than comparison                                      |
-| [lte](#lte)                                                 | Less than or equal to comparison                          |
-| [mod](#mod)                                                 | Modulo                                                    |
-| [mul](#mul)                                                 | Multiplication                                            |
-| [mul_wrapped](#mul_wrapped)                                 | Wrapping multiplication                                   |
-| [nand](#nand)                                               | Negated conjunction                                       |
-| [neg](#neg)                                                 | Additive inverse                                          |
-| [nor](#nor)                                                 | Negated disjunction                                       |
-| [not](#not)                                                 | Logical negation                                          |
-| [or](#or)                                                   | (Inclusive) disjunction                                   |
-| [pow](#pow)                                                 | Exponentiation                                            |
-| [pow_wrapped](#pow_wrapped)                                 | Wrapping exponentiation                                   |
-| [rem](#rem)                                                 | Remainder                                                 |
-| [rem_wrapped](#rem_wrapped)                                 | Wrapping remainder                                        |
-| [self.address](#selfaddress)                                | Address of the current program                            |
-| [self.caller](#selfcaller)                                  | Address of the calling user/program                       |
-| [self.checksum](#selfcaller)                                | Checksum of a program                                     |
-| [self.edition](#selfedition)                                | Version number of a program                               |
-| [self.program_owner](#selfprogram_owner)                    | Address that submitted a program's deployment transaction |
-| [self.signer](#selfsigner)                                  | Address of the top-level calling user                     |
-| [Serialize::to_bits](#serializeto_bits)                     | Serialize data to bits                                    |
-| [shl](#shl)                                                 | Shift left                                                |
-| [shl_wrapped](#shl_wrapped)                                 | Wrapping shift left                                       |
-| [shr](#shr)                                                 | Shift right                                               |
-| [shr_wrapped](#shr_wrapped)                                 | Wrapping shift right                                      |
-| [square_root](#square_root)                                 | Square root                                               |
-| [square](#square)                                           | Square                                                    |
-| [sub](#sub)                                                 | Subtraction                                               |
-| [sub_wrapped](#sub_wrapped)                                 | Wrapping subtraction                                      |
-| [ternary](#ternary)                                         | Ternary select                                            |
-| [to_x_coordinate](#to_x_coordinate)                         | Extract x-coordinate of a group element                   |
-| [to_y_coordinate](#to_y_coordinate)                         | Extract y-coordinate of a group element                   |
-| [xor](#xor)                                                 | Exclusive conjunction                                     |
+| Name                                                       | Description                                               |
+| ---------------------------------------------------------- | --------------------------------------------------------- |
+| [abs](#abs)                                                | Absolute value                                            |
+| [abs_wrapped](#abs_wrapped)                                | Wrapping absolute value                                   |
+| [add](#add)                                                | Addition                                                  |
+| [add_wrapped](#add_wrapped)                                | Wrapping addition                                         |
+| [and](#and)                                                | Conjunction                                               |
+| [assert](#assert)                                          | Assert boolean true                                       |
+| [assert_eq](#assert_eq)                                    | Assert equality                                           |
+| [assert_neq](#assert_neq)                                  | Assert non-equality                                       |
+| [block.height](#blockheight)                               | Fetch the latest block height                             |
+| [block.timestamp](#blocktimestamp)                         | Fetch the latest block timestamp                          |
+| [Deserialize:from_bits::[TYPE]](#deserializefrom_bitstype) | Deserialize bits to a data type                           |
+| [div](#div)                                                | Division                                                  |
+| [div_wrapped](#div_wrapped)                                | Wrapping division operation                               |
+| [double](#double)                                          | Double                                                    |
+| [group::GEN](#groupgen)                                    | group generator                                           |
+| [Aleo::generator](#aleogenerator)                          | Aleo group generator constant                             |
+| [Aleo::generator_powers](#aleogenerator_powers)            | Precomputed Aleo generator powers `[group; 251]`          |
+| [gt](#gt)                                                  | Greater than comparison                                   |
+| [gte](#gte)                                                | Greater than or equal to comparison                       |
+| [inv](#inv)                                                | Multiplicative inverse                                    |
+| [eq](#eq)                                                  | Equality comparison                                       |
+| [neq](#neq)                                                | Non-equality comparison                                   |
+| [lt](#lt)                                                  | Less than comparison                                      |
+| [lte](#lte)                                                | Less than or equal to comparison                          |
+| [mod](#mod)                                                | Modulo                                                    |
+| [mul](#mul)                                                | Multiplication                                            |
+| [mul_wrapped](#mul_wrapped)                                | Wrapping multiplication                                   |
+| [nand](#nand)                                              | Negated conjunction                                       |
+| [neg](#neg)                                                | Additive inverse                                          |
+| [nor](#nor)                                                | Negated disjunction                                       |
+| [not](#not)                                                | Logical negation                                          |
+| [or](#or)                                                  | (Inclusive) disjunction                                   |
+| [pow](#pow)                                                | Exponentiation                                            |
+| [pow_wrapped](#pow_wrapped)                                | Wrapping exponentiation                                   |
+| [rem](#rem)                                                | Remainder                                                 |
+| [rem_wrapped](#rem_wrapped)                                | Wrapping remainder                                        |
+| [self.address](#selfaddress)                               | Address of the current program                            |
+| [self.caller](#selfcaller)                                 | Address of the calling user/program                       |
+| [self.checksum](#selfcaller)                               | Checksum of a program                                     |
+| [self.edition](#selfedition)                               | Version number of a program                               |
+| [self.program_owner](#selfprogram_owner)                   | Address that submitted a program's deployment transaction |
+| [self.signer](#selfsigner)                                 | Address of the top-level calling user                     |
+| [Serialize::to_bits](#serializeto_bits)                    | Serialize data to bits                                    |
+| [shl](#shl)                                                | Shift left                                                |
+| [shl_wrapped](#shl_wrapped)                                | Wrapping shift left                                       |
+| [shr](#shr)                                                | Shift right                                               |
+| [shr_wrapped](#shr_wrapped)                                | Wrapping shift right                                      |
+| [square_root](#square_root)                                | Square root                                               |
+| [square](#square)                                          | Square                                                    |
+| [sub](#sub)                                                | Subtraction                                               |
+| [sub_wrapped](#sub_wrapped)                                | Wrapping subtraction                                      |
+| [ternary](#ternary)                                        | Ternary select                                            |
+| [to_x_coordinate](#to_x_coordinate)                        | Extract x-coordinate of a group element                   |
+| [to_y_coordinate](#to_y_coordinate)                        | Extract y-coordinate of a group element                   |
+| [xor](#xor)                                                | Exclusive conjunction                                     |
 
 ## Arithmetic Operators
 
@@ -84,7 +84,7 @@ Note that execution will halt if the operation overflows. For cases where wrappi
 #### Supported Types
 
 | Input  | Destination |
-| ------ | :---------- |
+| ------ | ----------- |
 | `i8`   | `i8`        |
 | `i16`  | `i16`       |
 | `i32`  | `i32`       |
@@ -107,7 +107,7 @@ Compute the absolute value of the input, wrapping around at the boundary of the 
 #### Supported Types
 
 | Input  | Destination |
-| ------ | :---------- |
+| ------ | ----------- |
 | `i8`   | `i8`        |
 | `i16`  | `i16`       |
 | `i32`  | `i32`       |
@@ -164,7 +164,7 @@ Adds `first` with `second`, wrapping around at the boundary of the type, and sto
 #### Supported Types
 
 | First  | Second | Destination |
-| ------ | ------ | :---------- |
+| ------ | ------ | ----------- |
 | `i8`   | `i8`   | `i8`        |
 | `i16`  | `i16`  | `i16`       |
 | `i32`  | `i32`  | `i32`       |
@@ -206,7 +206,7 @@ For cases where wrapping semantics are needed for integer types, see the [div_wr
 #### Supported Types
 
 | First   | Second  | Destination |
-| ------- | ------- | :---------- |
+| ------- | ------- | ----------- |
 | `field` | `field` | `field`     |
 | `i8`    | `i8`    | `i8`        |
 | `i16`   | `i16`   | `i16`       |
@@ -235,7 +235,7 @@ Divides `first` by `second`, wrapping around at the boundary of the type, and st
 #### Supported Types
 
 | First  | Second | Destination |
-| ------ | ------ | :---------- |
+| ------ | ------ | ----------- |
 | `i8`   | `i8`   | `i8`        |
 | `i16`  | `i16`  | `i16`       |
 | `i32`  | `i32`  | `i32`       |
@@ -573,7 +573,7 @@ storing the result in `destination`.
 #### Supported Types
 
 | First  | Second | Destination |
-| ------ | ------ | :---------- |
+| ------ | ------ | ----------- |
 | `bool` | `bool` | `bool`      |
 | `i8`   | `i8`   | `i8`        |
 | `i16`  | `i16`  | `i16`       |
@@ -1054,6 +1054,7 @@ height in a program.
 
 - The `block.height` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
 - The `block.height` operator doesn't take any parameters.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1078,6 +1079,7 @@ The `block.timestamp` operator is used to fetch the UNIX timestamp of the latest
 
 - The `block.timestamp` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
 - The `block.timestamp` operator doesn't take any parameters.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1099,6 +1101,7 @@ The `self.address` operator returns the address of the program that calls it. Wh
 :::info
 
 - The `self.address` operator doesn't take any parameters.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1120,6 +1123,7 @@ The `self.caller` operator returns the address of the account/program that invok
 :::info
 
 - The `self.caller` operator doesn't take any parameters.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1153,6 +1157,7 @@ let ext_checksum: [u8, 32] = Program::checksum(credits.aleo);
 - The `self.checksum` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
 - The `self.checksum` operator doesn't take any parameters.
 - To reference another program's checksum, you will need to import that program first.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1186,6 +1191,7 @@ let ext_edition: u16 = Program::edition(credits.aleo);
 - The `self.edition` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
 - The `self.edition` operator doesn't take any parameters.
 - To reference another program's edition, you will need to import that program first.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1218,6 +1224,7 @@ let ext_owner: u16 = Program::owner(credits.aleo);
 - The `self.program_owner` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
 - The `self.program_owner` operator doesn't take any parameters.
 - To reference another program's owner, you will need to import that program first.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1239,6 +1246,7 @@ The `self.signer` operator returns the address of the account that invoked the t
 :::info
 
 - The `self.signer` operator doesn't take any parameters.
+
   :::
 
 [Back to Top](#table-of-contents)
@@ -1424,7 +1432,7 @@ By appending `_raw` to the end of the function, the function will omit the metad
 #### Supported Types
 
 | First     | Destination   | Destination (Raw) |
-| --------- | :------------ | ----------------- |
+| --------- | ------------- | ----------------- |
 | `address` | `[bool; 279]` | `[bool; 253]`     |
 | `bool`    | `[bool; 27]`  | `[bool; 1]`       |
 | `field`   | `[bool; 279]` | `[bool; 253]`     |
@@ -1466,7 +1474,7 @@ By appending `_raw` to the end of the function, the function will omit the metad
 #### Supported Types
 
 | TYPE      | Input         | Input (Raw)   | Destination |
-| --------- | :------------ | ------------- | ----------- |
+| --------- | ------------- | ------------- | ----------- |
 | `address` | `[bool; 279]` | `[bool; 253]` | `address`   |
 | `bool`    | `[bool; 27]`  | `[bool; 1]`   | `bool`      |
 | `field`   | `[bool; 279]` | `[bool; 253]` | `field`     |

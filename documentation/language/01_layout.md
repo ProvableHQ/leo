@@ -130,7 +130,7 @@ Leaf modules (i.e. modules without submodules) must be defined in a single file 
 
 Take the following project as an example:
 
-```
+```text
 src
 ├── common.leo
 ├── main.leo
@@ -169,7 +169,7 @@ fn increment(x: field) -> field {
 
 When an imported program organizes its source across submodules, you can reach any `struct`, `const`, or helper `fn` from those submodules using an extended locator path:
 
-```
+```text
 program.aleo::submodule::item
 ```
 

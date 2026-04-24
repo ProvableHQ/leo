@@ -6,8 +6,6 @@ sidebar_label: Upgrading Programs
 
 [general tags]: # "guides, upgrade, program, transaction, constructor"
 
-# A Developer's Guide to Upgradability in Leo
-
 This guide provides a practical overview of Aleo's program upgradability framework, tailored for developers using the Leo language. You'll learn how to configure your program, implement common upgrade patterns, and follow best practices for writing secure, maintainable applications.
 For more details on the underlying protocol, refer to the [Aleo docs](https://developer.aleo.org/guides/program_upgradability/).
 
@@ -19,7 +17,7 @@ The Leo compiler reads the annotation to understand your intent and generates th
 There are four primary upgrade modes:
 
 | Mode         | Description                                                                                       |
-| :----------- | :------------------------------------------------------------------------------------------------ |
+| ------------ | ------------------------------------------------------------------------------------------------- |
 | `@noupgrade` | The program is not upgradable.                                                                    |
 | `@admin`     | Upgrades are controlled by a single, hardcoded admin address.                                     |
 | `@checksum`  | Upgrades are governed by an on-chain checksum, often managed by a separate program (e.g., a DAO). |
@@ -42,7 +40,7 @@ There are two key properties of the `constructor` related to upgradability:
 Within a `constructor`, you can access on-chain metadata about the program using the `self` keyword.
 
 | Operand              | Leo Type   | Description                                                                                                                                  |
-| :------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `self.edition`       | `u16`      | The program's version number. Starts at `0` and is incremented by `1` for each upgrade. The edition is tracked automatically on the network. |
 | `self.program_owner` | `address`  | The address that submitted the deployment transaction.                                                                                       |
 | `self.checksum`      | `[u8, 32]` | The program's checksum, which is a unique identifier for the program's code.                                                                 |
@@ -87,7 +85,7 @@ program noupgrade_example.aleo {
 
 The corresponding AVM code is:
 
-```
+```text
 constructor:
     assert.eq edition 0u16
 ```
@@ -117,7 +115,7 @@ program admin_example.aleo {
 
 The corresponding AVM code is:
 
-```
+```text
 constructor:
     assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
 ```
@@ -148,7 +146,7 @@ program vote_example.aleo {
 
 The corresponding AVM code is:
 
-```
+```text
 constructor:
     branch.eq edition 0u16 to end;
     get basic_voting.aleo/approved_checksum[true] into r0;
@@ -184,7 +182,7 @@ program timelock_example.aleo {
 
 The corresponding AVM code is:
 
-```
+```text
 constructor:
     gt edition 0u16 into r0;
     branch.eq r0 false to end_then_0_0;
@@ -213,7 +211,7 @@ An upgrade **cannot**:
 - Delete any existing program component.
 
 | Program Component         | Delete |   Modify   | Add |
-| :------------------------ | :----: | :--------: | :-: |
+| ------------------------- | :----: | :--------: | :-: |
 | `import`                  |   ❌   |     ❌     | ✅  |
 | `struct`                  |   ❌   |     ❌     | ✅  |
 | `record`                  |   ❌   |     ❌     | ✅  |

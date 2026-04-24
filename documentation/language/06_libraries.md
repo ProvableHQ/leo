@@ -18,7 +18,7 @@ leo new math_utils --library
 
 This produces the same project structure as a regular Leo project, with one difference: the main source file is named `lib.leo` instead of `main.leo`.
 
-```
+```text
 math_utils/
 ├── program.json
 ├── src/
@@ -56,15 +56,15 @@ fn manhattan(a: Point, b: Point) -> u32 {
 
 ### What a library may contain
 
-| Item | Allowed | Notes |
-| ---- | ------- | ----- |
-| `const` declarations | ✅ | Global compile-time constants |
-| `struct` definitions | ✅ | Shared data types |
-| `fn` definitions | ✅ | Helper functions, including generic `fn::[…]` |
-| `program { }` block | ❌ | Libraries have no on-chain identity |
-| `mapping` / `storage` | ❌ | No on-chain state |
-| `record` types | ❌ | Records belong to programs |
-| Entry `fn` / `final fn` | ❌ | No callable entry points |
+| Item                    | Allowed | Notes                                         |
+| ----------------------- | ------- | --------------------------------------------- |
+| `const` declarations    | ✅      | Global compile-time constants                 |
+| `struct` definitions    | ✅      | Shared data types                             |
+| `fn` definitions        | ✅      | Helper functions, including generic `fn::[…]` |
+| `program { }` block     | ❌      | Libraries have no on-chain identity           |
+| `mapping` / `storage`   | ❌      | No on-chain state                             |
+| `record` types          | ❌      | Records belong to programs                    |
+| Entry `fn` / `final fn` | ❌      | No callable entry points                      |
 
 ## Declaring the Dependency
 
@@ -91,9 +91,11 @@ To use a library from another Leo project, add it to that project's `program.jso
 
 :::info
 The `leo add` command can populate these entries automatically:
+
 ```bash
 leo add math_utils --local ../math_utils 
 ```
+
 :::
 
 ## Using a Library
@@ -149,7 +151,7 @@ program my_app.aleo {
 
 A library can span multiple source files. Place additional `.leo` files alongside `lib.leo` in `src/` to create submodules. Each file becomes a submodule named after the file, and its items are accessed with an extra path segment.
 
-```
+```text
 math_utils/
 ├── src/
 │   ├── lib.leo       ← root: math_utils::item
@@ -190,7 +192,7 @@ cd math_utils
 leo build
 ```
 
-```
+```text
        Leo 🔨 Building library 'math_utils'
        Leo ✅ Validated 'math_utils'.
 ```

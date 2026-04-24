@@ -12,7 +12,7 @@ There's a lot more on Leo and Aleo out there! Here are some things you might fin
 
 💬 Share what you are building in the #leo-language channel 💬
 
-https://discord.gg/aleo
+<https://discord.gg/aleo>
 
 If you're interested in learning more about Aleo:
 
@@ -20,27 +20,27 @@ If you're interested in learning more about Aleo:
 
 [//]: # "disabling markdown checks for twitter links"
 
-🐦 | X (Twitter) ~ @ProvableHQ ~ **https://x.com/ProvableHQ**
+🐦 | X (Twitter) ~ @ProvableHQ ~ **<https://x.com/ProvableHQ>**
 
-🐦 | X (Twitter) ~ @AleoHQ ~ **https://x.com/AleoHQ**
+🐦 | X (Twitter) ~ @AleoHQ ~ **<https://x.com/AleoHQ>**
 
-🤝 | Community X (Twitter) ~ @aleocommunity ~ **https://x.com/aleocommunity**
+🤝 | Community X (Twitter) ~ @aleocommunity ~ **<https://x.com/aleocommunity>**
 
 <!-- markdown-link-check-enable -->
 
 ## More Resources
 
-🐙 | GitHub ~ **https://github.com/ProvableHQ**
+🐙 | GitHub ~ **<https://github.com/ProvableHQ>**
 
-📜 | Leo Workshops ~ **https://github.com/ProvableHQ/workshop**
+📜 | Leo Workshops ~ **<https://github.com/ProvableHQ/workshop>**
 
-🏎️ | Awesome Aleo ~ **https://github.com/howardwu/awesome-aleo**
+🏎️ | Awesome Aleo ~ **<https://github.com/howardwu/awesome-aleo>**
 
-✍️ | Provable Blog ~ **https://provable.com/blog**
+✍️ | Provable Blog ~ **<https://provable.com/blog>**
 
-✍️ | Aleo Blog ~ **https://aleo.org/blog**
+✍️ | Aleo Blog ~ **<https://aleo.org/blog>**
 
-📜 | Leo Whitepaper ~ **https://eprint.iacr.org/2021/651.pdf**
+📜 | Leo Whitepaper ~ **<https://eprint.iacr.org/2021/651.pdf>**
 
 ## Talks and Videos
 
