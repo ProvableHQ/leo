@@ -15,11 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    compiler_bridge::{PackageAnalysisCache, analyze_snapshot},
     document_store::DocumentSnapshot,
     panic_boundary::{PanicReport, catch_unwind},
+    semantics::SemanticSnapshot,
 };
 use crossbeam_channel::{Receiver, Sender, TryRecvError, unbounded};
-use leo_parser_rowan::parse_file;
 use lsp_types::Uri;
 use std::{
     collections::HashMap,
@@ -39,9 +40,17 @@ pub enum WorkerCommand {
 /// Events sent from the background worker back to the main thread.
 #[derive(Debug)]
 pub enum WorkerEvent {
-    Completed { uri: Uri, generation: u64 },
+    Analyzed(DocumentAnalysis),
     Cancelled { uri: Uri, generation: u64 },
-    Panicked(PanicReport),
+    Panicked { uri: Uri, generation: u64, report: PanicReport },
+}
+
+/// Worker-produced semantic state for one document generation.
+#[derive(Debug, Clone)]
+pub struct DocumentAnalysis {
+    pub uri: Uri,
+    pub generation: u64,
+    pub semantic_snapshot: SemanticSnapshot,
 }
 
 /// A coalesced worker job paired with its arrival order.
@@ -105,6 +114,7 @@ impl Drop for Scheduler {
 fn worker_loop(command_rx: Receiver<WorkerCommand>, event_tx: Sender<WorkerEvent>, panic_on_worker_job: bool) {
     let mut pending = PendingJobs::new();
     let mut sequence = 0_u64;
+    let mut package_cache = PackageAnalysisCache::default();
 
     loop {
         // Block only when there is nothing queued locally; otherwise keep
@@ -131,7 +141,7 @@ fn worker_loop(command_rx: Receiver<WorkerCommand>, event_tx: Sender<WorkerEvent
             continue;
         };
 
-        run_job(snapshot, &event_tx, panic_on_worker_job);
+        run_job(snapshot, &event_tx, panic_on_worker_job, &mut package_cache);
     }
 }
 
@@ -171,8 +181,15 @@ fn take_latest_pending(pending: &mut PendingJobs) -> Option<DocumentSnapshot> {
     pending.extract_if(|_, job| job.sequence == next_sequence).next().map(|(_, job)| job.snapshot)
 }
 
-fn run_job(snapshot: DocumentSnapshot, event_tx: &Sender<WorkerEvent>, panic_on_worker_job: bool) {
-    let DocumentSnapshot { uri, text, generation, cancel_token, .. } = snapshot;
+fn run_job(
+    snapshot: DocumentSnapshot,
+    event_tx: &Sender<WorkerEvent>,
+    panic_on_worker_job: bool,
+    package_cache: &mut PackageAnalysisCache,
+) {
+    let uri = snapshot.uri.clone();
+    let generation = snapshot.generation;
+    let cancel_token = snapshot.cancel_token.clone();
 
     if is_cancelled(cancel_token.as_ref(), generation) {
         let _ = event_tx.send(WorkerEvent::Cancelled { uri, generation });
@@ -187,23 +204,23 @@ fn run_job(snapshot: DocumentSnapshot, event_tx: &Sender<WorkerEvent>, panic_on_
             panic!("injected worker panic");
         }
 
-        let _ = parse_file(text.as_ref());
+        DocumentAnalysis { uri: uri.clone(), generation, semantic_snapshot: analyze_snapshot(&snapshot, package_cache) }
     });
 
     match result {
-        Ok(()) => {
-            // Check cancellation again after parsing because a newer commit can
+        Ok(analysis) => {
+            // Check cancellation again after analysis because a newer commit can
             // arrive while this job is already in flight.
             let event = if is_cancelled(cancel_token.as_ref(), generation) {
                 WorkerEvent::Cancelled { uri, generation }
             } else {
-                WorkerEvent::Completed { uri, generation }
+                WorkerEvent::Analyzed(analysis)
             };
 
             let _ = event_tx.send(event);
         }
         Err(report) => {
-            let _ = event_tx.send(WorkerEvent::Panicked(report));
+            let _ = event_tx.send(WorkerEvent::Panicked { uri, generation, report });
         }
     }
 }
@@ -237,7 +254,8 @@ mod tests {
             line_index: Arc::new(LineIndex::new("program test.aleo {}")),
             version: generation as i32,
             generation,
-            package_root: Some(Arc::new(PathBuf::from("/tmp"))),
+            file_path: Some(Arc::new(PathBuf::from("/tmp/main.leo"))),
+            project: None,
             cancel_token,
         }
     }

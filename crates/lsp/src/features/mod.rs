@@ -14,8 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::process::ExitCode;
-
-fn main() -> ExitCode {
-    leo_lsp::run_standalone()
-}
+/// Semantic token capability wiring and wire-format encoding helpers.
+pub mod semantic_tokens;

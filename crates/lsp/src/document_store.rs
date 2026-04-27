@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::project_model::ProjectContext;
 use line_index::LineIndex;
 use lsp_types::Uri;
 use std::{
@@ -38,7 +39,8 @@ pub struct OpenDocument {
     pub line_index: Arc<LineIndex>,
     pub version: i32,
     pub generation: u64,
-    pub package_root: Option<Arc<PathBuf>>,
+    pub file_path: Option<Arc<PathBuf>>,
+    pub project: Option<Arc<ProjectContext>>,
     pub cancel_token: Arc<AtomicU64>,
 }
 
@@ -56,7 +58,9 @@ pub struct DocumentSnapshot {
     pub version: i32,
     pub generation: u64,
     #[allow(dead_code)]
-    pub package_root: Option<Arc<PathBuf>>,
+    pub file_path: Option<Arc<PathBuf>>,
+    #[allow(dead_code)]
+    pub project: Option<Arc<ProjectContext>>,
     pub cancel_token: Arc<AtomicU64>,
 }
 
@@ -92,7 +96,8 @@ impl DocumentStore {
         language_id: String,
         version: i32,
         text: String,
-        package_root: Option<Arc<PathBuf>>,
+        file_path: Option<Arc<PathBuf>>,
+        project: Option<Arc<ProjectContext>>,
     ) -> PreparedDocument {
         let generation = next_generation(self.latest_generation.get(&uri).copied().unwrap_or_default());
         let language_id: Arc<str> = Arc::from(language_id);
@@ -100,7 +105,8 @@ impl DocumentStore {
         let line_index = Arc::new(LineIndex::new(text.as_ref()));
         let cancel_token = Arc::new(AtomicU64::new(generation));
 
-        let document = OpenDocument { language_id, text, line_index, version, generation, package_root, cancel_token };
+        let document =
+            OpenDocument { language_id, text, line_index, version, generation, file_path, project, cancel_token };
 
         PreparedDocument { uri, document }
     }
@@ -122,8 +128,17 @@ impl DocumentStore {
     /// Prepare a full-document replacement for an already open document.
     ///
     /// The prepared change reuses the existing cancellation token so commit can
-    /// advance the same per-URI generation stream.
-    pub fn prepare_full_change(&self, uri: &Uri, version: i32, text: String) -> Option<PreparedDocument> {
+    /// advance the same per-URI generation stream. Callers may also refresh the
+    /// file and project context alongside the new text so package discovery can
+    /// react to manifests appearing or changing mid-session.
+    pub fn prepare_full_change(
+        &self,
+        uri: &Uri,
+        version: i32,
+        text: String,
+        file_path: Option<Arc<PathBuf>>,
+        project: Option<Arc<ProjectContext>>,
+    ) -> Option<PreparedDocument> {
         let current = self.documents.get(uri)?;
         let text: Arc<str> = Arc::from(text);
         let line_index = Arc::new(LineIndex::new(text.as_ref()));
@@ -135,7 +150,8 @@ impl DocumentStore {
             line_index,
             version,
             generation,
-            package_root: current.package_root.clone(),
+            file_path,
+            project,
             cancel_token: Arc::clone(&current.cancel_token),
         };
 
@@ -190,7 +206,8 @@ impl OpenDocument {
             line_index: Arc::clone(&self.line_index),
             version: self.version,
             generation: self.generation,
-            package_root: self.package_root.clone(),
+            file_path: self.file_path.clone(),
+            project: self.project.clone(),
             cancel_token: Arc::clone(&self.cancel_token),
         }
     }
@@ -228,10 +245,11 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None);
+        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None, None);
         let first = store.commit_open(opened);
 
-        let changed = store.prepare_full_change(&uri, 2, "goodbye".to_owned()).expect("document should be open");
+        let changed =
+            store.prepare_full_change(&uri, 2, "goodbye".to_owned(), None, None).expect("document should be open");
         let second = store.commit_change(changed);
 
         assert_eq!(first.generation, 1);
@@ -245,10 +263,11 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None);
+        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None, None);
         store.commit_open(opened);
 
-        let _prepared = store.prepare_full_change(&uri, 2, "goodbye".to_owned()).expect("document should be open");
+        let _prepared =
+            store.prepare_full_change(&uri, 2, "goodbye".to_owned(), None, None).expect("document should be open");
 
         let current = store.get(&uri).expect("open document");
         assert_eq!(current.generation, 1);
@@ -261,7 +280,7 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None);
+        let opened = store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None, None);
         let snapshot = store.commit_open(opened);
 
         assert!(store.close(&uri));
@@ -274,11 +293,12 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let first = store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None));
+        let first =
+            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None, None));
         assert!(store.close(&uri));
 
         let second =
-            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 2, "goodbye".to_owned(), None));
+            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 2, "goodbye".to_owned(), None, None));
 
         assert_eq!(first.generation, 1);
         assert_eq!(second.generation, 2);
@@ -289,9 +309,10 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let first = store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None));
+        let first =
+            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 1, "hello".to_owned(), None, None));
         let second =
-            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 2, "goodbye".to_owned(), None));
+            store.commit_open(store.prepare_open(uri.clone(), "leo".to_owned(), 2, "goodbye".to_owned(), None, None));
 
         assert_eq!(first.generation, 1);
         assert_eq!(second.generation, 2);
@@ -304,7 +325,7 @@ mod tests {
         let mut store = DocumentStore::default();
         let uri = test_uri();
 
-        let opened = store.prepare_open(uri, "leo".to_owned(), 1, "a\né\n𐐷x".to_owned(), None);
+        let opened = store.prepare_open(uri, "leo".to_owned(), 1, "a\né\n𐐷x".to_owned(), None, None);
         let snapshot = store.commit_open(opened);
 
         let accent_utf8 = snapshot.line_index.line_col(TextSize::from(4));

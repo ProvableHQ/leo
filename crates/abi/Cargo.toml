@@ -1,6 +1,6 @@
 [package]
 name = "leo-abi"
-version = "4.0.1"
+version = "4.0.2"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "ABI generation for Leo programs"
 homepage = "https://leo-lang.org"

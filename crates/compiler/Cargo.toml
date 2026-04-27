@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "4.0.1"
+version = "4.0.2"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
@@ -26,6 +26,7 @@ ci_skip = [ "leo-ast/ci_skip" ]
 leo-abi           = { workspace = true }
 leo-ast           = { workspace = true }
 leo-errors        = { workspace = true }
+leo-package       = { workspace = true }
 leo-passes        = { workspace = true }
 leo-parser        = { workspace = true }
 leo-span          = { workspace = true }
@@ -34,6 +35,7 @@ aleo-std          = { workspace = true }
 aleo-std-storage  = { workspace = true }
 anyhow            = { workspace = true }
 indexmap          = { workspace = true }
+leo-disassembler  = { workspace = true }
 rand_chacha       = { workspace = true }
 rayon             = { workspace = true }
 snarkvm           = { workspace = true }
@@ -41,7 +43,6 @@ serde_json        = { workspace = true }
 
 [dev-dependencies]
 # leo dependencies
-leo-disassembler  = { workspace = true }
 leo-test-framework= { workspace = true }
 # third party dependencies
 itertools         = { workspace = true }

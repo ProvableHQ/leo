@@ -118,9 +118,44 @@ impl FileSource for InMemoryFileSource {
     }
 }
 
+/// Reads one overlay file from memory and falls back to another file source for everything else.
+pub struct OverlayFileSource<'a, F> {
+    overlay_path: PathBuf,
+    overlay_contents: String,
+    fallback: &'a F,
+}
+
+impl<'a, F> OverlayFileSource<'a, F> {
+    /// Creates a new overlay file source.
+    pub fn new(overlay_path: PathBuf, overlay_contents: String, fallback: &'a F) -> Self {
+        Self { overlay_path, overlay_contents, fallback }
+    }
+}
+
+impl<F: FileSource> FileSource for OverlayFileSource<'_, F> {
+    fn read_file(&self, path: &Path) -> io::Result<String> {
+        if path == self.overlay_path { Ok(self.overlay_contents.clone()) } else { self.fallback.read_file(path) }
+    }
+
+    fn list_leo_files(&self, dir: &Path, exclude: &Path) -> io::Result<Vec<PathBuf>> {
+        let mut files = self.fallback.list_leo_files(dir, exclude)?;
+
+        if self.overlay_path.starts_with(dir)
+            && self.overlay_path.extension() == Some(OsStr::new("leo"))
+            && self.overlay_path != exclude
+            && !files.iter().any(|path| path == &self.overlay_path)
+        {
+            files.push(self.overlay_path.clone());
+            files.sort();
+        }
+
+        Ok(files)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{DiskFileSource, FileSource, InMemoryFileSource};
+    use super::{DiskFileSource, FileSource, InMemoryFileSource, OverlayFileSource};
 
     use std::{
         env,
@@ -218,5 +253,25 @@ mod tests {
 
         let files = source.list_leo_files(Path::new("/src"), Path::new("/src/none.leo")).unwrap();
         assert_eq!(files, vec![PathBuf::from("/src/a.leo"), PathBuf::from("/src/m.leo"), PathBuf::from("/src/z.leo")]);
+    }
+
+    #[test]
+    fn overlay_source_reads_overlay_before_fallback() {
+        let mut fallback = InMemoryFileSource::new();
+        fallback.set(PathBuf::from("/src/main.leo"), "disk".into());
+        let overlay = OverlayFileSource::new(PathBuf::from("/src/main.leo"), "memory".into(), &fallback);
+
+        let content = overlay.read_file(Path::new("/src/main.leo")).unwrap();
+        assert_eq!(content, "memory");
+    }
+
+    #[test]
+    fn overlay_source_merges_overlay_file_into_listings() {
+        let mut fallback = InMemoryFileSource::new();
+        fallback.set(PathBuf::from("/src/utils.leo"), String::new());
+        let overlay = OverlayFileSource::new(PathBuf::from("/src/main.leo"), String::new(), &fallback);
+
+        let files = overlay.list_leo_files(Path::new("/src"), Path::new("/src/none.leo")).unwrap();
+        assert_eq!(files, vec![PathBuf::from("/src/main.leo"), PathBuf::from("/src/utils.leo")]);
     }
 }

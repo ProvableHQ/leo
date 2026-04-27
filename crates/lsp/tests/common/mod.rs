@@ -123,6 +123,12 @@ impl TestServer {
         self.stderr.lock().expect("lock stderr buffer").contains(needle)
     }
 
+    /// Return the stderr collected so far without shutting the server down.
+    #[allow(dead_code)]
+    pub(crate) fn stderr_contents(&self) -> String {
+        self.stderr.lock().expect("lock stderr buffer").clone()
+    }
+
     fn send_message(&mut self, value: &Value) {
         // Keep the harness speaking the same framed stdio protocol the real
         // editor transport uses.

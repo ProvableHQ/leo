@@ -19,11 +19,15 @@
 //! This crate exposes the stdio entrypoint used by the standalone `leo-lsp`
 //! binary together with a testable server runner for in-process tests.
 
+mod compiler_bridge;
 mod document_store;
+mod features;
 mod panic_boundary;
 mod project_model;
 mod scheduler;
+mod semantics;
 mod server;
+mod syntax_semantics;
 
 use anyhow::{Context, Result};
 use lsp_server::Connection;
@@ -56,6 +60,20 @@ pub fn run_stdio() -> Result<ExitCode> {
 /// Run the Leo language server using the provided LSP transport connection.
 pub fn run_server(connection: Connection) -> Result<ExitCode> {
     server::run(connection)
+}
+
+/// Standalone `leo-lsp` entrypoint logic.
+///
+/// This keeps the binary wrapper thin while preserving the library-oriented
+/// `Result`-returning entrypoints for tests, embeddings, and future plugins.
+pub fn run_standalone() -> ExitCode {
+    match run_stdio() {
+        Ok(exit_code) => exit_code,
+        Err(error) => {
+            eprintln!("{error:#}");
+            ExitCode::from(1)
+        }
+    }
 }
 
 fn init_logging() {
