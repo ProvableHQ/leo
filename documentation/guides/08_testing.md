@@ -117,21 +117,7 @@ For end-to-end and integration testing against a live network or a local devnet,
 
 `leo test` works on library packages directly — no wrapper program is needed. Place test files in the `tests/` directory of the library project and call library functions using the `library_name::function` path syntax:
 
-```leo title="tests/test_my_lib.leo"
-program test_my_lib.aleo {
-    @test
-    fn test_double() {
-        assert_eq(my_lib::double(5u32), 10u32);
-    }
-
-    @test
-    fn test_triple() {
-        assert_eq(my_lib::math::triple(4u32), 12u32);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/testing/my_lib/tests/test_my_lib.leo#test_program title="tests/test_my_lib.leo"
 ```
 
 Run `leo test` from the library's root directory:

@@ -32,14 +32,7 @@ As with the above restrictions, these limits can only be increased via the gover
 
 Consider the following Leo entry function.
 
-```leo showLineNumbers
-fn weird_sub(a: u8, b: u8) -> u8 {
-    if (a >= b) {
-        return a.sub_wrapped(b);
-    } else {
-        return b.sub_wrapped(a);
-    }
-}
+```leo file=../../code_snippets/limitations/src/main.leo#weird_sub showLineNumbers
 ```
 
 This is compiled into the following Aleo instructions:

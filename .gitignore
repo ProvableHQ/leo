@@ -1,6 +1,10 @@
 **/target
 !crates/fmt/tests/target/
 !crates/fmt/tests/target/**
+
+# Build artifacts from documentation example projects.
+documentation/code_snippets/**/build/
+documentation/code_snippets/**/outputs/
 /tmp/
 **/.idea/
 .DS_Store
