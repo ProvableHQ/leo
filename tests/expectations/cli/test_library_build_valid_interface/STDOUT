@@ -4,4 +4,5 @@
 
        Leo 🔨 Building library 'my_lib'
        Leo ✅ Validated 'my_lib'.
+       Leo ✅ Generated 1 interface ABI(s) at 'build/interfaces/'.
 build exit code: 0

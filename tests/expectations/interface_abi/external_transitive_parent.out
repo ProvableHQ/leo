@@ -1,0 +1,86 @@
+// owner: lib_a.aleo
+{
+  "name": "Base",
+  "program": "lib_a.aleo",
+  "path": [
+    "Base"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "get",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}
+
+// owner: lib_b.aleo
+{
+  "name": "Extended",
+  "program": "lib_b.aleo",
+  "path": [
+    "Extended"
+  ],
+  "parents": [
+    {
+      "program": "lib_a.aleo",
+      "path": [
+        "Base"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "set",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

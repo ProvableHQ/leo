@@ -1,5 +1,6 @@
 {
   "program": "abi_test.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -319,6 +320,7 @@
     {
       "name": "single_primitive",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -348,6 +350,7 @@
     {
       "name": "multi_input",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -399,6 +402,7 @@
     {
       "name": "multi_output",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -438,6 +442,7 @@
     {
       "name": "visibility_modes",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -489,6 +494,7 @@
     {
       "name": "struct_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "p",
@@ -524,6 +530,7 @@
     {
       "name": "nested_struct_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "r",
@@ -559,6 +566,7 @@
     {
       "name": "array_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arr",
@@ -598,6 +606,7 @@
     {
       "name": "nested_array_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arr",
@@ -647,6 +656,7 @@
     {
       "name": "record_input",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "t",
@@ -677,6 +687,7 @@
     {
       "name": "record_output",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "owner",
@@ -725,6 +736,7 @@
     {
       "name": "all_primitives_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "p",
@@ -760,6 +772,7 @@
     {
       "name": "module_struct_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "v",
@@ -797,6 +810,7 @@
     {
       "name": "async_with_finalize",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "amount",
@@ -820,6 +834,7 @@
     {
       "name": "update_balance",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "user",

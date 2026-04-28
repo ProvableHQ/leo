@@ -1,6 +1,7 @@
 === simple.aleo ===
 {
   "program": "simple.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -69,6 +70,7 @@
     {
       "name": "add_numbers",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -109,6 +111,7 @@
     {
       "name": "get_point",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -144,6 +147,7 @@
     {
       "name": "get_token",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -179,6 +183,7 @@
        Leo ABI written to 'simple.abi.json'.
 {
   "program": "simple.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -247,6 +252,7 @@
     {
       "name": "add_numbers",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -287,6 +293,7 @@
     {
       "name": "get_point",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -322,6 +329,7 @@
     {
       "name": "get_token",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -355,6 +363,7 @@
 === comprehensive.aleo ===
 {
   "program": "comprehensive.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -606,6 +615,7 @@
     {
       "name": "single_primitive",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -635,6 +645,7 @@
     {
       "name": "multi_input",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -686,6 +697,7 @@
     {
       "name": "multi_output",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -725,6 +737,7 @@
     {
       "name": "visibility_modes",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -776,6 +789,7 @@
     {
       "name": "struct_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -811,6 +825,7 @@
     {
       "name": "nested_struct_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -846,6 +861,7 @@
     {
       "name": "array_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -885,6 +901,7 @@
     {
       "name": "nested_array_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -934,6 +951,7 @@
     {
       "name": "record_input",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -964,6 +982,7 @@
     {
       "name": "record_output",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -1012,6 +1031,7 @@
     {
       "name": "all_primitives_io",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -1047,6 +1067,7 @@
     {
       "name": "async_with_finalize",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -1070,6 +1091,7 @@
     {
       "name": "update_balance",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",

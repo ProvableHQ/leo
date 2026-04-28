@@ -1,5 +1,6 @@
 {
   "program": "persistent_counter.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [
@@ -20,6 +21,7 @@
     {
       "name": "increment",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {

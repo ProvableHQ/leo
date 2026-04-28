@@ -1,5 +1,6 @@
 {
   "program": "my_app.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,6 +9,7 @@
     {
       "name": "rect_area",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "r",
@@ -42,6 +44,7 @@
     {
       "name": "make_rect",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x0",
@@ -109,6 +112,7 @@
     {
       "name": "unit_side",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
@@ -126,6 +130,7 @@
     {
       "name": "scaled_area",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "r",

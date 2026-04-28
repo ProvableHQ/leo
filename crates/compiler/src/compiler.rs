@@ -76,6 +76,8 @@ pub struct Compiled {
     pub primary: CompiledProgram,
     /// Compiled programs for imports.
     pub imports: Vec<CompiledProgram>,
+    /// Interface ABIs from the primary program.
+    pub interfaces: Vec<leo_abi::interfaces::CompiledInterface>,
 }
 
 /// The primary entry point of the Leo compiler.
@@ -382,7 +384,10 @@ impl Compiler {
     /// Returns the generated ABIs (primary and imports), which are captured
     /// immediately after monomorphisation to ensure all types are resolved,
     /// but not yet lowered.
-    pub fn intermediate_passes(&mut self) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>)> {
+    pub fn intermediate_passes(
+        &mut self,
+    ) -> Result<(leo_abi::Program, IndexMap<String, leo_abi::Program>, Vec<leo_abi::interfaces::CompiledInterface>)>
+    {
         let type_checking_config = TypeCheckingInput::new(self.state.network);
 
         self.frontend_passes()?;
@@ -427,13 +432,15 @@ impl Compiler {
         Ok(abis)
     }
 
-    /// Generates ABIs for the primary program and all imports.
+    /// Generates ABIs for the primary program, all imports, and interfaces.
     ///
-    /// Returns `(primary_abi, import_abis)` where `import_abis` maps program
-    /// names to their ABIs.
+    /// Returns `(primary_abi, import_abis, interface_abis)` where `import_abis`
+    /// maps program names to their ABIs.
     ///
     /// This method only expects program ASTs. Library ASTs cause this method to panic.
-    fn generate_abi(&self) -> (leo_abi::Program, IndexMap<String, leo_abi::Program>) {
+    fn generate_abi(
+        &self,
+    ) -> (leo_abi::Program, IndexMap<String, leo_abi::Program>, Vec<leo_abi::interfaces::CompiledInterface>) {
         let program = match &self.state.ast {
             Ast::Program(program) => program,
             Ast::Library(_) => panic!("expected Program AST"),
@@ -441,6 +448,9 @@ impl Compiler {
 
         // Generate primary ABI (pruning happens inside generate).
         let primary_abi = leo_abi::generate(program);
+
+        // Generate interface ABIs.
+        let interface_abis = leo_abi::interfaces::generate_program_interfaces(program);
 
         // Generate import ABIs from stubs, ignoring libraries.
         let import_abis: IndexMap<String, leo_abi::Program> = program
@@ -457,7 +467,17 @@ impl Compiler {
             })
             .collect();
 
-        (primary_abi, import_abis)
+        (primary_abi, import_abis, interface_abis)
+    }
+
+    /// Generates interface ABIs for a validated library.
+    ///
+    /// Must be called after `build_library()` since it reads the resolved AST.
+    pub fn generate_library_interface_abis(&self) -> Vec<leo_abi::interfaces::CompiledInterface> {
+        let Ast::Library(library) = &self.state.ast else {
+            panic!("expected Library AST");
+        };
+        leo_abi::interfaces::generate_library_interfaces(library)
     }
 
     /// Compiles a program from a given source string and a list of module sources.
@@ -480,7 +500,7 @@ impl Compiler {
         // Merge the stubs into the AST.
         self.add_import_stubs()?;
         // Run the intermediate compiler stages, which also generates ABIs.
-        let (primary_abi, import_abis) = self.intermediate_passes()?;
+        let (primary_abi, import_abis, interfaces) = self.intermediate_passes()?;
         // Run code generation.
         let bytecodes = CodeGenerating::do_pass((), &mut self.state)?;
 
@@ -501,7 +521,7 @@ impl Compiler {
             })
             .collect();
 
-        Ok(Compiled { primary, imports })
+        Ok(Compiled { primary, imports, interfaces })
     }
 
     /// Reads the main source file and all module files in the same directory tree.

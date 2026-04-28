@@ -1,0 +1,104 @@
+--- leo add --local (add lib dep to program) ---
+       Leo ✅ Added local dependency `my_lib` at path `../my_lib`.
+--- leo build ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'my_program.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[226u8, 34u8, 235u8, 95u8, 27u8, 197u8, 219u8, 39u8, 65u8, 192u8, 228u8, 78u8, 1u8, 103u8, 68u8, 8u8, 67u8, 148u8, 90u8, 69u8, 68u8, 50u8, 132u8, 203u8, 93u8, 12u8, 125u8, 21u8, 184u8, 187u8, 65u8, 251u8]'.
+       Leo     Program size: 0.15 KB / 500.00 KB
+       Leo ✅ Compiled 'my_program.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated 1 interface ABI(s) at 'build/interfaces/'.
+build exit code: 0
+--- program ABI ---
+{
+  "program": "my_program.aleo",
+  "implements": [
+    {
+      "program": "my_lib",
+      "path": [
+        "Greeter"
+      ]
+    }
+  ],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "greet",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "who",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}
+--- library interface ABI ---
+{
+  "name": "Greeter",
+  "program": "my_lib",
+  "path": [
+    "Greeter"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "greet",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "who",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

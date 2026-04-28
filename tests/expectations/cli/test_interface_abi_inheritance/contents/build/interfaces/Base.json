@@ -1,0 +1,32 @@
+{
+  "name": "Base",
+  "program": "bar.aleo",
+  "path": [
+    "Base"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "fetch_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

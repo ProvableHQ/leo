@@ -1,5 +1,6 @@
 {
   "program": "test_program1.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,6 +9,7 @@
     {
       "name": "main",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "b",

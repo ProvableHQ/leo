@@ -1,0 +1,42 @@
+{
+  "name": "Greeter",
+  "program": "my_lib",
+  "path": [
+    "Greeter"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "greet",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "who",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

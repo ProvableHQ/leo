@@ -1,0 +1,115 @@
+// owner: left.aleo
+{
+  "name": "Left",
+  "program": "left.aleo",
+  "path": [
+    "Left"
+  ],
+  "parents": [
+    {
+      "program": "root.aleo",
+      "path": [
+        "Root"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "left_fn",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}
+
+// owner: right.aleo
+{
+  "name": "Right",
+  "program": "right.aleo",
+  "path": [
+    "Right"
+  ],
+  "parents": [
+    {
+      "program": "root.aleo",
+      "path": [
+        "Root"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "right_fn",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}
+
+// owner: root.aleo
+{
+  "name": "Root",
+  "program": "root.aleo",
+  "path": [
+    "Root"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "root_fn",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

@@ -1,5 +1,6 @@
 {
   "program": "simple.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -68,6 +69,7 @@
     {
       "name": "add_numbers",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -108,6 +110,7 @@
     {
       "name": "get_point",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",
@@ -143,6 +146,7 @@
     {
       "name": "get_token",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "arg1",

@@ -1,5 +1,6 @@
 {
   "program": "my_program.aleo",
+  "implements": [],
   "structs": [],
   "records": [
     {
@@ -32,6 +33,7 @@
     {
       "name": "mint",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "owner",
@@ -71,6 +73,7 @@
     {
       "name": "double_amount",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",

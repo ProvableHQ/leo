@@ -1,0 +1,40 @@
+{
+  "name": "Extended",
+  "program": "bar.aleo",
+  "path": [
+    "Extended"
+  ],
+  "parents": [
+    {
+      "program": null,
+      "path": [
+        "Base"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "store_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

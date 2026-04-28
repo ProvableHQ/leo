@@ -1,5 +1,6 @@
 {
   "program": "consumer.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,6 +9,7 @@
     {
       "name": "identity",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "c",
@@ -45,6 +47,7 @@
     {
       "name": "make_white",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
@@ -66,6 +69,7 @@
     {
       "name": "sum_of_white",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
@@ -83,6 +87,7 @@
     {
       "name": "average",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -135,6 +140,7 @@
     {
       "name": "blend_twice",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -202,6 +208,7 @@
     {
       "name": "channel_count",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {

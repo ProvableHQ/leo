@@ -64,7 +64,8 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
         .map(|(_, f)| convert_function_stub(f, &record_names))
         .collect();
 
-    let mut program = abi::Program { program, structs, records, mappings, storage_variables, functions };
+    let mut program =
+        abi::Program { program, implements: vec![], structs, records, mappings, storage_variables, functions };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);
@@ -78,7 +79,7 @@ fn convert_function_stub(function: &ast::FunctionStub, record_names: &HashSet<Sy
     let is_final = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, record_names)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, record_names)).collect();
-    abi::Function { name, is_final, inputs, outputs }
+    abi::Function { name, is_final, const_parameters: vec![], inputs, outputs }
 }
 
 fn convert_input(input: &ast::Input, record_names: &HashSet<Symbol>) -> abi::Input {

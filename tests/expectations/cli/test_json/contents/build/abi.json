@@ -1,5 +1,6 @@
 {
   "program": "test_json_program.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [
@@ -25,6 +26,7 @@
     {
       "name": "main",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",

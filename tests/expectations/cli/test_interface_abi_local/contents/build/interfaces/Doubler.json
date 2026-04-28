@@ -1,0 +1,44 @@
+{
+  "name": "Doubler",
+  "program": "foo.aleo",
+  "path": [
+    "Doubler"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "compute_double",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "x",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}
