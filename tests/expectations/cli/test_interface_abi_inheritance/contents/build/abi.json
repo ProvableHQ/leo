@@ -1,0 +1,54 @@
+{
+  "program": "bar.aleo",
+  "implements": [
+    {
+      "program": null,
+      "path": [
+        "Extended"
+      ]
+    }
+  ],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "fetch_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "store_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

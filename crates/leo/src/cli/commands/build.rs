@@ -19,7 +19,7 @@ use super::*;
 use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_compiler::{AstSnapshots, Compiled, Compiler, CompilerOptions};
 use leo_errors::{CliError, UtilError};
-use leo_package::{ABI_FILENAME, BUILD_DIRECTORY, Manifest, Package};
+use leo_package::{ABI_FILENAME, BUILD_DIRECTORY, INTERFACES_DIRECTORY, Manifest, Package};
 use leo_span::Symbol;
 
 use snarkvm::prelude::{CanaryV0, MainnetV0, Process as SvmProcess, Program as SvmProgram, TestnetV0};
@@ -265,6 +265,10 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                             .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
                         std::fs::write(&abi_path, abi_json).map_err(CliError::failed_to_write_abi)?;
                         tracing::info!("✅ Generated ABI at '{BUILD_DIRECTORY}/{ABI_FILENAME}'.");
+
+                        // Write interface ABIs.
+                        let interfaces_directory = package_path.join(INTERFACES_DIRECTORY);
+                        write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
                     }
                 }
 
@@ -275,7 +279,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     // dependencies are parsed only; their semantics are validated when their own
                     // `leo build` is run.
                     let library = if primary_name == Some(unit.name) {
-                        build_leo_source_directory_library(
+                        let (lib, interfaces) = build_leo_source_directory_library(
                             source,
                             &source_dir,
                             unit.name,
@@ -284,7 +288,13 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                             command.options.clone(),
                             stubs.clone(),
                             network,
-                        )?
+                        )?;
+
+                        // Write interface ABIs for the primary library.
+                        let interfaces_directory = package_path.join(INTERFACES_DIRECTORY);
+                        write_interface_abis(&interfaces_directory, &interfaces)?;
+
+                        lib
                     } else {
                         parse_leo_source_directory_library(
                             source,
@@ -518,6 +528,7 @@ fn parse_leo_source_directory_library(
 }
 
 /// Builds a library by running all frontend passes. Does not generate bytecode.
+/// Returns the validated library and any interface ABIs defined in it.
 #[allow(clippy::too_many_arguments)]
 fn build_leo_source_directory_library(
     entry_file_path: &Path,
@@ -528,7 +539,7 @@ fn build_leo_source_directory_library(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
     network: NetworkName,
-) -> Result<leo_ast::Library> {
+) -> Result<(leo_ast::Library, Vec<leo_abi::interfaces::CompiledInterface>)> {
     // Print a newline for better formatting.
     println!();
     tracing::info!("🔨 Building library '{library_name}'");
@@ -545,8 +556,37 @@ fn build_leo_source_directory_library(
     );
 
     let library = compiler.build_library_from_directory(library_name, entry_file_path, source_directory)?;
+    let interfaces = compiler.generate_library_interface_abis();
 
     tracing::info!("✅ Validated '{library_name}'.");
 
-    Ok(library)
+    Ok((library, interfaces))
+}
+
+/// Writes interface ABI JSON files to the interfaces directory.
+fn write_interface_abis(interfaces_dir: &Path, interfaces: &[leo_abi::interfaces::CompiledInterface]) -> Result<()> {
+    // Remove stale files from a previous build (renamed/deleted interfaces).
+    if interfaces_dir.exists() {
+        std::fs::remove_dir_all(interfaces_dir).map_err(CliError::failed_to_write_abi)?;
+    }
+    if interfaces.is_empty() {
+        return Ok(());
+    }
+    for ci in interfaces {
+        let mut file_path = match &ci.owner {
+            leo_abi::interfaces::InterfaceOwner::Local => interfaces_dir.to_path_buf(),
+            leo_abi::interfaces::InterfaceOwner::External { owner_program } => interfaces_dir.join(owner_program),
+        };
+        // Module path segments (everything except the final name).
+        for seg in &ci.abi.path[..ci.abi.path.len().saturating_sub(1)] {
+            file_path.push(seg);
+        }
+        std::fs::create_dir_all(&file_path).map_err(CliError::failed_to_write_abi)?;
+        file_path.push(format!("{}.json", ci.abi.name));
+        let json =
+            serde_json::to_string_pretty(&ci.abi).map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
+        std::fs::write(&file_path, json).map_err(CliError::failed_to_write_abi)?;
+    }
+    tracing::info!("✅ Generated {} interface ABI(s) at '{INTERFACES_DIRECTORY}/'.", interfaces.len());
+    Ok(())
 }

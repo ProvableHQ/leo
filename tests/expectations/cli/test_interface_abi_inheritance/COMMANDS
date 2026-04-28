@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Tests that interface inheritance populates the `parents` field in the
+# child interface ABI.
+
+LEO_BIN=${1}
+
+echo "--- leo build (interface inheritance) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"
+
+echo "--- program ABI ---" | tee /dev/stderr
+cat build/abi.json
+echo
+
+echo "--- Base interface ABI ---" | tee /dev/stderr
+cat build/interfaces/Base.json
+echo
+
+echo "--- Extended interface ABI ---" | tee /dev/stderr
+cat build/interfaces/Extended.json

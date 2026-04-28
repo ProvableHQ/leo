@@ -1,5 +1,6 @@
 {
   "program": "provider.aleo",
+  "implements": [],
   "structs": [
     {
       "path": [
@@ -41,6 +42,7 @@
     {
       "name": "sum_channels",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "c",
@@ -74,6 +76,7 @@
     {
       "name": "make_color",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "r",

@@ -1,5 +1,6 @@
 {
   "program": "main.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,6 +9,7 @@
     {
       "name": "quad",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",

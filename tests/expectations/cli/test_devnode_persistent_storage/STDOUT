@@ -1,0 +1,160 @@
+--- Devnode 1 started ---
+--- leo deploy ---
+
+       Leo 🔨 Compiling 'persistent_counter.aleo'
+       Leo     8 statements before dead code elimination.
+       Leo     8 statements after dead code elimination.
+       Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
+       Leo     Program size: 0.40 KB / 500.00 KB
+       Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  14
+
+📦 Deployment Tasks:
+  • persistent_counter.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'persistent_counter.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq edition 0u16;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'persistent_counter.aleo'...
+
+
+📊 Deployment Summary for persistent_counter.aleo
+──────────────────────────────────────────────
+  Program Size:         0.40 KB / 500.00 KB
+  Total Variables:      15,600
+  Total Constraints:    10,766
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  1.014000
+  Program Synthesis:    0.026366
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            2.042366
+  Function 'increment'
+    Total Execution Cost:   0.001916
+    |- Storage Cost:        0.001264
+    |- Finalize Cost:       0.000652
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for persistent_counter.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+--- leo execute ---
+
+       Leo 🔨 Compiling 'persistent_counter.aleo'
+       Leo     8 statements before dead code elimination.
+       Leo     8 statements after dead code elimination.
+       Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
+       Leo     Program size: 0.40 KB / 500.00 KB
+       Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  14
+
+🎯 Execution Target:
+  Program:        persistent_counter.aleo
+  Function:       increment
+  Source:         local
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+➕Adding programs to the VM in the following order:
+  - persistent_counter.aleo (local)
+
+⚙️ Executing persistent_counter.aleo/increment...
+
+📊 Execution Cost Summary for persistent_counter.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001264
+  On-chain Execution:   0.000652
+  Priority Fee:         0.000000
+  Total Fee:            0.001916
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • {
+  program_id: persistent_counter.aleo,
+  function_name: increment,
+  arguments: [
+    aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
+  ]
+}
+
+📡 Broadcasting execution for persistent_counter.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Execution confirmed!
+--- State before restart: set ---
+--- Devnode 2 started ---
+--- State after restart: set ---
+--- Persistent storage verification passed ---

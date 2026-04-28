@@ -90,7 +90,7 @@ serde_json         = { workspace = true }
 serial_test        = { workspace = true }
 similar            = { workspace = true }
 sha2               = { workspace = true }
-snarkvm            = { workspace = true }
+snarkvm            = { workspace = true, features = ["rocks"] }
 sys-info           = { workspace = true }
 tempfile           = { workspace = true }
 tokio              = { workspace = true }

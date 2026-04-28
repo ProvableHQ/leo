@@ -237,3 +237,79 @@ fn run_with_stub(stub: StubType, source: &str) -> String {
 fn test_compiler() {
     leo_test_framework::run_tests("compiler", runner);
 }
+
+// ---------------------------------------------------------------------------
+// Interface ABI tests
+// ---------------------------------------------------------------------------
+
+/// Compiles a multi-program source (FromLeo mode only) and returns the
+/// generated interface ABIs serialized as pretty JSON.
+fn abi_runner(source: &str) -> String {
+    let buf = BufferEmitter::new();
+    let handler = Handler::new(buf.clone());
+    let node_builder = Rc::new(NodeBuilder::default());
+
+    create_session_if_not_set_then(|_| {
+        let mut import_stubs = IndexMap::new();
+        let sources: Vec<&str> = source.split(super::test_utils::PROGRAM_DELIMITER).collect();
+        let (last, rest) = sources.split_last().expect("non-empty sources");
+
+        for dep_source in rest {
+            if let Some((library_name, library_source)) = super::test_utils::extract_library_header(dep_source) {
+                let library =
+                    match super::test_utils::parse_library(&library_name, library_source, &handler, &node_builder) {
+                        Ok(lib) => lib,
+                        Err(_) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+                    };
+                import_stubs.insert(Symbol::intern(&library_name), library.into());
+                continue;
+            }
+            let (program, program_name) =
+                match super::test_utils::parse_program(dep_source, &handler, &node_builder, import_stubs.clone()) {
+                    Ok(p) => p,
+                    Err(_) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+                };
+            import_stubs.insert(Symbol::intern(&program_name), program.into());
+        }
+
+        let compiled = match super::test_utils::whole_compile(last, &handler, &node_builder, import_stubs) {
+            Ok((compiled, _name)) => compiled,
+            Err(_) => return format!("{}{}", buf.extract_errs(), buf.extract_warnings()),
+        };
+
+        let mut interfaces = compiled.interfaces;
+        interfaces.sort_by(|a, b| {
+            let owner_a = match &a.owner {
+                leo_abi::interfaces::InterfaceOwner::Local => "",
+                leo_abi::interfaces::InterfaceOwner::External { owner_program } => owner_program,
+            };
+            let owner_b = match &b.owner {
+                leo_abi::interfaces::InterfaceOwner::Local => "",
+                leo_abi::interfaces::InterfaceOwner::External { owner_program } => owner_program,
+            };
+            owner_a.cmp(owner_b).then_with(|| a.abi.path.cmp(&b.abi.path))
+        });
+
+        let mut output = String::new();
+        for (i, ci) in interfaces.iter().enumerate() {
+            if i > 0 {
+                output.push('\n');
+            }
+            let owner_label = match &ci.owner {
+                leo_abi::interfaces::InterfaceOwner::Local => "local".to_string(),
+                leo_abi::interfaces::InterfaceOwner::External { owner_program } => owner_program.clone(),
+            };
+            output.push_str(&format!("// owner: {owner_label}\n"));
+            output.push_str(&serde_json::to_string_pretty(&ci.abi).unwrap());
+            output.push('\n');
+        }
+
+        format!("{}{output}", buf.extract_warnings())
+    })
+}
+
+#[test]
+#[serial]
+fn test_interface_abi() {
+    leo_test_framework::run_tests("interface_abi", abi_runner);
+}

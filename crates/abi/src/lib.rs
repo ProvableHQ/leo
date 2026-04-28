@@ -20,6 +20,7 @@
 //! generated after type checking to ensure all types are resolved.
 
 pub mod aleo;
+pub mod interfaces;
 
 pub use leo_abi_types::*;
 
@@ -29,6 +30,14 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 use std::collections::HashSet;
+
+pub(crate) fn interface_ref_from_type(ty: &ast::Type, current_program: &str) -> Option<abi::InterfaceRef> {
+    let ast::Type::Composite(ct) = ty else { return None };
+    let loc = ct.path.try_global_location()?;
+    let prog_str = loc.program.to_string();
+    let program = if prog_str == current_program { None } else { Some(prog_str) };
+    Some(abi::InterfaceRef { program, path: loc.path.iter().map(|s| s.to_string()).collect() })
+}
 
 struct Ctx<'a> {
     scope: &'a ast::ProgramScope,
@@ -71,7 +80,10 @@ pub fn generate(ast: &ast::Program) -> abi::Program {
     let functions =
         scope.functions.iter().filter(|(_, f)| f.variant.is_entry()).map(|(_, f)| convert_function(f, &ctx)).collect();
 
-    let mut program = abi::Program { program, structs, records, mappings, storage_variables, functions };
+    let implements: Vec<abi::InterfaceRef> =
+        scope.parents.iter().filter_map(|(_, ty)| interface_ref_from_type(ty, &program)).collect();
+
+    let mut program = abi::Program { program, implements, structs, records, mappings, storage_variables, functions };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);
@@ -129,7 +141,7 @@ fn convert_function(function: &ast::Function, ctx: &Ctx) -> abi::Function {
     let is_final = function.has_final_output();
     let inputs = function.input.iter().map(|i| convert_input(i, ctx)).collect();
     let outputs = function.output.iter().map(|o| convert_output(o, ctx)).collect();
-    abi::Function { name, is_final, inputs, outputs }
+    abi::Function { name, is_final, const_parameters: vec![], inputs, outputs }
 }
 
 fn convert_input(input: &ast::Input, ctx: &Ctx) -> abi::Input {

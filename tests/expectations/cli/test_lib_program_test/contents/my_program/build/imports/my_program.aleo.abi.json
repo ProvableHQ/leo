@@ -1,5 +1,6 @@
 {
   "program": "my_program.aleo",
+  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,6 +9,7 @@
     {
       "name": "via_calc",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",
@@ -37,6 +39,7 @@
     {
       "name": "via_base",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",
@@ -66,6 +69,7 @@
     {
       "name": "via_triple",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",
@@ -95,6 +99,7 @@
     {
       "name": "via_fivefold",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "x",

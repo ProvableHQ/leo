@@ -1,0 +1,44 @@
+{
+  "name": "Counter",
+  "program": "my_lib",
+  "path": [
+    "Counter"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "increment",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "amount",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

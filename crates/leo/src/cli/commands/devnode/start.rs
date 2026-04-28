@@ -16,12 +16,20 @@
 
 use super::{logger::initialize_terminal_logger, *};
 use serde_json::json;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, path::PathBuf};
 
 use aleo_std_storage::StorageMode;
 use snarkvm::{
-    ledger::store::helpers::memory::ConsensusMemory,
-    prelude::{Block, FromBytes, Ledger, PrivateKey, TEST_CONSENSUS_VERSION_HEIGHTS, TestnetV0},
+    ledger::store::helpers::{memory::ConsensusMemory, rocksdb::ConsensusDB},
+    prelude::{
+        Block,
+        FromBytes,
+        Ledger,
+        PrivateKey,
+        TEST_CONSENSUS_VERSION_HEIGHTS,
+        TestnetV0,
+        store::ConsensusStorage,
+    },
 };
 
 use crate::cli::commands::devnode::rest::Rest;
@@ -34,14 +42,20 @@ pub struct Start {
     #[clap(short = 'v', long, help = "devnode verbosity (0-2)", default_value = "2")]
     pub(crate) verbosity: u8,
     /// Address to bind the Devnode REST API server to.
-    #[clap(long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
+    #[clap(short = 'a', long, help = "devnode REST API server address", default_value = "127.0.0.1:3030")]
     pub(crate) socket_addr: String,
     /// Path to the genesis block file.
-    #[clap(long, help = "path to genesis block file", default_value = "blank")]
+    #[clap(short = 'g', long, help = "path to genesis block file", default_value = "blank")]
     pub(crate) genesis_path: String,
     /// Enable manual block creation mode.
-    #[clap(long, help = "disables automatic block creation after broadcast", default_value = "false")]
+    #[clap(short = 'm', long, help = "disables automatic block creation after broadcast")]
     pub(crate) manual_block_creation: bool,
+    /// Optional flag for persisting the ledger to disk. If not set, the ledger will be stored in memory and will not persist across restarts.
+    #[clap(short = 's', long, help = "directory for ledger persistence", num_args = 0..=1, default_missing_value = "devnode")]
+    pub(crate) storage: Option<PathBuf>,
+    /// If set alongside --storage, clears the ledger directory before starting.
+    #[clap(short = 'c', long, help = "Remove existing devnode storage before starting", requires = "storage")]
+    pub(crate) clear_storage: bool,
 }
 
 impl Command for Start {
@@ -70,12 +84,12 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
     // Load the private key from the command line or environment variable, and start the server.
     let private_key = resolve_private_key(&private_key)?;
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
+
     // Parse the listener address.
     let socket_addr: SocketAddr = command
         .socket_addr
         .parse()
         .map_err(|e| CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e)))?;
-    let rps = 999999999;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
         Block::from_bytes_le(&std::fs::read(&command.genesis_path).map_err(|e| {
@@ -85,41 +99,80 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?
     };
-    // Initialize the storage mode.
-    let storage_mode = StorageMode::new_test(None);
-    // Initialize the ledger - use spawn_blocking for the blocking load operation.
-    let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
-        tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
-            .await
-            .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
-    // Start the REST API server.
-    Rest::start(socket_addr, rps, ledger, command.manual_block_creation, private_key)
+    match command.storage {
+        Some(path) => {
+            if command.clear_storage && path.exists() {
+                for entry in std::fs::read_dir(&path)
+                    .map_err(|e| CliError::custom(format!("Failed to read ledger directory: {e}")))?
+                {
+                    let entry = entry.map_err(|e| CliError::custom(format!("Failed to read entry: {e}")))?;
+                    let entry_path = entry.path();
+                    if entry_path.is_dir() {
+                        std::fs::remove_dir_all(&entry_path).map_err(|e| {
+                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                        })?;
+                    } else {
+                        std::fs::remove_file(&entry_path).map_err(|e| {
+                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                        })?;
+                    }
+                }
+                println!("Cleaned ledger directory: {}", path.display());
+            }
+            println!("Using persistent ledger at: {}", path.display());
+            let storage_mode = StorageMode::Custom(path);
+            let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
+                tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
+                    .await
+                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
+        }
+        None => {
+            let storage_mode = StorageMode::new_test(None);
+            let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
+                tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
+                    .await
+                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+            run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_devnode<C: 'static + ConsensusStorage<TestnetV0>>(
+    socket_addr: SocketAddr,
+    ledger: Ledger<TestnetV0, C>,
+    manual_block_creation: bool,
+    private_key: PrivateKey<TestnetV0>,
+) -> Result<()> {
+    let rps = 999999999;
+
+    // Record the height before handing the ledger off, so we know how far to advance.
+    let current_height = ledger.latest_height();
+
+    Rest::start(socket_addr, rps, ledger, manual_block_creation, private_key)
         .await
         .expect("Failed to start the REST API server");
     println!("Server running on http://{socket_addr}");
 
-    // Default setting should fast forward to the block corresponding to the latest consensus version.
-    // Enabling manual block creation initializes the ledger to the genesis block.
-    if !command.manual_block_creation {
-        println!("Advancing the Devnode to the latest consensus version");
+    if !manual_block_creation {
         let last_height = TEST_CONSENSUS_VERSION_HEIGHTS.last().unwrap().1;
-        // Call the REST API to advance the ledger by one block.
-        let client = reqwest::Client::new();
-
-        let payload = json!({
-            "num_blocks": last_height,
-        });
-
-        let _response = client
-            .post(format!("http://{}/testnet/block/create", command.socket_addr))
-            .header("Content-Type", "application/json")
-            .json(&payload)
-            .send()
-            .await;
+        let blocks_to_advance = last_height.saturating_sub(current_height);
+        if blocks_to_advance > 0 {
+            println!("Advancing the Devnode to the latest consensus version");
+            let client = reqwest::Client::new();
+            let payload = json!({ "num_blocks": blocks_to_advance });
+            let _response = client
+                .post(format!("http://{}/testnet/block/create", socket_addr))
+                .header("Content-Type", "application/json")
+                .json(&payload)
+                .send()
+                .await;
+        }
     }
-    // Prevent main from exiting.
-    std::future::pending::<()>().await;
 
+    std::future::pending::<()>().await;
     Ok(())
 }
 

@@ -1,0 +1,142 @@
+--- leo build (interface inheritance) ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'bar.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[211u8, 240u8, 72u8, 85u8, 185u8, 143u8, 54u8, 240u8, 0u8, 154u8, 86u8, 74u8, 240u8, 249u8, 117u8, 179u8, 7u8, 254u8, 207u8, 143u8, 11u8, 135u8, 51u8, 139u8, 136u8, 189u8, 114u8, 73u8, 206u8, 159u8, 119u8, 186u8]'.
+       Leo     Program size: 0.18 KB / 500.00 KB
+       Leo ✅ Compiled 'bar.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated 2 interface ABI(s) at 'build/interfaces/'.
+build exit code: 0
+--- program ABI ---
+{
+  "program": "bar.aleo",
+  "implements": [
+    {
+      "program": null,
+      "path": [
+        "Extended"
+      ]
+    }
+  ],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "fetch_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "store_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}
+--- Base interface ABI ---
+{
+  "name": "Base",
+  "program": "bar.aleo",
+  "path": [
+    "Base"
+  ],
+  "parents": [],
+  "functions": [
+    {
+      "name": "fetch_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}
+--- Extended interface ABI ---
+{
+  "name": "Extended",
+  "program": "bar.aleo",
+  "path": [
+    "Extended"
+  ],
+  "parents": [
+    {
+      "program": null,
+      "path": [
+        "Base"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "name": "store_value",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "structs": []
+}

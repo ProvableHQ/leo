@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# Tests that a program implementing a library interface emits the external
+# interface ABI under build/interfaces/<lib>/.
+
+LEO_BIN=${1}
+
+cd my_program || exit 1
+echo "--- leo add --local (add lib dep to program) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add my_lib --local ../my_lib
+
+echo "--- leo build ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"
+
+echo "--- program ABI ---" | tee /dev/stderr
+cat build/abi.json
+echo
+
+echo "--- library interface ABI ---" | tee /dev/stderr
+cat build/interfaces/my_lib/Greeter.json

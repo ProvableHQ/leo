@@ -38,6 +38,8 @@ pub type Path = Vec<String>;
 pub struct Program {
     /// The program identifier (e.g., "token.aleo").
     pub program: String,
+    /// Interfaces this program implements, by reference.
+    pub implements: Vec<InterfaceRef>,
     /// Struct type definitions.
     pub structs: Vec<Struct>,
     /// Record type definitions.
@@ -49,6 +51,47 @@ pub struct Program {
     /// Public entry points (program functions only, not internal helpers).
     /// Compiled to Aleo `transition`s.
     pub functions: Vec<Function>,
+}
+
+/// The ABI for a single Leo interface.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Interface {
+    /// Simple name (last path segment), e.g. "IToken".
+    pub name: String,
+    /// The program or library that owns this interface. Either a program id
+    /// like "foo.aleo" or a bare library name like "my_lib".
+    pub program: String,
+    /// Path to the interface within `program`, e.g. `["IToken"]` or `["mod", "IToken"]`.
+    pub path: Path,
+    /// Inherited interfaces, by reference. Not flattened.
+    pub parents: Vec<InterfaceRef>,
+    /// Locally declared function prototypes.
+    pub functions: Vec<Function>,
+    /// Locally declared record prototypes.
+    pub records: Vec<Record>,
+    /// Locally declared mapping prototypes.
+    pub mappings: Vec<Mapping>,
+    /// Locally declared storage variable prototypes.
+    pub storage_variables: Vec<StorageVariable>,
+    /// Struct definitions transitively referenced by the above. Only includes
+    /// types defined in `program`; external refs remain as `StructRef`.
+    pub structs: Vec<Struct>,
+}
+
+/// A reference to an interface, possibly from another program/library.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct InterfaceRef {
+    /// `None` means local to the current program/library.
+    pub program: Option<String>,
+    /// Path segments to the interface, e.g. `["IToken"]` or `["mod", "IToken"]`.
+    pub path: Path,
+}
+
+/// A const generic parameter on an interface function prototype.
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ConstParameter {
+    pub name: String,
+    pub ty: Plaintext,
 }
 
 /// A struct type definition.
@@ -107,6 +150,9 @@ pub struct Function {
     pub name: String,
     /// Whether this function has a finalize block. Compiled to an Aleo `finalize` scope.
     pub is_final: bool,
+    /// Const generic parameters. Always empty for program ABIs (post-monomorphization);
+    /// may be populated for interface function prototypes.
+    pub const_parameters: Vec<ConstParameter>,
     pub inputs: Vec<Input>,
     pub outputs: Vec<Output>,
 }

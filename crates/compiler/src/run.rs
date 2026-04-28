@@ -381,9 +381,12 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         Block::from_bytes_le(include_bytes!("resources/genesis_8d710d7e2_40val_snarkos_dev_network.bin"))?;
 
     // Initialize a `Ledger`. This should always succeed.
-    let ledger =
-        Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block.clone(), StorageMode::Production)
-            .unwrap();
+    // Use `new_test` to avoid spurious block-tree persistence errors on drop.
+    let ledger = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
+        genesis_block.clone(),
+        StorageMode::new_test(None),
+    )
+    .unwrap();
 
     // Advance the `VM` to the start height, defaulting to the height for the latest consensus version.
     let latest_consensus_version = ConsensusVersion::latest();
@@ -455,9 +458,10 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         (1..case_sets.len())
             .map(|i| {
                 // Initialize a `Ledger`. This should always succeed.
+                // Use `new_test` to avoid spurious block-tree persistence errors on drop.
                 let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
                     genesis_block.clone(),
-                    StorageMode::Production,
+                    StorageMode::new_test(None),
                 )
                 .expect("Failed to load copy of ledger");
                 // Add the setup blocks.

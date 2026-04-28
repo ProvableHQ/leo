@@ -1,5 +1,6 @@
 {
   "program": "some_sample_leo_program.aleo",
+  "implements": [],
   "structs": [],
   "records": [
     {
@@ -32,6 +33,7 @@
     {
       "name": "main",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "a",
@@ -72,6 +74,7 @@
     {
       "name": "mint",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "owner",
@@ -111,6 +114,7 @@
     {
       "name": "dynamic_transfer",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "target",
