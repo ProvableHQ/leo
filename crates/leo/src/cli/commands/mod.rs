@@ -171,13 +171,7 @@ pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Resu
 /// Pre-validates a CLI input literal to reject malformed numeric literals
 /// that snarkvm would silently coerce to zero (e.g. `truefield`, `""field`).
 fn validate_cli_literal(input: &str) -> Result<()> {
-    // Aleo bech32 values (addresses `aleo1...`, signatures `sign1...`, private
-    // keys `APrivateKey1...`, view keys `AViewKey1...`) may end in characters
-    // matching a Leo numeric type suffix (e.g. `u8`, `u32`, `u64`, `scalar`).
-    // None of these can also be a numeric literal, so skip suffix detection and
-    // let snarkvm produce the correct parse error if the value is not a valid
-    // program input. Records (`record1...`) are already routed through the
-    // ciphertext-decryption path above.
+    // Skip pre-validation for Aleo bech32 values; they are validated downstream.
     const ALEO_BECH32_PREFIXES: &[&str] = &["aleo1", "sign1", "APrivateKey1", "AViewKey1"];
     if ALEO_BECH32_PREFIXES.iter().any(|prefix| input.starts_with(prefix)) {
         return Ok(());
