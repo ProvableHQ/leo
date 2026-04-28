@@ -31,27 +31,7 @@ math_utils/
 
 A library source file (`lib.leo`) may contain `struct` definitions, `const` declarations, and `fn` definitions. It does **not** contain a `program { }` block.
 
-```leo title="src/lib.leo"
-/// The maximum value representable by a u32.
-const MAX_U32: u32 = 4294967295u32;
-
-/// A 2-D point with integer coordinates.
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-/// Returns the absolute value of a signed 32-bit integer.
-fn abs(x: i32) -> i32 {
-    return x >= 0i32 ? x : 0i32 - x;
-}
-
-/// Returns the Manhattan distance between two points.
-fn manhattan(a: Point, b: Point) -> u32 {
-    let dx: i32 = abs(a.x - b.x);
-    let dy: i32 = abs(a.y - b.y);
-    return dx as u32 + dy as u32;
-}
+```leo file=../code_snippets/libraries/math_utils/src/lib.leo#basics title="src/lib.leo"
 ```
 
 ### What a library may contain
@@ -72,21 +52,7 @@ To use a library from another Leo project, add it to that project's `program.jso
 
 ### Local library
 
-```json title="program.json"
-{
-  "program": "my_app.aleo",
-  "version": "0.1.0",
-  "description": "",
-  "license": "MIT",
-  "leo": "4.0.0",
-  "dependencies": [
-    {
-      "name": "math_utils",
-      "location": "local",
-      "path": "../math_utils"
-    }
-  ]
-}
+```json file=../code_snippets/libraries/my_app_closest/program.json title="program.json"
 ```
 
 :::info
@@ -102,21 +68,7 @@ leo add math_utils --local ../math_utils
 
 Reference library items with the `{library_name}::{item}` path syntax. No `import` statement is required; the dependency entry in `program.json` is sufficient.
 
-```leo title="src/main.leo"
-program my_app.aleo {
-    fn closest(
-        origin: math_utils::Point,
-        a: math_utils::Point,
-        b: math_utils::Point,
-    ) -> math_utils::Point {
-        let da: u32 = math_utils::manhattan(origin, a);
-        let db: u32 = math_utils::manhattan(origin, b);
-        return da <= db ? a : b;
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/libraries/my_app_closest/src/main.leo#program title="src/main.leo"
 ```
 
 Constants from a library are referenced the same way:
@@ -129,22 +81,10 @@ const CEILING: u32 = math_utils::MAX_U32;
 
 Library functions support const generic parameters, just like regular helper functions. The concrete type argument must be a compile-time constant.
 
-```leo title="src/lib.leo"
-/// Clamps `value` to the range [0, MAX].
-fn clamp::[MAX: u32](value: u32) -> u32 {
-    return value > MAX ? MAX : value;
-}
+```leo file=../code_snippets/libraries/math_utils/src/lib.leo#clamp title="src/lib.leo"
 ```
 
-```leo title="src/main.leo"
-program my_app.aleo {
-    fn normalize(x: u32) -> u32 {
-        return math_utils::clamp::[100u32](x);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/libraries/my_app_normalize/src/main.leo title="src/main.leo"
 ```
 
 ## Submodules
@@ -158,21 +98,10 @@ math_utils/
 │   └── geometry.leo  ← submodule: math_utils::geometry::item
 ```
 
-```leo title="src/geometry.leo"
-fn area(width: u32, height: u32) -> u32 {
-    return width * height;
-}
+```leo file=../code_snippets/libraries/math_utils/src/geometry.leo title="src/geometry.leo"
 ```
 
-```leo title="src/main.leo"
-program my_app.aleo {
-    fn floor_area(w: u32, h: u32) -> u32 {
-        return math_utils::geometry::area(w, h);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/libraries/my_app_floor_area/src/main.leo title="src/main.leo"
 ```
 
 ## Name Resolution and Path Precedence
@@ -207,21 +136,7 @@ When a program that depends on a library is built, library sources are compiled 
 
 `leo test` works on library packages directly — no wrapper program is required. Place test files in the `tests/` directory and call library functions using the `library_name::item` path syntax.
 
-```leo title="tests/test_math_utils.leo"
-program test_math_utils.aleo {
-    @test
-    fn test_abs() {
-        assert_eq(math_utils::abs(0i32 - 5i32), 5i32);
-    }
-
-    @test
-    fn test_geometry_area() {
-        assert_eq(math_utils::geometry::area(3u32, 4u32), 12u32);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/libraries/math_utils/tests/test_math_utils.leo#tests title="tests/test_math_utils.leo"
 ```
 
 Run from the library root:

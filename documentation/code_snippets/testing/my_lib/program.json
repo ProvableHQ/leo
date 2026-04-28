@@ -1,0 +1,6 @@
+{
+  "program": "my_lib",
+  "version": "0.1.0",
+  "description": "Library used by the testing guide.",
+  "license": "MIT"
+}

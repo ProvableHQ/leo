@@ -33,55 +33,14 @@ interface Transfer {
 
 A program implements an interface by listing it after `:` in the program declaration. The compiler checks that the program provides everything the interface requires.
 
-```leo
-program my_token.aleo : Transfer {
-    mapping balances: address => u64;
-
-    record Token {
-        owner: address,
-        balance: u64,
-    }
-
-    fn transfer(input: Token, to: address, amount: u64) -> Token {
-        return Token { owner: to, balance: input.balance - amount };
-    }
-}
+```leo file=../../code_snippets/interfaces/transfer/src/main.leo#program
 ```
 
 ### Implementing Multiple Interfaces
 
 A program can implement multiple interfaces at once using `+`:
 
-```leo
-interface Transfer {
-    record Token;
-    fn transfer(input: Token, to: address, amount: u64) -> Token;
-}
-
-interface Pausable {
-    mapping paused: address => bool;
-    fn pause() -> (bool, Final);
-}
-
-// my_token.aleo must satisfy both Transfer and Pausable
-program my_token.aleo : Transfer + Pausable {
-    mapping paused: address => bool;
-
-    record Token {
-        owner: address,
-        balance: u64,
-    }
-
-    fn transfer(input: Token, to: address, amount: u64) -> Token {
-        return Token { owner: to, balance: input.balance - amount };
-    }
-
-    fn pause() -> (bool, Final) {
-        return (true, final {
-            Mapping::set(paused, self.caller, true);
-        });
-    }
-}
+```leo file=../../code_snippets/interfaces/multi/src/main.leo#program
 ```
 
 ### Record Requirements
@@ -209,49 +168,12 @@ These reads are only valid inside a `final fn` or a `final {}` block — they lo
 
 `bank.aleo` declares the `Bank` interface and implements it:
 
-```leo title="bank/src/main.leo"
-interface Bank {
-    mapping balances: address => u64;
-}
-
-program bank.aleo: Bank {
-    mapping balances: address => u64;
-
-    fn deposit(user: address, amount: u64) -> Final {
-        return final { do_deposit(user, amount); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn do_deposit(user: address, amount: u64) {
-    let prev: u64 = Mapping::get_or_use(balances, user, 0u64);
-    Mapping::set(balances, user, prev + amount);
-}
+```leo file=../../code_snippets/interfaces/bank/src/main.leo#file title="bank/src/main.leo"
 ```
 
 A second program imports `bank.aleo` and reads its mapping through the interface. Since the read is cross-program, the interface name is qualified with `bank.aleo::`:
 
-```leo title="checker/src/main.leo"
-import bank.aleo;
-
-program checker.aleo {
-    mapping snapshot: address => u64;
-
-    fn read_balance(target: field, user: address) -> Final {
-        return final { do_read(target, user); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn do_read(target: field, user: address) {
-    let present: bool = bank.aleo::Bank@(target)::balances.contains(user);
-    let val: u64 = bank.aleo::Bank@(target)::balances.get_or_use(user, 0u64);
-    Mapping::set(snapshot, user, present ? val : 0u64);
-}
+```leo file=../../code_snippets/interfaces/bank_reader/src/main.leo#file title="checker/src/main.leo"
 ```
 
 When the reader is inside the same program that declares the interface, drop the program qualifier — `Bank@(target)::balances.get(key)` rather than `bank.aleo::Bank@(target)::balances.get(key)`.
@@ -270,51 +192,12 @@ Singleton storage is read by naming the variable directly (no trailing `.op(...)
 
 `logger.aleo` declares the `Logger` interface and implements it:
 
-```leo title="logger/src/main.leo"
-interface Logger {
-    storage counter: u64;
-    storage entries: [u64];
-}
-
-program logger.aleo: Logger {
-    storage counter: u64;
-    storage entries: [u64];
-
-    fn bump(val: u64) -> Final {
-        return final {
-            counter = counter.unwrap_or(0u64) + 1u64;
-            entries.push(val);
-        };
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../../code_snippets/interfaces/logger/src/main.leo#file title="logger/src/main.leo"
 ```
 
 A second program imports `logger.aleo` and reads its storage variables through the interface. Since the read is cross-program, the interface name is qualified with `logger.aleo::`:
 
-```leo title="reader/src/main.leo"
-import logger.aleo;
-
-program reader.aleo {
-    mapping latest: u32 => u64;
-
-    fn snapshot(target: field, i: u32) -> Final {
-        return final { do_snapshot(target, i); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn do_snapshot(target: field, i: u32) {
-    let n: u32 = logger.aleo::Logger@(target)::entries.len();
-    let entry: u64? = logger.aleo::Logger@(target)::entries.get(i);
-    let current: u64? = logger.aleo::Logger@(target)::counter;
-    let stored: u64 = i < n ? entry.unwrap() : current.unwrap_or(0u64);
-    Mapping::set(latest, i, stored);
-}
+```leo file=../../code_snippets/interfaces/logger_reader/src/main.leo#file title="reader/src/main.leo"
 ```
 
 :::note

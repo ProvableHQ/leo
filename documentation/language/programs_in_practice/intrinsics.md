@@ -108,22 +108,7 @@ Returns `true` if `key` is present, `false` otherwise.
 
 ### Example
 
-```leo showLineNumbers
-program checker.aleo {
-    mapping seen: address => bool;
-
-    fn check(prog: field, net: field, map: field, key: address) -> Final {
-        return final { finalize_check(prog, net, map, key); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn finalize_check(prog: field, net: field, map: field, key: address) {
-    let exists: bool = _dynamic_contains(prog, net, map, key);
-    Mapping::set(seen, key, exists);
-}
+```leo file=../../code_snippets/intrinsics/dynamic_contains/src/main.leo showLineNumbers
 ```
 
 ---
@@ -148,22 +133,7 @@ let val: T = _dynamic_get::[T](prog, net, mapping, key);
 
 ### Example
 
-```leo showLineNumbers
-program reader.aleo {
-    mapping result: address => u64;
-
-    fn read(prog: field, net: field, map: field, key: address) -> Final {
-        return final { finalize_read(prog, net, map, key); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn finalize_read(prog: field, net: field, map: field, key: address) {
-    let val: u64 = _dynamic_get::[u64](prog, net, map, key);
-    Mapping::set(result, key, val);
-}
+```leo file=../../code_snippets/intrinsics/dynamic_get/src/main.leo showLineNumbers
 ```
 
 For example, using identifier literals:
@@ -193,20 +163,5 @@ let val: T = _dynamic_get_or_use::[T](prog, net, mapping, key, default);
 
 ### Example
 
-```leo showLineNumbers
-program reader.aleo {
-    mapping result: address => u64;
-
-    fn read(prog: field, net: field, map: field, key: address) -> Final {
-        return final { finalize_read(prog, net, map, key); };
-    }
-
-    @noupgrade
-    constructor() {}
-}
-
-final fn finalize_read(prog: field, net: field, map: field, key: address) {
-    let val: u64 = _dynamic_get_or_use::[u64](prog, net, map, key, 0u64);
-    Mapping::set(result, key, val);
-}
+```leo file=../../code_snippets/intrinsics/dynamic_get_or_use/src/main.leo showLineNumbers
 ```

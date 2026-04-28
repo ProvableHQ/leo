@@ -10,15 +10,7 @@ sidebar_label: Project Layout
 
 **program.json** is the Leo manifest file that configures our package.
 
-```json title="program.json"
-{
-  "program": "hello.aleo",
-  "version": "0.1.0",
-  "description": "",
-  "license": "MIT",
-  "dependencies": null,
-  "dev_dependencies": null
-}
+```json file=../code_snippets/hello/program.json title="program.json"
 ```
 
 The program ID in `program` is the official name that other developers will be able to look up after you have published your program.
@@ -175,67 +167,15 @@ program.aleo::submodule::item
 
 For example, suppose `provider.aleo` has a submodule `colors` that defines a `Color` struct, a `MAX_CH` constant, and a `blend` helper:
 
-```leo title="provider/src/colors.leo"
-const MAX_CH: u32 = 255u32;
-
-struct Color {
-    r: u32,
-    g: u32,
-    b: u32,
-}
-
-fn blend(a: Color, b: Color) -> Color {
-    return Color {
-        r: (a.r + b.r) / 2u32,
-        g: (a.g + b.g) / 2u32,
-        b: (a.b + b.b) / 2u32,
-    };
-}
+```leo file=../code_snippets/layout/provider/src/colors.leo title="provider/src/colors.leo"
 ```
 
-```leo title="provider/src/main.leo"
-program provider.aleo {
-    fn sum_channels(c: colors::Color) -> u32 {
-        return c.r + c.g + c.b;
-    }
-
-    fn mix_colors(a: colors::Color, b: colors::Color) -> colors::Color {
-        return colors::blend(a, b);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/layout/provider/src/main.leo title="provider/src/main.leo"
 ```
 
 A program that imports `provider.aleo` can reach the submodule struct, constant, and helper through the extended path, and can also call `provider.aleo`'s top-level entry functions:
 
-```leo title="consumer/src/main.leo"
-import provider.aleo;
-
-program consumer.aleo {
-    // Struct and const from the submodule.
-    fn make_white() -> provider.aleo::colors::Color {
-        return provider.aleo::colors::Color {
-            r: provider.aleo::colors::MAX_CH,
-            g: provider.aleo::colors::MAX_CH,
-            b: provider.aleo::colors::MAX_CH,
-        };
-    }
-
-    // Top-level entry function from the provider.
-    fn mix(a: provider.aleo::colors::Color, b: provider.aleo::colors::Color) -> provider.aleo::colors::Color {
-        return provider.aleo::mix_colors(a, b);
-    }
-
-    // Submodule helper called directly — inlined into consumer's bytecode.
-    fn average(a: provider.aleo::colors::Color, b: provider.aleo::colors::Color) -> provider.aleo::colors::Color {
-        return provider.aleo::colors::blend(a, b);
-    }
-
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/layout/consumer/src/main.leo title="consumer/src/main.leo"
 ```
 
 Helper `fn`s reached through `program.aleo::submodule::name(...)` are inlined directly into the caller's bytecode; they are not separate on-chain calls and do not appear in the provider's ABI. Only top-level entry functions declared inside `program provider.aleo { ... }` remain part of its on-chain interface.

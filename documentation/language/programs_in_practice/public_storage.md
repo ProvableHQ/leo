@@ -64,21 +64,7 @@ Mapping::remove(balance, addr); // Alternate syntax
 
 ### Usage
 
-```leo showLineNumbers
-program map.aleo {
-    mapping balance: address => u64;
-
-    fn dubble() -> Final {
-        let addr: address = self.caller;
-        return final {
-            let current_value: u64 = balance.get_or_use(addr, 0u64);
-            balance.set(addr, current_value + 1u64);
-
-            let next_current_value: u64 = balance.get(addr);
-            balance.set(addr, next_current_value + 1u64);
-        };
-    }
-}
+```leo file=../../code_snippets/public_storage/mapping/src/main.leo showLineNumbers
 ```
 
 :::info
@@ -123,17 +109,7 @@ counter = none;
 
 ### Usage
 
-```leo showLineNumbers
-program storage_variable.aleo {
-    storage counter: u64;
-
-    fn increment() -> Final {
-        return final {
-            let current_value: u64 = counter.unwrap_or(0u64);
-            counter = current_value + 1u64;
-        };
-    }
-}
+```leo file=../../code_snippets/public_storage/storage_variable/src/main.leo showLineNumbers
 ```
 
 :::info
@@ -240,22 +216,7 @@ id_numbers.clear();
 
 ### Usage
 
-```leo showLineNumbers
-program storage_vector.aleo {
-    storage id_numbers: [u64];
-
-    fn add_id(new_id: u64) -> Final {
-        return final {
-            id_numbers.push(new_id);
-        };
-    }
-
-    fn remove_id(idx: u32) -> Final {
-        return final {
-            id_numbers.swap_remove(idx);
-        };
-    }
-}
+```leo file=../../code_snippets/public_storage/storage_vector/src/main.leo showLineNumbers
 ```
 
 :::info

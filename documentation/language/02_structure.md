@@ -109,17 +109,7 @@ Constants are also supported in [libraries](./06_libraries.md), which are separa
 
 See [ProvableHQ/leo#29274](https://github.com/ProvableHQ/leo/issues/29274).
 
-```leo
-const MAX: u64 = 100u64;           // global constant
-
-program foo.aleo {
-    const MULTIPLIER: u64 = 2u64;  // program-scope constant
-
-    fn compute(x: u64) -> u64 {
-        const OFFSET: u64 = 5u64;  // local constant
-        return x * MULTIPLIER + OFFSET;
-    }
-}
+```leo file=../code_snippets/structure/constants/src/main.leo#scopes
 ```
 
 **Supported types:** All integer types (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`, `i64`, `i128`), `bool`, `field`, `group`, `scalar`, `address`, and tuples, arrays, and structs composed of these types.
@@ -131,10 +121,7 @@ program foo.aleo {
 - Arithmetic, bitwise, and comparison expressions over constants (e.g., `MAX * 2u64`, `!FLAG`)
 - Tuple, array, and struct expressions whose components are themselves compile-time constants
 
-```leo
-const BASE: u32 = 10u32;
-const LIMIT: u32 = BASE * 5u32;   // expression over constants
-const PAIR: (u32, bool) = (LIMIT, true);   // tuple constant
+```leo file=../code_snippets/structure/constants/src/main.leo#expressions
 ```
 
 ### Import

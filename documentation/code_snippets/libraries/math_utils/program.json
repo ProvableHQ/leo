@@ -1,0 +1,6 @@
+{
+  "program": "math_utils",
+  "version": "0.1.0",
+  "description": "Library used by the libraries guide.",
+  "license": "MIT"
+}
