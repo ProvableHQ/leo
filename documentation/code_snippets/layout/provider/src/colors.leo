@@ -7,9 +7,5 @@ struct Color {
 }
 
 fn blend(a: Color, b: Color) -> Color {
-    return Color {
-        r: (a.r + b.r) / 2u32,
-        g: (a.g + b.g) / 2u32,
-        b: (a.b + b.b) / 2u32,
-    };
+    return Color { r: (a.r + b.r) / 2u32, g: (a.g + b.g) / 2u32, b: (a.b + b.b) / 2u32 };
 }

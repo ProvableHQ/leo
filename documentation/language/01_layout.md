@@ -29,39 +29,7 @@ A program is a collection of code (its functions) and data (its types) that resi
 [program ID](#program-id) on the Aleo blockchain. A program is declared as `program {name}.{network} { ... }`.
 The body of the program is delimited by curly braces `{}`.
 
-```leo title=main.leo
-import foo.aleo;
-
-const FOO: u64 = 1u64;
-
-struct Message {
-    sender: address,
-    object: u64,
-}
-
-fn compute(a: u64, b: u64) -> u64 {
-    return a + b + FOO;
-}
-
-program hello.aleo {
-    mapping account: address => u64;
-
-    record Token {
-        owner: address,
-        amount: u64,
-    }
-
-    fn mint_public(
-        public receiver: address,
-        public amount: u64,
-    ) -> (Token, Final) {
-        let token: Token = Token { owner: receiver, amount };
-        return (token, final {
-            let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
-            Mapping::set(account, receiver, current_amount + amount);
-        });
-    }
-}
+```leo file=../code_snippets/layout/main_example.leo#file title=main.leo
 ```
 
 The following must be declared inside the scope of a program in a Leo file:
@@ -87,10 +55,7 @@ You can import dependencies that are downloaded to the `imports` directory.
 An import is declared as `import {filename}.aleo;`
 The dependency resolver will pull the imported program from the network or the local filesystem.
 
-```leo showLineNumbers
-import foo.aleo; // Import all `foo.aleo` declarations into the `hello.aleo` program.
-
-program hello.aleo { }
+```leo file=../code_snippets/layout/import_only.leo#snippet showLineNumbers
 ```
 
 ### Program ID
@@ -145,16 +110,7 @@ Only relative paths are implemented so far. That means that items in `outer.leo`
 
 A module file may only contain `struct`, `const`, and `fn` definitions:
 
-```leo
-const X: u32 = 2u32;
-
-struct S {
-    a: field
-}
-
-fn increment(x: field) -> field {
-    return 1field;
-}
+```leo file=../code_snippets/layout/module_demo/src/mymod.leo#snippet
 ```
 
 ### Accessing Submodules of Imported Programs

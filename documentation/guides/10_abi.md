@@ -365,7 +365,7 @@ mapping vec__len__: bool => u32  // Length stored at key `false`
 
 **Leo source:**
 
-```leo file=../code_snippets/abi/storage_vector_lowering/src/main.leo showLineNumbers
+```leo file=../code_snippets/abi/storage_vector_lowering.leo showLineNumbers
 ```
 
 **Aleo representation:**
@@ -395,7 +395,7 @@ Tuples are expanded into multiple registers in Aleo bytecode:
 
 **Leo source:**
 
-```leo file=../code_snippets/abi/tuple_expansion/src/main.leo showLineNumbers
+```leo file=../code_snippets/abi/tuple_expansion.leo showLineNumbers
 ```
 
 **Aleo bytecode:**
@@ -423,57 +423,7 @@ Here's a complete example showing a Leo program and its generated ABI.
 
 **Generated ABI (`build/abi.json`):**
 
-```json title="abi.json"
-{
-  "program": "token.aleo",
-  "structs": [],
-  "records": [
-    {
-      "path": ["Token"],
-      "fields": [
-        { "name": "owner", "ty": { "Primitive": "Address" }, "mode": "None" },
-        { "name": "amount", "ty": { "Primitive": { "UInt": "U64" } }, "mode": "None" }
-      ]
-    }
-  ],
-  "mappings": [
-    {
-      "name": "account",
-      "key": { "Primitive": "Address" },
-      "value": { "Primitive": { "UInt": "U64" } }
-    }
-  ],
-  "storage_variables": [],
-  "functions": [
-    {
-      "name": "mint_public",
-      "has_final": true,
-      "inputs": [
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "Public" },
-        { "name": "amount", "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } }, "mode": "Public" }
-      ],
-      "outputs": [{ "ty": "Final", "mode": "None" }]
-    },
-    {
-      "name": "mint_private",
-      "has_final": false,
-      "inputs": [
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "None" },
-        { "name": "amount", "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } }, "mode": "None" }
-      ],
-      "outputs": [{ "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" }]
-    },
-    {
-      "name": "transfer_private",
-      "has_final": false,
-      "inputs": [
-        { "name": "token", "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" },
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "None" }
-      ],
-      "outputs": [{ "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" }]
-    }
-  ]
-}
+```json file=../code_snippets/abi/token/build/abi.json title="abi.json"
 ```
 
 **Key observations:**

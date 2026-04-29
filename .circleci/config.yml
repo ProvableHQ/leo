@@ -319,23 +319,22 @@ jobs:
 
   docs-lint:
     docker:
-      - image: "cimg/node:20.18"
+      # Need Node 20.19+ (or 22+) so `require(esm)` works for markdown-link-check's
+      # transitive deps; older patches choke on the marked v17 ESM module.
+      - image: "cimg/node:22.10"
     resource_class: small
     steps:
       - checkout
       - run:
-          name: Install markdown linters
-          command: npm install -g markdown-link-check@3.13.7 markdownlint-cli@0.47.0
-      - run:
           name: markdownlint
-          command: markdownlint --config .markdownlint.yaml 'documentation/**/*.md'
+          command: npx --yes markdownlint-cli@0.47.0 --config .markdownlint.yaml 'documentation/**/*.md'
       - run:
           name: Check documentation links
           no_output_timeout: 10m
           command: |
             rc=0
             while IFS= read -r -d '' f; do
-              markdown-link-check --config .mlc_config.json --quiet "$f" || rc=1
+              npx --yes markdown-link-check@3.14.2 --config .mlc_config.json --quiet "$f" || rc=1
             done < <(find documentation -name '*.md' -print0)
             exit $rc
 
@@ -413,18 +412,13 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project/
       - run:
-          name: leo build on every documentation example
+          name: leo build on every documentation snippet
           command: |
-            export LEO=/home/circleci/project/project/bin/leo
+            # `leo build` resolves dependencies through ~/.aleo and errors out
+            # if the directory is missing on a fresh CI image.
+            mkdir -p "$HOME/.aleo"
             cd /home/circleci/project/project
-            failed=0
-            # Walk every directory that has a top-level program.json (skipping
-            # generated build/ and imports/ subdirs that contain their own copies).
-            while IFS= read -r d; do
-              echo "--- $d ---"
-              (cd "$d" && "$LEO" --disable-update-check build) || failed=1
-            done < <(find documentation/code_snippets -name program.json -not -path '*/build/*' -not -path '*/imports/*' | xargs -n1 dirname | sort)
-            exit $failed
+            python3 scripts/build_doc_snippets.py --leo /home/circleci/project/project/bin/leo
 
 workflows:
   version: 2

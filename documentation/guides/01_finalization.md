@@ -17,42 +17,7 @@ Leo programs run in two distinct contexts:
 
 On-chain data is stored publicly in one of three data structures: mappings, storage variables, and storage vectors. Any logic that reads from or updates the state of these structures must be contained within a `final { }` block or inside a `final fn`:
 
-```leo
-program first_public_state.aleo {
-    mapping accumulator: u8 => u64;
-    storage count: u8;
-    storage queue: [u8];
-
-    //=============================================================
-    //               MAPPING MODIFICATION
-    //=============================================================
-    fn increment_accumulator() -> Final {
-        return final {
-            let current_count: u64 = accumulator.get_or_use(0u8, 0u64); // Get current value, defaults to 0
-            let new_count: u64 = current_count + 1u64;
-            accumulator.set(0u8, new_count);
-        };
-    }
-
-    //=============================================================
-    //            STORAGE VARIABLE MODIFICATION
-    //=============================================================
-    fn increment_count() -> Final {
-        return final {
-            let current_count: u8 = count.unwrap_or(0u8); // Get current value, defaults to 0
-            count = current_count + 1u8;
-        };
-    }
-
-    //=============================================================
-    //            STORAGE VECTOR MODIFICATION
-    //=============================================================
-    fn add_to_queue(val: u8) -> Final {
-        return final {
-            queue.push(val); // Push to end of queue
-        };
-    }
-}
+```leo file=../code_snippets/finalization/first_state.leo#file
 ```
 
 Entry functions with on-chain logic return `Final` and embed the finalization code in an inline `final { }` block. A few additional rules apply:
@@ -65,21 +30,7 @@ Entry functions with on-chain logic return `Final` and embed the finalization co
 
 Leo enables developers to call entry functions from imported programs. A call to an external entry function that returns `Final` produces a `Final` value which can be composed inside a `final { }` block using the `.run()` method:
 
-```leo
-import first_public_storage.aleo;
-
-program second_public_storage.aleo {
-    mapping hashes: u8 => scalar;
-
-    fn two_mappings(value: u8) -> Final {
-        let increment_final: Final = first_public_storage.aleo::increment();
-        return final {
-            increment_final.run();
-            let hash: scalar = BHP256::hash_to_scalar(value);
-            hashes.set(value, hash);
-        };
-    }
-}
+```leo file=../code_snippets/finalization/external_call.leo#file
 ```
 
 You can access the inputs to an external `Final` using the following syntax:

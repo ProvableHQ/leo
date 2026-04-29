@@ -33,54 +33,43 @@ Type parameters follow one rule: **the last entry is the return type; all preced
 
 #### No type parameters — void return
 
-```leo
-_dynamic_call(prog, net, func, x);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_void
 ```
 
 #### Return type only — inputs are `private` by default
 
-```leo
-let result: u64 = _dynamic_call::[u64](prog, net, func, x);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_return
 ```
 
 #### Explicit input visibility
 
 All type params before the last are input types. Each can carry a visibility modifier:
 
-```leo
-// One public input, then the return type
-let result: u64 = _dynamic_call::[public u64, u64](prog, net, func, x);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_public_input
 ```
 
 #### Multiple inputs
 
-```leo
-let (a, b): (u32, u32) = _dynamic_call::[public u32, public u32, (u32, u32)](prog, net, func, x, y);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_multiple_inputs
 ```
 
 #### Void return with input annotations
 
 Use `()` as the return type:
 
-```leo
-_dynamic_call::[public u64, ()](prog, net, func, x);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_void_annotated
 ```
 
 #### `Final` return
 
 When the called function returns a `Final`, include it in a tuple:
 
-```leo
-let (val, f): (u32, Final) = _dynamic_call::[(u32, Final)](target, 'aleo', 'increment', val);
-return (val, final {
-    f.run();
-});
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_final
 ```
 
 #### `dyn record` inputs and outputs
 
-```leo
-let result: dyn record = _dynamic_call::[dyn record, dyn record](prog, net, func, token);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dc_dyn_record
 ```
 
 ### Restrictions
@@ -95,8 +84,7 @@ Checks whether a key exists in a mapping belonging to another program, determine
 
 ### Syntax
 
-```leo
-let exists: bool = _dynamic_contains(prog, net, mapping, key);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dyn_contains
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
@@ -108,7 +96,7 @@ Returns `true` if `key` is present, `false` otherwise.
 
 ### Example
 
-```leo file=../../code_snippets/intrinsics/dynamic_contains/src/main.leo showLineNumbers
+```leo file=../../code_snippets/intrinsics/dynamic_contains.leo showLineNumbers
 ```
 
 ---
@@ -121,8 +109,7 @@ Fails at runtime if the key is not present — use [`_dynamic_get_or_use`](#_dyn
 
 ### Syntax
 
-```leo
-let val: T = _dynamic_get::[T](prog, net, mapping, key);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dyn_get
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
@@ -133,13 +120,12 @@ let val: T = _dynamic_get::[T](prog, net, mapping, key);
 
 ### Example
 
-```leo file=../../code_snippets/intrinsics/dynamic_get/src/main.leo showLineNumbers
+```leo file=../../code_snippets/intrinsics/dynamic_get.leo showLineNumbers
 ```
 
 For example, using identifier literals:
 
-```leo
-let val: u64 = _dynamic_get::[u64]('some_program', 'aleo', 'balances', key);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dyn_get_literal
 ```
 
 ---
@@ -150,8 +136,7 @@ Reads a value from a mapping belonging to another program, determined at runtime
 
 ### Syntax
 
-```leo
-let val: T = _dynamic_get_or_use::[T](prog, net, mapping, key, default);
+```leo file=../../code_snippets/intrinsics/dynamic_call_demos.leo#dyn_get_or_use
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
@@ -163,5 +148,5 @@ let val: T = _dynamic_get_or_use::[T](prog, net, mapping, key, default);
 
 ### Example
 
-```leo file=../../code_snippets/intrinsics/dynamic_get_or_use/src/main.leo showLineNumbers
+```leo file=../../code_snippets/intrinsics/dynamic_get_or_use.leo showLineNumbers
 ```

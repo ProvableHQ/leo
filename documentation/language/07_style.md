@@ -21,16 +21,10 @@ The Leo compiler rewrites if-else statements in off-chain code into a sequence o
 This is because the underlying circuit construction does not support branching.
 For precise control over the circuit size, it is recommended to use ternary expressions directly.
 
-```leo title="If-Else:"
-if (condition) {
-    return a;
-} else {
-    return b;
-}
+```leo file=../code_snippets/style/branches.leo#if_else title="If-Else:"
 ```
 
-```leo title="Ternary:"
-return condition ? a : b;
+```leo file=../code_snippets/style/branches.leo#ternary title="Ternary:"
 ```
 
 #### Why
@@ -43,12 +37,10 @@ In the original `Example`,
 We cannot resolve the return statements before evaluating the condition.
 As a solution, Leo creates branches in the circuit so both paths can be evaluated.
 
-```leo title="branch 1, condition = true"
-return a;
+```leo file=../code_snippets/style/branches.leo#branch_a title="branch 1, condition = true"
 ```
 
-```leo title="branch 2, condition = false"
-return b;
+```leo file=../code_snippets/style/branches.leo#branch_b title="branch 2, condition = false"
 ```
 
 When the input value `condition` is fetched at proving time, we select a branch of the circuit to evaluate.
@@ -60,36 +52,10 @@ This greatly increases the constraint numbers and slows down the circuit.
 
 For code conciseness and readability, prefer using inline `final { }` blocks rather than a separately declared `final fn`, unless the finalization logic is shared across multiple entry points:
 
-```leo title="final fn (use only when shared across multiple entry points):"
-final fn increment_state(acc: u8) {
-    let current_count: u64 = accumulator.get_or_use(acc, 0u64);
-    let new_count: u64 = current_count + 1u64;
-    accumulator.set(acc, new_count);
-}
-
-program example.aleo {
-    mapping accumulator: u8 => u64;
-
-    fn increment_accumulator() -> Final {
-        return final {
-            increment_state(0u8);
-        };
-    }
-}
+```leo file=../code_snippets/style/final_fn.leo title="final fn (use only when shared across multiple entry points):"
 ```
 
-```leo title="Inline final block (preferred for single-use logic):"
-program example.aleo {
-    mapping accumulator: u8 => u64;
-
-    fn increment_accumulator() -> Final {
-        return final {
-            let current_count: u64 = accumulator.get_or_use(0u8, 0u64);
-            let new_count: u64 = current_count + 1u64;
-            accumulator.set(0u8, new_count);
-        };
-    }
-}
+```leo file=../code_snippets/style/inline_final.leo title="Inline final block (preferred for single-use logic):"
 ```
 
 ### Libraries
@@ -226,41 +192,21 @@ Leo file elements should be ordered:
 
 Opening braces always go on the same line.
 
-```leo
-struct A {
-    // ...
-}
-
-fn main() {
-    // ...
-}
-
-let a: A = A { };
+```leo file=../code_snippets/style/formatting.leo#braces
 ```
 
 ### Semicolons
 
 Every statement including the `return` statement should end in a semicolon.
 
-```leo
-let a: u32 = 1u32;
-let b: u32 = a + 5u32;
-b *= 2u32;
-
-return b;
+```leo file=../code_snippets/style/formatting.leo#semicolons
 ```
 
 ### Commas
 
 Trailing commas should be included whenever the closing delimiter appears on a separate line.
 
-```leo
-let a: A = A { x: 0, y: 1 };
-
-let a: A = A {
-    x: 0,
-    y: 1,
-};
+```leo file=../code_snippets/style/formatting.leo#commas
 ```
 
 ## Contributing

@@ -66,21 +66,7 @@ You may also refer to the working Leo [examples](https://github.com/ProvableHQ/l
 
 The Leo compiler automatically generates a constructor that locks the program to its initial version.
 
-```leo
-// The 'noupgrade_example' program.
-program noupgrade_example.aleo {
-    // This constructor is for the "noupgrade" mode.
-    // It is immutable and prevents any future upgrades.
-    @noupgrade
-    constructor() {
-        // The Leo compiler automatically generates the constructor logic.
-    }
-
-    fn main(public a: u32, b: u32) -> u32 {
-        let c: u32 = a + b;
-        return c;
-    }
-}
+```leo file=../code_snippets/upgradability/noupgrade.leo#file
 ```
 
 The corresponding AVM code is:
@@ -96,21 +82,7 @@ constructor:
 
 **`main.leo`**
 
-```leo
-// The 'admin_example' program.
-program admin_example.aleo {
-    // This constructor is for the "admin" mode.
-    // It ensures that only the designated admin can upgrade the program.
-    @admin(address="aleo1rhgdu77hgyqd3xjj8ucu3jj9r2p3lam3tc3h0nvv2d3k0rp2ca5sqsceh7")
-    constructor() {
-        // The Leo compiler automatically generates the constructor logic.
-    }
-
-    fn main(public a: u32, b: u32) -> u32 {
-        let c: u32 = a + b;
-        return c;
-    }
-}
+```leo file=../code_snippets/upgradability/admin.leo#file
 ```
 
 The corresponding AVM code is:
@@ -128,20 +100,7 @@ constructor:
 
 The compiler uses the `mapping` and `key` fields to generate a constructor that looks up the approved checksum from the `basic_voting.aleo` program.
 
-```leo
-// The 'vote_example' program.
-program vote_example.aleo {
-    // This constructor is for the "checksum" mode.
-    @checksum(mapping="basic_voting.aleo::approved_checksum", key="true")
-    constructor() {
-        // The Leo compiler automatically generates the constructor logic.
-    }
-
-    fn main(public a: u32, b: u32) -> u32 {
-        let c: u32 = a + b;
-        return c;
-    }
-}
+```leo file=../code_snippets/upgradability/vote.leo#file
 ```
 
 The corresponding AVM code is:
@@ -162,22 +121,7 @@ constructor:
 
 With the `@custom` constructor, you are responsible for writing the entire constructor logic yourself.
 
-```leo
-// The 'timelock_example' program.
-program timelock_example.aleo {
-    @custom
-    constructor() {
-        // For upgrades (edition > 0), enforce a block height condition on when the constructor can be called successfully
-        if self.edition > 0u16 {
-            assert(block.height >= 1300u32);
-        }
-    }
-
-    fn main(public a: u32, b: u32) -> u32 {
-        let c: u32 = a + b;
-        return c;
-    }
-}
+```leo file=../code_snippets/upgradability/timelock.leo#file
 ```
 
 The corresponding AVM code is:

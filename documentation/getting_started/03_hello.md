@@ -47,7 +47,7 @@ Dependencies will be added to the field of the same name, as they are imported. 
 The `src/main.leo` file is the entry point of a Leo project. It initially contains a function named `main`.
 Let's break down the structure of a Leo file.
 
-```leo file=../code_snippets/hello/src/main.leo title="src/main.leo" showLineNumbers
+```leo file=../code_snippets/hello.leo title="src/main.leo" showLineNumbers
 ```
 
 The keyword `program` indicates the name of the [program](./../language/02_structure.md#program) inside the Leo file. In this case, it is `hello.aleo`. As mentioned before, this program name must match the one in the `program.json` manifest file.
@@ -57,13 +57,13 @@ The `main` function takes an input `a` with type `u32` and `public` visibility, 
 The function returns one result with type `u32`.
 The function body is enclosed in curly braces `{ }`.
 
-```leo file=../code_snippets/hello/src/main.leo#signature
+```leo file=../code_snippets/hello.leo#signature
 ```
 
 Inside the `main` function we declare a variable `c` with type `u32` and set it equal to the addition of variables `a` and `b`.
 Leo's compiler will check that the types of `a` and `b` are equal and that the result of the addition is type `u32`.
 
-```leo file=../code_snippets/hello/src/main.leo#addition
+```leo file=../code_snippets/hello.leo#addition
 ```
 
 :::note
@@ -74,12 +74,12 @@ Try changing the type of any variable and seeing what Leo recommends with helpfu
 Last, we return the variable `c`.
 Leo will check that `c`'s type matches the function return type `u32`.
 
-```leo file=../code_snippets/hello/src/main.leo#ret
+```leo file=../code_snippets/hello.leo#ret
 ```
 
 There is an additional function called a `constructor`. This is a special function that helps enable program upgradability, which allows you to modify some of the logic and contents of a program after you've already deployed it onchain.
 
-```leo file=../code_snippets/hello/src/main.leo#constructor
+```leo file=../code_snippets/hello.leo#constructor
 ```
 
 The constructor acts as a gatekeeper for your program; the logic in the function gets run before every deployment and upgrade, and governs who and how this program can be deployed and modified.
