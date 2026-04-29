@@ -1,0 +1,14 @@
+{
+  "program": "caller.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "other_program.aleo",
+      "location": "local",
+      "path": "../cross_program_dep",
+      "edition": null
+    }
+  ]
+}

@@ -312,14 +312,9 @@ Leo's optional type (`T?`) is lowered to a struct with two fields:
 T?  -->  struct { is_some: bool, val: T }
 ```
 
-**Leo source:**
+**Leo source (a helper `fn` — entry-point fns cannot take an `Optional` directly):**
 
-```leo showLineNumbers
-program example.aleo {
-    fn process(value: u32?) -> u32 {
-        return value.unwrap_or(0u32);
-    }
-}
+```leo file=../code_snippets/abi/optional_lowering/src/main.leo#process showLineNumbers
 ```
 
 **Aleo representation:**
@@ -339,8 +334,7 @@ When `is_some` is `false`, `val` contains the zero value of the underlying type.
 
 **Nested optional example:**
 
-```leo showLineNumbers
-let arr: [u64?; 2] = [1u64, none];
+```leo file=../code_snippets/abi/optional_lowering/src/main.leo#nested_optional showLineNumbers
 ```
 
 Lowers to an array of structs:
@@ -423,57 +417,7 @@ Here's a complete example showing a Leo program and its generated ABI.
 
 **Generated ABI (`build/abi.json`):**
 
-```json title="abi.json"
-{
-  "program": "token.aleo",
-  "structs": [],
-  "records": [
-    {
-      "path": ["Token"],
-      "fields": [
-        { "name": "owner", "ty": { "Primitive": "Address" }, "mode": "None" },
-        { "name": "amount", "ty": { "Primitive": { "UInt": "U64" } }, "mode": "None" }
-      ]
-    }
-  ],
-  "mappings": [
-    {
-      "name": "account",
-      "key": { "Primitive": "Address" },
-      "value": { "Primitive": { "UInt": "U64" } }
-    }
-  ],
-  "storage_variables": [],
-  "functions": [
-    {
-      "name": "mint_public",
-      "has_final": true,
-      "inputs": [
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "Public" },
-        { "name": "amount", "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } }, "mode": "Public" }
-      ],
-      "outputs": [{ "ty": "Final", "mode": "None" }]
-    },
-    {
-      "name": "mint_private",
-      "has_final": false,
-      "inputs": [
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "None" },
-        { "name": "amount", "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } }, "mode": "None" }
-      ],
-      "outputs": [{ "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" }]
-    },
-    {
-      "name": "transfer_private",
-      "has_final": false,
-      "inputs": [
-        { "name": "token", "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" },
-        { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "None" }
-      ],
-      "outputs": [{ "ty": { "Record": { "path": ["Token"], "program": "token" } }, "mode": "None" }]
-    }
-  ]
-}
+```json file=../code_snippets/abi/token/build/abi.json title="abi.json"
 ```
 
 **Key observations:**

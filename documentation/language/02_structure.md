@@ -19,39 +19,7 @@ A program is a collection of code (its functions) and data (its types) that resi
 [program ID](#program-id) on the Aleo blockchain. A program is declared as `program {name}.{network} { ... }`.
 The body of the program is delimited by curly braces `{}`.
 
-```leo
-import foo.aleo;
-
-const FOO: u64 = 1u64;
-
-struct Message {
-    sender: address,
-    object: u64,
-}
-
-fn compute(a: u64, b: u64) -> u64 {
-    return a + b + FOO;
-}
-
-program hello.aleo {
-    mapping account: address => u64;
-
-    record Token {
-        owner: address,
-        amount: u64,
-    }
-
-    fn mint_public(
-        public receiver: address,
-        public amount: u64,
-    ) -> (Token, Final) {
-        let token: Token = Token { owner: receiver, amount };
-        return (token, final {
-            let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
-            Mapping::set(account, receiver, current_amount + amount);
-        });
-    }
-}
+```leo file=../code_snippets/layout/main_example/src/main.leo#file
 ```
 
 The following must be declared inside the scope of a program in a Leo file:
@@ -130,10 +98,7 @@ You can import dependencies that are downloaded to the `imports` directory.
 An import is declared as `import {filename}.aleo;`
 The dependency resolver will pull the imported program from the network or the local filesystem.
 
-```leo showLineNumbers
-import foo.aleo; // Import all `foo.aleo` declarations into the `hello.aleo` program.
-
-program hello.aleo { }
+```leo file=../code_snippets/layout/import_only/src/main.leo#snippet showLineNumbers
 ```
 
 ### Mappings
@@ -141,27 +106,19 @@ program hello.aleo { }
 A mapping is declared as `mapping {name}: {key-type} => {value-type}`.
 Mappings contain key-value pairs and are stored on chain.
 
-```leo
-// On-chain storage of an `account` mapping,
-// with `address` as the type of keys,
-// and `u64` as the type of values.
-mapping account: address => u64;
+```leo file=../code_snippets/structure/declarations/src/main.leo#mapping
 ```
 
 ### Storage
 
 A storage variable is declared as `storage {name}: {type}`. Storage variables contain singleton values. They are declared at program scope and are stored on chain, similar to mappings.
 
-```leo
-// On-chain storage of an `counter` storage variable of type u32,
-storage counter: u32;
+```leo file=../code_snippets/structure/declarations/src/main.leo#storage_var
 ```
 
 A storage vector is declared as `storage {name}: [{type}]`. Storage vectors contain dynamic lists of values of a given type. They are declared at program scope and are stored on chain, similar to mappings.
 
-```leo
-// On-chain storage of an `accounts` storage vector of type address,
-storage accounts: [address];
+```leo file=../code_snippets/structure/declarations/src/main.leo#storage_vec
 ```
 
 ### Struct
@@ -169,12 +126,7 @@ storage accounts: [address];
 A struct data type is declared as `struct {name} {}`.
 Structs contain component declarations `{name}: {type},`.
 
-```leo showLineNumbers
-struct Array3 {
-    a0: u32,
-    a1: u32,
-    a2: u32,
-}
+```leo file=../code_snippets/structure/declarations/src/main.leo#struct showLineNumbers
 ```
 
 ### Record
@@ -187,11 +139,5 @@ The visibility qualifier may be specified as `constant`, `public`, or `private`.
 
 Record data structures must always contain a component named `owner` of type `address`, as shown below. When passing a record as input to a program function, the `_nonce: group` and `_version: u8` components are also required but do not need to be declared in the Leo program. They are inserted automatically by the compiler.
 
-```leo showLineNumbers
-record Token {
-    // The token owner.
-    owner: address,
-    // The token amount.
-    amount: u64,
-}
+```leo file=../code_snippets/data_types/demo/src/main.leo#token_record showLineNumbers
 ```

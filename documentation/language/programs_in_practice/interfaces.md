@@ -22,11 +22,7 @@ dynamic calls, where the caller knows *what* it can call without knowing *which*
 runtime. Interfaces can be declared outside the `program {}` block, in a submodule, or in a library package
 (including library submodules).
 
-```leo
-interface Transfer {
-    record Token;
-    fn transfer(input: Token, to: address, amount: u64) -> Token;
-}
+```leo file=../../code_snippets/interfaces/decl_transfer/src/main.leo#file
 ```
 
 ### Implementing an Interface
@@ -47,74 +43,36 @@ A program can implement multiple interfaces at once using `+`:
 
 An interface can require the existence of a record by name:
 
-```leo
-interface Foo {
-    record Bar; // programs implementing Foo must declare a record called Bar
-}
+```leo file=../../code_snippets/interfaces/decl_foo_min/src/main.leo#file
 ```
 
 It can also require that the record has specific fields. Use `..` to indicate that implementors may declare additional fields beyond those required:
 
-```leo
-interface Foo {
-    record Bar {
-        owner: address, // all records must have an owner field
-        baz: u64,       // Bar must also have a baz field of type u64
-        ..              // implementors may add more fields
-    }
-}
+```leo file=../../code_snippets/interfaces/decl_foo_fields/src/main.leo#file
 ```
 
 ### Inheritance and Composition
 
 Interfaces can inherit from other interfaces using `:`:
 
-```leo
-interface Base {
-    fn get_value() -> u64;
-}
-
-interface Extended : Base {
-    fn set_value(v: u64) -> u64;
-}
+```leo file=../../code_snippets/interfaces/inheritance/src/main.leo#file
 ```
 
 Multiple interfaces can be composed together using `+`:
 
-```leo
-interface Transfer {
-    record Token;
-    fn transfer(input: Token, to: address, amount: u64) -> Token;
-}
-
-interface Balances {
-    mapping balances: address => u64;
-}
-
-// Token requires everything from both Transfer and Balances
-interface Token : Transfer + Balances {}
-
-program my_token.aleo : Token { /* ... */ }
+```leo file=../../code_snippets/interfaces/composition/src/main.leo#file
 ```
 
 ## Dynamic Calls
 
 Static calls require the callee program to be known at compile time:
 
-```leo
-// Static: the callee is fixed at compile time
-fn route_transfer_static(to: address, amount: u64) {
-    return token_a.aleo::transfer(to, amount);
-}
+```leo file=../../code_snippets/interfaces/static_call_caller/src/main.leo#snippet
 ```
 
 Dynamic calls allow the callee to be determined at runtime. The caller still knows *what* it can call — expressed as an interface — but not *which* program it is calling:
 
-```leo
-// Dynamic: any program that implements TokenStandard can be called
-fn route_transfer_dynamic(token_program: identifier, to: address, amount: u64) {
-    return TokenStandard@(token_program)::transfer_public(to, amount);
-}
+```leo file=../../code_snippets/interfaces/dynamic_call/src/main.leo#dynamic_call
 ```
 
 The syntax is:
@@ -133,17 +91,12 @@ where:
 
 The `identifier` type represents a program name resolved at runtime. An `identifier` literal uses single-quote syntax:
 
-```leo
-let target: identifier = 'my_program';
-return TokenStandard@(target)::transfer_public(to, amount);
+```leo file=../../code_snippets/interfaces/dynamic_call/src/main.leo#identifier_literal
 ```
 
 By default the target is looked up on the `aleo` network. To specify a different network explicitly, pass a second `identifier` as a second argument:
 
-```leo
-let target: identifier = 'my_program';
-let network: identifier = 'aleo';
-return TokenStandard@(target, network)::transfer_public(to, amount);
+```leo file=../../code_snippets/interfaces/dynamic_call/src/main.leo#identifier_with_network
 ```
 
 :::note
@@ -208,10 +161,7 @@ Dynamic mapping reads are a type-checked alternative to the [`_dynamic_get`, `_d
 
 A `dyn record` is a record whose field structure is not known at compile time. It retains all the ownership and privacy properties of a regular record:
 
-```leo
-fn get_memo(rec: dyn record) -> u64 {
-    return rec.memo; // fails at runtime if `rec` does not have a field named `memo` of type `u64`
-}
+```leo file=../../code_snippets/interfaces/dyn_record_helper/src/main.leo#snippet
 ```
 
 `dyn record` complements dynamic calls: while dynamic calls allow a program to route logic to any compliant callee, `dyn record` allows that same program to accept, inspect, and forward records from programs it has never seen at compile time, without losing the safety guarantees of the type system.
@@ -226,34 +176,14 @@ When making a dynamic call, all record arguments are treated as `dyn record` und
 
 Pass the dynamic record directly with no conversion needed.
 
-```leo
-interface ARC20 {
-    fn transfer_private(token: dyn record, to: address) -> dyn record;
-}
-
-program caller.aleo {
-    fn main(target: identifier, token: dyn record, to: address) -> dyn record {
-        return ARC20@(target)::transfer_private(token, to); // direct pass-through
-    }
-}
+```leo file=../../code_snippets/interfaces/case_a/src/main.leo#file
 ```
 
 **Case B — Interface expects `dyn record`, caller has a static record**
 
 Convert the static record explicitly to `dyn record` using `as` before passing it.
 
-```leo
-interface ARC20 {
-    fn transfer_private(token: dyn record, to: address) -> dyn record;
-}
-
-program my_token.aleo : ARC20 {
-    record Token { owner: address, amount: u64 }
-
-    fn do_transfer(target: identifier, token: Token, to: address) -> dyn record {
-        return ARC20@(target)::transfer_private(token as dyn record, to); // explicit cast
-    }
-}
+```leo file=../../code_snippets/interfaces/case_b/src/main.leo#file
 ```
 
 **Case C — Interface expects a static record, caller has a static record**
@@ -279,17 +209,7 @@ program caller.aleo {
 
 Leo implicitly casts the dynamic record to the expected static type at the call site. The return value is still `dyn record`.
 
-```leo
-interface ARC20 {
-    record Token;
-    fn transfer_private(token: Token, to: address) -> Token;
-}
-
-program caller.aleo {
-    fn main(target: identifier, token: dyn record, to: address) -> dyn record {
-        return ARC20@(target)::transfer_private(token, to); // implicit cast, returns dyn record
-    }
-}
+```leo file=../../code_snippets/interfaces/case_d/src/main.leo#file
 ```
 
 In all four cases, the return type of a dynamic call that involves records is always `dyn record`, regardless of what the interface declares.

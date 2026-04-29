@@ -13,15 +13,7 @@ Operators in Leo compute a value based off of one or more expressions. Leo defau
 For instance, addition adds `first` with `second`, storing the outcome in `destination`. For integer types, a constraint is added to check for overflow.
 For cases where wrapping semantics are needed for integer types, see the wrapped variants of the operators.
 
-```leo
-let a: u8 = 1u8 + 1u8;
-// a is equal to 2
-
-a += 1u8;
-// a is now equal to 3
-
-a = a.add(1u8);
-// a is now equal to 4
+```leo file=../code_snippets/operators_basics/src/main.leo#arithmetic
 ```
 
 :::note
@@ -52,8 +44,7 @@ Operators will prioritize evaluation according to:
 
 To prioritize a different evaluation, use parentheses `()` around the expression.
 
-```leo
-let result = (a + 1u8) * 2u8;
+```leo file=../code_snippets/operators_basics/src/main.leo#parentheses
 ```
 
 `(a + 1u8)` will be evaluated before multiplying by two `* 2u8`.

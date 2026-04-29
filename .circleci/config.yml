@@ -363,23 +363,23 @@ jobs:
 
   docs-lint:
     docker:
-      - image: "cimg/node:20.18"
+      # Need Node 22.12+ or 24.x so `require(esm)` is unflagged — older patches
+      # choke on the marked v17 ESM module imported by markdown-link-check's
+      # transitive deps.
+      - image: "cimg/node:24.0"
     resource_class: small
     steps:
       - checkout
       - run:
-          name: Install markdown linters
-          command: npm install -g markdown-link-check@3.13.7 markdownlint-cli@0.47.0
-      - run:
           name: markdownlint
-          command: markdownlint --config .markdownlint.yaml 'documentation/**/*.md'
+          command: npx --yes markdownlint-cli@0.47.0 --config .markdownlint.yaml 'documentation/**/*.md'
       - run:
           name: Check documentation links
           no_output_timeout: 10m
           command: |
             rc=0
             while IFS= read -r -d '' f; do
-              markdown-link-check --config .mlc_config.json --quiet "$f" || rc=1
+              npx --yes markdown-link-check@3.14.2 --config .mlc_config.json --quiet "$f" || rc=1
             done < <(find documentation -name '*.md' -print0)
             exit $rc
 
@@ -461,6 +461,9 @@ jobs:
           name: leo build on every documentation example
           command: |
             export LEO=/home/circleci/project/project/bin/leo
+            # `leo build` resolves dependencies through ~/.aleo and errors out
+            # if the directory is missing on a fresh CI image.
+            mkdir -p "$HOME/.aleo"
             cd /home/circleci/project/project
             failed=0
             # Walk every directory that has a top-level program.json (skipping

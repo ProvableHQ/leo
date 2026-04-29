@@ -1,0 +1,14 @@
+{
+  "program": "external_program_info.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "local",
+      "path": "../../public_storage/credits_mock",
+      "edition": null
+    }
+  ]
+}

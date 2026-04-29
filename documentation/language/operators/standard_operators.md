@@ -72,9 +72,7 @@ toc_max_heading_level: 3
 
 ### `abs`
 
-```leo
-let a: i8 = -1i8;
-let b: i8 = a.abs(); // 1i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#abs
 ```
 
 Computes the absolute value of the input, checking for overflow, storing the result in the destination.
@@ -97,9 +95,7 @@ Note that execution will halt if the operation overflows. For cases where wrappi
 
 ### `abs_wrapped`
 
-```leo
-let a: i8 = -128i8;
-let b: i8 = a.abs_wrapped(); // -128i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#abs_wrapped
 ```
 
 Compute the absolute value of the input, wrapping around at the boundary of the type, and storing the result in the destination.
@@ -120,10 +116,7 @@ Compute the absolute value of the input, wrapping around at the boundary of the 
 
 ### `add`
 
-```leo
-let a: u8 = 1u8;
-let b: u8 = a + 1u8; // 2u8
-let c: u8 = b.add(1u8); // 3u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#add
 ```
 
 Adds `first` with `second`, storing the result in `destination`.
@@ -154,9 +147,7 @@ Note that execution will halt if the operation overflows. For cases where wrappi
 
 ### `add_wrapped`
 
-```leo
-let a: u8 = 255u8;
-let b: u8 = a.add_wrapped(1u8); // 0u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#add_wrapped
 ```
 
 Adds `first` with `second`, wrapping around at the boundary of the type, and storing the result in `destination`.
@@ -182,10 +173,7 @@ Adds `first` with `second`, wrapping around at the boundary of the type, and sto
 
 ### `div`
 
-```leo
-let a: u8 = 4u8;
-let b: u8 = a / 2u8; // 2u8
-let c: u8 = b.div(2u8); // 1u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#div
 ```
 
 Performs division of the first operand by the second, storing the result in the destination. The operation halts if division by zero is attempted.
@@ -225,9 +213,7 @@ For cases where wrapping semantics are needed for integer types, see the [div_wr
 
 ### `div_wrapped`
 
-```leo
-let a: i8 = -128i8;
-let b: i8 = a.div_wrapped(-1i8); // -128i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#div_wrapped
 ```
 
 Divides `first` by `second`, wrapping around at the boundary of the type, and storing the result in `destination`. Halts if `second` is zero.
@@ -253,8 +239,7 @@ Divides `first` by `second`, wrapping around at the boundary of the type, and st
 
 ### `mod`
 
-```leo
-let a: u8 = 3u8.mod(2u8); // 1u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#mod_op
 ```
 
 Takes the modulo of `first` with respect to `second`, storing the result in `destination`. Halts if `second` is zero.
@@ -279,9 +264,7 @@ The semantics of this operation are consistent with the mathematical definition 
 
 ### `mul`
 
-```leo
-let a: u8 = 2u8 * 2u8; // 4u8
-let b: u8 = a.mul(2u8); // 8u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#mul
 ```
 
 Multiplies `first` with `second`, storing the result in `destination`.
@@ -312,8 +295,7 @@ Note that execution will halt if the operation overflows/underflows. For cases w
 
 ### `mul_wrapped`
 
-```leo
-let a: u8 = 128u8.mul_wrapped(2u8); // 0u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#mul_wrapped
 ```
 
 Multiplies `first` with `second`, wrapping around at the boundary of the type, and storing the result in `destination`.
@@ -339,8 +321,7 @@ Multiplies `first` with `second`, wrapping around at the boundary of the type, a
 
 ### `neg`
 
-```leo
-let a: i8 = -1i8.neg(); // 1i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#neg
 ```
 
 Negates the first operand, storing the result in the destination.
@@ -365,9 +346,7 @@ For signed integer types, the operation halts if the minimum value is negated. F
 
 ### `pow`
 
-```leo
-let a: u8 = 2u8 ** 2u8; // 4u8
-let b: u8 = a.pow(2u8); // 16u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#pow
 ```
 
 Raises `first` to the power of `second`, storing the result in `destination`.
@@ -398,8 +377,7 @@ Note that execution will halt if the operation overflows/underflows. For cases w
 
 ### `pow_wrapped`
 
-```leo
-let a: u8 = 16u8.pow_wrapped(2u8); // 0u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#pow_wrapped
 ```
 
 Raises `first` to the power of `second`, wrapping around at the boundary of the type, storing the result in `destination`.
@@ -427,9 +405,7 @@ Raises `first` to the power of `second`, wrapping around at the boundary of the 
 
 ### `rem`
 
-```leo
-let a: u8 = 3u8 % 2u8; // 1u8
-let b: u8 = 4u8.rem(2u8); // 0u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#rem
 ```
 
 Computes the remainder of the division of the `first` operand by the `second`, storing the result in `destination` following truncated division rules:
@@ -467,9 +443,7 @@ For cases where wrapping semantics are needed for integer types, see the [rem_wr
 
 ### `rem_wrapped`
 
-```leo
-let a: i8 = -128i8;
-let b: i8 = a.rem_wrapped(-1i8); // 0i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#rem_wrapped
 ```
 
 Computes the remainder of the division of the `first` operand by the `second` following truncated division rules, storing the result in `destination`. Halts on division by zero.
@@ -498,9 +472,7 @@ Notably, `rem_wrapped` does not introduce wrapping itself but ensures the operat
 
 ### `sub`
 
-```leo
-let a: u8 = 2u8 - 1u8; // 1u8
-let b: u8 = a.sub(1u8); // 0u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#sub
 ```
 
 Computes `first - second`, storing the result in `destination`. The operation halts if the result is negative in an unsigned type or if it exceeds the minimum representable value in a signed type.
@@ -528,8 +500,7 @@ Computes `first - second`, storing the result in `destination`. The operation ha
 
 ### `sub_wrapped`
 
-```leo
-let a: u8 = 0u8.sub_wrapped(1u8); // 255u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#sub_wrapped
 ```
 
 Computes `first - second`, wrapping around at the boundary of the type, and storing the result in `destination`.
@@ -557,14 +528,7 @@ Computes `first - second`, wrapping around at the boundary of the type, and stor
 
 ### `and`
 
-```leo
-// Integer (bitwise) AND
-let a: i8 = 1i8 & 1i8;
-let b: i8 = 1i8.and(2i8);
-
-// Boolean (logical) AND
-let a: bool = true && true;
-let b: bool = true.and(false);
+```leo file=../../code_snippets/operators/standard/src/main.leo#and_op
 ```
 
 Performs an AND operation on integer (bitwise) or boolean `first` and `second`,
@@ -592,8 +556,7 @@ storing the result in `destination`.
 
 ### `nand`
 
-```leo
-let a: bool = true.nand(false); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#nand_op
 ```
 
 Calculates the negated conjunction of `first` and `second`, storing the result in `destination`.
@@ -611,8 +574,7 @@ The result is false if and only if both first and second are true.
 
 ### `nor`
 
-```leo
-let a: bool = false.nor(false); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#nor_op
 ```
 
 Calculates the negated (inclusive) disjunction of `first` and `second`, storing the result in `destination`. The result is `true` if and only if both `first` and `second` are `false`.
@@ -629,8 +591,7 @@ Calculates the negated (inclusive) disjunction of `first` and `second`, storing 
 
 ### `not`
 
-```leo
-let a: bool = true.not(); // false
+```leo file=../../code_snippets/operators/standard/src/main.leo#not_op
 ```
 
 Perform a NOT operation on an integer (bitwise) or boolean input, storing the result in `destination`.
@@ -657,14 +618,7 @@ Perform a NOT operation on an integer (bitwise) or boolean input, storing the re
 
 ### `or`
 
-```leo
-// Integer (bitwise) OR
-let a: i8 = 1i8 | 2i8;
-let b: i8 = 1i8.or(2i8);
-
-// Boolean (logical) OR
-let a: bool = true || true;
-let b: bool = true.or(false);
+```leo file=../../code_snippets/operators/standard/src/main.leo#or_op
 ```
 
 Performs an inclusive OR operation on integer (bitwise) or boolean `first` and `second`, storing the result in `destination`.
@@ -691,9 +645,7 @@ Performs an inclusive OR operation on integer (bitwise) or boolean `first` and `
 
 ### `shl`
 
-```leo
-let a: u8 = 1u8 << 1u8; // 2u8
-let b: u8 = a.shl(1u8); // 4u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#shl
 ```
 
 Shifts `first` left by `second` bits, storing the result in `destination`. The operation halts if the shift distance exceeds the bit size of `first`, or if the shifted result does not fit within the type of `first`.
@@ -721,9 +673,7 @@ Shifts `first` left by `second` bits, storing the result in `destination`. The o
 
 ### `shl_wrapped`
 
-```leo
-let a: u8 = 128u8.shl_wrapped(1u8); // 0u8
-let b: i8 = 64i8.shl_wrapped(2u8); // -128i8
+```leo file=../../code_snippets/operators/standard/src/main.leo#shl_wrapped
 ```
 
 Shifts `first` left by `second` bits, wrapping around at the boundary of the type, storing the result in `destination`. The shift distance is masked to the bit width of `first`, ensuring that shifting by n is equivalent to shifting by `n % bit_size`.
@@ -753,9 +703,7 @@ If bits are shifted beyond the type's range, they are discarded, which may cause
 
 ### `shr`
 
-```leo
-let a: u8 = 4u8 >> 1u8; // 2u8
-let b: u8 = a.shr(1u8); // 1u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#shr
 ```
 
 Shifts `first` right by `second` bits, storing the result in `destination`. The operation halts if the shift distance exceeds the bit size of `first`.
@@ -783,8 +731,7 @@ Shifts `first` right by `second` bits, storing the result in `destination`. The 
 
 ### `shr_wrapped`
 
-```leo
-let a: u8 = 128u8.shr_wrapped(7u8); // 1u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#shr_wrapped
 ```
 
 Shifts `first` right by `second` bits, wrapping around at the boundary of the type, storing the result in `destination`. The shift distance is masked to the bit width of `first`, ensuring that shifting by `n` is equivalent to shifting by `n % bit_size`.
@@ -812,8 +759,7 @@ Shifts `first` right by `second` bits, wrapping around at the boundary of the ty
 
 ### `xor`
 
-```leo
-let a: bool = true.xor(false); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#xor_op
 ```
 
 Performs a XOR operation on integer (bitwise) or boolean `first` and `second`, storing the result in `destination`.
@@ -842,9 +788,7 @@ Performs a XOR operation on integer (bitwise) or boolean `first` and `second`, s
 
 ### `gt`
 
-```leo
-let a: bool = 2u8 > 1u8; // true
-let b: bool = 1u8.gt(1u8); // false
+```leo file=../../code_snippets/operators/standard/src/main.leo#gt
 ```
 
 Checks if `first` is greater than `second`, storing the result in `destination`.
@@ -872,9 +816,7 @@ Checks if `first` is greater than `second`, storing the result in `destination`.
 
 ### `gte`
 
-```leo
-let a: bool = 2u8 >= 1u8; // true
-let b: bool = 1u8.gte(1u8); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#gte
 ```
 
 Checks if `first` is greater than or equal to `second`, storing the result in `destination`.
@@ -902,9 +844,7 @@ Checks if `first` is greater than or equal to `second`, storing the result in `d
 
 ### `eq`
 
-```leo
-let a: bool = 1u8 == 1u8; // true
-let b: bool = 1u8.eq(2u8); // false
+```leo file=../../code_snippets/operators/standard/src/main.leo#eq
 ```
 
 Compares `first` and `second` for equality, storing the result in `destination`.
@@ -938,9 +878,7 @@ Compares `first` and `second` for equality, storing the result in `destination`.
 
 ### `neq`
 
-```leo
-let a: bool = 1u8 != 1u8; // false
-let b: bool = 1u8.neq(2u8); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#neq
 ```
 
 Compares `first` and `second` for non-equality, storing the result in `destination`.
@@ -974,9 +912,7 @@ Compares `first` and `second` for non-equality, storing the result in `destinati
 
 ### `lt`
 
-```leo
-let a: bool = 1u8 < 2u8; // true
-let b: bool = 1u8.lt(1u8); // false
+```leo file=../../code_snippets/operators/standard/src/main.leo#lt
 ```
 
 Checks if `first` is less than `second`, storing the result in `destination`.
@@ -1004,9 +940,7 @@ Checks if `first` is less than `second`, storing the result in `destination`.
 
 ### `lte`
 
-```leo
-let a: bool = 1u8 <= 2u8; // true
-let b: bool = 1u8.lte(1u8); // true
+```leo file=../../code_snippets/operators/standard/src/main.leo#lte
 ```
 
 Checks if `first` is less than or equal to `second`, storing the result in `destination`.
@@ -1036,14 +970,7 @@ Checks if `first` is less than or equal to `second`, storing the result in `dest
 
 ### `block.height`
 
-```leo
-program example.aleo {
-    fn matches(height: u32) -> Final {
-        return final {
-            assert_eq(height, block.height);
-        };
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#block_height
 ```
 
 The `block.height` operator is used to fetch the latest block height in a Leo program. It represents the number of
@@ -1063,14 +990,7 @@ height in a program.
 
 ### `block.timestamp`
 
-```leo
-program example.aleo {
-    fn matches(timestamp: i64) -> Final {
-        return final {
-            assert_eq(timestamp, block.timestamp);
-        };
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#block_timestamp
 ```
 
 The `block.timestamp` operator is used to fetch the UNIX timestamp of the latest block in a Leo program. In the above example, `block.timestamp` is used in a `final { }` block to fetch the latest block timestamp in a program.
@@ -1088,12 +1008,7 @@ The `block.timestamp` operator is used to fetch the UNIX timestamp of the latest
 
 ### `self.address`
 
-```leo
-program example.aleo {
-    fn get_program_address() -> address {
-        return self.address;
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_address
 ```
 
 The `self.address` operator returns the address of the program that calls it. While programs are identified by their name (`{PROGRAM_NAME}.aleo`), under the hood they have a corresponding Aleo address.
@@ -1110,12 +1025,7 @@ The `self.address` operator returns the address of the program that calls it. Wh
 
 ### `self.caller`
 
-```leo
-program example.aleo {
-    fn matches(addr: address) -> bool {
-        return self.caller == addr;
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_caller
 ```
 
 The `self.caller` operator returns the address of the account/program that invoked the current entry function. Note that if the function was called as part of an external program, this operation will return the address of the program, NOT the address of the top-level user.
@@ -1132,24 +1042,14 @@ The `self.caller` operator returns the address of the account/program that invok
 
 ### `self.checksum`
 
-```leo
-program example.aleo {
-    fn matches(checksum: [u8,32]) -> Final {
-        return final {
-            assert_eq(self.checksum, checksum);
-        };
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_checksum
 ```
 
 The `self.checksum` operator returns a program's checksum, which is a unique identifier for the program's code.
 
 You may also refer to another program's checksum with the following syntax:
 
-```leo
-import credits.aleo;
-...
-let ext_checksum: [u8, 32] = Program::checksum(credits.aleo);
+```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_checksum
 ```
 
 :::info
@@ -1166,24 +1066,14 @@ let ext_checksum: [u8, 32] = Program::checksum(credits.aleo);
 
 ### `self.edition`
 
-```leo
-program example.aleo {
-    fn matches(edition: u16) -> Final {
-        return final {
-            assert_eq(self.edition, edition);
-        };
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_edition
 ```
 
 The `self.edition` operator returns a program's edition, which is the program's version number. A program's edition starts at zero and is incremented by one for each upgrade. The edition is tracked automatically on the network.
 
 You may also refer to another program's edition with the following syntax:
 
-```leo
-import credits.aleo;
-...
-let ext_edition: u16 = Program::edition(credits.aleo);
+```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_edition
 ```
 
 :::info
@@ -1200,23 +1090,13 @@ let ext_edition: u16 = Program::edition(credits.aleo);
 
 ### `self.program_owner`
 
-```leo
-program example.aleo {
-    fn matches(owner: address) -> Final {
-        return final {
-            assert_eq(self.program_owner, owner);
-        };
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_program_owner
 ```
 
 The `self.program_owner` operator returns the address that submitted the deployment transaction for a program.
 You may also refer to another program's owner with the following syntax:
 
-```leo
-import credits.aleo;
-...
-let ext_owner: u16 = Program::owner(credits.aleo);
+```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_program_owner
 ```
 
 :::info
@@ -1233,12 +1113,7 @@ let ext_owner: u16 = Program::owner(credits.aleo);
 
 ### `self.signer`
 
-```leo
-program example.aleo {
-    fn matches(addr: address) -> bool {
-        return self.signer == addr;
-    }
-}
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_signer
 ```
 
 The `self.signer` operator returns the address of the account that invoked the top-level entry function. This will be the user account that signed the transaction.
@@ -1257,8 +1132,7 @@ The `self.signer` operator returns the address of the account that invoked the t
 
 ### `group::GEN`
 
-```leo
-let g: group = group::GEN; // the group generator
+```leo file=../../code_snippets/operators/standard/src/main.leo#group_gen
 ```
 
 Returns the generator of the algebraic group that the `group` type consists of.
@@ -1282,8 +1156,7 @@ It is an associated constant, whose name is `GEN` and whose associated type is `
 
 ### `Aleo::generator`
 
-```leo
-let g: group = Aleo::generator;
+```leo file=../../code_snippets/operators/standard/src/main.leo#aleo_generator
 ```
 
 Returns the generator point of the Aleo group. This is equivalent to `group::GEN` but expressed through the `Aleo` namespace for consistency with other `Aleo::*` intrinsics.
@@ -1292,21 +1165,16 @@ Returns the generator point of the Aleo group. This is equivalent to `group::GEN
 
 ### `Aleo::generator_powers`
 
-```leo
-let powers: [group; 251] = Aleo::generator_powers;
+```leo file=../../code_snippets/operators/standard/src/main.leo#aleo_generator_powers
 ```
 
-Returns a precomputed array of the first 251 consecutive powers of the Aleo group generator: `[G^0, G^1, G^2, ..., G^250]`. Useful for efficient scalar multiplication in final blocks without recomputing the powers at runtime.
-
-Only available inside `final { }` blocks.
+Returns a precomputed array of the first 251 consecutive powers of the Aleo group generator: `[G^0, G^1, G^2, ..., G^250]`. Useful for efficient scalar multiplication without recomputing the powers at runtime.
 
 ---
 
 ### `double`
 
-```leo
-let a: group = 2group;
-let b: group = a.double();
+```leo file=../../code_snippets/operators/standard/src/main.leo#double
 ```
 
 Adds the input to itself, storing the result in `destination`.
@@ -1324,8 +1192,7 @@ Adds the input to itself, storing the result in `destination`.
 
 ### `inv`
 
-```leo
-let a: field = 1field.inv();
+```leo file=../../code_snippets/operators/standard/src/main.leo#inv
 ```
 
 Computes the multiplicative inverse of the input, storing the result in `destination`.
@@ -1342,8 +1209,7 @@ Computes the multiplicative inverse of the input, storing the result in `destina
 
 ### `square`
 
-```leo
-let a: field = 1field.square(); // 1field
+```leo file=../../code_snippets/operators/standard/src/main.leo#square
 ```
 
 Squares the input, storing the result in `destination`.
@@ -1360,8 +1226,7 @@ Squares the input, storing the result in `destination`.
 
 ### `square_root`
 
-```leo
-let a: field = 1field.square_root(); // 1field
+```leo file=../../code_snippets/operators/standard/src/main.leo#square_root
 ```
 
 Computes the square root of the input, storing the result in `destination`. If the input is a quadratic residue, the function returns the `smaller` of the two possible roots based on modular ordering. If the input is not a quadratic residue, execution halts.
@@ -1378,8 +1243,7 @@ Computes the square root of the input, storing the result in `destination`. If t
 
 ### `to_x_coordinate`
 
-```leo
-let x: field = 0group.to_x_coordinate(); // 0field
+```leo file=../../code_snippets/operators/standard/src/main.leo#to_x_coordinate
 ```
 
 Extracts the x-coordinate of the group element as a field element.
@@ -1396,8 +1260,7 @@ Extracts the x-coordinate of the group element as a field element.
 
 ### `to_y_coordinate`
 
-```leo
-let y: field = 0group.to_y_coordinate(); // 1field
+```leo file=../../code_snippets/operators/standard/src/main.leo#to_y_coordinate
 ```
 
 Extracts the y-coordinate of the group element as a field element.
@@ -1416,15 +1279,7 @@ Extracts the y-coordinate of the group element as a field element.
 
 ### `Serialize::to_bits`
 
-```leo
-// Standard serialization (includes type metadata)
-let bits: [bool; 58] = Serialize::to_bits(value);
-
-// Raw serialization (no metadata, just raw bits)
-let bits: [bool; 32] = Serialize::to_bits_raw(value);
-
-// Works with arrays too
-let bits: [bool; 128] = Serialize::to_bits_raw([1u32, 2u32, 3u32, 4u32]);
+```leo file=../../code_snippets/operators/standard/src/main.leo#to_bits
 ```
 
 By appending `_raw` to the end of the function, the function will omit the metadata of a type and directly serialize the input bits.
@@ -1455,18 +1310,7 @@ By appending `_raw` to the end of the function, the function will omit the metad
 
 ### `Deserialize::from_bits::[TYPE]`
 
-```leo
-// Standard deserialization (includes type metadata)
-let bits1: [bool; 58] = Serialize::to_bits(1u32);
-let value1: u32 = Deserialize::from_bits::[u32](bits1);
-
-// Raw deserialization (no metadata, just raw bits)
-let bits2: [bool; 32] = Serialize::to_bits_raw(1u32);
-let value2: u32 = Deserialize::from_bits_raw::[u32](bits2);
-
-// Works with arrays too
-let bits3: [bool; 128] = Serialize::to_bits_raw([1u32, 2u32, 3u32, 4u32]);
-let arr: [u32; 4] = Deserialize::from_bits_raw::[[u32; 4]](bits3);
+```leo file=../../code_snippets/operators/standard/src/main.leo#from_bits
 ```
 
 By appending `_raw` to the end of the function, the function will omit the metadata of a type and directly serialize the input bits.
@@ -1499,12 +1343,7 @@ By appending `_raw` to the end of the function, the function will omit the metad
 
 ### `assert`
 
-```leo
-let a: bool = true;
-let b: bool = false;
-
-assert(a); // will not halt
-assert(b); // program halts
+```leo file=../../code_snippets/operators/standard/src/main.leo#assert_op
 ```
 
 Checks whether the expression evaluates to a `true` boolean value, halting if evaluates to `false`.
@@ -1521,12 +1360,7 @@ Checks whether the expression evaluates to a `true` boolean value, halting if ev
 
 ### `assert_eq`
 
-```leo
-let a: u8 = 1u8;
-let b: u8 = 2u8;
-
-assert_eq(a, a); // will not halt
-assert_eq(a, b); // program halts
+```leo file=../../code_snippets/operators/standard/src/main.leo#assert_eq
 ```
 
 Checks whether `first` and `second` are equal, halting if they are not equal.
@@ -1560,12 +1394,7 @@ Checks whether `first` and `second` are equal, halting if they are not equal.
 
 ### `assert_neq`
 
-```leo
-let a: u8 = 1u8;
-let b: u8 = 2u8;
-
-assert_neq(a, b); // will not halt
-assert_neq(a, a); // program halts
+```leo file=../../code_snippets/operators/standard/src/main.leo#assert_neq
 ```
 
 Checks whether `first` and `second` are not equal, halting if they are equal.
@@ -1599,8 +1428,7 @@ Checks whether `first` and `second` are not equal, halting if they are equal.
 
 ### `ternary`
 
-```leo
-let a: u8 = true ? 1u8 : 2u8; // 1u8
+```leo file=../../code_snippets/operators/standard/src/main.leo#ternary
 ```
 
 Selects `first`, if `condition` is true, otherwise selects `second`, storing the result in `destination`.

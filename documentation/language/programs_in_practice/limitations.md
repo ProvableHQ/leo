@@ -37,15 +37,7 @@ Consider the following Leo entry function.
 
 This is compiled into the following Aleo instructions:
 
-```aleo showLineNumbers
-function weird_sub:
-    input r0 as u8.private;
-    input r1 as u8.private;
-    gte r0 r1 into r2;
-    sub.w r0 r1 into r3;
-    sub.w r1 r0 into r4;
-    ternary r2 r3 r4 into r5;
-    output r5 as u8.private;
+```aleo file=../../code_snippets/limitations/build/main.aleo showLineNumbers
 ```
 
 Observe that both branches of the conditional are executed in the entry function. The correct output is then selected using a ternary instruction. This compilation method is only possible because operations in transitions are purely functional. [^1].

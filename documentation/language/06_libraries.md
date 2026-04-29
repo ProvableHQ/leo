@@ -73,8 +73,7 @@ Reference library items with the `{library_name}::{item}` path syntax. No `impor
 
 Constants from a library are referenced the same way:
 
-```leo
-const CEILING: u32 = math_utils::MAX_U32;
+```leo file=../code_snippets/libraries/ceiling_demo/src/main.leo#snippet
 ```
 
 ## Generic Library Functions
