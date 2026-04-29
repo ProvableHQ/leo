@@ -1,0 +1,8 @@
+{
+  "program": "credits.aleo",
+  "version": "0.1.0",
+  "description": "Local mock of credits.aleo for the cross-program mapping read example.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}

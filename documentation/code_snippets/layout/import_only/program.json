@@ -1,0 +1,14 @@
+{
+  "program": "hello.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "foo.aleo",
+      "location": "local",
+      "path": "../foo_dep",
+      "edition": null
+    }
+  ]
+}

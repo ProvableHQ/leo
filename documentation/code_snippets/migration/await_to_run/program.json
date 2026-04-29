@@ -1,0 +1,14 @@
+{
+  "program": "example.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "other_program.aleo",
+      "location": "local",
+      "path": "../await_to_run_dep",
+      "edition": null
+    }
+  ]
+}

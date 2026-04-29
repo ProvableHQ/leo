@@ -45,13 +45,7 @@ program test.aleo {
 
 In 4.0, use `fn` inside a `program {}` block:
 
-```leo
-// 4.0
-program test.aleo {
-    fn mint(public amount: u64) -> Token {
-        return Token { owner: self.caller, amount: amount };
-    }
-}
+```leo file=../code_snippets/migration/transitions_to_fn/src/main.leo#file
 ```
 
 ### `function` becomes `fn` (outside `program {}`)
@@ -73,17 +67,7 @@ program test.aleo {
 
 In 4.0, helper functions move **outside** the `program {}` block, since that block now defines the program's public interface (entry points, records, mappings). Helper functions are internal and not part of the interface:
 
-```leo
-// 4.0
-fn helper(a: u32, b: u32) -> u32 {
-    return a + b;
-}
-
-program test.aleo {
-    fn mint(public amount: u64) -> u64 {
-        return helper(amount, 1u32);
-    }
-}
+```leo file=../code_snippets/migration/function_to_fn/src/main.leo#file
 ```
 
 ### `inline` becomes `fn`
@@ -103,17 +87,7 @@ program test.aleo {
 }
 ```
 
-```leo
-// 4.0
-fn helper() -> u32 {
-    return 42u32;
-}
-
-program test.aleo {
-    fn mint() -> u32 {
-        return helper();
-    }
-}
+```leo file=../code_snippets/migration/inline_to_fn/src/main.leo#file
 ```
 
 ## Program Block as Interface Boundary
@@ -168,18 +142,7 @@ program token.aleo {
 
 **4.0** - `final { }` block inline:
 
-```leo
-// 4.0
-program token.aleo {
-    mapping balances: address => u64;
-
-    fn mint(public receiver: address, public amount: u64) -> Final {
-        return final {
-            let current: u64 = balances.get_or_use(receiver, 0u64);
-            balances.set(receiver, current + amount);
-        };
-    }
-}
+```leo file=../code_snippets/migration/inline_finalize/src/main.leo#file
 ```
 
 ### Async blocks
@@ -203,19 +166,7 @@ program token.aleo {
 
 Replace `async` with `final` and `Future` with `Final`:
 
-```leo
-// 4.0
-program token.aleo {
-    mapping balances: address => u64;
-
-    fn mint(public receiver: address, public amount: u64) -> Final {
-        let f: Final = final {
-            let current: u64 = balances.get_or_use(receiver, 0u64);
-            balances.set(receiver, current + amount);
-        };
-        return f;
-    }
-}
+```leo file=../code_snippets/migration/async_block/src/main.leo#file
 ```
 
 ### Reusable finalization logic with `final fn`
@@ -224,29 +175,7 @@ program token.aleo {
 
 The direct replacement for `async function` is the `final { }` block shown in the sections above. Use `final fn` when multiple entry points share common finalization logic:
 
-```leo
-// 4.0
-final fn update_balance(receiver: address, amount: u64) {
-    let current: u64 = balances.get_or_use(receiver, 0u64);
-    balances.set(receiver, current + amount);
-}
-
-program token.aleo {
-    mapping balances: address => u64;
-
-    fn mint(public receiver: address, public amount: u64) -> Final {
-        return final {
-            update_balance(receiver, amount);
-        };
-    }
-
-    fn airdrop(public r1: address, public r2: address, public amount: u64) -> Final {
-        return final {
-            update_balance(r1, amount);
-            update_balance(r2, amount);
-        };
-    }
-}
+```leo file=../code_snippets/migration/final_fn/src/main.leo#file
 ```
 
 Here, `update_balance` is inlined into each caller's finalization block before the compiler lifts those blocks into standalone on-chain functions. The result is two independent on-chain finalizations that each contain the inlined logic - no shared `update_balance` function exists in the compiled output.
@@ -272,17 +201,7 @@ program example.aleo {
 }
 ```
 
-```leo
-// 4.0
-program example.aleo {
-    fn compose(value: u8) -> Final {
-        let f: Final = other_program.aleo::action();
-        return final {
-            f.run();
-            // ... on-chain logic
-        };
-    }
-}
+```leo file=../code_snippets/migration/await_to_run/src/main.leo#file
 ```
 
 ### Summary of keyword changes
@@ -316,17 +235,7 @@ program test.aleo {
 
 **4.0 (recommended):**
 
-```leo
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-program test.aleo {
-    fn foo(p: Point) -> Point {
-        return Point { x: p.y, y: p.x };
-    }
-}
+```leo file=../code_snippets/migration/module_struct/src/main.leo#file
 ```
 
 ## Constructor
@@ -341,12 +250,7 @@ program hello.aleo {
 }
 ```
 
-```leo
-// 4.0
-program hello.aleo {
-    @noupgrade
-    constructor() {}
-}
+```leo file=../code_snippets/migration/constructor/src/main.leo#file
 ```
 
 ## External Call Syntax: `/` becomes `::`
@@ -361,10 +265,7 @@ let s: other_program.aleo/MyStruct = other_program.aleo/MyStruct { x: 1u32 };
 
 In 4.0, this separator is `::`, consistent with the path syntax used elsewhere in Leo:
 
-```leo
-// 4.0
-let result: u32 = other_program.aleo::some_fn(1u32);
-let s: other_program.aleo::MyStruct = other_program.aleo::MyStruct { x: 1u32 };
+```leo file=../code_snippets/migration/cross_program_caller/src/main.leo#snippet
 ```
 
 This applies to all cross-program references: function calls, type annotations, external mapping access, external storage access, and external storage vector access.
@@ -394,23 +295,7 @@ program test_some_program.aleo {
 
 In 4.0, `script` is removed. Use `@test fn` inside a program block in a test file (under `tests/`):
 
-```leo
-// 4.0
-import test_program.aleo;
-
-program test_test_program.aleo {
-    @test
-    fn test_addition() {
-        let result: u32 = test_program.aleo::add(1u32, 2u32);
-        assert_eq(result, 3u32);
-    }
-
-    @test
-    @should_fail
-    fn test_overflow() {
-        let _result: u8 = test_program.aleo::add_u8(255u8, 1u8);
-    }
-}
+```leo file=../code_snippets/migration/test_target/tests/test_test_program.leo#file
 ```
 
 For end-to-end and integration testing, use the [SDK](https://github.com/ProvableHQ/sdk) directly or `snarkVM` as a library.
@@ -423,16 +308,7 @@ The following are not breaking changes, but are worth knowing about when migrati
 
 4.0 introduces `interface` definitions that specify contracts a program must fulfill:
 
-```leo
-interface Counter {
-    fn increment(amount: u64) -> u64;
-}
-
-program my_counter.aleo : Counter {
-    fn increment(amount: u64) -> u64 {
-        return amount + 1u64;
-    }
-}
+```leo file=../code_snippets/migration/interface_basic/src/main.leo#file
 ```
 
 Interfaces can declare function signatures, record definitions, mappings, and storage variables. Programs implement an interface by listing it after `:` in the program declaration.
@@ -441,27 +317,12 @@ For full documentation including record requirements, interface composition, dyn
 
 Interfaces support inheritance:
 
-```leo
-interface Base {
-    fn get_value() -> u64;
-}
-
-interface Extended : Base {
-    fn set_value(v: u64) -> u64;
-}
-
-program test.aleo : Extended {
-    fn get_value() -> u64 { return 0u64; }
-    fn set_value(v: u64) -> u64 { return v; }
-}
+```leo file=../code_snippets/migration/interface_inheritance/src/main.leo#file
 ```
 
 ### Inclusive ranges
 
 4.0 adds `..=` for inclusive range bounds in `for` loops:
 
-```leo
-for i: u32 in 0u32..=10u32 {
-    // i takes values 0, 1, 2, ..., 10
-}
+```leo file=../code_snippets/migration/inclusive_ranges/src/main.leo#snippet
 ```

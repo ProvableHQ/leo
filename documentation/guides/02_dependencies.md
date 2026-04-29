@@ -95,13 +95,7 @@ leo remove credits.aleo
 
 In your `main.leo` file, import dependencies before the program declaration:
 
-```leo
-import credits.aleo;
-import my_library.aleo;
-
-program my_program.aleo {
-    // ...
-}
+```leo file=../code_snippets/dependencies/my_program/src/main.leo#file
 ```
 
 ## Dependency Resolution Process

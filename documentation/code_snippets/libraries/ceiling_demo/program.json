@@ -1,0 +1,14 @@
+{
+  "program": "ceiling_demo.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "math_utils",
+      "location": "local",
+      "path": "../math_utils",
+      "edition": null
+    }
+  ]
+}

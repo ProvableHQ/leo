@@ -1,0 +1,20 @@
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "local",
+      "path": "../credits_dep",
+      "edition": null
+    },
+    {
+      "name": "my_library.aleo",
+      "location": "local",
+      "path": "../lib_dep",
+      "edition": null
+    }
+  ]
+}

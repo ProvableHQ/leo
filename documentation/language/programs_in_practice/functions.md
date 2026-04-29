@@ -10,24 +10,14 @@ sidebar_label: Functions
 
 Entry functions in Leo are declared as `fn {name}() {}` inside a `program {}` block. They define the program's public interface and can be called directly when running a Leo program (via `leo run`). If they include a `final { }` block to execute code on-chain, they must return `Final`.
 
-```leo showLineNumbers
-program hello.aleo {
-    fn foo(
-        public a: field,
-        b: field,
-    ) -> field {
-        return a + b;
-    }
-}
+```leo file=../../code_snippets/functions/entry_basic/src/main.leo showLineNumbers
 ```
 
 ### Inputs
 
 Inputs are declared as `{visibility} {name}: {type}`. They must be declared just after the function name declaration, in parentheses.
 
-```leo showLineNumbers
-// The entry function `foo` takes a single input `a` with type `field` and visibility `public`.
-fn foo(public a: field) { }
+```leo file=../../code_snippets/functions/entry_input/src/main.leo#snippet showLineNumbers
 ```
 
 ### Outputs
@@ -35,11 +25,7 @@ fn foo(public a: field) { }
 The return type of the function is declared as `-> {expression}` and must be declared just after the function inputs.
 A function output is calculated as `return {expression};`. Returning an output ends the execution of the function, and the type of the returned value must match the output type declared in the function signature.
 
-```leo showLineNumbers
-fn foo(public a: field) -> field {
-    // Returns the addition of the public input a and the value `1field`.
-    return a + 1field;
-}
+```leo file=../../code_snippets/functions/entry_output/src/main.leo#snippet showLineNumbers
 ```
 
 ## On-chain State with `final { }`
@@ -48,33 +34,7 @@ A `final { }` block is used to define computation that gets executed on-chain. T
 
 An entry `fn` that includes on-chain logic returns `Final` and embeds the on-chain code in a `final { }` block. Final blocks are atomic; they either succeed or fail, and state is reverted on failure.
 
-```leo showLineNumbers
-program transfer.aleo {
-    // The function `transfer_public_to_private` turns a specified token amount
-    // from `account` into a token record for the specified receiver.
-    //
-    // This function preserves privacy for the receiver's record, however
-    // it publicly reveals the sender and the specified token amount.
-    fn transfer_public_to_private(
-        receiver: address,
-        public amount: u64
-    ) -> (token, Final) {
-        // Produce a token record for the token receiver.
-        let new: token = token {
-            owner: receiver,
-            amount,
-        };
-
-        // Return the receiver's record, then decrement the token amount of the caller publicly.
-        return (new, final {
-            // Decrements `account[sender]` by `amount`.
-            // If `account[sender]` does not exist, it will be created.
-            // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
-            let current_amount: u64 = Mapping::get_or_use(account, self.caller, 0u64);
-            Mapping::set(account, self.caller, current_amount - amount);
-        });
-    }
-}
+```leo file=../../code_snippets/functions/transfer_inline/src/main.leo#file showLineNumbers
 ```
 
 If there is no need to create or alter the public on-chain state, a `final { }` block is not required.
@@ -83,33 +43,7 @@ If there is no need to create or alter the public on-chain state, a `final { }` 
 
 When finalization logic is shared across multiple entry functions, it can be extracted into a `final fn`, declared outside the `program {}` block. A `final fn` call must still be wrapped in a `final { }` block at the call site:
 
-```leo showLineNumbers
-final fn decrement_balance(sender: address, amount: u64) {
-    let current_amount: u64 = Mapping::get_or_use(account, sender, 0u64);
-    Mapping::set(account, sender, current_amount - amount);
-}
-
-program transfer.aleo {
-    fn transfer_public_to_private(
-        receiver: address,
-        public amount: u64
-    ) -> (token, Final) {
-        let new: token = token {
-            owner: receiver,
-            amount,
-        };
-
-        return (new, final {
-            decrement_balance(self.caller, amount);
-        });
-    }
-
-    fn burn(public amount: u64) -> Final {
-        return final {
-            decrement_balance(self.caller, amount);
-        };
-    }
-}
+```leo file=../../code_snippets/functions/transfer_final_fn/src/main.leo#file showLineNumbers
 ```
 
 The body of `decrement_balance` is inlined into each caller's `final { }` block at compile time — no shared function exists in the compiled output.
@@ -122,31 +56,12 @@ They contain expressions and statements that can compute values, but cannot prod
 Helper functions cannot be called directly from outside the program. Instead, they are called by entry functions.
 Inputs of helper functions cannot have `{visibility}` modifiers, since they are used only internally, not as part of a program's external interface.
 
-```leo showLineNumbers
-fn foo(
-    a: field,
-    b: field,
-) -> field {
-    return a + b;
-}
+```leo file=../../code_snippets/functions/helper_basic/src/main.leo#snippet showLineNumbers
 ```
 
 Helper functions also support **const generics**:
 
-```leo showLineNumbers
-fn sum_first_n_ints::[N: u32]() -> u32 {
-    let sum = 0u32;
-    for i in 0u32..N {
-        sum += i;
-    }
-    return sum;
-}
-
-program main.aleo {
-    fn main() -> u32 {
-        return sum_first_n_ints::[5u32]();
-    }
-}
+```leo file=../../code_snippets/functions/const_generic/src/main.leo showLineNumbers
 ```
 
 Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`.
@@ -159,12 +74,7 @@ Const generic parameters are only valid on inlinable helper `fn` functions. They
 
 By default the compiler inlines helper functions that are called only once, which reduces call overhead. To prevent this, annotate the function with `@no_inline`:
 
-```leo
-@no_inline
-fn expensive_helper(a: u32, b: u32) -> u32 {
-    // ...
-    return a + b;
-}
+```leo file=../../code_snippets/functions/no_inline/src/main.leo#snippet
 ```
 
 Use `@no_inline` when the function is intentionally shared across multiple call sites but the compiler would otherwise duplicate it, or when you want to preserve the function boundary for readability in the compiled output.
