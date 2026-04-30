@@ -39,6 +39,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
                 function.input.len(),
                 self.max_inputs,
                 input.span,
+                vec![],
             ));
         }
 

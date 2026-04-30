@@ -1,14 +1,14 @@
-Error [ETYC0372169]: The entry `bar` has 17 output parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:3:8
-     |
-   3 |     fn bar() -> (
-     |        ^^^
-     |
-     = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
-Error [ETYC0372169]: The entry `baz` has 17 output parameters, which exceeds the allowed limit of 16.
-    --> compiler-test:10:8
-     |
-  10 |     fn baz() -> (
-     |        ^^^
-     |
-     = Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+[ETYC0372169] Error: The entry `bar` has 17 output parameters, which exceeds the allowed limit of 16.
+   ╭─[ compiler-test:3:8 ]
+   │
+ 3 │     fn bar() -> (
+   │ 
+   │ Help: Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+───╯
+[ETYC0372169] Error: The entry `baz` has 17 output parameters, which exceeds the allowed limit of 16.
+    ╭─[ compiler-test:10:8 ]
+    │
+ 10 │     fn baz() -> (
+    │ 
+    │ Help: Consider reducing the number of output parameters. You might combine some parameters into a struct or refactor the {variant} to simplify its signature.
+────╯

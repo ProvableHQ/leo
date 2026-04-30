@@ -1,15 +1,11 @@
-Error [ECHI03712004]: Function `process` does not match the signature required by interface `test.aleo/Processor`.
+[ECHI03712004] Error: Function `process` does not match the signature required by interface `test.aleo/Processor`.
 Expected:
 fn process(value: u64, multiplier: u64) -> u64
 Found:
 fn process(value: u64, multiplier: u32) -> u64
-    --> test:9:5
-     |
-   9 |     fn process(value: u64, multiplier: u32) -> u64 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         return value;
-     |         ^^^^^^^^^^^^^
-  11 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
+    ╭─[ test:9:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯

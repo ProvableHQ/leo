@@ -1,5 +1,5 @@
-Error [ESAZ0374006]: Unary operation `-128i8.neg()` failed at compile time: negation overflow.
-    --> compiler-test:6:16
-     |
-   6 |         return -a; // This line attempts to return 128i8 however, the largest i8 value is 127i8.
-     |                ^^
+[ESAZ0374006] Error: Unary operation `-128i8.neg()` failed at compile time: negation overflow.
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │         return -a; // This line attempts to return 128i8 however, the largest i8 value is 127i8.
+───╯

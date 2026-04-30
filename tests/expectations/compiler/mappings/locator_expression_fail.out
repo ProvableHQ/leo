@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `u32` but type `(address => bool)` was found.
-    --> compiler-test:5:22
-     |
-   5 |         let a: u32 = relay.aleo::users;
-     |                      ^^^^^^^^^^^^^^^^^
+[ETYC0372117] Error: Expected type `u32` but type `(address => bool)` was found.
+   ╭─[ compiler-test:5:22 ]
+   │
+ 5 │         let a: u32 = relay.aleo::users;
+───╯

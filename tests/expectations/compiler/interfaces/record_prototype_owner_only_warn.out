@@ -1,27 +1,13 @@
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:2:1
-     |
-   2 | 
-   3 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   4 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   5 |         ..
-     |         ^^
-   6 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:2:1
-     |
-   2 | 
-   3 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   4 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   5 |         ..
-     |         ^^
-   6 |     }
-     |     ^
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ compiler-test:1:27 ]
+   │
+   │ 
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ compiler-test:1:27 ]
+   │
+   │ 
+───╯
 program test.aleo;
 
 record Token:

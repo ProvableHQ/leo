@@ -196,6 +196,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ariadne"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8454c8a44ce2cb9cc7e7fae67fc6128465b343b92c6631e94beca3c8d1524ea5"
+dependencies = [
+ "unicode-width",
+ "yansi",
+]
+
+[[package]]
 name = "arrayref"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2326,6 +2336,7 @@ name = "leo-errors"
 version = "4.0.2"
 dependencies = [
  "anyhow",
+ "ariadne",
  "backtrace",
  "color-backtrace",
  "colored 3.1.1",
@@ -2508,6 +2519,7 @@ dependencies = [
 name = "leo-span"
 version = "4.0.2"
 dependencies = [
+ "ariadne",
  "fxhash",
  "indexmap",
  "scoped-tls",
@@ -6249,6 +6261,12 @@ name = "writeable"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
+
+[[package]]
+name = "yansi"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfe53a6657fd280eaa890a3bc59152892ffa3e30101319d168b781ed6529b049"
 
 [[package]]
 name = "yoke"

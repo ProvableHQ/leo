@@ -1,20 +1,20 @@
-Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '?'
-    --> test:3:6
-     |
-   3 | @foo(?, bar, ?)
-     |      ^
-Error [EPAR0370005]: expected '=' -- found ','
-    --> test:3:12
-     |
-   3 | @foo(?, bar, ?)
-     |            ^
-Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '?'
-    --> test:3:14
-     |
-   3 | @foo(?, bar, ?)
-     |              ^
-Error [EPAR0370005]: expected an identifier, ')', 'address, 'mapping' -- found '123'
-    --> test:8:6
-     |
-   8 | @bar(123)
-     |      ^^^
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '?'
+   ╭─[ test:3:6 ]
+   │
+ 3 │ @foo(?, bar, ?)
+───╯
+[EPAR0370005] Error: expected '=' -- found ','
+   ╭─[ test:3:12 ]
+   │
+ 3 │ @foo(?, bar, ?)
+───╯
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '?'
+   ╭─[ test:3:14 ]
+   │
+ 3 │ @foo(?, bar, ?)
+───╯
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '123'
+   ╭─[ test:8:6 ]
+   │
+ 8 │ @bar(123)
+───╯

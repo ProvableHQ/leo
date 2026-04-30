@@ -36,6 +36,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                         symbol,
                         program.stub_id.name,
                         program.stub_id.network.span,
+                        vec![],
                     ));
                 }
             }
@@ -69,9 +70,12 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // errors for `Foo/FooBar` and for `FooBar/FooBarBaz` but not for `Foo/FooBarBaz`.
         for ((prev_name, _), (curr_name, curr_span)) in record_info.iter().tuple_windows() {
             if curr_name.starts_with(prev_name) {
-                self.state
-                    .handler
-                    .emit_err(TypeCheckerError::record_prefixed_by_other_record(curr_name, prev_name, *curr_span));
+                self.state.handler.emit_err(TypeCheckerError::record_prefixed_by_other_record(
+                    curr_name,
+                    prev_name,
+                    *curr_span,
+                    vec![],
+                ));
             }
         }
 
@@ -105,6 +109,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::too_many_mappings(
                 self.limits.max_mappings,
                 input.program_id.name.span + input.program_id.network.span,
+                vec![],
             ));
         }
 
@@ -140,6 +145,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::too_many_entry_points(
                 self.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
+                vec![],
             ));
         }
         // Check that each program has at least one transition function.
@@ -147,6 +153,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         else if transition_count == 0 {
             self.emit_err(TypeCheckerError::no_entry_points(
                 input.program_id.name.span + input.program_id.network.span,
+                vec![],
             ));
         }
     }
@@ -194,6 +201,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::cannot_have_const_generics(
                     "Entry point functions",
                     prototype.identifier.span,
+                    vec![],
                 ));
             }
         }
@@ -211,7 +219,10 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
-            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
+            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(
+                input.consts.first().unwrap().1.span,
+                vec![],
+            ));
         }
 
         // Typecheck the program's composites.
@@ -225,7 +236,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.in_conditional_scope(|slf| {
             slf.in_scope(input.id, |slf| {
                 if input.is_record && !input.const_parameters.is_empty() {
-                    slf.emit_err(TypeCheckerError::unexpected_record_const_parameters(input.span));
+                    slf.emit_err(TypeCheckerError::unexpected_record_const_parameters(input.span, vec![]));
                 } else {
                     input
                         .const_parameters
@@ -243,6 +254,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                             slf.emit_err(TypeCheckerError::bad_const_generic_type(
                                 const_param.type_(),
                                 const_param.span(),
+                                vec![],
                             ));
                         }
 
@@ -266,13 +278,13 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
             if let Some(first_span) = used.get(&identifier.name) {
                 self.emit_err(if input.is_record {
-                    TypeCheckerError::duplicate_record_variable(identifier.name, *span).with_labels(vec![
+                    TypeCheckerError::duplicate_record_variable(identifier.name, *span, vec![
                         Label::new(format!("`{}` first declared here", identifier.name), *first_span)
                             .with_color(leo_errors::Color::Blue),
                         Label::new("record variable already declared", *span),
                     ])
                 } else {
-                    TypeCheckerError::duplicate_struct_member(identifier.name, *span).with_labels(vec![
+                    TypeCheckerError::duplicate_struct_member(identifier.name, *span, vec![
                         Label::new(format!("`{}` first declared here", identifier.name), *first_span)
                             .with_color(leo_errors::Color::Blue),
                         Label::new("struct field already declared", *span),
@@ -285,31 +297,32 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
-            let check_has_field =
-                |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
-                    (identifier.name == need).then_some((identifier, type_))
-                }) {
-                    Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
-                    Some((field, _)) => {
-                        self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
-                    }
-                    None => {
-                        self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
-                    }
-                };
+            let check_has_field = |need, expected_ty: Type| match input
+                .members
+                .iter()
+                .find_map(|Member { identifier, type_, .. }| (identifier.name == need).then_some((identifier, type_)))
+            {
+                Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
+                Some((field, _)) => {
+                    self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span(), vec![]));
+                }
+                None => {
+                    self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span(), vec![]));
+                }
+            };
             check_has_field(sym::owner, Type::Address);
 
             for Member { identifier, type_, span, .. } in input.members.iter() {
                 if self.contains_optional_type(type_) {
-                    self.emit_err(TypeCheckerError::record_field_cannot_be_optional(identifier, type_, *span));
+                    self.emit_err(TypeCheckerError::record_field_cannot_be_optional(identifier, type_, *span, vec![]));
                 }
             }
         }
         // For structs, check that there is at least one member.
         else if input.members.is_empty() {
-            self.emit_err(TypeCheckerError::empty_struct(input.span()));
+            self.emit_err(TypeCheckerError::empty_struct(input.span(), vec![]));
         } else if input.members.iter().all(|m| m.type_.is_empty()) {
-            self.emit_err(TypeCheckerError::zero_size_struct(input.span()));
+            self.emit_err(TypeCheckerError::zero_size_struct(input.span(), vec![]));
         }
 
         if !(input.is_record && self.scope_state.is_stub) {
@@ -319,11 +332,13 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
+                        vec![],
                     ));
                 } else if matches!(type_, Type::Future(..)) {
                     self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_final(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
+                        vec![],
                     ));
                 }
 
@@ -359,7 +374,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
                 // If the input is a struct, then check that the member does not have a mode.
                 if !input.is_record && !matches!(mode, Mode::None) {
-                    self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                    self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span, vec![]));
                 }
             }
         }
@@ -373,24 +388,28 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a future, tuple, record, or mapping.
         match input.key_type.clone() {
-            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span)),
-            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
+            Type::Future(_) => {
+                self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span, vec![]))
+            }
+            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span, vec![])),
             Type::Composite(composite_type) => {
                 if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
-                        self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
+                        self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span, vec![]));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
+                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span, vec![]));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
-            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "mapping", input.span)),
+            Type::Mapping(_) => {
+                self.emit_err(TypeCheckerError::invalid_mapping_type("key", "mapping", input.span, vec![]))
+            }
             _ => {}
         }
 
         if input.key_type.is_empty() {
-            self.emit_err(TypeCheckerError::invalid_mapping_type("key", "zero sized type", input.span));
+            self.emit_err(TypeCheckerError::invalid_mapping_type("key", "zero sized type", input.span, vec![]));
         }
 
         if self.contains_optional_type(&input.key_type) {
@@ -398,6 +417,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 input.key_type.clone(),
                 "key",
                 input.span,
+                vec![],
             ))
         }
 
@@ -405,24 +425,30 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a future, tuple, record or mapping.
         match input.value_type.clone() {
-            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span)),
-            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
+            Type::Future(_) => {
+                self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span, vec![]))
+            }
+            Type::Tuple(_) => {
+                self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span, vec![]))
+            }
             Type::Composite(composite_type) => {
                 if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
-                        self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
+                        self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span, vec![]));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.value_type, input.span));
+                    self.emit_err(TypeCheckerError::undefined_type(&input.value_type, input.span, vec![]));
                 }
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
-            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
+            Type::Mapping(_) => {
+                self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span, vec![]))
+            }
             _ => {}
         }
 
         if input.value_type.is_empty() {
-            self.emit_err(TypeCheckerError::invalid_mapping_type("value", "zero sized type", input.span));
+            self.emit_err(TypeCheckerError::invalid_mapping_type("value", "zero sized type", input.span, vec![]));
         }
 
         if self.contains_optional_type(&input.value_type) {
@@ -430,6 +456,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 input.value_type.clone(),
                 "value",
                 input.span,
+                vec![],
             ))
         }
     }
@@ -456,7 +483,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Check that the function's annotations are valid.
         for annotation in function.annotations.iter() {
             if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
-                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span, vec![]))
             }
         }
 
@@ -473,6 +500,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::annotation_error(
                             format_args!("Invalid key `{key}` for annotation @{symbol}"),
                             annotation.span,
+                            vec![],
                         ));
                     }
                 }
@@ -480,6 +508,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::annotation_error(
                         format_args!("Duplicate annotation @{symbol}"),
                         annotation.span,
+                        vec![],
                     ));
                 }
             }
@@ -493,6 +522,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::annotation_error(
                 format_args!("Test annotation @test appears outside of tests"),
                 get(sym::test).span,
+                vec![],
             ));
         }
 
@@ -500,6 +530,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::annotation_error(
                 format_args!("Test annotation @should_fail appears outside of tests"),
                 get(sym::should_fail).span,
+                vec![],
             ));
         }
 
@@ -507,6 +538,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::annotation_error(
                 format_args!("Annotation @should_fail appears without @test"),
                 get(sym::should_fail).span,
+                vec![],
             ));
         }
 
@@ -514,6 +546,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::annotation_error(
                 format_args!("Annotation @test may appear only on transitions"),
                 get(sym::test).span,
+                vec![],
             ));
         }
 
@@ -521,6 +554,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(TypeCheckerError::annotation_error(
                 "A test procedure cannot have inputs",
                 function.input[0].span,
+                vec![],
             ));
         }
 
@@ -543,7 +577,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
                 // If the function has a return type, then check that it has a return.
                 if function.output_type != Type::Unit && !slf.scope_state.has_return {
-                    slf.emit_err(TypeCheckerError::missing_return(function.span));
+                    slf.emit_err(TypeCheckerError::missing_return(function.span, vec![]));
                 }
             })
         });
@@ -570,7 +604,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         let upgrade_variant = match result {
             Ok(upgrade_variant) => upgrade_variant,
             Err(e) => {
-                self.emit_err(TypeCheckerError::custom(e, constructor.span));
+                self.emit_err(TypeCheckerError::custom(e, constructor.span, vec![]));
                 return;
             }
         };
@@ -578,10 +612,14 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Validate the number of statements.
         match (&upgrade_variant, constructor.block.statements.is_empty()) {
             (UpgradeVariant::Custom, true) => {
-                self.emit_err(TypeCheckerError::custom("A 'custom' constructor cannot be empty", constructor.span));
+                self.emit_err(TypeCheckerError::custom(
+                    "A 'custom' constructor cannot be empty",
+                    constructor.span,
+                    vec![],
+                ));
             }
             (UpgradeVariant::NoUpgrade | UpgradeVariant::Admin { .. } | UpgradeVariant::Checksum { .. }, false) => {
-                self.emit_err(TypeCheckerError::custom("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
+                self.emit_err(TypeCheckerError::custom("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span, vec![]));
             }
             _ => {}
         }
@@ -595,7 +633,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),
                     constructor.annotations[0].span,
-                ));
+                vec![]));
                 return;
             };
             // Check that the mapping key type matches the expected key type.
@@ -606,6 +644,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                         mapping, mapping_type.key, key
                     ),
                     constructor.annotations[0].span,
+                    vec![],
                 ));
             }
             // Check that the value type is a `[u8; 32]`.
@@ -625,6 +664,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::custom(
                     format!("The mapping '{}' value type '{}' must be a '[u8; 32]'", mapping, mapping_type.value),
                     constructor.annotations[0].span,
+                    vec![],
                 ));
             }
         }
@@ -638,12 +678,20 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the constructor does not call `finalize`.
         if self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::custom("The constructor cannot call `finalize`.", constructor.span));
+            self.emit_err(TypeCheckerError::custom(
+                "The constructor cannot call `finalize`.",
+                constructor.span,
+                vec![],
+            ));
         }
 
         // Check that the constructor does not have an `async` block.
         if self.scope_state.already_contains_an_async_block {
-            self.emit_err(TypeCheckerError::custom("The constructor cannot have an `async` block.", constructor.span));
+            self.emit_err(TypeCheckerError::custom(
+                "The constructor cannot have an `async` block.",
+                constructor.span,
+                vec![],
+            ));
         }
 
         self.scope_state.reset();

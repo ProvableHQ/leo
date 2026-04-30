@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected u32 but type `(u32, u32)` was found.
-    --> compiler-test:7:27
-     |
-   7 |         let (a, b): u32 = (1u32, 2u32);
-     |                           ^^^^^^^^^^^^
+[ETYC0372117] Error: Expected u32 but type `(u32, u32)` was found.
+   ╭─[ compiler-test:7:27 ]
+   │
+ 7 │         let (a, b): u32 = (1u32, 2u32);
+───╯

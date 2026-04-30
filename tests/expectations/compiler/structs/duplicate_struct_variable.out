@@ -1,44 +1,79 @@
-Error [ETYC0372015]: Struct field `x` is already declared.
-    --> compiler-test:6:5
-     |
-   5 |       x: u32,
-     |       ^^^^^^ `x` first declared here
-   6 |       x: u32,
-     |       ^^^^^^ struct field already declared
-Error [ETYC0372015]: Struct field `name` is already declared.
-    --> compiler-test:14:5
-     |
-  11 |       name: field,
-     |       ^^^^^^^^^^^ `name` first declared here
-   ...
-  14 |       name: field,
-     |       ^^^^^^^^^^^ struct field already declared
-Error [ETYC0372015]: Struct field `id` is already declared.
-    --> compiler-test:21:5
-     |
-  19 |       id: u32,
-     |       ^^^^^^^ `id` first declared here
-  20 |
-  21 |       id: u32,
-     |       ^^^^^^^ struct field already declared
-Error [ETYC0372015]: Struct field `val` is already declared.
-    --> compiler-test:22:5
-     |
-  20 |       val: u64,
-     |       ^^^^^^^^ `val` first declared here
-  21 |
-  22 |       val: u64,
-     |       ^^^^^^^^ struct field already declared
-Error [ETYC0372015]: Struct field `host` is already declared.
-    --> compiler-test:36:5
-     |
-  27 |       host: field,
-     |       ^^^^^^^^^^^ `host` first declared here
-   ...
-  36 |       host: field,
-     |       ^^^^^^^^^^^ struct field already declared
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372015] Error: Struct field `x` is already declared.
+   ╭─[ compiler-test:6:5 ]
+   │
+ 6 │     x: u32,
+   │
+   ├─[ compiler-test:6:5 ]
+   │
+ 5 │     x: u32,
+   │     ───┬──  
+   │        ╰──── `x` first declared here
+ 6 │     x: u32,
+   │     ───┬──  
+   │        ╰──── struct field already declared
+───╯
+[ETYC0372015] Error: Struct field `name` is already declared.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     name: field,
+    │
+    ├─[ compiler-test:14:5 ]
+    │
+ 11 │     name: field,
+    │     ─────┬─────  
+    │          ╰─────── `name` first declared here
+    │ 
+ 14 │     name: field,
+    │     ─────┬─────  
+    │          ╰─────── struct field already declared
+────╯
+[ETYC0372015] Error: Struct field `id` is already declared.
+    ╭─[ compiler-test:21:5 ]
+    │
+ 21 │     id: u32,
+    │
+    ├─[ compiler-test:21:5 ]
+    │
+ 19 │     id: u32,
+    │     ───┬───  
+    │        ╰───── `id` first declared here
+    │ 
+ 21 │     id: u32,
+    │     ───┬───  
+    │        ╰───── struct field already declared
+────╯
+[ETYC0372015] Error: Struct field `val` is already declared.
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     val: u64,
+    │
+    ├─[ compiler-test:22:5 ]
+    │
+ 20 │     val: u64,
+    │     ────┬───  
+    │         ╰───── `val` first declared here
+    │ 
+ 22 │     val: u64,
+    │     ────┬───  
+    │         ╰───── struct field already declared
+────╯
+[ETYC0372015] Error: Struct field `host` is already declared.
+    ╭─[ compiler-test:36:5 ]
+    │
+ 36 │     host: field,
+    │
+    ├─[ compiler-test:36:5 ]
+    │
+ 27 │     host: field,
+    │     ─────┬─────  
+    │          ╰─────── `host` first declared here
+    │ 
+ 36 │     host: field,
+    │     ─────┬─────  
+    │          ╰─────── struct field already declared
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

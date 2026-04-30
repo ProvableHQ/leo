@@ -254,19 +254,19 @@ mod tests {
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
                 assert_eq!(h.err_count(), 0);
-                h.emit_err(ParserError::invalid_import_list(s));
+                h.emit_err(ParserError::invalid_import_list(s, vec![]));
                 assert_eq!(h.err_count(), 1);
-                h.emit_err(ParserError::unexpected_eof(s));
+                h.emit_err(ParserError::unexpected_eof(s, vec![]));
                 assert_eq!(h.err_count(), 2);
-                Err(ParserError::spread_in_array_init(s).into())
+                Err(ParserError::spread_in_array_init(s, vec![]).into())
             });
 
             assert_eq!(res.unwrap_err().len(), 3);
 
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
-                h.emit_err(ParserError::invalid_import_list(s));
-                h.emit_err(ParserError::unexpected_eof(s));
+                h.emit_err(ParserError::invalid_import_list(s, vec![]));
+                h.emit_err(ParserError::unexpected_eof(s, vec![]));
                 Ok(())
             });
             assert_eq!(res.unwrap_err().len(), 2);

@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected a type supported by ternary but type `dyn record` was found.
-    --> compiler-test:3:29
-     |
-   3 |         let r: dyn record = flag ? a : b;
-     |                             ^^^^^^^^^^^^
+[ETYC0372117] Error: Expected a type supported by ternary but type `dyn record` was found.
+   ╭─[ compiler-test:3:29 ]
+   │
+ 3 │         let r: dyn record = flag ? a : b;
+───╯

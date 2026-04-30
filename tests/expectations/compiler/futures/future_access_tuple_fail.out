@@ -1,7 +1,7 @@
-Error [ESAZ0374005]: A Final may not be used in this way
-    --> compiler-test:12:30
-     |
-  12 |         let start_2: Final = start.1;
-     |                              ^^^^^^^
-     |
-     = Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+[ESAZ0374005] Error: A Final may not be used in this way
+    ╭─[ compiler-test:12:30 ]
+    │
+ 12 │         let start_2: Final = start.1;
+    │ 
+    │ Help: Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+────╯

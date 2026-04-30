@@ -1,39 +1,18 @@
-Error [ECHI03712004]: Function `mint` does not match the signature required by interface `token_lib/itoken::TokenInterface`.
+[ECHI03712004] Error: Function `mint` does not match the signature required by interface `token_lib/itoken::TokenInterface`.
 Expected:
 fn mint(owner: address) -> Token
 Found:
 fn mint(owner: address) -> test.aleo::Coin
-    --> test:7:5
-     |
-   7 |     fn mint(owner: address) -> Coin {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         return Coin { owner: owner, balance: 0u64 };
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   9 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
-Error [ECHI03712003]: Program `test.aleo` implements interface `token_lib/itoken::TokenInterface` but is missing the required record `Token`.
-    --> test:1:1
-     |
-   1 | program test.aleo: token_lib::itoken::TokenInterface {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   2 |     record Coin {
-     |     ^^^^^^^^^^^^^
-   3 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   4 |         balance: u64,
-     |         ^^^^^^^^^^^^^
-   5 |     }
-     |     ^
-   6 | 
-   7 |     fn mint(owner: address) -> Coin {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         return Coin { owner: owner, balance: 0u64 };
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   9 |     }
-     |     ^
-  10 | }
-     | ^
-     |
-     = Add a record definition with the specified name.
+   ╭─[ test:7:5 ]
+   │
+   │ 
+   │ 
+   │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+───╯
+[ECHI03712003] Error: Program `test.aleo` implements interface `token_lib/itoken::TokenInterface` but is missing the required record `Token`.
+    ╭─[ test:1:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add a record definition with the specified name.
+────╯

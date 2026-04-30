@@ -150,8 +150,14 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self
-                    .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
+                    lhs_value,
+                    rhs_value,
+                    input.op,
+                    err,
+                    span,
+                    vec![],
+                )),
             }
         }
 
@@ -172,7 +178,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
+                Err(err) => {
+                    self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span, vec![]))
+                }
             }
         }
         (UnaryExpression { receiver, ..input }.into(), None)

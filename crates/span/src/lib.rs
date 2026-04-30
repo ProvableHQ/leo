@@ -17,7 +17,7 @@
 #![forbid(unsafe_code)]
 
 mod symbol;
-pub use symbol::{Symbol, create_session_if_not_set_then, sym, with_session_globals};
+pub use symbol::{SESSION_GLOBALS, Symbol, create_session_if_not_set_then, sym, with_session_globals};
 
 mod span;
 pub use span::Span;

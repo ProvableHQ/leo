@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected pattern
-    --> test:8:9
-     |
-   8 |     let constructor: u32 = 42u32;
-     |         ^^^^^^^^^^^
+[EPAR0370047] Error: expected pattern
+   ╭─[ test:8:9 ]
+   │
+ 8 │     let constructor: u32 = 42u32;
+───╯

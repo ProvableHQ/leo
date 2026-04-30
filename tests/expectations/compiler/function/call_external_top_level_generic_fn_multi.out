@@ -32,13 +32,13 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::add_const`
-    --> compiler-test:7:22
-     |
-   7 |         let a: u32 = child.aleo::add_const::[10u32](x);
-     |                      ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown function `child.aleo::add_const`
-    --> compiler-test:8:22
-     |
-   8 |         let b: u32 = child.aleo::add_const::[10u32](y);
-     |                      ^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::add_const`
+   ╭─[ compiler-test:7:22 ]
+   │
+ 7 │         let a: u32 = child.aleo::add_const::[10u32](x);
+───╯
+[ETYC0372005] Error: Unknown function `child.aleo::add_const`
+   ╭─[ compiler-test:8:22 ]
+   │
+ 8 │         let b: u32 = child.aleo::add_const::[10u32](y);
+───╯

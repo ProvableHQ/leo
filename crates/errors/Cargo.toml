@@ -22,6 +22,7 @@ edition = "2024"
 leo-span         = { workspace = true }
 # third party dependencies
 anyhow           = { workspace = true }
+ariadne          = { workspace = true }
 colored          = { workspace = true }
 derivative       = { workspace = true }
 itertools        = { workspace = true }

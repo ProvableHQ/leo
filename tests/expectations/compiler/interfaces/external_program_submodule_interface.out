@@ -3,10 +3,10 @@ Failed to parse string. Parsing Error: VerboseError { errors: [("", Nom(MapRes))
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ECHI03712000]: Interface `lib.aleo/contracts::Adder` not found.
-    --> compiler-test:6:24
-     |
-   6 | program consumer.aleo: lib.aleo::contracts::Adder {
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
+[ECHI03712000] Error: Interface `lib.aleo/contracts::Adder` not found.
+   ╭─[ compiler-test:6:26 ]
+   │
+ 6 │ program consumer.aleo: lib.aleo::contracts::Adder {
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯

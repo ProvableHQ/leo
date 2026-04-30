@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected ')', ',' -- found 'oops'
-    --> test:18:75
-     |
-  18 | @failing_annotation(some_key = "SomeString", another_key = "AnotherString"oops)
-     |                                                                           ^^^^
+[EPAR0370005] Error: expected ')', ',' -- found 'oops'
+    ╭─[ test:18:75 ]
+    │
+ 18 │ @failing_annotation(some_key = "SomeString", another_key = "AnotherString"oops)
+────╯

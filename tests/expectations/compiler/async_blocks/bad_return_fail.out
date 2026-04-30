@@ -1,10 +1,10 @@
-Error [ETYC0372153]: A `final` block cannot contain a `return` statement.
-    --> compiler-test:3:25
-     |
-   3 |         let f = final { return 0u32; };
-     |                         ^^^^^^^^^^^^
-Error [ETYC0372153]: A `final` block cannot contain a `return` statement.
-    --> compiler-test:8:25
-     |
-   8 |         let f = final { return; };
-     |                         ^^^^^^^
+[ETYC0372153] Error: A `final` block cannot contain a `return` statement.
+   ╭─[ compiler-test:3:25 ]
+   │
+ 3 │         let f = final { return 0u32; };
+───╯
+[ETYC0372153] Error: A `final` block cannot contain a `return` statement.
+   ╭─[ compiler-test:8:25 ]
+   │
+ 8 │         let f = final { return; };
+───╯

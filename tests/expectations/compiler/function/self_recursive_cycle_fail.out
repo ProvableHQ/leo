@@ -1,11 +1,11 @@
-Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:15:20
-     |
-  15 |             return foo(n - 1u8) + foo(n - 2u8);
-     |                    ^^^^^^^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:15:35
-     |
-  15 |             return foo(n - 1u8) + foo(n - 2u8);
-     |                                   ^^^^^^^^^^^^
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+    ╭─[ compiler-test:15:20 ]
+    │
+ 15 │             return foo(n - 1u8) + foo(n - 2u8);
+────╯
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+    ╭─[ compiler-test:15:35 ]
+    │
+ 15 │             return foo(n - 1u8) + foo(n - 2u8);
+────╯
 Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/foo` --> `test.aleo/foo`

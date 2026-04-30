@@ -1,10 +1,10 @@
-Error [ETYC0372005]: Unknown variable `x`
-    --> compiler-test:3:21
-     |
-   3 |         let b: u8 = x * z;
-     |                     ^
-Error [ETYC0372005]: Unknown variable `z`
-    --> compiler-test:3:25
-     |
-   3 |         let b: u8 = x * z;
-     |                         ^
+[ETYC0372005] Error: Unknown variable `x`
+   ╭─[ compiler-test:3:21 ]
+   │
+ 3 │         let b: u8 = x * z;
+───╯
+[ETYC0372005] Error: Unknown variable `z`
+   ╭─[ compiler-test:3:25 ]
+   │
+ 3 │         let b: u8 = x * z;
+───╯

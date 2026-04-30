@@ -94,9 +94,11 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !t1.eq_user(t2) => self.emit_err(TypeCheckerError::type_should_be(t1, t2, span)),
+            (Some(t1), Some(t2)) if !t1.eq_user(t2) => {
+                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span, vec![]))
+            }
             (Some(type_), None) | (None, Some(type_)) => {
-                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
+                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span, vec![]))
             }
             _ => {}
         }
@@ -121,7 +123,7 @@ impl TypeCheckingVisitor<'_> {
     pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
         if actual != &Type::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
-            self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span));
+            self.emit_err(TypeCheckerError::type_should_be2(actual, format!("type `{expected}`"), span, vec![]));
         }
     }
 
@@ -136,7 +138,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn assert_int_type(&self, type_: &Type, span: Span) {
         if !matches!(type_, Type::Err | Type::Integer(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "an integer", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an integer", span, vec![]));
         }
     }
 
@@ -150,7 +152,7 @@ impl TypeCheckingVisitor<'_> {
                 | Type::Integer(IntegerType::U64)
                 | Type::Integer(IntegerType::U128)
         ) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "an unsigned integer", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an unsigned integer", span, vec![]));
         }
     }
 
@@ -170,7 +172,7 @@ impl TypeCheckingVisitor<'_> {
                 | Type::Integer(IntegerType::I64)
                 | Type::Integer(IntegerType::I128)
         ) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a bool or integer", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a bool or integer", span, vec![]));
         }
     }
 
@@ -190,13 +192,13 @@ impl TypeCheckingVisitor<'_> {
                 | Type::Integer(IntegerType::I64)
                 | Type::Integer(IntegerType::I128)
         ) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a field or integer", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a field or integer", span, vec![]));
         }
     }
 
     pub fn assert_field_group_int_type(&self, type_: &Type, span: Span) {
         if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Integer(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a field, group, or integer", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a field, group, or integer", span, vec![]));
         }
     }
 
@@ -224,7 +226,7 @@ impl TypeCheckingVisitor<'_> {
             }
             None => {
                 // Not a core library struct.
-                self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span()));
+                self.emit_err(TypeCheckerError::invalid_intrinsic(intrinsic_expr.name, intrinsic_expr.span(), vec![]));
                 None
             }
             // Deserialize intrinsics require exactly one type parameter.
@@ -233,7 +235,11 @@ impl TypeCheckingVisitor<'_> {
                     DeserializeVariant::FromBits => "Deserialize::from_bits",
                     DeserializeVariant::FromBitsRaw => "Deserialize::from_bits_raw",
                 };
-                self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, intrinsic_expr.span()));
+                self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(
+                    name,
+                    intrinsic_expr.span(),
+                    vec![],
+                ));
                 None
             }
             intrinsic @ Some(Intrinsic::Deserialize(_, _)) => intrinsic,
@@ -250,6 +256,7 @@ impl TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::custom(
                         format!("The intrinsic `{}` cannot have type parameters.", intrinsic_expr.name),
                         intrinsic_expr.span(),
+                        vec![],
                     ));
                     return None;
                 };
@@ -275,6 +282,7 @@ impl TypeCheckingVisitor<'_> {
                 intrinsic.num_args(),
                 arguments.len(),
                 function_span,
+                vec![],
             ));
             return Type::Err;
         }
@@ -474,7 +482,12 @@ impl TypeCheckingVisitor<'_> {
 
         let assert_not_mapping_tuple_unit = |type_: &Type, span: Span| {
             if matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
-                self.emit_err(TypeCheckerError::type_should_be2(type_, "anything but a mapping, tuple, or unit", span));
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    type_,
+                    "anything but a mapping, tuple, or unit",
+                    span,
+                    vec![],
+                ));
             }
         };
 
@@ -497,6 +510,7 @@ impl TypeCheckingVisitor<'_> {
                     type_,
                     "an integer of less than 64 bits or a bool",
                     span,
+                    vec![],
                 ));
             }
         };
@@ -525,6 +539,7 @@ impl TypeCheckingVisitor<'_> {
                     type_,
                     "an integer of less than 128 bits or a bool",
                     span,
+                    vec![],
                 ));
             }
         };
@@ -590,6 +605,7 @@ impl TypeCheckingVisitor<'_> {
                                 input_type,
                                 "a type with a size in bits that is a multiple of 8",
                                 arguments[0].1.span(),
+                                vec![],
                             ));
                             return Type::Err;
                         }
@@ -617,6 +633,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         format!("a [u8; {signature_size}]"),
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -628,6 +645,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         format!("a [u8; {signature_size}]"),
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -667,6 +685,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[1].0,
                         format!("a [u8; {expected_length}]"),
                         arguments[1].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -678,6 +697,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[1].0,
                         format!("a [u8; {expected_length}]"),
                         arguments[1].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -688,6 +708,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "anything but a mapping, tuple, or unit",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                 }
 
@@ -701,6 +722,7 @@ impl TypeCheckingVisitor<'_> {
                             &arguments[2].0,
                             format!("a [u8; {expected_length}]"),
                             arguments[2].1.span(),
+                            vec![],
                         ));
                         return Type::Err;
                     };
@@ -712,6 +734,7 @@ impl TypeCheckingVisitor<'_> {
                             &arguments[2].0,
                             format!("a [u8; {expected_length}]"),
                             arguments[2].1.span(),
+                            vec![],
                         ));
                         return Type::Err;
                     }
@@ -746,6 +769,7 @@ impl TypeCheckingVisitor<'_> {
                                 input_type,
                                 "a type with a size in bits that is a multiple of 8",
                                 arguments[2].1.span(),
+                                vec![],
                             ));
                             return Type::Err;
                         }
@@ -764,6 +788,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         "a [u8; N]",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -772,6 +797,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         "a [u8; N]",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -786,6 +812,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [field; N]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -794,6 +821,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [field; N]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -805,6 +833,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -813,6 +842,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -830,6 +860,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -838,6 +869,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -847,6 +879,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -861,6 +894,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -869,6 +903,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -877,6 +912,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -886,6 +922,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -900,7 +937,7 @@ impl TypeCheckingVisitor<'_> {
                                 "The number of verifying keys ({num_vks}) must match the number of circuits in the inputs ({num_circuits})."
                             ),
                             arguments[0].1.span(),
-                        ));
+                        vec![]));
                     }
 
                     if num_circuits > MAX_SNARK_VERIFY_CIRCUITS {
@@ -908,6 +945,7 @@ impl TypeCheckingVisitor<'_> {
                             num_circuits,
                             MAX_SNARK_VERIFY_CIRCUITS,
                             arguments[2].1.span(),
+                            vec![],
                         ));
                     }
 
@@ -918,6 +956,7 @@ impl TypeCheckingVisitor<'_> {
                                 total_instances,
                                 MAX_SNARK_VERIFY_INSTANCES,
                                 arguments[2].1.span(),
+                                vec![],
                             ));
                         }
                     }
@@ -927,7 +966,7 @@ impl TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::custom(
                         "The outer dimensions of the `Snark::verify_batch` arguments must be statically known integer literals.",
                         arguments[0].1.span(),
-                    ));
+                    vec![]));
                 }
 
                 // arg3: [u8; N] — proof (1D byte array)
@@ -936,6 +975,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 };
@@ -945,6 +985,7 @@ impl TypeCheckingVisitor<'_> {
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -982,6 +1023,7 @@ impl TypeCheckingVisitor<'_> {
                         "set",
                         "mapping",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1024,6 +1066,7 @@ impl TypeCheckingVisitor<'_> {
                         "remove",
                         "mapping",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1098,6 +1141,7 @@ impl TypeCheckingVisitor<'_> {
                         "set",
                         "vector",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1126,6 +1170,7 @@ impl TypeCheckingVisitor<'_> {
                         "push",
                         "vector",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1162,6 +1207,7 @@ impl TypeCheckingVisitor<'_> {
                         "pop",
                         "vector",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1185,6 +1231,7 @@ impl TypeCheckingVisitor<'_> {
                         "swap_remove",
                         "vector",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1205,6 +1252,7 @@ impl TypeCheckingVisitor<'_> {
                         "clear",
                         "vector",
                         function_span,
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1252,6 +1300,7 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::custom(
                             "`Program::checksum` must be called on a program ID, e.g. `foo.aleo`",
                             span,
+                            vec![],
                         ));
                     }
                 }
@@ -1280,6 +1329,7 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::custom(
                             "`Program::edition` must be called on a program ID, e.g. `foo.aleo`",
                             span,
+                            vec![],
                         ));
                     }
                 }
@@ -1300,6 +1350,7 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::custom(
                             "`Program::program_owner` must be called on a program ID, e.g. `foo.aleo`",
                             span,
+                            vec![],
                         ));
                     }
                 }
@@ -1343,6 +1394,7 @@ impl TypeCheckingVisitor<'_> {
                         input_type,
                         "a literal type or an (multi-dimensional) array of literal types",
                         arguments[0].1.span(),
+                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -1366,12 +1418,13 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::custom(
                         format!("The input type to `Serialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span(),
-                    ));
+                    vec![]));
                         return Type::Err;
                     } else if size_in_bits == 0 {
                         self.emit_err(TypeCheckerError::custom(
                             "The input type to `Serialize::*` is empty.",
                             arguments[0].1.span(),
+                            vec![],
                         ));
                         return Type::Err;
                     } else {
@@ -1413,12 +1466,13 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(TypeCheckerError::custom(
                         format!("The output type of `Deserialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span(),
-                    ));
+                    vec![]));
                         return Type::Err;
                     } else if size_in_bits == 0 {
                         self.emit_err(TypeCheckerError::custom(
                             "The output type of `Deserialize::*` is empty.",
                             arguments[0].1.span(),
+                            vec![],
                         ));
                         return Type::Err;
                     } else {
@@ -1432,6 +1486,7 @@ impl TypeCheckingVisitor<'_> {
                             input_type,
                             format!("an array of {size_in_bits} bits"),
                             arguments[0].1.span(),
+                            vec![],
                         ));
                         return Type::Err;
                     }
@@ -1496,21 +1551,21 @@ impl TypeCheckingVisitor<'_> {
     pub fn validate_dynamic_call_scope(&mut self, span: Span) {
         match self.scope_state.variant.unwrap() {
             Variant::Finalize => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", span));
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a finalize function", span, vec![]));
             }
             Variant::FinalFn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", span));
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final function", span, vec![]));
             }
             Variant::Fn => {
-                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", span));
+                self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a regular function", span, vec![]));
             }
             Variant::EntryPoint => {}
         }
         if self.async_block_id.is_some() {
-            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", span));
+            self.emit_err(TypeCheckerError::dynamic_call_not_allowed_here("a final block", span, vec![]));
         }
         if self.scope_state.is_conditional {
-            self.emit_err(TypeCheckerError::dynamic_call_in_conditional(span));
+            self.emit_err(TypeCheckerError::dynamic_call_in_conditional(span, vec![]));
         }
     }
 
@@ -1521,7 +1576,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Minimum 3 arguments: program, network, function.
         if input.arguments.len() < 3 {
-            self.emit_err(TypeCheckerError::dynamic_call_min_args(input.arguments.len(), span));
+            self.emit_err(TypeCheckerError::dynamic_call_min_args(input.arguments.len(), span, vec![]));
             return Type::Err;
         }
 
@@ -1529,7 +1584,12 @@ impl TypeCheckingVisitor<'_> {
         for arg in input.arguments.iter().take(3) {
             let arg_type = self.visit_expression(arg, &None);
             if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
-                self.emit_err(TypeCheckerError::type_should_be2(&arg_type, "`field` or `identifier`", arg.span()));
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &arg_type,
+                    "`field` or `identifier`",
+                    arg.span(),
+                    vec![],
+                ));
             }
         }
 
@@ -1541,6 +1601,7 @@ impl TypeCheckingVisitor<'_> {
                 input.input_types.len(),
                 call_args,
                 span,
+                vec![],
             ));
         }
         for (i, arg) in input.arguments.iter().skip(3).enumerate() {
@@ -1551,7 +1612,7 @@ impl TypeCheckingVisitor<'_> {
         // Validate input and return types: reject constant visibility and undefined composite types.
         for (mode, ty, sp) in input.input_types.iter().chain(input.return_types.iter()) {
             if matches!(mode, Mode::Constant) {
-                self.emit_err(TypeCheckerError::dynamic_call_constant_not_allowed(*sp));
+                self.emit_err(TypeCheckerError::dynamic_call_constant_not_allowed(*sp, vec![]));
             }
             self.assert_type_is_valid(ty, *sp);
         }
@@ -1589,7 +1650,7 @@ impl TypeCheckingVisitor<'_> {
         if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
         {
-            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span));
+            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span, vec![]));
         }
 
         let (expected_args, needs_type_param, name) = match &intrinsic {
@@ -1606,17 +1667,18 @@ impl TypeCheckingVisitor<'_> {
                 expected_args,
                 input.arguments.len(),
                 span,
+                vec![],
             ));
             return Type::Err;
         }
 
         // Check type parameter count.
         if needs_type_param && input.type_parameters.len() != 1 {
-            self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, span));
+            self.emit_err(TypeCheckerError::dynamic_intrinsic_missing_type_param(name, span, vec![]));
             return Type::Err;
         }
         if !needs_type_param && !input.type_parameters.is_empty() {
-            self.emit_err(TypeCheckerError::custom(format!("`{name}` does not accept type parameters."), span));
+            self.emit_err(TypeCheckerError::custom(format!("`{name}` does not accept type parameters."), span, vec![]));
             return Type::Err;
         }
 
@@ -1624,7 +1686,12 @@ impl TypeCheckingVisitor<'_> {
         for arg in input.arguments.iter().take(3) {
             let arg_type = self.visit_expression(arg, &None);
             if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
-                self.emit_err(TypeCheckerError::type_should_be2(&arg_type, "`field` or `identifier`", arg.span()));
+                self.emit_err(TypeCheckerError::type_should_be2(
+                    &arg_type,
+                    "`field` or `identifier`",
+                    arg.span(),
+                    vec![],
+                ));
             }
         }
 
@@ -1667,6 +1734,7 @@ impl TypeCheckingVisitor<'_> {
                     parent,
                     composite.path.clone(),
                     span,
+                    vec![],
                 ))
             }
             Type::Tuple(tuple_type) => {
@@ -1683,15 +1751,15 @@ impl TypeCheckingVisitor<'_> {
         match type_ {
             // Unit types may only appear as the return type of a function.
             Type::Unit => {
-                self.emit_err(TypeCheckerError::unit_type_only_return(span));
+                self.emit_err(TypeCheckerError::unit_type_only_return(span, vec![]));
             }
             // String types are temporarily disabled.
             Type::String => {
-                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
+                self.emit_err(TypeCheckerError::strings_are_not_supported(span, vec![]));
             }
             // Check that named composite type has been defined.
             Type::Composite(composite) if self.lookup_composite(composite.path.expect_global_location()).is_none() => {
-                self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), span));
+                self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), span, vec![]));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -1710,27 +1778,32 @@ impl TypeCheckingVisitor<'_> {
 
                 if let Some(length) = array_type.length.as_u32() {
                     if length > self.limits.max_array_elements as u32 {
-                        self.emit_err(TypeCheckerError::array_too_large(length, self.limits.max_array_elements, span));
+                        self.emit_err(TypeCheckerError::array_too_large(
+                            length,
+                            self.limits.max_array_elements,
+                            span,
+                            vec![],
+                        ));
                     }
                 } else if let Expression::Literal(_) = &*array_type.length {
                     // Literal, but not valid u32 (e.g. too big or invalid format)
-                    self.emit_err(TypeCheckerError::array_too_large_for_u32(span));
+                    self.emit_err(TypeCheckerError::array_too_large_for_u32(span, vec![]));
                 }
                 // else: not a literal, so defer for later
 
                 // Check that the array element type is valid.
                 match array_type.element_type() {
                     // Array elements cannot be futures.
-                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_final(span)),
+                    Type::Future(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_final(span, vec![])),
                     // Array elements cannot be tuples.
-                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span, vec![])),
                     // Array elements cannot be records.
                     Type::Composite(composite_type) => {
                         // Look up the type.
                         if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                             // Check that the type is not a record.
                             if composite.is_record {
-                                self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
+                                self.emit_err(TypeCheckerError::array_element_cannot_be_record(span, vec![]));
                             }
                         }
                     }
@@ -1742,7 +1815,7 @@ impl TypeCheckingVisitor<'_> {
             Type::Optional(OptionalType { inner }) => {
                 // Some types cannot be wrapped in an optional
                 if self.disallowed_inside_optional(inner) {
-                    self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span));
+                    self.emit_err(TypeCheckerError::optional_wrapping_unsupported(inner, span, vec![]));
                 }
 
                 // Validate inner type normally
@@ -1751,7 +1824,7 @@ impl TypeCheckingVisitor<'_> {
 
             // Vector types can only be used in storage declarations.
             Type::Vector(_) => {
-                self.emit_err(TypeCheckerError::vector_type_only_in_storage(span));
+                self.emit_err(TypeCheckerError::vector_type_only_in_storage(span, vec![]));
             }
 
             Type::Address
@@ -1831,40 +1904,40 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the type or any of its inner types are invalid.
     pub fn assert_storage_type_is_valid(&mut self, type_: &Type, span: Span) {
         if type_.is_empty() {
-            self.emit_err(TypeCheckerError::invalid_storage_type("A zero sized type", span));
+            self.emit_err(TypeCheckerError::invalid_storage_type("A zero sized type", span, vec![]));
         }
         match type_ {
             // Prohibited top-level kinds
             Type::Unit => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("unit", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("unit", span, vec![]));
             }
             Type::String => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("string", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("string", span, vec![]));
             }
             Type::Identifier => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("identifier", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("identifier", span, vec![]));
             }
             Type::DynRecord => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("dyn record", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("dyn record", span, vec![]));
             }
             Type::Future(_) => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("future", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("future", span, vec![]));
             }
             Type::Optional(_) => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("optional", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("optional", span, vec![]));
             }
             Type::Mapping(_) => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("mapping", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("mapping", span, vec![]));
             }
             Type::Tuple(_) => {
-                self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span));
+                self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span, vec![]));
             }
 
             // Composites
             Type::Composite(composite_type) => {
                 if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if composite.is_record {
-                        self.emit_err(TypeCheckerError::invalid_storage_type("record", span));
+                        self.emit_err(TypeCheckerError::invalid_storage_type("record", span, vec![]));
                         return;
                     }
 
@@ -1873,7 +1946,7 @@ impl TypeCheckingVisitor<'_> {
                         self.assert_storage_type_is_valid(&field.type_, span);
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined composite", span));
+                    self.emit_err(TypeCheckerError::invalid_storage_type("undefined composite", span, vec![]));
                 }
             }
 
@@ -1882,14 +1955,16 @@ impl TypeCheckingVisitor<'_> {
                 if let Some(length) = array_type.length.as_u32()
                     && (length == 0 || length > self.limits.max_array_elements as u32)
                 {
-                    self.emit_err(TypeCheckerError::invalid_storage_type("array", span));
+                    self.emit_err(TypeCheckerError::invalid_storage_type("array", span, vec![]));
                 }
 
                 let element_ty = array_type.element_type();
                 match element_ty {
-                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
-                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
-                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span, vec![])),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span, vec![])),
+                    Type::Optional(_) => {
+                        self.emit_err(TypeCheckerError::invalid_storage_type("optional", span, vec![]))
+                    }
                     _ => {}
                 }
 
@@ -1910,9 +1985,11 @@ impl TypeCheckingVisitor<'_> {
             Type::Vector(vector_type) => {
                 let element_ty = vector_type.element_type();
                 match element_ty {
-                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span)),
-                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span)),
-                    Type::Optional(_) => self.emit_err(TypeCheckerError::invalid_storage_type("optional", span)),
+                    Type::Future(_) => self.emit_err(TypeCheckerError::invalid_storage_type("future", span, vec![])),
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_storage_type("tuple", span, vec![])),
+                    Type::Optional(_) => {
+                        self.emit_err(TypeCheckerError::invalid_storage_type("optional", span, vec![]))
+                    }
                     _ => {}
                 }
                 self.assert_storage_type_is_valid(element_ty, span);
@@ -1923,28 +2000,28 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the type is not a mapping.
     pub fn assert_mapping_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Mapping(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a mapping", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a mapping", span, vec![]));
         }
     }
 
     /// Emits an error if the type is not an optional.
     pub fn assert_optional_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Optional(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "an optional", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an optional", span, vec![]));
         }
     }
 
     /// Emits an error if the type is not a vector
     pub fn assert_vector_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector", span, vec![]));
         }
     }
 
     /// Emits an error if the type is not a vector or a mapping.
     pub fn assert_vector_or_mapping_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) && !matches!(type_, Type::Mapping(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector or a mapping", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "a vector or a mapping", span, vec![]));
         }
     }
 
@@ -1985,7 +2062,7 @@ impl TypeCheckingVisitor<'_> {
 
     pub fn assert_array_type(&self, type_: &Type, span: Span) {
         if type_ != &Type::Err && !matches!(type_, Type::Array(_)) {
-            self.emit_err(TypeCheckerError::type_should_be2(type_, "an array", span));
+            self.emit_err(TypeCheckerError::type_should_be2(type_, "an array", span, vec![]));
         }
     }
 
@@ -2049,16 +2126,19 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::cannot_have_const_generics(
                     "Functions annotated with `@no_inline`",
                     function.identifier.span(),
+                    vec![],
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
                 self.emit_err(TypeCheckerError::cannot_have_const_generics(
                     "Entry point functions",
                     function.identifier.span(),
+                    vec![],
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
                 self.emit_err(TypeCheckerError::cannot_have_const_generics(
                     "`final fn` functions",
                     function.identifier.span(),
+                    vec![],
                 ));
             }
         }
@@ -2067,13 +2147,13 @@ impl TypeCheckingVisitor<'_> {
         if matches!(self.scope_state.variant, Some(Variant::FinalFn))
             && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
         {
-            self.emit_err(TypeCheckerError::no_inline_not_allowed_on_final_fn(function.identifier.span()));
+            self.emit_err(TypeCheckerError::no_inline_not_allowed_on_final_fn(function.identifier.span(), vec![]));
         }
 
         if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
             // final functions are not allowed to return values.
             if !function.output.is_empty() {
-                self.emit_err(TypeCheckerError::final_fn_cannot_return_value(function.span()));
+                self.emit_err(TypeCheckerError::final_fn_cannot_return_value(function.span(), vec![]));
             }
         }
 
@@ -2085,7 +2165,11 @@ impl TypeCheckingVisitor<'_> {
                 const_param.type_(),
                 Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
             ) {
-                self.emit_err(TypeCheckerError::bad_const_generic_type(const_param.type_(), const_param.span()));
+                self.emit_err(TypeCheckerError::bad_const_generic_type(
+                    const_param.type_(),
+                    const_param.span(),
+                    vec![],
+                ));
             }
 
             // Set the type of the input in the symbol table.
@@ -2105,6 +2189,7 @@ impl TypeCheckingVisitor<'_> {
                 self.limits.max_inputs,
                 function.input.len(),
                 function.identifier.span,
+                vec![],
             ));
         }
 
@@ -2120,7 +2205,7 @@ impl TypeCheckingVisitor<'_> {
 
             // Check that the type of the input parameter is not a tuple.
             if matches!(table_type, Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span()))
+                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input.span(), vec![]))
             }
 
             // Check that the type of the input parameter does not contain an optional.
@@ -2129,6 +2214,7 @@ impl TypeCheckingVisitor<'_> {
                     input.identifier,
                     table_type,
                     input.span(),
+                    vec![],
                 ))
             }
 
@@ -2138,10 +2224,13 @@ impl TypeCheckingVisitor<'_> {
                 if !function.variant.is_entry() {
                     if let Some(elem) = self.lookup_composite(composite.path.expect_global_location()) {
                         if elem.is_record {
-                            self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input.span()))
+                            self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
+                                input.span(),
+                                vec![],
+                            ))
                         }
                     } else {
-                        self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), input.span()));
+                        self.emit_err(TypeCheckerError::undefined_type(composite.path.clone(), input.span(), vec![]));
                     }
                 }
             }
@@ -2150,15 +2239,15 @@ impl TypeCheckingVisitor<'_> {
             match self.scope_state.variant.unwrap() {
                 // If the function is an entry point, then check that the parameter mode is not a constant.
                 Variant::EntryPoint if input.mode() == Mode::Constant => {
-                    self.emit_err(TypeCheckerError::entry_point_fn_inputs_cannot_be_const(input.span()))
+                    self.emit_err(TypeCheckerError::entry_point_fn_inputs_cannot_be_const(input.span(), vec![]))
                 }
                 // If the function is a standard function, then check that the parameters do not have an associated mode.
                 Variant::Fn if input.mode() != Mode::None => {
-                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span()))
+                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input.span(), vec![]))
                 }
                 // If the function is run onchain, then check that the input parameter is not constant or private.
                 Variant::Finalize | Variant::FinalFn if matches!(input.mode(), Mode::Constant | Mode::Private) => {
-                    self.emit_err(TypeCheckerError::final_fn_input_must_be_public(input.span()));
+                    self.emit_err(TypeCheckerError::final_fn_input_must_be_public(input.span(), vec![]));
                 }
                 _ => {} // Do nothing.
             }
@@ -2167,7 +2256,7 @@ impl TypeCheckingVisitor<'_> {
                 // Future parameters may only appear in onchain functions.
                 // TODO: we may want to relax this
                 if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
-                    self.emit_err(TypeCheckerError::no_final_parameters(input.span()));
+                    self.emit_err(TypeCheckerError::no_final_parameters(input.span(), vec![]));
                 }
             }
 
@@ -2188,6 +2277,7 @@ impl TypeCheckingVisitor<'_> {
                 self.limits.max_outputs,
                 function.output.len(),
                 function.identifier.span,
+                vec![],
             ));
         }
 
@@ -2203,7 +2293,7 @@ impl TypeCheckingVisitor<'_> {
                 && val.is_record
                 && !function.variant.is_entry()
             {
-                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
+                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span, vec![]));
             }
 
             // Check that the output type is valid.
@@ -2211,7 +2301,7 @@ impl TypeCheckingVisitor<'_> {
 
             // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
             if matches!(&function_output.type_, Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+                self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span, vec![]))
             }
 
             // Check that the type of the input parameter does not contain an optional.
@@ -2219,13 +2309,14 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::function_cannot_return_option_as_output(
                     &function_output.type_,
                     function_output.span(),
+                    vec![],
                 ))
             }
 
             // Check that the mode of the output is valid.
             // For functions, only public and private outputs are allowed
             if function_output.mode == Mode::Constant {
-                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span, vec![]));
             }
             // Async transitions must return exactly one future, and it must be in the last position.
             if function.has_final_output()
@@ -2233,13 +2324,13 @@ impl TypeCheckingVisitor<'_> {
                 && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
                     || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
             {
-                self.emit_err(TypeCheckerError::entry_point_fn_final_invalid_output(function_output.span));
+                self.emit_err(TypeCheckerError::entry_point_fn_final_invalid_output(function_output.span, vec![]));
             }
             // If the function is not an async transition, then it cannot have a future as output.
             if !matches!(self.scope_state.variant, Some(Variant::EntryPoint))
                 && matches!(function_output.type_, Type::Future(_))
             {
-                self.emit_err(TypeCheckerError::only_entry_point_can_return_final(function_output.span));
+                self.emit_err(TypeCheckerError::only_entry_point_can_return_final(function_output.span, vec![]));
             }
         });
 
@@ -2335,18 +2426,18 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, span: Span) {
         // Case 1: Operation is not a finalize op, and we're inside an `async` function.
         if self.scope_state.variant.is_some_and(|v| v.is_onchain()) && !finalize_op {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span));
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span, vec![]));
         }
         // Case 2: Operation is not a finalize op, and we're inside an `async` block.
         else if self.async_block_id.is_some() && !finalize_op {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_final_block(name, span));
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_inside_final_block(name, span, vec![]));
         }
         // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
         else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
             && finalize_op
         {
-            self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span));
+            self.state.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span, vec![]));
         }
     }
 
@@ -2364,14 +2455,14 @@ impl TypeCheckingVisitor<'_> {
     pub fn parse_integer_literal<I: FromStrRadix>(&self, raw_string: &str, span: Span, type_string: &str) {
         let string = raw_string.replace('_', "");
         if I::from_str_by_radix(&string).is_err() {
-            self.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
+            self.state.handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span, vec![]));
         }
     }
 
     // Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
     // Also update `type_table` accordingly
     pub fn emit_inference_failure_error(&self, ty: &mut Type, expr: &Expression) {
-        self.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span()));
+        self.emit_err(TypeCheckerError::could_not_determine_type(expr.clone(), expr.span(), vec![]));
         *ty = Type::Err;
         self.state.type_table.insert(expr.id(), Type::Err);
     }
@@ -2406,7 +2497,7 @@ impl TypeCheckingVisitor<'_> {
                 Type::Group => {
                     if has_nondecimal_prefix(s) {
                         // This is not checked in the parser for unsuffixed numerals. So do that here.
-                        self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                        self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span, vec![]));
                         return false;
                     } else {
                         let trimmed = s.trim_start_matches('-').trim_start_matches('0');
@@ -2415,14 +2506,14 @@ impl TypeCheckingVisitor<'_> {
                                 .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
                                 .is_err()
                         {
-                            self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span));
+                            self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span, vec![]));
                             return false;
                         }
                     }
                 }
                 // This is not checked in the parser for unsuffixed numerals. So do that here.
                 Type::Field | Type::Scalar if has_nondecimal_prefix(s) => {
-                    self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span));
+                    self.emit_err(TypeCheckerError::hexbin_literal_nonintegers(span, vec![]));
                     return false;
                 }
                 _ => {
@@ -2438,7 +2529,7 @@ impl TypeCheckingVisitor<'_> {
         if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
             && self.async_block_id.is_none()
         {
-            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span));
+            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(span, vec![]));
         }
     }
 
@@ -2450,6 +2541,7 @@ impl TypeCheckingVisitor<'_> {
                 &target_type,
                 "`field` or `identifier`",
                 input.target_program.span(),
+                vec![],
             ));
         }
         if let Some(ref network) = input.network {
@@ -2483,21 +2575,21 @@ impl TypeCheckingVisitor<'_> {
 
             let return_type = if op_name == sym::get {
                 if arguments.len() != 1 {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span, vec![]));
                     return Type::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
                 value_type
             } else if op_name == sym::contains {
                 if arguments.len() != 1 {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span, vec![]));
                     return Type::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
                 Type::Boolean
             } else if op_name == sym::get_or_use {
                 if arguments.len() != 2 {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(2, arguments.len(), span));
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(2, arguments.len(), span, vec![]));
                     return Type::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
@@ -2507,6 +2599,7 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::custom(
                     format!("Unknown mapping operation `{op_name}`. Expected `get`, `get_or_use`, or `contains`."),
                     op.span,
+                    vec![],
                 ));
                 return Type::Err;
             };
@@ -2520,14 +2613,14 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::custom(
                     format!("`{member}` is a singleton storage variable; read it as `Interface@(target)::{member}` without `.` or arguments."),
                     span,
-                ));
+                vec![]));
                 return Type::Err;
             };
             let element_type = (*vector_ty.element_type).clone();
 
             let return_type = if op_name == sym::get {
                 if arguments.len() != 1 {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span));
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(1, arguments.len(), span, vec![]));
                     return Type::Err;
                 }
                 self.visit_expression(&arguments[0], &Some(Type::Integer(IntegerType::U32)));
@@ -2535,7 +2628,7 @@ impl TypeCheckingVisitor<'_> {
                 Type::Optional(OptionalType { inner: Box::new(element_type) })
             } else if op_name == sym::len {
                 if !arguments.is_empty() {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(0, arguments.len(), span));
+                    self.emit_err(TypeCheckerError::incorrect_num_args_to_call(0, arguments.len(), span, vec![]));
                     return Type::Err;
                 }
                 // Vector `.len()` on external storage yields `u32`.
@@ -2544,6 +2637,7 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(TypeCheckerError::custom(
                     format!("Unknown vector operation `{op_name}`. Expected `get` or `len`."),
                     op.span,
+                    vec![],
                 ));
                 return Type::Err;
             };
@@ -2555,6 +2649,7 @@ impl TypeCheckingVisitor<'_> {
             "mapping or storage variable",
             format!("{}::{}", input.interface, member),
             member.span,
+            vec![],
         ));
         Type::Err
     }
@@ -2583,12 +2678,13 @@ impl TypeCheckingVisitor<'_> {
                         input.interface
                     ),
                     span,
-                ));
+                vec![]));
             } else {
                 self.emit_err(TypeCheckerError::unknown_sym(
                     "storage variable",
                     format!("{}::{}", input.interface, storage),
                     storage.span,
+                    vec![],
                 ));
             }
             return Type::Err;
@@ -2602,6 +2698,7 @@ impl TypeCheckingVisitor<'_> {
                     storage, input.interface, storage
                 ),
                 span,
+                vec![],
             ));
             return Type::Err;
         }
@@ -2628,6 +2725,7 @@ impl TypeCheckingVisitor<'_> {
                 "function",
                 format!("{}::{}", input.interface, function),
                 function.span,
+                vec![],
             ));
             return Type::Err;
         };
@@ -2643,6 +2741,7 @@ impl TypeCheckingVisitor<'_> {
                 func_proto.input.len(),
                 arguments.len(),
                 input.span(),
+                vec![],
             ));
         }
 
@@ -2656,6 +2755,7 @@ impl TypeCheckingVisitor<'_> {
                     self.emit_err(TypeCheckerError::dynamic_call_record_arg_requires_dyn_record(
                         &proto_type,
                         argument.span(),
+                        vec![],
                     ));
                 }
             } else {

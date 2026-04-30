@@ -1,20 +1,20 @@
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:8:16
-     |
-   8 |         return Snark::verify(vk, v, inputs, proof);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Snark::verify` must be inside a `final fn` or a `final` block.
-    --> compiler-test:8:16
-     |
-   8 |         return Snark::verify(vk, v, inputs, proof);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:17:16
-     |
-  17 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Snark::verify_batch` must be inside a `final fn` or a `final` block.
-    --> compiler-test:17:16
-     |
-  17 |         return Snark::verify_batch(vks, v, batch_inputs, proof);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return Snark::verify(vk, v, inputs, proof);
+───╯
+[ETYC0372034] Error: `Snark::verify` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return Snark::verify(vk, v, inputs, proof);
+───╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         return Snark::verify_batch(vks, v, batch_inputs, proof);
+────╯
+[ETYC0372034] Error: `Snark::verify_batch` must be inside a `final fn` or a `final` block.
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         return Snark::verify_batch(vks, v, batch_inputs, proof);
+────╯

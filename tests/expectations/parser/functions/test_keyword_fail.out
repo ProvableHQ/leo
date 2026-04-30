@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:2:1
-     |
-   2 | test main() {}
-     | ^^^^
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+   ╭─[ test:2:1 ]
+   │
+ 2 │ test main() {}
+───╯

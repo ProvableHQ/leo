@@ -165,6 +165,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                             &integer_with_suffix[..suffix_index],
                             len,
                             span,
+                            vec![],
                         ));
                     }
                 } else if let Some(array_value) = array_opt {
@@ -226,7 +227,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     // No errors, but we were unable to evaluate.
                     {}
                 Err(err) => {
-                    self.emit_err(StaticAnalyzerError::compile_intrinsic(err, input.span()));
+                    self.emit_err(StaticAnalyzerError::compile_intrinsic(err, input.span(), vec![]));
                 }
             }
         }
@@ -334,8 +335,14 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self
-                    .emit_err(StaticAnalyzerError::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span)),
+                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
+                    lhs_value,
+                    rhs_value,
+                    input.op,
+                    err,
+                    span,
+                    vec![],
+                )),
             }
         }
 
@@ -371,7 +378,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 let expr = self.value_to_expression(&cast_value, span, id).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
-                self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span));
+                self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span, vec![]));
             }
         }
         (CastExpression { expression: expr, ..input }.into(), None)
@@ -473,7 +480,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span)),
+                Err(err) => {
+                    self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span, vec![]))
+                }
             }
         }
         (UnaryExpression { receiver, ..input }.into(), None)

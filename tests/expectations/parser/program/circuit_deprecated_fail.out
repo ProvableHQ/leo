@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found 'circuit'
-    --> test:2:5
-     |
-   2 |     circuit Foo {
-     |     ^^^^^^^
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found 'circuit'
+   ╭─[ test:2:5 ]
+   │
+ 2 │     circuit Foo {
+───╯

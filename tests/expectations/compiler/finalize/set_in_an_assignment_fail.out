@@ -1,7 +1,14 @@
-Error [EAST0372017]: The name `result` is defined multiple times.
-    --> compiler-test:11:9
-     |
-  10 |       let result: () = Mapping::set(amounts, addr, amount);
-     |           ^^^^^^ previous definition of `result` here
-  11 |       let result: u128 = Mapping::set(amounts, addr, amount);
-     |           ^^^^^^ `result` redefined here
+[EAST0372017] Error: The name `result` is defined multiple times.
+    ╭─[ compiler-test:11:9 ]
+    │
+ 11 │     let result: u128 = Mapping::set(amounts, addr, amount);
+    │
+    ├─[ compiler-test:11:9 ]
+    │
+ 10 │     let result: () = Mapping::set(amounts, addr, amount);
+    │         ───┬──  
+    │            ╰──── previous definition of `result` here
+ 11 │     let result: u128 = Mapping::set(amounts, addr, amount);
+    │         ───┬──  
+    │            ╰──── `result` redefined here
+────╯

@@ -1,79 +1,43 @@
-Error [ECHI03712004]: Function `transfer` does not match the signature required by interface `lib.aleo/HasToken`.
+[ECHI03712004] Error: Function `transfer` does not match the signature required by interface `lib.aleo/HasToken`.
 Expected:
 fn transfer(t: lib.aleo::Token) -> lib.aleo::Token
 Found:
 fn transfer(t: other.aleo::Token) -> other.aleo::Token
-    --> compiler-test:6:5
-     |
-   6 |     fn transfer(t: other.aleo::Token) -> other.aleo::Token {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   7 |         return t;
-     |         ^^^^^^^^^
-   8 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
-Error [ECHI03712003]: Program `test.aleo` implements interface `lib.aleo/HasToken` but is missing the required record `Token`.
-    --> compiler-test:5:1
-     |
-   5 | program test.aleo: lib.aleo::HasToken {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   6 |     fn transfer(t: other.aleo::Token) -> other.aleo::Token {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   7 |         return t;
-     |         ^^^^^^^^^
-   8 |     }
-     |     ^
-   9 | 
-  10 |     fn main() {}
-     |     ^^^^^^^^^^^^
-  11 | }
-     | ^
-     |
-     = Add a record definition with the specified name.
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:8:1
-     |
-   8 | 
-   9 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  10 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  11 |         ..
-     |         ^^
-  12 |     }
-     |     ^
+   ╭─[ compiler-test:6:5 ]
+   │
+   │ 
+   │ 
+   │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+───╯
+[ECHI03712003] Error: Program `test.aleo` implements interface `lib.aleo/HasToken` but is missing the required record `Token`.
+    ╭─[ compiler-test:5:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add a record definition with the specified name.
+────╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ compiler-test:7:21 ]
+    │
+    │ 
+────╯
 
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:4:9
-     |
-   4 | program other.aleo {
-     |         ^^^^^^^^^^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:8:1
-     |
-   8 | 
-   9 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  10 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  11 |         ..
-     |         ^^
-  12 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:8:1
-     |
-   8 | 
-   9 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  10 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  11 |         ..
-     |         ^^
-  12 |     }
-     |     ^
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:4:9 ]
+   │
+ 4 │ program other.aleo {
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ compiler-test:7:21 ]
+    │
+    │ 
+────╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ compiler-test:7:21 ]
+    │
+    │ 
+────╯

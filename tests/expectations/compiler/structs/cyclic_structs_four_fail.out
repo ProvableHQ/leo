@@ -1,35 +1,35 @@
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:8:14
-     |
-   8 |     baz: [Baz, 2],
-     |              ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:12:14
-     |
-  12 |     bar: [Bar, 3],
-     |              ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:16:14
-     |
-  16 |     two: [Two, 2],
-     |              ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:20:18
-     |
-  20 |     three: [Three, 3],
-     |                  ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:21:16
-     |
-  21 |     four: [Four, 4],
-     |                ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:25:14
-     |
-  25 |     one: [One, 1],
-     |              ^
-Error [EPAR0370047]: expected ';' for array type, found ','
-    --> compiler-test:29:14
-     |
-  29 |     one: [One, 1],
-     |              ^
+[EPAR0370047] Error: expected ';' for array type, found ','
+   ╭─[ compiler-test:8:14 ]
+   │
+ 8 │     baz: [Baz, 2],
+───╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:12:14 ]
+    │
+ 12 │     bar: [Bar, 3],
+────╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:16:14 ]
+    │
+ 16 │     two: [Two, 2],
+────╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:20:18 ]
+    │
+ 20 │     three: [Three, 3],
+────╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:21:16 ]
+    │
+ 21 │     four: [Four, 4],
+────╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:25:14 ]
+    │
+ 25 │     one: [One, 1],
+────╯
+[EPAR0370047] Error: expected ';' for array type, found ','
+    ╭─[ compiler-test:29:14 ]
+    │
+ 29 │     one: [One, 1],
+────╯

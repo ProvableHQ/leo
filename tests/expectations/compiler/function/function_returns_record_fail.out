@@ -1,15 +1,15 @@
-Error [ETYC0372057]: Only entry point fns can have a record as input or output.
-    --> compiler-test:1:8
-     |
-   1 | fn foo(board: Board, data: u8) -> Board {
-     |        ^^^^^^^^^^^^
-Error [ETYC0372057]: Only entry point fns can have a record as input or output.
-    --> compiler-test:1:35
-     |
-   1 | fn foo(board: Board, data: u8) -> Board {
-     |                                   ^^^^^
-Error [ETYC0372057]: Only entry point fns can have a record as input or output.
-    --> compiler-test:5:8
-     |
-   5 | fn bar(board: Board) {
-     |        ^^^^^^^^^^^^
+[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+   ╭─[ compiler-test:1:8 ]
+   │
+ 1 │ fn foo(board: Board, data: u8) -> Board {
+───╯
+[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+   ╭─[ compiler-test:1:35 ]
+   │
+ 1 │ fn foo(board: Board, data: u8) -> Board {
+───╯
+[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+   ╭─[ compiler-test:5:8 ]
+   │
+ 5 │ fn bar(board: Board) {
+───╯
