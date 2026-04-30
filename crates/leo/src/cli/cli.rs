@@ -534,13 +534,355 @@ mod tests {
         // by the OS, so we ignore errors here rather than failing an otherwise-passing test.
         let _ = std::fs::remove_dir_all(&lib_directory);
     }
+
+    #[test]
+    #[serial]
+    fn workspace_build_from_root_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "build_root");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("workspace build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_build_single_member_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "build_single");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.join("token")),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("single member build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("swap/build/main.aleo").exists(), "swap should NOT be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_package_flag_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "pkg_flag");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: Some("token".to_string()),
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("--package build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("swap/build/main.aleo").exists(), "swap should NOT be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_package_flag_not_found_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "pkg_not_found");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: Default::default(),
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: Some("nonexistent".to_string()),
+        };
+
+        create_session_if_not_set_then(|_| {
+            let result = run_with_args(build);
+            assert!(result.is_err(), "--package with unknown member should error");
+        });
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_clean_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "clean");
+
+        // Build first.
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("build should succeed");
+        });
+
+        assert!(ws_root.join("token/build").exists(), "token build dir should exist");
+        assert!(ws_root.join("swap/build").exists(), "swap build dir should exist");
+
+        // Clean.
+        let clean = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Clean { command: crate::cli::commands::LeoClean {} },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(clean).expect("workspace clean should succeed");
+        });
+
+        assert!(!ws_root.join("token/build").exists(), "token build dir should be cleaned");
+        assert!(!ws_root.join("swap/build").exists(), "swap build dir should be cleaned");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_backward_compat_test() {
+        let temp_dir = temp_dir();
+        let pkg_name = "standalone_pkg";
+        let pkg_dir = temp_dir.join(pkg_name);
+
+        if pkg_dir.exists() {
+            std::fs::remove_dir_all(&pkg_dir).unwrap();
+        }
+
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("leo new should succeed");
+        });
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("standalone build should succeed");
+        });
+
+        assert!(pkg_dir.join("build/main.aleo").exists(), "build artifact should exist");
+
+        let _ = std::fs::remove_dir_all(&pkg_dir);
+    }
 }
 
 #[cfg(test)]
 mod test_helpers {
     use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
-    use std::path::Path;
+    use std::path::{Path, PathBuf};
+
+    /// Create a workspace with two members: `token` (no deps) and `swap` (depends on token).
+    ///
+    /// Returns the workspace root directory. Each caller should pass a unique
+    /// `name` to avoid temp-directory collisions under parallel test runners.
+    pub(crate) fn sample_workspace(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let token_dir = ws_root.join("token");
+        let swap_dir = ws_root.join("swap");
+
+        // Create token package.
+        std::fs::create_dir_all(token_dir.join("src")).unwrap();
+        std::fs::write(
+            token_dir.join("src/main.leo"),
+            "\
+program token.aleo {
+    fn mint(owner: address, amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            token_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "token.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create swap package (depends on token via local path).
+        std::fs::create_dir_all(swap_dir.join("src")).unwrap();
+        std::fs::write(
+            swap_dir.join("src/main.leo"),
+            "\
+import token.aleo;
+program swap.aleo {
+    fn do_swap(owner: address, amount: u32) -> u32 {
+        return token.aleo::mint(owner, amount);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            swap_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "swap.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": [{
+                    "name": "token.aleo",
+                    "location": "local",
+                    "path": "../token",
+                    "edition": null
+                }],
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";

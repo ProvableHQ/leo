@@ -67,13 +67,13 @@ fn clean_package(context: Context) -> Result<()> {
     // Removes the outputs/ directory.
     let outputs_path = path.join(leo_package::OUTPUTS_DIRECTORY);
     if std::fs::remove_dir_all(&outputs_path).is_ok() {
-        tracing::info!("Cleaned the outputs directory {}", outputs_path.display().to_string().dimmed());
+        tracing::info!("🧹 Cleaned the outputs directory {}", outputs_path.display().to_string().dimmed());
     }
 
     // Removes the build/ directory.
     let build_path = path.join(leo_package::BUILD_DIRECTORY);
     if std::fs::remove_dir_all(&build_path).is_ok() {
-        tracing::info!("Cleaned the build directory {}", build_path.display().to_string().dimmed());
+        tracing::info!("🧹 Cleaned the build directory {}", build_path.display().to_string().dimmed());
     }
 
     Ok(())
