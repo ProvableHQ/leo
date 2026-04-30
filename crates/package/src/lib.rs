@@ -88,6 +88,9 @@ pub use package::*;
 mod compilation_unit;
 pub use compilation_unit::*;
 
+mod workspace;
+pub use workspace::*;
+
 pub const SOURCE_DIRECTORY: &str = "src";
 
 pub const MAIN_FILENAME: &str = "main.leo";

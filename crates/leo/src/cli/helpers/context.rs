@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use aleo_std;
-use leo_errors::{CliError, Result};
-use leo_package::Manifest;
+use leo_errors::{CliError, PackageError, Result};
+use leo_package::{Manifest, Workspace};
 
 use aleo_std::aleo_dir;
 use std::{env::current_dir, path::PathBuf};
@@ -33,11 +33,18 @@ pub struct Context {
     /// Recursive flag.
     // TODO: Shift from callee to caller by including display method
     pub recursive: bool,
+    /// If set, target this specific workspace member.
+    pub package_filter: Option<String>,
 }
 
 impl Context {
-    pub fn new(path: Option<PathBuf>, home: Option<PathBuf>, recursive: bool) -> Result<Context> {
-        Ok(Context { path, home, recursive })
+    pub fn new(
+        path: Option<PathBuf>,
+        home: Option<PathBuf>,
+        recursive: bool,
+        package_filter: Option<String>,
+    ) -> Result<Context> {
+        Ok(Context { path, home, recursive, package_filter })
     }
 
     /// Returns the path of the parent directory to the Leo package.
@@ -74,5 +81,52 @@ impl Context {
         let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
         let manifest = Manifest::read_from_file(manifest_path)?;
         Ok(manifest)
+    }
+
+    /// Returns the ordered list of member directories to operate on, respecting
+    /// `--package` filtering and workspace discovery.
+    ///
+    /// - At workspace root without `--package`: all members in dependency order.
+    /// - At workspace root with `--package`: just that member.
+    /// - Inside a member directory: just that member.
+    /// - No workspace found: `None` (caller falls through to single-package behavior).
+    pub fn resolve_targets(&self) -> Result<Option<Vec<PathBuf>>> {
+        let dir = self.dir()?;
+
+        let workspace = match Workspace::discover(&dir)? {
+            Some(ws) => ws,
+            None => {
+                if self.package_filter.is_some() {
+                    return Err(PackageError::workspace_no_workspace().into());
+                }
+                return Ok(None);
+            }
+        };
+
+        if let Some(ref filter) = self.package_filter {
+            match workspace.find_member(filter) {
+                Some(path) => Ok(Some(vec![path.clone()])),
+                None => {
+                    Err(PackageError::workspace_package_not_found(filter, workspace.root_directory.display()).into())
+                }
+            }
+        } else {
+            let canonical = dir.canonicalize().unwrap_or_else(|_| dir.clone());
+            if canonical == workspace.root_directory {
+                // At workspace root - operate on all members.
+                Ok(Some(workspace.member_paths))
+            } else if workspace.is_member(&canonical) {
+                // Inside a member - operate on just this member.
+                Ok(Some(vec![canonical]))
+            } else {
+                // Inside the workspace tree but not in a member directory.
+                Ok(None)
+            }
+        }
+    }
+
+    /// Create a new `Context` pointing at a specific directory.
+    pub fn with_path(&self, path: PathBuf) -> Self {
+        Context { path: Some(path), home: self.home.clone(), recursive: self.recursive, package_filter: None }
     }
 }

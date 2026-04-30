@@ -478,4 +478,40 @@ create_messages!(
         ),
         help: Some("Remove either the program entry file or the library entry file.".to_string()),
     }
+
+    /// For when a workspace member directory is missing or lacks a manifest.
+    @backtraced
+    workspace_member_not_found {
+        args: (member: impl Display, workspace_root: impl Display),
+        msg: format!(
+            "Workspace member '{member}' not found. Expected a Leo package at '{workspace_root}/{member}'."
+        ),
+        help: Some("Ensure the member directory exists and contains a `program.json` manifest.".to_string()),
+    }
+
+    /// For when --package names a member not listed in workspace.json.
+    @backtraced
+    workspace_package_not_found {
+        args: (name: impl Display, workspace_root: impl Display),
+        msg: format!(
+            "No workspace member named '{name}' found in workspace at '{workspace_root}'."
+        ),
+        help: Some("Check the `members` list in `workspace.json`.".to_string()),
+    }
+
+    /// For when --package is used outside a workspace.
+    @backtraced
+    workspace_no_workspace {
+        args: (),
+        msg: "The `--package` flag requires a workspace, but no `workspace.json` was found.".to_string(),
+        help: Some("Create a `workspace.json` in the project root, or run the command from within a Leo package.".to_string()),
+    }
+
+    /// For when workspace.json cannot be read or parsed.
+    @backtraced
+    workspace_manifest_error {
+        args: (path: impl Display, error: impl Display),
+        msg: format!("Failed to read workspace manifest at '{path}': {error}"),
+        help: None,
+    }
 );

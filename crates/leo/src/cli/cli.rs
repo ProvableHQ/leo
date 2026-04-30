@@ -44,6 +44,9 @@ pub struct CLI {
 
     #[clap(long, global = true, help = "Path to aleo program registry")]
     pub home: Option<PathBuf>,
+
+    #[clap(short = 'p', long = "package", global = true, help = "Target a specific workspace member by name")]
+    pub package: Option<String>,
 }
 
 ///Leo compiler and package manager
@@ -228,7 +231,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path.clone(), cli.home, false));
+    let context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
 
     let command_name = cli.command.name();
     let mut command_output: Option<JsonOutput> = None;
@@ -342,6 +345,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: Some(temp_dir.join(".aleo")),
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -390,6 +394,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -433,6 +438,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -473,6 +479,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -503,6 +510,7 @@ mod tests {
             },
             path: Some(lib_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -552,6 +560,7 @@ mod test_helpers {
             command: Commands::New { command: LeoNew { name: name.to_string(), library: false } },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -628,6 +637,7 @@ function external_nested_function:
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -669,6 +679,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "grandparent".to_string(), library: false } },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_parent_project = CLI {
@@ -679,6 +690,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false } },
             path: Some(parent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_child_project = CLI {
@@ -689,6 +701,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "child".to_string(), library: false } },
             path: Some(child_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `grandparent/src/main.leo`, `grandparent/parent/src/main.leo`, and `grandparent/parent/child/src/main.leo`
@@ -748,6 +761,7 @@ program child.aleo {
             },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_grandparent_dependency_2 = CLI {
@@ -765,6 +779,7 @@ program child.aleo {
             },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_parent_dependency = CLI {
@@ -782,6 +797,7 @@ program child.aleo {
             },
             path: Some(parent_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands
@@ -821,6 +837,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_1_project = CLI {
@@ -831,6 +848,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_2_project = CLI {
@@ -841,6 +859,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
@@ -923,6 +942,7 @@ program inner_2.aleo {
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -940,6 +960,7 @@ program inner_2.aleo {
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands
@@ -978,6 +999,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "outer_2".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_1_project = CLI {
@@ -988,6 +1010,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_2_project = CLI {
@@ -998,6 +1021,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `outer_2/src/main.leo` and `outer_2/inner/src/main.leo`
@@ -1114,6 +1138,7 @@ program inner_2.aleo {
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -1131,6 +1156,7 @@ program inner_2.aleo {
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands

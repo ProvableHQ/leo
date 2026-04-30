@@ -46,7 +46,7 @@ pub fn get_public_balance<N: Network>(
             },
         },
     }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    .execute(Context::new(context.path.clone(), context.home.clone(), true, None)?)?;
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Make sure the balance is valid.
@@ -81,7 +81,7 @@ pub fn get_latest_block_height(
             },
         },
     }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true)?)?;
+    .execute(Context::new(context.path.clone(), context.home.clone(), true, None)?)?;
     // Parse the height.
     let height = height.parse::<u32>().map_err(CliError::string_parse_error)?;
     Ok(height)
