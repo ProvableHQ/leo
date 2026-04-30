@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Backtraced, INDENT};
+use crate::{Backtrace, Backtraced, INDENT};
 
 use leo_span::{Span, source_map::LineContents, with_session_globals};
 
-use backtrace::Backtrace;
-use color_backtrace::{BacktracePrinter, Verbosity};
 use colored::Colorize;
 use itertools::Itertools;
 use std::fmt;
+
+#[cfg(not(target_arch = "wasm32"))]
+use color_backtrace::{BacktracePrinter, Verbosity};
 
 /// Represents available colors for error labels.
 #[derive(Default, Clone, Debug, Hash, PartialEq, Eq)]
@@ -399,23 +400,26 @@ impl fmt::Display for Formatted {
             )?;
         }
 
-        let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
-        match leo_backtrace.as_ref() {
-            "1" => {
-                let mut printer = BacktracePrinter::default();
-                printer = printer.verbosity(Verbosity::Medium);
-                printer = printer.lib_verbosity(Verbosity::Medium);
-                let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
-                write!(f, "\n{trace}")?;
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
+            match leo_backtrace.as_ref() {
+                "1" => {
+                    let mut printer = BacktracePrinter::default();
+                    printer = printer.verbosity(Verbosity::Medium);
+                    printer = printer.lib_verbosity(Verbosity::Medium);
+                    let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
+                    write!(f, "\n{trace}")?;
+                }
+                "full" => {
+                    let mut printer = BacktracePrinter::default();
+                    printer = printer.verbosity(Verbosity::Full);
+                    printer = printer.lib_verbosity(Verbosity::Full);
+                    let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
+                    write!(f, "\n{trace}")?;
+                }
+                _ => {}
             }
-            "full" => {
-                let mut printer = BacktracePrinter::default();
-                printer = printer.verbosity(Verbosity::Full);
-                printer = printer.lib_verbosity(Verbosity::Full);
-                let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
-                write!(f, "\n{trace}")?;
-            }
-            _ => {}
         }
 
         Ok(())

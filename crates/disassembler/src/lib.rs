@@ -14,7 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AleoProgram, Composite, FunctionStub, Identifier, Mapping, ProgramId};
+#[cfg(target_arch = "wasm32")]
+extern crate self as snarkvm;
+
+// Preserve this crate's existing `snarkvm::...` imports on WASM without pulling
+// in the full native-oriented `snarkvm` dependency graph.
+#[cfg(target_arch = "wasm32")]
+mod snarkvm_wasm;
+#[cfg(target_arch = "wasm32")]
+#[doc(hidden)]
+pub use snarkvm_wasm::{prelude, synthesizer};
+
+use leo_ast::{AleoProgram, Composite, FunctionStub, Identifier, Mapping, NetworkName, ProgramId};
 use leo_errors::UtilError;
 use leo_span::Symbol;
 
@@ -86,6 +97,19 @@ pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) 
     match Program::<N>::from_str(program) {
         Ok(p) => Ok(disassemble(p)),
         Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
+    }
+}
+
+/// Disassembles Aleo bytecode using the snarkVM network selected by `network`.
+pub fn disassemble_from_str_for_network(
+    name: impl fmt::Display,
+    program: &str,
+    network: NetworkName,
+) -> Result<AleoProgram, UtilError> {
+    match network {
+        NetworkName::MainnetV0 => disassemble_from_str::<snarkvm::prelude::MainnetV0>(name, program),
+        NetworkName::TestnetV0 => disassemble_from_str::<snarkvm::prelude::TestnetV0>(name, program),
+        NetworkName::CanaryV0 => disassemble_from_str::<snarkvm::prelude::CanaryV0>(name, program),
     }
 }
 

@@ -22,6 +22,17 @@
 
 #![allow(ambiguous_glob_reexports)]
 
+#[cfg(target_arch = "wasm32")]
+extern crate self as snarkvm;
+
+// Preserve this crate's existing `snarkvm::...` imports on WASM without pulling
+// in the full native-oriented `snarkvm` dependency graph.
+#[cfg(target_arch = "wasm32")]
+mod snarkvm_wasm;
+#[cfg(target_arch = "wasm32")]
+#[doc(hidden)]
+pub use snarkvm_wasm::{console, prelude, synthesizer};
+
 mod composite;
 pub use self::composite::*;
 

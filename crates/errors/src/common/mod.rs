@@ -14,6 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#[cfg(not(target_arch = "wasm32"))]
+pub use backtrace::Backtrace;
+
+#[cfg(target_arch = "wasm32")]
+#[derive(Clone, Debug, Default)]
+pub struct Backtrace;
+
+#[cfg(target_arch = "wasm32")]
+impl Backtrace {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 /// This module contains a backtraced error and its methods.
 pub mod backtraced;
 pub use self::backtraced::*;

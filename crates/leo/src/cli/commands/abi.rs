@@ -19,8 +19,6 @@ use super::*;
 use leo_ast::NetworkName;
 use leo_errors::CliError;
 
-use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
-
 use std::path::PathBuf;
 
 /// Generate ABI from an Aleo bytecode file.
@@ -75,16 +73,9 @@ impl Command for LeoAbi {
         // Get the file name for error messages.
         let file_name = self.file.file_name().and_then(|s| s.to_str()).unwrap_or("unknown");
 
-        // Disassemble and generate ABI based on network type.
-        let aleo_program = match self.network {
-            NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(file_name, &content),
-            NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(file_name, &content),
-            NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(file_name, &content),
-        }
-        .map_err(|e| CliError::failed_to_parse_aleo_file(file_name, e))?;
-
-        // Generate ABI from the disassembled program.
-        let abi = leo_abi::aleo::generate(&aleo_program);
+        // Disassemble the Aleo bytecode and generate its ABI.
+        let abi = leo_abi::aleo::generate_from_bytecode(file_name, &content, self.network)
+            .map_err(|e| CliError::failed_to_parse_aleo_file(file_name, e))?;
 
         // Serialize to JSON.
         let json = serde_json::to_string_pretty(&abi).map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;

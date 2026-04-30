@@ -1,0 +1,24 @@
+[package]
+name = "leo-aleo-abi-wasm"
+version = "4.0.2"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "WASM bindings for ABI generation from Aleo bytecode"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [ "aleo", "leo", "wasm" ]
+categories = [ "compilers", "cryptography", "wasm" ]
+include = [ "Cargo.toml", "src", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+leo-abi = { workspace = true, features = [ "aleo-bytecode" ] }
+leo-ast = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"

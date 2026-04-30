@@ -31,6 +31,33 @@ use leo_span::Symbol;
 
 use std::collections::HashSet;
 
+#[cfg(feature = "aleo-bytecode")]
+use leo_span::create_session_if_not_set_then;
+#[cfg(feature = "aleo-bytecode")]
+use std::fmt;
+
+/// Error returned when generating ABI data from Aleo bytecode fails.
+#[cfg(feature = "aleo-bytecode")]
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct BytecodeAbiError(String);
+
+#[cfg(feature = "aleo-bytecode")]
+impl BytecodeAbiError {
+    fn new(error: impl ToString) -> Self {
+        Self(error.to_string())
+    }
+}
+
+#[cfg(feature = "aleo-bytecode")]
+impl fmt::Display for BytecodeAbiError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+#[cfg(feature = "aleo-bytecode")]
+impl std::error::Error for BytecodeAbiError {}
+
 /// Generates ABI from an Aleo program (pre-compiled bytecode dependency).
 ///
 /// Unlike Leo programs, Aleo programs do not have modules, so type paths in the
@@ -71,6 +98,20 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
     prune_non_interface_types(&mut program);
 
     program
+}
+
+/// Generates ABI from Aleo bytecode for the requested network.
+#[cfg(feature = "aleo-bytecode")]
+pub fn generate_from_bytecode(
+    name: impl fmt::Display,
+    bytecode: &str,
+    network: ast::NetworkName,
+) -> Result<abi::Program, BytecodeAbiError> {
+    create_session_if_not_set_then(|_| {
+        let aleo = leo_disassembler::disassemble_from_str_for_network(name, bytecode, network)
+            .map_err(BytecodeAbiError::new)?;
+        Ok(generate(&aleo))
+    })
 }
 
 /// Converts a function stub to an ABI function.
@@ -125,5 +166,25 @@ fn convert_function_output(ty: &ast::Type, record_names: &HashSet<Symbol>) -> ab
             abi::FunctionOutput::Plaintext(convert_plaintext(ty))
         }
         _ => abi::FunctionOutput::Plaintext(convert_plaintext(ty)),
+    }
+}
+
+#[cfg(all(test, feature = "aleo-bytecode"))]
+mod tests {
+    use super::*;
+
+    use serde_json::Value;
+
+    const SIMPLE_ALEO: &str = include_str!("../../../tests/tests/cli/test_abi_from_aleo/contents/simple.aleo");
+    const SIMPLE_ABI: &str =
+        include_str!("../../../tests/expectations/cli/test_abi_from_aleo/contents/simple.abi.json");
+
+    #[test]
+    fn generate_from_bytecode_matches_existing_cli_fixture() {
+        let abi = generate_from_bytecode("simple.aleo", SIMPLE_ALEO, ast::NetworkName::TestnetV0)
+            .expect("expected ABI generation to succeed");
+        let abi = serde_json::to_value(&abi).expect("expected generated ABI to serialize");
+        let expected: Value = serde_json::from_str(SIMPLE_ABI).expect("expected fixture ABI JSON to parse");
+        assert_eq!(abi, expected);
     }
 }

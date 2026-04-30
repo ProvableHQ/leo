@@ -17,14 +17,27 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2024"
 
+[features]
+default = [ ]
+aleo-bytecode = [
+  "dep:leo-disassembler",
+]
+
 [dependencies.leo-abi-types]
 workspace = true
 
 [dependencies.leo-ast]
 workspace = true
 
+[dependencies.leo-disassembler]
+workspace = true
+optional = true
+
 [dependencies.leo-span]
 workspace = true
 
 [dependencies.indexmap]
+workspace = true
+
+[dev-dependencies.serde_json]
 workspace = true

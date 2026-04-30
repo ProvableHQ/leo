@@ -1,0 +1,38 @@
+name: WASM
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+      - crates/abi/**
+      - crates/ast/**
+      - crates/disassembler/**
+      - crates/errors/**
+      - crates/leo-aleo-abi-wasm/**
+      - crates/span/**
+      - .github/workflows/wasm.yml
+
+permissions:
+  contents: read
+
+jobs:
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install wasm target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Install clippy
+        run: rustup component add clippy
+      - name: Test leo-aleo-abi-wasm
+        run: cargo test -p leo-aleo-abi-wasm --locked
+      - name: Check leo-aleo-abi-wasm for wasm32
+        run: cargo check -p leo-aleo-abi-wasm --target wasm32-unknown-unknown --locked
+      - name: Clippy leo-aleo-abi-wasm for wasm32
+        run: cargo clippy -p leo-aleo-abi-wasm --target wasm32-unknown-unknown --locked -- -D warnings

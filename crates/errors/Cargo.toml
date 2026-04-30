@@ -22,10 +22,12 @@ edition = "2024"
 leo-span         = { workspace = true }
 # third party dependencies
 anyhow           = { workspace = true }
-backtrace        = { workspace = true }
 colored          = { workspace = true }
-color-backtrace  = { workspace = true }
 derivative       = { workspace = true }
 itertools        = { workspace = true }
 serde            = { workspace = true }
 thiserror        = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+backtrace        = { workspace = true }
+color-backtrace  = { workspace = true }

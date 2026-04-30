@@ -49,7 +49,7 @@ only_testnet = [ ]
 
 [dependencies]
 # leo dependencies
-leo-abi           = { workspace = true }
+leo-abi           = { workspace = true, features = [ "aleo-bytecode" ] }
 leo-ast           = { workspace = true }
 leo-compiler      = { workspace = true }
 leo-disassembler  = { workspace = true }

@@ -171,6 +171,12 @@ pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Resu
 /// Pre-validates a CLI input literal to reject malformed numeric literals
 /// that snarkvm would silently coerce to zero (e.g. `truefield`, `""field`).
 fn validate_cli_literal(input: &str) -> Result<()> {
+    // Skip pre-validation for Aleo bech32 values; they are validated downstream.
+    const ALEO_BECH32_PREFIXES: &[&str] = &["aleo1", "sign1", "APrivateKey1", "AViewKey1"];
+    if ALEO_BECH32_PREFIXES.iter().any(|prefix| input.starts_with(prefix)) {
+        return Ok(());
+    }
+
     // Suffixes ordered longest-first to avoid ambiguous matches (e.g. u128 before u8).
     const UNSIGNED_SUFFIXES: &[&str] = &["u128", "u64", "u32", "u16", "u8"];
     const SIGNED_SUFFIXES: &[&str] = &["i128", "i64", "i32", "i16", "i8"];
@@ -277,6 +283,23 @@ mod tests {
             "true",
             "false",
             "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
+            // Addresses whose bech32 tail collides with a Leo numeric type suffix
+            // (regression coverage for issue #29372).
+            "aleo1vnx8f43f7yjvs2ehlqsl78j2qh4409s8e4g7gx40u3v884gqgqxqscutu8",
+            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
+            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu64",
+            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqscalar",
+            // Signatures: same bech32 alphabet collisions as addresses.
+            "sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj",
+            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu8",
+            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
+            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu64",
+            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqscalar",
+            // Private keys and view keys: not valid program inputs, but skipping
+            // pre-validation lets snarkvm produce the correct parse error.
+            "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH",
+            "APrivateKey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu8",
+            "AViewKey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
         ];
         for input in &valid {
             assert!(validate_cli_literal(input).is_ok(), "expected '{input}' to be valid");
@@ -299,6 +322,45 @@ mod tests {
         ];
         for input in &invalid {
             assert!(validate_cli_literal(input).is_err(), "expected '{input}' to be invalid");
+        }
+    }
+
+    // Smoke test for `parse_input` across the value types accepted as Leo program inputs.
+    #[test]
+    fn test_parse_input_value_types() {
+        use snarkvm::prelude::TestnetV0;
+        let private_key =
+            PrivateKey::<TestnetV0>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH").unwrap();
+        let inputs = [
+            // Integers across signed and unsigned widths.
+            "42u8",
+            "0u8",
+            "255u8",
+            "-7i32",
+            "-128i8",
+            "100u64",
+            "1_000_000u128",
+            // Field and scalar.
+            "1_000_000field",
+            "-7field",
+            "0scalar",
+            // Booleans.
+            "true",
+            "false",
+            // Addresses (regular tail, and bech32 tails matching numeric suffixes).
+            "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
+            "aleo1vnx8f43f7yjvs2ehlqsl78j2qh4409s8e4g7gx40u3v884gqgqxqscutu8",
+            // Signature.
+            "sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq",
+            // Composite plaintexts.
+            "[1u8, 2u8, 3u8]",
+            "{a: 1u8, b: 2u8}",
+            "{nested: {x: 1field, y: 2field}, count: 3u32}",
+            // Whitespace is trimmed.
+            "  42u8  ",
+        ];
+        for input in &inputs {
+            assert!(parse_input::<TestnetV0>(input, &private_key).is_ok(), "expected '{input}' to parse");
         }
     }
 }
