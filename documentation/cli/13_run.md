@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # `leo run`
 
-You can run an entry function by using the `leo run` command. This will simply run the specified entry function with the provided inputs and show what the produced output will be. It will NOT generate the zero-knowledge proof of execution or the transaction, and nothing will be run onchain. For that, please see the [`leo execute`](08_execute.md) command.
+You can run an entry function by using the `leo run` command. This will simply run the specified entry function with the provided inputs and show what the produced output will be. It will NOT generate the zero-knowledge proof of execution or the transaction, and nothing will be run onchain. For that, please see the [`leo execute`](09_execute.md) command.
 
 To run a Leo entry function with inputs from the command line, run the following command:
 

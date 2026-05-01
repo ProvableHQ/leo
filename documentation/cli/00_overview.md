@@ -25,24 +25,25 @@ You can print the list of commands by running `leo --help`
 - [`debug`](./05_debug.md) - Run the interactive debugger in the current package.
 - [`deploy`](./06_deploy.md) - Deploy a program to the Aleo network.
 - [`devnet`](./07_devnet.md) - Initialize a local devnet.
-- [`execute`](./08_execute.md) - Execute a program and produce a transaction containing a proof.
-- [`new`](./09_new.md) - Create a new Leo project in a new directory.
-- [`query`](./10_query.md) - Query live data and state from the Aleo network.
-  - [`block`](./10_query.md#leo-query-block) - Query block information.
-  - [`transaction`](./10_query.md#leo-query-transaction) - Query transaction information.
-  - [`program`](./10_query.md#leo-query-program) - Query program source code and live mapping values.
-  - [`stateroot`](./10_query.md#leo-query-stateroot) - Query the latest stateroot.
-  - [`committee`](./10_query.md#leo-query-committee) - Query the current committee.
-  - [`mempool`](./10_query.md#leo-query-mempool) - Query transactions and transmissions from the memory pool.
-  - [`peers`](./10_query.md#leo-query-peers) - Query peer information.
-- [`remove`](./11_remove.md) - Remove a dependency from the current project.
-- [`run`](./12_run.md) - Run a program without producing a proof.
-- [`test`](./13_test.md) - Run the test cases for a Leo project.
-- [`update`](./14_update.md) - Update to the latest version of Leo.
-- [`upgrade`](./15_upgrade.md) - Upgrade a deployed program on the Aleo network.
-- [`synthesize`](./16_synthesize.md) - Generate proving and verifying keys for a program.
-- [`fmt`](./17_fmt.md) - Format Leo source files. *(plugin)*
-- [`plugins`](./18_plugins.md) - List installed CLI plugins.
+- [`devnode`](./08_devnode.md) - Run a local lightweight devnode.
+- [`execute`](./09_execute.md) - Execute a program and produce a transaction containing a proof.
+- [`new`](./10_new.md) - Create a new Leo project in a new directory.
+- [`query`](./11_query.md) - Query live data and state from the Aleo network.
+  - [`block`](./11_query.md#leo-query-block) - Query block information.
+  - [`transaction`](./11_query.md#leo-query-transaction) - Query transaction information.
+  - [`program`](./11_query.md#leo-query-program) - Query program source code and live mapping values.
+  - [`stateroot`](./11_query.md#leo-query-stateroot) - Query the latest stateroot.
+  - [`committee`](./11_query.md#leo-query-committee) - Query the current committee.
+  - [`mempool`](./11_query.md#leo-query-mempool) - Query transactions and transmissions from the memory pool.
+  - [`peers`](./11_query.md#leo-query-peers) - Query peer information.
+- [`remove`](./12_remove.md) - Remove a dependency from the current project.
+- [`run`](./13_run.md) - Run a program without producing a proof.
+- [`test`](./14_test.md) - Run the test cases for a Leo project.
+- [`update`](./15_update.md) - Update to the latest version of Leo.
+- [`upgrade`](./16_upgrade.md) - Upgrade a deployed program on the Aleo network.
+- [`synthesize`](./17_synthesize.md) - Generate proving and verifying keys for a program.
+- [`fmt`](./18_fmt.md) - Format Leo source files. *(plugin)*
+- [`plugins`](./19_plugins.md) - List installed CLI plugins.
 
 ## Universal Flags
 

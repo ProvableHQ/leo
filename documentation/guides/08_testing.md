@@ -118,7 +118,7 @@ or
 leo test addition
 ```
 
-See the [`leo test` CLI documentation](./../cli/13_test.md).
+See the [`leo test` CLI documentation](./../cli/14_test.md).
 
 ## Running a Devnet
 
