@@ -24,6 +24,8 @@ Checking latest released version... v3.1.0
 Leo is already on the latest version
 ```
 
+`leo update` also updates bundled plugins (such as `leo-fmt`) on a best-effort basis.
+
 If you'd like to install a specific version of Leo, you can do so by passing the `--name` flag:
 
 ```bash

@@ -41,7 +41,8 @@ You can print the list of commands by running `leo --help`
 - [`update`](./14_update.md) - Update to the latest version of Leo.
 - [`upgrade`](./15_upgrade.md) - Upgrade a deployed program on the Aleo network.
 - [`synthesize`](./16_synthesize.md) - Generate proving and verifying keys for a program.
-- [`fmt`](./17_fmt.md) - Format Leo source files.
+- [`fmt`](./17_fmt.md) - Format Leo source files. *(plugin)*
+- [`plugins`](./18_plugins.md) - List installed CLI plugins.
 
 ## Universal Flags
 

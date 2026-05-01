@@ -452,7 +452,7 @@ jobs:
 
   build-doc-code-snippets:
     docker:
-      - image: cimg/rust:1.94.1
+      - image: cimg/rust:1.95.0
     resource_class: large
     steps:
       - attach_workspace:

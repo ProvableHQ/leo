@@ -30,10 +30,10 @@ The easiest way to install Cargo is to install the latest stable release of [Rus
 ## Install Leo
 
 ```bash
-cargo install leo-lang
+cargo install leo-lang leo-fmt
 ```
 
-This will generate the executable at `~/.cargo/bin/leo`.
+This will install the `leo` and `leo-fmt` executables at `~/.cargo/bin/`.
 </TabItem>
 <TabItem value="prebuilt">
 
@@ -42,14 +42,18 @@ This will generate the executable at `~/.cargo/bin/leo`.
 1. **[Download Leo for Apple Silicon (MacOS)](https://github.com/ProvableHQ/leo/releases/latest/download/leo.zip)**
 2. Extract the `.zip` file
 3. Open a terminal and navigate to the extracted directory.
-4. Run `chmod +x leo` to make the file executable
-5. Move `leo` to `/usr/local/bin` to use it system wide.
+4. Run `chmod +x leo leo-fmt` to make the files executable
+5. Move both binaries to `/usr/local/bin` to use them system wide.
 
    ```bash
-   mv leo /usr/local/bin
+   mv leo leo-fmt /usr/local/bin
    ```
 
 6. Run `leo --version` to confirm installation
+
+:::note
+Release archives now include plugin binaries (such as `leo-fmt`) alongside `leo`. Distribution details are subject to change - see [Leo #29355](https://github.com/ProvableHQ/leo/pull/29355).
+:::
 
 ## Other Platforms
 
@@ -80,11 +84,13 @@ git --version
 # Download the source code
 git clone https://github.com/ProvableHQ/leo
 cd leo
-# Build and install
+# Build and install Leo
 cargo install --path .
+# Build and install the formatter plugin
+cargo install --path crates/fmt
 ```
 
-This will generate the executable at `~/.cargo/bin/leo`.
+This will install the `leo` and `leo-fmt` executables at `~/.cargo/bin/`.
 
 ### To use Leo, run
 
