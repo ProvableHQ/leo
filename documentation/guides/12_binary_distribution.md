@@ -6,8 +6,6 @@ sidebar_label: Binary Distribution
 
 [general tags]: # "guides, packaging, distribution, releases, binaries"
 
-# Binary Distribution Reference
-
 This page documents Leo's release artifact structure and packaging guidelines. It is intended for community packagers, downstream distributors, and advanced users who want to understand how Leo binaries are published.
 
 For installation instructions, see [Getting Started - Installation](../getting_started/01_installation.md).
@@ -26,13 +24,13 @@ The release model, artifact naming convention, and `cargo binstall` metadata des
 
 GitHub Releases are published at:
 
-```
+```text
 https://github.com/ProvableHQ/leo/releases/tag/{crate-name}-v{version}
 ```
 
 Each release contains one ZIP artifact per supported target, named:
 
-```
+```text
 {crate-name}-v{version}-{target}.zip
 ```
 
@@ -46,23 +44,23 @@ For example, `leo-lang-v4.0.1` produces:
 
 ## Supported Targets
 
-| Target Triple | OS | Architecture | Notes |
-|---|---|---|---|
-| `x86_64-unknown-linux-gnu` | Linux | x86_64 | Dynamically linked against glibc |
-| `x86_64-unknown-linux-musl` | Linux | x86_64 | Statically linked (Alpine, scratch containers, etc.) |
-| `x86_64-apple-darwin` | macOS | Intel | |
-| `aarch64-apple-darwin` | macOS | Apple Silicon | |
-| `x86_64-pc-windows-msvc` | Windows | x86_64 | |
+| Target Triple                | OS      | Architecture   | Notes                                                |
+| ---------------------------- | ------- | -------------- | ---------------------------------------------------- |
+| `x86_64-unknown-linux-gnu`   | Linux   | x86_64         | Dynamically linked against glibc                     |
+| `x86_64-unknown-linux-musl`  | Linux   | x86_64         | Statically linked (Alpine, scratch containers, etc.) |
+| `x86_64-apple-darwin`        | macOS   | Intel          |                                                      |
+| `aarch64-apple-darwin`       | macOS   | Apple Silicon  |                                                      |
+| `x86_64-pc-windows-msvc`     | Windows | x86_64         |                                                      |
 
 ## Archive Contents
 
 Each ZIP contains all binaries produced by the crate. Current crates and their binaries:
 
-| Crate | Binary | Description |
-|---|---|---|
-| `leo-lang` | `leo` | The Leo compiler and CLI |
-| `leo-fmt` | `leo-fmt` | Leo source code formatter |
-| `leo-lsp` | `leo-lsp` | Language server for editor integration |
+| Crate      | Binary    | Description                            |
+| ---------- | --------- | -------------------------------------- |
+| `leo-lang` | `leo`     | The Leo compiler and CLI               |
+| `leo-fmt`  | `leo-fmt` | Leo source code formatter              |
+| `leo-lsp`  | `leo-lsp` | Language server for editor integration |
 
 Future plugin crates will follow the same pattern.
 

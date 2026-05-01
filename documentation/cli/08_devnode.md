@@ -38,15 +38,15 @@ Press `Ctrl+C` to stop the devnode. If started with `--storage`, the ledger stat
 leo devnode start [OPTIONS]
 ```
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--private-key` | | | Private key (required, or set via `PRIVATE_KEY` environment variable) |
-| `--verbosity` | `-v` | `2` | Log verbosity level (`0`–`2`) |
-| `--socket-addr` | `-a` | `127.0.0.1:3030` | Address and port for the REST API |
-| `--genesis-path` | `-g` | (built-in) | Path to a custom genesis block file |
-| `--manual-block-creation` | `-m` | `false` | Disable automatic block creation after broadcast |
-| `--storage` | `-s` | (in-memory) | Directory for persistent ledger storage. If `-s` is given without a path, defaults to `./devnode/` |
-| `--clear-storage` | `-c` | `false` | Clear the ledger directory before starting. Requires `--storage` |
+| Flag                      | Short | Default          | Description                                                                                          |
+| ------------------------- | ----- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| `--private-key`           |       |                  | Private key (required, or set via `PRIVATE_KEY` environment variable)                                |
+| `--verbosity`             | `-v`  | `2`              | Log verbosity level (`0`–`2`)                                                                        |
+| `--socket-addr`           | `-a`  | `127.0.0.1:3030` | Address and port for the REST API                                                                    |
+| `--genesis-path`          | `-g`  | (built-in)       | Path to a custom genesis block file                                                                  |
+| `--manual-block-creation` | `-m`  | `false`          | Disable automatic block creation after broadcast                                                     |
+| `--storage`               | `-s`  | (in-memory)      | Directory for persistent ledger storage. If `-s` is given without a path, defaults to `./devnode/`   |
+| `--clear-storage`         | `-c`  | `false`          | Clear the ledger directory before starting. Requires `--storage`                                     |
 
 ### **Examples**
 
@@ -76,10 +76,10 @@ Manually advances the ledger by creating new blocks. Useful when running with `-
 leo devnode advance [NUM_BLOCKS] [OPTIONS]
 ```
 
-| Argument / Flag | Default | Description |
-|-----------------|---------|-------------|
-| `NUM_BLOCKS` | `1` | Number of blocks to create |
-| `--socket-addr` | `127.0.0.1:3030` | Address of the running devnode |
+| Argument / Flag | Default          | Description                     |
+| --------------- | ---------------- | ------------------------------- |
+| `NUM_BLOCKS`    | `1`              | Number of blocks to create      |
+| `--socket-addr` | `127.0.0.1:3030` | Address of the running devnode  |
 
 ### **Examples**
 
