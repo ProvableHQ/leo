@@ -375,7 +375,7 @@ This contains only the result of Player 1's previous fire coordinate they had se
 
 If you check Player 2's ships configuration, you'll note their entire bottom row is covered by two ships, so sample valid hits on the bottom row would be: 1u64, 2u64, 4u64, 8u64, 16u64, 32u64, 64u64, and 128u64. Since Player 1's first fire coordinate (1u64) was a hit, the `hits_and_misses` field is also 1u64.
 
-Player 1's next move will consume this `move.record`, which will update Player 1's board with the hit-or-miss, as well as figure out the result of Player 2's fire coordinate. Now that Player 1 has some `played_tiles`, they can no longer choose an alread-played fire coordinate. For example, running `aleo run play 'board_state.record' 'move.record' 1u64` will fail, because 1u64 has already been played.
+Player 1's next move will consume this `move.record`, which will update Player 1's board with the hit-or-miss, as well as figure out the result of Player 2's fire coordinate. Now that Player 1 has some `played_tiles`, they can no longer choose an already-played fire coordinate. For example, running `aleo run play 'board_state.record' 'move.record' 1u64` will fail, because 1u64 has already been played.
 
 ## 8: Player 1 Takes The 3rd Turn
 
@@ -830,7 +830,7 @@ We can make the observation that the original bitstring is always shifted by a p
 
 To ensure that the remaining number is a power of 2, we can use a bit trick. See the bit trick for ensuring a bitstring is a power of 2 section.
 
-In the code, you'll notice one extra step. Dividing a ship placement bitstring by a ship bitstring representation could result in 0, and then subtracting by 1 will result in an underflow. In that case, we know the ship placement is not valid, so we can set a number which is gauranteed to not be a power of 2.
+In the code, you'll notice one extra step. Dividing a ship placement bitstring by a ship bitstring representation could result in 0, and then subtracting by 1 will result in an underflow. In that case, we know the ship placement is not valid, so we can set a number which is guaranteed to not be a power of 2.
 
 ### Splitting a row or column
 
