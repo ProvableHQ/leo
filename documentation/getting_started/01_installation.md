@@ -18,6 +18,7 @@ If you'd like to try Leo without installing it locally on your machine, check ou
 <Tabs defaultValue="cargo"
 values={[
 { label: 'Cargo', value: 'cargo' },
+{ label: 'cargo binstall', value: 'binstall' },
 { label: 'Pre-Built Binaries', value: 'prebuilt' },
 { label: 'Build from Source', value: 'source' },
 ]}>
@@ -35,29 +36,75 @@ cargo install leo-lang leo-fmt
 
 This will install the `leo` and `leo-fmt` executables at `~/.cargo/bin/`.
 </TabItem>
-<TabItem value="prebuilt">
+<TabItem value="binstall">
 
-## MacOS (Apple Silicon)
+## Install `cargo-binstall`
 
-1. **[Download Leo for Apple Silicon (MacOS)](https://github.com/ProvableHQ/leo/releases/latest/download/leo.zip)**
-2. Extract the `.zip` file
-3. Open a terminal and navigate to the extracted directory.
-4. Run `chmod +x leo leo-fmt` to make the files executable
-5. Move both binaries to `/usr/local/bin` to use them system wide.
+[`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall) downloads pre-compiled binaries instead of building from source, cutting install time from minutes to seconds.
 
-   ```bash
-   mv leo leo-fmt /usr/local/bin
-   ```
+```bash
+cargo install cargo-binstall
+```
 
-6. Run `leo --version` to confirm installation
+## Install Leo
+
+```bash
+cargo binstall leo-lang leo-fmt
+```
+
+To install a specific version:
+
+```bash
+cargo binstall leo-lang@4.0.1 leo-fmt@1.0.0
+```
 
 :::note
-Release archives now include plugin binaries (such as `leo-fmt`) alongside `leo`. Distribution details are subject to change - see [Leo #29355](https://github.com/ProvableHQ/leo/pull/29355).
+`cargo binstall` metadata is only present for versions after 4.0.2. For earlier versions, use `cargo install` instead.
 :::
 
-## Other Platforms
+:::tip
+If no pre-built binary is available for your platform, `cargo binstall` falls back to building from source automatically.
+:::
 
-- **[Browse all Leo releases](https://github.com/ProvableHQ/leo/releases)**
+</TabItem>
+<TabItem value="prebuilt">
+
+## Download Pre-Built Binaries
+
+Pre-built binaries are available for every release from [GitHub Releases](https://github.com/ProvableHQ/leo/releases).
+
+Each release publishes a ZIP archive per platform:
+
+| Platform | Target |
+|---|---|
+| Linux (x86_64, glibc) | `x86_64-unknown-linux-gnu` |
+| Linux (x86_64, musl) | `x86_64-unknown-linux-musl` |
+| macOS (Intel) | `x86_64-apple-darwin` |
+| macOS (Apple Silicon) | `aarch64-apple-darwin` |
+| Windows (x86_64) | `x86_64-pc-windows-msvc` |
+
+Archives are named `leo-lang-v{version}-{target}.zip` (e.g. `leo-lang-v4.0.1-aarch64-apple-darwin.zip`).
+
+## Install
+
+1. Download the ZIP for your platform from the [latest release](https://github.com/ProvableHQ/leo/releases).
+2. Extract the archive.
+3. On macOS/Linux, make the binaries executable and move them onto your PATH:
+
+```bash
+chmod +x leo leo-fmt
+mv leo leo-fmt /usr/local/bin/
+```
+
+4. Verify the installation:
+
+```bash
+leo --version
+```
+
+:::note
+Plugin binaries such as `leo-fmt` are released separately under their own crate tags (e.g. `leo-fmt-v1.0.0`). Download the matching plugin archives from the same [releases page](https://github.com/ProvableHQ/leo/releases).
+:::
 
 </TabItem>
 <TabItem value="source">
@@ -100,3 +147,7 @@ leo
 
 </TabItem>
 </Tabs>
+
+---
+
+For distribution maintainers and detailed artifact information, see the [Binary Distribution Reference](../guides/12_binary_distribution.md).

@@ -32,6 +32,8 @@ There's a lot to learn about Leo! To help tame the complexity, we've put togethe
 
 - [**ABI Generation**](./10_abi.md) - Learn about the ABI format and type lowering for SDK integration.
 
+- [**Binary Distribution Reference**](./12_binary_distribution.md) - Release artifacts, target platforms, and packaging guidelines for distributors.
+
 ## Migration
 
 - [**Migrating from Leo 3.5 to 4.0**](./11_migration_3_5_to_4_0.md) - A complete guide to updating your programs for Leo 4.0.

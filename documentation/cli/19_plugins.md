@@ -59,17 +59,17 @@ If the plugin binary is not found, Leo prints an error:
 
 ### Installing Plugins
 
-Plugins can be installed via `cargo install`:
+Plugins can be installed via `cargo install` or `cargo binstall`:
 
 ```bash
 cargo install leo-fmt leo-lsp
+# or, to download pre-built binaries:
+cargo binstall leo-fmt leo-lsp
 ```
 
-Pre-built binaries are also available from [Leo releases](https://github.com/ProvableHQ/leo/releases). Release archives include plugin binaries alongside `leo`.
+Pre-built binaries are also available from [Leo releases](https://github.com/ProvableHQ/leo/releases). Each plugin crate is released independently under its own git tag (e.g. `leo-fmt-v1.0.0`).
 
-:::note
-Plugin distribution is evolving. Tag-triggered releases and `cargo binstall` support are in progress. See [Leo #29355](https://github.com/ProvableHQ/leo/pull/29355) for the latest details.
-:::
+For details on release artifacts, target platforms, and packaging guidelines, see the [Binary Distribution Reference](../guides/12_binary_distribution.md).
 
 Running `leo update` will also attempt to update bundled plugins like `leo-fmt` on a best-effort basis.
 
