@@ -45,6 +45,12 @@ fi
 
 VERSION=$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
 REPO_URL=$(grep '^repository' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
+
+if [ -z "$REPO_URL" ]; then
+  echo "Error: 'repository' field is missing in $(dirname "$FOUND")/Cargo.toml"
+  exit 1
+fi
+
 TAG="${CRATE_NAME}-v${VERSION}"
 
 echo "Crate:   $(dirname "$FOUND")"
