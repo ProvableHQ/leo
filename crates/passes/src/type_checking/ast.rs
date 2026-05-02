@@ -1155,7 +1155,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     input.function.identifier().name
                 ))]))
             else {
-                panic!("Finalization not found: {} {}", input.function.clone(), input.span);
+                // The callee's finalize entry can be missing when an earlier
+                // diagnostic in the same pass already rejected the callee
+                // (see #29390: `finish` was rejected with ETYC0372043 before
+                // its finalize symbol could be recorded). The orchestrator
+                // does not abort between diagnostic-emitting visitors and
+                // visitors that depend on a complete type table, so soft-fail
+                // here rather than ICE the compiler.
+                return Type::Err;
             };
 
             let future_type = Type::Future(FutureType::new(inputs.clone(), Some(callee_location.clone()), true));
