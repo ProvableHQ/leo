@@ -273,7 +273,15 @@ impl BlockToFunctionRewriter<'_> {
 
                 // All other variables become parameters to the function being built.
                 let var = self.state.symbol_table.lookup_local(local_var_name)?;
-                Some(make_inputs_and_arguments(self, local_var_name, &var.type_.expect("must be known by now"), *index))
+                // The variable's type can be unset when an earlier diagnostic
+                // in the same pass invalidated the binding (#29391:
+                // `let (a, b, c): (u32, u32) = (1u32, 2u32);` produces a
+                // type-mismatch error and `c` never gets a type before the
+                // async-block rewriter visits it). Soft-fail with `None` —
+                // the surrounding flat_map drops the entry and the user keeps
+                // the original diagnostic instead of an ICE.
+                let ty = var.type_.as_ref()?;
+                Some(make_inputs_and_arguments(self, local_var_name, ty, *index))
             })
             .flatten()
             .unzip();
