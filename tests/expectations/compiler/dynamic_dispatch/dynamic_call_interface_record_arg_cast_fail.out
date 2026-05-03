@@ -1,17 +1,17 @@
-Error [ETYC0372187]: Dynamic call argument has record type `vault.aleo::Token`, but dynamic calls require `dyn record`.
-    --> compiler-test:7:56
-     |
-   7 |         return vault.aleo::TokenOps@(target)::transfer(t);
-     |                                                        ^
-     |
-     = Cast your record value with `my_arg as dyn record`.
+[ETYC0372187] Error: Dynamic call argument has record type `vault.aleo::Token`, but dynamic calls require `dyn record`.
+   ╭─[ compiler-test:7:56 ]
+   │
+ 7 │         return vault.aleo::TokenOps@(target)::transfer(t);
+   │ 
+   │ Help: Cast your record value with `my_arg as dyn record`.
+───╯
 
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown interface `vault.aleo::TokenOps`
-    --> compiler-test:7:16
-     |
-   7 |         return vault.aleo::TokenOps@(target)::transfer(t);
-     |                ^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown interface `vault.aleo::TokenOps`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return vault.aleo::TokenOps@(target)::transfer(t);
+───╯

@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown function `test.aleo::Mapping::has_key`
-    --> compiler-test:10:25
-     |
-  10 |     let has_key: bool = Mapping::has_key(account, receiver);
-     |                         ^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `test.aleo::Mapping::has_key`
+    ╭─[ compiler-test:10:25 ]
+    │
+ 10 │     let has_key: bool = Mapping::has_key(account, receiver);
+────╯

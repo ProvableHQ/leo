@@ -84,7 +84,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
 
         let Some(interface) = self.state.symbol_table.lookup_interface(self.current_unit, location) else {
-            self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span));
+            self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span, vec![]));
             return None;
         };
 
@@ -133,9 +133,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
             let Some(ancestor_interface) =
                 self.state.symbol_table.lookup_interface(self.current_unit, ancestor_location)
             else {
-                self.state
-                    .handler
-                    .emit_err(CheckInterfacesError::interface_not_found(ancestor_location, interface_span));
+                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(
+                    ancestor_location,
+                    interface_span,
+                    vec![],
+                ));
                 return None;
             };
 
@@ -158,6 +160,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             interface_name,
                             parent_interface_name,
                             interface_span,
+                            vec![],
                         ));
                         return None;
                     }
@@ -192,38 +195,34 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             match child_member {
                                 None => {
                                     // Parent has a field that child doesn't have.
-                                    self.state.handler.emit_err(
-                                        CheckInterfacesError::conflicting_record_field(
-                                            parent_member.identifier.name,
-                                            parent_name,
-                                            interface_name,
-                                            parent_interface_name,
-                                            interface_span,
-                                        )
-                                        .with_labels(vec![
+                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
+                                        parent_member.identifier.name,
+                                        parent_name,
+                                        interface_name,
+                                        parent_interface_name,
+                                        interface_span,
+                                        vec![
                                             Label::new(
                                                 format!("defined in `{parent_interface_name}` here"),
                                                 parent_member.span,
                                             )
                                             .with_color(Color::Blue),
                                             Label::new("conflict detected here", interface_span),
-                                        ]),
-                                    );
+                                        ],
+                                    ));
                                     return None;
                                 }
                                 Some(cm)
                                     if !cm.type_.eq_user(&parent_member.type_)
                                         || !cm.mode.eq_user(&parent_member.mode) =>
                                 {
-                                    self.state.handler.emit_err(
-                                        CheckInterfacesError::conflicting_record_field(
-                                            parent_member.identifier.name,
-                                            parent_name,
-                                            interface_name,
-                                            parent_interface_name,
-                                            interface_span,
-                                        )
-                                        .with_labels(vec![
+                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
+                                        parent_member.identifier.name,
+                                        parent_name,
+                                        interface_name,
+                                        parent_interface_name,
+                                        interface_span,
+                                        vec![
                                             Label::new(
                                                 format!("defined in `{parent_interface_name}` here"),
                                                 parent_member.span,
@@ -232,8 +231,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                             Label::new("conflicts with definition here", cm.span)
                                                 .with_color(Color::Blue),
                                             Label::new("conflict detected here", interface_span),
-                                        ]),
-                                    );
+                                        ],
+                                    ));
                                     return None;
                                 }
                                 _ => {} // Field matches, continue checking.
@@ -264,6 +263,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             interface_name,
                             parent_interface_name,
                             interface_span,
+                            vec![],
                         ));
                         return None;
                     }
@@ -286,6 +286,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             interface_name,
                             parent_interface_name,
                             interface_span,
+                            vec![],
                         ));
                         return None;
                     }
@@ -338,6 +339,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             Self::format_prototype_signature(required_proto),
                             Self::format_function_signature(&func_symbol.function),
                             func_symbol.function.span,
+                            vec![],
                         ));
                     }
                 }
@@ -347,6 +349,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         interface_location,
                         program_name,
                         program_scope.span,
+                        vec![],
                     ));
                 }
             }
@@ -372,43 +375,39 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         match found_member {
                             None => {
                                 // Field is missing.
-                                self.state.handler.emit_err(
-                                    CheckInterfacesError::record_field_missing(
-                                        field_name,
-                                        record_name,
-                                        interface_location,
-                                        program_name,
-                                        program_record.span,
-                                    )
-                                    .with_labels(vec![
+                                self.state.handler.emit_err(CheckInterfacesError::record_field_missing(
+                                    field_name,
+                                    record_name,
+                                    interface_location,
+                                    program_name,
+                                    program_record.span,
+                                    vec![
                                         Label::new("required by interface here", required_member.span)
                                             .with_color(Color::Blue),
                                         Label::new(
                                             format!("record is missing field `{field_name}`"),
                                             program_record.span,
                                         ),
-                                    ]),
-                                );
+                                    ],
+                                ));
                             }
                             Some(actual) => {
                                 // Field exists but type or mode doesn't match.
                                 let expected = format!("{} {}", required_member.mode, required_member.type_);
                                 let found = format!("{} {}", actual.mode, actual.type_);
-                                self.state.handler.emit_err(
-                                    CheckInterfacesError::record_field_type_mismatch(
-                                        field_name,
-                                        record_name,
-                                        interface_location,
-                                        expected,
-                                        found,
-                                        actual.span,
-                                    )
-                                    .with_labels(vec![
+                                self.state.handler.emit_err(CheckInterfacesError::record_field_type_mismatch(
+                                    field_name,
+                                    record_name,
+                                    interface_location,
+                                    expected,
+                                    found,
+                                    actual.span,
+                                    vec![
                                         Label::new("expected by interface here", required_member.span)
                                             .with_color(Color::Blue),
                                         Label::new("type mismatch here", actual.span),
-                                    ]),
-                                );
+                                    ],
+                                ));
                             }
                         }
                     }
@@ -419,6 +418,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         interface_location,
                         program_name,
                         program_scope.span,
+                        vec![],
                     ));
                 }
             }
@@ -441,6 +441,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             &program_mapping.key_type,
                             &program_mapping.value_type,
                             program_mapping.span,
+                            vec![],
                         ));
                     }
                 }
@@ -450,6 +451,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         interface_location,
                         program_name,
                         program_scope.span,
+                        vec![],
                     ));
                 }
             }
@@ -468,6 +470,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             &required_storage.type_,
                             &program_storage.type_,
                             program_storage.span,
+                            vec![],
                         ));
                     }
                 }
@@ -477,6 +480,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         interface_location,
                         program_name,
                         program_scope.span,
+                        vec![],
                     ));
                 }
             }
@@ -695,6 +699,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             record_proto.identifier.name,
                             &member.type_,
                             member.span,
+                            vec![],
                         ));
                     }
                 }
@@ -738,7 +743,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
             for (parent_span, parent_type) in &interface.parents {
                 let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
-                    self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span));
+                    self.state.handler.emit_err(CheckInterfacesError::not_an_interface(
+                        parent_type,
+                        *parent_span,
+                        vec![],
+                    ));
                     // Continue processing remaining parents and other queued interfaces.
                     continue;
                 };
@@ -856,7 +865,7 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
         // Check if the program implements interfaces (supports multiple inheritance).
         for (parent_span, parent_type) in &input.parents {
             let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
-                self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span));
+                self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span, vec![]));
                 return;
             };
             let parent_location =

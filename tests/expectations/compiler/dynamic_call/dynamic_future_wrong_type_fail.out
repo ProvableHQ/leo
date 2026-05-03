@@ -1,5 +1,5 @@
-Error [ETYC0372003]: Expected type `u32` but type `(u32, Final<Fn()>)` was found
-    --> compiler-test:15:24
-     |
-  15 |         let val: u32 = Producer@(target)::produce(x);
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372003] Error: Expected type `u32` but type `(u32, Final<Fn()>)` was found
+    ╭─[ compiler-test:15:24 ]
+    │
+ 15 │         let val: u32 = Producer@(target)::produce(x);
+────╯

@@ -1,10 +1,10 @@
-Error [EPAR0370005]: expected ':' -- found 'a'
-    --> test:3:10
-     |
-   3 | fn f(mut a: u8) {}
-     |          ^
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:3:11
-     |
-   3 | fn f(mut a: u8) {}
-     |           ^
+[EPAR0370005] Error: expected ':' -- found 'a'
+   ╭─[ test:3:10 ]
+   │
+ 3 │ fn f(mut a: u8) {}
+───╯
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+   ╭─[ test:3:11 ]
+   │
+ 3 │ fn f(mut a: u8) {}
+───╯

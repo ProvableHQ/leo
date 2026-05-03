@@ -296,8 +296,12 @@ fn filter_stderr(data: &str) -> String {
     use std::borrow::Cow;
 
     let regexes = [
+        // Strip ANSI color codes so downstream regexes match cleanly.
+        (Regex::new(r"\x1b\[[0-9;]*m").unwrap(), ""),
         // Match `-->` followed by any path, capture only the filename with line/col
         (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
+        // Match ariadne's `╭─[ path:line:col ]` header, normalize the path portion.
+        (Regex::new(r"╭─\[\s*.*?/([^/]+\.leo:\d+:\d+)\s*\]").unwrap(), "╭─[ SOURCE_DIRECTORY/$1 ]"),
         // Normalize temp directory paths so expectations are stable across machines and OSes.
         // e.g. '/private/var/folders/.../contents/' or '/tmp/.tmpXXX/contents/' → 'TMPDIR/contents/'
         (Regex::new(r"'[^']*?/contents/").unwrap(), "'TMPDIR/contents/"),

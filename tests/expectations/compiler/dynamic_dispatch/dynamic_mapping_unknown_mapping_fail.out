@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown mapping or storage variable `test.aleo::Bank::nonexistent`
-    --> compiler-test:13:35
-     |
-  13 |     let val: u64 = Bank@(target)::nonexistent.get(key);
-     |                                   ^^^^^^^^^^^
+[ETYC0372005] Error: Unknown mapping or storage variable `test.aleo::Bank::nonexistent`
+    ╭─[ compiler-test:13:35 ]
+    │
+ 13 │     let val: u64 = Bank@(target)::nonexistent.get(key);
+────╯

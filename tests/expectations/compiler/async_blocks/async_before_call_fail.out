@@ -1,7 +1,7 @@
-Error [ETYC0372102]: External calls must appear before the local final block.
-    --> compiler-test:7:9
-     |
-   7 |         child.aleo::t();
-     |         ^^^^^^^^^^^^^^^
-     |
-     = Reorder your code so the external entry point fn call happens before the local final block.
+[ETYC0372102] Error: External calls must appear before the local final block.
+   ╭─[ compiler-test:7:9 ]
+   │
+ 7 │         child.aleo::t();
+   │ 
+   │ Help: Reorder your code so the external entry point fn call happens before the local final block.
+───╯

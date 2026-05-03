@@ -1,15 +1,11 @@
-Error [ECHI03712004]: Function `hash` does not match the signature required by interface `test.aleo/Hasher`.
+[ECHI03712004] Error: Function `hash` does not match the signature required by interface `test.aleo/Hasher`.
 Expected:
 fn hash(input: [u8; 32]) -> [u8; 32]
 Found:
 fn hash(input: [u8; 16]) -> [u8; 32]
-    --> test:11:5
-     |
-  11 |     fn hash(input: [u8; 16]) -> [u8; 32] {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |         return input; // Body is irrelevant; CheckInterfaces runs before TypeChecking.
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
+    ╭─[ test:11:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯

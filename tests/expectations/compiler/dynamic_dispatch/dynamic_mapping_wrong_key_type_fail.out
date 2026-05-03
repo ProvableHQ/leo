@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `address` but type `u64` was found.
-    --> compiler-test:13:48
-     |
-  13 |     let val: u64 = Bank@(target)::balances.get(42u64);
-     |                                                ^^^^^
+[ETYC0372117] Error: Expected type `address` but type `u64` was found.
+    ╭─[ compiler-test:13:48 ]
+    │
+ 13 │     let val: u64 = Bank@(target)::balances.get(42u64);
+────╯

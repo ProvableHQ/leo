@@ -232,6 +232,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                     callee.identifier.name,
                     msg,
                     callee.annotations.iter().find(|a| a.identifier.name == sym::no_inline).unwrap().span,
+                    vec![],
                 ));
             }
             cond

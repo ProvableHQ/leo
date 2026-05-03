@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown variable `N`
-    --> compiler-test:6:63
-     |
-   6 |         let result: [u32; 2] = Deserialize::from_bits::[[u32; N]](bits);
-     |                                                               ^
+[ETYC0372005] Error: Unknown variable `N`
+   ╭─[ compiler-test:6:63 ]
+   │
+ 6 │         let result: [u32; 2] = Deserialize::from_bits::[[u32; N]](bits);
+───╯

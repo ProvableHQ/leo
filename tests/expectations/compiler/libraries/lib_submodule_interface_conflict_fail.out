@@ -1,13 +1,7 @@
-Error [ECHI03712001]: Interface `Derived` has a conflicting definition for `compute` inherited from `Base`. Members with the same name must have identical signatures.
-    --> derived.leo:2:1
-     |
-   2 | interface Derived : conflict_lib::base::Base {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   3 |     // Redefines compute with a different return type — should conflict.
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   4 |     fn compute(x: u32) -> u64;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   5 | }
-     | ^
-     |
-     = Ensure both interfaces define the same signature for this member, or rename one of them.
+[ECHI03712001] Error: Interface `Derived` has a conflicting definition for `compute` inherited from `Base`. Members with the same name must have identical signatures.
+   ╭─[ derived.leo:2:1 ]
+   │
+   ┆ 
+   │ 
+   │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+───╯

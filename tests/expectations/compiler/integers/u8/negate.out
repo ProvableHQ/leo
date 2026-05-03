@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected a signed integer, group, or field but type `u8` was found.
-    --> compiler-test:3:17
-     |
-   3 |         return -a;
-     |                 ^
+[ETYC0372117] Error: Expected a signed integer, group, or field but type `u8` was found.
+   ╭─[ compiler-test:3:17 ]
+   │
+ 3 │         return -a;
+───╯

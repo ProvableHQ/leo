@@ -80,6 +80,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
                         .collect::<Vec<String>>()
                         .join(", "),
                     function.span(),
+                    vec![],
                 ));
             } else if !self.await_checker.to_await.is_empty() {
                 // Tally up number of paths that are unawaited and number of paths that are awaited more than once.
@@ -97,6 +98,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
                     self.emit_err(StaticAnalyzerError::no_path_runs_all_finals_exactly_once(
                         self.await_checker.to_await.len(),
                         function.span(),
+                        vec![],
                     ));
                 }
 
@@ -106,6 +108,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
                         self.await_checker.to_await.len(),
                         num_paths_unawaited,
                         function.span(),
+                        vec![],
                     ));
                 }
 
@@ -115,6 +118,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
                         self.await_checker.to_await.len(),
                         num_paths_duplicate_awaited,
                         function.span(),
+                        vec![],
                     ));
                 }
             }

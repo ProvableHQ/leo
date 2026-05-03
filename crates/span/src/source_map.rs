@@ -26,7 +26,7 @@
 
 use crate::span::Span;
 
-use std::{cell::RefCell, fmt, path::PathBuf, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fmt, path::PathBuf, rc::Rc};
 
 /// The source map containing all recorded sources,
 /// methods to register new ones,
@@ -79,6 +79,11 @@ impl SourceMap {
     pub fn source_file_by_filename(&self, filename: &FileName) -> Option<Rc<SourceFile>> {
         // TODO: This linear search could be improved to a hash lookup with some adjustment.
         self.inner.borrow().source_files.iter().find(|source_file| &source_file.name == filename).cloned()
+    }
+
+    /// Returns a snapshot of all source files for use with ariadne caching.
+    pub fn source_files(&self) -> Vec<Rc<SourceFile>> {
+        self.inner.borrow().source_files.clone()
     }
 
     /// Returns the source contents that is spanned by `span`.
@@ -277,4 +282,46 @@ pub struct LineCol {
     pub line: u32,
     /// The column offset into the line.
     pub col: u32,
+}
+
+/// A cache for ariadne that reads from Leo's session-global `SourceMap`.
+///
+/// Populated by snapshotting all source files from `with_session_globals`.
+/// Keyed by `file.absolute_start` (the `u32` source ID used in `AriadneSpan`).
+pub struct LeoSourceCache {
+    sources: HashMap<u32, ariadne::Source<String>>,
+    names: HashMap<u32, FileName>,
+}
+
+impl LeoSourceCache {
+    /// Build a cache from the current session globals.
+    pub fn new() -> Self {
+        use crate::symbol::with_session_globals;
+        let files = with_session_globals(|s| s.source_map.source_files());
+        let mut sources = HashMap::new();
+        let mut names = HashMap::new();
+        for file in &files {
+            sources.insert(file.absolute_start, ariadne::Source::from(file.src.clone()));
+            names.insert(file.absolute_start, file.name.clone());
+        }
+        Self { sources, names }
+    }
+}
+
+impl Default for LeoSourceCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ariadne::Cache<u32> for LeoSourceCache {
+    type Storage = String;
+
+    fn fetch(&mut self, id: &u32) -> Result<&ariadne::Source<String>, impl fmt::Debug> {
+        self.sources.get(id).ok_or_else(|| format!("unknown source file with start offset {id}"))
+    }
+
+    fn display<'a>(&self, id: &'a u32) -> Option<impl fmt::Display + 'a> {
+        self.names.get(id).cloned()
+    }
 }

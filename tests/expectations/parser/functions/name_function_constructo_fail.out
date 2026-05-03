@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected function name
-    --> test:2:8
-     |
-   2 |     fn constructor(x: u8) -> u8 {
-     |        ^^^^^^^^^^^
+[EPAR0370047] Error: expected function name
+   ╭─[ test:2:8 ]
+   │
+ 2 │     fn constructor(x: u8) -> u8 {
+───╯

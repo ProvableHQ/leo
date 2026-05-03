@@ -25,7 +25,13 @@ pub struct NameValidationVisitor<'a> {
 impl NameValidationVisitor<'_> {
     pub fn does_not_contain_aleo(&self, name: Identifier, item_type: &str) {
         if name.to_string().contains("aleo") {
-            self.handler.emit_err(NameValidationError::illegal_name_content(name, item_type, "aleo", name.span));
+            self.handler.emit_err(NameValidationError::illegal_name_content(
+                name,
+                item_type,
+                "aleo",
+                name.span,
+                vec![],
+            ));
         }
     }
 
@@ -39,7 +45,7 @@ impl NameValidationVisitor<'_> {
 
         for word in it {
             if name.to_string() == word {
-                self.handler.emit_err(NameValidationError::illegal_name(name, item_type, word, name.span));
+                self.handler.emit_err(NameValidationError::illegal_name(name, item_type, word, name.span, vec![]));
                 break;
             }
         }

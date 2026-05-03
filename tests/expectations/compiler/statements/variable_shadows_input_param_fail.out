@@ -1,7 +1,14 @@
-Error [EAST0372017]: The name `x` is defined multiple times.
-    --> compiler-test:3:13
-     |
-   2 |       fn main(x: u32) -> u32 {
-     |               ^ previous definition of `x` here
-   3 |           let x: u32 = 10u32;
-     |               ^ `x` redefined here
+[EAST0372017] Error: The name `x` is defined multiple times.
+   ╭─[ compiler-test:3:13 ]
+   │
+ 3 │         let x: u32 = 10u32;
+   │
+   ├─[ compiler-test:3:13 ]
+   │
+ 2 │     fn main(x: u32) -> u32 {
+   │             ┬  
+   │             ╰── previous definition of `x` here
+ 3 │         let x: u32 = 10u32;
+   │             ┬  
+   │             ╰── `x` redefined here
+───╯

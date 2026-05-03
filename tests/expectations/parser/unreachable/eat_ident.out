@@ -1,163 +1,57 @@
-Error [EPAR0370047]: expected struct name
-    --> test:1:8
-     |
-   1 | struct import
-     |        ^^^^^^
-Error [EPAR0370047]: expected struct name
-    --> test:2:8
-     |
-   2 | struct ;
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:3:8
-     |
-   3 | struct .
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:4:8
-     |
-   4 | struct ,
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:5:8
-     |
-   5 | struct *
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:6:8
-     |
-   6 | struct +
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:7:8
-     |
-   7 | struct -
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:8:8
-     |
-   8 | struct /
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:9:8
-     |
-   9 | struct [
-     |        ^
-Error [EPAR0370047]: expected struct name
-    --> test:10:8
-     |
-  10 | struct ]
-     |        ^
-Error [EPAR0370027]: Missing a program scope in a Leo file.
-    --> test:1:1
-     |
-   1 | struct import
-     | ^^^^^^^^^^^^^
-   2 | struct ;
-     | ^^^^^^^^
-   3 | struct .
-     | ^^^^^^^^
-   4 | struct ,
-     | ^^^^^^^^
-   5 | struct *
-     | ^^^^^^^^
-   6 | struct +
-     | ^^^^^^^^
-   7 | struct -
-     | ^^^^^^^^
-   8 | struct /
-     | ^^^^^^^^
-   9 | struct [
-     | ^^^^^^^^
-  10 | struct ]
-     | ^^^^^^^^
-  11 | struct {
-     | ^^^^^^^^
-  12 | struct
-     | ^^^^^^
-  13 | }
-     | ^
-  14 | struct (
-     | ^^^^^^^^
-  15 | struct )
-     | ^^^^^^^^
-  16 | struct :
-     | ^^^^^^^^
-  17 | struct ::
-     | ^^^^^^^^^
-  18 | struct ?
-     | ^^^^^^^^
-  19 | struct _
-     | ^^^^^^^^
-  20 | struct =
-     | ^^^^^^^^
-  21 | struct ==
-     | ^^^^^^^^^
-  22 | struct !
-     | ^^^^^^^^
-  23 | struct !=
-     | ^^^^^^^^^
-  24 | struct >
-     | ^^^^^^^^
-  25 | struct >=
-     | ^^^^^^^^^
-  26 | struct <
-     | ^^^^^^^^
-  27 | struct <=
-     | ^^^^^^^^^
-  28 | struct >
-     | ^^^^^^^^
-  29 | struct ..
-     | ^^^^^^^^^
-  30 | struct as
-     | ^^^^^^^^^
-  31 | struct const
-     | ^^^^^^^^^^^^
-  32 | struct let
-     | ^^^^^^^^^^
-  33 | struct for
-     | ^^^^^^^^^^
-  34 | struct if
-     | ^^^^^^^^^
-  35 | struct else
-     | ^^^^^^^^^^^
-  36 | struct i8
-     | ^^^^^^^^^
-  37 | struct i16
-     | ^^^^^^^^^^
-  38 | struct i32
-     | ^^^^^^^^^^
-  39 | struct i64
-     | ^^^^^^^^^^
-  40 | struct i128
-     | ^^^^^^^^^^^
-  41 | struct u8
-     | ^^^^^^^^^
-  42 | struct u16
-     | ^^^^^^^^^^
-  43 | struct u32
-     | ^^^^^^^^^^
-  44 | struct u64
-     | ^^^^^^^^^^
-  45 | struct u128
-     | ^^^^^^^^^^^
-  46 | struct &
-     | ^^^^^^^^
-  47 | struct return
-     | ^^^^^^^^^^^^^
-  48 | struct self
-     | ^^^^^^^^^^^
-  49 | 
-  50 | struct Self struct true
-     | ^^^^^^^^^^^^^^^^^^^^^^^
-  51 | 
-  52 | struct false
-     | ^^^^^^^^^^^^
-  53 | 
-  54 | struct 0
-     | ^^^^^^^^
-  55 | 
-  56 | program test.aleo {}
-     | ^^^^^^^^^^^^^^^^^^^^
-     |
-     = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:1:8 ]
+   │
+ 1 │ struct import
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:2:8 ]
+   │
+ 2 │ struct ;
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:3:8 ]
+   │
+ 3 │ struct .
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:4:8 ]
+   │
+ 4 │ struct ,
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:5:8 ]
+   │
+ 5 │ struct *
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:6:8 ]
+   │
+ 6 │ struct +
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:7:8 ]
+   │
+ 7 │ struct -
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:8:8 ]
+   │
+ 8 │ struct /
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:9:8 ]
+   │
+ 9 │ struct [
+───╯
+[EPAR0370047] Error: expected struct name
+    ╭─[ test:10:8 ]
+    │
+ 10 │ struct ]
+────╯
+[EPAR0370027] Error: Missing a program scope in a Leo file.
+    ╭─[ test:1:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+────╯

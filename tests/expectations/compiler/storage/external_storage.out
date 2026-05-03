@@ -574,178 +574,158 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown variable `child.aleo::flag`
-    --> compiler-test:13:20
-     |
-  13 |             assert(child.aleo::flag.unwrap() == true);
-     |                    ^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::scalar_val`
-    --> compiler-test:14:20
-     |
-  14 |             assert(child.aleo::scalar_val.unwrap() == 1);
-     |                    ^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::field_val`
-    --> compiler-test:15:20
-     |
-  15 |             assert(child.aleo::field_val.unwrap() == 42field);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::group_val`
-    --> compiler-test:16:20
-     |
-  16 |             assert(child.aleo::group_val.unwrap() == 0group);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::point`
-    --> compiler-test:19:21
-     |
-  19 |             let p = child.aleo::point.unwrap();
-     |                     ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::points`
-    --> compiler-test:24:22
-     |
-  24 |             let ps = child.aleo::points.unwrap();
-     |                      ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::stats`
-    --> compiler-test:29:21
-     |
-  29 |             let s = child.aleo::stats.unwrap();
-     |                     ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_u32`
-    --> compiler-test:34:21
-     |
-  34 |             let a = child.aleo::arr_u32.unwrap();
-     |                     ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_bool`
-    --> compiler-test:37:21
-     |
-  37 |             let b = child.aleo::arr_bool.unwrap();
-     |                     ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::nested`
-    --> compiler-test:40:21
-     |
-  40 |             let n = child.aleo::nested.unwrap();
-     |                     ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::counter`
-    --> compiler-test:44:20
-     |
-  44 |             assert(child.aleo::counter.unwrap() == 9u8);
-     |                    ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::vec`
-    --> compiler-test:46:22
-     |
-  46 |             let v2 = child.aleo::vec.get(2);
-     |                      ^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::flag`
-    --> compiler-test:58:20
-     |
-  58 |             assert(child.aleo::flag == none);
-     |                    ^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::scalar_val`
-    --> compiler-test:59:20
-     |
-  59 |             assert(child.aleo::scalar_val == none);
-     |                    ^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::field_val`
-    --> compiler-test:60:20
-     |
-  60 |             assert(child.aleo::field_val == none);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::group_val`
-    --> compiler-test:61:20
-     |
-  61 |             assert(child.aleo::group_val == none);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::point`
-    --> compiler-test:63:20
-     |
-  63 |             assert(child.aleo::point == none);
-     |                    ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::points`
-    --> compiler-test:64:20
-     |
-  64 |             assert(child.aleo::points == none);
-     |                    ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::stats`
-    --> compiler-test:65:20
-     |
-  65 |             assert(child.aleo::stats == none);
-     |                    ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_u32`
-    --> compiler-test:67:20
-     |
-  67 |             assert(child.aleo::arr_u32 == none);
-     |                    ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_bool`
-    --> compiler-test:68:20
-     |
-  68 |             assert(child.aleo::arr_bool == none);
-     |                    ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::nested`
-    --> compiler-test:69:20
-     |
-  69 |             assert(child.aleo::nested == none);
-     |                    ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::counter`
-    --> compiler-test:71:20
-     |
-  71 |             assert(child.aleo::counter == none);
-     |                    ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::vec`
-    --> compiler-test:72:20
-     |
-  72 |             assert(child.aleo::vec.len() == 0);
-     |                    ^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::flag`
-    --> compiler-test:83:20
-     |
-  83 |             assert(child.aleo::flag.unwrap_or(false) == false);
-     |                    ^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::scalar_val`
-    --> compiler-test:84:20
-     |
-  84 |             assert(child.aleo::scalar_val.unwrap_or(0) == 0);
-     |                    ^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::field_val`
-    --> compiler-test:85:20
-     |
-  85 |             assert(child.aleo::field_val.unwrap_or(0field) == 0field);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::group_val`
-    --> compiler-test:86:20
-     |
-  86 |             assert(child.aleo::group_val.unwrap_or(0group) == 0group);
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::point`
-    --> compiler-test:87:21
-     |
-  87 |             let p = child.aleo::point.unwrap_or(child.aleo::Point { x: 0field, y: 0field });
-     |                     ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::points`
-    --> compiler-test:89:22
-     |
-  89 |             let ps = child.aleo::points
-     |                      ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::stats`
-    --> compiler-test:92:21
-     |
-  92 |             let s = child.aleo::stats
-     |                     ^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_u32`
-    --> compiler-test:96:21
-     |
-  96 |             let a = child.aleo::arr_u32.unwrap_or([0u32, 0u32, 0u32]);
-     |                     ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::arr_bool`
-    --> compiler-test:99:21
-     |
-  99 |             let b = child.aleo::arr_bool.unwrap_or([false, false]);
-     |                     ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::nested`
-    --> compiler-test:102:21
-     |
- 102 |             let n = child.aleo::nested.unwrap_or([[0u8, 0u8], [0u8, 0u8]]);
-     |                     ^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::counter`
-    --> compiler-test:105:20
-     |
- 105 |             assert(child.aleo::counter.unwrap_or(123u8) == 123u8);
-     |                    ^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+    ╭─[ compiler-test:19:15 ]
+    │
+ 19 │             let p = child.aleo::point.unwrap();
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+    ╭─[ compiler-test:20:22 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+    ╭─[ compiler-test:23:9 ]
+    │
+ 23 │             // Array of structs
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+    ╭─[ compiler-test:24:40 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::point`
+    ╭─[ compiler-test:26:36 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::points`
+    ╭─[ compiler-test:31:24 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+    ╭─[ compiler-test:37:41 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+    ╭─[ compiler-test:43:20 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+    ╭─[ compiler-test:46:13 ]
+    │
+ 46 │             let v2 = child.aleo::vec.get(2);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+    ╭─[ compiler-test:49:2 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::counter`
+    ╭─[ compiler-test:53:35 ]
+    │
+ 53 │     // Case 2: After wipe(), everything becomes none
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::vec`
+    ╭─[ compiler-test:54:42 ]
+    │
+ 54 │     // ────────────────────────────────────────────────────────────────
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+    ╭─[ compiler-test:71:40 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+    ╭─[ compiler-test:72:37 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+    ╭─[ compiler-test:77:16 ]
+    │
+ 77 │     // ────────────────────────────────────────────────────────────────
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+    ╭─[ compiler-test:77:67 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::point`
+    ╭─[ compiler-test:79:5 ]
+    │
+ 79 │     // ────────────────────────────────────────────────────────────────
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::points`
+    ╭─[ compiler-test:79:52 ]
+    │
+ 79 │     // ────────────────────────────────────────────────────────────────
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+    ╭─[ compiler-test:81:21 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+    ╭─[ compiler-test:83:11 ]
+    │
+ 83 │             assert(child.aleo::flag.unwrap_or(false) == false);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+    ╭─[ compiler-test:83:60 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+    ╭─[ compiler-test:84:46 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::counter`
+    ╭─[ compiler-test:85:33 ]
+    │
+ 85 │             assert(child.aleo::field_val.unwrap_or(0field) == 0field);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::vec`
+    ╭─[ compiler-test:86:11 ]
+    │
+ 86 │             assert(child.aleo::group_val.unwrap_or(0group) == 0group);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+    ╭─[ compiler-test:96:24 ]
+    │
+ 96 │             let a = child.aleo::arr_u32.unwrap_or([0u32, 0u32, 0u32]);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+    ╭─[ compiler-test:97:17 ]
+    │
+    │ 
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+    ╭─[ compiler-test:99:44 ]
+    │
+ 99 │             let b = child.aleo::arr_bool.unwrap_or([false, false]);
+────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+     ╭─[ compiler-test:102:11 ]
+     │
+ 102 │             let n = child.aleo::nested.unwrap_or([[0u8, 0u8], [0u8, 0u8]]);
+─────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::point`
+     ╭─[ compiler-test:103:7 ]
+     │
+ 103 │             assert(n[0][0] == 0u8);
+─────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::points`
+     ╭─[ compiler-test:109:14 ]
+     │
+     │ 
+─────╯
+[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+[ETYC0372005] Error: Unknown variable `child.aleo::counter`

@@ -1,24 +1,14 @@
-Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:14:1
-     |
-  14 | final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  16 |     return amount;
-     |     ^^^^^^^^^^^^^^
-  17 | }
-     | ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
-Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:19:1
-     |
-  19 | final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  20 |     return a + b;
-     |     ^^^^^^^^^^^^^
-  21 | }
-     | ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+[ETYC0372106] Error: A final fn is not allowed to return a value.
+    ╭─[ compiler-test:14:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+────╯
+[ETYC0372106] Error: A final fn is not allowed to return a value.
+    ╭─[ compiler-test:19:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+────╯

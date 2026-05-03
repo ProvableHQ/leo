@@ -1,39 +1,21 @@
-Error [ECHI03712004]: Function `transfer` does not match the signature required by interface `test.aleo/interfaces::HasToken`.
+[ECHI03712004] Error: Function `transfer` does not match the signature required by interface `test.aleo/interfaces::HasToken`.
 Expected:
 fn transfer(t: test.aleo::Token) -> test.aleo::Token
 Found:
 fn transfer(t: other.aleo::Token) -> other.aleo::Token
-    --> compiler-test:9:5
-     |
-   9 |     fn transfer(t: other.aleo::Token) -> other.aleo::Token {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |         return t;
-     |         ^^^^^^^^^
-  11 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:3:1
-     |
-   3 | 
-   4 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   5 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   6 |         ..
-     |         ^^
-   7 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:3:1
-     |
-   3 | 
-   4 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   5 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   6 |         ..
-     |         ^^
-   7 |     }
-     |     ^
+    ╭─[ compiler-test:9:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ interfaces.leo:2:21 ]
+   │
+   │ 
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ interfaces.leo:2:21 ]
+   │
+   │ 
+───╯

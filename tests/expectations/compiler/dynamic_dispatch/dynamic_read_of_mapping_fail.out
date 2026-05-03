@@ -1,5 +1,5 @@
-Error [ETYC0372156]: `balances` is a mapping; read a value with `test.aleo::Bank::balances.get(key)` or `.get_or_use(key, default)`.
-    --> compiler-test:13:19
-     |
-  13 |     let v: u64? = Bank@(target)::balances;
-     |                   ^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372156] Error: `balances` is a mapping; read a value with `test.aleo::Bank::balances.get(key)` or `.get_or_use(key, default)`.
+    ╭─[ compiler-test:13:19 ]
+    │
+ 13 │     let v: u64? = Bank@(target)::balances;
+────╯

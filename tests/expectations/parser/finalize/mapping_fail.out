@@ -1,40 +1,40 @@
-Error [EPAR0370047]: expected mapping name
-    --> test:2:13
-     |
-   2 |     mapping u8: u8 => u8;
-     |             ^^
-Error [EPAR0370005]: expected '=>' -- found '->'
-    --> test:4:22
-     |
-   4 |     mapping foo: bar -> baz;
-     |                      ^^
-Error [EPAR0370005]: expected ')' -- found '=>'
-    --> test:6:23
-     |
-   6 |     mapping foo: (bar => baz);
-     |                       ^^
-Error [EPAR0370005]: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found ')'
-    --> test:6:29
-     |
-   6 |     mapping foo: (bar => baz);
-     |                             ^
-Error [EPAR0370005]: expected ']' -- found '->'
-    --> test:8:23
-     |
-   8 |     mapping foo: [bar -> baz];
-     |                       ^^
-Error [EPAR0370005]: expected ';' -- found ']'
-    --> test:8:29
-     |
-   8 |     mapping foo: [bar -> baz];
-     |                             ^
-Error [EPAR0370005]: expected ':' -- found 'bar'
-    --> test:10:17
-     |
-  10 |     mapping foo bar => baz;
-     |                 ^^^
-Error [EPAR0370029]: A tuple type must have at least two elements.
-    --> test:6:18
-     |
-   6 |     mapping foo: (bar => baz);
-     |                  ^^^^^
+[EPAR0370047] Error: expected mapping name
+   ╭─[ test:2:13 ]
+   │
+ 2 │     mapping u8: u8 => u8;
+───╯
+[EPAR0370005] Error: expected '=>' -- found '->'
+   ╭─[ test:4:22 ]
+   │
+ 4 │     mapping foo: bar -> baz;
+───╯
+[EPAR0370005] Error: expected ')' -- found '=>'
+   ╭─[ test:6:23 ]
+   │
+ 6 │     mapping foo: (bar => baz);
+───╯
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found ')'
+   ╭─[ test:6:29 ]
+   │
+ 6 │     mapping foo: (bar => baz);
+───╯
+[EPAR0370005] Error: expected ']' -- found '->'
+   ╭─[ test:8:23 ]
+   │
+ 8 │     mapping foo: [bar -> baz];
+───╯
+[EPAR0370005] Error: expected ';' -- found ']'
+   ╭─[ test:8:29 ]
+   │
+ 8 │     mapping foo: [bar -> baz];
+───╯
+[EPAR0370005] Error: expected ':' -- found 'bar'
+    ╭─[ test:10:17 ]
+    │
+ 10 │     mapping foo bar => baz;
+────╯
+[EPAR0370029] Error: A tuple type must have at least two elements.
+   ╭─[ test:6:18 ]
+   │
+ 6 │     mapping foo: (bar => baz);
+───╯

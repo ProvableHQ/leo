@@ -1,30 +1,30 @@
-Error [ETYC0372003]: Expected type `u32` but type `Final<Fn()>` was found
-    --> compiler-test:6:22
-     |
-   6 |         let f: u32 = child.aleo::foo();
-     |                      ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u32` was found.
-    --> compiler-test:7:33
-     |
-   7 |         let r: u8 = final { foo(f); };
-     |                                 ^
-Error [ETYC0372117]: Expected type `Final<Fn()>` but type `u8` was found.
-    --> compiler-test:8:24
-     |
-   8 |         return (42u64, r);
-     |                        ^
-Error [ETYC0372003]: Expected type `(u8, u8)` but type `Final<Fn()>` was found
-    --> compiler-test:12:27
-     |
-  12 |         let f: (u8, u8) = child.aleo::bar();
-     |                           ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
-    --> compiler-test:13:35
-     |
-  13 |         let r: bool = final { foo(f); };
-     |                                   ^
-Error [ETYC0372117]: Expected type `Final<Fn()>` but type `bool` was found.
-    --> compiler-test:14:24
-     |
-  14 |         return (99u64, r);
-     |                        ^
+[ETYC0372003] Error: Expected type `u32` but type `Final<Fn()>` was found
+   ╭─[ compiler-test:6:22 ]
+   │
+ 6 │         let f: u32 = child.aleo::foo();
+───╯
+[ETYC0372117] Error: Expected type `Final<Fn()>` but type `u32` was found.
+   ╭─[ compiler-test:7:33 ]
+   │
+ 7 │         let r: u8 = final { foo(f); };
+───╯
+[ETYC0372117] Error: Expected type `Final<Fn()>` but type `u8` was found.
+   ╭─[ compiler-test:8:24 ]
+   │
+ 8 │         return (42u64, r);
+───╯
+[ETYC0372003] Error: Expected type `(u8, u8)` but type `Final<Fn()>` was found
+    ╭─[ compiler-test:12:27 ]
+    │
+ 12 │         let f: (u8, u8) = child.aleo::bar();
+────╯
+[ETYC0372117] Error: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
+    ╭─[ compiler-test:13:35 ]
+    │
+ 13 │         let r: bool = final { foo(f); };
+────╯
+[ETYC0372117] Error: Expected type `Final<Fn()>` but type `bool` was found.
+    ╭─[ compiler-test:14:24 ]
+    │
+ 14 │         return (99u64, r);
+────╯

@@ -48,7 +48,7 @@ impl StaticAnalyzingVisitor<'_> {
         let future_variable = match future {
             Some(Expression::Path(path)) => path,
             _ => {
-                return self.emit_err(StaticAnalyzerError::invalid_run_call(span));
+                return self.emit_err(StaticAnalyzerError::invalid_run_call(span, vec![]));
             }
         };
 
@@ -56,7 +56,7 @@ impl StaticAnalyzingVisitor<'_> {
         match self.state.type_table.get(&future_variable.id) {
             Some(type_) => {
                 if !matches!(type_, Type::Future(_)) {
-                    self.emit_err(StaticAnalyzerError::expected_final(type_, future_variable.span()));
+                    self.emit_err(StaticAnalyzerError::expected_final(type_, future_variable.span(), vec![]));
                 }
                 // Mark the future as consumed.
                 // If the call returns true, it means that a future was not awaited in the order of the input list, emit a warning.
@@ -64,11 +64,12 @@ impl StaticAnalyzingVisitor<'_> {
                     self.emit_warning(StaticAnalyzerWarning::final_not_awaited_in_order(
                         future_variable,
                         future_variable.span(),
+                        vec![],
                     ));
                 }
             }
             None => {
-                self.emit_err(StaticAnalyzerError::expected_final(future_variable, future_variable.span()));
+                self.emit_err(StaticAnalyzerError::expected_final(future_variable, future_variable.span(), vec![]));
             }
         }
     }
@@ -100,7 +101,7 @@ impl StaticAnalyzingVisitor<'_> {
 
         // If the async function takes a future as an argument, emit an error.
         if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
-            self.emit_err(StaticAnalyzerError::entry_point_final_call_with_final_argument(function_path, span));
+            self.emit_err(StaticAnalyzerError::entry_point_final_call_with_final_argument(function_path, span, vec![]));
         }
     }
 }

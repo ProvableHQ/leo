@@ -1,10 +1,10 @@
-Error [ETYC0372117]: Expected a field, group, scalar, or integer but type `bool` was found.
-    --> compiler-test:3:17
-     |
-   3 |         return (true + false) as u8;
-     |                 ^^^^
-Error [ETYC0372117]: Expected a field, group, scalar, or integer but type `bool` was found.
-    --> compiler-test:3:24
-     |
-   3 |         return (true + false) as u8;
-     |                        ^^^^^
+[ETYC0372117] Error: Expected a field, group, scalar, or integer but type `bool` was found.
+   ╭─[ compiler-test:3:17 ]
+   │
+ 3 │         return (true + false) as u8;
+───╯
+[ETYC0372117] Error: Expected a field, group, scalar, or integer but type `bool` was found.
+   ╭─[ compiler-test:3:24 ]
+   │
+ 3 │         return (true + false) as u8;
+───╯

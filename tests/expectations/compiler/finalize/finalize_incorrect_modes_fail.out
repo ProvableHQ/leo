@@ -1,45 +1,31 @@
-Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:13:1
-     |
-  13 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 | }
-     | ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
-Error [ETYC0372032]: An input to an final fn must be public.
-    --> compiler-test:13:57
-     |
-  13 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                         ^^^^^^^^^^^^^^^^^^^^
-     |
-     = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
-Error [ETYC0372038]: A returned value cannot be a constant.
-    --> compiler-test:13:82
-     |
-  13 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     |                                                                                  ^^^^^^^^^^^^
-Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:13:1
-     |
-  13 | final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 | }
-     | ^
-Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:17:1
-     |
-  17 | final fn finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  18 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  19 |     return amount + amount;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^
-  20 | }
-     | ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+[ETYC0372106] Error: A final fn is not allowed to return a value.
+    ╭─[ compiler-test:13:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+────╯
+[ETYC0372032] Error: An input to an final fn must be public.
+    ╭─[ compiler-test:13:57 ]
+    │
+ 13 │ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+    │ 
+    │ Help: Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
+────╯
+[ETYC0372038] Error: A returned value cannot be a constant.
+    ╭─[ compiler-test:13:82 ]
+    │
+ 13 │ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+────╯
+[ETYC0372036] Error: Function must return a value.
+    ╭─[ compiler-test:13:1 ]
+    │
+    ┆ 
+────╯
+[ETYC0372106] Error: A final fn is not allowed to return a value.
+    ╭─[ compiler-test:17:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+────╯

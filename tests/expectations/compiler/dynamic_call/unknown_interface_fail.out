@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown interface `test.aleo::Nonexistent`
-    --> compiler-test:3:16
-     |
-   3 |         return Nonexistent@(target)::foo(1u32);
-     |                ^^^^^^^^^^^
+[ETYC0372005] Error: Unknown interface `test.aleo::Nonexistent`
+   ╭─[ compiler-test:3:16 ]
+   │
+ 3 │         return Nonexistent@(target)::foo(1u32);
+───╯

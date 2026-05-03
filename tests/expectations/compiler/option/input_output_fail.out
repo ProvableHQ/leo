@@ -1,56 +1,56 @@
-Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
-    --> compiler-test:10:12
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |            ^^^^^^
-     |
-     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `y` has type `[u8?; 3]`, which is or contains an optional type and is not allowed as an input to an entry point fn.
-    --> compiler-test:10:20
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |                    ^^^^^^^^^^^
-     |
-     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
-    --> compiler-test:10:33
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |                                 ^^^^^^
-     |
-     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372165]: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
-    --> compiler-test:10:45
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |                                             ^^^
-     |
-     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372165]: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
-    --> compiler-test:10:50
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |                                                  ^^^
-     |
-     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372165]: This function has an output of type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an output of an entry point fn.
-    --> compiler-test:10:55
-     |
-  10 |     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
-     |                                                       ^^^
-     |
-     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372164]: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
-    --> compiler-test:14:12
-     |
-  14 |     fn bar(x: u8?, f: Foo) {
-     |            ^^^^^^
-     |
-     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
-Error [ETYC0372164]: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
-    --> compiler-test:14:20
-     |
-  14 |     fn bar(x: u8?, f: Foo) {
-     |                    ^^^^^^
-     |
-     = Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+[ETYC0372164] Error: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    ╭─[ compiler-test:10:12 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+────╯
+[ETYC0372164] Error: The input `y` has type `[u8?; 3]`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    ╭─[ compiler-test:10:20 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+────╯
+[ETYC0372164] Error: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    ╭─[ compiler-test:10:33 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+────╯
+[ETYC0372165] Error: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    ╭─[ compiler-test:10:45 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+────╯
+[ETYC0372165] Error: This function has an output of type `u8?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    ╭─[ compiler-test:10:50 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+────╯
+[ETYC0372165] Error: This function has an output of type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    ╭─[ compiler-test:10:55 ]
+    │
+ 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+    │ 
+    │ Help: Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+────╯
+[ETYC0372164] Error: The input `x` has type `u8?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    ╭─[ compiler-test:14:12 ]
+    │
+ 14 │     fn bar(x: u8?, f: Foo) {
+    │ 
+    │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+────╯
+[ETYC0372164] Error: The input `f` has type `test.aleo::Foo`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+    ╭─[ compiler-test:14:20 ]
+    │
+ 14 │     fn bar(x: u8?, f: Foo) {
+    │ 
+    │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+────╯

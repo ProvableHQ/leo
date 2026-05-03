@@ -1,7 +1,7 @@
-Error [ETYC0372004]: Could not determine the type of `1`
-    --> compiler-test:6:55
-     |
-   6 |         return _dynamic_call::[u64]('a', 'aleo', 'b', 1);
-     |                                                       ^
-     |
-     = Consider using explicit type annotations.
+[ETYC0372004] Error: Could not determine the type of `1`
+   ╭─[ compiler-test:6:55 ]
+   │
+ 6 │         return _dynamic_call::[u64]('a', 'aleo', 'b', 1);
+   │ 
+   │ Help: Consider using explicit type annotations.
+───╯

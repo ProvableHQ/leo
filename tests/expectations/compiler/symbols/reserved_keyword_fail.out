@@ -1,50 +1,50 @@
-Error [ENV03711000]: `finalize` is an invalid program name. A program cannot be called "finalize".
-    --> compiler-test:9:9
-     |
-   9 | program finalize.aleo {
-     |         ^^^^^^^^
-Error [ENV03711000]: `value` is an invalid struct member name. A struct member cannot be called "value".
-    --> compiler-test:2:5
-     |
-   2 |     value: u32,
-     |     ^^^^^
-Error [ENV03711000]: `value` is an invalid struct name. A struct cannot be called "value".
-    --> compiler-test:5:8
-     |
-   5 | struct value {
-     |        ^^^^^
-Error [ENV03711000]: `owner` is an invalid struct member name. A struct member cannot be called "owner".
-    --> compiler-test:6:5
-     |
-   6 |     owner: u32,
-     |     ^^^^^
-Error [ENV03711000]: `value` is an invalid record name. A record cannot be called "value".
-    --> compiler-test:10:12
-     |
-  10 |     record value {
-     |            ^^^^^
-Error [ENV03711000]: `value` is an invalid record member name. A record member cannot be called "value".
-    --> compiler-test:11:9
-     |
-  11 |         value: u32,
-     |         ^^^^^
-Error [ENV03711000]: `value` is an invalid entry point fn name. A entry point fn cannot be called "value".
-    --> compiler-test:15:8
-     |
-  15 |     fn value() {}
-     |        ^^^^^
-Error [ENV03711000]: `output` is an invalid entry point fn name. A entry point fn cannot be called "output".
-    --> compiler-test:17:8
-     |
-  17 |     fn output() -> Final {
-     |        ^^^^^^
-Error [ENV03711000]: `key` is an invalid regular fn name. A regular fn cannot be called "key".
-    --> compiler-test:29:4
-     |
-  29 | fn key() {}
-     |    ^^^
-Error [ENV03711000]: `value` is an invalid regular fn name. A regular fn cannot be called "value".
-    --> compiler-test:31:4
-     |
-  31 | fn value() {}
-     |    ^^^^^
+[ENV03711000] Error: `finalize` is an invalid program name. A program cannot be called "finalize".
+   ╭─[ compiler-test:9:9 ]
+   │
+ 9 │ program finalize.aleo {
+───╯
+[ENV03711000] Error: `value` is an invalid struct member name. A struct member cannot be called "value".
+   ╭─[ compiler-test:2:5 ]
+   │
+ 2 │     value: u32,
+───╯
+[ENV03711000] Error: `value` is an invalid struct name. A struct cannot be called "value".
+   ╭─[ compiler-test:5:8 ]
+   │
+ 5 │ struct value {
+───╯
+[ENV03711000] Error: `owner` is an invalid struct member name. A struct member cannot be called "owner".
+   ╭─[ compiler-test:6:5 ]
+   │
+ 6 │     owner: u32,
+───╯
+[ENV03711000] Error: `value` is an invalid record name. A record cannot be called "value".
+    ╭─[ compiler-test:10:12 ]
+    │
+ 10 │     record value {
+────╯
+[ENV03711000] Error: `value` is an invalid record member name. A record member cannot be called "value".
+    ╭─[ compiler-test:11:9 ]
+    │
+ 11 │         value: u32,
+────╯
+[ENV03711000] Error: `value` is an invalid entry point fn name. A entry point fn cannot be called "value".
+    ╭─[ compiler-test:15:8 ]
+    │
+ 15 │     fn value() {}
+────╯
+[ENV03711000] Error: `output` is an invalid entry point fn name. A entry point fn cannot be called "output".
+    ╭─[ compiler-test:17:8 ]
+    │
+ 17 │     fn output() -> Final {
+────╯
+[ENV03711000] Error: `key` is an invalid regular fn name. A regular fn cannot be called "key".
+    ╭─[ compiler-test:29:4 ]
+    │
+ 29 │ fn key() {}
+────╯
+[ENV03711000] Error: `value` is an invalid regular fn name. A regular fn cannot be called "value".
+    ╭─[ compiler-test:31:4 ]
+    │
+ 31 │ fn value() {}
+────╯

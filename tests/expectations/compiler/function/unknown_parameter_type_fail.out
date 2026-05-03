@@ -1,19 +1,19 @@
-Error [ETYC0372017]: The type `test.aleo::Foo` is not found in the current scope.
-    --> compiler-test:2:20
-     |
-   2 |     fn main(a: u8, foo: Foo) -> u8 {
-     |                    ^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372017]: The type `test.aleo::Foo` is not found in the current scope.
-    --> compiler-test:6:30
-     |
-   6 |     fn returns_foo(a: u8) -> Foo {
-     |                              ^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372117]: Expected type `test.aleo::Foo` but type `u8` was found.
-    --> compiler-test:7:16
-     |
-   7 |         return a;
-     |                ^
+[ETYC0372017] Error: The type `test.aleo::Foo` is not found in the current scope.
+   ╭─[ compiler-test:2:20 ]
+   │
+ 2 │     fn main(a: u8, foo: Foo) -> u8 {
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372017] Error: The type `test.aleo::Foo` is not found in the current scope.
+   ╭─[ compiler-test:6:30 ]
+   │
+ 6 │     fn returns_foo(a: u8) -> Foo {
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372117] Error: Expected type `test.aleo::Foo` but type `u8` was found.
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return a;
+───╯

@@ -68,6 +68,7 @@ impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
                 "The `@custom` constructor has no statements after dead code elimination.",
                 Some("Add a non-trivial implementation"),
                 input.span,
+                vec![],
             ))
         }
         input

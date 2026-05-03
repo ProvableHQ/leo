@@ -1,5 +1,5 @@
-Error [ETYC0372156]: The mapping 'dependent.aleo/bar' does not exist. Please ensure that it is imported or defined in your program.
-    --> compiler-test:7:5
-     |
-   7 |     @checksum(mapping = "dependent.aleo::bar", key = "1field")
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372156] Error: The mapping 'dependent.aleo/bar' does not exist. Please ensure that it is imported or defined in your program.
+   ╭─[ compiler-test:7:5 ]
+   │
+ 7 │     @checksum(mapping = "dependent.aleo::bar", key = "1field")
+───╯

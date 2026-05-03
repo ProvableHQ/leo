@@ -1,5 +1,5 @@
-Error [ETYC0372181]: `_dynamic_get_or_use` requires 5 arguments, but found 4.
-    --> compiler-test:11:20
-     |
-  11 |     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key);
-     |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372181] Error: `_dynamic_get_or_use` requires 5 arguments, but found 4.
+    ╭─[ compiler-test:11:20 ]
+    │
+ 11 │     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key);
+────╯

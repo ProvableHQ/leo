@@ -148,6 +148,7 @@ impl Compiler {
                         format!("`{unit_name}` (specified in `program.json`)")
                     },
                     program_scope.program_id.span(),
+                    vec![],
                 )
                 .into());
             }
@@ -775,6 +776,7 @@ impl Compiler {
                     self.unit_name.as_ref().unwrap(),
                     import_symbol,
                     span,
+                    vec![],
                 )
                 .into());
             };

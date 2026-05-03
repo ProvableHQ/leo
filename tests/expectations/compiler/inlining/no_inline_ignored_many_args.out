@@ -1,10 +1,10 @@
-Warning [WTYC0372005]: `@no_inline` on `many_args` will be ignored because this function has more than 16 arguments.
-    --> compiler-test:1:1
-     |
-   1 | @no_inline
-     | ^^^^^^^^^^
-     |
-     = Remove the `@no_inline` annotation to silence this warning.
+[WTYC0372005] Warning: `@no_inline` on `many_args` will be ignored because this function has more than 16 arguments.
+   ╭─[ compiler-test:1:1 ]
+   │
+ 1 │ @no_inline
+   │ 
+   │ Help: Remove the `@no_inline` annotation to silence this warning.
+───╯
 program test.aleo;
 
 function main:

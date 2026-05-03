@@ -1,8 +1,8 @@
 --- leo build (should fail: undefined name in library) ---
-Error [ETYC0372005]: Unknown function `missing_fn`
-    --> SOURCE_DIRECTORY/lib.leo:4:12
-     |
-   4 |     return missing_fn();
-     |            ^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `missing_fn`
+   ╭─[ SOURCE_DIRECTORY/lib.leo:4:12 ]
+   │
+ 4 │     return missing_fn();
+───╯
 
 

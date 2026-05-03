@@ -324,6 +324,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     write_count,
                     max_writes,
                     function.span,
+                    vec![],
                 ));
             }
         }
@@ -417,7 +418,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let write_count =
             constructor.statements.iter().filter(|s| matches!(s, AleoStmt::Set(..) | AleoStmt::Remove(..))).count();
         if write_count > max_writes as usize {
-            self.state.handler.emit_err(CompilerError::too_many_write_commands(write_count, max_writes, span));
+            self.state.handler.emit_err(CompilerError::too_many_write_commands(write_count, max_writes, span, vec![]));
         } else {
             // Validate with snarkVM. Any violation not already caught above is a compiler bug.
             if let Err(e) = match self.state.network {

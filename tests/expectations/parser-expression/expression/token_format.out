@@ -1,460 +1,460 @@
-Error [EPAR0370050]: Could not lex the following content: `~`.
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_0:1:8
-     |
-   1 | "test" ~
-     |        ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_0:1:8 ]
+   │
+ 1 │ "test" ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_1:1:5
-     |
-   1 | u32 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
-    --> test_1:1:1
-     |
-   1 | u32 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_1:1:5 ]
+   │
+ 1 │ u32 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
+   ╭─[ test_1:1:1 ]
+   │
+ 1 │ u32 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_2:1:3
-     |
-   1 | 1 ~
-     |   ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_2:1:3 ]
+   │
+ 1 │ 1 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_3:1:6
-     |
-   1 | true ~
-     |      ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_3:1:6 ]
+   │
+ 1 │ true ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_4:1:7
-     |
-   1 | false ~
-     |       ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_4:1:7 ]
+   │
+ 1 │ false ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_5:1:65
-     |
-   1 | aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
-     |                                                                 ^
-Error [EPAR0370001]: invalid address literal: 'aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr'
-    --> test_5:1:1
-     |
-   1 | aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_5:1:65 ]
+   │
+ 1 │ aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
+───╯
+[EPAR0370001] Error: invalid address literal: 'aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr'
+   ╭─[ test_5:1:1 ]
+   │
+ 1 │ aleo13jgjyzhzhvrqecjct7scsjrfsfn09j9vryung8mfykt5502p75rsx7l9lr ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_6:1:5
-     |
-   1 | 'h' ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '@'
-    --> test_7:1:1
-     |
-   1 | @test
-     | ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_6:1:5 ]
+   │
+ 1 │ 'h' ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '@'
+   ╭─[ test_7:1:1 ]
+   │
+ 1 │ @test
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_8:1:4
-     |
-   1 | !1 ~
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '&&'
-    --> test_9:1:1
-     |
-   1 | &&
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '||'
-    --> test_10:1:1
-     |
-   1 | ||
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '=='
-    --> test_11:1:1
-     |
-   1 | ==
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '!='
-    --> test_12:1:1
-     |
-   1 | !=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<'
-    --> test_13:1:1
-     |
-   1 | <
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<='
-    --> test_14:1:1
-     |
-   1 | <=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>'
-    --> test_15:1:1
-     |
-   1 | >
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>='
-    --> test_16:1:1
-     |
-   1 | >=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '+'
-    --> test_17:1:1
-     |
-   1 | +
-     | ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_18:1:2
-     |
-   1 | -
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
-    --> test_19:1:1
-     |
-   1 | *
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '**'
-    --> test_20:1:1
-     |
-   1 | **
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
-    --> test_21:1:1
-     |
-   1 | /
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '='
-    --> test_22:1:1
-     |
-   1 | =
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '+='
-    --> test_23:1:1
-     |
-   1 | +=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '-='
-    --> test_24:1:1
-     |
-   1 | -=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*='
-    --> test_25:1:1
-     |
-   1 | *=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/='
-    --> test_26:1:1
-     |
-   1 | /=
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '**='
-    --> test_27:1:1
-     |
-   1 | **=
-     | ^^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_28:1:2
-     |
-   1 | (
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
-    --> test_29:1:1
-     |
-   1 | )
-     | ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_30:1:2
-     |
-   1 | [
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
-    --> test_31:1:1
-     |
-   1 | ]
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '{'
-    --> test_32:1:1
-     |
-   1 | {
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '}'
-    --> test_33:1:1
-     |
-   1 | }
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_34:1:1
-     |
-   1 | ,
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '.'
-    --> test_35:1:1
-     |
-   1 | .
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
-    --> test_36:1:1
-     |
-   1 | ..
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
-    --> test_37:1:1
-     |
-   1 | ...
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_38:1:1
-     |
-   1 | ;
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ':'
-    --> test_39:1:1
-     |
-   1 | :
-     | ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_40:1:4
-     |
-   1 | h::
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '?'
-    --> test_41:1:1
-     |
-   1 | ?
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '->'
-    --> test_42:1:1
-     |
-   1 | ->
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '_'
-    --> test_43:1:1
-     |
-   1 | _
-     | ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_8:1:4 ]
+   │
+ 1 │ !1 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '&&'
+   ╭─[ test_9:1:1 ]
+   │
+ 1 │ &&
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '||'
+   ╭─[ test_10:1:1 ]
+   │
+ 1 │ ||
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '=='
+   ╭─[ test_11:1:1 ]
+   │
+ 1 │ ==
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '!='
+   ╭─[ test_12:1:1 ]
+   │
+ 1 │ !=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<'
+   ╭─[ test_13:1:1 ]
+   │
+ 1 │ <
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '<='
+   ╭─[ test_14:1:1 ]
+   │
+ 1 │ <=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>'
+   ╭─[ test_15:1:1 ]
+   │
+ 1 │ >
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '>='
+   ╭─[ test_16:1:1 ]
+   │
+ 1 │ >=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '+'
+   ╭─[ test_17:1:1 ]
+   │
+ 1 │ +
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_18:1:2 ]
+   │
+ 1 │ -
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*'
+   ╭─[ test_19:1:1 ]
+   │
+ 1 │ *
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '**'
+   ╭─[ test_20:1:1 ]
+   │
+ 1 │ **
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
+   ╭─[ test_21:1:1 ]
+   │
+ 1 │ /
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '='
+   ╭─[ test_22:1:1 ]
+   │
+ 1 │ =
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '+='
+   ╭─[ test_23:1:1 ]
+   │
+ 1 │ +=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '-='
+   ╭─[ test_24:1:1 ]
+   │
+ 1 │ -=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '*='
+   ╭─[ test_25:1:1 ]
+   │
+ 1 │ *=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/='
+   ╭─[ test_26:1:1 ]
+   │
+ 1 │ /=
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '**='
+   ╭─[ test_27:1:1 ]
+   │
+ 1 │ **=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_28:1:2 ]
+   │
+ 1 │ (
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ')'
+   ╭─[ test_29:1:1 ]
+   │
+ 1 │ )
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_30:1:2 ]
+   │
+ 1 │ [
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
+   ╭─[ test_31:1:1 ]
+   │
+ 1 │ ]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '{'
+   ╭─[ test_32:1:1 ]
+   │
+ 1 │ {
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '}'
+   ╭─[ test_33:1:1 ]
+   │
+ 1 │ }
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_34:1:1 ]
+   │
+ 1 │ ,
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '.'
+   ╭─[ test_35:1:1 ]
+   │
+ 1 │ .
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+   ╭─[ test_36:1:1 ]
+   │
+ 1 │ ..
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+   ╭─[ test_37:1:1 ]
+   │
+ 1 │ ...
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_38:1:1 ]
+   │
+ 1 │ ;
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ':'
+   ╭─[ test_39:1:1 ]
+   │
+ 1 │ :
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_40:1:4 ]
+   │
+ 1 │ h::
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '?'
+   ╭─[ test_41:1:1 ]
+   │
+ 1 │ ?
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '->'
+   ╭─[ test_42:1:1 ]
+   │
+ 1 │ ->
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '_'
+   ╭─[ test_43:1:1 ]
+   │
+ 1 │ _
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_44:1:4
-     |
-   1 | u8 ~
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u8'
-    --> test_44:1:1
-     |
-   1 | u8 ~
-     | ^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_44:1:4 ]
+   │
+ 1 │ u8 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u8'
+   ╭─[ test_44:1:1 ]
+   │
+ 1 │ u8 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_45:1:5
-     |
-   1 | u16 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u16'
-    --> test_45:1:1
-     |
-   1 | u16 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_45:1:5 ]
+   │
+ 1 │ u16 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u16'
+   ╭─[ test_45:1:1 ]
+   │
+ 1 │ u16 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_46:1:5
-     |
-   1 | u32 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
-    --> test_46:1:1
-     |
-   1 | u32 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_46:1:5 ]
+   │
+ 1 │ u32 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u32'
+   ╭─[ test_46:1:1 ]
+   │
+ 1 │ u32 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_47:1:5
-     |
-   1 | u64 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u64'
-    --> test_47:1:1
-     |
-   1 | u64 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_47:1:5 ]
+   │
+ 1 │ u64 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u64'
+   ╭─[ test_47:1:1 ]
+   │
+ 1 │ u64 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_48:1:6
-     |
-   1 | u128 ~
-     |      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u128'
-    --> test_48:1:1
-     |
-   1 | u128 ~
-     | ^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_48:1:6 ]
+   │
+ 1 │ u128 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'u128'
+   ╭─[ test_48:1:1 ]
+   │
+ 1 │ u128 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_49:1:4
-     |
-   1 | i8 ~
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i8'
-    --> test_49:1:1
-     |
-   1 | i8 ~
-     | ^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_49:1:4 ]
+   │
+ 1 │ i8 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i8'
+   ╭─[ test_49:1:1 ]
+   │
+ 1 │ i8 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_50:1:5
-     |
-   1 | i16 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i16'
-    --> test_50:1:1
-     |
-   1 | i16 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_50:1:5 ]
+   │
+ 1 │ i16 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i16'
+   ╭─[ test_50:1:1 ]
+   │
+ 1 │ i16 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_51:1:5
-     |
-   1 | i32 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i32'
-    --> test_51:1:1
-     |
-   1 | i32 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_51:1:5 ]
+   │
+ 1 │ i32 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i32'
+   ╭─[ test_51:1:1 ]
+   │
+ 1 │ i32 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_52:1:5
-     |
-   1 | i64 ~
-     |     ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i64'
-    --> test_52:1:1
-     |
-   1 | i64 ~
-     | ^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_52:1:5 ]
+   │
+ 1 │ i64 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i64'
+   ╭─[ test_52:1:1 ]
+   │
+ 1 │ i64 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_53:1:6
-     |
-   1 | i128 ~
-     |      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i128'
-    --> test_53:1:1
-     |
-   1 | i128 ~
-     | ^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_53:1:6 ]
+   │
+ 1 │ i128 ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'i128'
+   ╭─[ test_53:1:1 ]
+   │
+ 1 │ i128 ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_54:1:7
-     |
-   1 | field ~
-     |       ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'field'
-    --> test_54:1:1
-     |
-   1 | field ~
-     | ^^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_54:1:7 ]
+   │
+ 1 │ field ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'field'
+   ╭─[ test_54:1:1 ]
+   │
+ 1 │ field ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_55:1:7
-     |
-   1 | group ~
-     |       ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'group'
-    --> test_55:1:1
-     |
-   1 | group ~
-     | ^^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_55:1:7 ]
+   │
+ 1 │ group ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'group'
+   ╭─[ test_55:1:1 ]
+   │
+ 1 │ group ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_56:1:6
-     |
-   1 | bool ~
-     |      ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'bool'
-    --> test_56:1:1
-     |
-   1 | bool ~
-     | ^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_56:1:6 ]
+   │
+ 1 │ bool ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'bool'
+   ╭─[ test_56:1:1 ]
+   │
+ 1 │ bool ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_57:1:9
-     |
-   1 | address ~
-     |         ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'address'
-    --> test_57:1:1
-     |
-   1 | address ~
-     | ^^^^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_57:1:9 ]
+   │
+ 1 │ address ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'address'
+   ╭─[ test_57:1:1 ]
+   │
+ 1 │ address ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_58:1:11
-     |
-   1 | signature ~
-     |           ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'signature'
-    --> test_58:1:1
-     |
-   1 | signature ~
-     | ^^^^^^^^^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_58:1:11 ]
+   │
+ 1 │ signature ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'signature'
+   ╭─[ test_58:1:1 ]
+   │
+ 1 │ signature ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_59:1:6
-     |
-   1 | char ~
-     |      ^
-Error [EPAR0370050]: Could not lex the following content: `~`.
+   ╭─[ test_59:1:6 ]
+   │
+ 1 │ char ~
+───╯
+[EPAR0370050] Error: Could not lex the following content: `~`.
 
-    --> test_60:1:7
-     |
-   1 | input ~
-     |       ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'constant'
-    --> test_61:1:1
-     |
-   1 | constant
-     | ^^^^^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'else'
-    --> test_62:1:1
-     |
-   1 | else
-     | ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'for'
-    --> test_63:1:1
-     |
-   1 | for
-     | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'fn'
-    --> test_64:1:1
-     |
-   1 | fn
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'if'
-    --> test_65:1:1
-     |
-   1 | if
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'in'
-    --> test_66:1:1
-     |
-   1 | in
-     | ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'let'
-    --> test_67:1:1
-     |
-   1 | let
-     | ^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '&'
-    --> test_68:1:1
-     |
-   1 | &
-     | ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'return'
-    --> test_69:1:1
-     |
-   1 | return
-     | ^^^^^^
+   ╭─[ test_60:1:7 ]
+   │
+ 1 │ input ~
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'constant'
+   ╭─[ test_61:1:1 ]
+   │
+ 1 │ constant
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'else'
+   ╭─[ test_62:1:1 ]
+   │
+ 1 │ else
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'for'
+   ╭─[ test_63:1:1 ]
+   │
+ 1 │ for
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'fn'
+   ╭─[ test_64:1:1 ]
+   │
+ 1 │ fn
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'if'
+   ╭─[ test_65:1:1 ]
+   │
+ 1 │ if
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'in'
+   ╭─[ test_66:1:1 ]
+   │
+ 1 │ in
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'let'
+   ╭─[ test_67:1:1 ]
+   │
+ 1 │ let
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '&'
+   ╭─[ test_68:1:1 ]
+   │
+ 1 │ &
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'return'
+   ╭─[ test_69:1:1 ]
+   │
+ 1 │ return
+───╯

@@ -28,7 +28,10 @@ macro_rules! create_messages {
     };
     ($(#[$error_type_docs:meta])* $type_:ident, code_mask: $code_mask:expr, code_prefix: $code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)] // Allow unused for errors that only use formatted or backtraced errors.
-        use $crate::{Backtrace, Backtraced, Formatted, LeoMessageCode};
+        use $crate::{Backtraced, Formatted, LeoMessageCode};
+
+        #[allow(unused_imports)]
+        use $crate::Backtrace;
 
         // Generates the enum and implements from FormattedError and BacktracedErrors.
         #[derive(Clone, Debug, Error)]
@@ -87,17 +90,6 @@ macro_rules! create_messages {
         // Steps over the list of functions with an initial code of 0.
         impl $type_ {
             create_messages!(@step 0i32, $(($(#[$docs])* $formatted_or_backtraced_list, $names($($arg_names: $arg_types,)*), $messages, $helps),)*);
-
-            // Return an instance of `Self` (i.e. of error type `$type_`) which has labels.
-            pub fn with_labels(self, labels: Vec<$crate::Label>) -> Self {
-                match self {
-                    Self::Formatted(f) => Self::Formatted(f.with_labels(labels)),
-                    Self::Backtraced(_) => {
-                        // Adding labels to Backtraced errors does nothing at the moment
-                        self
-                    }
-                }
-            }
         }
     };
     // Matches the function if it is a formatted message.
@@ -105,7 +97,8 @@ macro_rules! create_messages {
         // Formatted errors always takes a span.
         $(#[$error_func_docs])*
         // Expands additional arguments for the error defining function.
-        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span) -> Self {
+        #[allow(clippy::too_many_arguments)]
+        pub fn $name($($arg_names: $arg_types,)* span: leo_span::Span, labels: Vec<$crate::Label>) -> Self {
             Self::Formatted(
                 Formatted::new_from_span(
                     $message,
@@ -115,8 +108,7 @@ macro_rules! create_messages {
                     Self::message_type(),
                     Self::is_error(),
                     span,
-                    // Each function always generates its own backtrace for backtrace clarity to originate from the error function.
-                    Backtrace::new(),
+                    labels,
                 )
             )
         }
