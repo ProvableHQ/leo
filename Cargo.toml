@@ -22,6 +22,7 @@ leo-test-framework  = { path = "./crates/test-framework",   version = "=4.0.2" }
 aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
+ariadne            = "0.6"
 axum               = "0.8"
 axum-extra         = { version = "0.12", features = [ "erased-json", "typed-header" ] }
 backtrace          = "0.3"

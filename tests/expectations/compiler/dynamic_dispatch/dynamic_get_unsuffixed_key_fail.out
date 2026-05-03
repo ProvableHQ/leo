@@ -1,7 +1,7 @@
-Error [ETYC0372004]: Could not determine the type of `1`
-    --> compiler-test:11:63
-     |
-  11 |     let _: u64 = _dynamic_get::[u64](prog, net, mapping_name, 1);
-     |                                                               ^
-     |
-     = Consider using explicit type annotations.
+[ETYC0372004] Error: Could not determine the type of `1`
+    ╭─[ compiler-test:11:63 ]
+    │
+ 11 │     let _: u64 = _dynamic_get::[u64](prog, net, mapping_name, 1);
+    │ 
+    │ Help: Consider using explicit type annotations.
+────╯

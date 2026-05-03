@@ -1,21 +1,15 @@
-Error [ETYC0372057]: Only entry point fns can have a record as input or output.
-    --> compiler-test:11:34
-     |
-  11 | fn mint(r0: address, r1: u64) -> Token {
-     |                                  ^^^^^
-Error [ETYC0372013]: Composite initialization expression for `Token` is missing member `owner`.
-    --> compiler-test:12:12
-     |
-  12 |     return Token {
-     |            ^^^^^^^
-  13 |         sender: r0, // This variable should be named `owner`.
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |         amount: r1,
-     |         ^^^^^^^^^^^
-  15 |     };
-     |     ^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {
-     |         ^^^^^^^^^
+[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+    ╭─[ compiler-test:11:34 ]
+    │
+ 11 │ fn mint(r0: address, r1: u64) -> Token {
+────╯
+[ETYC0372013] Error: Composite initialization expression for `Token` is missing member `owner`.
+    ╭─[ compiler-test:12:12 ]
+    │
+    │ 
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {
+───╯

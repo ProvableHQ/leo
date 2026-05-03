@@ -1,20 +1,12 @@
-Error [ETYC0372106]: A final fn is not allowed to return a value.
-    --> compiler-test:9:1
-     |
-   9 | final fn fin_mint(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 | }
-     | ^
-     |
-     = Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
-Error [ETYC0372036]: Function must return a value.
-    --> compiler-test:9:1
-     |
-   9 | final fn fin_mint(public receiver: address, public amount: u64) -> u64 {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  10 |     Mapping::set(account, receiver, amount);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 | }
-     | ^
+[ETYC0372106] Error: A final fn is not allowed to return a value.
+    ╭─[ compiler-test:9:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+────╯
+[ETYC0372036] Error: Function must return a value.
+    ╭─[ compiler-test:9:1 ]
+    │
+    ┆ 
+────╯

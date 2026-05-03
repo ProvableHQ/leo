@@ -32,25 +32,17 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ECHI03712000]: Interface `ext_lib/base_lib::Base` not found.
-    --> compiler-test:1:1
-     |
-   1 | interface Extended : base_lib::Base {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   2 |     fn store(v: u32) -> u32;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^
-   3 | }
-     | ^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
-Error [ECHI03712000]: Interface `ext_lib/base_lib::Base` not found.
-    --> compiler-test:1:1
-     |
-   1 | interface Extended : base_lib::Base {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   2 |     fn store(v: u32) -> u32;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^
-   3 | }
-     | ^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
+[ECHI03712000] Error: Interface `ext_lib/base_lib::Base` not found.
+   ╭─[ compiler-test:1:1 ]
+   │
+   ┆ 
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯
+[ECHI03712000] Error: Interface `ext_lib/base_lib::Base` not found.
+   ╭─[ compiler-test:1:1 ]
+   │
+   ┆ 
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯

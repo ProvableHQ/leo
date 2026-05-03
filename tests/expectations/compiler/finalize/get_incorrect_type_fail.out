@@ -1,25 +1,25 @@
-Error [ETYC0372031]: A mapping's value cannot be a record
-    --> compiler-test:8:5
-     |
-   8 |     mapping tokens: address => Token;
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `address` but type `bool` was found.
-    --> compiler-test:17:26
-     |
-  17 |     Mapping::get(tokens, true);
-     |                          ^^^^
-Error [ETYC0372117]: Expected type `address` but type `bool` was found.
-    --> compiler-test:18:16
-     |
-  18 |     tokens.get(true);
-     |                ^^^^
-Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:19:27
-     |
-  19 |     Mapping::get(amounts, 1u8);
-     |                           ^^^
-Error [ETYC0372117]: Expected type `address` but type `u8` was found.
-    --> compiler-test:20:17
-     |
-  20 |     amounts.get(1u8);
-     |                 ^^^
+[ETYC0372031] Error: A mapping's value cannot be a record
+   ╭─[ compiler-test:8:5 ]
+   │
+ 8 │     mapping tokens: address => Token;
+───╯
+[ETYC0372117] Error: Expected type `address` but type `bool` was found.
+    ╭─[ compiler-test:17:26 ]
+    │
+ 17 │     Mapping::get(tokens, true);
+────╯
+[ETYC0372117] Error: Expected type `address` but type `bool` was found.
+    ╭─[ compiler-test:18:16 ]
+    │
+ 18 │     tokens.get(true);
+────╯
+[ETYC0372117] Error: Expected type `address` but type `u8` was found.
+    ╭─[ compiler-test:19:27 ]
+    │
+ 19 │     Mapping::get(amounts, 1u8);
+────╯
+[ETYC0372117] Error: Expected type `address` but type `u8` was found.
+    ╭─[ compiler-test:20:17 ]
+    │
+ 20 │     amounts.get(1u8);
+────╯

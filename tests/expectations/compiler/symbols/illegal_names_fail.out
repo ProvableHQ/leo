@@ -1,25 +1,25 @@
-Error [ENV03711001]: `fooaleobar` is an invalid program name. A program cannot have "aleo" in its name.
-    --> compiler-test:1:9
-     |
-   1 | program fooaleobar.aleo {
-     |         ^^^^^^^^^^
-Error [ENV03711001]: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
-    --> compiler-test:3:12
-     |
-   3 |     record FooaleoBar {
-     |            ^^^^^^^^^^
-Error [ENV03711001]: `aaleob` is an invalid record member name. A record member cannot have "aleo" in its name.
-    --> compiler-test:5:9
-     |
-   5 |         aaleob: u32,
-     |         ^^^^^^
-Error [ENV03711001]: `aleob` is an invalid record member name. A record member cannot have "aleo" in its name.
-    --> compiler-test:6:9
-     |
-   6 |         aleob: u32,
-     |         ^^^^^
-Error [ENV03711001]: `daleo` is an invalid record member name. A record member cannot have "aleo" in its name.
-    --> compiler-test:7:9
-     |
-   7 |         daleo: u32,
-     |         ^^^^^
+[ENV03711001] Error: `fooaleobar` is an invalid program name. A program cannot have "aleo" in its name.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program fooaleobar.aleo {
+───╯
+[ENV03711001] Error: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
+   ╭─[ compiler-test:3:12 ]
+   │
+ 3 │     record FooaleoBar {
+───╯
+[ENV03711001] Error: `aaleob` is an invalid record member name. A record member cannot have "aleo" in its name.
+   ╭─[ compiler-test:5:9 ]
+   │
+ 5 │         aaleob: u32,
+───╯
+[ENV03711001] Error: `aleob` is an invalid record member name. A record member cannot have "aleo" in its name.
+   ╭─[ compiler-test:6:9 ]
+   │
+ 6 │         aleob: u32,
+───╯
+[ENV03711001] Error: `daleo` is an invalid record member name. A record member cannot have "aleo" in its name.
+   ╭─[ compiler-test:7:9 ]
+   │
+ 7 │         daleo: u32,
+───╯

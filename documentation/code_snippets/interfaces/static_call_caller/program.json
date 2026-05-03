@@ -1,0 +1,14 @@
+{
+  "program": "static_caller.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "token_a.aleo",
+      "location": "local",
+      "path": "../static_call_dep",
+      "edition": null
+    }
+  ]
+}

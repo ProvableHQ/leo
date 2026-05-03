@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `u32` but type `bool` was found.
-    --> compiler-test:1:16
-     |
-   1 | const X: u32 = true;
-     |                ^^^^
+[ETYC0372117] Error: Expected type `u32` but type `bool` was found.
+   ╭─[ compiler-test:1:16 ]
+   │
+ 1 │ const X: u32 = true;
+───╯

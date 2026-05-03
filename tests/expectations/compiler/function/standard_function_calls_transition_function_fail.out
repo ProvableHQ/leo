@@ -1,10 +1,10 @@
-Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
-    --> compiler-test:3:16
-     |
-   3 |         return adder(a, b);
-     |                ^^^^^^^^^^^
-Error [ETYC0372042]: Only regular fns can be called from a regular function or constructor.
-    --> compiler-test:5:16
-     |
-   5 |         return subber(a, b);
-     |                ^^^^^^^^^^^^
+[ETYC0372042] Error: Only regular fns can be called from a regular function or constructor.
+   ╭─[ compiler-test:3:16 ]
+   │
+ 3 │         return adder(a, b);
+───╯
+[ETYC0372042] Error: Only regular fns can be called from a regular function or constructor.
+   ╭─[ compiler-test:5:16 ]
+   │
+ 5 │         return subber(a, b);
+───╯

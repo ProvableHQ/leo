@@ -1,10 +1,10 @@
-Error [EPAR0370047]: expected parameter name
-    --> test:3:14
-     |
-   3 | fn x(x: u32, const public y: i32) {
-     |              ^^^^^
-Error [EPAR0370047]: expected parameter name
-    --> test:7:15
-     |
-   7 | fn x(constant public x: u32, y: i32) {
-     |               ^^^^^^
+[EPAR0370047] Error: expected parameter name
+   ╭─[ test:3:14 ]
+   │
+ 3 │ fn x(x: u32, const public y: i32) {
+───╯
+[EPAR0370047] Error: expected parameter name
+   ╭─[ test:7:15 ]
+   │
+ 7 │ fn x(constant public x: u32, y: i32) {
+───╯

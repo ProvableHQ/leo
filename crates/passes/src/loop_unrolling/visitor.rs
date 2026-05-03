@@ -47,7 +47,7 @@ impl UnrollingVisitor<'_> {
             match v.as_i128() {
                 Some(val_as_i128) => Some(val_as_i128),
                 None => {
-                    self.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span()));
+                    self.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span(), vec![]));
                     None
                 }
             }

@@ -1,5 +1,5 @@
-Error [ECMP0376008]: This loop bound could not be determined at compile time.
-    --> compiler-test:7:36
-     |
-   7 |         for j: u32 in SOME + 1u32..STOP + a {
-     |                                    ^^^^^^^^
+[ECMP0376008] Error: This loop bound could not be determined at compile time.
+   ╭─[ compiler-test:7:36 ]
+   │
+ 7 │         for j: u32 in SOME + 1u32..STOP + a {
+───╯

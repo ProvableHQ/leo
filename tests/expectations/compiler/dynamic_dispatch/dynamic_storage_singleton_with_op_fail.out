@@ -1,5 +1,5 @@
-Error [ETYC0372156]: `total` is a singleton storage variable; read it as `Interface@(target)::total` without `.` or arguments.
-    --> compiler-test:14:21
-     |
-  14 |     let val: u64? = Counter@(target)::total.get(false);
-     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372156] Error: `total` is a singleton storage variable; read it as `Interface@(target)::total` without `.` or arguments.
+    ╭─[ compiler-test:14:21 ]
+    │
+ 14 │     let val: u64? = Counter@(target)::total.get(false);
+────╯

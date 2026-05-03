@@ -1,11 +1,11 @@
-Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:13:16
-     |
-  13 |         return bax(n);
-     |                ^^^^^^
-Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:17:16
-     |
-  17 |         return baz(n);
-     |                ^^^^^^
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+    ╭─[ compiler-test:13:16 ]
+    │
+ 13 │         return bax(n);
+────╯
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         return baz(n);
+────╯
 Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/baz` --> `test.aleo/bax` --> `test.aleo/baz`

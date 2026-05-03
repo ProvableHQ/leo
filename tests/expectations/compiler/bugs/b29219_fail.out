@@ -1,5 +1,5 @@
-Error [ETYC0372008]: The value 4294967300 is not a valid `u32`
-    --> compiler-test:6:46
-     |
-   6 |         return Deserialize::from_bits::[[u8; 4294967300]](bits);
-     |                                              ^^^^^^^^^^
+[ETYC0372008] Error: The value 4294967300 is not a valid `u32`
+   ╭─[ compiler-test:6:46 ]
+   │
+ 6 │         return Deserialize::from_bits::[[u8; 4294967300]](bits);
+───╯

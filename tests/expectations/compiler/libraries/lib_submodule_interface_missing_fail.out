@@ -1,23 +1,7 @@
-Error [ECHI03712002]: Program `main.aleo` implements interface `ifaces/traits::Worker` but is missing the required function `status`.
-    --> compiler-test:3:1
-     |
-   3 | program main.aleo : ifaces::traits::Worker {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   4 |     fn work() -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^
-   5 |         return 1u32;
-     |         ^^^^^^^^^^^^
-   6 |     }
-     |     ^
-   7 | 
-   8 |     // Missing: fn status() -> u32
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   9 | 
-  10 |     @noupgrade
-     |     ^^^^^^^^^^
-  11 |     constructor() {}
-     |     ^^^^^^^^^^^^^^^^
-  12 | }
-     | ^
-     |
-     = Add the missing function with the exact signature specified in the interface.
+[ECHI03712002] Error: Program `main.aleo` implements interface `ifaces/traits::Worker` but is missing the required function `status`.
+    ╭─[ compiler-test:3:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add the missing function with the exact signature specified in the interface.
+────╯

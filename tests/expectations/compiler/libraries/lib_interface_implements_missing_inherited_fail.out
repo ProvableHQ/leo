@@ -1,69 +1,25 @@
-Error [ECHI03712004]: Function `process` does not match the signature required by interface `top_lib/Top`.
+[ECHI03712004] Error: Function `process` does not match the signature required by interface `top_lib/Top`.
 Expected:
 fn process(v: u32) -> u32
 Found:
 fn process(v: u64) -> u32
-    --> compiler-test:12:5
-     |
-  12 |     fn process(v: u64) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |         return 0u32;
-     |         ^^^^^^^^^^^^
-  14 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
-Error [ECHI03712002]: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`.
-    --> compiler-test:7:1
-     |
-   7 | program main.aleo : top_lib::Top {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |     fn apply(v: u32) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-   9 |         return v;
-     |         ^^^^^^^^^
-  10 |     }
-     |     ^
-  11 | 
-  12 |     fn process(v: u64) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |         return 0u32;
-     |         ^^^^^^^^^^^^
-  14 |     }
-     |     ^
-  15 | 
-  16 |     @noupgrade
-     |     ^^^^^^^^^^
-  17 |     constructor() {}
-     |     ^^^^^^^^^^^^^^^^
-  18 | }
-     | ^
-     |
-     = Add the missing function with the exact signature specified in the interface.
-Error [ECHI03712002]: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `reset`.
-    --> compiler-test:7:1
-     |
-   7 | program main.aleo : top_lib::Top {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |     fn apply(v: u32) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-   9 |         return v;
-     |         ^^^^^^^^^
-  10 |     }
-     |     ^
-  11 | 
-  12 |     fn process(v: u64) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |         return 0u32;
-     |         ^^^^^^^^^^^^
-  14 |     }
-     |     ^
-  15 | 
-  16 |     @noupgrade
-     |     ^^^^^^^^^^
-  17 |     constructor() {}
-     |     ^^^^^^^^^^^^^^^^
-  18 | }
-     | ^
-     |
-     = Add the missing function with the exact signature specified in the interface.
+    ╭─[ compiler-test:12:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯
+[ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`.
+    ╭─[ compiler-test:7:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add the missing function with the exact signature specified in the interface.
+────╯
+[ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `reset`.
+    ╭─[ compiler-test:7:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Add the missing function with the exact signature specified in the interface.
+────╯

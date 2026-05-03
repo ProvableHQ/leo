@@ -1,7 +1,7 @@
-Error [ETYC0372183]: `_dynamic_call` has 1 input type annotation(s) but 2 call argument(s) were provided (excluding the 3 target arguments).
-    --> compiler-test:4:27
-     |
-   4 |         let result: u64 = _dynamic_call::[public u64, u64](target, net, func, x, y);
-     |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = The number of type annotations before the return type must match the number of call arguments after program/network/function.
+[ETYC0372183] Error: `_dynamic_call` has 1 input type annotation(s) but 2 call argument(s) were provided (excluding the 3 target arguments).
+   ╭─[ compiler-test:4:27 ]
+   │
+ 4 │         let result: u64 = _dynamic_call::[public u64, u64](target, net, func, x, y);
+   │ 
+   │ Help: The number of type annotations before the return type must match the number of call arguments after program/network/function.
+───╯

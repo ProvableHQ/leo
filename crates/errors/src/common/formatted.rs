@@ -14,46 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Backtrace, Backtraced, INDENT};
+use crate::{compute_exit_code, format_error_code, format_warning_code};
+use leo_span::{
+    SESSION_GLOBALS,
+    Span,
+    source_map::{LeoSourceCache, is_color},
+};
 
-use leo_span::{Span, source_map::LineContents, with_session_globals};
-
-use colored::Colorize;
-use itertools::Itertools;
-use std::fmt;
-
-#[cfg(not(target_arch = "wasm32"))]
-use color_backtrace::{BacktracePrinter, Verbosity};
-
-/// Represents available colors for error labels.
-#[derive(Default, Clone, Debug, Hash, PartialEq, Eq)]
-pub enum Color {
-    #[default]
-    Red,
-    Yellow,
-    Blue,
-    Green,
-    Cyan,
-    Magenta,
-}
-
-impl Color {
-    /// Color `text` with `self` ane make it bold.
-    pub fn color_and_bold(&self, text: &str, use_colors: bool) -> String {
-        if use_colors {
-            match self {
-                Color::Red => text.bold().red().to_string(),
-                Color::Yellow => text.bold().yellow().to_string(),
-                Color::Blue => text.bold().blue().to_string(),
-                Color::Green => text.bold().green().to_string(),
-                Color::Cyan => text.bold().cyan().to_string(),
-                Color::Magenta => text.bold().magenta().to_string(),
-            }
-        } else {
-            text.to_string()
-        }
-    }
-}
+pub use ariadne::Color;
+use ariadne::Report;
+use std::{
+    fmt,
+    hash::{Hash, Hasher},
+};
 
 /// Represents error labels.
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
@@ -74,6 +47,28 @@ impl Label {
     }
 }
 
+/// Helper span for Ariadne that includes the source file start index.
+struct AriadneSpan {
+    file_start_index: u32,
+    span: Span,
+}
+
+impl ariadne::Span for AriadneSpan {
+    type SourceId = u32;
+
+    fn source(&self) -> &Self::SourceId {
+        &self.file_start_index
+    }
+
+    fn start(&self) -> usize {
+        (self.span.lo - self.file_start_index) as usize
+    }
+
+    fn end(&self) -> usize {
+        (self.span.hi - self.file_start_index) as usize
+    }
+}
+
 /// Formatted compiler error type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
@@ -82,19 +77,23 @@ impl Label {
 ///      |         ^
 ///      |
 ///      = help: Initialize a variable `x` first.
-/// Makes use of the same fields as a BacktracedError.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+///
+/// Stores all error components as plain owned fields.
+/// The ariadne `Report` is built on the fly in `Display::fmt`.
+#[derive(Clone, Debug)]
 pub struct Formatted {
-    /// The formatted error span information.
-    pub span: Span,
-    /// Additional spans with labels and optional colors for multi-span errors.
-    pub labels: Vec<Label>,
-    /// The backtrace to track where the Leo error originated.
-    pub backtrace: Box<Backtraced>,
+    message: String,
+    help: Option<String>,
+    code: i32,
+    code_identifier: i8,
+    type_: String,
+    error: bool,
+    span: Span,
+    labels: Vec<Label>,
 }
 
 impl Formatted {
-    /// Creates a backtraced error from a span and a backtrace.
+    /// Creates a formatted error from a span and labels.
     #[allow(clippy::too_many_arguments)]
     pub fn new_from_span<S>(
         message: S,
@@ -104,330 +103,115 @@ impl Formatted {
         type_: String,
         error: bool,
         span: Span,
-        backtrace: Backtrace,
+        labels: Vec<Label>,
     ) -> Self
     where
         S: ToString,
     {
-        Self {
-            span,
-            labels: Vec::new(),
-            backtrace: Box::new(Backtraced::new_from_backtrace(
-                message.to_string(),
-                help,
-                code,
-                code_identifier,
-                type_,
-                error,
-                backtrace,
-            )),
-        }
+        Self { message: message.to_string(), help, code, code_identifier, type_, error, span, labels }
     }
 
-    /// Calls the backtraces error exit code.
+    /// Gets the exit code.
     pub fn exit_code(&self) -> i32 {
-        self.backtrace.exit_code()
+        compute_exit_code(self.code_identifier, self.code)
     }
 
-    /// Returns an error identifier.
+    /// Gets a unique error identifier.
     pub fn error_code(&self) -> String {
-        self.backtrace.error_code()
+        format_error_code(&self.type_, self.code_identifier, self.code)
     }
 
-    /// Returns an warning identifier.
+    /// Gets a unique warning identifier.
     pub fn warning_code(&self) -> String {
-        self.backtrace.warning_code()
+        format_warning_code(&self.type_, self.code_identifier, self.code)
     }
 
-    /// Returns a new instance of `Formatted` which has labels.
-    pub fn with_labels(mut self, labels: Vec<Label>) -> Self {
-        self.labels = labels;
-        self
-    }
-}
-
-/// Compute the start and end columns of the highlight for each line
-fn compute_line_spans(lc: &LineContents) -> Vec<(usize, usize)> {
-    let lines: Vec<&str> = lc.contents.lines().collect();
-    let mut byte_index = 0;
-    let mut line_spans = Vec::new();
-
-    for line in &lines {
-        let line_start = byte_index;
-        let line_end = byte_index + line.len();
-        let start = lc.start.saturating_sub(line_start);
-        let end = lc.end.saturating_sub(line_start);
-        line_spans.push((start.min(line.len()), end.min(line.len())));
-        byte_index = line_end + 1; // +1 for '\n'
+    /// Resolve a Leo `Span` to an `AriadneSpan` using the source map.
+    fn resolve_span(span: Span, source_map: &leo_span::source_map::SourceMap) -> AriadneSpan {
+        let file_start_index = source_map.find_source_file(span.lo).unwrap().absolute_start;
+        AriadneSpan { file_start_index, span }
     }
 
-    line_spans
-}
+    /// Build an ariadne Report from the stored fields.
+    fn build_report(&self) -> Report<'_, AriadneSpan> {
+        use leo_span::with_session_globals;
 
-/// Print a gap or ellipsis between blocks of code
-fn print_gap(
-    f: &mut impl std::fmt::Write,
-    prev_last_line: Option<usize>,
-    first_line_of_block: usize,
-) -> std::fmt::Result {
-    if let Some(prev_last) = prev_last_line {
-        let gap = first_line_of_block.saturating_sub(prev_last + 1);
-        if gap == 1 {
-            // Single skipped line
-            writeln!(f, "{:width$} |", prev_last + 1, width = INDENT.len())?;
-        } else if gap > 1 {
-            // Multiple skipped lines
-            writeln!(f, "{:width$}...", "", width = INDENT.len() - 1)?;
-        }
+        let primary_color = if self.error { Color::Red } else { Color::Yellow };
+
+        with_session_globals(|s| {
+            let primary_span = Self::resolve_span(self.span, &s.source_map);
+
+            // Always include a label for the primary span so ariadne renders the source snippet.
+            let primary_label = std::iter::once(
+                ariadne::Label::new(Self::resolve_span(self.span, &s.source_map)).with_color(primary_color),
+            );
+            let extra_labels: Vec<_> = self
+                .labels
+                .iter()
+                .map(|l| {
+                    ariadne::Label::new(Self::resolve_span(l.span, &s.source_map))
+                        .with_message(&l.msg)
+                        .with_color(l.color)
+                })
+                .collect();
+
+            let mut report = Report::build(
+                if self.error { ariadne::ReportKind::Error } else { ariadne::ReportKind::Warning },
+                primary_span,
+            )
+            .with_config(ariadne::Config::default().with_color(is_color()))
+            .with_message(&self.message)
+            .with_code(if self.error { self.error_code() } else { self.warning_code() })
+            .with_labels(primary_label.chain(extra_labels));
+
+            if let Some(help) = &self.help {
+                report = report.with_help(help);
+            }
+
+            report.finish()
+        })
     }
-    Ok(())
-}
-
-/// Print a single line of code with connector and optional highlight
-#[allow(clippy::too_many_arguments)]
-fn print_code_line(
-    f: &mut impl std::fmt::Write,
-    line_num: usize,
-    line_text: &str,
-    connector: &str,
-    start: usize,
-    end: usize,
-    multiline: bool,
-    first_line: Option<usize>,
-    last_line: Option<usize>,
-    label: &Label,
-) -> std::fmt::Result {
-    let use_colors = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
-
-    // Print line number, connector, and code
-    write!(f, "{:width$} | {} ", line_num, label.color.color_and_bold(connector, use_colors), width = INDENT.len())?;
-    writeln!(f, "{line_text}")?;
-
-    // Single-line highlight with caret
-    if !multiline && end > start {
-        writeln!(
-            f,
-            "{INDENT} |   {:start$}{} {}",
-            "",
-            label.color.color_and_bold(&"^".repeat(end - start), use_colors),
-            label.color.color_and_bold(&label.msg, use_colors),
-            start = start
-        )?;
-    }
-    // Multi-line highlight: only print underline on last line
-    else if multiline
-        && let (Some(first), Some(last)) = (first_line, last_line)
-        && line_num - first_line.unwrap() == last - first
-    {
-        let underline_len = (end - start).max(1);
-        writeln!(
-            f,
-            "{INDENT} | {:start$}{} {}",
-            label.color.color_and_bold("|", use_colors), // vertical pointer
-            label.color.color_and_bold(&"_".repeat(underline_len), use_colors), // underline
-            label.color.color_and_bold(&label.msg, use_colors), // message
-            start = start
-        )?;
-    }
-
-    Ok(())
-}
-
-/// Print the final underline for a multi-line highlight (Rust-style with `-`)
-fn print_multiline_underline(
-    f: &mut impl std::fmt::Write,
-    start_col: usize,
-    end_col: usize,
-    label: &Label,
-) -> std::fmt::Result {
-    let use_colors = std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty();
-    let underline_len = (end_col - start_col).max(1);
-    let underline = format!("{}-", "_".repeat(underline_len));
-
-    writeln!(
-        f,
-        "{INDENT} | {:start$}{} {}",
-        label.color.color_and_bold("|", use_colors), // vertical pointer
-        label.color.color_and_bold(&underline, use_colors), // colored underline + dash
-        label.color.color_and_bold(&label.msg, use_colors), // message
-        start = start_col
-    )
 }
 
 impl fmt::Display for Formatted {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let (kind, code) =
-            if self.backtrace.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
-
-        let message = format!("{kind} [{code}]: {message}", message = self.backtrace.message,);
-
-        // To avoid the color enabling characters for comparison with test expectations.
-        if std::env::var("NOCOLOR").unwrap_or_default().trim().to_owned().is_empty() {
-            if self.backtrace.error {
-                writeln!(f, "{}", message.bold().red())?;
-            } else {
-                writeln!(f, "{}", message.bold().yellow())?;
-            }
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if SESSION_GLOBALS.is_set() {
+            let report = self.build_report();
+            let mut cache = LeoSourceCache::new();
+            let mut buf = Vec::new();
+            report.write(&mut cache, &mut buf).map_err(|_| fmt::Error)?;
+            let output = String::from_utf8(buf).map_err(|_| fmt::Error)?;
+            write!(f, "{output}")
         } else {
-            writeln!(f, "{message}")?;
-        };
-
-        if let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(self.span.lo)) {
-            let line_contents = source_file.line_contents(self.span);
-
-            writeln!(
-                f,
-                "{indent     }--> {path}:{line_start}:{start}",
-                indent = INDENT,
-                path = &source_file.name,
-                // Report lines starting from line 1.
-                line_start = line_contents.line + 1,
-                // And columns - comments in some old code claims to report columns indexing from 0,
-                // but that doesn't appear to have been true.
-                start = line_contents.start + 1,
-            )?;
-
-            if self.labels.is_empty() {
-                // If there are no labels, just print the line contents which will point to the right location.
-                write!(f, "{line_contents}")?;
-            } else {
-                // If there are labels, we handle the printing manually. Something like:
-                //     |
-                //  50 | /         x
-                //  51 | |             :
-                //  52 | |                 u32,
-                //     | |___________________- `x` first declared here
-                //   ...
-                //  55 |           x: u32
-                //     |           ^^^^^^ struct field already declared
-
-                // Sort the labels by their source line number.
-                let labels = self
-                    .labels
-                    .iter()
-                    .filter_map(|label| {
-                        with_session_globals(|s| s.source_map.find_source_file(label.span.lo)).map(|source_file| {
-                            let lc = source_file.line_contents(label.span);
-                            (label.clone(), lc.line)
-                        })
-                    })
-                    .sorted_by_key(|(_, line)| *line)
-                    .map(|(label, _)| label)
-                    .collect_vec();
-
-                // Track the last printed line number to handle gaps between blocks
-                let mut prev_last_line: Option<usize> = None;
-
-                for label in labels {
-                    // Find the source file corresponding to this label's span
-                    let Some(source_file) = with_session_globals(|s| s.source_map.find_source_file(label.span.lo))
-                    else {
-                        continue;
-                    };
-
-                    // Get the line contents and offsets for this span
-                    let lc = source_file.line_contents(label.span);
-
-                    // Compute start and end columns of highlights for each line
-                    let line_spans = compute_line_spans(&lc);
-
-                    let first_line_of_block = lc.line + 1; // 1-based line number of the first line
-
-                    // Print a gap or ellipsis if there are skipped lines since previous label
-                    print_gap(f, prev_last_line, first_line_of_block)?;
-
-                    // Print a leading vertical margin only for the first label
-                    if prev_last_line.is_none() {
-                        writeln!(f, "{INDENT} |")?;
-                    }
-
-                    // Determine if this label spans multiple lines
-                    let multiline = line_spans.iter().any(|&(s, e)| e > s) && lc.contents.lines().count() > 1;
-
-                    // Identify first and last lines that have a highlight
-                    let first_line = line_spans.iter().position(|&(s, e)| e > s);
-                    let last_line = line_spans.iter().rposition(|&(s, e)| e > s);
-
-                    // Iterate over each line in the span
-                    for (i, (line_text, &(start, end))) in lc.contents.lines().zip(&line_spans).enumerate() {
-                        let line_num = lc.line + i + 1;
-
-                        // Choose connector symbol for multi-line highlights:
-                        // "/" for first line, "|" for continuation lines
-                        let connector = if multiline {
-                            match (first_line, last_line) {
-                                (Some(first), Some(_last)) => {
-                                    if i == first {
-                                        "/"
-                                    } else {
-                                        "|"
-                                    }
-                                }
-                                _ => " ",
-                            }
-                        } else {
-                            " "
-                        };
-
-                        // Print the code line with connector and optional single-line caret
-                        print_code_line(
-                            f, line_num, line_text, connector, start, end, multiline, first_line, last_line, &label,
-                        )?;
-                    }
-
-                    // If this was a multi-line highlight, print the final underline + message
-                    if multiline && let (Some(_), Some(last)) = (first_line, last_line) {
-                        // Start column: first highlighted character on the last line
-                        let start_col = line_spans[last].0;
-
-                        // End column: last highlighted character on the last line
-                        let end_col = line_spans[last].1;
-
-                        print_multiline_underline(f, start_col, end_col, &label)?;
-                    }
-
-                    // Update the previous last line to track gaps for the next label
-                    prev_last_line = Some(lc.line + lc.contents.lines().count());
-                }
+            // Fallback when session globals are unavailable (e.g. tests).
+            let (kind, code) = if self.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
+            write!(f, "{kind} [{code}]: {}", self.message)?;
+            if let Some(help) = &self.help {
+                write!(f, "\n    = help: {help}")?;
             }
+            Ok(())
         }
-
-        if let Some(help) = &self.backtrace.help {
-            writeln!(
-                f,
-                "{INDENT     } |\n\
-                {INDENT     } = {help}",
-            )?;
-        }
-
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
-            match leo_backtrace.as_ref() {
-                "1" => {
-                    let mut printer = BacktracePrinter::default();
-                    printer = printer.verbosity(Verbosity::Medium);
-                    printer = printer.lib_verbosity(Verbosity::Medium);
-                    let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
-                    write!(f, "\n{trace}")?;
-                }
-                "full" => {
-                    let mut printer = BacktracePrinter::default();
-                    printer = printer.verbosity(Verbosity::Full);
-                    printer = printer.lib_verbosity(Verbosity::Full);
-                    let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
-                    write!(f, "\n{trace}")?;
-                }
-                _ => {}
-            }
-        }
-
-        Ok(())
     }
 }
 
 impl std::error::Error for Formatted {
     fn description(&self) -> &str {
-        &self.backtrace.message
+        &self.message
     }
 }
+
+impl Hash for Formatted {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.message.hash(state);
+        self.code.hash(state);
+        self.span.hash(state);
+    }
+}
+
+impl PartialEq for Formatted {
+    fn eq(&self, other: &Self) -> bool {
+        self.message == other.message && self.code == other.code && self.span == other.span
+    }
+}
+
+impl Eq for Formatted {}

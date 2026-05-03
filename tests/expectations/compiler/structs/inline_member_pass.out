@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected parameter name
-    --> compiler-test:6:13
-     |
-   6 |     fn main(let x: u8, y: bool) -> bool {
-     |             ^^^
+[EPAR0370047] Error: expected parameter name
+   ╭─[ compiler-test:6:13 ]
+   │
+ 6 │     fn main(let x: u8, y: bool) -> bool {
+───╯

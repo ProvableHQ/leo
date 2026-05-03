@@ -1,7 +1,7 @@
-Error [ETYC0372190]: A definition with multiple identifiers requires a tuple on the right-hand side, but found type `u32`.
-    --> compiler-test:6:9
-     |
-   6 |         let (a, b) = 42u32;
-     |         ^^^^^^^^^^^^^^^^^^^
-     |
-     = Use a tuple expression, e.g. `let (a, b) = (x, y);`.
+[ETYC0372190] Error: A definition with multiple identifiers requires a tuple on the right-hand side, but found type `u32`.
+   ╭─[ compiler-test:6:9 ]
+   │
+ 6 │         let (a, b) = 42u32;
+   │ 
+   │ Help: Use a tuple expression, e.g. `let (a, b) = (x, y);`.
+───╯

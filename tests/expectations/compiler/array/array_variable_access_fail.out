@@ -1,5 +1,5 @@
-Error [ECMP0376009]: This array index could not be determined at compile time.
-    --> compiler-test:3:18
-     |
-   3 |         return a[index];
-     |                  ^^^^^
+[ECMP0376009] Error: This array index could not be determined at compile time.
+   ╭─[ compiler-test:3:18 ]
+   │
+ 3 │         return a[index];
+───╯

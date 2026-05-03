@@ -1,14 +1,14 @@
-Error [EPAR0370053]: Identifiers cannot start with an underscore.
-    --> test:5:16
-     |
-   5 |         return _value;
-     |                ^^^^^^
-     |
-     = Identifiers must start with a letter.
-Error [EPAR0370053]: Identifiers cannot start with an underscore.
-    --> test:10:12
-     |
-  10 |     return _param;
-     |            ^^^^^^
-     |
-     = Identifiers must start with a letter.
+[EPAR0370053] Error: Identifiers cannot start with an underscore.
+   ╭─[ test:5:16 ]
+   │
+ 5 │         return _value;
+   │ 
+   │ Help: Identifiers must start with a letter.
+───╯
+[EPAR0370053] Error: Identifiers cannot start with an underscore.
+    ╭─[ test:10:12 ]
+    │
+ 10 │     return _param;
+    │ 
+    │ Help: Identifiers must start with a letter.
+────╯

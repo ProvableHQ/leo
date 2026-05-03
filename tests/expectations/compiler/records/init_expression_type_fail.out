@@ -1,20 +1,20 @@
-Error [ETYC0372057]: Only entry point fns can have a record as input or output.
-    --> compiler-test:11:34
-     |
-  11 | fn mint(r0: address, r1: u64) -> Token {
-     |                                  ^^^^^
-Error [ETYC0372117]: Expected type `address` but type `u64` was found.
-    --> compiler-test:13:16
-     |
-  13 |         owner: r1, // This variable should be type address.
-     |                ^^
-Error [ETYC0372117]: Expected type `u64` but type `address` was found.
-    --> compiler-test:14:17
-     |
-  14 |         amount: r0, // This variable should be type u64.
-     |                 ^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {
-     |         ^^^^^^^^^
+[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+    ╭─[ compiler-test:11:34 ]
+    │
+ 11 │ fn mint(r0: address, r1: u64) -> Token {
+────╯
+[ETYC0372117] Error: Expected type `address` but type `u64` was found.
+    ╭─[ compiler-test:13:16 ]
+    │
+ 13 │         owner: r1, // This variable should be type address.
+────╯
+[ETYC0372117] Error: Expected type `u64` but type `address` was found.
+    ╭─[ compiler-test:14:17 ]
+    │
+ 14 │         amount: r0, // This variable should be type u64.
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {
+───╯

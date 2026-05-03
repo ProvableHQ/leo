@@ -1,0 +1,14 @@
+{
+  "program": "vote_example.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "basic_voting.aleo",
+      "location": "local",
+      "path": "../vote_dep",
+      "edition": null
+    }
+  ]
+}

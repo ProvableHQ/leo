@@ -1,12 +1,12 @@
-Error [ETYC0372148]: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
-    --> compiler-test:5:22
-     |
-   5 |     const F: Final = final { };
-     |                      ^^^^^^^^^
-     |
-     = Try moving this `final` block into an entry point fn or a script function.
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:4:9
-     |
-   4 | program test.aleo {
-     |         ^^^^^^^^^
+[ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+   ╭─[ compiler-test:5:22 ]
+   │
+ 5 │     const F: Final = final { };
+   │ 
+   │ Help: Try moving this `final` block into an entry point fn or a script function.
+───╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:4:9 ]
+   │
+ 4 │ program test.aleo {
+───╯

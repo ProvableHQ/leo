@@ -1,0 +1,14 @@
+{
+  "program": "reader.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "logger.aleo",
+      "location": "local",
+      "path": "../logger",
+      "edition": null
+    }
+  ]
+}

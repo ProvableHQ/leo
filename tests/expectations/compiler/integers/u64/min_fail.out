@@ -1,10 +1,10 @@
-Error [ETYC0372008]: The value -1 is not a valid `u64`
-    --> compiler-test:4:18
-     |
-   4 |     let a: u64 = -1u64;
-     |                  ^^^^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372008] Error: The value -1 is not a valid `u64`
+   ╭─[ compiler-test:4:18 ]
+   │
+ 4 │     let a: u64 = -1u64;
+───╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

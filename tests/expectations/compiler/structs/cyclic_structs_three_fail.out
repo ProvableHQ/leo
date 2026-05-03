@@ -1,6 +1,6 @@
 Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/One` --> `test.aleo/Two` --> `test.aleo/Three` --> `test.aleo/One`
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

@@ -159,7 +159,12 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                 input = input.to_local();
             } else {
                 // Otherwise, unknown path.
-                self.state.handler.emit_err(TypeCheckerError::unknown_sym("variable", input.clone(), input.span()));
+                self.state.handler.emit_err(TypeCheckerError::unknown_sym(
+                    "variable",
+                    input.clone(),
+                    input.span(),
+                    vec![],
+                ));
             }
         }
 

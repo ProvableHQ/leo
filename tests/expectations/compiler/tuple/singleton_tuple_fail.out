@@ -1,10 +1,10 @@
-Error [EPAR0370029]: A tuple type must have at least two elements.
-    --> compiler-test:5:16
-     |
-   5 |         let c: (u8) = (a);
-     |                ^^^^
-Error [EPAR0370029]: A tuple type must have at least two elements.
-    --> compiler-test:6:16
-     |
-   6 |         let d: (u8) = (3u8 + 4u8);
-     |                ^^^^
+[EPAR0370029] Error: A tuple type must have at least two elements.
+   ╭─[ compiler-test:5:16 ]
+   │
+ 5 │         let c: (u8) = (a);
+───╯
+[EPAR0370029] Error: A tuple type must have at least two elements.
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │         let d: (u8) = (3u8 + 4u8);
+───╯

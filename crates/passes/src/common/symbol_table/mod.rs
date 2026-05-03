@@ -559,12 +559,11 @@ impl SymbolTable {
     }
 
     pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
-        AstError::name_defined_multiple_times(name, span)
-            .with_labels(vec![
-                Label::new(format!("previous definition of `{name}` here"), prev_span).with_color(Color::Blue),
-                Label::new(format!("`{name}` redefined here"), span),
-            ])
-            .into()
+        AstError::name_defined_multiple_times(name, span, vec![
+            Label::new(format!("previous definition of `{name}` here"), prev_span).with_color(Color::Blue),
+            Label::new(format!("`{name}` redefined here"), span),
+        ])
+        .into()
     }
 
     fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {

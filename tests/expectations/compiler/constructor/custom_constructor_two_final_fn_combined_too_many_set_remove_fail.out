@@ -1,13 +1,5 @@
-Error [ECMP0376015]: This block contains 33 `set`/`remove` mapping commands, but the maximum allowed is 32.
-    --> compiler-test:6:5
-     |
-   6 |     @custom
-     |     ^^^^^^^
-   7 |     constructor() {
-     |     ^^^^^^^^^^^^^^^
-   8 |         write_a();
-     |         ^^^^^^^^^^
-   9 |         write_b();
-     |         ^^^^^^^^^^
-  10 |     }
-     |     ^
+[ECMP0376015] Error: This block contains 33 `set`/`remove` mapping commands, but the maximum allowed is 32.
+    ╭─[ compiler-test:6:5 ]
+    │
+    │ 
+────╯

@@ -1,5 +1,5 @@
-Error [ESAZ0374007]: Binary operation `-32767i16 - 2i16` failed at compile time: sub overflow.
-    --> compiler-test:6:16
-     |
-   6 |         return a - 2i16; // This line attempts to return -32769i16 however, the smallest i16 value is -32768i16.
-     |                ^^^^^^^^
+[ESAZ0374007] Error: Binary operation `-32767i16 - 2i16` failed at compile time: sub overflow.
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │         return a - 2i16; // This line attempts to return -32769i16 however, the smallest i16 value is -32768i16.
+───╯

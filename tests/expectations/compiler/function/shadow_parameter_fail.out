@@ -1,7 +1,14 @@
-Error [EAST0372017]: The name `hi` is defined multiple times.
-    --> compiler-test:3:13
-     |
-   2 |       fn tester(hi: u8) -> u8 {
-     |                 ^^ previous definition of `hi` here
-   3 |           let hi = 2u8;
-     |               ^^ `hi` redefined here
+[EAST0372017] Error: The name `hi` is defined multiple times.
+   ╭─[ compiler-test:3:13 ]
+   │
+ 3 │         let hi = 2u8;
+   │
+   ├─[ compiler-test:3:13 ]
+   │
+ 2 │     fn tester(hi: u8) -> u8 {
+   │               ─┬  
+   │                ╰── previous definition of `hi` here
+ 3 │         let hi = 2u8;
+   │             ─┬  
+   │              ╰── `hi` redefined here
+───╯

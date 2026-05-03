@@ -1,5 +1,5 @@
-Error [ETYC0372013]: Composite initialization expression for `Foo` is missing member `x`.
-    --> compiler-test:8:22
-     |
-   8 |         let a: Foo = Foo { y };
-     |                      ^^^^^^^^^
+[ETYC0372013] Error: Composite initialization expression for `Foo` is missing member `x`.
+   ╭─[ compiler-test:8:22 ]
+   │
+ 8 │         let a: Foo = Foo { y };
+───╯

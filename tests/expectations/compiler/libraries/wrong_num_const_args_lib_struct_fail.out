@@ -1,10 +1,10 @@
-Error [ETYC0372140]: Composite type expected `1` const args, but got `2`
-    --> compiler-test:5:16
-     |
-   5 |         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
-     |                ^^^^^^^^^^^^
-Error [ETYC0372140]: Composite expression expected `1` const args, but got `2`
-    --> compiler-test:5:45
-     |
-   5 |         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
-     |                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372140] Error: Composite type expected `1` const args, but got `2`
+   ╭─[ compiler-test:5:16 ]
+   │
+ 5 │         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
+───╯
+[ETYC0372140] Error: Composite expression expected `1` const args, but got `2`
+   ╭─[ compiler-test:5:45 ]
+   │
+ 5 │         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
+───╯

@@ -16,10 +16,10 @@ function main:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ECHI03712000]: Interface `lib.aleo/Counter` not found.
-    --> compiler-test:4:20
-     |
-   4 | program test.aleo: lib.aleo::Counter {
-     |                    ^^^^^^^^^^^^^^^^^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
+[ECHI03712000] Error: Interface `lib.aleo/Counter` not found.
+   ╭─[ compiler-test:4:20 ]
+   │
+ 4 │ program test.aleo: lib.aleo::Counter {
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯

@@ -1,7 +1,9 @@
-Error [EAST0372017]: The name `N` is defined multiple times.
-    --> compiler-test:7:18
-     |
-   7 |   fn foo::[N: u32](N: u32) -> u32 {
-     |            ^ previous definition of `N` here
-   7 |   fn foo::[N: u32](N: u32) -> u32 {
-     |                    ^ `N` redefined here
+[EAST0372017] Error: The name `N` is defined multiple times.
+   ╭─[ compiler-test:7:18 ]
+   │
+ 7 │ fn foo::[N: u32](N: u32) -> u32 {
+   │          ┬       ┬  
+   │          ╰────────── previous definition of `N` here
+   │                  │  
+   │                  ╰── `N` redefined here
+───╯

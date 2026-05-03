@@ -1,5 +1,5 @@
-Error [ETYC0372003]: Expected type `Final<Fn()>` but type `()` was found
-    --> compiler-test:3:16
-     |
-   3 |         return bar();
-     |                ^^^^^
+[ETYC0372003] Error: Expected type `Final<Fn()>` but type `()` was found
+   ╭─[ compiler-test:3:16 ]
+   │
+ 3 │         return bar();
+───╯

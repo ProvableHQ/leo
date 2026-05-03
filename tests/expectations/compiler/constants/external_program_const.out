@@ -25,13 +25,13 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown variable `child.aleo::MAIN_CONST`
-    --> compiler-test:7:16
-     |
-   7 |         return child.aleo::MAIN_CONST;
-     |                ^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown variable `child.aleo::MAIN_CONST`
-    --> compiler-test:15:16
-     |
-  15 |         return child.aleo::MAIN_CONST + child.aleo::sub::SUB_CONST;
-     |                ^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown variable `child.aleo::MAIN_CONST`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return child.aleo::MAIN_CONST;
+───╯
+[ETYC0372005] Error: Unknown variable `child.aleo::MAIN_CONST`
+    ╭─[ compiler-test:15:16 ]
+    │
+ 15 │         return child.aleo::MAIN_CONST + child.aleo::sub::SUB_CONST;
+────╯

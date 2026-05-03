@@ -1,0 +1,27 @@
+# markdownlint rules for the Leo documentation tree.
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+default: true
+
+# Docs have long prose lines; don't enforce hard wraps.
+MD013: false
+
+# Allow inline HTML (used for images/anchors/admonitions).
+MD033: false
+
+# The `[general tags]: # "..."` entries are intentional metadata consumed
+# downstream by the docs site, not markdown link references.
+MD053: false
+
+# Ignore empty `title: ""` entries in front-matter; they are placeholders
+# so the sidebar label takes precedence at render time, not real titles.
+MD025:
+  front_matter_title: '^\s*title\s*[:=]\s*["'']?[^"''\s]'
+
+# Duplicate headings are legitimate under different parents
+# (e.g., `### Flags` repeated under each subcommand).
+MD024:
+  siblings_only: true
+
+# Bold paragraphs are sometimes used as informal sub-section labels
+# (e.g., `**Case A — ...**` inside a `###` section).
+MD036: false
