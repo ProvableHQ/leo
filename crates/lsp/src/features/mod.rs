@@ -14,5 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod goto_definition;
 /// Semantic token capability wiring and wire-format encoding helpers.
 pub mod semantic_tokens;

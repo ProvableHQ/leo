@@ -21,20 +21,30 @@
 //! lexical tokens for full editor highlighting coverage.
 
 use crate::{
-    document_store::DocumentSnapshot,
-    project_model::ProjectKind,
+    document_store::{DocumentSnapshot, DocumentViewSnapshot, OpenFileOverlay},
+    project_model::{ProjectContext, ProjectKind},
     semantics::{
         FileRange,
         OccurrenceRole,
         SemanticKind,
         SemanticTokenOccurrence,
+        SourceFingerprint,
         SymbolIdentity,
         SymbolOccurrence,
         sort_occurrences,
     },
 };
+use leo_package::{CompilationUnit, Dependency, Location, Manifest, ProgramData};
 use leo_parser_rowan::{SyntaxElement, SyntaxKind, SyntaxNode, SyntaxToken, parse_main, parse_module};
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use leo_span::{Symbol, create_session_if_not_set_then};
+use std::{
+    collections::HashMap,
+    fs::{self, Metadata},
+    hash::{DefaultHasher, Hash, Hasher},
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::UNIX_EPOCH,
+};
 
 /// Compiler-free semantic data extracted from one Rowan parse.
 #[derive(Debug, Default)]
@@ -43,18 +53,81 @@ pub(crate) struct SyntaxSemantics {
     pub(crate) occurrences: Vec<SymbolOccurrence>,
     /// Highlighting-only lexical tokens that should not affect navigation data.
     pub(crate) tokens: Vec<SemanticTokenOccurrence>,
+    /// Verified disk fingerprints for syntax-discovered cross-file targets.
+    pub(crate) fingerprints: HashMap<PathBuf, SourceFingerprint>,
 }
 
 /// Collect syntax-only symbols and lexical tokens for the snapshot's current text.
 pub(crate) fn collect(snapshot: &DocumentSnapshot) -> SyntaxSemantics {
-    let parse = match choose_syntax_parser(snapshot) {
-        SyntaxParser::Main => parse_main(snapshot.text.as_ref()),
-        SyntaxParser::Module => parse_module(snapshot.text.as_ref()),
+    collect_parts(
+        snapshot.text.as_ref(),
+        snapshot.file_path.as_ref(),
+        snapshot.project.as_ref(),
+        snapshot.open_overlays.as_ref(),
+        ProgramTargetMode::LocalDependencies,
+    )
+}
+
+/// Collect syntax fallback symbols for every open file in the package bucket.
+pub(crate) fn collect_package_fallback(snapshot: &DocumentSnapshot) -> SyntaxSemantics {
+    let mut semantics = collect_parts(
+        snapshot.text.as_ref(),
+        snapshot.file_path.as_ref(),
+        snapshot.project.as_ref(),
+        snapshot.open_overlays.as_ref(),
+        ProgramTargetMode::LocalDependencies,
+    );
+    let Some(trigger_path) = snapshot.file_path.as_ref() else {
+        return semantics;
     };
 
+    for overlay in snapshot.open_overlays.iter().filter(|overlay| overlay.path.as_ref() != trigger_path.as_ref()) {
+        let mut overlay_semantics = collect_parts(
+            overlay.text.as_ref(),
+            Some(&overlay.path),
+            snapshot.project.as_ref(),
+            snapshot.open_overlays.as_ref(),
+            ProgramTargetMode::LocalDependencies,
+        );
+        semantics.occurrences.append(&mut overlay_semantics.occurrences);
+        semantics.fingerprints.extend(overlay_semantics.fingerprints);
+    }
+
+    sort_occurrences(&mut semantics.occurrences);
+    semantics
+}
+
+/// Collect syntax-only symbols and lexical tokens for a document-view job.
+pub(crate) fn collect_view(snapshot: &DocumentViewSnapshot) -> SyntaxSemantics {
+    collect_parts(
+        snapshot.text.as_ref(),
+        snapshot.file_path.as_ref(),
+        snapshot.project.as_ref(),
+        &[],
+        ProgramTargetMode::None,
+    )
+}
+
+/// Shared collection path for package-analysis and document-view snapshots.
+fn collect_parts(
+    text: &str,
+    file_path: Option<&Arc<PathBuf>>,
+    project: Option<&Arc<ProjectContext>>,
+    open_overlays: &[OpenFileOverlay],
+    target_mode: ProgramTargetMode,
+) -> SyntaxSemantics {
+    let parse = match choose_syntax_parser(file_path, project) {
+        SyntaxParser::Main => parse_main(text),
+        SyntaxParser::Module => parse_module(text),
+    };
+
+    let document_path = current_document_path(file_path);
+    let (program_targets, fingerprints) =
+        syntax_program_targets(text, Arc::clone(&document_path), project, open_overlays, target_mode);
     let mut semantics = parse
-        .map(|tree| SyntaxSemanticCollector::new(current_document_path(snapshot)).collect(&tree))
+        .map(|tree| SyntaxSemanticCollector::new(document_path, program_targets).collect(&tree))
         .unwrap_or_default();
+    semantics.fingerprints = fingerprints;
     // Symbol occurrences are sorted here because compiler-backed occurrences
     // merge with this vector before final semantic-token encoding.
     sort_occurrences(&mut semantics.occurrences);
@@ -62,13 +135,13 @@ pub(crate) fn collect(snapshot: &DocumentSnapshot) -> SyntaxSemantics {
 }
 
 /// Choose the Rowan parser entry point that best matches this snapshot.
-fn choose_syntax_parser(snapshot: &DocumentSnapshot) -> SyntaxParser {
-    if let Some(project) = snapshot.project.as_ref() {
+fn choose_syntax_parser(file_path: Option<&Arc<PathBuf>>, project: Option<&Arc<ProjectContext>>) -> SyntaxParser {
+    if let Some(project) = project {
         // The Rowan parser uses a distinct entry-point grammar for `main.leo`.
         // Reuse the project model's entry-file resolution so syntax fallback
         // mirrors the same program-vs-module distinction as the compiler path.
         return match project.kind {
-            ProjectKind::Program if snapshot.file_path.as_ref() == Some(&project.entry_file) => SyntaxParser::Main,
+            ProjectKind::Program if file_path == Some(&project.entry_file) => SyntaxParser::Main,
             ProjectKind::Program | ProjectKind::Library => SyntaxParser::Module,
         };
     }
@@ -80,15 +153,129 @@ fn choose_syntax_parser(snapshot: &DocumentSnapshot) -> SyntaxParser {
 }
 
 /// Return the current document path, or an empty placeholder for unmanaged buffers.
-fn current_document_path(snapshot: &DocumentSnapshot) -> Arc<PathBuf> {
-    snapshot.file_path.clone().unwrap_or_else(|| Arc::new(PathBuf::new()))
+fn current_document_path(file_path: Option<&Arc<PathBuf>>) -> Arc<PathBuf> {
+    file_path.cloned().unwrap_or_else(|| Arc::new(PathBuf::new()))
 }
 
 /// Syntax parser mode used by the fallback highlighter.
 #[derive(Debug, Clone, Copy)]
 enum SyntaxParser {
+    /// Parse a file that may contain a full `program` declaration.
     Main,
+    /// Parse a package module or library source file.
     Module,
+}
+
+/// Import target discovery depth for a syntax collection pass.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ProgramTargetMode {
+    /// Skip navigation target discovery for document-view highlighting.
+    None,
+    /// Collect open-buffer targets and local dependency sources.
+    LocalDependencies,
+}
+
+/// Collect program declaration targets visible to syntax-only import handling.
+fn syntax_program_targets(
+    text: &str,
+    document_path: Arc<PathBuf>,
+    project: Option<&Arc<ProjectContext>>,
+    open_overlays: &[OpenFileOverlay],
+    target_mode: ProgramTargetMode,
+) -> (HashMap<String, FileRange>, HashMap<PathBuf, SourceFingerprint>) {
+    let mut targets = HashMap::new();
+    let mut fingerprints = HashMap::new();
+    if target_mode == ProgramTargetMode::None {
+        return (targets, fingerprints);
+    }
+
+    add_program_targets_from_text(text, &document_path, &mut targets);
+    for overlay in open_overlays {
+        if overlay.path.as_ref() != document_path.as_ref() {
+            add_program_targets_from_text(overlay.text.as_ref(), &overlay.path, &mut targets);
+        }
+    }
+    if target_mode == ProgramTargetMode::LocalDependencies
+        && let Some(project) = project
+    {
+        add_local_dependency_program_targets(project.as_ref(), &mut targets, &mut fingerprints);
+    }
+    (targets, fingerprints)
+}
+
+/// Add `program name.aleo` declarations from one parsed source to the target map.
+fn add_program_targets_from_text(text: &str, path: &Arc<PathBuf>, targets: &mut HashMap<String, FileRange>) {
+    let Ok(tree) = parse_main(text) else {
+        return;
+    };
+    collect_program_target_tokens(&tree, path, targets);
+}
+
+/// Recursively collect program declaration name tokens from a Rowan tree.
+fn collect_program_target_tokens(node: &SyntaxNode, path: &Arc<PathBuf>, targets: &mut HashMap<String, FileRange>) {
+    for element in node.children_with_tokens() {
+        match element {
+            SyntaxElement::Node(child) => collect_program_target_tokens(&child, path, targets),
+            SyntaxElement::Token(token) if is_program_declaration_token(&token) => {
+                if let Some(range) =
+                    FileRange::new(Arc::clone(path), token.text_range().start().into(), token.text_range().end().into())
+                {
+                    targets.entry(token.text().to_owned()).or_insert(range);
+                }
+            }
+            SyntaxElement::Token(_) => {}
+        }
+    }
+}
+
+/// Add local manifest dependency program declarations to syntax-only import targets.
+fn add_local_dependency_program_targets(
+    project: &ProjectContext,
+    targets: &mut HashMap<String, FileRange>,
+    fingerprints: &mut HashMap<PathBuf, SourceFingerprint>,
+) {
+    let Ok(manifest) = Manifest::read_from_file(project.manifest_path.as_ref()) else {
+        return;
+    };
+
+    for dependency in manifest.dependencies.iter().flatten() {
+        let Some(source_path) = dependency_source_path(project.package_root.as_ref(), dependency) else {
+            continue;
+        };
+        let Some((source, fingerprint)) = read_stable_source(source_path.as_path()) else {
+            continue;
+        };
+        let source_path = source_path.canonicalize().unwrap_or(source_path);
+        let source_path = Arc::new(source_path);
+        add_program_targets_from_text(source.as_str(), &source_path, targets);
+        fingerprints.insert(source_path.as_ref().clone(), fingerprint);
+    }
+}
+
+/// Return the package-resolved source path for a local dependency.
+fn dependency_source_path(package_root: &Path, dependency: &Dependency) -> Option<PathBuf> {
+    if dependency.location != Location::Local {
+        return None;
+    }
+    let path = dependency.path.as_deref()?;
+    let root = if path.is_absolute() { path.to_path_buf() } else { package_root.join(path) };
+    let unit =
+        create_session_if_not_set_then(|_| CompilationUnit::from_package_path(Symbol::intern(&dependency.name), root));
+    let ProgramData::SourcePath { source, .. } = unit.ok()?.data else {
+        return None;
+    };
+    Some(source)
+}
+
+/// Read a source file and return a fingerprint for the exact bytes consumed.
+fn read_stable_source(path: &Path) -> Option<(String, SourceFingerprint)> {
+    let before = fs::metadata(path).ok().and_then(|metadata| disk_stamp(&metadata))?;
+    let source = fs::read_to_string(path).ok()?;
+    let after = fs::metadata(path).ok().and_then(|metadata| disk_stamp(&metadata))?;
+    (before == after).then(|| {
+        let content_hash = content_hash(source.as_str());
+        (source, SourceFingerprint::Disk { modified_nanos: Some(after.modified_nanos), len: after.len, content_hash })
+    })
 }
 
 /// Rowan-only fallback collector used when compiler analysis is unavailable.
@@ -100,12 +287,13 @@ struct SyntaxSemanticCollector {
     path: Arc<PathBuf>,
     semantics: SyntaxSemantics,
     local_scopes: Vec<HashMap<String, SyntaxLocalBinding>>,
+    program_targets: HashMap<String, FileRange>,
 }
 
 impl SyntaxSemanticCollector {
     /// Create a new syntax collector for one document path.
-    fn new(path: Arc<PathBuf>) -> Self {
-        Self { path, semantics: SyntaxSemantics::default(), local_scopes: vec![HashMap::new()] }
+    fn new(path: Arc<PathBuf>, program_targets: HashMap<String, FileRange>) -> Self {
+        Self { path, semantics: SyntaxSemantics::default(), local_scopes: vec![HashMap::new()], program_targets }
     }
 
     /// Walk a Rowan syntax tree and emit best-effort semantic data.
@@ -135,6 +323,11 @@ impl SyntaxSemanticCollector {
 
     /// Classify and record one token, binding local declarations as they appear.
     fn collect_token(&mut self, token: &SyntaxToken) {
+        if let Some(occurrence) = self.import_occurrence(token) {
+            self.semantics.occurrences.push(occurrence);
+            return;
+        }
+
         let classification = classify_syntax_token(token).or_else(|| self.classify_local_reference(token));
         if let Some((token_kind, role, readonly)) = classification {
             self.push_symbol_token(token, token_kind, role, readonly);
@@ -146,6 +339,22 @@ impl SyntaxSemanticCollector {
         } else if let Some(token_kind) = classify_lexical_token(token.kind()) {
             self.push_lexical_token(token, token_kind);
         }
+    }
+
+    /// Record an import program segment as a namespace reference.
+    fn import_occurrence(&self, token: &SyntaxToken) -> Option<SymbolOccurrence> {
+        if !is_import_program_token(token) {
+            return None;
+        }
+        let range = self.token_range(token)?;
+        let name = create_session_if_not_set_then(|_| Symbol::intern(token.text()));
+        Some(SymbolOccurrence {
+            range,
+            identity: SymbolIdentity::Program { name, declaration: self.program_targets.get(token.text()).cloned() },
+            role: OccurrenceRole::Reference,
+            token_kind: SemanticKind::Namespace,
+            readonly: false,
+        })
     }
 
     /// Record a syntax-derived symbol occurrence.
@@ -206,7 +415,9 @@ impl SyntaxSemanticCollector {
 /// Minimal binding metadata for syntax-only local reference highlighting.
 #[derive(Debug, Clone, Copy)]
 struct SyntaxLocalBinding {
+    /// Token kind originally assigned to the local declaration.
     token_kind: SemanticKind,
+    /// Whether references should inherit the readonly modifier.
     readonly: bool,
 }
 
@@ -398,24 +609,69 @@ fn next_non_trivia_token(token: &SyntaxToken) -> Option<SyntaxToken> {
     None
 }
 
+/// Return whether this token is the program name in `program name.aleo`.
+fn is_program_declaration_token(token: &SyntaxToken) -> bool {
+    token.kind() == SyntaxKind::IDENT
+        && prev_non_trivia_token(token).is_some_and(|previous| previous.kind() == SyntaxKind::KW_PROGRAM)
+        && token_is_followed_by_aleo_suffix(token)
+}
+
+/// Return whether this token is the imported program name in `import name.aleo`.
+fn is_import_program_token(token: &SyntaxToken) -> bool {
+    token.kind() == SyntaxKind::IDENT
+        && prev_non_trivia_token(token).is_some_and(|previous| previous.kind() == SyntaxKind::KW_IMPORT)
+        && token_is_followed_by_aleo_suffix(token)
+}
+
+/// Return whether an identifier token is followed by `.aleo`.
+fn token_is_followed_by_aleo_suffix(token: &SyntaxToken) -> bool {
+    let Some(dot) = next_non_trivia_token(token) else {
+        return false;
+    };
+    dot.kind() == SyntaxKind::DOT
+        && next_non_trivia_token(&dot).is_some_and(|network| network.kind() == SyntaxKind::KW_ALEO)
+}
+
+/// Cheap filesystem stamp used to prove a syntax-side disk read was stable.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct DiskStamp {
+    /// File length observed in metadata.
+    len: u64,
+    /// Last-modified timestamp converted to nanoseconds since the Unix epoch.
+    modified_nanos: u128,
+}
+
+/// Build a comparable stamp from filesystem metadata.
+fn disk_stamp(metadata: &Metadata) -> Option<DiskStamp> {
+    Some(DiskStamp { len: metadata.len(), modified_nanos: metadata_modified_nanos(metadata)? })
+}
+
+/// Hash source text for stale-target detection without retaining full text.
+fn content_hash(contents: &str) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    contents.hash(&mut hasher);
+    hasher.finish()
+}
+
+/// Convert file metadata modification time into a nanosecond stamp.
+fn metadata_modified_nanos(metadata: &Metadata) -> Option<u128> {
+    metadata.modified().ok()?.duration_since(UNIX_EPOCH).ok().map(|duration| duration.as_nanos())
+}
+
 #[cfg(test)]
 mod tests {
     use super::collect;
     use crate::{
         compiler_bridge::PackageAnalysisCache,
-        document_store::DocumentSnapshot,
+        document_store::{DocumentSnapshot, DocumentStore},
         project_model::ProjectModel,
         semantics::{OccurrenceRole, SemanticKind, SemanticSource},
     };
-    use line_index::LineIndex;
     use lsp_types::Uri;
-    use std::{
-        fs,
-        path::Path,
-        sync::{Arc, atomic::AtomicU64},
-    };
+    use std::{fs, path::Path};
     use tempfile::tempdir;
 
+    /// Build a test `file:` URI from a native path.
     fn file_uri(path: &Path) -> Uri {
         #[cfg(target_os = "windows")]
         let path = {
@@ -430,23 +686,16 @@ mod tests {
         format!("file://{path}").parse().expect("file uri")
     }
 
+    /// Build a committed document snapshot for syntax fallback tests.
     fn snapshot_for(path: &Path, text: &str) -> DocumentSnapshot {
         let uri = file_uri(path);
         let mut projects = ProjectModel::default();
         let (file_path, project) = projects.resolve_document_context(&uri);
-
-        DocumentSnapshot {
-            uri,
-            text: Arc::from(text),
-            line_index: Arc::new(LineIndex::new(text)),
-            version: 1,
-            generation: 1,
-            file_path,
-            project,
-            cancel_token: Arc::new(AtomicU64::new(1)),
-        }
+        let mut documents = DocumentStore::default();
+        documents.commit_open(documents.prepare_open(uri, "leo".to_owned(), 1, text.to_owned(), file_path, project))
     }
 
+    /// Verifies unmanaged buffers get syntax symbols and lexical token coverage.
     #[test]
     fn unmanaged_program_buffers_emit_symbols_and_full_lexical_coverage() {
         let tempdir = tempdir().expect("tempdir");
