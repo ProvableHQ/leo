@@ -47,7 +47,7 @@ VERSION=$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
 REPO_URL=$(grep '^repository' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
 
 if [ -z "$REPO_URL" ]; then
-  echo "Error: 'repository' field is missing in $(dirname "$FOUND")/Cargo.toml"
+  echo "Error: 'repository' field is missing in $FOUND"
   exit 1
 fi
 
