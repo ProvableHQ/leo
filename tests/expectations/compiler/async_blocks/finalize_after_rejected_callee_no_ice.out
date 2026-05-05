@@ -1,0 +1,5 @@
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+   ╭─[ compiler-test:9:16 ]
+   │
+ 9 │         return finish();
+───╯
