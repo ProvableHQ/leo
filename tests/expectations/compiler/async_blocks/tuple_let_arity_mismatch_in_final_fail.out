@@ -1,0 +1,5 @@
+[ETYC0372072] Error: Expected a tuple with 2 elements, found one with 3 elements
+    ╭─[ compiler-test:14:9 ]
+    │
+ 14 │         let (a, b, c): (u32, u32) = (1u32, 2u32);
+────╯
