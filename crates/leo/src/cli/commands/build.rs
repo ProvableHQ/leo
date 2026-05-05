@@ -77,8 +77,21 @@ impl Command for LeoBuild {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Build the program.
-        handle_build(&self, context)
+        match context.resolve_targets()? {
+            Some(targets) => {
+                let mut last_package = None;
+                for target in &targets {
+                    let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+                    if targets.len() > 1 {
+                        println!("\n--- workspace member '{member_name}' ---");
+                    }
+                    let member_ctx = context.with_path(target.clone());
+                    last_package = Some(handle_build(&self, member_ctx)?);
+                }
+                last_package.ok_or_else(|| leo_errors::CliError::custom("No workspace members found.").into())
+            }
+            None => handle_build(&self, context),
+        }
     }
 }
 
