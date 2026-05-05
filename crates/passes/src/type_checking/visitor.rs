@@ -1846,6 +1846,11 @@ impl TypeCheckingVisitor<'_> {
 
     /// Can type `ty` be used inside an optional?
     fn disallowed_inside_optional(&mut self, ty: &Type) -> bool {
+        let mut visited_paths = IndexSet::<Vec<Symbol>>::new();
+        self.disallowed_inside_optional_inner(ty, &mut visited_paths)
+    }
+
+    fn disallowed_inside_optional_inner(&mut self, ty: &Type, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
         match ty {
             Type::Unit
             | Type::Err
@@ -1860,7 +1865,17 @@ impl TypeCheckingVisitor<'_> {
             | Type::Vector(_) => true,
 
             Type::Composite(composite_type) => {
-                if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
+                let composite_location = composite_type.path.expect_global_location();
+
+                // Prevent revisiting the same type. A composite that recurses through `Option<Self>`
+                // (e.g. `struct Node { next: Node? }`) would otherwise drive this walk into an infinite
+                // recursion and overflow the stack — the cycle-graph cycle check does not catch it
+                // because `Type::Optional(Composite(_))` adds no edge to the composite dependency graph.
+                if !visited_paths.insert(composite_location.path.clone()) {
+                    return false;
+                }
+
+                if let Some(composite) = self.lookup_composite(composite_location) {
                     if composite.is_record {
                         return true;
                     }
@@ -1873,7 +1888,7 @@ impl TypeCheckingVisitor<'_> {
                             Type::Optional(OptionalType { inner }) => inner,
                             _ => field_ty,
                         };
-                        if self.disallowed_inside_optional(ty_to_check) {
+                        if self.disallowed_inside_optional_inner(ty_to_check, visited_paths) {
                             return true;
                         }
                     }
@@ -1886,7 +1901,7 @@ impl TypeCheckingVisitor<'_> {
                     Type::Optional(OptionalType { inner }) => inner,
                     other => other,
                 };
-                self.disallowed_inside_optional(elem_type)
+                self.disallowed_inside_optional_inner(elem_type, visited_paths)
             }
 
             Type::Address

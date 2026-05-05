@@ -370,6 +370,20 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                             .composite_graph
                             .add_edge(composite_location, member_type.path.expect_global_location().clone());
                     }
+                } else if let Type::Optional(OptionalType { inner }) = type_ {
+                    // An optional-wrapped composite still participates in the composite dependency graph;
+                    // without this arm, `struct Node { next: Node? }` would skip cycle detection entirely.
+                    if let Type::Composite(member_type) = inner.as_ref() {
+                        self.state
+                            .composite_graph
+                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
+                    } else if let Type::Array(array_type) = inner.as_ref()
+                        && let Type::Composite(member_type) = array_type.base_element_type()
+                    {
+                        self.state
+                            .composite_graph
+                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
+                    }
                 }
 
                 // If the input is a struct, then check that the member does not have a mode.
