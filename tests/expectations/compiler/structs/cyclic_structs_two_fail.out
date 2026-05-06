@@ -1,4 +1,8 @@
-Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/Bar` --> `test.aleo/Baz` --> `test.aleo/Bar`
+[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/Bar` --> `test.aleo/Baz` --> `test.aleo/Bar`
+   ╭─[ compiler-test:1:8 ]
+   │
+ 1 │ struct Bar {
+───╯
 [ETYC0372083] Error: A program must have at least one entry point fn.
    ╭─[ compiler-test:9:9 ]
    │

@@ -491,7 +491,7 @@ create_messages!(
         help: None,
     }
 
-    @backtraced
+    @formatted
     cyclic_composite_dependency {
         args: (path: Vec<impl Display>),
         msg: {

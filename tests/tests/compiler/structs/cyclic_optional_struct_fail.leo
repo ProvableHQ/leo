@@ -8,4 +8,11 @@ struct Node {
     next: Node?,
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+
+    fn touch() -> u32 {
+        return 0u32;
+    }
+}
