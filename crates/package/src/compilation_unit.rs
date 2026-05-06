@@ -158,7 +158,10 @@ impl CompilationUnit {
                 .dependencies
                 .unwrap_or_default()
                 .into_iter()
-                .map(|dependency| canonicalize_dependency_path_relative_to(path, dependency))
+                .map(|dependency| {
+                    let dep = canonicalize_dependency_path_relative_to(path, dependency)?;
+                    if dep.location == Location::Workspace { resolve_workspace_dependency(path, dep) } else { Ok(dep) }
+                })
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
             kind,
@@ -195,7 +198,14 @@ impl CompilationUnit {
             .dev_dependencies
             .unwrap_or_default()
             .into_iter()
-            .map(|dependency| canonicalize_dependency_path_relative_to(package_directory, dependency))
+            .map(|dependency| {
+                let dep = canonicalize_dependency_path_relative_to(package_directory, dependency)?;
+                if dep.location == Location::Workspace {
+                    resolve_workspace_dependency(package_directory, dep)
+                } else {
+                    Ok(dep)
+                }
+            })
             .collect::<Result<IndexSet<_>, _>>()?;
         dependencies.insert(main_program);
 

@@ -35,7 +35,7 @@ use crate::{
         sort_occurrences,
     },
 };
-use leo_package::{CompilationUnit, Dependency, Location, Manifest, ProgramData};
+use leo_package::{CompilationUnit, Dependency, Location, Manifest, ProgramData, resolve_workspace_dependency};
 use leo_parser_rowan::{SyntaxElement, SyntaxKind, SyntaxNode, SyntaxToken, parse_main, parse_module};
 use leo_span::{Symbol, create_session_if_not_set_then};
 use std::{
@@ -276,6 +276,12 @@ fn add_local_dependency_program_targets(
 
 /// Return the package-resolved source path for a local dependency.
 fn dependency_source_path(package_root: &Path, dependency: &Dependency) -> Option<(PathBuf, PathBuf)> {
+    // Resolve workspace deps to local paths before checking location.
+    let dependency = if dependency.location == Location::Workspace {
+        resolve_workspace_dependency(package_root, dependency.clone()).ok()?
+    } else {
+        dependency.clone()
+    };
     if dependency.location != Location::Local {
         return None;
     }

@@ -574,6 +574,8 @@ fn collect_declared_deps_recursive(
         if include_dev { manifest.dev_dependencies.iter().flatten().collect() } else { Vec::new() };
     for dep in deps.chain(dev) {
         let dep = canonicalize_dependency_path_relative_to(base_path, dep.clone())?;
+        // Resolve workspace deps early - converts to Location::Local with an absolute path.
+        let dep = if dep.location == Location::Workspace { resolve_workspace_dependency(base_path, dep)? } else { dep };
         let sym = symbol(&dep.name)?;
         // Only recurse into newly discovered dependencies to avoid infinite
         // recursion on circular manifests (cycles are caught later by
