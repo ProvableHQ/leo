@@ -30,7 +30,7 @@ use leo_errors::UtilError;
 use leo_span::Symbol;
 
 use snarkvm::{
-    prelude::{Itertools, Network},
+    prelude::{Itertools, Network, ValueType},
     synthesizer::program::{Program, ProgramCore},
 };
 
@@ -94,10 +94,31 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
 }
 
 pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<AleoProgram, UtilError> {
-    match Program::<N>::from_str(program) {
-        Ok(p) => Ok(disassemble(p)),
-        Err(_) => Err(UtilError::snarkvm_parsing_error(name)),
+    let p = match Program::<N>::from_str(program) {
+        Ok(p) => p,
+        Err(_) => return Err(UtilError::snarkvm_parsing_error(name)),
+    };
+
+    // Pre-validate program shapes that the disassembler is known not to support.
+    //
+    // `from_function_core` (in `crates/ast/src/stub/function_stub.rs`) panics if a
+    // non-finalize function declares a register input whose type is `Future` or
+    // `DynamicFuture`. snarkVM's grammar accepts that shape, but no Leo-source
+    // program produces it — only hand-crafted bytecode or non-Leo toolchains can.
+    // Reject the dependency cleanly here instead of letting `from_function_core`
+    // ICE deeper in the pipeline.
+    for (id, function) in p.functions().iter() {
+        for input in function.inputs().iter() {
+            if matches!(input.value_type(), ValueType::Future(_) | ValueType::DynamicFuture) {
+                return Err(UtilError::snarkvm_unsupported_program_shape(
+                    name,
+                    format!("function `{id}` has a future-typed register input on a non-finalize function"),
+                ));
+            }
+        }
     }
+
+    Ok(disassemble(p))
 }
 
 /// Disassembles Aleo bytecode using the snarkVM network selected by `network`.

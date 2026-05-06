@@ -54,6 +54,13 @@ create_messages!(
     }
 
     @backtraced
+    snarkvm_unsupported_program_shape {
+        args: (name: impl Display, reason: impl Display),
+        msg: format!("Dependency `{name}.aleo` uses a program shape the disassembler does not support: {reason}."),
+        help: Some("This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but no Leo-source program emits. Regenerate the dependency from Leo source if possible.".to_string()),
+    }
+
+    @backtraced
     circular_dependency_error {
         args: (),
         msg: "Circular dependency detected".to_string(),
