@@ -14,6 +14,8 @@ There's a lot to learn about Leo! To help tame the complexity, we've put togethe
 
 - [**Dependency Management**](./02_dependencies.md) - Learn how to efficiently manage your dependencies.
 
+- [**Workspaces**](./13_workspaces.md) - Learn how to manage multi-program projects with workspaces.
+
 - [**Deploy Your Programs**](./03_deploying.md) - Learn how to deploy your programs to different networks.
 
 - [**Executing Your Programs**](./04_executing.md) - Learn how to execute functions on deployed programs.

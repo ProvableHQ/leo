@@ -50,3 +50,19 @@ Check out the [**Testing**](./../guides/08_testing.md) guide for more informatio
 --no-local
     Don't use the local source code.
 ```
+
+## Workspace Behavior
+
+When run inside a [workspace](../guides/13_workspaces.md):
+
+- **From workspace root:** Runs tests for all members in dependency order.
+- **From a member directory:** Runs tests only for that member.
+- **With `--package <NAME>`:** Runs tests only for the specified member.
+
+```bash
+# Test all workspace members
+leo test
+
+# Test only the token member
+leo test -p token
+```

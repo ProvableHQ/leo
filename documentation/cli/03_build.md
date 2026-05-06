@@ -69,3 +69,19 @@ The build also generates an **ABI file** at `build/abi.json` describing your pro
 --consensus-heights <CONSENSUS_HEIGHTS>
     Optional consensus heights to use. This should only be set if you are using a custom devnet.
 ```
+
+## Workspace Behavior
+
+When run inside a [workspace](../guides/13_workspaces.md):
+
+- **From workspace root:** Builds all members in dependency order.
+- **From a member directory:** Builds only that member.
+- **With `--package <NAME>`:** Builds only the specified member.
+
+```bash
+# Build all workspace members
+leo build
+
+# Build only the swap member
+leo build -p swap
+```
