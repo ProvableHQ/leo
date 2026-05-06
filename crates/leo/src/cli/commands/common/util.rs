@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::CliError;
-
 use snarkvm::prelude::{ConsensusVersion, Network, Program};
 
 /// Threshold percentage for program size warnings.
@@ -71,7 +69,7 @@ pub fn check_edition_constructor_requirements<N: Network>(
     programs: &[(Program<N>, leo_package::Edition)],
     consensus_version: ConsensusVersion,
     action: &str,
-) -> Result<(), CliError> {
+) -> Result<(), leo_errors::Backtraced> {
     // Only check for V8+ consensus versions.
     if consensus_version < ConsensusVersion::V8 {
         return Ok(());
@@ -83,7 +81,7 @@ pub fn check_edition_constructor_requirements<N: Network>(
             let id = program.id();
             // Skip credits.aleo as it's a special case.
             if id.to_string() != "credits.aleo" {
-                return Err(CliError::custom(format!(
+                return Err(crate::errors::custom(format!(
                     "Cannot {action} with dependency '{id}' (edition 0)\n\n\
                     Programs at edition 0 without a constructor cannot be executed under \
                     consensus version V8 or later (current: V{}).\n\n\
@@ -119,22 +117,22 @@ pub fn load_extra_programs_into_vm<N: Network>(
         if path.is_file() {
             println!("📂 Loading local program from {entry}...");
             let bytecode = std::fs::read_to_string(path)
-                .map_err(|e| CliError::custom(format!("Failed to read program file '{entry}': {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to read program file '{entry}': {e}")))?;
             let program = Program::<N>::from_str(&bytecode)
-                .map_err(|e| CliError::custom(format!("Failed to parse program from '{entry}': {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to parse program from '{entry}': {e}")))?;
             extras.push((program, LOCAL_PROGRAM_DEFAULT_EDITION));
         } else if path.exists() {
-            return Err(CliError::custom(format!("'{entry}' exists but is not a file.")).into());
+            return Err(crate::errors::custom(format!("'{entry}' exists but is not a file.")).into());
         } else {
             let endpoint = endpoint.ok_or_else(|| {
-                CliError::custom(format!(
+                crate::errors::custom(format!(
                     "'{entry}' is not a local file; fetching from the network requires --endpoint to be set."
                 ))
             })?;
             let name = if entry.ends_with(".aleo") { entry.clone() } else { format!("{entry}.aleo") };
             println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
             let program_id = ProgramID::<N>::from_str(&name)
-                .map_err(|e| CliError::custom(format!("Failed to parse program ID '{name}': {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to parse program ID '{name}': {e}")))?;
             let fetched = super::query::load_latest_programs_from_network(
                 context,
                 program_id,

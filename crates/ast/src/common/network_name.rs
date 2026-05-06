@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{CliError, LeoError};
+use leo_errors::LeoError;
 
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
@@ -50,7 +50,7 @@ impl FromStr for NetworkName {
             "testnet" => Ok(NetworkName::TestnetV0),
             "mainnet" => Ok(NetworkName::MainnetV0),
             "canary" => Ok(NetworkName::CanaryV0),
-            _ => Err(LeoError::CliError(CliError::invalid_network_name(s))),
+            _ => Err(crate::errors::invalid_network_name(s).into()),
         }
     }
 }

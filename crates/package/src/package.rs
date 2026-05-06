@@ -17,7 +17,7 @@
 use crate::*;
 
 use leo_ast::DiGraph;
-use leo_errors::{CliError, PackageError, Result, UtilError};
+use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, map::Entry};
@@ -87,7 +87,7 @@ impl Package {
     fn initialize_impl(package_name: &str, path: &Path, is_library: bool) -> Result<PathBuf> {
         let package_name = if is_library {
             if !crate::is_valid_library_name(package_name) {
-                return Err(CliError::invalid_package_name("library", package_name).into());
+                return Err(crate::errors::cli_invalid_package_name("library", package_name).into());
             }
 
             package_name.to_string()
@@ -96,36 +96,36 @@ impl Package {
                 if package_name.ends_with(".aleo") { package_name.to_string() } else { format!("{package_name}.aleo") };
 
             if !crate::is_valid_program_name(&program_name) {
-                return Err(CliError::invalid_package_name("program", &program_name).into());
+                return Err(crate::errors::cli_invalid_package_name("program", &program_name).into());
             }
 
             program_name
         };
 
-        let path = path.canonicalize().map_err(|e| PackageError::failed_path(path.display(), e))?;
+        let path = path.canonicalize().map_err(|e| crate::errors::failed_path(path.display(), e))?;
         let full_path = path.join(package_name.strip_suffix(".aleo").unwrap_or(&package_name));
 
         // Verify that there is no existing directory at the path.
         if full_path.exists() {
             return Err(
-                PackageError::failed_to_initialize_package(package_name, &path, "Directory already exists").into()
+                crate::errors::failed_to_initialize_package(package_name, &path, "Directory already exists").into()
             );
         }
 
         // Create the package directory.
         std::fs::create_dir(&full_path)
-            .map_err(|e| PackageError::failed_to_initialize_package(&package_name, &full_path, e))?;
+            .map_err(|e| crate::errors::failed_to_initialize_package(&package_name, &full_path, e))?;
 
         // Change the current working directory to the package directory.
         std::env::set_current_dir(&full_path)
-            .map_err(|e| PackageError::failed_to_initialize_package(&package_name, &full_path, e))?;
+            .map_err(|e| crate::errors::failed_to_initialize_package(&package_name, &full_path, e))?;
 
         // Create .gitignore
         const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n";
         const GITIGNORE_FILENAME: &str = ".gitignore";
 
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);
-        std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(PackageError::io_error_gitignore_file)?;
+        std::fs::write(gitignore_path, GITIGNORE_TEMPLATE).map_err(crate::errors::io_error_gitignore_file)?;
 
         // Create manifest
         let manifest = Manifest {
@@ -145,7 +145,7 @@ impl Package {
         let source_path = full_path.join(SOURCE_DIRECTORY);
 
         std::fs::create_dir(&source_path)
-            .map_err(|e| PackageError::failed_to_create_source_directory(source_path.display(), e))?;
+            .map_err(|e| crate::errors::failed_to_create_source_directory(source_path.display(), e))?;
 
         let name_no_aleo = package_name.strip_suffix(".aleo").unwrap_or(&package_name);
 
@@ -154,38 +154,38 @@ impl Package {
             let lib_path = source_path.join("lib.leo");
 
             std::fs::write(&lib_path, lib_template(name_no_aleo)).map_err(|e| {
-                UtilError::util_file_io_error(format_args!("Failed to write `{}`", lib_path.display()), e)
+                crate::errors::util_file_io_error(format_args!("Failed to write `{}`", lib_path.display()), e)
             })?;
 
             // Create tests directory with a starter test file.
             let tests_path = full_path.join(TESTS_DIRECTORY);
 
             std::fs::create_dir(&tests_path)
-                .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+                .map_err(|e| crate::errors::failed_to_create_source_directory(tests_path.display(), e))?;
 
             let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
 
             std::fs::write(&test_file_path, lib_test_template(name_no_aleo)).map_err(|e| {
-                UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+                crate::errors::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
             })?;
         } else {
             // Create main.leo
             let main_path = source_path.join(MAIN_FILENAME);
 
             std::fs::write(&main_path, main_template(name_no_aleo)).map_err(|e| {
-                UtilError::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e)
+                crate::errors::util_file_io_error(format_args!("Failed to write `{}`", main_path.display()), e)
             })?;
 
             // Create tests directory
             let tests_path = full_path.join(TESTS_DIRECTORY);
 
             std::fs::create_dir(&tests_path)
-                .map_err(|e| PackageError::failed_to_create_source_directory(tests_path.display(), e))?;
+                .map_err(|e| crate::errors::failed_to_create_source_directory(tests_path.display(), e))?;
 
             let test_file_path = tests_path.join(format!("test_{name_no_aleo}.leo"));
 
             std::fs::write(&test_file_path, test_template(name_no_aleo)).map_err(|e| {
-                UtilError::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
+                crate::errors::util_file_io_error(format_args!("Failed to write `{}`", test_file_path.display()), e)
             })?;
         }
 
@@ -305,7 +305,7 @@ impl Package {
         network_retries: u32,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
-            UtilError::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
+            crate::errors::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
@@ -366,7 +366,7 @@ impl Package {
             }
 
             let ordered_dependency_symbols =
-                digraph.post_order().map_err(|_| UtilError::circular_dependency_error())?;
+                digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
 
             (
                 ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
@@ -405,7 +405,7 @@ impl Package {
                     || new.path != existing_dep.path
                     || new.edition != existing_dep.edition
                 {
-                    return Err(PackageError::conflicting_dependency(existing_dep, new).into());
+                    return Err(crate::errors::conflicting_dependency(existing_dep, new).into());
                 }
                 return Ok(());
             }

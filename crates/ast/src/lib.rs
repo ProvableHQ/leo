@@ -33,6 +33,8 @@ mod snarkvm_wasm;
 #[doc(hidden)]
 pub use snarkvm_wasm::{console, prelude, synthesizer};
 
+mod errors;
+
 mod composite;
 pub use self::composite::*;
 

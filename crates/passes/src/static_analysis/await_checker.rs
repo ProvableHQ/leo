@@ -16,8 +16,8 @@
 
 use crate::ConditionalTreeNode;
 use indexmap::IndexSet;
-use leo_errors::StaticAnalyzerWarning;
-use leo_span::{Span, Symbol};
+use leo_errors::Formatted;
+use leo_span::Symbol;
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
 #[derive(Debug)]
@@ -61,8 +61,8 @@ impl AwaitChecker {
     pub fn create_then_scope(
         &mut self,
         is_finalize: bool,
-        _input: Span,
-    ) -> Result<Vec<ConditionalTreeNode>, StaticAnalyzerWarning> {
+        _input: leo_span::Span,
+    ) -> Result<Vec<ConditionalTreeNode>, Formatted> {
         if is_finalize {
             let mut current_nodes = Vec::new();
             // Extend all paths by one node to represent the upcoming `then` branch.

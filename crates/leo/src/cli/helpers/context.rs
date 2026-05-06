@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use aleo_std;
-use leo_errors::{CliError, PackageError, Result};
+use leo_errors::Result;
 use leo_package::{Manifest, Workspace};
 
 use aleo_std::aleo_dir;
@@ -55,7 +55,7 @@ impl Context {
                 path.pop();
                 Ok(path)
             }
-            None => Ok(current_dir().map_err(CliError::cli_io_error)?),
+            None => Ok(current_dir().map_err(crate::errors::cli_io_error)?),
         }
     }
 
@@ -63,7 +63,7 @@ impl Context {
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
             Some(path) => Ok(path.clone()),
-            None => Ok(current_dir().map_err(CliError::cli_io_error)?),
+            None => Ok(current_dir().map_err(crate::errors::cli_io_error)?),
         }
     }
 
@@ -97,7 +97,7 @@ impl Context {
             Some(ws) => ws,
             None => {
                 if self.package_filter.is_some() {
-                    return Err(PackageError::workspace_no_workspace().into());
+                    return Err(crate::errors::workspace_no_workspace().into());
                 }
                 return Ok(None);
             }
@@ -107,7 +107,7 @@ impl Context {
             match workspace.find_member(filter) {
                 Some(path) => Ok(Some(vec![path.clone()])),
                 None => {
-                    Err(PackageError::workspace_package_not_found(filter, workspace.root_directory.display()).into())
+                    Err(crate::errors::workspace_package_not_found(filter, workspace.root_directory.display()).into())
                 }
             }
         } else {

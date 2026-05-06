@@ -22,7 +22,6 @@
 extern crate thiserror;
 
 /// Contains the common functionalities for defining errors.
-#[macro_use]
 mod common;
 pub use self::common::*;
 

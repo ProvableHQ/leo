@@ -140,7 +140,9 @@ impl Command for LeoExecute {
         if let Some(package) = &input
             && package.compilation_units.last().is_some_and(|p| p.kind.is_library())
         {
-            return Err(CliError::custom("Cannot execute a library package. Only programs can be executed.").into());
+            return Err(
+                crate::errors::custom("Cannot execute a library package. Only programs can be executed.").into()
+            );
         }
 
         // Get the network, accounting for overrides.
@@ -174,7 +176,7 @@ fn handle_execute<A: Aleo>(
     // Get the private key and associated address, accounting for overrides.
     let private_key = get_private_key(&command.env_override.private_key)?;
     let address = Address::<A::Network>::try_from(&private_key)
-        .map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
     let endpoint = get_endpoint(&command.env_override.endpoint)?;
@@ -187,7 +189,7 @@ fn handle_execute<A: Aleo>(
         command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
-        .map_err(|e| CliError::custom(format!("Invalid consensus heights: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("Invalid consensus heights: {e}")))?;
     // Print the consensus heights being used.
     let consensus_heights_string = consensus_heights.iter().format(",").to_string();
     println!(
@@ -219,7 +221,7 @@ fn handle_execute<A: Aleo>(
                 command.name,
             ),
             None => {
-                return Err(CliError::custom(format!(
+                return Err(crate::errors::custom(format!(
                     "Running `leo execute {} ...`, without an explicit program name requires that your current working directory is a valid Leo project.",
                     command.name
                 )).into());
@@ -229,10 +231,10 @@ fn handle_execute<A: Aleo>(
 
     // Parse the program name as a `ProgramID`.
     let program_id = ProgramID::<A::Network>::from_str(&program_name)
-        .map_err(|e| CliError::custom(format!("Failed to parse program name: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("Failed to parse program name: {e}")))?;
     // Parse the function name as an `Identifier`.
     let function_id = Identifier::<A::Network>::from_str(&function_name)
-        .map_err(|e| CliError::custom(format!("Failed to parse function name: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("Failed to parse function name: {e}")))?;
 
     // Get all the dependencies in the package if it exists.
     // Get the programs and optional manifests for all programs.
@@ -249,7 +251,7 @@ fn handle_execute<A: Aleo>(
             .filter(|unit| !unit.kind.is_library())
             .map(|unit| {
                 let program_id = ProgramID::<A::Network>::from_str(&format!("{}", unit.name))
-                    .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
+                    .map_err(|e| crate::errors::custom(format!("Failed to parse program ID: {e}")))?;
                 match &unit.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
                     ProgramData::SourcePath { source, .. } => {
@@ -261,7 +263,10 @@ fn handle_execute<A: Aleo>(
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
-                            CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
+                            crate::errors::custom(format!(
+                                "Failed to read bytecode at {}: {e}",
+                                bytecode_path.display()
+                            ))
                         })?;
                         // Return the bytecode and the manifest.
                         Ok((program_id, bytecode, unit.edition))
@@ -279,7 +284,7 @@ fn handle_execute<A: Aleo>(
         .map(|(_, bytecode, edition)| {
             // Parse the program.
             let program = snarkvm::prelude::Program::<A::Network>::from_str(&bytecode)
-                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to parse program: {e}")))?;
             // Return the program and its name.
             Ok((program, edition))
         })
@@ -296,7 +301,7 @@ fn handle_execute<A: Aleo>(
             .expect("Program should exist since it is local")
             .0;
         if !program.contains_function(&function_id) {
-            return Err(CliError::custom(format!(
+            return Err(crate::errors::custom(format!(
                 "Function `{function_name}` does not exist in program `{program_name}`."
             ))
             .into());
@@ -367,7 +372,7 @@ fn handle_execute<A: Aleo>(
     let query = SnarkVMQuery::<A::Network, BlockMemory<A::Network>>::from(
         endpoint
             .parse::<Uri>()
-            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+            .map_err(|e| crate::errors::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
 
     // If the program is not local, then download it and its dependencies for the network.
@@ -492,7 +497,7 @@ fn handle_execute<A: Aleo>(
     // The transaction is printed in JSON format.
     if command.action.print {
         let transaction_json = serde_json::to_string_pretty(&output)
-            .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to serialize transaction: {e}")))?;
         println!("🖨️ Printing execution for {output_name}\n{transaction_json}");
     }
 
@@ -501,14 +506,14 @@ fn handle_execute<A: Aleo>(
     // The directory is created if it doesn't exist.
     if let Some(path) = &command.action.save {
         // Create the directory if it doesn't exist.
-        std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+        std::fs::create_dir_all(path).map_err(|e| crate::errors::custom(format!("Failed to create directory: {e}")))?;
         // Save the transaction to a file.
         let file_path = PathBuf::from(path).join(format!("{output_name}.execution.json"));
         println!("💾 Saving execution for {output_name} at {}", file_path.display());
         let transaction_json = serde_json::to_string_pretty(&output)
-            .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to serialize transaction: {e}")))?;
         std::fs::write(file_path, transaction_json)
-            .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to write transaction to file: {e}")))?;
     }
 
     let mut broadcast_stats = None;

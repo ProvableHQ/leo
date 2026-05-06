@@ -18,9 +18,9 @@ use crate::{Assigner, SymbolTable, TypeTable};
 
 use indexmap::IndexMap;
 use leo_ast::{Ast, CallGraph, CompositeGraph, Location, NetworkName, NodeBuilder};
-use leo_errors::{Handler, LeoWarning, Result};
+use leo_errors::{Handler, Result};
 
-use std::{collections::HashSet, rc::Rc};
+use std::rc::Rc;
 
 /// Contains data shared by many compiler passes.
 #[derive(Default)]
@@ -43,8 +43,6 @@ pub struct CompilerState {
     pub call_graph: CallGraph,
     /// How many times a given function is called.
     pub call_count: IndexMap<Location, usize>,
-    /// A set of the warnings collected. This is used to make sure we don't emit the same exact warning twice.
-    pub warnings: HashSet<LeoWarning>,
     /// Is this a test program?
     pub is_test: bool,
     /// The network.

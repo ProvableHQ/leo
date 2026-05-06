@@ -29,8 +29,9 @@ use crate::{
     Unrolling,
 };
 
+use crate::errors::compiler as compiler_error_fns;
 use leo_ast::Node;
-use leo_errors::{CompilerError, Result};
+use leo_errors::Result;
 
 /// Pass that runs const propagation, loop unrolling, and monomorphization until a fixed point.
 pub struct ConstPropUnrollAndMorphing;
@@ -76,19 +77,19 @@ impl Pass for ConstPropUnrollAndMorphing {
 
                 // See if we have any errors.
                 if let Some(not_evaluated_span) = const_prop_output.const_not_evaluated {
-                    return Err(CompilerError::const_not_evaluated(not_evaluated_span, vec![]).into());
+                    return Err(compiler_error_fns::const_not_evaluated(not_evaluated_span).into());
                 }
 
                 if let Some(not_evaluated_span) = const_prop_output.array_index_not_evaluated {
-                    return Err(CompilerError::array_index_not_evaluated(not_evaluated_span, vec![]).into());
+                    return Err(compiler_error_fns::array_index_not_evaluated(not_evaluated_span).into());
                 }
 
                 if let Some(not_evaluated_span) = const_prop_output.repeat_count_not_evaluated {
-                    return Err(CompilerError::repeat_count_not_evaluated(not_evaluated_span, vec![]).into());
+                    return Err(compiler_error_fns::repeat_count_not_evaluated(not_evaluated_span).into());
                 }
 
                 if let Some(not_evaluated_span) = const_prop_output.array_length_not_evaluated {
-                    return Err(CompilerError::array_length_not_evaluated(not_evaluated_span, vec![]).into());
+                    return Err(compiler_error_fns::array_length_not_evaluated(not_evaluated_span).into());
                 }
 
                 // Emit errors for all problematic calls
@@ -96,11 +97,10 @@ impl Pass for ConstPropUnrollAndMorphing {
                     if let Some(arg) =
                         call.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
-                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                        state.handler.emit_err(compiler_error_fns::const_generic_not_resolved(
                             "call to generic function",
                             call.function.clone(),
                             arg.span(),
-                            vec![],
                         ));
                     }
                 }
@@ -110,11 +110,10 @@ impl Pass for ConstPropUnrollAndMorphing {
                     if let Some(arg) =
                         expr.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
-                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                        state.handler.emit_err(compiler_error_fns::const_generic_not_resolved(
                             "composite expression",
                             expr.path.clone(),
                             arg.span(),
-                            vec![],
                         ));
                     }
                 }
@@ -124,11 +123,10 @@ impl Pass for ConstPropUnrollAndMorphing {
                     if let Some(arg) =
                         ty.const_arguments.iter().find(|arg| !matches!(arg, leo_ast::Expression::Literal(_)))
                     {
-                        state.handler.emit_err(CompilerError::const_generic_not_resolved(
+                        state.handler.emit_err(compiler_error_fns::const_generic_not_resolved(
                             "composite type",
                             ty.path.clone(),
                             arg.span(),
-                            vec![],
                         ));
                     }
                 }
@@ -137,7 +135,7 @@ impl Pass for ConstPropUnrollAndMorphing {
                 state.handler.last_err()?;
 
                 if let Some(not_unrolled_span) = loop_unroll_output.loop_not_unrolled {
-                    return Err(CompilerError::loop_bounds_not_evaluated(not_unrolled_span, vec![]).into());
+                    return Err(compiler_error_fns::loop_bounds_not_evaluated(not_unrolled_span).into());
                 }
 
                 return Ok(());
@@ -146,6 +144,6 @@ impl Pass for ConstPropUnrollAndMorphing {
 
         // Note that it's challenging to write code in practice that demonstrates this error, because Leo code
         // with many nested loops or operations will blow the stack in the compiler before this bound is hit.
-        Err(CompilerError::const_prop_unroll_many_loops(LARGE_LOOP_BOUND, Default::default(), vec![]).into())
+        Err(compiler_error_fns::const_prop_unroll_many_loops(LARGE_LOOP_BOUND, Default::default()).into())
     }
 }

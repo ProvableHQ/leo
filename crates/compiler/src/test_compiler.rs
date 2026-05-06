@@ -63,9 +63,7 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     // registered so far via `Process::add_program`, then disassembles.
     for source in rest {
         if let Some(aleo_source) = super::test_utils::extract_aleo_stub_header(source) {
-            let program = handler.extend_if_error(
-                disassemble_from_str::<TestnetV0>("", aleo_source, &mut process).map_err(|err| err.into()),
-            )?;
+            let program = handler.extend_if_error(disassemble_from_str::<TestnetV0>("", aleo_source, &mut process))?;
             let name = program.stub_id.as_symbol();
             import_stubs.insert(name, program.into());
             continue;
@@ -120,10 +118,11 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
                 ))?;
 
                 // Validates that the bytecode is well-formed and disassembles in one step.
-                let program = handler.extend_if_error(
-                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode, &mut process)
-                        .map_err(|err| err.into()),
-                )?;
+                let program = handler.extend_if_error(disassemble_from_str::<TestnetV0>(
+                    &program_name,
+                    &programs.primary.bytecode,
+                    &mut process,
+                ))?;
                 import_stubs.insert(Symbol::intern(&program_name), program.into());
 
                 if handler.err_count() != 0 {
@@ -170,18 +169,14 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     // these bytecodes already have stubs from the Leo-compile path.
     if stub_type == StubType::FromLeo {
         for import in &compiled.imports {
-            handler.extend_if_error(
-                disassemble_from_str::<TestnetV0>("", &import.bytecode, &mut process).map_err(|err| err.into()),
-            )?;
+            handler.extend_if_error(disassemble_from_str::<TestnetV0>("", &import.bytecode, &mut process))?;
             bytecodes.push(import.bytecode.clone());
         }
     }
 
     // Add main program — same pattern: validate via Process, discard stub.
     let primary_bytecode = compiled.primary.bytecode.clone();
-    handler.extend_if_error(
-        disassemble_from_str::<TestnetV0>("", &primary_bytecode, &mut process).map_err(|err| err.into()),
-    )?;
+    handler.extend_if_error(disassemble_from_str::<TestnetV0>("", &primary_bytecode, &mut process))?;
     bytecodes.push(primary_bytecode);
 
     Ok(bytecodes.iter().format(&format!("{}\n", super::test_utils::PROGRAM_DELIMITER)).to_string())

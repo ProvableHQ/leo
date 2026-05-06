@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{CliError, Result};
+use leo_errors::Result;
 
 use colored::Colorize;
 use std::{
@@ -43,8 +43,10 @@ pub fn find_exe(name: &str) -> Option<PathBuf> {
 /// spawns the plugin and propagates the exit code.
 pub fn exec(name: &str, args: &[OsString], cwd: Option<&Path>) -> Result<Infallible> {
     let path = find_exe(name).ok_or_else(|| -> leo_errors::LeoError {
-        CliError::custom(format!("'{name}' not found. Install the plugin and ensure it is available on your PATH."))
-            .into()
+        crate::errors::custom(format!(
+            "'{name}' not found. Install the plugin and ensure it is available on your PATH."
+        ))
+        .into()
     })?;
 
     let mut cmd = process::Command::new(&path);
@@ -58,7 +60,7 @@ pub fn exec(name: &str, args: &[OsString], cwd: Option<&Path>) -> Result<Infalli
         use std::os::unix::process::CommandExt;
         // Does not return on success.
         let err = cmd.exec();
-        Err(CliError::custom(format!("failed to exec '{name}': {err}")).into())
+        Err(crate::errors::custom(format!("failed to exec '{name}': {err}")).into())
     }
 
     #[cfg(not(unix))]
@@ -69,7 +71,7 @@ pub fn exec(name: &str, args: &[OsString], cwd: Option<&Path>) -> Result<Infalli
             .stderr(process::Stdio::inherit())
             .status()
             .map_err(|err| -> leo_errors::LeoError {
-                CliError::custom(format!("failed to spawn '{name}': {err}")).into()
+                crate::errors::custom(format!("failed to spawn '{name}': {err}")).into()
             })?;
         process::exit(status.code().unwrap_or(1));
     }

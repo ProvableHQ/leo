@@ -16,6 +16,7 @@
 
 use super::*;
 
+use crate::errors::compiler as compiler_error_fns;
 use leo_ast::{
     Composite,
     Constructor,
@@ -31,7 +32,6 @@ use leo_ast::{
     UpgradeVariant,
     Variant,
 };
-use leo_errors::CompilerError;
 use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
@@ -320,11 +320,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
             let write_count =
                 statements.iter().filter(|s| matches!(s, AleoStmt::Set(..) | AleoStmt::Remove(..))).count();
             if write_count > max_writes as usize {
-                self.state.handler.emit_err(CompilerError::too_many_write_commands(
+                self.state.handler.emit_err(compiler_error_fns::too_many_write_commands(
                     write_count,
                     max_writes,
                     function.span,
-                    vec![],
                 ));
             }
         }
@@ -418,7 +417,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let write_count =
             constructor.statements.iter().filter(|s| matches!(s, AleoStmt::Set(..) | AleoStmt::Remove(..))).count();
         if write_count > max_writes as usize {
-            self.state.handler.emit_err(CompilerError::too_many_write_commands(write_count, max_writes, span, vec![]));
+            self.state.handler.emit_err(compiler_error_fns::too_many_write_commands(write_count, max_writes, span));
         } else {
             // Validate with snarkVM. Any violation not already caught above is a compiler bug.
             if let Err(e) = match self.state.network {

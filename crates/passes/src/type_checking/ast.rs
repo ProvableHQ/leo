@@ -21,7 +21,6 @@ use leo_ast::{
     Type::{Future, Tuple},
     *,
 };
-use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
@@ -75,7 +74,7 @@ impl TypeCheckingVisitor<'_> {
                 kind: AssignTargetKind::Local,
             },
             _ => {
-                self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span(), vec![]));
+                self.emit_err(crate::errors::type_checker::invalid_assignment_target(input, input.span()));
                 AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err }
             }
         };
@@ -87,17 +86,15 @@ impl TypeCheckingVisitor<'_> {
                 || matches!(&assign_target_info.ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty))))
         {
             if self.is_external_record(&assign_target_info.ty) {
-                self.emit_err(TypeCheckerError::assignment_to_external_record_cond(
+                self.emit_err(crate::errors::type_checker::assignment_to_external_record_cond(
                     &assign_target_info.ty,
                     input.span(),
-                    vec![],
                 ));
             } else {
                 // Note that this will cover both assigning to a tuple variable and assigning to a member of a tuple.
-                self.emit_err(TypeCheckerError::assignment_to_external_record_tuple_cond(
+                self.emit_err(crate::errors::type_checker::assignment_to_external_record_tuple_cond(
                     &assign_target_info.ty,
                     input.span(),
-                    vec![],
                 ));
             }
         }
@@ -105,9 +102,11 @@ impl TypeCheckingVisitor<'_> {
         // Prohibit reassignment of futures or mappings
         match &assign_target_info.ty {
             Type::Future(..) => {
-                self.emit_err(TypeCheckerError::cannot_reassign_final_variable(input, input.span(), vec![]))
+                self.emit_err(crate::errors::type_checker::cannot_reassign_final_variable(input, input.span()))
             }
-            Type::Mapping(_) => self.emit_err(TypeCheckerError::cannot_reassign_mapping(input, input.span(), vec![])),
+            Type::Mapping(_) => {
+                self.emit_err(crate::errors::type_checker::cannot_reassign_mapping(input, input.span()))
+            }
             _ => {}
         }
 
@@ -167,7 +166,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Make sure we're not assigning to a member of an external record.
         if assign && self.is_external_record(&ty) {
-            self.emit_err(TypeCheckerError::assignment_to_external_record_member(&ty, input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::assignment_to_external_record_member(&ty, input.span));
         }
 
         // Check that the type of `inner` in `inner.name` is a composite.
@@ -176,7 +175,7 @@ impl TypeCheckingVisitor<'_> {
             Type::Composite(ref composite) => {
                 // Retrieve the composite definition associated with `identifier`.
                 let Some(composite) = self.lookup_composite(composite.path.expect_global_location()) else {
-                    self.emit_err(TypeCheckerError::undefined_type(ty, input.inner.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::undefined_type(ty, input.inner.span()));
                     return Type::Err;
                 };
                 // Check that `input.name` is a member of the composite.
@@ -189,11 +188,10 @@ impl TypeCheckingVisitor<'_> {
                     }
                     // Case where `input.name` is not a member of the composite.
                     None => {
-                        self.emit_err(TypeCheckerError::invalid_composite_variable(
+                        self.emit_err(crate::errors::type_checker::invalid_composite_variable(
                             input.name,
                             &composite,
                             input.name.span(),
-                            vec![],
                         ));
                         Type::Err
                     }
@@ -201,11 +199,10 @@ impl TypeCheckingVisitor<'_> {
             }
             Type::DynRecord => {
                 if assign {
-                    self.emit_err(TypeCheckerError::type_should_be2(
+                    self.emit_err(crate::errors::type_checker::type_should_be2(
                         "dyn record",
                         "an assignable struct or record",
                         input.inner.span(),
-                        vec![],
                     ));
                     return Type::Err;
                 }
@@ -217,20 +214,18 @@ impl TypeCheckingVisitor<'_> {
                     // Other fields require a type annotation (via `let x: T = r.field` or `r.field as T`).
                     expected_type.clone()
                 } else {
-                    self.emit_err(TypeCheckerError::dyn_record_field_requires_type(
+                    self.emit_err(crate::errors::type_checker::dyn_record_field_requires_type(
                         input.name,
                         input.name.span(),
-                        vec![],
                     ));
                     Type::Err
                 }
             }
             type_ => {
-                self.emit_err(TypeCheckerError::type_should_be2(
+                self.emit_err(crate::errors::type_checker::type_should_be2(
                     type_,
                     "a struct or record",
                     input.inner.span(),
-                    vec![],
                 ));
                 Type::Err
             }
@@ -249,7 +244,7 @@ impl TypeCheckingVisitor<'_> {
                 // Check out of range input.
                 let index = input.index.value();
                 let Some(actual) = tuple.elements().get(index) else {
-                    self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.length(), input.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::tuple_out_of_range(index, tuple.length(), input.span()));
                     return Type::Err;
                 };
 
@@ -258,7 +253,7 @@ impl TypeCheckingVisitor<'_> {
                 actual.clone()
             }
             type_ => {
-                self.emit_err(TypeCheckerError::type_should_be2(type_, "a tuple", input.span(), vec![]));
+                self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a tuple", input.span()));
                 Type::Err
             }
         }
@@ -280,7 +275,7 @@ impl TypeCheckingVisitor<'_> {
 
         // Lookup the variable in the symbol table
         let Some(var) = self.state.symbol_table.lookup_path(current_program, input) else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span));
             return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
         };
 
@@ -288,18 +283,20 @@ impl TypeCheckingVisitor<'_> {
 
         // Cannot assign to storage vectors
         if ty.is_vector() {
-            self.emit_err(TypeCheckerError::invalid_assignment_target(input, input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::invalid_assignment_target(input, input.span()));
             return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
         }
 
         // Check that variable is not a constant or constant input
         match &var.declaration {
-            VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(input, var.span, vec![])),
+            VariableType::Const => {
+                self.emit_err(crate::errors::type_checker::cannot_assign_to_const_var(input, var.span))
+            }
             VariableType::ConstParameter => self.emit_err(
-                TypeCheckerError::cannot_assign_to_generic_const_function_parameter(input, input.span, vec![]),
+                crate::errors::type_checker::cannot_assign_to_generic_const_function_parameter(input, input.span),
             ),
             VariableType::Input(Mode::Constant) => {
-                self.emit_err(TypeCheckerError::cannot_assign_to_const_input(input, var.span, vec![]))
+                self.emit_err(crate::errors::type_checker::cannot_assign_to_const_input(input, var.span))
             }
             VariableType::Storage => {
                 // Determine if this storage variable belongs to another program
@@ -316,22 +313,23 @@ impl TypeCheckingVisitor<'_> {
         // Ensure assignment is allowed in async function conditional scopes
         if self.scope_state.variant.unwrap().is_onchain() && !self.symbol_in_conditional_scope(input.identifier().name)
         {
-            self.emit_err(TypeCheckerError::final_cannot_assign_outside_conditional(input, "fn", var.span, vec![]));
+            self.emit_err(crate::errors::type_checker::final_cannot_assign_outside_conditional(input, "fn", var.span));
         }
 
         // Ensure assignment is allowed in async block conditional scopes
         if self.async_block_id.is_some() && !self.symbol_in_conditional_scope(input.identifier().name) {
-            self.emit_err(TypeCheckerError::final_cannot_assign_outside_conditional(input, "block", var.span, vec![]));
+            self.emit_err(crate::errors::type_checker::final_cannot_assign_outside_conditional(
+                input, "block", var.span,
+            ));
         }
 
         // If inside an async block, cannot assign to variables outside the block or its ancestors
         if let Some(async_block_id) = self.async_block_id
             && !self.state.symbol_table.is_defined_in_scope_or_ancestor_until(async_block_id, input.identifier().name)
         {
-            self.emit_err(TypeCheckerError::cannot_assign_to_vars_outside_final_block(
+            self.emit_err(crate::errors::type_checker::cannot_assign_to_vars_outside_final_block(
                 input.identifier().name,
                 input.span,
-                vec![],
             ));
         }
 
@@ -389,12 +387,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if let Some(composite) = composite {
             // Check the number of const arguments against the number of the composite's const parameters
             if composite.const_parameters.len() != input.const_arguments.len() {
-                self.emit_err(TypeCheckerError::incorrect_num_const_args(
+                self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
                     "Composite type",
                     composite.const_parameters.len(),
                     input.const_arguments.len(),
                     input.path.span,
-                    vec![],
                 ));
             }
 
@@ -404,7 +401,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         } else if !input.const_arguments.is_empty() {
             // This handles erroring out on all non-structs
-            self.emit_err(TypeCheckerError::unexpected_const_args(input, input.path.span, vec![]));
+            self.emit_err(crate::errors::type_checker::unexpected_const_args(input, input.path.span));
         }
     }
 
@@ -465,7 +462,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             if let Some(ty) = element_type.clone() {
                 ty
             } else {
-                self.emit_err(TypeCheckerError::could_not_determine_type(input, input.span(), vec![]));
+                self.emit_err(crate::errors::type_checker::could_not_determine_type(input, input.span()));
                 Type::Err
             }
         } else {
@@ -473,11 +470,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
 
         if input.elements.len() > self.limits.max_array_elements {
-            self.emit_err(TypeCheckerError::array_too_large(
+            self.emit_err(crate::errors::type_checker::array_too_large(
                 input.elements.len(),
                 self.limits.max_array_elements,
                 input.span(),
-                vec![],
             ));
         }
 
@@ -536,15 +532,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // size limit. If the count is a literal but exceeds u32::MAX, report that separately.
         if let Some(count) = input.count.as_u32() {
             if count > self.limits.max_array_elements as u32 {
-                self.emit_err(TypeCheckerError::array_too_large(
+                self.emit_err(crate::errors::type_checker::array_too_large(
                     count,
                     self.limits.max_array_elements,
                     input.span(),
-                    vec![],
                 ));
             }
         } else if let Expression::Literal(_) = &input.count {
-            self.emit_err(TypeCheckerError::array_too_large_for_u32(input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::array_too_large_for_u32(input.span()));
         }
 
         let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
@@ -582,7 +577,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
         {
-            self.emit_err(TypeCheckerError::operation_must_be_in_final_block_or_function(input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::operation_must_be_in_final_block_or_function(input.span()));
         }
 
         let return_type = self.check_intrinsic(intrinsic.clone(), &input.arguments, expected, input.span());
@@ -592,7 +587,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Await futures here so that can use the argument variable names to lookup.
         if intrinsic == Intrinsic::FinalRun && input.arguments.len() != 1 {
-            self.emit_err(TypeCheckerError::can_only_run_one_final_at_a_time(input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::can_only_run_one_final_at_a_time(input.span));
         }
 
         return_type
@@ -601,17 +596,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_async(&mut self, input: &AsyncExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // A few restrictions
         if self.scope_state.is_conditional {
-            self.emit_err(TypeCheckerError::final_block_in_conditional(input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::final_block_in_conditional(input.span));
             return Type::Err;
         }
 
         if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
-            self.emit_err(TypeCheckerError::illegal_final_block_location(input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::illegal_final_block_location(input.span));
             return Type::Err;
         }
 
         if self.scope_state.already_contains_an_async_block {
-            self.emit_err(TypeCheckerError::multiple_final_blocks_not_allowed(input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::multiple_final_blocks_not_allowed(input.span));
             return Type::Err;
         }
 
@@ -642,10 +637,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 && let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
                 && comp.is_record
             {
-                self.emit_err(TypeCheckerError::record_captured_by_final_block(
+                self.emit_err(crate::errors::type_checker::record_captured_by_final_block(
                     func_input.identifier.name,
                     input.span,
-                    vec![],
                 ));
             }
         }
@@ -672,7 +666,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
             } else if !t1.eq_user(t2) {
-                slf.emit_err(TypeCheckerError::operation_types_mismatch(input.op, t1, t2, input.span(), vec![]));
+                slf.emit_err(crate::errors::type_checker::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
                 t1.clone()
@@ -770,11 +764,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Now sanity check everything
                 let assert_add_type = |type_: &Type, span: Span| {
                     if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
-                        self.emit_err(TypeCheckerError::type_should_be2(
+                        self.emit_err(crate::errors::type_checker::type_should_be2(
                             type_,
                             "a field, group, scalar, or integer",
                             span,
-                            vec![],
                         ));
                     }
                 };
@@ -840,7 +833,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         t1.clone()
                     }
                     _ => {
-                        self.emit_err(TypeCheckerError::mul_types_mismatch(t1, t2, input.span(), vec![]));
+                        self.emit_err(crate::errors::type_checker::mul_types_mismatch(t1, t2, input.span()));
                         Type::Err
                     }
                 };
@@ -942,12 +935,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                                 | Type::Integer(IntegerType::U16)
                                 | Type::Integer(IntegerType::U32)
                         ) {
-                            self.emit_err(TypeCheckerError::pow_types_mismatch(base, t2, input.span(), vec![]));
+                            self.emit_err(crate::errors::type_checker::pow_types_mismatch(base, t2, input.span()));
                         }
                         base.clone()
                     }
                     _ => {
-                        self.emit_err(TypeCheckerError::pow_types_mismatch(t1, t2, input.span(), vec![]));
+                        self.emit_err(crate::errors::type_checker::pow_types_mismatch(t1, t2, input.span()));
                         Type::Err
                     }
                 };
@@ -994,12 +987,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         BinaryOperation::Neq => ("!=", "false"),
                         _ => unreachable!("guarded by the outer match arm"),
                     };
-                    self.emit_warning(TypeCheckerWarning::comparison_of_unit_operands_is_constant(
-                        op_str,
-                        folded,
+                    self.state.handler.emit_warning_once(
                         input.span(),
-                        vec![],
-                    ));
+                        crate::errors::type_checker::comparison_of_unit_operands_is_constant(
+                            op_str,
+                            folded,
+                            input.span(),
+                        ),
+                    );
                 }
 
                 self.maybe_assert_type(&Type::Boolean, destination, input.span());
@@ -1017,11 +1012,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Now sanity check everything
                 let assert_compare_type = |type_: &Type, span: Span| {
                     if !matches!(type_, Type::Err | Type::Field | Type::Scalar | Type::Integer(_)) {
-                        self.emit_err(TypeCheckerError::type_should_be2(
+                        self.emit_err(crate::errors::type_checker::type_should_be2(
                             type_,
                             "a field, scalar, or integer",
                             span,
-                            vec![],
                         ));
                     }
                 };
@@ -1080,7 +1074,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         | Type::Integer(IntegerType::U16)
                         | Type::Integer(IntegerType::U32)
                 ) {
-                    self.emit_err(TypeCheckerError::shift_type_magnitude(input.op, t2, input.right.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::shift_type_magnitude(input.op, t2, input.right.span()));
                 }
 
                 t1
@@ -1097,7 +1091,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
         let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
         let Some(interface) = self.state.symbol_table.lookup_interface(current_program, interface_location) else {
-            self.emit_err(TypeCheckerError::unknown_sym("interface", &input.interface, interface_path.span, vec![]));
+            self.emit_err(crate::errors::type_checker::unknown_sym("interface", &input.interface, interface_path.span));
             return Type::Err;
         };
         let interface = interface.clone();
@@ -1117,11 +1111,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let callee_path = callee_location.path.clone();
 
         let Some(func_symbol) = self.state.symbol_table.lookup_function(current_program, callee_location) else {
-            self.emit_err(TypeCheckerError::unknown_sym(
+            self.emit_err(crate::errors::type_checker::unknown_sym(
                 "function",
                 input.function.clone(),
                 input.function.span(),
-                vec![],
             ));
             return Type::Err;
         };
@@ -1133,24 +1126,22 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         match self.scope_state.variant.unwrap() {
             Variant::Finalize if !matches!(func.variant, Variant::FinalFn | Variant::Fn) => self.emit_err(
                 // FIXME: better error
-                TypeCheckerError::can_only_call_inline_function(
+                crate::errors::type_checker::can_only_call_inline_function(
                     "a regular function or constructor",
                     input.span,
-                    vec![],
                 ),
             ),
             Variant::Fn if !matches!(func.variant, Variant::Fn) => {
-                self.emit_err(TypeCheckerError::can_only_call_inline_function(
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                     "a regular function or constructor",
                     input.span,
-                    vec![],
                 ))
             }
             Variant::EntryPoint
                 if matches!(func.variant, Variant::EntryPoint)
                     && callee_program == self.scope_state.unit_name.unwrap() =>
             {
-                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_entry_point_fn(input.span, vec![]))
+                self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span))
             }
             _ => {}
         }
@@ -1158,7 +1149,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Make sure we're not calling an entry point or finalize from a final block
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
             // FIXME better error
-            self.emit_err(TypeCheckerError::can_only_call_inline_function("a final block", input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return Type::Err;
         }
 
@@ -1201,22 +1192,20 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check number of function arguments.
         if func.input.len() != input.arguments.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+            self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(
                 func.input.len(),
                 input.arguments.len(),
                 input.span(),
-                vec![],
             ));
         }
 
         // Check the number of const arguments against the number of the function's const parameters
         if func.const_parameters.len() != input.const_arguments.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_const_args(
+            self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
                 "Call",
                 func.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
-                vec![],
             ));
         }
 
@@ -1254,7 +1243,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                             self.scope_state.call_location = Some(future);
                         }
                         None => {
-                            self.emit_err(TypeCheckerError::unknown_final_consumed(name, argument.span(), vec![]));
+                            self.emit_err(crate::errors::type_checker::unknown_final_consumed(name, argument.span()));
                         }
                     }
                 }
@@ -1269,16 +1258,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                                 inferred_finalize_inputs.push(ty);
                             }
                             None => {
-                                self.emit_err(TypeCheckerError::unknown_final_consumed(
+                                self.emit_err(crate::errors::type_checker::unknown_final_consumed(
                                     argument,
                                     argument.span(),
-                                    vec![],
                                 ));
                             }
                         }
                     }
                     _ => {
-                        self.emit_err(TypeCheckerError::unknown_final_consumed("unknown", argument.span(), vec![]));
+                        self.emit_err(crate::errors::type_checker::unknown_final_consumed("unknown", argument.span()));
                     }
                 }
             } else {
@@ -1321,7 +1309,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
 
             if self.scope_state.already_contains_an_async_block {
-                self.emit_err(TypeCheckerError::external_call_after_final("block", input.span, vec![]));
+                self.emit_err(crate::errors::type_checker::external_call_after_final("block", input.span));
             }
         }
 
@@ -1348,10 +1336,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             // Check that all futures consumed.
             if !self.scope_state.futures.is_empty() {
-                self.emit_err(TypeCheckerError::not_all_finals_consumed(
+                self.emit_err(crate::errors::type_checker::not_all_finals_consumed(
                     self.scope_state.futures.iter().map(|(f, _)| f).join(", "),
                     input.span,
-                    vec![],
                 ));
             }
             self.state
@@ -1407,19 +1394,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     if let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
                         && !comp.is_record
                     {
-                        self.emit_err(TypeCheckerError::cannot_cast_to_dyn_record(
+                        self.emit_err(crate::errors::type_checker::cannot_cast_to_dyn_record(
                             &expression_type,
                             input.expression.span(),
-                            vec![],
                         ));
                     }
                 }
                 Type::Err => {}
                 _ => {
-                    self.emit_err(TypeCheckerError::cannot_cast_to_dyn_record(
+                    self.emit_err(crate::errors::type_checker::cannot_cast_to_dyn_record(
                         &expression_type,
                         input.expression.span(),
-                        vec![],
                     ));
                 }
             }
@@ -1449,11 +1434,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if self.lookup_composite(ct.path.expect_global_location())
                     .is_some_and(|c| c.is_record));
             if !is_record && !matches!(expression_type, Type::Err) {
-                self.emit_err(TypeCheckerError::type_should_be2(
+                self.emit_err(crate::errors::type_checker::type_should_be2(
                     &expression_type,
                     "a record type",
                     input.expression.span(),
-                    vec![],
                 ));
             }
             self.maybe_assert_type(&input.type_, expected, input.span());
@@ -1472,11 +1456,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     | Type::Identifier
                     | Type::Err,
             ) {
-                self.emit_err(TypeCheckerError::type_should_be2(
+                self.emit_err(crate::errors::type_checker::type_should_be2(
                     actual,
                     "an integer, bool, field, group, scalar, address, or identifier",
                     span,
-                    vec![],
                 ));
             }
         };
@@ -1498,23 +1481,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let composite_location = input.path.expect_global_location();
         let composite = self.lookup_composite(composite_location).clone();
         let Some(composite) = composite else {
-            self.emit_err(TypeCheckerError::unknown_sym(
+            self.emit_err(crate::errors::type_checker::unknown_sym(
                 "struct or record",
                 input.path.clone(),
                 input.path.span(),
-                vec![],
             ));
             return Type::Err;
         };
 
         // Check the number of const arguments against the number of the composite's const parameters
         if composite.const_parameters.len() != input.const_arguments.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_const_args(
+            self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
                 "Composite expression",
                 composite.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
-                vec![],
             ));
         }
 
@@ -1529,11 +1510,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check number of composite members.
         if composite.members.len() != input.members.len() {
-            self.emit_err(TypeCheckerError::incorrect_num_composite_members(
+            self.emit_err(crate::errors::type_checker::incorrect_num_composite_members(
                 composite.members.len(),
                 input.members.len(),
                 input.span(),
-                vec![],
             ));
         }
 
@@ -1563,7 +1543,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                             self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
                             ty.clone()
                         } else {
-                            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span(), vec![]));
+                            self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span()));
                             Type::Err
                         };
                     }
@@ -1573,11 +1553,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     }
                 };
             } else {
-                self.emit_err(TypeCheckerError::missing_composite_member(
+                self.emit_err(crate::errors::type_checker::missing_composite_member(
                     composite.identifier,
                     identifier,
                     input.span(),
-                    vec![],
                 ));
             };
         }
@@ -1585,23 +1564,26 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if composite.is_record {
             // Ensure that we're not instantating an external record
             if composite_location.program != self.scope_state.unit_name.unwrap() {
-                self.state.handler.emit_err(TypeCheckerError::cannot_instantiate_external_record(
+                self.state.handler.emit_err(crate::errors::type_checker::cannot_instantiate_external_record(
                     composite_location,
                     input.span(),
-                    vec![],
                 ));
             }
 
             // First, ensure that the current scope is not an async function. Records should not be instantiated in
             // async functions
             if matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
-                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_final(input.span(), vec![]));
+                self.state
+                    .handler
+                    .emit_err(crate::errors::type_checker::records_not_allowed_inside_final(input.span()));
             }
 
             // Similarly, ensure that the current scope is not an async block. Records should not be instantiated in
             // async blocks
             if self.async_block_id.is_some() {
-                self.state.handler.emit_err(TypeCheckerError::records_not_allowed_inside_final(input.span(), vec![]));
+                self.state
+                    .handler
+                    .emit_err(crate::errors::type_checker::records_not_allowed_inside_final(input.span()));
             }
 
             // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
@@ -1612,11 +1594,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if let Some(Expression::Intrinsic(intr)) = &init.expression
                     && let IntrinsicExpression { name: sym::_self_caller, .. } = &**intr
                 {
-                    self.emit_warning(TypeCheckerWarning::caller_as_record_owner(
-                        input.path.clone(),
+                    self.state.handler.emit_warning_once(
                         intr.span(),
-                        vec![],
-                    ));
+                        crate::errors::type_checker::caller_as_record_owner(input.path.clone(), intr.span()),
+                    );
                 }
             });
         }
@@ -1647,7 +1628,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.maybe_assert_type(&ty, expected, input.span());
             ty.clone()
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", input, input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span()));
             Type::Err
         }
     }
@@ -1674,7 +1655,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         .parse::<snarkvm::prelude::Group<snarkvm::prelude::TestnetV0>>()
                         .is_err()
                 {
-                    self.emit_err(TypeCheckerError::invalid_int_value(trimmed, "group", span, vec![]));
+                    self.emit_err(crate::errors::type_checker::invalid_int_value(trimmed, "group", span));
                 }
                 Type::Group
             }
@@ -1694,10 +1675,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if let Some(ty @ Type::Optional(_)) = expected {
                     ty.clone()
                 } else if let Some(ty) = expected {
-                    self.emit_err(TypeCheckerError::none_found_non_optional(format!("{ty}"), span, vec![]));
+                    self.emit_err(crate::errors::type_checker::none_found_non_optional(format!("{ty}"), span));
                     Type::Err
                 } else {
-                    self.emit_err(TypeCheckerError::could_not_determine_type(format!("{input}"), span, vec![]));
+                    self.emit_err(crate::errors::type_checker::could_not_determine_type(format!("{input}"), span));
                     Type::Err
                 }
             }
@@ -1718,20 +1699,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                             *inner.clone()
                         }
                         _ => {
-                            self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
+                            self.emit_err(crate::errors::type_checker::unexpected_unsuffixed_numeral(
                                 format!("type `{ty}`"),
                                 span,
-                                vec![],
                             ));
                             Type::Err
                         }
                     }
                 }
                 Some(ty) => {
-                    self.emit_err(TypeCheckerError::unexpected_unsuffixed_numeral(
+                    self.emit_err(crate::errors::type_checker::unexpected_unsuffixed_numeral(
                         format!("type `{ty}`"),
                         span,
-                        vec![],
                     ));
                     Type::Err
                 }
@@ -1789,7 +1768,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
         } else if !t1.can_coerce_to(&t2) && !t2.can_coerce_to(&t1) {
-            self.emit_err(TypeCheckerError::ternary_branch_mismatch(t1, t2, input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::ternary_branch_mismatch(t1, t2, input.span()));
             Type::Err
         } else if let Some(expected) = expected {
             expected.clone()
@@ -1801,16 +1780,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Make sure this isn't an external record type - won't work as we can't construct it.
         if self.is_external_record(&typ) {
-            self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::ternary_over_external_records(&typ, input.span));
         }
 
         // dyn record cannot be used in ternary - the VM does not support it.
         if matches!(typ, Type::DynRecord) {
-            self.emit_err(TypeCheckerError::type_should_be2(
+            self.emit_err(crate::errors::type_checker::type_should_be2(
                 "dyn record",
                 "a type supported by ternary",
                 input.span,
-                vec![],
             ));
         }
 
@@ -1818,7 +1796,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if let Type::Tuple(tuple) = &typ
             && tuple.elements().iter().any(|ty| self.is_external_record(ty))
         {
-            self.emit_err(TypeCheckerError::ternary_over_external_records(&typ, input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::ternary_over_external_records(&typ, input.span));
         }
 
         typ
@@ -1831,18 +1809,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // First, make sure that the number of tuple elements is correct
                 if expected_types.length() != input.elements.len() {
-                    self.emit_err(TypeCheckerError::incorrect_tuple_length(
+                    self.emit_err(crate::errors::type_checker::incorrect_tuple_length(
                         expected_types.length(),
                         input.elements.len(),
                         input.span(),
-                        vec![],
                     ));
                 }
 
                 // Now make sure that none of the tuple elements is a tuple
                 input.elements.iter().zip(expected_types.elements()).for_each(|(expr, expected_el_ty)| {
                     if matches!(expr, Expression::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span(), vec![]));
+                        self.emit_err(crate::errors::type_checker::nested_tuple_expression(expr.span()));
                     }
                     self.visit_expression(expr, &Some(expected_el_ty.clone()));
                 });
@@ -1859,10 +1836,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .map(|field| {
                         let ty = self.visit_expression(field, &None);
                         if ty == Type::Numeric {
-                            self.emit_err(TypeCheckerError::could_not_determine_type(
+                            self.emit_err(crate::errors::type_checker::could_not_determine_type(
                                 field.clone(),
                                 field.span(),
-                                vec![],
                             ));
                             Type::Err
                         } else {
@@ -1872,7 +1848,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .collect::<Vec<_>>();
                 if field_types.iter().all(|f| *f != Type::Err) {
                     let tuple_type = Type::Tuple(TupleType::new(field_types));
-                    self.emit_err(TypeCheckerError::type_should_be2(tuple_type, expected, input.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::type_should_be2(tuple_type, expected, input.span()));
                 }
 
                 // Recover with the expected type anyways
@@ -1884,7 +1860,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // We still need to check that none of the tuple elements is a tuple
             input.elements.iter().for_each(|expr| {
                 if matches!(expr, Expression::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::nested_tuple_expression(expr.span()));
                 }
             });
 
@@ -1895,10 +1871,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .map(|field| {
                         let ty = self.visit_expression(field, &None);
                         if ty == Type::Numeric {
-                            self.emit_err(TypeCheckerError::could_not_determine_type(
+                            self.emit_err(crate::errors::type_checker::could_not_determine_type(
                                 field.clone(),
                                 field.span(),
-                                vec![],
                             ));
                             Type::Err
                         } else {
@@ -1923,7 +1898,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     | Type::Integer(IntegerType::I64)
                     | Type::Integer(IntegerType::I128)
             ) {
-                slf.emit_err(TypeCheckerError::type_should_be2(type_, "a signed integer", input.span(), vec![]));
+                slf.emit_err(crate::errors::type_checker::type_should_be2(type_, "a signed integer", input.span()));
             }
         };
 
@@ -1941,7 +1916,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             UnaryOperation::Double => {
                 let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(&type_, Type::Err | Type::Field | Type::Group) {
-                    self.emit_err(TypeCheckerError::type_should_be2(&type_, "a field or group", input.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::type_should_be2(
+                        &type_,
+                        "a field or group",
+                        input.span(),
+                    ));
                 }
                 type_
             }
@@ -1969,11 +1948,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         | Type::Group
                         | Type::Field
                 ) {
-                    self.emit_err(TypeCheckerError::type_should_be2(
+                    self.emit_err(crate::errors::type_checker::type_should_be2(
                         &type_,
                         "a signed integer, group, or field",
                         input.receiver.span(),
-                        vec![],
                     ));
                 }
                 type_
@@ -1981,7 +1959,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             UnaryOperation::Not => {
                 let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(&type_, Type::Err | Type::Boolean | Type::Integer(_)) {
-                    self.emit_err(TypeCheckerError::type_should_be2(&type_, "a bool or integer", input.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::type_should_be2(
+                        &type_,
+                        "a bool or integer",
+                        input.span(),
+                    ));
                 }
                 type_
             }
@@ -2027,7 +2009,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_statement(&mut self, input: &Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {
-            self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::unreachable_code_after_return(input.span()));
             return;
         }
 
@@ -2056,7 +2038,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
-                    self.emit_err(TypeCheckerError::operation_types_mismatch(op, &t1, &t2, input.span(), vec![]));
+                    self.emit_err(crate::errors::type_checker::operation_types_mismatch(op, &t1, &t2, input.span()));
                 }
             }
         }
@@ -2079,7 +2061,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         if assign_target_info.kind == AssignTargetKind::ExternalStorage {
-            self.emit_err(TypeCheckerError::cannot_modify_external_storage_variable(input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::cannot_modify_external_storage_variable(input.span()));
         }
 
         let expected_rhs_ty = match (&assign_target_info.kind, value.is_none_expr(), &assign_target_info.ty) {
@@ -2162,19 +2144,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // For now, consts that contain optional types are not supported.
         // TODO: remove this restriction by supporting const evaluation of optionals including `None`.
         if self.contains_optional_type(&input.type_) {
-            self.emit_err(TypeCheckerError::const_cannot_be_optional(input.span, vec![]));
+            self.emit_err(crate::errors::type_checker::const_cannot_be_optional(input.span));
         }
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span, vec![])),
+            Type::Unit => self.emit_err(crate::errors::type_checker::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
                     if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span, vec![]))
+                        self.emit_err(crate::errors::type_checker::nested_tuple_type(input.span))
                     }
                 }
             },
@@ -2209,7 +2191,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 _ => {
                     for type_ in tuple.elements() {
                         if matches!(type_, Type::Tuple(_)) {
-                            self.emit_err(TypeCheckerError::nested_tuple_type(input.span, vec![]))
+                            self.emit_err(crate::errors::type_checker::nested_tuple_type(input.span))
                         }
                     }
                 }
@@ -2229,7 +2211,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // If the RHS is a storage vector, error out. Storage vectors cannot be assigned to a variable.
         // They can only be accessed directly via `push`, `pop`, etc.
         if inferred_type.is_vector() {
-            self.emit_err(TypeCheckerError::storage_vectors_cannot_be_moved_or_assigned(input.value.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::storage_vectors_cannot_be_moved_or_assigned(input.value.span()));
         }
 
         // Set the types of variables in the symbol.
@@ -2251,10 +2233,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         // identifiers to `Type::Err` to uphold the invariant that every variable has
                         // a known type after type checking, preventing downstream panics.
                         if !matches!(rhs_type, Type::Err) {
-                            self.emit_err(TypeCheckerError::multi_identifier_definition_requires_tuple(
+                            self.emit_err(crate::errors::type_checker::multi_identifier_definition_requires_tuple(
                                 rhs_type,
                                 input.span(),
-                                vec![],
                             ));
                         }
                         for identifier in identifiers {
@@ -2277,11 +2258,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Ensure the number of identifiers we're defining is the same as the number of tuple elements, as
                 // indicated by `tuple_type`
                 if identifiers.len() != tuple_type.length() {
-                    return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
+                    return self.emit_err(crate::errors::type_checker::incorrect_num_tuple_elements(
                         identifiers.len(),
                         tuple_type.length(),
                         input.span(),
-                        vec![],
                     ));
                 }
 
@@ -2304,7 +2284,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             input.expression,
             Expression::Call(_) | Expression::DynamicOp(_) | Expression::Intrinsic(_) | Expression::Unit(_)
         ) {
-            self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.
             self.visit_expression(&input.expression, &None);
@@ -2329,7 +2309,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         if start_ty != stop_ty {
             // Emit an error if the types of the range bounds do not match
-            self.emit_err(TypeCheckerError::range_bounds_type_mismatch(input.start.span() + input.stop.span(), vec![]));
+            self.emit_err(crate::errors::type_checker::range_bounds_type_mismatch(
+                input.start.span() + input.stop.span(),
+            ));
         }
 
         // Now, just set the type of the iterator variable to `start_ty` if `input.type_` is not available. If `stop_ty`
@@ -2348,15 +2330,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             slf.visit_block(&input.block);
 
             if slf.scope_state.has_return {
-                slf.emit_err(TypeCheckerError::loop_body_contains_return(input.span(), vec![]));
+                slf.emit_err(crate::errors::type_checker::loop_body_contains_return(input.span()));
             }
 
             if slf.scope_state.has_called_finalize {
-                slf.emit_err(TypeCheckerError::loop_body_contains_final(input.span(), vec![]));
+                slf.emit_err(crate::errors::type_checker::loop_body_contains_final(input.span()));
             }
 
             if slf.scope_state.already_contains_an_async_block {
-                slf.emit_err(TypeCheckerError::loop_body_contains_final(input.span(), vec![]));
+                slf.emit_err(crate::errors::type_checker::loop_body_contains_final(input.span()));
             }
 
             slf.scope_state.has_return = prior_has_return;
@@ -2366,16 +2348,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_return(&mut self, input: &ReturnStatement) {
         if self.async_block_id.is_some() {
-            return self.emit_err(TypeCheckerError::final_block_cannot_return(input.span(), vec![]));
+            return self.emit_err(crate::errors::type_checker::final_block_cannot_return(input.span()));
         }
 
         if self.scope_state.is_constructor {
             // It must return a unit value; nothing else to check.
             if !matches!(input.expression, Expression::Unit(..)) {
-                self.emit_err(TypeCheckerError::constructor_can_only_return_unit(
+                self.emit_err(crate::errors::type_checker::constructor_can_only_return_unit(
                     &input.expression,
                     input.span,
-                    vec![],
                 ));
             }
             return;
@@ -2414,7 +2395,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         .collect::<Vec<Type>>(),
                 )),
                 _ => {
-                    return self.emit_err(TypeCheckerError::entry_point_missing_final_to_return(input.span(), vec![]));
+                    return self
+                        .emit_err(crate::errors::type_checker::entry_point_missing_final_to_return(input.span()));
                 }
             };
 
@@ -2428,7 +2410,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // TODO - This is a bit hackish. We're reusing an existing error, because
                 // we have too many errors in TypeCheckerError without hitting the recursion
                 // limit for macros. But the error message to the user should still be pretty clear.
-                return self.emit_err(TypeCheckerError::missing_return(input.span(), vec![]));
+                return self.emit_err(crate::errors::type_checker::missing_return(input.span()));
             }
         }
 

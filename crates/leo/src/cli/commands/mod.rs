@@ -72,7 +72,7 @@ pub use upgrade::LeoUpgrade;
 use super::*;
 use crate::cli::{helpers::context::*, query::QueryCommands};
 
-use leo_errors::{CliError, Handler, PackageError, Result};
+use leo_errors::{Handler, Result};
 use snarkvm::{
     console::network::Network,
     prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction},
@@ -155,16 +155,16 @@ pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Resu
     if input.starts_with("record1") {
         // Get the view key from the private key.
         let view_key = ViewKey::<N>::try_from(private_key)
-            .map_err(|e| CliError::custom(format!("Failed to view key from the private key: {e}")))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to view key from the private key: {e}")))?;
         // Parse the input as a record.
         Record::<N, Ciphertext<N>>::from_str(input)
             .and_then(|ciphertext| ciphertext.decrypt(&view_key))
             .map(Value::Record)
-            .map_err(|e| CliError::custom(format!("Failed to parse input as record: {e}")).into())
+            .map_err(|e| crate::errors::custom(format!("Failed to parse input as record: {e}")).into())
     } else {
         // Pre-validate numeric literals to reject malformed inputs that snarkvm would silently coerce to zero.
         validate_cli_literal(input)?;
-        Value::from_str(input).map_err(|e| CliError::custom(format!("Failed to parse input: {e}")).into())
+        Value::from_str(input).map_err(|e| crate::errors::custom(format!("Failed to parse input: {e}")).into())
     }
 }
 
@@ -209,9 +209,10 @@ fn validate_cli_literal(input: &str) -> Result<()> {
 /// Validates that `prefix` is a well-formed numeric string for the given type `suffix`.
 fn validate_numeric_prefix(prefix: &str, suffix: &str, allow_negative: bool, decimal_only: bool) -> Result<()> {
     if prefix.is_empty() {
-        return Err(
-            CliError::custom(format!("Invalid {suffix} literal: missing numeric value before '{suffix}'")).into()
-        );
+        return Err(crate::errors::custom(format!(
+            "Invalid {suffix} literal: missing numeric value before '{suffix}'"
+        ))
+        .into());
     }
     let valid = if decimal_only {
         is_valid_decimal(prefix, allow_negative)
@@ -219,9 +220,10 @@ fn validate_numeric_prefix(prefix: &str, suffix: &str, allow_negative: bool, dec
         is_valid_decimal(prefix, allow_negative) || is_valid_radix_prefixed(prefix, allow_negative)
     };
     if !valid {
-        return Err(
-            CliError::custom(format!("Invalid {suffix} literal: '{prefix}' is not a valid numeric value")).into()
-        );
+        return Err(crate::errors::custom(format!(
+            "Invalid {suffix} literal: '{prefix}' is not a valid numeric value"
+        ))
+        .into());
     }
     Ok(())
 }

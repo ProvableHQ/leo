@@ -25,8 +25,10 @@ mod snarkvm_wasm;
 #[doc(hidden)]
 pub use snarkvm_wasm::{prelude, synthesizer};
 
+mod errors;
+
 use leo_ast::{AleoProgram, Composite, FunctionStub, Identifier, Mapping, NetworkName, ProgramId};
-use leo_errors::UtilError;
+use leo_errors::LeoError;
 use leo_span::Symbol;
 
 use snarkvm::{
@@ -101,8 +103,8 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
 pub fn disassemble_from_str_unchecked<N: Network>(
     name: impl fmt::Display,
     program: &str,
-) -> Result<AleoProgram, UtilError> {
-    let p = Program::<N>::from_str(program).map_err(|_| UtilError::snarkvm_parsing_error(name))?;
+) -> Result<AleoProgram, LeoError> {
+    let p = Program::<N>::from_str(program).map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
     Ok(disassemble(p))
 }
 
@@ -121,9 +123,9 @@ pub fn disassemble_from_str<N: Network>(
     name: impl fmt::Display,
     program: &str,
     process: &mut snarkvm::prelude::Process<N>,
-) -> Result<AleoProgram, UtilError> {
-    let p = Program::<N>::from_str(program).map_err(|_| UtilError::snarkvm_parsing_error(&name))?;
-    process.add_program(&p).map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+) -> Result<AleoProgram, LeoError> {
+    let p = Program::<N>::from_str(program).map_err(|_| crate::errors::snarkvm_parsing_error(&name))?;
+    process.add_program(&p).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
     Ok(disassemble(p))
 }
 
@@ -138,23 +140,23 @@ pub fn disassemble_from_str_for_network(
     name: impl fmt::Display,
     program: &str,
     network: NetworkName,
-) -> Result<AleoProgram, UtilError> {
+) -> Result<AleoProgram, LeoError> {
     #[cfg(not(target_arch = "wasm32"))]
     {
         match network {
             NetworkName::MainnetV0 => {
                 let mut process = snarkvm::prelude::Process::<snarkvm::prelude::MainnetV0>::load()
-                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                    .map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
                 disassemble_from_str(name, program, &mut process)
             }
             NetworkName::TestnetV0 => {
                 let mut process = snarkvm::prelude::Process::<snarkvm::prelude::TestnetV0>::load()
-                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                    .map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
                 disassemble_from_str(name, program, &mut process)
             }
             NetworkName::CanaryV0 => {
                 let mut process = snarkvm::prelude::Process::<snarkvm::prelude::CanaryV0>::load()
-                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                    .map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
                 disassemble_from_str(name, program, &mut process)
             }
         }

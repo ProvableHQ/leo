@@ -33,7 +33,6 @@ use leo_ast::{
     Statement,
     Type,
 };
-use leo_errors::TypeCheckerError;
 
 impl AstReconstructor for PathResolutionVisitor<'_> {
     type AdditionalInput = ();
@@ -159,11 +158,10 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                 input = input.to_local();
             } else {
                 // Otherwise, unknown path.
-                self.state.handler.emit_err(TypeCheckerError::unknown_sym(
+                self.state.handler.emit_err(crate::errors::type_checker::unknown_sym(
                     "variable",
                     input.clone(),
                     input.span(),
-                    vec![],
                 ));
             }
         }

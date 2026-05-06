@@ -17,7 +17,6 @@
 use super::*;
 
 use leo_ast::NetworkName;
-use leo_errors::CliError;
 
 use std::path::PathBuf;
 
@@ -52,14 +51,14 @@ impl Command for LeoAbi {
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // Validate file exists.
         if !self.file.exists() {
-            return Err(CliError::cli_invalid_input(format!("File not found: {}", self.file.display())).into());
+            return Err(crate::errors::cli_invalid_input(format!("File not found: {}", self.file.display())).into());
         }
 
         // Validate file has .aleo extension.
         match self.file.extension().and_then(|s| s.to_str()) {
             Some("aleo") => {}
             _ => {
-                return Err(CliError::cli_invalid_input(format!(
+                return Err(crate::errors::cli_invalid_input(format!(
                     "Expected a .aleo file, got: {}",
                     self.file.display()
                 ))
@@ -68,22 +67,23 @@ impl Command for LeoAbi {
         }
 
         // Read the file content.
-        let content = std::fs::read_to_string(&self.file).map_err(CliError::cli_io_error)?;
+        let content = std::fs::read_to_string(&self.file).map_err(crate::errors::cli_io_error)?;
 
         // Get the file name for error messages.
         let file_name = self.file.file_name().and_then(|s| s.to_str()).unwrap_or("unknown");
 
         // Disassemble the Aleo bytecode and generate its ABI.
         let abi = leo_abi::aleo::generate_from_bytecode(file_name, &content, self.network)
-            .map_err(|e| CliError::failed_to_parse_aleo_file(file_name, e))?;
+            .map_err(|e| crate::errors::failed_to_parse_aleo_file(file_name, e))?;
 
         // Serialize to JSON.
-        let json = serde_json::to_string_pretty(&abi).map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
+        let json =
+            serde_json::to_string_pretty(&abi).map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
 
         // Write to output file or stdout.
         match self.output {
             Some(path) => {
-                std::fs::write(&path, &json).map_err(CliError::failed_to_write_abi)?;
+                std::fs::write(&path, &json).map_err(crate::errors::failed_to_write_abi)?;
                 tracing::info!("ABI written to '{}'.", path.display());
             }
             None => {

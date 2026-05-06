@@ -88,7 +88,7 @@ impl Command for LeoAdd {
         let normalize_program_name = |raw: &str| -> Result<String> {
             let name = if raw.ends_with(".aleo") { raw.to_string() } else { format!("{raw}.aleo") };
             if !leo_package::is_valid_program_name(&name) {
-                return Err(CliError::invalid_package_name("program", name).into());
+                return Err(crate::errors::invalid_package_name("program", name).into());
             }
             Ok(name)
         };
@@ -98,7 +98,7 @@ impl Command for LeoAdd {
             // Auto-detect whether the local dep is a library or a program by reading its manifest.
             let dep_manifest_path = local_path.join(leo_package::MANIFEST_FILENAME);
             let dep_manifest = Manifest::read_from_file(&dep_manifest_path).map_err(|_| {
-                CliError::custom(format!(
+                crate::errors::custom(format!(
                     "Could not read `{}` — is `{}` a valid Leo package?",
                     dep_manifest_path.display(),
                     local_path.display()
@@ -109,13 +109,13 @@ impl Command for LeoAdd {
 
             // Libraries can only depend on other libraries.
             if current_is_library && !dep_is_library {
-                return Err(CliError::custom("A library package can only depend on other libraries.").into());
+                return Err(crate::errors::custom("A library package can only depend on other libraries.").into());
             }
 
             if dep_is_library {
                 // The dep is a library: the name must not carry a `.aleo` suffix.
                 if self.name.ends_with(".aleo") {
-                    return Err(CliError::custom(format!(
+                    return Err(crate::errors::custom(format!(
                         "`{}` ends with `.aleo` but the package at `{}` is a library, not a program.",
                         self.name,
                         local_path.display()
@@ -123,13 +123,13 @@ impl Command for LeoAdd {
                     .into());
                 }
                 if !leo_package::is_valid_library_name(&self.name) {
-                    return Err(CliError::invalid_package_name("library", &self.name).into());
+                    return Err(crate::errors::invalid_package_name("library", &self.name).into());
                 }
                 // Confirm that src/lib.leo exists — the manifest says it's a library,
                 // so a missing lib.leo means the package is incomplete.
                 let lib_leo = local_path.join("src").join(leo_package::LIB_FILENAME);
                 if !lib_leo.exists() {
-                    return Err(CliError::custom(format!(
+                    return Err(crate::errors::custom(format!(
                         "The package at `{}` has a library manifest but is missing `src/{}`.",
                         local_path.display(),
                         leo_package::LIB_FILENAME,
@@ -144,7 +144,7 @@ impl Command for LeoAdd {
         } else {
             // Network or edition dependency — must be a program, not a library.
             if current_is_library {
-                return Err(CliError::custom(
+                return Err(crate::errors::custom(
                     "A library package can only depend on other libraries. Use `--local <path>` to add a library dependency.",
                 )
                 .into());

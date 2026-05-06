@@ -16,11 +16,11 @@
 
 use super::{SsaConstPropagationVisitor, visitor::is_atom};
 
+use crate::errors::static_analyzer;
 use leo_ast::{
     const_eval::{self, Value},
     *,
 };
-use leo_errors::StaticAnalyzerError;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -150,14 +150,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
-                    lhs_value,
-                    rhs_value,
-                    input.op,
-                    err,
-                    span,
-                    vec![],
-                )),
+                Err(err) => {
+                    self.emit_err(static_analyzer::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span))
+                }
             }
         }
 
@@ -178,9 +173,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => {
-                    self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span, vec![]))
-                }
+                Err(err) => self.emit_err(static_analyzer::compile_time_unary_op(value, input.op, err, span)),
             }
         }
         (UnaryExpression { receiver, ..input }.into(), None)
