@@ -66,4 +66,11 @@ create_messages!(
         msg: format!("`@no_inline` on `{name}` will be ignored because {reason}."),
         help: Some("Remove the `@no_inline` annotation to silence this warning.".to_string()),
     }
+
+    @formatted
+    comparison_of_unit_operands_is_constant {
+        args: (op: impl Display, value: impl Display),
+        msg: format!("Comparison `{op}` between two operands of type `()` always evaluates to `{value}` at compile time."),
+        help: Some("Both operands have type `()` (e.g. the return type of `Mapping::set` or other side-effecting calls), so the comparison has no runtime effect — the branch decision is baked in at compile time. If you intended to compare actual values, the operands likely need to be expressions that produce a value, not unit-returning calls.".to_string()),
+    }
 );

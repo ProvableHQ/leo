@@ -983,6 +983,25 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Now sanity check everything
                 let _ = assert_same_type(self, &t1, &t2);
 
+                // Warn when both operands have type `()`. The comparison is mathematically a constant
+                // (`true` for `==`, `false` for `!=`), and a later const-prop pass will fold it. The
+                // pattern is almost always a developer mistake — e.g. comparing two `Mapping::set`
+                // calls, expecting a runtime check, when the operator alone determines which branch
+                // of any surrounding `if`/ternary survives codegen.
+                if matches!(t1, Type::Unit) && matches!(t2, Type::Unit) {
+                    let (op_str, folded) = match input.op {
+                        BinaryOperation::Eq => ("==", "true"),
+                        BinaryOperation::Neq => ("!=", "false"),
+                        _ => unreachable!("guarded by the outer match arm"),
+                    };
+                    self.emit_warning(TypeCheckerWarning::comparison_of_unit_operands_is_constant(
+                        op_str,
+                        folded,
+                        input.span(),
+                        vec![],
+                    ));
+                }
+
                 self.maybe_assert_type(&Type::Boolean, destination, input.span());
 
                 Type::Boolean
