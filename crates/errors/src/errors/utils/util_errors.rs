@@ -54,13 +54,6 @@ create_messages!(
     }
 
     @backtraced
-    snarkvm_unsupported_program_shape {
-        args: (name: impl Display, reason: impl Display),
-        msg: format!("Dependency `{name}.aleo` uses a program shape the disassembler does not support: {reason}."),
-        help: Some("This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but no Leo-source program emits. Regenerate the dependency from Leo source if possible.".to_string()),
-    }
-
-    @backtraced
     circular_dependency_error {
         args: (),
         msg: "Circular dependency detected".to_string(),
@@ -220,5 +213,15 @@ create_messages!(
         args: (name: impl Display, size: usize, limit: usize),
         msg: format!("Program `{name}.aleo` exceeds the maximum size limit. Program size: {size} bytes; maximum allowed: {limit} bytes."),
         help: Some("Reduce the program size by removing unnecessary code, optimizing functions, or splitting the program into smaller programs.".to_string()),
+    }
+
+    // Note: appended at the end so the macro's auto-numbered codes for every existing
+    // error stay stable. Inserting earlier would shift downstream codes (e.g.
+    // `circular_dependency_error`) and break tests that check exact error codes.
+    @backtraced
+    snarkvm_unsupported_program_shape {
+        args: (name: impl Display, reason: impl Display),
+        msg: format!("Dependency `{name}.aleo` uses a program shape the disassembler does not support: {reason}."),
+        help: Some("This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but no Leo-source program emits. Regenerate the dependency from Leo source if possible.".to_string()),
     }
 );
