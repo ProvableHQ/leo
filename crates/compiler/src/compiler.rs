@@ -1138,13 +1138,13 @@ fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> S
 fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
     let disassembled = match network {
         NetworkName::MainnetV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
         }
         NetworkName::TestnetV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
         }
         NetworkName::CanaryV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
         }
     };
 

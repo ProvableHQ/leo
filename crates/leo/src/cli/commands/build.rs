@@ -221,13 +221,13 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 // one step; the hoisted process accumulates dependencies across iterations.
                 let stub = match &mut disassemble_process {
                     DisassembleProcess::Mainnet(p) => {
-                        leo_disassembler::disassemble_from_str_validated::<MainnetV0>(unit.name, bytecode, p)
+                        leo_disassembler::disassemble_from_str::<MainnetV0>(unit.name, bytecode, p)
                     }
                     DisassembleProcess::Testnet(p) => {
-                        leo_disassembler::disassemble_from_str_validated::<TestnetV0>(unit.name, bytecode, p)
+                        leo_disassembler::disassemble_from_str::<TestnetV0>(unit.name, bytecode, p)
                     }
                     DisassembleProcess::Canary(p) => {
-                        leo_disassembler::disassemble_from_str_validated::<CanaryV0>(unit.name, bytecode, p)
+                        leo_disassembler::disassemble_from_str::<CanaryV0>(unit.name, bytecode, p)
                     }
                 }?;
 
