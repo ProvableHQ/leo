@@ -1,0 +1,10 @@
+[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/A` --> `test.aleo/B` --> `test.aleo/A`
+   ╭─[ compiler-test:2:8 ]
+   │
+ 2 │ struct A {
+───╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+    ╭─[ compiler-test:10:9 ]
+    │
+ 10 │ program test.aleo {}
+────╯
