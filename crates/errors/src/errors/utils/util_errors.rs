@@ -219,9 +219,9 @@ create_messages!(
     // error stay stable. Inserting earlier would shift downstream codes (e.g.
     // `circular_dependency_error`) and break tests that check exact error codes.
     @backtraced
-    snarkvm_unsupported_program_shape {
+    snarkvm_validation_error {
         args: (name: impl Display, reason: impl Display),
-        msg: format!("Dependency `{name}.aleo` uses a program shape the disassembler does not support: {reason}."),
-        help: Some("This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but no Leo-source program emits. Regenerate the dependency from Leo source if possible.".to_string()),
+        msg: format!("Dependency `{name}.aleo` failed snarkVM validation: {reason}."),
+        help: Some("This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but rejects semantically. Regenerate the dependency from Leo source if possible.".to_string()),
     }
 );

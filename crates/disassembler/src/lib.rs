@@ -30,9 +30,12 @@ use leo_errors::UtilError;
 use leo_span::Symbol;
 
 use snarkvm::{
-    prelude::{Itertools, Network, ValueType},
+    prelude::{Itertools, Network},
     synthesizer::program::{Program, ProgramCore},
 };
+
+#[cfg(target_arch = "wasm32")]
+use snarkvm::prelude::ValueType;
 
 use std::{fmt, str::FromStr};
 
@@ -94,26 +97,46 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
 }
 
 pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<AleoProgram, UtilError> {
-    let p = match Program::<N>::from_str(program) {
-        Ok(p) => p,
-        Err(_) => return Err(UtilError::snarkvm_parsing_error(name)),
-    };
+    let p = Program::<N>::from_str(program).map_err(|_| UtilError::snarkvm_parsing_error(&name))?;
 
-    // Pre-validate program shapes that the disassembler is known not to support.
+    // For standalone programs (no imports), run snarkVM's `Process::add_program`
+    // validation in addition to the syntactic parse. `Program::from_str` is a
+    // grammar-only check and accepts shapes that `from_function_core` / `from_closure`
+    // (in `crates/ast/src/stub/function_stub.rs`) panic on — e.g. a non-finalize
+    // function with a future-typed register input (issue #29399). `add_program`
+    // runs the semantic validations that reject this whole class of malformed-but-
+    // parseable bytecode before we hand it to the stub builder. Pattern matches
+    // `crates/compiler/src/test_compiler.rs:62-66`.
     //
-    // `from_function_core` (in `crates/ast/src/stub/function_stub.rs`) panics if a
-    // non-finalize function declares a register input whose type is `Future` or
-    // `DynamicFuture`. snarkVM's grammar accepts that shape, but no Leo-source
-    // program produces it — only hand-crafted bytecode or non-Leo toolchains can.
-    // Reject the dependency cleanly here instead of letting `from_function_core`
-    // ICE deeper in the pipeline.
-    for (id, function) in p.functions().iter() {
-        for input in function.inputs().iter() {
-            if matches!(input.value_type(), ValueType::Future(_) | ValueType::DynamicFuture) {
-                return Err(UtilError::snarkvm_unsupported_program_shape(
-                    name,
-                    format!("function `{id}` has a future-typed register input on a non-finalize function"),
-                ));
+    // Programs WITH imports are skipped because `add_program` is contextual: it
+    // requires the imports to be loaded into the same `Process` first, and we don't
+    // have access to those import sources here. Callers that need full validation
+    // (`crates/leo/src/cli/commands/build.rs:497`, `crates/compiler/src/test_compiler.rs:52`)
+    // maintain their own `Process` with topological dependency ordering and add
+    // programs there; the panic on a future-typed-input + imports combination is a
+    // narrower remaining gap than this PR's previous shape-specific check addressed,
+    // and would require either a process-parameter overload or per-shape pre-checks
+    // (the latter being the bandaid pattern this PR is moving away from).
+    #[cfg(not(target_arch = "wasm32"))]
+    if p.imports().is_empty() {
+        let mut process = snarkvm::prelude::Process::<N>::load()
+            .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+        process.add_program(&p).map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+    }
+
+    // WASM target lacks `snarkvm::prelude::Process` (the wasm dep set ships only
+    // `snarkvm-synthesizer-program`, not the full synthesizer). Fall back to a
+    // shape-specific check for the one panic site we have a known reproducer for.
+    #[cfg(target_arch = "wasm32")]
+    {
+        for (id, function) in p.functions().iter() {
+            for input in function.inputs().iter() {
+                if matches!(input.value_type(), ValueType::Future(_) | ValueType::DynamicFuture) {
+                    return Err(UtilError::snarkvm_validation_error(
+                        &name,
+                        format!("function `{id}` has a future-typed register input on a non-finalize function"),
+                    ));
+                }
             }
         }
     }
@@ -167,6 +190,19 @@ mod tests {
                 fs::read_to_string("../tmp/.aleo/registry/mainnet/zk_bitwise_stack_v0_0_2.aleo").unwrap();
             let _program =
                 disassemble_from_str::<CurrentNetwork>("zk_bitwise_stack_v0_0_2", &program_from_file).unwrap();
+        });
+    }
+
+    /// Regression for #29399: a dependency that declares a non-finalize function with a
+    /// future-typed register input must be rejected with a clean error rather than
+    /// panicking deep in `from_function_core`. Pre-fix this test would abort the test
+    /// process with `Functions do not contain futures as inputs`.
+    #[test]
+    fn rejects_future_typed_register_input_without_panic() {
+        create_session_if_not_set_then(|_| {
+            let src = include_str!("tests/victim_future_input.aleo");
+            let result = disassemble_from_str::<CurrentNetwork>("victim", src);
+            assert!(result.is_err(), "expected disassembler to reject malformed bytecode, got Ok");
         });
     }
 }
