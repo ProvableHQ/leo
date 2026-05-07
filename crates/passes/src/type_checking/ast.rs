@@ -1174,7 +1174,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     input.function.identifier().name
                 ))]))
             else {
-                panic!("Finalization not found: {} {}", input.function.clone(), input.span);
+                // The `finalize/$name` metadata is registered when the callee's async block is
+                // visited. If we land here without it, the call has either been already
+                // diagnosed as invalid above (e.g. ETYC0372043: a local entry-point calling
+                // another local entry-point) or the callee's async block has not been visited
+                // yet at this point in the AST walk. Falling back to `Type::Err` keeps the
+                // diagnostic chain going instead of panicking on otherwise-valid input.
+                return Type::Err;
             };
 
             let future_type = Type::Future(FutureType::new(inputs.clone(), Some(callee_location.clone()), true));

@@ -25,6 +25,33 @@ use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::collections::{BTreeMap, HashMap};
 
+/// Recursively walks a member type and adds a composite-dependency edge from
+/// `composite_location` to every composite reachable through any combination of
+/// `Optional`, `Array`, and `Tuple` wrappers. This is the single source of truth
+/// for which member types create composite-graph edges; enumerating shapes one
+/// at a time historically missed cases such as `Node?`, `[Node?; N]`, and
+/// `[[Node; N]; M]?`, allowing programs that should be diagnosed as cyclic to
+/// crash the type checker with a stack overflow instead.
+fn add_composite_dependencies(member_type: &Type, composite_location: &Location, graph: &mut CompositeGraph) {
+    match member_type {
+        Type::Composite(composite_member_type) => {
+            graph.add_edge(composite_location.clone(), composite_member_type.path.expect_global_location().clone());
+        }
+        Type::Array(array_type) => {
+            add_composite_dependencies(array_type.element_type(), composite_location, graph);
+        }
+        Type::Optional(OptionalType { inner }) => {
+            add_composite_dependencies(inner, composite_location, graph);
+        }
+        Type::Tuple(tuple_type) => {
+            for elem in tuple_type.elements().iter() {
+                add_composite_dependencies(elem, composite_location, graph);
+            }
+        }
+        _ => {}
+    }
+}
+
 impl UnitVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
         // Typecheck the program's stubs.
@@ -87,8 +114,23 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the composite dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.composite_graph.post_order() {
+            // Anchor the diagnostic at the first composite in the cycle so users can navigate
+            // to a relevant declaration. Falls back to a default span if the composite somehow
+            // can't be resolved (e.g. it lives in an external program we don't have a stub for).
+            let span = path
+                .first()
+                .and_then(|loc| {
+                    self.state
+                        .symbol_table
+                        .lookup_struct(loc.program, loc)
+                        .or_else(|| self.state.symbol_table.lookup_record(loc.program, loc))
+                })
+                .map(|c| c.identifier.span)
+                .unwrap_or_default();
             self.emit_err(TypeCheckerError::cyclic_composite_dependency(
                 path.iter().map(|loc| loc.to_string()).collect(),
+                span,
+                vec![],
             ));
         }
 
@@ -355,22 +397,12 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     .collect::<Vec<Symbol>>();
                 let this_program = self.scope_state.unit_name.unwrap();
                 let composite_location = Location::new(this_program, composite_path);
-                if let Type::Composite(composite_member_type) = type_ {
-                    // Note that since there are no cycles in the program dependency graph, there are no cycles in the
-                    // composite dependency graph caused by external composites.
-                    self.state
-                        .composite_graph
-                        .add_edge(composite_location, composite_member_type.path.expect_global_location().clone());
-                } else if let Type::Array(array_type) = type_ {
-                    // Get the base element type.
-                    let base_element_type = array_type.base_element_type();
-                    // If the base element type is a composite, then add it to the composite dependency graph.
-                    if let Type::Composite(member_type) = base_element_type {
-                        self.state
-                            .composite_graph
-                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
-                    }
-                }
+                // Walk the member type and add a composite-graph edge for every composite reachable
+                // through any combination of `Optional`, `Array`, and `Tuple` wrappers. Using a
+                // recursive walk (rather than enumerating one shape at a time) ensures shapes like
+                // `Node?`, `[Node?; N]`, `[[Node; N]; M]?`, and arbitrary deeper nestings all
+                // participate in cycle detection.
+                add_composite_dependencies(type_, &composite_location, &mut self.state.composite_graph);
 
                 // If the input is a struct, then check that the member does not have a mode.
                 if !input.is_record && !matches!(mode, Mode::None) {

@@ -5,7 +5,11 @@
    │ 
    │ Help: Remove the record `test.aleo::Token` from `Foo`.
 ───╯
-Error [ETYC0372058]: Cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
+[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
+   ╭─[ compiler-test:7:12 ]
+   │
+ 7 │     record Token {
+───╯
 [ETYC0372083] Error: A program must have at least one entry point fn.
    ╭─[ compiler-test:6:9 ]
    │
