@@ -64,8 +64,7 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     for source in rest {
         if let Some(aleo_source) = super::test_utils::extract_aleo_stub_header(source) {
             let program = handler.extend_if_error(
-                disassemble_from_str_validated::<TestnetV0>("", aleo_source, &mut process)
-                    .map_err(|err| err.into()),
+                disassemble_from_str_validated::<TestnetV0>("", aleo_source, &mut process).map_err(|err| err.into()),
             )?;
             let name = program.stub_id.as_symbol();
             import_stubs.insert(name, program.into());
@@ -122,8 +121,12 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
                 // Validates that the bytecode is well-formed and disassembles in one step.
                 let program = handler.extend_if_error(
-                    disassemble_from_str_validated::<TestnetV0>(&program_name, &programs.primary.bytecode, &mut process)
-                        .map_err(|err| err.into()),
+                    disassemble_from_str_validated::<TestnetV0>(
+                        &program_name,
+                        &programs.primary.bytecode,
+                        &mut process,
+                    )
+                    .map_err(|err| err.into()),
                 )?;
                 import_stubs.insert(Symbol::intern(&program_name), program.into());
 
@@ -182,8 +185,7 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
     // Add main program — same pattern: validate via Process, discard stub.
     let primary_bytecode = compiled.primary.bytecode.clone();
     handler.extend_if_error(
-        disassemble_from_str_validated::<TestnetV0>("", &primary_bytecode, &mut process)
-            .map_err(|err| err.into()),
+        disassemble_from_str_validated::<TestnetV0>("", &primary_bytecode, &mut process).map_err(|err| err.into()),
     )?;
     bytecodes.push(primary_bytecode);
 

@@ -197,15 +197,15 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // loop in topological order; the enum lets the network-typed process live
     // across iterations without triplicating the loop body.
     let mut disassemble_process = match network {
-        NetworkName::MainnetV0 => DisassembleProcess::Mainnet(
-            SvmProcess::<MainnetV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
-        ),
-        NetworkName::TestnetV0 => DisassembleProcess::Testnet(
-            SvmProcess::<TestnetV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
-        ),
-        NetworkName::CanaryV0 => DisassembleProcess::Canary(
-            SvmProcess::<CanaryV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
-        ),
+        NetworkName::MainnetV0 => DisassembleProcess::Mainnet(SvmProcess::<MainnetV0>::load().map_err(|e| {
+            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+        })?),
+        NetworkName::TestnetV0 => DisassembleProcess::Testnet(SvmProcess::<TestnetV0>::load().map_err(|e| {
+            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+        })?),
+        NetworkName::CanaryV0 => DisassembleProcess::Canary(SvmProcess::<CanaryV0>::load().map_err(|e| {
+            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+        })?),
     };
 
     for unit in &package.compilation_units {
