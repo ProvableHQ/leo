@@ -1,4 +1,5 @@
-Failed to parse string. Parsing Error: VerboseError { errors: [("", Nom(MapRes))] }
+Error [EUTL03710003]: Failed to parse the source file for `.aleo` into a valid Aleo program.
+
 
 ---
 Note: Treating dependencies as Aleo produces different results:

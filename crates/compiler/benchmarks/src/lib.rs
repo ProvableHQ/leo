@@ -173,9 +173,9 @@ fn parse_interface_stub(program_name: Symbol, source: &Path, source_dir: &Path) 
 
 fn disassemble_bytecode(program_name: Symbol, bytecode: &str) -> Result<Stub, String> {
     let disassembled = match BENCH_NETWORK {
-        NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(program_name, bytecode),
-        NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(program_name, bytecode),
-        NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(program_name, bytecode),
+        NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str_unchecked::<MainnetV0>(program_name, bytecode),
+        NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str_unchecked::<TestnetV0>(program_name, bytecode),
+        NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str_unchecked::<CanaryV0>(program_name, bytecode),
     };
 
     match disassembled {
