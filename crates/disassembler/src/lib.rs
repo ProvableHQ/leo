@@ -96,47 +96,25 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
     }
 }
 
+/// Parse-only disassembly. Performs grammar-level checks via `Program::from_str`
+/// and converts to the leo AST. Use `disassemble_from_str_validated` (native) if
+/// you have a `Process` and want the snarkVM semantic checks that reject the
+/// class of malformed-but-parseable bytecode that `disassemble` panics on.
 pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) -> Result<AleoProgram, UtilError> {
     let p = Program::<N>::from_str(program).map_err(|_| UtilError::snarkvm_parsing_error(&name))?;
 
-    // For standalone programs (no imports), run snarkVM's `Process::add_program`
-    // validation in addition to the syntactic parse. `Program::from_str` is a
-    // grammar-only check and accepts shapes that `from_function_core` / `from_closure`
-    // (in `crates/ast/src/stub/function_stub.rs`) panic on — e.g. a non-finalize
-    // function with a future-typed register input (issue #29399). `add_program`
-    // runs the semantic validations that reject this whole class of malformed-but-
-    // parseable bytecode before we hand it to the stub builder. Pattern matches
-    // `crates/compiler/src/test_compiler.rs:62-66`.
-    //
-    // Programs WITH imports are skipped because `add_program` is contextual: it
-    // requires the imports to be loaded into the same `Process` first, and we don't
-    // have access to those import sources here. Callers that need full validation
-    // (`crates/leo/src/cli/commands/build.rs:497`, `crates/compiler/src/test_compiler.rs:52`)
-    // maintain their own `Process` with topological dependency ordering and add
-    // programs there; the panic on a future-typed-input + imports combination is a
-    // narrower remaining gap than this PR's previous shape-specific check addressed,
-    // and would require either a process-parameter overload or per-shape pre-checks
-    // (the latter being the bandaid pattern this PR is moving away from).
-    #[cfg(not(target_arch = "wasm32"))]
-    if p.imports().is_empty() {
-        let mut process = snarkvm::prelude::Process::<N>::load()
-            .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
-        process.add_program(&p).map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
-    }
-
-    // WASM target lacks `snarkvm::prelude::Process` (the wasm dep set ships only
-    // `snarkvm-synthesizer-program`, not the full synthesizer). Fall back to a
-    // shape-specific check for the one panic site we have a known reproducer for.
+    // WASM fallback: native callers should use `disassemble_from_str_validated`,
+    // but `snarkvm::prelude::Process` isn't in the wasm dep set (only
+    // `snarkvm-synthesizer-program` is shipped to wasm). Guard the one panic
+    // site we have a known reproducer for (issue #29399).
     #[cfg(target_arch = "wasm32")]
-    {
-        for (id, function) in p.functions().iter() {
-            for input in function.inputs().iter() {
-                if matches!(input.value_type(), ValueType::Future(_) | ValueType::DynamicFuture) {
-                    return Err(UtilError::snarkvm_validation_error(
-                        &name,
-                        format!("function `{id}` has a future-typed register input on a non-finalize function"),
-                    ));
-                }
+    for (id, function) in p.functions().iter() {
+        for input in function.inputs().iter() {
+            if matches!(input.value_type(), ValueType::Future(_) | ValueType::DynamicFuture) {
+                return Err(UtilError::snarkvm_validation_error(
+                    &name,
+                    format!("function `{id}` has a future-typed register input on a non-finalize function"),
+                ));
             }
         }
     }
@@ -144,16 +122,66 @@ pub fn disassemble_from_str<N: Network>(name: impl fmt::Display, program: &str) 
     Ok(disassemble(p))
 }
 
+/// Parse, validate via `Process::add_program`, and disassemble. Catches the class
+/// of malformed-but-parseable bytecode that `disassemble` panics on (e.g. issue
+/// #29399, where a non-finalize function declared a future-typed register input).
+/// Pattern matches `crates/compiler/src/test_compiler.rs:62-66`.
+///
+/// `process` must already have all of `program`'s declared imports loaded —
+/// snarkVM's `add_program` is contextual and rejects a program whose imports
+/// aren't yet in the process. Callers that disassemble multiple related
+/// dependencies should reuse the same process across calls in topological
+/// dependency order so each program's imports are present when it's added.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn disassemble_from_str_validated<N: Network>(
+    name: impl fmt::Display,
+    program: &str,
+    process: &mut snarkvm::prelude::Process<N>,
+) -> Result<AleoProgram, UtilError> {
+    let p = Program::<N>::from_str(program).map_err(|_| UtilError::snarkvm_parsing_error(&name))?;
+    process.add_program(&p).map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+    Ok(disassemble(p))
+}
+
 /// Disassembles Aleo bytecode using the snarkVM network selected by `network`.
+/// Native: validates via a fresh `Process` per call. Note the fresh process has
+/// no other programs loaded, so this rejects programs with imports — callers
+/// that have a typed network at compile time and need import-using programs
+/// should prefer `disassemble_from_str_validated` with a shared process loaded
+/// in topological order. WASM: parse-only (Process unavailable in the wasm dep
+/// set).
 pub fn disassemble_from_str_for_network(
     name: impl fmt::Display,
     program: &str,
     network: NetworkName,
 ) -> Result<AleoProgram, UtilError> {
-    match network {
-        NetworkName::MainnetV0 => disassemble_from_str::<snarkvm::prelude::MainnetV0>(name, program),
-        NetworkName::TestnetV0 => disassemble_from_str::<snarkvm::prelude::TestnetV0>(name, program),
-        NetworkName::CanaryV0 => disassemble_from_str::<snarkvm::prelude::CanaryV0>(name, program),
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        match network {
+            NetworkName::MainnetV0 => {
+                let mut process = snarkvm::prelude::Process::<snarkvm::prelude::MainnetV0>::load()
+                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                disassemble_from_str_validated(name, program, &mut process)
+            }
+            NetworkName::TestnetV0 => {
+                let mut process = snarkvm::prelude::Process::<snarkvm::prelude::TestnetV0>::load()
+                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                disassemble_from_str_validated(name, program, &mut process)
+            }
+            NetworkName::CanaryV0 => {
+                let mut process = snarkvm::prelude::Process::<snarkvm::prelude::CanaryV0>::load()
+                    .map_err(|e| UtilError::snarkvm_validation_error(&name, e))?;
+                disassemble_from_str_validated(name, program, &mut process)
+            }
+        }
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        match network {
+            NetworkName::MainnetV0 => disassemble_from_str::<snarkvm::prelude::MainnetV0>(name, program),
+            NetworkName::TestnetV0 => disassemble_from_str::<snarkvm::prelude::TestnetV0>(name, program),
+            NetworkName::CanaryV0 => disassemble_from_str::<snarkvm::prelude::CanaryV0>(name, program),
+        }
     }
 }
 
@@ -193,15 +221,16 @@ mod tests {
         });
     }
 
-    /// Regression for #29399: a dependency that declares a non-finalize function with a
-    /// future-typed register input must be rejected with a clean error rather than
-    /// panicking deep in `from_function_core`. Pre-fix this test would abort the test
-    /// process with `Functions do not contain futures as inputs`.
+    /// Regression for #29399: a dependency that declares a non-finalize function
+    /// with a future-typed register input must be rejected with a clean error
+    /// rather than panicking deep in `from_function_core`. Pre-fix this test
+    /// would abort the test process with `Functions do not contain futures as inputs`.
     #[test]
     fn rejects_future_typed_register_input_without_panic() {
         create_session_if_not_set_then(|_| {
             let src = include_str!("tests/victim_future_input.aleo");
-            let result = disassemble_from_str::<CurrentNetwork>("victim", src);
+            let mut process = snarkvm::prelude::Process::<CurrentNetwork>::load().unwrap();
+            let result = disassemble_from_str_validated::<CurrentNetwork>("victim", src, &mut process);
             assert!(result.is_err(), "expected disassembler to reject malformed bytecode, got Ok");
         });
     }

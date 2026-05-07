@@ -31,6 +31,17 @@ use std::{
     rc::Rc,
 };
 
+/// Network-typed `Process` used during the disassemble loop. The variants let
+/// a single loop body reuse a process across iterations without triplicating
+/// the body for each network. Held for the duration of the build's stub
+/// resolution, then dropped (a separate `Process` is loaded later for the
+/// post-build bulk validation in `validate_compiled_programs_inner`).
+enum DisassembleProcess {
+    Mainnet(SvmProcess<MainnetV0>),
+    Testnet(SvmProcess<TestnetV0>),
+    Canary(SvmProcess<CanaryV0>),
+}
+
 /// A program queued for bytecode validation after the build.
 struct ProgramForValidation {
     /// The Aleo bytecode.
@@ -179,6 +190,24 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // (imports must be loaded before the programs that depend on them).
     let mut compiled_programs: IndexMap<String, ProgramForValidation> = IndexMap::new();
 
+    // Hoist a typed `Process` for the active network so bytecode dependencies are
+    // validated through `Process::add_program` *before* `disassemble` runs on them
+    // (issue #29399 — `from_function_core` panics on shapes the grammar accepts).
+    // `add_program` is contextual, so the same process must be reused across the
+    // loop in topological order; the enum lets the network-typed process live
+    // across iterations without triplicating the loop body.
+    let mut disassemble_process = match network {
+        NetworkName::MainnetV0 => DisassembleProcess::Mainnet(
+            SvmProcess::<MainnetV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
+        ),
+        NetworkName::TestnetV0 => DisassembleProcess::Testnet(
+            SvmProcess::<TestnetV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
+        ),
+        NetworkName::CanaryV0 => DisassembleProcess::Canary(
+            SvmProcess::<CanaryV0>::load().map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}")))?,
+        ),
+    };
+
     for unit in &package.compilation_units {
         match &unit.data {
             leo_package::ProgramData::Bytecode(bytecode) => {
@@ -188,11 +217,18 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 // Write the .aleo file.
                 std::fs::write(&build_path, bytecode).map_err(CliError::failed_to_load_instructions)?;
 
-                // Track the stub.
-                let stub = match network {
-                    NetworkName::MainnetV0 => leo_disassembler::disassemble_from_str::<MainnetV0>(unit.name, bytecode),
-                    NetworkName::TestnetV0 => leo_disassembler::disassemble_from_str::<TestnetV0>(unit.name, bytecode),
-                    NetworkName::CanaryV0 => leo_disassembler::disassemble_from_str::<CanaryV0>(unit.name, bytecode),
+                // Track the stub. Validates via `Process::add_program` and disassembles in
+                // one step; the hoisted process accumulates dependencies across iterations.
+                let stub = match &mut disassemble_process {
+                    DisassembleProcess::Mainnet(p) => {
+                        leo_disassembler::disassemble_from_str_validated::<MainnetV0>(unit.name, bytecode, p)
+                    }
+                    DisassembleProcess::Testnet(p) => {
+                        leo_disassembler::disassemble_from_str_validated::<TestnetV0>(unit.name, bytecode, p)
+                    }
+                    DisassembleProcess::Canary(p) => {
+                        leo_disassembler::disassemble_from_str_validated::<CanaryV0>(unit.name, bytecode, p)
+                    }
                 }?;
 
                 stubs.insert(unit.name, stub.into());

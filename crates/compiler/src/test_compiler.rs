@@ -15,19 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{NodeBuilder, Stub};
-use leo_disassembler::disassemble_from_str;
-use leo_errors::{BufferEmitter, Handler, LeoError};
+use leo_disassembler::disassemble_from_str_validated;
+use leo_errors::{BufferEmitter, Handler};
 use leo_span::{Symbol, create_session_if_not_set_then};
 
-use snarkvm::{
-    prelude::{Process, TestnetV0},
-    synthesizer::program::ProgramCore,
-};
+use snarkvm::prelude::{Process, TestnetV0};
 
 use indexmap::IndexMap;
 use itertools::Itertools as _;
 use serial_test::serial;
-use std::{rc::Rc, str::FromStr};
+use std::rc::Rc;
 
 // This determines how the dependent programs are imported. They can either be imported as Leo
 // programs directly (which usually allows more features to be supported such as external generic
@@ -57,25 +54,21 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     let sources: Vec<&str> = test.split(super::test_utils::PROGRAM_DELIMITER).collect();
 
-    // Helper: parse and register Aleo program into `process`.
-    // Note that this performs an additional validity check on the bytecode.
-    let mut add_aleo_program = |code: &str| -> Result<(), ()> {
-        let program = handler.extend_if_error(ProgramCore::from_str(code).map_err(LeoError::Anyhow))?;
-        handler.extend_if_error(process.add_program(&program).map_err(LeoError::Anyhow))?;
-        Ok(())
-    };
-
     let (last, rest) = sources.split_last().expect("non-empty sources");
 
     // Process dependency sections in file order so that `import_stubs` reflects
     // the topological ordering expressed in the test file (dependencies before dependents).
+    // The shared `process` accumulates programs across iterations; each
+    // `disassemble_from_str_validated` call validates the program against the imports
+    // registered so far via `Process::add_program`, then disassembles.
     for source in rest {
         if let Some(aleo_source) = super::test_utils::extract_aleo_stub_header(source) {
-            let program = handler
-                .extend_if_error(disassemble_from_str::<TestnetV0>("", aleo_source).map_err(|err| err.into()))?;
+            let program = handler.extend_if_error(
+                disassemble_from_str_validated::<TestnetV0>("", aleo_source, &mut process)
+                    .map_err(|err| err.into()),
+            )?;
             let name = program.stub_id.as_symbol();
             import_stubs.insert(name, program.into());
-            add_aleo_program(aleo_source)?;
             continue;
         }
 
@@ -127,10 +120,9 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
                     import_stubs.clone(),
                 ))?;
 
-                // Note: also validates that the bytecode is well-formed.
-                add_aleo_program(&programs.primary.bytecode)?;
+                // Validates that the bytecode is well-formed and disassembles in one step.
                 let program = handler.extend_if_error(
-                    disassemble_from_str::<TestnetV0>(&program_name, &programs.primary.bytecode)
+                    disassemble_from_str_validated::<TestnetV0>(&program_name, &programs.primary.bytecode, &mut process)
                         .map_err(|err| err.into()),
                 )?;
                 import_stubs.insert(Symbol::intern(&program_name), program.into());
@@ -174,17 +166,25 @@ fn run_test(stub_type: StubType, test: &str, handler: &Handler, node_builder: &R
 
     // In FromLeo mode, register compiled import bytecodes (the Leo dependencies that were
     // compiled as part of the final program). Aleo stubs were already registered during the
-    // dependency loop above.
+    // dependency loop above. We use `disassemble_from_str_validated` here purely for the
+    // `Process::add_program` validation; the disassembled stub itself is discarded because
+    // these bytecodes already have stubs from the Leo-compile path.
     if stub_type == StubType::FromLeo {
         for import in &compiled.imports {
-            add_aleo_program(&import.bytecode)?;
+            handler.extend_if_error(
+                disassemble_from_str_validated::<TestnetV0>("", &import.bytecode, &mut process)
+                    .map_err(|err| err.into()),
+            )?;
             bytecodes.push(import.bytecode.clone());
         }
     }
 
-    // Add main program.
+    // Add main program — same pattern: validate via Process, discard stub.
     let primary_bytecode = compiled.primary.bytecode.clone();
-    add_aleo_program(&primary_bytecode)?;
+    handler.extend_if_error(
+        disassemble_from_str_validated::<TestnetV0>("", &primary_bytecode, &mut process)
+            .map_err(|err| err.into()),
+    )?;
     bytecodes.push(primary_bytecode);
 
     Ok(bytecodes.iter().format(&format!("{}\n", super::test_utils::PROGRAM_DELIMITER)).to_string())
