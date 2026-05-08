@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the static analysis error definitions.
-pub mod static_analyzer_error;
-pub use self::static_analyzer_error::*;
-
-pub mod static_analyzer_warning;
-pub use self::static_analyzer_warning::*;
+pub(crate) mod ast;
+pub(crate) mod check_interfaces;
+pub(crate) mod compiler;
+pub(crate) mod loop_unroller;
+pub(crate) mod name_validation;
+pub(crate) mod static_analyzer;
+pub(crate) mod type_checker;

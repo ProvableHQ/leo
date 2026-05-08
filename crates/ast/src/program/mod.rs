@@ -19,7 +19,7 @@
 mod program_scope;
 pub use program_scope::*;
 
-use leo_errors::{AstError, Result};
+use leo_errors::Result;
 use leo_span::Symbol;
 
 use crate::{Module, ProgramId, Stub};
@@ -72,7 +72,7 @@ impl Default for Program {
 impl Program {
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
+        Ok(serde_json::to_string_pretty(&self).map_err(|e| crate::errors::failed_to_convert_ast_to_json_string(&e))?)
     }
 
     // Converts the ast into a JSON value.
@@ -80,16 +80,17 @@ impl Program {
     // since we modify JSON values leaving them unable to be converted
     // back into Programs.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+        Ok(serde_json::to_value(self).map_err(|e| crate::errors::failed_to_convert_ast_to_json_value(&e))?)
     }
 
     /// Serializes the ast into a JSON file.
     pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
-        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+        let file =
+            std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
         Ok(serde_json::to_writer_pretty(writer, &self)
-            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+            .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
     /// Serializes the ast into a JSON value and removes keys from object mappings before writing to a file.
@@ -100,7 +101,8 @@ impl Program {
         excluded_keys: &[&str],
     ) -> Result<()> {
         path.push(file_name);
-        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+        let file =
+            std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
 
         let mut value = self.to_json_value().unwrap();
@@ -110,18 +112,19 @@ impl Program {
         value = normalize_json_value(value);
 
         Ok(serde_json::to_writer_pretty(writer, &value)
-            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+            .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
     /// Deserializes the JSON string into a ast.
     pub fn from_json_string(json: &str) -> Result<Self> {
-        let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
+        let ast: Program =
+            serde_json::from_str(json).map_err(|e| crate::errors::failed_to_read_json_string_to_ast(&e))?;
         Ok(ast)
     }
 
     /// Deserializes the JSON string into a ast from a file.
     pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
-        let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
+        let data = std::fs::read_to_string(&path).map_err(|e| crate::errors::failed_to_read_json_file(&path, &e))?;
         Self::from_json_string(&data)
     }
 }

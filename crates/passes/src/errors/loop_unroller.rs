@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the Compiler error definitions.
-pub mod compiler_errors;
-pub use self::compiler_errors::*;
+use leo_errors::Formatted;
+use leo_span::Span;
+use std::fmt::Display;
+
+const CODE_PREFIX: &str = "LUN";
+const CODE_MASK: i32 = 9000;
+
+pub(crate) fn value_out_of_i128_bounds(value: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 2, format!("The loop bound {value} does not fit into an i128."), span)
+        .with_help("All loop bounds must fit into `i128`.")
+}

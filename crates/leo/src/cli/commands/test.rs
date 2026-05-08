@@ -199,7 +199,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
 
 fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
     if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
-        return Err(CliError::custom("`leo test` is not supported for library packages.").into());
+        return Err(crate::errors::custom("`leo test` is not supported for library packages.").into());
     }
 
     // Get the private key.

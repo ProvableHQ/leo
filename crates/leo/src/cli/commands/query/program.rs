@@ -61,7 +61,7 @@ impl Command for LeoProgram {
         // Check that the program name is valid.
         let program = if self.name.ends_with(".aleo") { self.name.clone() } else { format!("{}.aleo", self.name) };
         if !leo_package::is_valid_program_name(&program) {
-            return Err(CliError::invalid_package_name("program", program).into());
+            return Err(crate::errors::invalid_package_name("program", program).into());
         }
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {

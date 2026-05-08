@@ -14,6 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// This module contains the Flattener error definitions.
-pub mod flattener_errors;
-pub use self::flattener_errors::*;
+use std::fmt::Display;
+
+use leo_errors::{Backtraced, Formatted, Label};
+use leo_span::Span;
+
+const CODE_PREFIX: &str = "AST";
+const CODE_MASK: i32 = 2000;
+
+pub(crate) fn function_not_found(func: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("function `{func}` not found"))
+}
+
+pub(crate) fn name_defined_multiple_times(name: impl Display, span: Span, labels: Vec<Label>) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 17, format!("The name `{name}` is defined multiple times."), span)
+        .with_labels(labels)
+}

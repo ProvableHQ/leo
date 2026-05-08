@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{AstReconstructor, Block, IterationStatement, Literal, Node, NodeID, Statement, Type, const_eval::Value};
-use leo_errors::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
 use itertools::Either;
@@ -47,7 +46,9 @@ impl UnrollingVisitor<'_> {
             match v.as_i128() {
                 Some(val_as_i128) => Some(val_as_i128),
                 None => {
-                    self.state.handler.emit_err(LoopUnrollerError::value_out_of_i128_bounds(v, input.span(), vec![]));
+                    self.state
+                        .handler
+                        .emit_err(crate::errors::loop_unroller::value_out_of_i128_bounds(v, input.span()));
                     None
                 }
             }

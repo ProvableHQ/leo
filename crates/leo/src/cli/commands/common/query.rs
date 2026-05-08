@@ -50,7 +50,7 @@ pub fn get_public_balance<N: Network>(
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Make sure the balance is valid.
-    public_balance.parse::<u64>().map_err(|_| CliError::invalid_balance(address).into())
+    public_balance.parse::<u64>().map_err(|_| crate::errors::invalid_balance(address).into())
 }
 
 // A helper function to query for the latest block height.
@@ -83,7 +83,7 @@ pub fn get_latest_block_height(
     }
     .execute(Context::new(context.path.clone(), context.home.clone(), true, None)?)?;
     // Parse the height.
-    let height = height.parse::<u32>().map_err(CliError::string_parse_error)?;
+    let height = height.parse::<u32>().map_err(crate::errors::string_parse_error)?;
     Ok(height)
 }
 
@@ -101,7 +101,7 @@ pub fn handle_broadcast<N: Network>(
         .query("check_transaction", "true")
         .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
         .send_json(transaction)
-        .map_err(|err| CliError::broadcast_error(err.to_string()))?;
+        .map_err(|err| crate::errors::broadcast_error(err.to_string()))?;
     match response.status().as_u16() {
         200..=299 => {
             println!(
@@ -121,7 +121,7 @@ pub fn handle_broadcast<N: Network>(
             let msg = format!(
                 "⚠️ The endpoint `{endpoint}` has been permanently moved. Try using `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag."
             );
-            Err(CliError::broadcast_error(msg).into())
+            Err(crate::errors::broadcast_error(msg).into())
         }
         _ => {
             let code = response.status();
@@ -137,7 +137,7 @@ pub fn handle_broadcast<N: Network>(
                 "   Failed to {action}\n   Endpoint: {endpoint}\n   Status:   {code}\n   Response: {response_body}"
             );
 
-            Err(CliError::broadcast_error(msg).into())
+            Err(crate::errors::broadcast_error(msg).into())
         }
     }
 }
@@ -183,14 +183,14 @@ pub fn load_latest_programs_from_network<N: Network>(
                 true,
                 network_retries,
             )
-            .map_err(|_| CliError::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
+            .map_err(|_| crate::errors::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
             let ProgramData::Bytecode(program_src) = program.data else {
                 panic!("Expected bytecode when fetching a remote program");
             };
 
             // Parse the program source into a Program object.
             let bytecode = Program::<N>::from_str(&program_src)
-                .map_err(|_| CliError::custom(format!("Failed to parse program source for ID: {current_id}")))?;
+                .map_err(|_| crate::errors::custom(format!("Failed to parse program source for ID: {current_id}")))?;
 
             // Get the imports of the program.
             let imports = bytecode.imports().keys().cloned().collect::<HashSet<_>>();

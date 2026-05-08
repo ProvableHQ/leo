@@ -16,7 +16,7 @@
 
 use crate::cli::{commands::*, context::*, helpers::*};
 use clap::Parser;
-use leo_errors::{CliError, Result};
+use leo_errors::Result;
 use serde::Serialize;
 use std::{ffi::OsString, path::PathBuf, process::exit};
 
@@ -284,16 +284,16 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
-                .map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to create directory: {e}")))?;
         }
         std::fs::write(&path, json)
-            .map_err(|e| CliError::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
     }
 
     if let Some(JsonOutput::Test(output)) = &command_output
         && output.failed > 0
     {
-        return Err(CliError::tests_failed(output.failed, output.tests.len()).into());
+        return Err(crate::errors::tests_failed(output.failed, output.tests.len()).into());
     }
 
     Ok(())

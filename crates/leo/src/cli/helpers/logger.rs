@@ -174,7 +174,7 @@ where
 pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     // This line enables Windows 10 ANSI coloring API.
     #[cfg(target_family = "windows")]
-    ansi_term::enable_ansi_support().map_err(|_| leo_errors::CliError::failed_to_enable_ansi_support())?;
+    ansi_term::enable_ansi_support().map_err(|_| crate::errors::failed_to_enable_ansi_support())?;
 
     use tracing_subscriber::fmt::writer::MakeWriterExt;
 

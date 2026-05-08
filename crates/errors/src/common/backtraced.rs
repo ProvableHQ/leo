@@ -62,8 +62,6 @@ pub struct Backtraced {
     pub help: Option<String>,
     /// The error exit code.
     pub code: i32,
-    /// The error leading digits identifier.
-    pub code_identifier: i8,
     /// The characters representing the type of error.
     pub type_: String,
     /// Is this Backtrace a warning or error?
@@ -80,7 +78,6 @@ impl Backtraced {
         message: S,
         help: Option<String>,
         code: i32,
-        code_identifier: i8,
         type_: String,
         error: bool,
         backtrace: Backtrace,
@@ -88,22 +85,37 @@ impl Backtraced {
     where
         S: ToString,
     {
-        Self { message: message.to_string(), help, code, code_identifier, type_, error, backtrace }
+        Self { message: message.to_string(), help, code, type_, error, backtrace }
+    }
+
+    /// Create a new error.
+    pub fn error(code_prefix: &str, code: i32, message: impl ToString) -> Self {
+        Self::new_from_backtrace(message, None, code, code_prefix.to_string(), true, Backtrace::new())
+    }
+
+    /// Create a new warning.
+    pub fn warning(code_prefix: &str, code: i32, message: impl ToString) -> Self {
+        Self::new_from_backtrace(message, None, code, code_prefix.to_string(), false, Backtrace::new())
+    }
+
+    pub fn with_help(mut self, help: impl fmt::Display) -> Self {
+        self.help = Some(help.to_string());
+        self
     }
 
     /// Gets the backtraced error exit code.
     pub fn exit_code(&self) -> i32 {
-        compute_exit_code(self.code_identifier, self.code)
+        compute_exit_code(37, self.code)
     }
 
     /// Gets a unique error identifier.
     pub fn error_code(&self) -> String {
-        format_error_code(&self.type_, self.code_identifier, self.code)
+        format_error_code(&self.type_, 37, self.code)
     }
 
     /// Gets a unique warning identifier.
     pub fn warning_code(&self) -> String {
-        format_warning_code(&self.type_, self.code_identifier, self.code)
+        format_warning_code(&self.type_, 37, self.code)
     }
 }
 

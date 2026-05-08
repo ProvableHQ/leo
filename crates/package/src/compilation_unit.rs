@@ -16,7 +16,7 @@
 
 use crate::{MAX_PROGRAM_SIZE, *};
 
-use leo_errors::{PackageError, Result, UtilError};
+use leo_errors::Result;
 use leo_span::Symbol;
 
 use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
@@ -92,7 +92,7 @@ impl CompilationUnit {
 
     fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
         let bytecode = std::fs::read_to_string(path).map_err(|e| {
-            UtilError::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
+            crate::errors::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
 
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
@@ -118,12 +118,15 @@ impl CompilationUnit {
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
             return Err(
-                PackageError::conflicting_manifest(format_args!("{name}"), format_args!("{manifest_symbol}")).into()
+                crate::errors::conflicting_manifest(format_args!("{name}"), format_args!("{manifest_symbol}")).into()
             );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
         source_directory.read_dir().map_err(|e| {
-            UtilError::util_file_io_error(format_args!("Failed to read directory {}", source_directory.display()), e)
+            crate::errors::util_file_io_error(
+                format_args!("Failed to read directory {}", source_directory.display()),
+                e,
+            )
         })?;
 
         let main_path = source_directory.join(MAIN_FILENAME);
@@ -131,7 +134,7 @@ impl CompilationUnit {
 
         let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
             (true, true) => {
-                return Err(PackageError::ambiguous_entry_file(
+                return Err(crate::errors::ambiguous_entry_file(
                     source_directory.display(),
                     MAIN_FILENAME,
                     LIB_FILENAME,
@@ -142,7 +145,7 @@ impl CompilationUnit {
             (false, true) => (lib_path, PackageKind::Library),
             (false, false) => {
                 return Err(
-                    PackageError::invalid_entry_file(source_directory.display(), MAIN_FILENAME, LIB_FILENAME).into()
+                    crate::errors::invalid_entry_file(source_directory.display(), MAIN_FILENAME, LIB_FILENAME).into()
                 );
             }
         };
@@ -174,12 +177,18 @@ impl CompilationUnit {
 
     fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
         let name = filename_no_leo_extension(source_path)
-            .ok_or_else(|| PackageError::failed_path(source_path.display(), ""))?;
+            .ok_or_else(|| crate::errors::failed_path(source_path.display(), ""))?;
         let test_directory = source_path.parent().ok_or_else(|| {
-            UtilError::failed_to_open_file(format_args!("Failed to find directory for test {}", source_path.display()))
+            crate::errors::failed_to_open_file(format_args!(
+                "Failed to find directory for test {}",
+                source_path.display()
+            ))
         })?;
         let package_directory = test_directory.parent().ok_or_else(|| {
-            UtilError::failed_to_open_file(format_args!("Failed to find package for test {}", source_path.display()))
+            crate::errors::failed_to_open_file(format_args!(
+                "Failed to find package for test {}",
+                source_path.display()
+            ))
         })?;
         let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
         let mut dependencies = manifest
@@ -258,7 +267,7 @@ impl CompilationUnit {
         if !cache_directory.exists() {
             // Create directory if it doesn't exist.
             std::fs::create_dir_all(&cache_directory).map_err(|err| {
-                UtilError::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
+                crate::errors::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
             })?;
         }
 
@@ -267,7 +276,7 @@ impl CompilationUnit {
             false => None,
             true => {
                 let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
-                    UtilError::util_file_io_error(
+                    crate::errors::util_file_io_error(
                         format_args!("Trying to read cached file at {}", full_cache_path.display()),
                         e,
                     )
@@ -291,7 +300,7 @@ impl CompilationUnit {
                 let contents = fetch_from_network(&primary_url, network_retries)
                     .or_else(|_| fetch_from_network(&secondary_url, network_retries))
                     .map_err(|err| {
-                        UtilError::failed_to_retrieve_from_endpoint(
+                        crate::errors::failed_to_retrieve_from_endpoint(
                             primary_url,
                             format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
                         )
@@ -309,7 +318,7 @@ impl CompilationUnit {
 
                 // Write the bytecode to the cache.
                 std::fs::write(&full_cache_path, &contents).map_err(|err| {
-                    UtilError::util_file_io_error(
+                    crate::errors::util_file_io_error(
                         format_args!("Could not open file `{}`", full_cache_path.display()),
                         err,
                     )
@@ -343,7 +352,7 @@ pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependen
         && !path.is_absolute()
     {
         let joined = base.join(&path);
-        *path = joined.canonicalize().map_err(|e| PackageError::failed_path(joined.display(), e))?;
+        *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
 }
@@ -358,7 +367,7 @@ fn parse_dependencies_from_aleo(
     let program_size = bytecode.len();
 
     if program_size > MAX_PROGRAM_SIZE {
-        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
+        return Err(leo_errors::LeoError::Backtraced(crate::errors::program_size_limit_exceeded(
             name,
             program_size,
             MAX_PROGRAM_SIZE,
@@ -366,7 +375,8 @@ fn parse_dependencies_from_aleo(
     }
 
     // Parse the bytecode into an SVM program.
-    let svm_program: SvmProgram<TestnetV0> = bytecode.parse().map_err(|_| UtilError::snarkvm_parsing_error(name))?;
+    let svm_program: SvmProgram<TestnetV0> =
+        bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
     let dependencies = svm_program
         .imports()
         .keys()

@@ -81,11 +81,6 @@ impl SourceMap {
         self.inner.borrow().source_files.iter().find(|source_file| &source_file.name == filename).cloned()
     }
 
-    /// Returns a snapshot of all source files for use with ariadne caching.
-    pub fn source_files(&self) -> Vec<Rc<SourceFile>> {
-        self.inner.borrow().source_files.clone()
-    }
-
     /// Returns the source contents that is spanned by `span`.
     pub fn contents_of_span(&self, span: Span) -> Option<String> {
         let source_file1 = self.find_source_file(span.lo)?;
@@ -284,9 +279,9 @@ pub struct LineCol {
     pub col: u32,
 }
 
-/// A cache for ariadne that reads from Leo's session-global `SourceMap`.
+/// A cache for ariadne that lazily reads from Leo's session-global `SourceMap`.
 ///
-/// Populated by snapshotting all source files from `with_session_globals`.
+/// Entries are populated on demand in `fetch()`.
 /// Keyed by `file.absolute_start` (the `u32` source ID used in `AriadneSpan`).
 pub struct LeoSourceCache {
     sources: HashMap<u32, ariadne::Source<String>>,
@@ -294,17 +289,8 @@ pub struct LeoSourceCache {
 }
 
 impl LeoSourceCache {
-    /// Build a cache from the current session globals.
     pub fn new() -> Self {
-        use crate::symbol::with_session_globals;
-        let files = with_session_globals(|s| s.source_map.source_files());
-        let mut sources = HashMap::new();
-        let mut names = HashMap::new();
-        for file in &files {
-            sources.insert(file.absolute_start, ariadne::Source::from(file.src.clone()));
-            names.insert(file.absolute_start, file.name.clone());
-        }
-        Self { sources, names }
+        Self { sources: HashMap::new(), names: HashMap::new() }
     }
 }
 
@@ -318,6 +304,15 @@ impl ariadne::Cache<u32> for LeoSourceCache {
     type Storage = String;
 
     fn fetch(&mut self, id: &u32) -> Result<&ariadne::Source<String>, impl fmt::Debug> {
+        if !self.sources.contains_key(id) {
+            use crate::symbol::with_session_globals;
+            with_session_globals(|s| {
+                if let Some(file) = s.source_map.find_source_file(*id) {
+                    self.sources.insert(file.absolute_start, ariadne::Source::from(file.src.clone()));
+                    self.names.insert(file.absolute_start, file.name.clone());
+                }
+            });
+        }
         self.sources.get(id).ok_or_else(|| format!("unknown source file with start offset {id}"))
     }
 

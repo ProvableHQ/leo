@@ -20,6 +20,7 @@
 //! it into the Leo AST. Uses `leo-parser-rowan` for IDE-grade error recovery
 //! and lossless syntax trees.
 
+mod errors;
 mod rowan;
 pub use rowan::{parse_expression, parse_library, parse_module, parse_program, parse_statement};
 

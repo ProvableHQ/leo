@@ -34,7 +34,7 @@ use leo_ast::{
     Type,
     UnitVisitor,
 };
-use leo_errors::{CheckInterfacesError, Color, Label};
+use leo_errors::{Color, Label};
 use leo_span::{Span, Symbol, sym};
 
 use indexmap::{IndexMap, IndexSet};
@@ -84,7 +84,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
         }
 
         let Some(interface) = self.state.symbol_table.lookup_interface(self.current_unit, location) else {
-            self.state.handler.emit_err(CheckInterfacesError::interface_not_found(location, location_span, vec![]));
+            self.state.handler.emit_err(crate::errors::check_interfaces::interface_not_found(location, location_span));
             return None;
         };
 
@@ -133,11 +133,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
             let Some(ancestor_interface) =
                 self.state.symbol_table.lookup_interface(self.current_unit, ancestor_location)
             else {
-                self.state.handler.emit_err(CheckInterfacesError::interface_not_found(
-                    ancestor_location,
-                    interface_span,
-                    vec![],
-                ));
+                self.state
+                    .handler
+                    .emit_err(crate::errors::check_interfaces::interface_not_found(ancestor_location, interface_span));
                 return None;
             };
 
@@ -155,12 +153,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 if let Some((_, existing_func)) = flattened.functions.iter().find(|(n, _)| n == name) {
                     // Same name exists - check if compatible.
                     if !self.prototypes_match(existing_func, parent_func, &inheritance_prototype_locations) {
-                        self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::conflicting_interface_member(
                             name,
                             interface_name,
                             parent_interface_name,
                             interface_span,
-                            vec![],
                         ));
                         return None;
                     }
@@ -195,44 +192,45 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             match child_member {
                                 None => {
                                     // Parent has a field that child doesn't have.
-                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
-                                        parent_member.identifier.name,
-                                        parent_name,
-                                        interface_name,
-                                        parent_interface_name,
-                                        interface_span,
-                                        vec![
-                                            Label::new(
-                                                format!("defined in `{parent_interface_name}` here"),
-                                                parent_member.span,
-                                            )
-                                            .with_color(Color::Blue),
-                                            Label::new("conflict detected here", interface_span),
-                                        ],
-                                    ));
+                                    self.state.handler.emit_err(
+                                        crate::errors::check_interfaces::conflicting_record_field(
+                                            parent_member.identifier.name,
+                                            parent_name,
+                                            interface_name,
+                                            parent_interface_name,
+                                            interface_span,
+                                        )
+                                        .with_labels(vec![
+                                            Label::new(parent_member.span)
+                                                .with_message(format!("defined in `{parent_interface_name}` here"))
+                                                .with_color(Color::Blue),
+                                            Label::new(interface_span).with_message("conflict detected here"),
+                                        ]),
+                                    );
                                     return None;
                                 }
                                 Some(cm)
                                     if !cm.type_.eq_user(&parent_member.type_)
                                         || !cm.mode.eq_user(&parent_member.mode) =>
                                 {
-                                    self.state.handler.emit_err(CheckInterfacesError::conflicting_record_field(
-                                        parent_member.identifier.name,
-                                        parent_name,
-                                        interface_name,
-                                        parent_interface_name,
-                                        interface_span,
-                                        vec![
-                                            Label::new(
-                                                format!("defined in `{parent_interface_name}` here"),
-                                                parent_member.span,
-                                            )
-                                            .with_color(Color::Blue),
-                                            Label::new("conflicts with definition here", cm.span)
+                                    self.state.handler.emit_err(
+                                        crate::errors::check_interfaces::conflicting_record_field(
+                                            parent_member.identifier.name,
+                                            parent_name,
+                                            interface_name,
+                                            parent_interface_name,
+                                            interface_span,
+                                        )
+                                        .with_labels(vec![
+                                            Label::new(parent_member.span)
+                                                .with_message(format!("defined in `{parent_interface_name}` here"))
                                                 .with_color(Color::Blue),
-                                            Label::new("conflict detected here", interface_span),
-                                        ],
-                                    ));
+                                            Label::new(cm.span)
+                                                .with_message("conflicts with definition here")
+                                                .with_color(Color::Blue),
+                                            Label::new(interface_span).with_message("conflict detected here"),
+                                        ]),
+                                    );
                                     return None;
                                 }
                                 _ => {} // Field matches, continue checking.
@@ -258,12 +256,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !existing_mapping.key_type.eq_user(&parent_mapping.key_type)
                         || !existing_mapping.value_type.eq_user(&parent_mapping.value_type)
                     {
-                        self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::conflicting_interface_member(
                             parent_mapping.identifier.name,
                             interface_name,
                             parent_interface_name,
                             interface_span,
-                            vec![],
                         ));
                         return None;
                     }
@@ -281,12 +278,11 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 {
                     // Same name exists - check if types are compatible.
                     if !existing_storage.type_.eq_user(&parent_storage.type_) {
-                        self.state.handler.emit_err(CheckInterfacesError::conflicting_interface_member(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::conflicting_interface_member(
                             parent_storage.identifier.name,
                             interface_name,
                             parent_interface_name,
                             interface_span,
-                            vec![],
                         ));
                         return None;
                     }
@@ -333,23 +329,21 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         required_proto,
                         &prototype_record_locations,
                     ) {
-                        self.state.handler.emit_err(CheckInterfacesError::signature_mismatch(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::signature_mismatch(
                             func_name,
                             interface_location,
                             Self::format_prototype_signature(required_proto),
                             Self::format_function_signature(&func_symbol.function),
                             func_symbol.function.span,
-                            vec![],
                         ));
                     }
                 }
                 None => {
-                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_function(
+                    self.state.handler.emit_err(crate::errors::check_interfaces::missing_interface_function(
                         func_name,
                         interface_location,
                         program_name,
                         program_scope.span,
-                        vec![],
                     ));
                 }
             }
@@ -375,50 +369,53 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         match found_member {
                             None => {
                                 // Field is missing.
-                                self.state.handler.emit_err(CheckInterfacesError::record_field_missing(
-                                    field_name,
-                                    record_name,
-                                    interface_location,
-                                    program_name,
-                                    program_record.span,
-                                    vec![
-                                        Label::new("required by interface here", required_member.span)
+                                self.state.handler.emit_err(
+                                    crate::errors::check_interfaces::record_field_missing(
+                                        field_name,
+                                        record_name,
+                                        interface_location,
+                                        program_name,
+                                        program_record.span,
+                                    )
+                                    .with_labels(vec![
+                                        Label::new(required_member.span)
+                                            .with_message("required by interface here")
                                             .with_color(Color::Blue),
-                                        Label::new(
-                                            format!("record is missing field `{field_name}`"),
-                                            program_record.span,
-                                        ),
-                                    ],
-                                ));
+                                        Label::new(program_record.span)
+                                            .with_message(format!("record is missing field `{field_name}`")),
+                                    ]),
+                                );
                             }
                             Some(actual) => {
                                 // Field exists but type or mode doesn't match.
                                 let expected = format!("{} {}", required_member.mode, required_member.type_);
                                 let found = format!("{} {}", actual.mode, actual.type_);
-                                self.state.handler.emit_err(CheckInterfacesError::record_field_type_mismatch(
-                                    field_name,
-                                    record_name,
-                                    interface_location,
-                                    expected,
-                                    found,
-                                    actual.span,
-                                    vec![
-                                        Label::new("expected by interface here", required_member.span)
+                                self.state.handler.emit_err(
+                                    crate::errors::check_interfaces::record_field_type_mismatch(
+                                        field_name,
+                                        record_name,
+                                        interface_location,
+                                        expected,
+                                        found,
+                                        actual.span,
+                                    )
+                                    .with_labels(vec![
+                                        Label::new(required_member.span)
+                                            .with_message("expected by interface here")
                                             .with_color(Color::Blue),
-                                        Label::new("type mismatch here", actual.span),
-                                    ],
-                                ));
+                                        Label::new(actual.span).with_message("type mismatch here"),
+                                    ]),
+                                );
                             }
                         }
                     }
                 }
                 None => {
-                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_record(
+                    self.state.handler.emit_err(crate::errors::check_interfaces::missing_interface_record(
                         record_name,
                         interface_location,
                         program_name,
                         program_scope.span,
-                        vec![],
                     ));
                 }
             }
@@ -433,7 +430,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     if !program_mapping.key_type.eq_user(&required_mapping.key_type)
                         || !program_mapping.value_type.eq_user(&required_mapping.value_type)
                     {
-                        self.state.handler.emit_err(CheckInterfacesError::mapping_type_mismatch(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::mapping_type_mismatch(
                             mapping_name,
                             interface_location,
                             &required_mapping.key_type,
@@ -441,17 +438,15 @@ impl<'a> CheckInterfacesVisitor<'a> {
                             &program_mapping.key_type,
                             &program_mapping.value_type,
                             program_mapping.span,
-                            vec![],
                         ));
                     }
                 }
                 None => {
-                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_mapping(
+                    self.state.handler.emit_err(crate::errors::check_interfaces::missing_interface_mapping(
                         mapping_name,
                         interface_location,
                         program_name,
                         program_scope.span,
-                        vec![],
                     ));
                 }
             }
@@ -464,23 +459,21 @@ impl<'a> CheckInterfacesVisitor<'a> {
                 Some((_, program_storage)) => {
                     // Storage exists - check type matches.
                     if !program_storage.type_.eq_user(&required_storage.type_) {
-                        self.state.handler.emit_err(CheckInterfacesError::storage_type_mismatch(
+                        self.state.handler.emit_err(crate::errors::check_interfaces::storage_type_mismatch(
                             storage_name,
                             interface_location,
                             &required_storage.type_,
                             &program_storage.type_,
                             program_storage.span,
-                            vec![],
                         ));
                     }
                 }
                 None => {
-                    self.state.handler.emit_err(CheckInterfacesError::missing_interface_storage(
+                    self.state.handler.emit_err(crate::errors::check_interfaces::missing_interface_storage(
                         storage_name,
                         interface_location,
                         program_name,
                         program_scope.span,
-                        vec![],
                     ));
                 }
             }
@@ -695,12 +688,13 @@ impl<'a> CheckInterfacesVisitor<'a> {
             for (_, record_proto) in &interface.records {
                 for member in &record_proto.members {
                     if member.identifier.name == sym::owner && member.type_ != Type::Address {
-                        self.state.handler.emit_err(CheckInterfacesError::record_prototype_owner_wrong_type(
-                            record_proto.identifier.name,
-                            &member.type_,
-                            member.span,
-                            vec![],
-                        ));
+                        self.state.handler.emit_err(
+                            crate::errors::check_interfaces::record_prototype_owner_wrong_type(
+                                record_proto.identifier.name,
+                                &member.type_,
+                                member.span,
+                            ),
+                        );
                     }
                 }
             }
@@ -743,11 +737,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
             for (parent_span, parent_type) in &interface.parents {
                 let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
-                    self.state.handler.emit_err(CheckInterfacesError::not_an_interface(
-                        parent_type,
-                        *parent_span,
-                        vec![],
-                    ));
+                    self.state
+                        .handler
+                        .emit_err(crate::errors::check_interfaces::not_an_interface(parent_type, *parent_span));
                     // Continue processing remaining parents and other queued interfaces.
                     continue;
                 };
@@ -801,7 +793,7 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
 
         // Check for cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
-            self.state.handler.emit_err(CheckInterfacesError::cyclic_interface_inheritance(
+            self.state.handler.emit_err(crate::errors::check_interfaces::cyclic_interface_inheritance(
                 path.iter().map(|loc| loc.to_string()).collect::<Vec<_>>().join(" -> "),
             ));
             return;
@@ -846,7 +838,7 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
 
         // Check for cycles using post_order traversal.
         if let Err(DiGraphError::CycleDetected(path)) = self.inheritance_graph.post_order() {
-            self.state.handler.emit_err(CheckInterfacesError::cyclic_interface_inheritance(
+            self.state.handler.emit_err(crate::errors::check_interfaces::cyclic_interface_inheritance(
                 path.iter().map(|loc| loc.to_string()).collect::<Vec<_>>().join(" -> "),
             ));
             return;
@@ -865,7 +857,9 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
         // Check if the program implements interfaces (supports multiple inheritance).
         for (parent_span, parent_type) in &input.parents {
             let Type::Composite(CompositeType { path: parent_path, .. }) = parent_type else {
-                self.state.handler.emit_err(CheckInterfacesError::not_an_interface(parent_type, *parent_span, vec![]));
+                self.state
+                    .handler
+                    .emit_err(crate::errors::check_interfaces::not_an_interface(parent_type, *parent_span));
                 return;
             };
             let parent_location =

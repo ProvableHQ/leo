@@ -23,13 +23,10 @@ use leo_span::{
 
 pub use ariadne::Color;
 use ariadne::Report;
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use std::fmt;
 
 /// Represents error labels.
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Debug)]
 pub struct Label {
     msg: String,
     span: Span,
@@ -37,8 +34,13 @@ pub struct Label {
 }
 
 impl Label {
-    pub fn new(msg: impl fmt::Display, span: Span) -> Self {
-        Self { msg: msg.to_string(), span, color: Color::default() }
+    pub fn new(span: Span) -> Self {
+        Self { msg: String::new(), span, color: Color::default() }
+    }
+
+    pub fn with_message(mut self, msg: impl fmt::Display) -> Self {
+        self.msg = msg.to_string();
+        self
     }
 
     pub fn with_color(mut self, color: Color) -> Self {
@@ -48,6 +50,7 @@ impl Label {
 }
 
 /// Helper span for Ariadne that includes the source file start index.
+#[derive(Clone)]
 struct AriadneSpan {
     file_start_index: u32,
     span: Span,
@@ -80,12 +83,17 @@ impl ariadne::Span for AriadneSpan {
 ///
 /// Stores all error components as plain owned fields.
 /// The ariadne `Report` is built on the fly in `Display::fmt`.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Formatted {
+    inner: Box<FormattedInner>,
+}
+
+#[derive(Debug)]
+struct FormattedInner {
     message: String,
     help: Option<String>,
+    note: Option<String>,
     code: i32,
-    code_identifier: i8,
     type_: String,
     error: bool,
     span: Span,
@@ -94,12 +102,10 @@ pub struct Formatted {
 
 impl Formatted {
     /// Creates a formatted error from a span and labels.
-    #[allow(clippy::too_many_arguments)]
     pub fn new_from_span<S>(
         message: S,
         help: Option<String>,
         code: i32,
-        code_identifier: i8,
         type_: String,
         error: bool,
         span: Span,
@@ -108,22 +114,63 @@ impl Formatted {
     where
         S: ToString,
     {
-        Self { message: message.to_string(), help, code, code_identifier, type_, error, span, labels }
+        Self {
+            inner: Box::new(FormattedInner {
+                message: message.to_string(),
+                help,
+                note: None,
+                code,
+                type_,
+                error,
+                span,
+                labels,
+            }),
+        }
+    }
+
+    /// Create a new error.
+    pub fn error(code_prefix: &str, code: i32, message: impl ToString, span: Span) -> Self {
+        Self::new_from_span(message, None, code, code_prefix.to_string(), true, span, vec![])
+    }
+
+    /// Create a new warning.
+    pub fn warning(code_prefix: &str, code: i32, message: impl ToString, span: Span) -> Self {
+        Self::new_from_span(message, None, code, code_prefix.to_string(), false, span, vec![])
+    }
+
+    pub fn with_help(mut self, help: impl fmt::Display) -> Self {
+        self.inner.help = Some(help.to_string());
+        self
+    }
+
+    pub fn with_note(mut self, note: impl fmt::Display) -> Self {
+        self.inner.note = Some(note.to_string());
+        self
+    }
+
+    pub fn with_label(mut self, label: Label) -> Self {
+        self.inner.labels.push(label);
+        self
+    }
+
+    pub fn with_labels(mut self, labels: impl IntoIterator<Item = Label>) -> Self {
+        self.inner.labels.extend(labels);
+        self
     }
 
     /// Gets the exit code.
     pub fn exit_code(&self) -> i32 {
-        compute_exit_code(self.code_identifier, self.code)
+        compute_exit_code(37, self.inner.code)
     }
 
     /// Gets a unique error identifier.
     pub fn error_code(&self) -> String {
-        format_error_code(&self.type_, self.code_identifier, self.code)
+        format_error_code(&self.inner.type_, 37, self.inner.code)
     }
 
     /// Gets a unique warning identifier.
     pub fn warning_code(&self) -> String {
-        format_warning_code(&self.type_, self.code_identifier, self.code)
+        format_warning_code(&self.inner.type_, 37, self.inner.code)
     }
 
     /// Resolve a Leo `Span` to an `AriadneSpan` using the source map.
@@ -136,16 +183,15 @@ impl Formatted {
     fn build_report(&self) -> Report<'_, AriadneSpan> {
         use leo_span::with_session_globals;
 
-        let primary_color = if self.error { Color::Red } else { Color::Yellow };
+        let primary_color = if self.inner.error { Color::Red } else { Color::Yellow };
 
         with_session_globals(|s| {
-            let primary_span = Self::resolve_span(self.span, &s.source_map);
+            let primary_span = Self::resolve_span(self.inner.span, &s.source_map);
 
             // Always include a label for the primary span so ariadne renders the source snippet.
-            let primary_label = std::iter::once(
-                ariadne::Label::new(Self::resolve_span(self.span, &s.source_map)).with_color(primary_color),
-            );
+            let primary_label = std::iter::once(ariadne::Label::new(primary_span.clone()).with_color(primary_color));
             let extra_labels: Vec<_> = self
+                .inner
                 .labels
                 .iter()
                 .map(|l| {
@@ -156,16 +202,20 @@ impl Formatted {
                 .collect();
 
             let mut report = Report::build(
-                if self.error { ariadne::ReportKind::Error } else { ariadne::ReportKind::Warning },
+                if self.inner.error { ariadne::ReportKind::Error } else { ariadne::ReportKind::Warning },
                 primary_span,
             )
             .with_config(ariadne::Config::default().with_color(is_color()))
-            .with_message(&self.message)
-            .with_code(if self.error { self.error_code() } else { self.warning_code() })
+            .with_message(&self.inner.message)
+            .with_code(if self.inner.error { self.error_code() } else { self.warning_code() })
             .with_labels(primary_label.chain(extra_labels));
 
-            if let Some(help) = &self.help {
+            if let Some(help) = &self.inner.help {
                 report = report.with_help(help);
+            }
+
+            if let Some(note) = &self.inner.note {
+                report = report.with_note(note);
             }
 
             report.finish()
@@ -184,10 +234,14 @@ impl fmt::Display for Formatted {
             write!(f, "{output}")
         } else {
             // Fallback when session globals are unavailable (e.g. tests).
-            let (kind, code) = if self.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
-            write!(f, "{kind} [{code}]: {}", self.message)?;
-            if let Some(help) = &self.help {
+            let (kind, code) =
+                if self.inner.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
+            write!(f, "{kind} [{code}]: {}", self.inner.message)?;
+            if let Some(help) = &self.inner.help {
                 write!(f, "\n    = help: {help}")?;
+            }
+            if let Some(note) = &self.inner.note {
+                write!(f, "\n    = note: {note}")?;
             }
             Ok(())
         }
@@ -196,22 +250,6 @@ impl fmt::Display for Formatted {
 
 impl std::error::Error for Formatted {
     fn description(&self) -> &str {
-        &self.message
+        &self.inner.message
     }
 }
-
-impl Hash for Formatted {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.message.hash(state);
-        self.code.hash(state);
-        self.span.hash(state);
-    }
-}
-
-impl PartialEq for Formatted {
-    fn eq(&self, other: &Self) -> bool {
-        self.message == other.message && self.code == other.code && self.span == other.span
-    }
-}
-
-impl Eq for Formatted {}

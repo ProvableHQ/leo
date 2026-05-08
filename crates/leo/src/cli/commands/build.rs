@@ -18,7 +18,6 @@ use super::*;
 
 use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
 use leo_compiler::{AstSnapshots, Compiled, Compiler, CompilerOptions};
-use leo_errors::{CliError, UtilError};
 use leo_package::{ABI_FILENAME, BUILD_DIRECTORY, INTERFACES_DIRECTORY, Manifest, Package};
 use leo_span::Symbol;
 
@@ -99,7 +98,7 @@ impl Command for LeoBuild {
                     let member_ctx = context.with_path(target.clone());
                     last_package = Some(handle_build(&self, member_ctx)?);
                 }
-                last_package.ok_or_else(|| leo_errors::CliError::custom("No workspace members found.").into())
+                last_package.ok_or_else(|| crate::errors::custom("No workspace members found.").into())
             }
             None => handle_build(&self, context),
         }
@@ -175,7 +174,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     if !is_library {
         for dir in [&outputs_directory, &build_directory, &imports_directory] {
             std::fs::create_dir_all(dir).map_err(|err| {
-                UtilError::util_file_io_error(format_args!("Couldn't create directory {}", dir.display()), err)
+                crate::errors::util_file_io_error(format_args!("Couldn't create directory {}", dir.display()), err)
             })?;
         }
     }
@@ -198,13 +197,13 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // across iterations without triplicating the loop body.
     let mut disassemble_process = match network {
         NetworkName::MainnetV0 => DisassembleProcess::Mainnet(SvmProcess::<MainnetV0>::load().map_err(|e| {
-            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+            crate::errors::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
         })?),
         NetworkName::TestnetV0 => DisassembleProcess::Testnet(SvmProcess::<TestnetV0>::load().map_err(|e| {
-            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+            crate::errors::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
         })?),
         NetworkName::CanaryV0 => DisassembleProcess::Canary(SvmProcess::<CanaryV0>::load().map_err(|e| {
-            CliError::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
+            crate::errors::custom(format!("Failed to initialize snarkVM process for disassembler validation: {e}"))
         })?),
     };
 
@@ -215,7 +214,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 let build_path = imports_directory.join(format!("{}", unit.name));
 
                 // Write the .aleo file.
-                std::fs::write(&build_path, bytecode).map_err(CliError::failed_to_load_instructions)?;
+                std::fs::write(&build_path, bytecode).map_err(crate::errors::failed_to_load_instructions)?;
 
                 // Track the stub. Validates via `Process::add_program` and disassembles in
                 // one step; the hoisted process accumulates dependencies across iterations.
@@ -246,7 +245,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     source
                         .parent()
                         .ok_or_else(|| {
-                            UtilError::failed_to_open_file(format_args!(
+                            crate::errors::failed_to_open_file(format_args!(
                                 "Failed to find directory for test {}",
                                 source.display()
                             ))
@@ -280,18 +279,19 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                     // Write the primary program bytecode.
                     std::fs::write(&primary_path, &compiled.primary.bytecode)
-                        .map_err(CliError::failed_to_load_instructions)?;
+                        .map_err(crate::errors::failed_to_load_instructions)?;
 
                     // Write imports (bytecode and ABI) and queue for validation.
                     for import in &compiled.imports {
                         let import_path = imports_directory.join(&import.name);
                         std::fs::write(&import_path, &import.bytecode)
-                            .map_err(CliError::failed_to_load_instructions)?;
+                            .map_err(crate::errors::failed_to_load_instructions)?;
 
                         let import_abi_path = imports_directory.join(format!("{}.abi.json", import.name));
                         let import_abi_json = serde_json::to_string_pretty(&import.abi)
-                            .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
-                        std::fs::write(&import_abi_path, import_abi_json).map_err(CliError::failed_to_write_abi)?;
+                            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+                        std::fs::write(&import_abi_path, import_abi_json)
+                            .map_err(crate::errors::failed_to_write_abi)?;
 
                         // Queue import for validation.
                         compiled_programs.entry(import.name.clone()).or_insert(ProgramForValidation {
@@ -311,8 +311,8 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     if source == &main_source_path {
                         let abi_path = build_directory.join(ABI_FILENAME);
                         let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
-                            .map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
-                        std::fs::write(&abi_path, abi_json).map_err(CliError::failed_to_write_abi)?;
+                            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+                        std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
                         tracing::info!("✅ Generated ABI at '{BUILD_DIRECTORY}/{ABI_FILENAME}'.");
 
                         // Write interface ABIs.
@@ -443,11 +443,7 @@ fn compile_leo_source_directory(
     let program_size = primary_bytecode.len();
 
     if program_size > MAX_PROGRAM_SIZE {
-        return Err(leo_errors::LeoError::UtilError(UtilError::program_size_limit_exceeded(
-            program_name,
-            program_size,
-            MAX_PROGRAM_SIZE,
-        )));
+        return Err(crate::errors::program_size_limit_exceeded(program_name, program_size, MAX_PROGRAM_SIZE).into());
     }
 
     // Get the AVM bytecode.
@@ -530,19 +526,23 @@ fn validate_compiled_programs(programs: &IndexMap<String, ProgramForValidation>,
 fn validate_compiled_programs_inner<N: snarkvm::prelude::Network>(
     programs: &IndexMap<String, ProgramForValidation>,
 ) -> Result<()> {
-    let mut process = SvmProcess::<N>::load()
-        .map_err(|e| CliError::custom(format!("Failed to initialize snarkVM process for bytecode validation: {e}")))?;
+    let mut process = SvmProcess::<N>::load().map_err(|e| {
+        crate::errors::custom(format!("Failed to initialize snarkVM process for bytecode validation: {e}"))
+    })?;
 
     for (name, ProgramForValidation { bytecode, path, is_leo_compiled }) in programs {
-        let program = SvmProgram::<N>::from_str(bytecode).map_err(|e| CliError::failed_to_parse_aleo_file(name, e))?;
+        let program =
+            SvmProgram::<N>::from_str(bytecode).map_err(|e| crate::errors::failed_to_parse_aleo_file(name, e))?;
 
         let checksum = program.to_checksum().iter().join(", ");
 
         process.add_program_with_edition(&program, LOCAL_PROGRAM_DEFAULT_EDITION).map_err(|e| {
             if *is_leo_compiled {
-                CliError::generated_invalid_bytecode(name, path.display(), &checksum, e)
+                crate::errors::generated_invalid_bytecode(name, path.display(), &checksum, e)
             } else {
-                CliError::custom(format!("snarkVM rejected external program '{name}' during build validation: {e}"))
+                crate::errors::custom(format!(
+                    "snarkVM rejected external program '{name}' during build validation: {e}"
+                ))
             }
         })?;
     }
@@ -616,7 +616,7 @@ fn build_leo_source_directory_library(
 fn write_interface_abis(interfaces_dir: &Path, interfaces: &[leo_abi::interfaces::CompiledInterface]) -> Result<()> {
     // Remove stale files from a previous build (renamed/deleted interfaces).
     if interfaces_dir.exists() {
-        std::fs::remove_dir_all(interfaces_dir).map_err(CliError::failed_to_write_abi)?;
+        std::fs::remove_dir_all(interfaces_dir).map_err(crate::errors::failed_to_write_abi)?;
     }
     if interfaces.is_empty() {
         return Ok(());
@@ -630,11 +630,11 @@ fn write_interface_abis(interfaces_dir: &Path, interfaces: &[leo_abi::interfaces
         for seg in &ci.abi.path[..ci.abi.path.len().saturating_sub(1)] {
             file_path.push(seg);
         }
-        std::fs::create_dir_all(&file_path).map_err(CliError::failed_to_write_abi)?;
+        std::fs::create_dir_all(&file_path).map_err(crate::errors::failed_to_write_abi)?;
         file_path.push(format!("{}.json", ci.abi.name));
         let json =
-            serde_json::to_string_pretty(&ci.abi).map_err(|e| CliError::failed_to_serialize_abi(e.to_string()))?;
-        std::fs::write(&file_path, json).map_err(CliError::failed_to_write_abi)?;
+            serde_json::to_string_pretty(&ci.abi).map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+        std::fs::write(&file_path, json).map_err(crate::errors::failed_to_write_abi)?;
     }
     tracing::info!("✅ Generated {} interface ABI(s) at '{INTERFACES_DIRECTORY}/'.", interfaces.len());
     Ok(())

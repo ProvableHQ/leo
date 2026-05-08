@@ -31,7 +31,7 @@ use itertools::Itertools as _;
 use snarkvm::prelude::{Address, Signature, TestnetV0};
 
 use leo_ast::{NetworkName, NodeBuilder, NodeID};
-use leo_errors::{Handler, ParserError, ParserWarning, Result};
+use leo_errors::{Handler, Result};
 use leo_parser_rowan::{SyntaxElement, SyntaxKind, SyntaxKind::*, SyntaxNode, SyntaxToken, TextRange};
 use leo_span::{
     Span,
@@ -76,7 +76,7 @@ impl<'a> ConversionContext<'a> {
     /// Emit an `unexpected_str` error, unless cascade suppression is active.
     fn emit_unexpected_str(&self, expected: &str, found: impl std::fmt::Display, span: Span) {
         if !self.suppress_cascade {
-            self.handler.emit_err(ParserError::unexpected_str(expected, found, span, vec![]));
+            self.handler.emit_err(crate::errors::unexpected_str(expected, found, span));
         }
     }
 
@@ -190,8 +190,7 @@ impl<'a> ConversionContext<'a> {
     /// which is not allowed for non-integer types (field, group, scalar).
     fn validate_hexbin_literal(&self, text: &str, suffix_len: u32, span: Span) {
         if text.starts_with("0x") || text.starts_with("0o") || text.starts_with("0b") {
-            self.handler
-                .emit_err(ParserError::hexbin_literal_nonintegers(Span::new(span.lo, span.hi - suffix_len), vec![]));
+            self.handler.emit_err(crate::errors::hexbin_literal_nonintegers(Span::new(span.lo, span.hi - suffix_len)));
         }
     }
 
@@ -235,16 +234,15 @@ impl<'a> ConversionContext<'a> {
         const MAX_IDENTIFIER_LEN: usize = 31;
         let text = ident.name.to_string();
         if text.len() > MAX_IDENTIFIER_LEN {
-            self.handler.emit_err(ParserError::identifier_too_long(
+            self.handler.emit_err(crate::errors::identifier_too_long(
                 &text,
                 text.len(),
                 MAX_IDENTIFIER_LEN,
                 ident.span,
-                vec![],
             ));
         }
         if text.contains("__") {
-            self.handler.emit_err(ParserError::identifier_cannot_contain_double_underscore(&text, ident.span, vec![]));
+            self.handler.emit_err(crate::errors::identifier_cannot_contain_double_underscore(&text, ident.span));
         }
     }
 
@@ -259,7 +257,7 @@ impl<'a> ConversionContext<'a> {
         self.validate_identifier(ident);
         let text = ident.name.to_string();
         if text.starts_with('_') {
-            self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(ident.span, vec![]));
+            self.handler.emit_err(crate::errors::identifier_cannot_start_with_underscore(ident.span));
         }
         if symbol_is_keyword(ident.name) {
             self.emit_unexpected_str("an identifier", &text, ident.span);
@@ -480,7 +478,7 @@ impl<'a> ConversionContext<'a> {
 
         if elements.len() == 1 {
             // Single-element tuple type is invalid - emit error
-            self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("type", span, vec![]));
+            self.handler.emit_err(crate::errors::tuple_must_have_at_least_two_elements("type", span));
             // Return the single element for error recovery
             return Ok(elements.into_iter().next().unwrap());
         }
@@ -642,7 +640,7 @@ impl<'a> ConversionContext<'a> {
         let text = token.text();
         // Validate address literal (skip program addresses like "program.aleo")
         if !text.contains(".aleo") && text.parse::<Address<TestnetV0>>().is_err() {
-            self.handler.emit_err(ParserError::invalid_address_lit(text, span, vec![]));
+            self.handler.emit_err(crate::errors::invalid_address_lit(text, span));
         }
         Ok(leo_ast::Literal::address(text.to_string(), span, id).into())
     }
@@ -1078,7 +1076,7 @@ impl<'a> ConversionContext<'a> {
         }
 
         // Unknown method call - emit error
-        self.handler.emit_err(ParserError::invalid_method_call(receiver, method_name, args.len(), span, vec![]));
+        self.handler.emit_err(crate::errors::invalid_method_call(receiver, method_name, args.len(), span));
         Ok(self.error_expression(span))
     }
 
@@ -1169,7 +1167,7 @@ impl<'a> ConversionContext<'a> {
             (BLOCK_KW_EXPR, sym::timestamp) => Some(sym::_block_timestamp),
             (NETWORK_KW_EXPR, sym::id) => Some(sym::_network_id),
             (SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR, _) => {
-                self.handler.emit_err(ParserError::custom("Unsupported special access", span, vec![]));
+                self.handler.emit_err(crate::errors::custom("Unsupported special access", span));
                 return Ok(self.error_expression(span));
             }
             _ => None,
@@ -1326,13 +1324,13 @@ impl<'a> ConversionContext<'a> {
         match elements.len() {
             0 => {
                 // Empty tuple is invalid - emit error
-                self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span, vec![]));
+                self.handler.emit_err(crate::errors::tuple_must_have_at_least_two_elements("expression", span));
                 // Return unit expression for error recovery
                 Ok(leo_ast::UnitExpression { span, id }.into())
             }
             1 => {
                 // Single-element tuple is invalid - emit error
-                self.handler.emit_err(ParserError::tuple_must_have_at_least_two_elements("expression", span, vec![]));
+                self.handler.emit_err(crate::errors::tuple_must_have_at_least_two_elements("expression", span));
                 // Return the single element for error recovery
                 Ok(elements.into_iter().next().unwrap())
             }
@@ -1517,7 +1515,7 @@ impl<'a> ConversionContext<'a> {
             // Reject standalone `_ident` in expression context -- these are only
             // valid as the start of intrinsic calls (e.g. `_self_caller()`).
             if name_text.starts_with('_') {
-                self.handler.emit_err(ParserError::identifier_cannot_start_with_underscore(span, vec![]));
+                self.handler.emit_err(crate::errors::identifier_cannot_start_with_underscore(span));
                 return Ok(self.error_expression(span));
             }
         }
@@ -2020,10 +2018,10 @@ impl<'a> ConversionContext<'a> {
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
-            self.handler.emit_err(ParserError::custom(
+            self.handler.emit_err(crate::errors::custom(
                 "Only `const` declarations, `struct` definitions, `fn` functions, and `interface` definitions are allowed in a library.",
                 span,
-            vec![]));
+            ));
         }
         // Other node kinds (e.g. ERROR nodes from CST-level parse failures) are
         // already reported by the rowan parser; nothing to do here.
@@ -2093,7 +2091,7 @@ impl<'a> ConversionContext<'a> {
                 PROGRAM_DECL => {
                     if program_name.is_some() {
                         self.handler
-                            .emit_err(ParserError::multiple_program_declarations(self.non_trivia_span(&child), vec![]));
+                            .emit_err(crate::errors::multiple_program_declarations(self.non_trivia_span(&child)));
                         continue;
                     }
                     // Extract program name, network, and optional parent interface
@@ -2143,11 +2141,11 @@ impl<'a> ConversionContext<'a> {
         }
 
         if let Some(extra) = constructors.get(1) {
-            return Err(ParserError::custom("A program can only have one constructor.", extra.span, vec![]).into());
+            return Err(crate::errors::custom("A program can only have one constructor.", extra.span).into());
         }
 
         let (Some(program_name), Some(network), Some(span)) = (program_name, network, span) else {
-            return Err(ParserError::missing_program_scope(self.to_span(node), vec![]).into());
+            return Err(crate::errors::missing_program_declaration(self.to_span(node)).into());
         };
 
         // Sort functions: entry points first
@@ -2228,7 +2226,7 @@ impl<'a> ConversionContext<'a> {
         if tokens(node).all(|t| t.kind() != KW_ALEO)
             && let Some(net_token) = find_invalid_network(node)
         {
-            self.handler.emit_err(ParserError::invalid_network(self.token_span(&net_token), vec![]));
+            self.handler.emit_err(crate::errors::invalid_network(self.token_span(&net_token)));
         }
 
         Ok(program_id)
@@ -2251,7 +2249,7 @@ impl<'a> ConversionContext<'a> {
             None => {
                 // Check for an invalid network identifier (e.g. `program test.eth`).
                 if let Some(net_token) = find_invalid_network(node) {
-                    self.handler.emit_err(ParserError::invalid_network(self.token_span(&net_token), vec![]));
+                    self.handler.emit_err(crate::errors::invalid_network(self.token_span(&net_token)));
                 } else {
                     self.emit_unexpected_str(".aleo network", node.text(), span);
                 }
@@ -2794,14 +2792,14 @@ impl<'a> ConversionContext<'a> {
             });
         if is_redundant && !members.is_empty() {
             // Strip the owner-only members since they are implicit.
-            self.handler.emit_warning(ParserWarning::record_prototype_redundant(identifier.name, span, vec![]));
+            self.handler.emit_warning(crate::errors::record_prototype_redundant(identifier.name, span));
             return Ok(leo_ast::RecordPrototype { identifier, span, members: Vec::new(), id: self.builder.next_id() });
         } else if is_redundant {
             // members is empty but we had braces — check if the node actually had braces.
             // If there's a L_BRACE token child, it means `{ .. }` was used.
             let had_braces = node.children_with_tokens().any(|c| c.kind() == L_BRACE);
             if had_braces {
-                self.handler.emit_warning(ParserWarning::record_prototype_redundant(identifier.name, span, vec![]));
+                self.handler.emit_warning(crate::errors::record_prototype_redundant(identifier.name, span));
             }
         }
 
@@ -2829,13 +2827,13 @@ fn emit_lex_errors(handler: &Handler, lex_errors: &[leo_parser_rowan::LexError],
 
         match &error.kind {
             LexErrorKind::InvalidDigit { digit, radix, token } => {
-                handler.emit_err(ParserError::wrong_digit_for_radix_span(*digit, *radix, token, span, vec![]));
+                handler.emit_err(crate::errors::wrong_digit_for_radix_span(*digit, *radix, token, span));
             }
             LexErrorKind::CouldNotLex { content } => {
-                handler.emit_err(ParserError::could_not_lex_span(content, span, vec![]));
+                handler.emit_err(crate::errors::could_not_lex_span(content, span));
             }
             LexErrorKind::BidiOverride => {
-                handler.emit_err(ParserError::lexer_bidi_override_span(span, vec![]));
+                handler.emit_err(crate::errors::lexer_bidi_override_span(span));
             }
         }
     }
@@ -2904,27 +2902,27 @@ fn emit_parse_errors(
         } || (span.lo == span.hi && span.hi >= start_pos + source_len);
 
         if is_eof_error {
-            handler.emit_err(ParserError::unexpected_eof(span, vec![]));
+            handler.emit_err(crate::errors::unexpected_eof(span));
             count += 1;
             continue;
         }
 
-        // Use ParserError::unexpected if we have structured found/expected info
+        // Use crate::errors::unexpected if we have structured found/expected info
         if let Some(found) = &error.found {
             if error.expected.is_empty() {
                 // No structured expected tokens — use the message as a custom error.
                 // This covers errors from `error()` like "expected field name".
-                handler.emit_err(ParserError::custom(&error.message, span, vec![]));
+                handler.emit_err(crate::errors::custom(&error.message, span));
             } else {
                 let expected_str = error.expected.join(", ");
-                handler.emit_err(ParserError::unexpected(found, expected_str, span, vec![]));
+                handler.emit_err(crate::errors::unexpected(found, expected_str, span));
             }
             count += 1;
             continue;
         }
 
         // Fall back to custom error for unstructured errors
-        handler.emit_err(ParserError::custom(&error.message, span, vec![]));
+        handler.emit_err(crate::errors::custom(&error.message, span));
         count += 1;
     }
 }
@@ -3029,7 +3027,7 @@ pub fn parse_program(
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             for segment in &key {
                 if symbol_is_keyword(*segment) {
-                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                    return Err(crate::errors::keyword_used_as_module_name(key.iter().format("::"), segment).into());
                 }
             }
             let module_ast = module_context.to_module(&module_parse.syntax(), program_name, key.clone())?;
@@ -3083,7 +3081,7 @@ pub fn parse_library(
         if let Some(key) = compute_module_key(&module_sf.name, root_dir.as_deref()) {
             for segment in &key {
                 if symbol_is_keyword(*segment) {
-                    return Err(ParserError::keyword_used_as_module_name(key.iter().format("::"), segment).into());
+                    return Err(crate::errors::keyword_used_as_module_name(key.iter().format("::"), segment).into());
                 }
             }
             // Library modules use library_name as the owner (analogous to program_name in

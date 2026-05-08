@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::errors::static_analyzer;
 use leo_ast::{
     const_eval::{self, Value},
     *,
 };
-use leo_errors::StaticAnalyzerError;
 
 use super::ConstPropagationVisitor;
 
@@ -161,12 +161,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                         // Get the integer string with no suffix.
                         let integer_with_suffix = index_value.to_string();
                         let suffix_index = integer_with_suffix.find(['i', 'u']).unwrap_or(integer_with_suffix.len());
-                        self.emit_err(StaticAnalyzerError::array_bounds(
-                            &integer_with_suffix[..suffix_index],
-                            len,
-                            span,
-                            vec![],
-                        ));
+                        self.emit_err(static_analyzer::array_bounds(&integer_with_suffix[..suffix_index], len, span));
                     }
                 } else if let Some(array_value) = array_opt {
                     // We're in bounds and we can evaluate the array at compile time, so just return the value.
@@ -227,7 +222,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     // No errors, but we were unable to evaluate.
                     {}
                 Err(err) => {
-                    self.emit_err(StaticAnalyzerError::compile_intrinsic(err, input.span(), vec![]));
+                    self.emit_err(static_analyzer::compile_intrinsic(err, input.span()));
                 }
             }
         }
@@ -335,14 +330,9 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(StaticAnalyzerError::compile_time_binary_op(
-                    lhs_value,
-                    rhs_value,
-                    input.op,
-                    err,
-                    span,
-                    vec![],
-                )),
+                Err(err) => {
+                    self.emit_err(static_analyzer::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span))
+                }
             }
         }
 
@@ -378,7 +368,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 let expr = self.value_to_expression(&cast_value, span, id).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
-                self.emit_err(StaticAnalyzerError::compile_time_cast(value, &input.type_, span, vec![]));
+                self.emit_err(static_analyzer::compile_time_cast(value, &input.type_, span));
             }
         }
         (CastExpression { expression: expr, ..input }.into(), None)
@@ -480,9 +470,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => {
-                    self.emit_err(StaticAnalyzerError::compile_time_unary_op(value, input.op, err, span, vec![]))
-                }
+                Err(err) => self.emit_err(static_analyzer::compile_time_unary_op(value, input.op, err, span)),
             }
         }
         (UnaryExpression { receiver, ..input }.into(), None)

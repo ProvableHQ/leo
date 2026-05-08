@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, MANIFEST_FILENAME, Manifest};
+use crate::{Location, MANIFEST_FILENAME, Manifest, errors};
 
 use leo_ast::DiGraph;
-use leo_errors::{PackageError, Result};
+use leo_errors::{Backtraced, Result};
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -31,17 +31,17 @@ pub struct WorkspaceManifest {
 }
 
 impl WorkspaceManifest {
-    pub fn read_from_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, PackageError> {
-        let contents = std::fs::read_to_string(&path)
-            .map_err(|e| PackageError::workspace_manifest_error(path.as_ref().display(), e))?;
-        serde_json::from_str(&contents).map_err(|e| PackageError::workspace_manifest_error(path.as_ref().display(), e))
+    pub fn read_from_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, Backtraced> {
+        let contents =
+            std::fs::read_to_string(&path).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
+        serde_json::from_str(&contents).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))
     }
 
-    pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> std::result::Result<(), PackageError> {
+    pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> std::result::Result<(), Backtraced> {
         let mut contents = serde_json::to_string_pretty(self)
-            .map_err(|e| PackageError::workspace_manifest_error(path.as_ref().display(), e))?;
+            .map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
         contents.push('\n');
-        std::fs::write(&path, contents).map_err(|e| PackageError::workspace_manifest_error(path.as_ref().display(), e))
+        std::fs::write(&path, contents).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))
     }
 }
 
@@ -70,7 +70,7 @@ impl Workspace {
         }
 
         let root_directory =
-            path.canonicalize().map_err(|e| PackageError::workspace_manifest_error(manifest_path.display(), e))?;
+            path.canonicalize().map_err(|e| errors::workspace_manifest_error(manifest_path.display(), e))?;
 
         let manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
 
@@ -79,16 +79,15 @@ impl Workspace {
         for member in &manifest.members {
             let member_dir = root_directory.join(member);
             if !member_dir.is_dir() {
-                return Err(PackageError::workspace_member_not_found(member, root_directory.display()).into());
+                return Err(errors::workspace_member_not_found(member, root_directory.display()).into());
             }
             let member_manifest_path = member_dir.join(MANIFEST_FILENAME);
             if !member_manifest_path.exists() {
-                return Err(PackageError::workspace_member_not_found(member, root_directory.display()).into());
+                return Err(errors::workspace_member_not_found(member, root_directory.display()).into());
             }
             let member_manifest = Manifest::read_from_file(&member_manifest_path)?;
-            let canonical = member_dir
-                .canonicalize()
-                .map_err(|e| PackageError::workspace_manifest_error(member_dir.display(), e))?;
+            let canonical =
+                member_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
             dir_to_name.push((canonical, member_manifest.program.clone()));
         }
 
@@ -105,8 +104,7 @@ impl Workspace {
     ///
     /// Returns `Ok(None)` if no workspace root is found.
     pub fn discover(start_dir: &Path) -> Result<Option<Self>> {
-        let start =
-            start_dir.canonicalize().map_err(|e| PackageError::workspace_manifest_error(start_dir.display(), e))?;
+        let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
         let mut dir = start.as_path();
         loop {
             if let Some(ws) = Self::from_directory(dir)? {
@@ -202,7 +200,7 @@ fn order_members(members: &[(PathBuf, String)]) -> Result<Vec<(PathBuf, String)>
     }
 
     let ordered = graph.post_order().map_err(|_| {
-        PackageError::workspace_manifest_error("workspace.json", "circular dependency between workspace members")
+        errors::workspace_manifest_error("workspace.json", "circular dependency between workspace members")
     })?;
 
     // Map the ordered directory names back to (path, program_name) pairs.
