@@ -24,6 +24,7 @@ mod document_store;
 mod features;
 mod panic_boundary;
 mod project_model;
+mod response_pool;
 mod scheduler;
 mod semantics;
 mod server;
@@ -76,6 +77,7 @@ pub fn run_standalone() -> ExitCode {
     }
 }
 
+/// Initialize stderr logging once for the process.
 fn init_logging() {
     // LSP servers must keep stdout reserved for protocol traffic, so route all
     // diagnostics through a best-effort stderr subscriber.

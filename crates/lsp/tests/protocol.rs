@@ -14,13 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! End-to-end protocol coverage for the `leo-lsp` binary.
+//!
+//! These tests drive the server through JSON-RPC requests and notifications so
+//! lifecycle, malformed-message handling, semantic tokens, definitions, and
+//! references are validated through the same transport surface used by editors.
+
 mod common;
 
 use self::common::TestServer;
 use lsp_types::Uri;
 use serde_json::{Value, json};
 use std::{fs, path::Path, time::Duration};
-use tempfile::tempdir;
+use tempfile::{TempDir, tempdir};
 
 /// Send the initialize request and return the raw response for protocol assertions.
 fn initialize(server: &mut TestServer) -> Value {
@@ -80,6 +86,68 @@ fn range_json(source: &str, needle: &str, occurrence: usize) -> Value {
     json!({ "start": position(start), "end": position(end) })
 }
 
+/// Write a minimal package around `source` and return its open/canonical URIs.
+fn write_test_package(source: &str) -> (TempDir, Uri, Uri) {
+    write_test_package_with_manifest(
+        source,
+        r#"{ "program": "demo.aleo", "version": "0.1.0", "description": "", "license": "MIT", "leo": "4.0.0" }"#,
+    )
+}
+
+/// Write a test package with a custom manifest and return its open/canonical URIs.
+fn write_test_package_with_manifest(source: &str, manifest: &str) -> (TempDir, Uri, Uri) {
+    let tempdir = tempdir().expect("tempdir");
+    let package_root = tempdir.path().join("example");
+    let source_dir = package_root.join("src");
+    fs::create_dir_all(&source_dir).expect("create source dir");
+    fs::write(package_root.join("program.json"), manifest).expect("write manifest");
+    let main_path = source_dir.join("main.leo");
+    fs::write(&main_path, source).expect("write source");
+    let document_uri = file_uri(&main_path);
+    let canonical_uri = file_uri(&main_path.canonicalize().expect("canonical main path"));
+    (tempdir, document_uri, canonical_uri)
+}
+
+/// Open a Leo document in the test server.
+fn open_document(server: &mut TestServer, document_uri: &Uri, source: &str) {
+    server.notify(
+        "textDocument/didOpen",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+                "languageId": "leo",
+                "version": 1,
+                "text": source,
+            }
+        }),
+    );
+}
+
+/// Request references for a substring occurrence.
+fn request_references(
+    server: &mut TestServer,
+    id: i64,
+    document_uri: &Uri,
+    source: &str,
+    needle: &str,
+    occurrence: usize,
+    include_declaration: bool,
+) -> Value {
+    server.request(
+        id,
+        "textDocument/references",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+            },
+            "position": position_json(source, needle, occurrence),
+            "context": {
+                "includeDeclaration": include_declaration,
+            }
+        }),
+    )
+}
+
 /// Verifies initialize, shutdown, and exit follow the LSP lifecycle.
 #[test]
 fn initialize_shutdown_exit_round_trip() {
@@ -97,6 +165,7 @@ fn initialize_shutdown_exit_round_trip() {
     );
     assert_eq!(initialize["result"]["capabilities"]["semanticTokensProvider"]["full"], json!(true));
     assert_eq!(initialize["result"]["capabilities"]["definitionProvider"], json!(true));
+    assert_eq!(initialize["result"]["capabilities"]["referencesProvider"], json!(true));
     assert_eq!(
         initialize["result"]["capabilities"]["semanticTokensProvider"]["legend"]["tokenTypes"],
         json!([
@@ -124,6 +193,318 @@ fn initialize_shutdown_exit_round_trip() {
     server.notify("exit", json!({}));
     let (status, stderr) = server.finish();
 
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies find-all-references returns local variable uses with LSP null/array semantics.
+#[test]
+fn references_returns_local_variable_occurrences() {
+    let tempdir = tempdir().expect("tempdir");
+    let package_root = tempdir.path().join("example");
+    let source_dir = package_root.join("src");
+    fs::create_dir_all(&source_dir).expect("create source dir");
+    fs::write(
+        package_root.join("program.json"),
+        r#"{ "program": "demo.aleo", "version": "0.1.0", "description": "", "license": "MIT", "leo": "4.0.0" }"#,
+    )
+    .expect("write manifest");
+
+    let source = concat!(
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let total: u32 = 1u32;\n",
+        "        let next: u32 = total + 1u32;\n",
+        "        return total + next;\n",
+        "    }\n",
+        "}\n",
+    );
+    let main_path = source_dir.join("main.leo");
+    fs::write(&main_path, source).expect("write source");
+    let document_uri = file_uri(&main_path);
+    let canonical_file_uri = file_uri(&main_path.canonicalize().expect("canonical main path"));
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+
+    server.notify(
+        "textDocument/didOpen",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+                "languageId": "leo",
+                "version": 1,
+                "text": source,
+            }
+        }),
+    );
+
+    let include_declaration = server.request(
+        2,
+        "textDocument/references",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+            },
+            "position": position_json(source, "total", 1),
+            "context": {
+                "includeDeclaration": true,
+            }
+        }),
+    );
+    assert_eq!(include_declaration["id"], 2);
+    let results = include_declaration["result"].as_array().expect("references array");
+    assert_eq!(results.len(), 3, "bad references response: {include_declaration}");
+    assert!(results.iter().all(|location| location["uri"] == json!(canonical_file_uri.to_string())));
+    assert_eq!(results[0]["range"], range_json(source, "total", 0));
+    assert_eq!(results[1]["range"], range_json(source, "total", 1));
+    assert_eq!(results[2]["range"], range_json(source, "total", 2));
+
+    let references_only = server.request(
+        3,
+        "textDocument/references",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+            },
+            "position": position_json(source, "total", 1),
+            "context": {
+                "includeDeclaration": false,
+            }
+        }),
+    );
+    let results = references_only["result"].as_array().expect("references-only array");
+    assert_eq!(results.len(), 2, "bad references-only response: {references_only}");
+    assert_eq!(results[0]["range"], range_json(source, "total", 1));
+    assert_eq!(results[1]["range"], range_json(source, "total", 2));
+
+    let shutdown = server.request(4, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies references cover compiler-backed parameters, functions, types, and members.
+#[test]
+fn references_cover_core_compiler_symbol_families() {
+    let source = concat!(
+        "const LIMIT: u32 = 3u32;\n\n",
+        "struct Point {\n",
+        "    x_coordinate: u32,\n",
+        "}\n\n",
+        "fn combine(left_value: u32, right_value: u32) -> u32 {\n",
+        "    let sum_value: u32 = left_value + LIMIT;\n",
+        "    return sum_value + right_value;\n",
+        "}\n\n",
+        "fn unused(unused_value: u32) -> u32 {\n",
+        "    return 0u32;\n",
+        "}\n\n",
+        "fn consume(point_value: Point) -> u32 {\n",
+        "    let first_value: u32 = point_value.x_coordinate;\n",
+        "    return first_value + point_value.x_coordinate;\n",
+        "}\n\n",
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let first_value: u32 = combine(1u32, LIMIT);\n",
+        "        return first_value + combine(2u32, LIMIT);\n",
+        "    }\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, canonical_uri) = write_test_package(source);
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let function = request_references(&mut server, 2, &document_uri, source, "combine", 1, true);
+    assert!(function["result"].is_array(), "bad function response: {function}");
+    let function_results = function["result"].as_array().expect("function references");
+    assert_eq!(function_results.len(), 3, "bad function references: {function}");
+    assert_eq!(function_results[0]["range"], range_json(source, "combine", 0));
+    assert_eq!(function_results[1]["range"], range_json(source, "combine", 1));
+    assert_eq!(function_results[2]["range"], range_json(source, "combine", 2));
+
+    let parameter = request_references(&mut server, 3, &document_uri, source, "left_value", 1, true);
+    let parameter_results = parameter["result"].as_array().expect("parameter references");
+    assert_eq!(parameter_results.len(), 2, "bad parameter references: {parameter}");
+    assert_eq!(parameter_results[0]["range"], range_json(source, "left_value", 0));
+    assert_eq!(parameter_results[1]["range"], range_json(source, "left_value", 1));
+
+    let declaration_only = request_references(&mut server, 4, &document_uri, source, "unused_value", 0, false);
+    assert_eq!(declaration_only["result"], json!([]), "declaration-only token should be navigable-empty");
+
+    let type_refs = request_references(&mut server, 5, &document_uri, source, "Point", 1, true);
+    let type_results = type_refs["result"].as_array().expect("type references");
+    assert_eq!(type_results.len(), 2, "bad type references: {type_refs}");
+    assert_eq!(type_results[0]["range"], range_json(source, "Point", 0));
+    assert_eq!(type_results[1]["range"], range_json(source, "Point", 1));
+
+    let member = request_references(&mut server, 6, &document_uri, source, "x_coordinate", 1, true);
+    let member_results = member["result"].as_array().expect("member references");
+    assert_eq!(member_results.len(), 3, "bad member references: {member}");
+    assert_eq!(member_results[0]["range"], range_json(source, "x_coordinate", 0));
+    assert_eq!(member_results[1]["range"], range_json(source, "x_coordinate", 1));
+    assert_eq!(member_results[2]["range"], range_json(source, "x_coordinate", 2));
+    assert!(member_results.iter().all(|location| location["uri"] == json!(canonical_uri.to_string())));
+
+    let unknown = request_references(&mut server, 7, &document_uri, source, "u32", 0, true);
+    assert_eq!(unknown["result"], Value::Null, "keyword/type primitive should not be a guessed reference target");
+
+    let shutdown = server.request(8, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies syntax fallback keys same-file program types and functions when dependency analysis cannot run.
+#[test]
+fn references_cover_syntax_fallback_program_type_and_function_occurrences() {
+    let source = concat!(
+        "import credits.aleo;\n\n",
+        "program demo.aleo {\n",
+        "    struct TransferAuth {\n",
+        "        amount: u64,\n",
+        "    }\n",
+        "\n",
+        "    fn main(first: u64, second: u64) -> u64 {\n",
+        "        let one: u64 = auth_digest(first);\n",
+        "        return one + auth_digest(second);\n",
+        "    }\n",
+        "}\n\n",
+        "// TransferAuth in comments is not a semantic reference.\n",
+        "fn auth_digest(amount: u64) -> u64 {\n",
+        "    let auth: TransferAuth = TransferAuth { amount: amount };\n",
+        "    return auth.amount;\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, canonical_uri) = write_test_package_with_manifest(
+        source,
+        r#"{
+  "program": "demo.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.0.0",
+  "dependencies": [{ "name": "credits.aleo", "location": "network", "path": null, "edition": null }]
+}"#,
+    );
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let response = request_references(&mut server, 2, &document_uri, source, "TransferAuth", 0, true);
+    let results = response["result"].as_array().expect("syntax fallback type references");
+    assert_eq!(results.len(), 3, "bad syntax fallback references: {response}");
+    assert!(results.iter().all(|location| location["uri"] == json!(canonical_uri.to_string())));
+    assert_eq!(results[0]["range"], range_json(source, "TransferAuth", 0));
+    assert_eq!(results[1]["range"], range_json(source, "TransferAuth", 2));
+    assert_eq!(results[2]["range"], range_json(source, "TransferAuth", 3));
+
+    let response = request_references(&mut server, 3, &document_uri, source, "auth_digest", 2, true);
+    let results = response["result"].as_array().expect("syntax fallback function references");
+    assert_eq!(results.len(), 3, "bad syntax fallback function references: {response}");
+    assert_eq!(results[0]["range"], range_json(source, "auth_digest", 0));
+    assert_eq!(results[1]["range"], range_json(source, "auth_digest", 1));
+    assert_eq!(results[2]["range"], range_json(source, "auth_digest", 2));
+
+    let shutdown = server.request(4, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies references on an unopened document return `null`.
+#[test]
+fn references_on_unopened_document_returns_null() {
+    let source = "program demo.aleo {}\n";
+    let (_tempdir, document_uri, _) = write_test_package(source);
+    let mut server = TestServer::spawn(&[]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+
+    let response = request_references(&mut server, 2, &document_uri, source, "demo", 0, true);
+    assert_eq!(response["result"], Value::Null);
+
+    let shutdown = server.request(3, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies imported program namespaces return both import-site and dependency-source references.
+#[test]
+fn references_return_source_dependency_program_namespace_occurrences() {
+    let tempdir = tempdir().expect("tempdir");
+    let helper_root = tempdir.path().join("helper");
+    fs::create_dir_all(helper_root.join("src")).expect("create helper source dir");
+    fs::write(
+        helper_root.join("program.json"),
+        r#"{ "program": "helper.aleo", "version": "0.1.0", "description": "", "license": "MIT", "leo": "4.0.0" }"#,
+    )
+    .expect("write helper manifest");
+    let helper_source = "program helper.aleo {\n    fn double(x: u32) -> u32 { return x + x; }\n}\n";
+    let helper_main = helper_root.join("src").join("main.leo");
+    fs::write(&helper_main, helper_source).expect("write helper source");
+    let helper_root = helper_root.canonicalize().expect("canonical helper root");
+    let helper_uri = file_uri(&helper_main.canonicalize().expect("canonical helper source"));
+
+    let root = tempdir.path().join("root");
+    fs::create_dir_all(root.join("src")).expect("create root source dir");
+    fs::write(
+        root.join("program.json"),
+        format!(
+            r#"{{
+  "program": "demo.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.0.0",
+  "dependencies": [{{ "name": "helper.aleo", "location": "local", "path": {} }}]
+}}"#,
+            serde_json::to_string(&helper_root).expect("helper root json")
+        ),
+    )
+    .expect("write root manifest");
+    let source = concat!(
+        "import helper.aleo;\n\n",
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        return helper.aleo::double(1u32);\n",
+        "    }\n",
+        "}\n",
+    );
+    let main_path = root.join("src").join("main.leo");
+    fs::write(&main_path, source).expect("write root source");
+    let document_uri = file_uri(&main_path);
+    let canonical_uri = file_uri(&main_path.canonicalize().expect("canonical root source"));
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let response = request_references(&mut server, 2, &document_uri, source, "helper", 1, true);
+    let results = response["result"].as_array().expect("program namespace references");
+    assert_eq!(results.len(), 3, "bad namespace references: {response}");
+    assert_eq!(results[0]["uri"], json!(canonical_uri.to_string()));
+    assert_eq!(results[0]["range"], range_json(source, "helper", 0));
+    assert_eq!(results[1]["uri"], json!(canonical_uri.to_string()));
+    assert_eq!(results[1]["range"], range_json(source, "helper", 1));
+    assert_eq!(results[2]["uri"], json!(helper_uri.to_string()));
+    assert_eq!(results[2]["range"], range_json(helper_source, "helper", 0));
+
+    let shutdown = server.request(3, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
     assert!(status.success(), "stderr:\n{stderr}");
 }
 
