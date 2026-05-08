@@ -59,7 +59,7 @@ rayon              = "1.11"
 regex              = "1.11"
 reqwest            = { version = "0.13", features = ["blocking", "json"] }
 rowan              = "0.16"
-rpassword          = "7.4"
+rpassword          = "7.5"
 scoped-tls         = "1.0"
 self_update        = { version = "0.42", features = [ "archive-zip", "compression-zip-deflate" ] }
 serde              = { version = "1.0", features = [ "derive", "rc" ] }
