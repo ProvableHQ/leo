@@ -45,20 +45,7 @@ Each member is a self-contained Leo package. It has its own `build/` and `output
 
 Members can depend on each other using [local path dependencies](./02_dependencies.md#local-dependencies). For example, if `swap` depends on `token`, its `program.json` would include:
 
-```json
-{
-  "program": "swap.aleo",
-  "version": "0.1.0",
-  "description": "",
-  "license": "MIT",
-  "dependencies": [
-    {
-      "name": "token.aleo",
-      "location": "local",
-      "path": "../token"
-    }
-  ]
-}
+```json file=../code_snippets/workspaces/swap/program.json title="swap/program.json"
 ```
 
 The `path` field is relative to the member's own directory, just like any other local dependency.
@@ -68,6 +55,8 @@ The `path` field is relative to the member's own directory, just like any other 
 Leo automatically determines the correct build order by analyzing the dependency graph across workspace members. When one member depends on another, Leo ensures the dependency is built first.
 
 In the example above, `token` has no dependencies and `swap` depends on `token`, so Leo builds `token` first, then `swap`. This ordering is computed automatically regardless of the order members are listed in `workspace.json`.
+
+If the dependency graph contains a cycle (e.g., A depends on B and B depends on A), Leo reports an error rather than attempting to build.
 
 ## Working with Workspaces
 
@@ -132,7 +121,7 @@ The flag accepts any of:
 - The program name with `.aleo` suffix (e.g., `token.aleo`)
 - The program name without suffix (e.g., `token`)
 
-If the name does not match any workspace member, Leo reports an error with the list of available members.
+If the name does not match any workspace member, Leo reports an error and suggests checking the `members` list in `workspace.json`.
 
 ## Example
 
