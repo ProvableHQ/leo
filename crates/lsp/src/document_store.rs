@@ -16,6 +16,13 @@
 
 #![allow(clippy::mutable_key_type)]
 
+//! Open-document state, freshness keys, and worker snapshots for `leo-lsp`.
+//!
+//! The server owns mutable editor state on the routing thread. This module is
+//! the boundary that turns LSP open/change/close events into immutable worker
+//! snapshots with generation and bucket keys strong enough to reject stale
+//! package analysis, semantic-token views, and navigation responses.
+
 use crate::project_model::ProjectContext;
 use line_index::LineIndex;
 use lsp_types::Uri;
@@ -81,15 +88,23 @@ pub struct OpenFileOverlay {
 /// recent committed generation for that URI.
 #[derive(Debug)]
 pub struct OpenDocument {
+    /// LSP language identifier supplied by the client.
     pub language_id: Arc<str>,
+    /// Latest committed editor text.
     pub text: Arc<str>,
+    /// Line index for the latest committed editor text.
     pub line_index: Arc<LineIndex>,
+    /// Latest LSP document version supplied by the client.
     pub version: i32,
+    /// Monotonic per-URI document generation.
     pub generation: u64,
+    /// Native file path, when the URI resolves to a local file.
     pub file_path: Option<Arc<PathBuf>>,
+    /// Resolved Leo project context, when the file belongs to a package.
     pub project: Option<Arc<ProjectContext>>,
     /// Package-sized invalidation bucket this open document contributes to.
     pub analysis_bucket: AnalysisBucket,
+    /// Shared generation token used by worker jobs to detect stale snapshots.
     pub cancel_token: Arc<AtomicU64>,
 }
 
@@ -99,15 +114,22 @@ pub struct OpenDocument {
 /// matching `generation`, even if the URI still refers to an open document.
 #[derive(Debug, Clone)]
 pub struct DocumentSnapshot {
+    /// Open document URI that triggered package analysis.
     pub uri: Uri,
+    /// Committed text for the trigger document.
     pub text: Arc<str>,
+    /// Line index for the trigger document text.
     #[allow(dead_code)]
     pub line_index: Arc<LineIndex>,
+    /// LSP document version for the trigger document.
     #[allow(dead_code)]
     pub version: i32,
+    /// Document generation captured when this snapshot was prepared.
     pub generation: u64,
+    /// Native file path for the trigger document, if any.
     #[allow(dead_code)]
     pub file_path: Option<Arc<PathBuf>>,
+    /// Project context captured with the trigger document.
     #[allow(dead_code)]
     pub project: Option<Arc<ProjectContext>>,
     /// Package-analysis key for this snapshot's package-sized inputs.
@@ -116,18 +138,26 @@ pub struct DocumentSnapshot {
     pub view_key: DocumentViewKey,
     /// Same-package open buffers visible to compiler analysis.
     pub open_overlays: Arc<[OpenFileOverlay]>,
+    /// Shared generation token checked before and during worker analysis.
     pub cancel_token: Arc<AtomicU64>,
 }
 
 /// Document-sized worker input for rebuilding one semantic-token view.
 #[derive(Debug, Clone)]
 pub struct DocumentViewSnapshot {
+    /// Freshness key for the document view being rebuilt.
     pub key: DocumentViewKey,
+    /// Open document URI for the encoded semantic-token view.
     pub uri: Uri,
+    /// Committed document text to encode.
     pub text: Arc<str>,
+    /// Line index for the committed document text.
     pub line_index: Arc<LineIndex>,
+    /// Native file path for the document, if any.
     pub file_path: Option<Arc<PathBuf>>,
+    /// Project context captured with the document.
     pub project: Option<Arc<ProjectContext>>,
+    /// Shared generation token checked before worker results are accepted.
     pub cancel_token: Arc<AtomicU64>,
 }
 
@@ -302,6 +332,11 @@ impl DocumentStore {
     /// Return the committed document for main-thread request handling.
     pub fn open_document(&self, uri: &Uri) -> Option<&OpenDocument> {
         self.documents.get(uri)
+    }
+
+    /// Iterate currently open documents with their owning URIs.
+    pub fn iter_open(&self) -> impl Iterator<Item = (&Uri, &OpenDocument)> {
+        self.documents.iter()
     }
 
     /// Build the latest package-analysis snapshot for an open document.

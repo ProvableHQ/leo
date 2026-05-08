@@ -22,6 +22,7 @@
 
 use crate::{
     document_store::{DocumentSnapshot, DocumentViewSnapshot, OpenFileOverlay},
+    features::lsp_range::hash_text,
     project_model::{ProjectContext, ProjectKind},
     semantics::{
         FileRange,
@@ -40,7 +41,6 @@ use leo_span::{Symbol, create_session_if_not_set_then};
 use std::{
     collections::HashMap,
     fs::{self, Metadata},
-    hash::{DefaultHasher, Hash, Hasher},
     path::{Path, PathBuf},
     sync::Arc,
     time::UNIX_EPOCH,
@@ -182,17 +182,18 @@ fn syntax_program_targets(
     project: Option<&Arc<ProjectContext>>,
     open_overlays: &[OpenFileOverlay],
     target_mode: ProgramTargetMode,
-) -> (HashMap<String, FileRange>, HashMap<PathBuf, SourceFingerprint>) {
+) -> (HashMap<String, ProgramSyntaxTarget>, HashMap<PathBuf, SourceFingerprint>) {
     let mut targets = HashMap::new();
     let mut fingerprints = HashMap::new();
     if target_mode == ProgramTargetMode::None {
         return (targets, fingerprints);
     }
 
-    add_program_targets_from_text(text, &document_path, &mut targets);
+    let current_root = project.map(|project| Arc::clone(&project.package_root));
+    add_program_targets_from_text(text, &document_path, current_root.as_ref(), &mut targets);
     for overlay in open_overlays {
         if overlay.path.as_ref() != document_path.as_ref() {
-            add_program_targets_from_text(overlay.text.as_ref(), &overlay.path, &mut targets);
+            add_program_targets_from_text(overlay.text.as_ref(), &overlay.path, current_root.as_ref(), &mut targets);
         }
     }
     if target_mode == ProgramTargetMode::LocalDependencies
@@ -203,24 +204,43 @@ fn syntax_program_targets(
     (targets, fingerprints)
 }
 
+/// Syntax-only import target with the declaration and stable program root.
+#[derive(Debug, Clone)]
+struct ProgramSyntaxTarget {
+    declaration: FileRange,
+    package_root: Option<Arc<PathBuf>>,
+}
+
 /// Add `program name.aleo` declarations from one parsed source to the target map.
-fn add_program_targets_from_text(text: &str, path: &Arc<PathBuf>, targets: &mut HashMap<String, FileRange>) {
+fn add_program_targets_from_text(
+    text: &str,
+    path: &Arc<PathBuf>,
+    package_root: Option<&Arc<PathBuf>>,
+    targets: &mut HashMap<String, ProgramSyntaxTarget>,
+) {
     let Ok(tree) = parse_main(text) else {
         return;
     };
-    collect_program_target_tokens(&tree, path, targets);
+    collect_program_target_tokens(&tree, path, package_root, targets);
 }
 
 /// Recursively collect program declaration name tokens from a Rowan tree.
-fn collect_program_target_tokens(node: &SyntaxNode, path: &Arc<PathBuf>, targets: &mut HashMap<String, FileRange>) {
+fn collect_program_target_tokens(
+    node: &SyntaxNode,
+    path: &Arc<PathBuf>,
+    package_root: Option<&Arc<PathBuf>>,
+    targets: &mut HashMap<String, ProgramSyntaxTarget>,
+) {
     for element in node.children_with_tokens() {
         match element {
-            SyntaxElement::Node(child) => collect_program_target_tokens(&child, path, targets),
+            SyntaxElement::Node(child) => collect_program_target_tokens(&child, path, package_root, targets),
             SyntaxElement::Token(token) if is_program_declaration_token(&token) => {
                 if let Some(range) =
                     FileRange::new(Arc::clone(path), token.text_range().start().into(), token.text_range().end().into())
                 {
-                    targets.entry(token.text().to_owned()).or_insert(range);
+                    targets
+                        .entry(token.text().to_owned())
+                        .or_insert(ProgramSyntaxTarget { declaration: range, package_root: package_root.cloned() });
                 }
             }
             SyntaxElement::Token(_) => {}
@@ -231,7 +251,7 @@ fn collect_program_target_tokens(node: &SyntaxNode, path: &Arc<PathBuf>, targets
 /// Add local manifest dependency program declarations to syntax-only import targets.
 fn add_local_dependency_program_targets(
     project: &ProjectContext,
-    targets: &mut HashMap<String, FileRange>,
+    targets: &mut HashMap<String, ProgramSyntaxTarget>,
     fingerprints: &mut HashMap<PathBuf, SourceFingerprint>,
 ) {
     let Ok(manifest) = Manifest::read_from_file(project.manifest_path.as_ref()) else {
@@ -239,7 +259,8 @@ fn add_local_dependency_program_targets(
     };
 
     for dependency in manifest.dependencies.iter().flatten() {
-        let Some(source_path) = dependency_source_path(project.package_root.as_ref(), dependency) else {
+        let Some((source_path, package_root)) = dependency_source_path(project.package_root.as_ref(), dependency)
+        else {
             continue;
         };
         let Some((source, fingerprint)) = read_stable_source(source_path.as_path()) else {
@@ -247,24 +268,26 @@ fn add_local_dependency_program_targets(
         };
         let source_path = source_path.canonicalize().unwrap_or(source_path);
         let source_path = Arc::new(source_path);
-        add_program_targets_from_text(source.as_str(), &source_path, targets);
+        let package_root = Arc::new(package_root);
+        add_program_targets_from_text(source.as_str(), &source_path, Some(&package_root), targets);
         fingerprints.insert(source_path.as_ref().clone(), fingerprint);
     }
 }
 
 /// Return the package-resolved source path for a local dependency.
-fn dependency_source_path(package_root: &Path, dependency: &Dependency) -> Option<PathBuf> {
+fn dependency_source_path(package_root: &Path, dependency: &Dependency) -> Option<(PathBuf, PathBuf)> {
     if dependency.location != Location::Local {
         return None;
     }
     let path = dependency.path.as_deref()?;
     let root = if path.is_absolute() { path.to_path_buf() } else { package_root.join(path) };
+    let dependency_root = root.canonicalize().unwrap_or_else(|_| root.clone());
     let unit =
         create_session_if_not_set_then(|_| CompilationUnit::from_package_path(Symbol::intern(&dependency.name), root));
     let ProgramData::SourcePath { source, .. } = unit.ok()?.data else {
         return None;
     };
-    Some(source)
+    Some((source, dependency_root))
 }
 
 /// Read a source file and return a fingerprint for the exact bytes consumed.
@@ -287,19 +310,51 @@ struct SyntaxSemanticCollector {
     path: Arc<PathBuf>,
     semantics: SyntaxSemantics,
     local_scopes: Vec<HashMap<String, SyntaxLocalBinding>>,
-    program_targets: HashMap<String, FileRange>,
+    function_bindings: HashMap<String, FileRange>,
+    type_bindings: HashMap<String, FileRange>,
+    program_targets: HashMap<String, ProgramSyntaxTarget>,
 }
 
 impl SyntaxSemanticCollector {
     /// Create a new syntax collector for one document path.
-    fn new(path: Arc<PathBuf>, program_targets: HashMap<String, FileRange>) -> Self {
-        Self { path, semantics: SyntaxSemantics::default(), local_scopes: vec![HashMap::new()], program_targets }
+    fn new(path: Arc<PathBuf>, program_targets: HashMap<String, ProgramSyntaxTarget>) -> Self {
+        Self {
+            path,
+            semantics: SyntaxSemantics::default(),
+            local_scopes: vec![HashMap::new()],
+            function_bindings: HashMap::new(),
+            type_bindings: HashMap::new(),
+            program_targets,
+        }
     }
 
     /// Walk a Rowan syntax tree and emit best-effort semantic data.
     fn collect(mut self, tree: &SyntaxNode) -> SyntaxSemantics {
+        self.collect_file_bindings(tree);
         self.collect_node(tree);
         self.semantics
+    }
+
+    /// Pre-bind same-file items so fallback references are not order-sensitive.
+    fn collect_file_bindings(&mut self, node: &SyntaxNode) {
+        for element in node.children_with_tokens() {
+            match element {
+                SyntaxElement::Node(child) => self.collect_file_bindings(&child),
+                SyntaxElement::Token(token) => {
+                    let Some((
+                        token_kind @ (SemanticKind::Function | SemanticKind::Type | SemanticKind::Interface),
+                        OccurrenceRole::Declaration,
+                        _,
+                    )) = classify_syntax_token(&token)
+                    else {
+                        continue;
+                    };
+                    if let Some(range) = self.token_range(&token) {
+                        self.bind_file_item(&token, token_kind, range);
+                    }
+                }
+            }
+        }
     }
 
     /// Recursively walk syntax in source order while maintaining lightweight local scopes.
@@ -330,11 +385,16 @@ impl SyntaxSemanticCollector {
 
         let classification = classify_syntax_token(token).or_else(|| self.classify_local_reference(token));
         if let Some((token_kind, role, readonly)) = classification {
-            self.push_symbol_token(token, token_kind, role, readonly);
-            if role == OccurrenceRole::Declaration
-                && matches!(token_kind, SemanticKind::Parameter | SemanticKind::Variable)
+            if let Some(range) = self.push_symbol_token(token, token_kind, role, readonly)
+                && role == OccurrenceRole::Declaration
             {
-                self.bind_local(token, token_kind, readonly);
+                match token_kind {
+                    SemanticKind::Parameter | SemanticKind::Variable => self.bind_local(token, token_kind, readonly),
+                    SemanticKind::Function | SemanticKind::Type | SemanticKind::Interface => {
+                        self.bind_file_item(token, token_kind, range);
+                    }
+                    _ => {}
+                }
             }
         } else if let Some(token_kind) = classify_lexical_token(token.kind()) {
             self.push_lexical_token(token, token_kind);
@@ -350,7 +410,15 @@ impl SyntaxSemanticCollector {
         let name = create_session_if_not_set_then(|_| Symbol::intern(token.text()));
         Some(SymbolOccurrence {
             range,
-            identity: SymbolIdentity::Program { name, declaration: self.program_targets.get(token.text()).cloned() },
+            identity: self
+                .program_targets
+                .get(token.text())
+                .map(|target| SymbolIdentity::Program {
+                    program: name,
+                    package_root: target.package_root.clone(),
+                    declaration: Some(target.declaration.clone()),
+                })
+                .unwrap_or(SymbolIdentity::Unknown),
             role: OccurrenceRole::Reference,
             token_kind: SemanticKind::Namespace,
             readonly: false,
@@ -364,17 +432,45 @@ impl SyntaxSemanticCollector {
         token_kind: SemanticKind,
         role: OccurrenceRole,
         readonly: bool,
-    ) {
-        let Some(range) = self.token_range(token) else {
-            return;
-        };
+    ) -> Option<FileRange> {
+        let range = self.token_range(token)?;
+        let identity = self.symbol_identity(token, token_kind, role, &range);
         self.semantics.occurrences.push(SymbolOccurrence {
-            range,
-            identity: SymbolIdentity::Unknown,
+            range: range.clone(),
+            identity,
             role,
             token_kind,
             readonly,
         });
+        Some(range)
+    }
+
+    /// Return the strongest syntax-only identity available for this token.
+    fn symbol_identity(
+        &self,
+        token: &SyntaxToken,
+        token_kind: SemanticKind,
+        role: OccurrenceRole,
+        range: &FileRange,
+    ) -> SymbolIdentity {
+        match (token_kind, role) {
+            (SemanticKind::Function | SemanticKind::Type | SemanticKind::Interface, OccurrenceRole::Declaration) => {
+                SymbolIdentity::Local { declaration: range.clone() }
+            }
+            (SemanticKind::Function, OccurrenceRole::Reference) => self
+                .function_bindings
+                .get(token.text())
+                .cloned()
+                .map(|declaration| SymbolIdentity::Local { declaration })
+                .unwrap_or(SymbolIdentity::Unknown),
+            (SemanticKind::Type | SemanticKind::Interface, OccurrenceRole::Reference) => self
+                .type_bindings
+                .get(token.text())
+                .cloned()
+                .map(|declaration| SymbolIdentity::Local { declaration })
+                .unwrap_or(SymbolIdentity::Unknown),
+            _ => SymbolIdentity::Unknown,
+        }
     }
 
     /// Record a lexical token that is useful for highlighting but not navigation.
@@ -399,6 +495,19 @@ impl SyntaxSemanticCollector {
     fn bind_local(&mut self, token: &SyntaxToken, token_kind: SemanticKind, readonly: bool) {
         if let Some(scope) = self.local_scopes.last_mut() {
             scope.insert(token.text().to_owned(), SyntaxLocalBinding { token_kind, readonly });
+        }
+    }
+
+    /// Bind a syntax-visible file item for later same-file references.
+    fn bind_file_item(&mut self, token: &SyntaxToken, token_kind: SemanticKind, declaration: FileRange) {
+        match token_kind {
+            SemanticKind::Function => {
+                self.function_bindings.insert(token.text().to_owned(), declaration);
+            }
+            SemanticKind::Type | SemanticKind::Interface => {
+                self.type_bindings.insert(token.text().to_owned(), declaration);
+            }
+            _ => {}
         }
     }
 
@@ -648,9 +757,7 @@ fn disk_stamp(metadata: &Metadata) -> Option<DiskStamp> {
 
 /// Hash source text for stale-target detection without retaining full text.
 fn content_hash(contents: &str) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    contents.hash(&mut hasher);
-    hasher.finish()
+    hash_text(contents)
 }
 
 /// Convert file metadata modification time into a nanosecond stamp.
@@ -732,8 +839,8 @@ mod tests {
         let has_symbol = |spelling: &str, token_kind: SemanticKind, role: Option<OccurrenceRole>| {
             semantic_snapshot.index.occurrences.iter().any(|occurrence| {
                 &source[occurrence.range.start as usize..occurrence.range.end as usize] == spelling
-                    && occurrence.token_kind == token_kind
-                    && role.is_none_or(|role| occurrence.role == role)
+                    && occurrence.token_kind() == token_kind
+                    && role.is_none_or(|role| occurrence.role() == role)
             })
         };
         let has_lexical_token = |spelling: &str, token_kind: SemanticKind| {
@@ -762,7 +869,7 @@ mod tests {
                 .index
                 .occurrences
                 .iter()
-                .any(|occurrence| lexical_kinds.contains(&occurrence.token_kind)),
+                .any(|occurrence| lexical_kinds.contains(&occurrence.token_kind())),
             "lexical tokens should not pollute the symbol index"
         );
 

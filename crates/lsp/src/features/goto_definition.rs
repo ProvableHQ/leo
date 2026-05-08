@@ -24,18 +24,13 @@
 
 use crate::{
     document_store::DocumentViewKey,
-    project_model::path_to_file_uri,
-    semantics::{CachedPackageAnalysis, CompactRange, SourceFingerprint},
+    features::lsp_range::{compact_range_to_location_parts, compact_range_to_origin_lsp_range},
+    semantics::CachedPackageAnalysis,
 };
-use line_index::{LineIndex, TextSize, WideEncoding, WideLineCol};
+use line_index::LineIndex;
 use lsp_types::{GotoDefinitionResponse, Location, LocationLink, Position, Range, Uri};
 use serde_json::Value;
-use std::{
-    hash::{DefaultHasher, Hash, Hasher},
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::UNIX_EPOCH,
-};
+use std::{path::PathBuf, sync::Arc};
 
 /// Cursor query captured before any async package-analysis wait.
 ///
@@ -72,13 +67,6 @@ pub enum DefinitionResult {
     Links(Vec<LocationLink>),
 }
 
-/// Convert an LSP UTF-16 position into a byte offset for the current document.
-pub fn position_to_offset(line_index: &LineIndex, position: Position) -> Option<u32> {
-    let wide = WideLineCol { line: position.line, col: position.character };
-    let utf8 = line_index.to_utf8(WideEncoding::Utf16, wide)?;
-    Some(u32::from(line_index.offset(utf8)?))
-}
-
 /// Resolve a go-to-definition query against a fresh package analysis.
 pub fn resolve(query: &DefinitionQuery, package: &CachedPackageAnalysis) -> DefinitionResult {
     let Some(occurrence) = package.index.occurrence_at(query.file_path.as_ref(), query.offset) else {
@@ -88,13 +76,19 @@ pub fn resolve(query: &DefinitionQuery, package: &CachedPackageAnalysis) -> Defi
         return DefinitionResult::None;
     };
 
-    let origin_range = compact_range_to_open_lsp_range(occurrence.occurrence.range, package, &query.line_index)
-        .unwrap_or_else(|| Range::new(query.position, query.position));
+    let origin_range = compact_range_to_origin_lsp_range(
+        occurrence.occurrence.range,
+        package.analyzed_files.as_ref(),
+        &query.line_index,
+    )
+    .unwrap_or_else(|| Range::new(query.position, query.position));
     let mut locations = Vec::new();
     let mut links = Vec::new();
 
     for target in package.index.definitions_for(key_id) {
-        let Some((target_uri, target_range)) = compact_range_to_location_parts(*target, package) else {
+        let Some((target_uri, target_range)) =
+            compact_range_to_location_parts(*target, package.analyzed_files.as_ref())
+        else {
             continue;
         };
 
@@ -128,73 +122,4 @@ pub fn response_value(result: DefinitionResult) -> Value {
         DefinitionResult::Links(links) => serde_json::to_value(GotoDefinitionResponse::Link(links))
             .expect("GotoDefinitionResponse::Link should serialize"),
     }
-}
-
-/// Convert a source occurrence range in the requesting open buffer to LSP coordinates.
-fn compact_range_to_open_lsp_range(
-    range: CompactRange,
-    package: &CachedPackageAnalysis,
-    line_index: &LineIndex,
-) -> Option<Range> {
-    let file = package.analyzed_files.get(range.file)?;
-    if !matches!(file.fingerprint, SourceFingerprint::OpenBuffer) {
-        return None;
-    }
-    byte_range_to_lsp_range(line_index, range.start, range.end)
-}
-
-/// Convert a compact definition target into a safe external URI/range pair.
-fn compact_range_to_location_parts(range: CompactRange, package: &CachedPackageAnalysis) -> Option<(Uri, Range)> {
-    let file = package.analyzed_files.get(range.file)?;
-    let uri = path_to_file_uri(file.path.as_ref())?;
-    let lsp_range = match &file.fingerprint {
-        SourceFingerprint::OpenBuffer => {
-            byte_range_to_lsp_range(file.open_line_index.as_ref()?, range.start, range.end)?
-        }
-        SourceFingerprint::Disk { .. } => {
-            // Disk-backed targets are only emitted if the file still matches the
-            // exact bytes analyzed by the worker. This avoids returning ranges
-            // into a dependency file that changed after indexing.
-            let text = read_verified_disk_text(file.path.as_ref(), &file.fingerprint)?;
-            let line_index = LineIndex::new(text.as_str());
-            byte_range_to_lsp_range(&line_index, range.start, range.end)?
-        }
-        SourceFingerprint::Volatile => return None,
-    };
-    Some((uri, lsp_range))
-}
-
-/// Convert UTF-8 byte offsets into the UTF-16 positions required by LSP.
-fn byte_range_to_lsp_range(line_index: &LineIndex, start: u32, end: u32) -> Option<Range> {
-    let start = line_index.try_line_col(TextSize::from(start))?;
-    let end = line_index.try_line_col(TextSize::from(end))?;
-    let start = line_index.to_wide(WideEncoding::Utf16, start)?;
-    let end = line_index.to_wide(WideEncoding::Utf16, end)?;
-    Some(Range::new(Position::new(start.line, start.col), Position::new(end.line, end.col)))
-}
-
-/// Re-read disk text only when it still matches the analysis fingerprint.
-fn read_verified_disk_text(path: &Path, expected: &SourceFingerprint) -> Option<String> {
-    let SourceFingerprint::Disk { modified_nanos, len, content_hash } = expected else {
-        return None;
-    };
-    let metadata = std::fs::metadata(path).ok()?;
-    let current_modified = metadata.modified().ok()?.duration_since(UNIX_EPOCH).ok()?.as_nanos();
-    // Size and mtime are cheap rejection tests; the content hash is the final
-    // guard for same-size rewrites or coarse filesystem timestamp behavior.
-    if *len != metadata.len() || *modified_nanos != Some(current_modified) {
-        return None;
-    }
-    let text = std::fs::read_to_string(path).ok()?;
-    if *content_hash != hash_text(text.as_str()) {
-        return None;
-    }
-    Some(text)
-}
-
-/// Hash text using the same lightweight process-local hasher as analysis.
-fn hash_text(text: &str) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    text.hash(&mut hasher);
-    hasher.finish()
 }
