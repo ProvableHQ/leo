@@ -98,4 +98,4 @@ leo execute main --json-output=my-results.json
 
 ### `-p <NAME>`
 
-Target a specific [workspace](../guides/13_workspaces.md) member by name. Matches the member's directory name, program name (e.g., `token.aleo`), or program name without the `.aleo` suffix. Only valid inside a workspace - errors if no `workspace.json` is found.
+Target a specific [workspace](../guides/03_workspaces.md) member by name. Matches the member's directory name, program name (e.g., `token.aleo`), or program name without the `.aleo` suffix. Only valid inside a workspace - errors if no `workspace.json` is found.

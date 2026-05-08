@@ -12,7 +12,7 @@ toc_max_heading_level: 2
 
 Upgrades a program that is already deployed on the network.
 
-See the **[Upgrading Programs](./../guides/09_program_upgradability.md)** guide for more details.
+See the **[Upgrading Programs](./../guides/10_program_upgradability.md)** guide for more details.
 
 ## Flags
 

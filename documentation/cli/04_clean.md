@@ -21,7 +21,7 @@ leo clean
 
 ## Workspace Behavior
 
-When run inside a [workspace](../guides/13_workspaces.md):
+When run inside a [workspace](../guides/03_workspaces.md):
 
 - **From workspace root:** Cleans build artifacts for all members.
 - **From a member directory:** Cleans only that member.
