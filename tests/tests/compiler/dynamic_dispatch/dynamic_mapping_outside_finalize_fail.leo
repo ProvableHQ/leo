@@ -4,7 +4,7 @@ interface Bank {
 }
 
 program test.aleo {
-    fn query(target: field, key: address) -> u64 {
+    fn lookup(target: field, key: address) -> u64 {
         return Bank@(target)::balances.get(key);
     }
 }

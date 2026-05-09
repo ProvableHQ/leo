@@ -91,8 +91,15 @@ pub fn generate(aleo: &ast::AleoProgram) -> abi::Program {
         .map(|(_, f)| convert_function_stub(f, &record_names))
         .collect();
 
+    let queries = aleo
+        .functions
+        .iter()
+        .filter(|(_, f)| f.variant.is_query())
+        .map(|(_, f)| convert_function_stub(f, &record_names))
+        .collect();
+
     let mut program =
-        abi::Program { program, implements: vec![], structs, records, mappings, storage_variables, functions };
+        abi::Program { program, implements: vec![], structs, records, mappings, storage_variables, functions, queries };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);

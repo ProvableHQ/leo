@@ -51,6 +51,11 @@ pub struct Program {
     /// Public entry points (program functions only, not internal helpers).
     /// Compiled to Aleo `transition`s.
     pub functions: Vec<Function>,
+    /// Read-only `query fn` entry points (V15). Compiled to Aleo `query` blocks.
+    /// Off-consensus, plaintext-only inputs and outputs, no transactions or fees.
+    /// Defaults to empty for backwards compatibility with pre-V15 ABI consumers.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub queries: Vec<Function>,
 }
 
 /// The ABI for a single Leo interface.

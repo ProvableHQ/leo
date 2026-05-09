@@ -363,7 +363,7 @@ fn handle_execute<A: Aleo>(
     }
 
     // Initialize an RNG.
-    let rng = &mut rand::thread_rng();
+    let rng = &mut rand::rng();
 
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
@@ -398,7 +398,7 @@ fn handle_execute<A: Aleo>(
             (program, edition)
         })
         .collect::<Vec<_>>();
-    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+    vm.process().lock().add_programs_with_editions(&programs_and_editions)?;
 
     // Load any extra programs specified via `--with`.
     if !command.with.is_empty() {
@@ -416,7 +416,6 @@ fn handle_execute<A: Aleo>(
     let authorization = if command.skip_execute_proof {
         println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
         vm.process()
-            .read()
             .authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)
             .map_err(|e| anyhow::anyhow!("{e}"))?
     } else {
@@ -427,7 +426,7 @@ fn handle_execute<A: Aleo>(
 
     // Estimate and display execution cost.
     let (estimated_cost, (est_storage, est_exec)) =
-        execution_cost_for_authorization(&vm.process().read(), &authorization, consensus_version)?;
+        execution_cost_for_authorization(vm.process(), &authorization, consensus_version)?;
     let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
 
     // Generate the transaction (the method differs based on skip_execute_proof).
@@ -439,7 +438,7 @@ fn handle_execute<A: Aleo>(
         let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
 
         // Calculate the actual cost for fee authorization.
-        let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
+        let (cost, _) = execution_cost(vm.process(), &execution, consensus_version)?;
 
         // Generate the fee authorization.
         let id = authorization.to_execution_id()?;
@@ -460,7 +459,7 @@ fn handle_execute<A: Aleo>(
         let transaction = Transaction::from_execution(execution, Some(fee))?;
 
         // Evaluate the transaction to get the response.
-        let response = vm.process().read().evaluate::<A>(authorization).map_err(|e| anyhow::anyhow!("{e}"))?;
+        let response = vm.process().evaluate::<A>(authorization).map_err(|e| anyhow::anyhow!("{e}"))?;
 
         ("transaction", Box::new(transaction), response)
     } else {

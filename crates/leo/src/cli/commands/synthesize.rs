@@ -189,7 +189,7 @@ fn handle_synthesize<A: Aleo>(
     let is_local = programs.iter().any(|(program, _)| program.id() == &program_id);
 
     // Initialize an RNG.
-    let rng = &mut rand::thread_rng();
+    let rng = &mut rand::rng();
 
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
@@ -217,10 +217,10 @@ fn handle_synthesize<A: Aleo>(
             (program, edition)
         })
         .collect::<Vec<_>>();
-    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+    vm.process().lock().add_programs_with_editions(&programs_and_editions)?;
 
     // Get the edition and function IDs from the program.
-    let stack = vm.process().read().get_stack(program_id)?;
+    let stack = vm.process().get_stack(program_id)?;
     let edition = *stack.program_edition();
     let function_ids = stack
         .program()

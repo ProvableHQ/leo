@@ -273,7 +273,9 @@ impl AstReconstructor for TransformVisitor<'_> {
                 // Has only empty arguments
                 optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
                 }
-                Variant::EntryPoint | Variant::Finalize => false,
+                // Queries cannot be called from anywhere in Leo source — type checking
+                // rejects calls to them — so we should never reach this arm. Mirror EntryPoint.
+                Variant::EntryPoint | Variant::Finalize | Variant::Query => false,
             };
 
         // Inline the callee function, if required, otherwise, return the call expression.

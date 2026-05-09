@@ -252,6 +252,7 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
                 function: tf.function,
                 private_key: tf.private_key,
                 input: Vec::new(),
+                seed_mapping: Vec::new(),
             }]
         })
         .collect();

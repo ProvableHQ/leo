@@ -53,8 +53,8 @@ num-traits         = "0.2"
 once_cell          = "1.21"
 parking_lot        = "0.12"
 paste              = "1.0"
-rand               = { version = "0.8", default-features = false }
-rand_chacha        = { version = "0.3", default-features = false }
+rand               = { version = "0.10", default-features = false }
+rand_chacha        = { version = "0.10", default-features = false }
 rayon              = "1.11"
 regex              = "1.11"
 reqwest            = { version = "0.13", features = ["blocking", "json"] }
@@ -68,7 +68,9 @@ serial_test        = "3.1"
 sha2               = "0.10"
 similar            = "2.6"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-snarkvm            = { version = "4.6.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets" ] }
+# TODO: switch back to a published version once a release is cut after snarkVM PR #3238 (read-only `query` functions, V15) merged into `staging`.
+# `history` is required to compile `Process::evaluate_query_with_history`, the public-facing query entry point.
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "6440df18da2ae90d5fadf180959eb7b7133a66de", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

@@ -1,0 +1,5 @@
+[EPAR0370047] Error: `final` and `query` cannot be combined
+   ╭─[ compiler-test:5:11 ]
+   │
+ 5 │     final query fn nope(x: u64) -> u64 {
+───╯

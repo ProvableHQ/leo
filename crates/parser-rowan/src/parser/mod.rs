@@ -299,6 +299,23 @@ impl<'t, 's> Parser<'t, 's> {
         &self.source[self.byte_offset..self.byte_offset + len]
     }
 
+    /// Get the text of the next non-trivia token. Counterpart to
+    /// [`current`](Self::current), which also skips trivia. Use this when
+    /// deciding contextual keyword matches (e.g. `query` as a soft keyword).
+    pub fn current_non_trivia_text(&self) -> &'s str {
+        let mut pos = self.pos;
+        let mut offset = self.byte_offset;
+        while pos < self.tokens.len() {
+            let token = &self.tokens[pos];
+            if !token.kind.is_trivia() {
+                return &self.source[offset..offset + token.len as usize];
+            }
+            offset += token.len as usize;
+            pos += 1;
+        }
+        ""
+    }
+
     /// Get the `TextRange` covering the current non-trivia token.
     ///
     /// Walks past trivia to find the next meaningful token and returns its

@@ -254,7 +254,7 @@ fn handle_run<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Initialize an RNG.
-    let rng = &mut rand::thread_rng();
+    let rng = &mut rand::rng();
 
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
@@ -285,7 +285,7 @@ fn handle_run<A: Aleo>(
             (program, edition)
         })
         .collect::<Vec<_>>();
-    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+    vm.process().lock().add_programs_with_editions(&programs_and_editions)?;
 
     // Load any extra programs specified via `--with`.
     if !command.with.is_empty() {
@@ -306,7 +306,6 @@ fn handle_run<A: Aleo>(
         .map_err(|e| crate::errors::custom(format!("Failed to authorize execution: {e}")))?;
     let response = vm
         .process()
-        .read()
         .evaluate::<A>(authorization)
         .map_err(|e| crate::errors::custom(format!("Failed to evaluate program: {e}")))?;
 

@@ -144,7 +144,7 @@ pub fn load_extra_programs_into_vm<N: Network>(
         }
     }
 
-    vm.process().write().add_programs_with_editions(&extras)?;
+    vm.process().lock().add_programs_with_editions(&extras)?;
 
     Ok(())
 }

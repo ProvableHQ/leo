@@ -39,7 +39,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         PROGRAM_DECL => format_program(node, out),
 
         // Declarations
-        FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF => format_function(node, out),
+        FUNCTION_DEF | FINAL_FN_DEF | QUERY_FN_DEF | CONSTRUCTOR_DEF => format_function(node, out),
         STRUCT_DEF | RECORD_DEF => format_composite(node, out),
         INTERFACE_DEF => format_interface(node, out),
         FN_PROTOTYPE_DEF => format_fn_prototype(node, out),
@@ -404,6 +404,7 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
         kind,
         FUNCTION_DEF
             | FINAL_FN_DEF
+            | QUERY_FN_DEF
             | CONSTRUCTOR_DEF
             | STRUCT_DEF
             | RECORD_DEF
@@ -416,7 +417,10 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
 
 /// Block items have braces and span multiple lines — always separated by blank lines.
 fn is_block_item(kind: SyntaxKind) -> bool {
-    matches!(kind, FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | INTERFACE_DEF)
+    matches!(
+        kind,
+        FUNCTION_DEF | FINAL_FN_DEF | QUERY_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | INTERFACE_DEF
+    )
 }
 
 // =============================================================================
@@ -433,6 +437,13 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
     // Emit leading comments (trivia that appears before the first keyword)
     emit_leading_comments(node, out);
 
+    // For `query fn` definitions, the QUERY_FN_DEF node has the contextual
+    // identifier `query` as its first IDENT child (followed by `fn` and then
+    // the real function-name IDENT). We need to print that first IDENT with a
+    // trailing space so the output reads `query fn name(...)`.
+    let is_query_fn = node.kind() == QUERY_FN_DEF;
+    let mut first_ident_seen = false;
+
     // Emit keywords: final, fn/script/constructor, name
     for elem in node.children_with_tokens() {
         match elem {
@@ -445,6 +456,12 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
                     }
                     KW_CONSTRUCTOR => {
                         out.write(tok.text());
+                    }
+                    IDENT if is_query_fn && !first_ident_seen => {
+                        // Contextual `query` keyword.
+                        out.write(tok.text());
+                        out.space();
+                        first_ident_seen = true;
                     }
                     IDENT => {
                         out.write(tok.text());
@@ -3201,7 +3218,14 @@ fn should_inline_adjacent_error(node: &SyntaxNode) -> bool {
         && text.chars().next().is_some_and(|ch| !ch.is_whitespace())
         && matches!(
             prev.kind(),
-            FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | MAPPING_DEF | GLOBAL_CONST
+            FUNCTION_DEF
+                | FINAL_FN_DEF
+                | QUERY_FN_DEF
+                | CONSTRUCTOR_DEF
+                | STRUCT_DEF
+                | RECORD_DEF
+                | MAPPING_DEF
+                | GLOBAL_CONST
         )
 }
 
@@ -3777,6 +3801,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
         kind,
         FUNCTION_DEF
             | FINAL_FN_DEF
+            | QUERY_FN_DEF
             | CONSTRUCTOR_DEF
             | STRUCT_DEF
             | RECORD_DEF

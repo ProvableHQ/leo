@@ -81,7 +81,12 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map
                     .get(location)
                     .map(|f| {
-                        matches!(f.variant, Variant::EntryPoint)
+                        // Query functions are independent externally-callable entry points
+                        // (queries are leaves: they cannot be called from any Leo code), so
+                        // we treat them as DFS roots for monomorphization. Generic queries
+                        // are rejected by type checking, so const_parameters is always empty
+                        // here, but the check would be redundant.
+                        matches!(f.variant, Variant::EntryPoint | Variant::Query)
                             || (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)

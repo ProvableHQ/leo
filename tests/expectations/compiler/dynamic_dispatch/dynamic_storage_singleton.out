@@ -4,12 +4,12 @@ struct Optional__DmN5CQ9hzeK:
     is_some as boolean;
     val as u64;
 
-function query:
+function lookup:
     input r0 as field.private;
-    async query r0 into r1;
-    output r1 as test.aleo/query.future;
+    async lookup r0 into r1;
+    output r1 as test.aleo/lookup.future;
 
-finalize query:
+finalize lookup:
     input r0 as field.public;
     contains.dynamic r0 'aleo' 'total__'[false] into r1;
     get.or_use.dynamic r0 'aleo' 'total__'[false] 0u64 into r2 as u64;

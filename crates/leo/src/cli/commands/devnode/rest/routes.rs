@@ -524,7 +524,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             // Perform the check.
             let res = rest
                 .ledger
-                .check_transaction_basic(&tx, None, &mut rand::thread_rng())
+                .check_transaction_basic(&tx, None, &mut rand::rng())
                 .map_err(|err| RestError::unprocessable_entity(err.context("Invalid transaction")));
 
             // Release the slot.
@@ -539,13 +539,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             // Wrap blocking operations in spawn_blocking
             let new_block = tokio::task::spawn_blocking(move || {
                 ledger
-                    .prepare_advance_to_next_beacon_block(
-                        &rest.private_key,
-                        vec![],
-                        vec![],
-                        vec![tx],
-                        &mut rand::thread_rng(),
-                    )
+                    .prepare_advance_to_next_beacon_block(&rest.private_key, vec![], vec![], vec![tx], &mut rand::rng())
                     .map_err(|e| anyhow!("{e}"))
             })
             .await
@@ -595,13 +589,7 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
                 // If there are no transactions left in the buffer, create an empty block.
                 let new_block = rest
                     .ledger
-                    .prepare_advance_to_next_beacon_block(
-                        &rest.private_key,
-                        vec![],
-                        vec![],
-                        txs,
-                        &mut rand::thread_rng(),
-                    )
+                    .prepare_advance_to_next_beacon_block(&rest.private_key, vec![], vec![], txs, &mut rand::rng())
                     .map_err(|e| RestError::internal_server_error(anyhow!("Failed to prepare block: {}", e)))?;
 
                 // Update the ledger to the new block.

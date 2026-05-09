@@ -1,0 +1,29 @@
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+function dummy_transition:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    output r1 as u32.private;
+
+query balance_of:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    output r1 as u64.public;
+
+query doubled:
+    input r0 as u64.public;
+    add r0 r0 into r1;
+    output r1 as u64.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 0u64
+status: success
+output: 1234u64
+status: success
+output: 14u64

@@ -206,6 +206,26 @@ impl<'a> ConversionContext<'a> {
         }
     }
 
+    /// Like [`require_ident`], but returns the first IDENT *after* the `KW_FN`
+    /// token. Used for `query fn name(...)` — the QUERY_FN_DEF node has the
+    /// contextual `query` IDENT as its first IDENT child, followed by `fn`,
+    /// followed by the real function-name IDENT.
+    fn require_ident_after_kw_fn(&self, node: &SyntaxNode, label: &str) -> leo_ast::Identifier {
+        let span = self.to_span(node);
+        let mut seen_fn = false;
+        for token in tokens(node) {
+            if token.kind() == KW_FN {
+                seen_fn = true;
+                continue;
+            }
+            if seen_fn && token.kind() == IDENT {
+                return self.to_identifier(&token);
+            }
+        }
+        self.emit_unexpected_str(label, node.text(), span);
+        self.error_identifier(span)
+    }
+
     /// Find a type child node or emit an error and return `Type::Err`.
     fn require_type(&self, node: &SyntaxNode, label: &str) -> Result<leo_ast::Type> {
         match children(node).find(|n| n.kind().is_type()) {
@@ -1964,7 +1984,7 @@ impl<'a> ConversionContext<'a> {
         interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
     ) -> Result<()> {
         match item.kind() {
-            FUNCTION_DEF | FINAL_FN_DEF => {
+            FUNCTION_DEF | FINAL_FN_DEF | QUERY_FN_DEF => {
                 let func = self.to_function(item, is_in_program_block)?;
                 functions.push((func.identifier.name, func));
             }
@@ -2299,17 +2319,23 @@ impl<'a> ConversionContext<'a> {
             .unwrap_or_else(|| self.error_block(span)))
     }
 
-    /// Convert a FUNCTION_DEF / FINAL_FN_DEF node to a Function.
+    /// Convert a FUNCTION_DEF / FINAL_FN_DEF / QUERY_FN_DEF / CONSTRUCTOR_DEF node to a Function.
     fn to_function(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Function> {
-        debug_assert!(matches!(node.kind(), FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF));
+        debug_assert!(matches!(node.kind(), FUNCTION_DEF | FINAL_FN_DEF | QUERY_FN_DEF | CONSTRUCTOR_DEF));
         let span = self.span_including_annotations(node, self.non_trivia_span(node));
         let id = self.builder.next_id();
 
         let annotations = self.collect_annotations(node)?;
 
-        // Determine variant
+        // Determine variant. `query fn` is a top-level read-only entry point and is only
+        // valid inside a `program { ... }` block; outside a program block we fall back to
+        // `Fn` and let the library/module diagnostic in `collect_library_item` reject it
+        // with a clear error.
         let variant = if is_in_program_block {
-            leo_ast::Variant::EntryPoint
+            match node.kind() {
+                QUERY_FN_DEF => leo_ast::Variant::Query,
+                _ => leo_ast::Variant::EntryPoint,
+            }
         } else {
             match node.kind() {
                 FINAL_FN_DEF => leo_ast::Variant::FinalFn,
@@ -2317,7 +2343,15 @@ impl<'a> ConversionContext<'a> {
             }
         };
 
-        let identifier = self.require_ident(node, "function name");
+        // For `query fn` definitions, the QUERY_FN_DEF node has the contextual
+        // identifier `query` as its first IDENT child, followed by `fn` and then the
+        // real function name. Skip past the leading `query` token so we extract the
+        // correct identifier.
+        let identifier = if node.kind() == QUERY_FN_DEF {
+            self.require_ident_after_kw_fn(node, "function name")
+        } else {
+            self.require_ident(node, "function name")
+        };
         self.validate_identifier(&identifier);
 
         let const_parameters = self.extract_const_parameters(node)?;
@@ -3331,6 +3365,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
         GLOBAL_CONST
             | FUNCTION_DEF
             | FINAL_FN_DEF
+            | QUERY_FN_DEF
             | STRUCT_DEF
             | RECORD_DEF
             | INTERFACE_DEF

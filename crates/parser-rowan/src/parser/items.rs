@@ -153,6 +153,11 @@ impl Parser<'_, '_> {
     ///
     /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
+        if self.at_contextual_query_fn() {
+            // `query fn` may appear in modules so we get a clean parse tree;
+            // the rowan→AST converter rejects queries outside a `program` block.
+            return self.parse_function_or_constructor();
+        }
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
@@ -160,6 +165,15 @@ impl Parser<'_, '_> {
             AT | KW_FN | KW_FINAL => self.parse_function_or_constructor(),
             _ => None,
         }
+    }
+
+    /// Returns true if the current non-trivia token is the contextual identifier
+    /// `query` followed by `fn`. `query` is intentionally not a hard keyword:
+    /// snarkVM only restricts `query` as a *bytecode* program-component name at
+    /// V15+, while pre-V15 Leo source is allowed to use `query` as a regular
+    /// identifier (e.g., `let query = 5;`).
+    fn at_contextual_query_fn(&self) -> bool {
+        self.at(IDENT) && self.current_non_trivia_text() == "query" && self.nth(1) == KW_FN
     }
 
     /// Parse an import declaration: `import program.aleo;`
@@ -243,6 +257,8 @@ impl Parser<'_, '_> {
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
             KW_FN | KW_FINAL | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            // Contextual `query fn ...` (V15 read-only entry point).
+            IDENT if self.at_contextual_query_fn() => self.parse_function_or_constructor(),
             KW_SCRIPT => {
                 self.error("'script' functions are no longer supported; use @test on entry point functions instead");
                 self.bump_any();
@@ -498,7 +514,7 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a function definition.
-    /// Parse fn, final fn, script, or constructor variants.
+    /// Parse fn, final fn, query fn, or constructor variants.
     /// Annotations are parsed as children of the function node.
     fn parse_function_or_constructor(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
@@ -508,14 +524,34 @@ impl Parser<'_, '_> {
             self.parse_annotation();
         }
 
-        // Optional final keyword
+        // Optional `final` keyword (mutually exclusive with `query`).
         let ate_final = self.eat(KW_FINAL);
 
-        // Dispatch based on what follows
+        // Optional contextual `query` identifier (V15 read-only entry point).
+        // Errors if combined with `final`; otherwise consumes the IDENT and
+        // proceeds to parse a regular `fn` body.
+        let ate_query = if !ate_final && self.at_contextual_query_fn() {
+            self.bump_any(); // consume `query` IDENT
+            true
+        } else if ate_final && self.at_contextual_query_fn() {
+            // `final query fn` is not allowed.
+            self.error("`final` and `query` cannot be combined");
+            // Consume the `query` IDENT for recovery so we still parse the body.
+            self.bump_any();
+            false
+        } else {
+            false
+        };
+
+        // Dispatch based on what follows.
         match self.current() {
             KW_FN => {
                 self.parse_function_body();
-                let kind = if ate_final { FINAL_FN_DEF } else { FUNCTION_DEF };
+                let kind = match (ate_final, ate_query) {
+                    (true, _) => FINAL_FN_DEF,
+                    (false, true) => QUERY_FN_DEF,
+                    (false, false) => FUNCTION_DEF,
+                };
                 Some(m.complete(self, kind))
             }
             KW_CONSTRUCTOR => {
@@ -1106,6 +1142,89 @@ mod tests {
                   R_BRACE@62..63 "}"
         "#]]);
     }
+    // =========================================================================
+    // Query Functions
+    // =========================================================================
+
+    #[test]
+    fn parse_query_function() {
+        check_file_no_errors(
+            "program test.aleo { mapping balances: address => u64; query fn balance_of(addr: address) -> u64 { return 0u64; } }",
+        );
+    }
+
+    #[test]
+    fn parse_query_uses_query_node_kind() {
+        check_file("program test.aleo { query fn q() -> u64 { return 0u64; } }", expect![[r#"
+                ROOT@0..58
+                  PROGRAM_DECL@0..58
+                    KW_PROGRAM@0..7 "program"
+                    WHITESPACE@7..8 " "
+                    IDENT@8..12 "test"
+                    DOT@12..13 "."
+                    KW_ALEO@13..17 "aleo"
+                    WHITESPACE@17..18 " "
+                    L_BRACE@18..19 "{"
+                    QUERY_FN_DEF@19..56
+                      WHITESPACE@19..20 " "
+                      IDENT@20..25 "query"
+                      WHITESPACE@25..26 " "
+                      KW_FN@26..28 "fn"
+                      WHITESPACE@28..29 " "
+                      IDENT@29..30 "q"
+                      PARAM_LIST@30..32
+                        L_PAREN@30..31 "("
+                        R_PAREN@31..32 ")"
+                      WHITESPACE@32..33 " "
+                      ARROW@33..35 "->"
+                      WHITESPACE@35..36 " "
+                      TYPE_PRIMITIVE@36..39
+                        KW_U64@36..39 "u64"
+                      BLOCK@39..56
+                        WHITESPACE@39..40 " "
+                        L_BRACE@40..41 "{"
+                        WHITESPACE@41..42 " "
+                        RETURN_STMT@42..54
+                          KW_RETURN@42..48 "return"
+                          WHITESPACE@48..49 " "
+                          LITERAL_INT@49..53
+                            INTEGER@49..53 "0u64"
+                          SEMICOLON@53..54 ";"
+                        WHITESPACE@54..55 " "
+                        R_BRACE@55..56 "}"
+                    WHITESPACE@56..57 " "
+                    R_BRACE@57..58 "}"
+            "#]]);
+    }
+
+    #[test]
+    fn parse_query_with_input() {
+        check_file_no_errors("program test.aleo { query fn q(addr: address, k: u32) -> u64 { return 1u64; } }");
+    }
+
+    #[test]
+    fn parse_final_query_rejected() {
+        let input = "program test.aleo { final query fn q() {} }";
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_file_items();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish(vec![]);
+        let errors = parse.errors();
+        assert!(
+            errors.iter().any(|e| e.message.contains("`final` and `query` cannot be combined")),
+            "expected `final query` rejection, got: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn parse_query_as_identifier_still_works() {
+        // `query` is a contextual keyword, not a hard keyword. Using it as a
+        // local variable or parameter name in pre-V15 source must keep parsing.
+        check_file_no_errors("program test.aleo { fn f(query: u32) -> u32 { return query; } }");
+    }
+
     // =========================================================================
     // Const Generic Parameters (Declarations)
     // =========================================================================

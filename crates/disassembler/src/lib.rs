@@ -89,6 +89,11 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
                     None => None,
                 })
                 .collect_vec(),
+            program
+                .queries()
+                .iter()
+                .map(|(id, query)| (Identifier::from(id).name, FunctionStub::from_query(query, program_id)))
+                .collect_vec(),
         ]
         .concat(),
         span: Default::default(),
@@ -125,7 +130,7 @@ pub fn disassemble_from_str<N: Network>(
     process: &mut snarkvm::prelude::Process<N>,
 ) -> Result<AleoProgram, LeoError> {
     let p = Program::<N>::from_str(program).map_err(|_| crate::errors::snarkvm_parsing_error(&name))?;
-    process.add_program(&p).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
+    process.lock().add_program(&p).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
     Ok(disassemble(p))
 }
 

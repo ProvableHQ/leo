@@ -39,7 +39,7 @@ use serde::{Deserialize, Serialize};
 use snarkvm::{
     console::program::RegisterType,
     prelude::{FinalizeType, Network, ValueType},
-    synthesizer::program::{ClosureCore, FunctionCore},
+    synthesizer::program::{ClosureCore, FunctionCore, QueryCore},
 };
 use std::fmt;
 
@@ -116,6 +116,7 @@ impl FunctionStub {
             Variant::Finalize => write!(f, "finalize ")?,
             Variant::Fn => write!(f, "fn ")?,
             Variant::EntryPoint => write!(f, "entry ")?,
+            Variant::Query => write!(f, "query fn ")?,
         }
         write!(f, "{}", self.identifier)?;
 
@@ -338,6 +339,58 @@ impl FunctionStub {
                 .collect_vec(),
             output: Vec::new(),
             output_type: Type::Unit,
+            span: Default::default(),
+            id: 0,
+        }
+    }
+
+    /// Construct a Leo `FunctionStub` from a snarkVM `QueryCore` (V15 read-only entry).
+    /// Queries are plaintext-only on inputs and outputs (snarkVM rejects records / futures /
+    /// dynamic records / dynamic futures at construction), so unhandled finalize-type
+    /// variants here would indicate a bug on the snarkVM side.
+    pub fn from_query<N: Network>(query: &QueryCore<N>, program_id: ProgramId) -> Self {
+        let plaintext_or_panic = |finalize_type: &FinalizeType<N>| match finalize_type {
+            FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program_id),
+            FinalizeType::Future(_) | FinalizeType::DynamicFuture => {
+                panic!("query inputs/outputs must be plaintext (snarkVM should have rejected this)")
+            }
+        };
+
+        let outputs = query
+            .outputs()
+            .iter()
+            .map(|output| Output {
+                mode: Mode::None,
+                type_: plaintext_or_panic(output.finalize_type()),
+                span: Default::default(),
+                id: Default::default(),
+            })
+            .collect_vec();
+        let output_vec = outputs.iter().map(|o| o.type_.clone()).collect_vec();
+        let output_type = match output_vec.len() {
+            0 => Type::Unit,
+            1 => output_vec[0].clone(),
+            _ => Type::Tuple(TupleType::new(output_vec)),
+        };
+
+        Self {
+            annotations: Vec::new(),
+            variant: Variant::Query,
+            identifier: Identifier::from(query.name()),
+            input: query
+                .inputs()
+                .iter()
+                .enumerate()
+                .map(|(index, input)| Input {
+                    identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
+                    mode: Mode::None,
+                    type_: plaintext_or_panic(input.finalize_type()),
+                    span: Default::default(),
+                    id: Default::default(),
+                })
+                .collect_vec(),
+            output: outputs,
+            output_type,
             span: Default::default(),
             id: 0,
         }

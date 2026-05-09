@@ -32,6 +32,7 @@ use leo_ast::{
     ReturnStatement,
     Statement,
     Type,
+    Variant,
 };
 
 use indexmap::IndexMap;
@@ -137,9 +138,12 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         for (operand, output) in operands.iter() {
-            // Transitions outputs with no mode are private.
-            let visibility = match (self.variant.unwrap().is_entry(), output.mode) {
-                (true, Mode::None) => Some(AleoVisibility::Private),
+            // Transition outputs with no mode are private; query outputs lower to `.public`
+            // (queries return plaintext to external callers and snarkVM enforces that
+            // outputs are plaintext-typed).
+            let visibility = match (self.variant.unwrap(), output.mode) {
+                (Variant::EntryPoint, Mode::None) => Some(AleoVisibility::Private),
+                (Variant::Query, Mode::None) => Some(AleoVisibility::Public),
                 (_, mode) => AleoVisibility::maybe_from(mode),
             };
             if let Type::Future(_) = output.type_ {

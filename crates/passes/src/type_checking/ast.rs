@@ -572,8 +572,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
-        // Check that operation is not restricted to finalize blocks.
-        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
+        // Check that operation is not restricted to finalize blocks. Queries are
+        // also a valid context for finalize-style **read** intrinsics; the more
+        // granular accept/reject decision happens in `check_intrinsic` (which
+        // calls `check_access_allowed_in_query` for the read-only allowlist and
+        // the standard `check_access_allowed` for everything else).
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn | Variant::Query))
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
         {
@@ -1137,6 +1141,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     input.span,
                 ))
             }
+            // Query functions are leaves: snarkVM rejects any `call` instruction inside a
+            // `query` block, so the only callees Leo will ever emit from a query body are
+            // those that get fully inlined. Regular `Variant::Fn` callees are inlined by
+            // the function-inlining pass; everything else (other queries, entry points,
+            // finalizes, final fns) is rejected here for a clean Leo-level diagnostic.
+            Variant::Query if !matches!(func.variant, Variant::Fn) => self
+                .emit_err(crate::errors::type_checker::can_only_call_inline_function("a query function", input.span)),
             Variant::EntryPoint
                 if matches!(func.variant, Variant::EntryPoint)
                     && callee_program == self.scope_state.unit_name.unwrap() =>
@@ -1537,7 +1548,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         if let Some(var) = var {
                             let ty = var.type_.expect("must be known by now");
                             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                                self.check_access_allowed("storage access", true, input.span());
+                                self.check_access_allowed_in_query("storage access", true, input.span());
                             }
 
                             self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
@@ -1622,7 +1633,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 return Type::Err;
             };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                self.check_access_allowed("storage access", true, input.span());
+                self.check_access_allowed_in_query("storage access", true, input.span());
             }
 
             self.maybe_assert_type(&ty, expected, input.span());
