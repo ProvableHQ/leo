@@ -533,4 +533,23 @@ mod tests {
 
         std::fs::remove_dir_all(&dir).unwrap();
     }
+
+    #[test]
+    fn workspace_circular_workspace_deps_error() {
+        let dir = temp_dir().join("ws_test_circular_ws_deps");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // alpha depends on beta, beta depends on alpha, both via Location::Workspace.
+        create_member_with_workspace_deps(&dir, "alpha", &["beta"]);
+        create_member_with_workspace_deps(&dir, "beta", &["alpha"]);
+        create_workspace(&dir, &["alpha", "beta"]);
+
+        let result = Workspace::from_directory(&dir);
+        assert!(result.is_err(), "circular workspace deps should be detected");
+        let err_msg = format!("{}", result.unwrap_err());
+        assert!(err_msg.contains("circular"), "error should mention circularity: {err_msg}");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

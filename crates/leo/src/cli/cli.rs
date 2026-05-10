@@ -797,6 +797,41 @@ mod tests {
 
     #[test]
     #[serial]
+    fn workspace_build_workspace_dev_dep_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_dev_deps(&temp_dir, "build_ws_dev_dep");
+
+        // Build from the swap member directory (which depends on token via dev_dependencies workspace).
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.join("swap")),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("build with workspace dev dep should succeed");
+        });
+
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
     fn workspace_backward_compat_test() {
         let temp_dir = temp_dir();
         let pkg_name = "standalone_pkg";
@@ -1028,6 +1063,97 @@ program swap.aleo {
                     "location": "workspace"
                 }],
                 "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
+
+    /// Like `sample_workspace_with_workspace_deps`, but `swap` depends on `token` via
+    /// `dev_dependencies` with `Location::Workspace` instead of `dependencies`.
+    pub(crate) fn sample_workspace_with_workspace_dev_deps(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let token_dir = ws_root.join("token");
+        let swap_dir = ws_root.join("swap");
+
+        // Create token package (no deps).
+        std::fs::create_dir_all(token_dir.join("src")).unwrap();
+        std::fs::write(
+            token_dir.join("src/main.leo"),
+            "\
+program token.aleo {
+    fn mint(owner: address, amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            token_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "token.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create swap package (token is a workspace dev_dependency - no import in main source).
+        std::fs::create_dir_all(swap_dir.join("src")).unwrap();
+        std::fs::write(
+            swap_dir.join("src/main.leo"),
+            "\
+program swap.aleo {
+    fn do_swap(amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            swap_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "swap.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": [{
+                    "name": "token.aleo",
+                    "location": "workspace"
+                }]
             }))
             .unwrap(),
         )
@@ -1576,7 +1702,7 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
-    
+
     fn main(public a: u32, b: u32) -> (inner_2.aleo::Yoo, Hello) {
         let d: inner_1.aleo::Foo = inner_1.aleo::main(1u32,1u32);
         let e: u32 = inner_1.aleo::main_2(inner_1.aleo::Foo {a: a, b: b, c: inner_1.aleo::Boo {a:1u32, b:1u32}});

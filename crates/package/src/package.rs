@@ -442,6 +442,13 @@ impl Package {
                             network_retries,
                         )?
                     }
+                    (_, Location::Workspace) => {
+                        return Err(anyhow!(
+                            "Workspace dependency `{}` was not resolved before graph building. This is a compiler bug.",
+                            new.name
+                        )
+                        .into());
+                    }
                     _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
                 };
 
