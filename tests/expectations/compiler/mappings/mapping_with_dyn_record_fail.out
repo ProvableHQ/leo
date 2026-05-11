@@ -1,0 +1,10 @@
+[ETYC0372031] Error: A mapping's key cannot be a dyn record
+   ╭─[ compiler-test:2:5 ]
+   │
+ 2 │     mapping bad_key: dyn record => u64;
+───╯
+[ETYC0372031] Error: A mapping's value cannot be a dyn record
+   ╭─[ compiler-test:3:5 ]
+   │
+ 3 │     mapping bad_value: u64 => dyn record;
+───╯

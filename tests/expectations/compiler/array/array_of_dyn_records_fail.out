@@ -1,0 +1,15 @@
+[ETYC0372079] Error: An array cannot have a record as an element type
+   ╭─[ compiler-test:3:9 ]
+   │
+ 3 │         tokens: [dyn record; 2],
+───╯
+[ETYC0372079] Error: An array cannot have a record as an element type
+    ╭─[ compiler-test:10:10 ]
+    │
+ 10 │     ) -> [dyn record; 2] {
+────╯
+[ETYC0372079] Error: An array cannot have a record as an element type
+    ╭─[ compiler-test:11:9 ]
+    │
+ 11 │         let x: [dyn record; 2] = [token_1, token_2];
+────╯
