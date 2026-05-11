@@ -6,8 +6,8 @@
   "dependencies": [
     {
       "name": "token.aleo",
-      "location": "local",
-      "path": "../token",
+      "location": "workspace",
+      "path": null,
       "edition": null
     }
   ],

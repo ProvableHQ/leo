@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # `leo add`
 
-The `leo add` command is used to add a new on-chain or local dependency to the current Leo project.
+The `leo add` command is used to add a new on-chain, local, or workspace dependency to the current Leo project.
 
 To add a local dependency to your project, run the following command:
 
@@ -30,6 +30,16 @@ leo add --network <NAME>
 
 where `<NAME>` is the name of the imported program.
 
+&nbsp;
+
+To add another member of the enclosing workspace as a dependency:
+
+```bash
+leo add --workspace <NAME>
+```
+
+where `<NAME>` is the directory name or program name of the workspace member.
+
 :::note
 Libraries can only be added as local dependencies. Use `--local` to add a library.
 :::
@@ -47,6 +57,12 @@ Specifies that the dependency to be added is a local program or library located 
 ### `-n`
 
 Specifies that the dependency to be added is a remote program currently deployed onchain. The network that it will be pulled from will be the same as the one specified in by the `NETWORK` variable in `.env`
+
+### `--workspace`
+
+### `-w`
+
+Specifies that the dependency is another member of the enclosing [workspace](../guides/03_workspaces.md). Leo validates that a `workspace.json` exists in a parent directory and that the named member is listed in it. No path is required - Leo resolves the member's location automatically.
 
 ### `--edition <EDITION>`
 

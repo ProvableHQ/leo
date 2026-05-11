@@ -6,10 +6,11 @@ sidebar_label: Dependency Management
 
 [general tags]: # "guides, dependency, dependency_management, imports, program, library"
 
-Leo programs can import functionality from other programs and libraries. Any imported program or library is referred to as a dependency. There are two types of dependencies:
+Leo programs can import functionality from other programs and libraries. Any imported program or library is referred to as a dependency. There are three types of dependencies:
 
 - **Network dependencies**: Programs already deployed on the Aleo network, fetched as pre-compiled bytecode.
 - **Local dependencies**: Code on your filesystem; either Leo code compiled from source, Aleo Instructions code, or a Leo library.
+- **Workspace dependencies**: Other members of the same [workspace](./03_workspaces.md), resolved automatically from `workspace.json`.
 
 ## Programs vs. Libraries
 
@@ -85,6 +86,35 @@ Local dependencies are compiled from source whenever you build. They never requi
 
 **Leo libraries** are a special kind of local dependency. A library project (created with `leo new --lib`) contains only structs, constants, and helper functions — no program block, no mappings, no records. Because libraries have no on-chain identity, they can only be local dependencies and are never deployed. All library code is inlined into the consuming program at compile time. See [Leo Libraries](../language/06_libraries.md) for more.
 
+### Workspace Dependencies
+
+Inside a [workspace](./03_workspaces.md), members can depend on each other without specifying explicit paths. To add a workspace member as a dependency:
+
+```bash
+leo add --workspace token
+```
+
+or equivalently:
+
+```bash
+leo add -w token
+```
+
+This records a workspace dependency in `program.json`:
+
+```json file=../code_snippets/workspaces/swap/program.json title="swap/program.json"
+```
+
+At build time, Leo resolves workspace dependencies by looking up the member in `workspace.json` and converting the entry to a local path automatically. The member is matched by directory name or program name (with or without the `.aleo` suffix).
+
+Workspace dependencies require an enclosing `workspace.json`. If no workspace is found, or if the named member is not listed in the workspace, Leo reports an error.
+
+To add a workspace member as a development dependency:
+
+```bash
+leo add --workspace --dev token
+```
+
 ## Removing Dependencies
 
 ```bash
@@ -104,6 +134,7 @@ When you run a Leo command, dependencies are resolved as follows:
 
 1. **Read `program.json`** to find declared dependencies
 2. **For each dependency:**
+   - **Workspace**: Look up the member in `workspace.json` and resolve to a local path
    - **Local**: Read the Leo source from the specified path and compile it, or use Aleo Instructions file
    - **Network**: Fetch the bytecode from the Aleo network (or cache)
 3. **Resolve transitive dependencies** - if your dependency imports other programs, those are fetched too
