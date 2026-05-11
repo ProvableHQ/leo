@@ -200,8 +200,20 @@ fn collect_statement_effects(
     ctx: &SummaryContext,
 ) {
     match stmt {
-        Statement::Assert(_) => {
+        Statement::Assert(assert) => {
+            // this is a check by definition
             summary.has_checks = true;
+
+            // Recurse into sub-expressions so nested efffects/interactions still propagate into the summary.
+            match &assert.variant {
+                AssertVariant::Assert(expr) => {
+                    collect_expression_effects(expr, computed, summary, ctx);
+                }
+                AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
+                    collect_expression_effects(left, computed, summary, ctx);
+                    collect_expression_effects(right, computed, summary, ctx);
+                }
+            }
         }
         Statement::Assign(assign) => {
             // Check if LHS root is a storage variable write.

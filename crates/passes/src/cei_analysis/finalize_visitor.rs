@@ -184,11 +184,6 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
     }
 
     fn visit_assert(&mut self, input: &AssertStatement) {
-        if self.in_finalize {
-            self.warn_if_after_interaction(CeiCategory::Check, "assert", input.span);
-        }
-
-        // Visit sub-expressions.
         match &input.variant {
             AssertVariant::Assert(expr) => {
                 self.visit_expression(expr, &Default::default());
@@ -198,9 +193,16 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
                 self.visit_expression(right, &Default::default());
             }
         }
+
+        if self.in_finalize {
+            self.warn_if_after_interaction(CeiCategory::Check, "assert", input.span);
+        }
     }
 
     fn visit_assign(&mut self, input: &AssignStatement) {
+        self.visit_assign_lhs_reads(&input.place);
+        self.visit_expression(&input.value, &Default::default());
+
         if self.in_finalize {
             // Check if the LHS root is a storage variable write.
             if let Some(root) = peel_assign_root(&input.place)
@@ -209,12 +211,6 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
                 self.warn_if_after_interaction(CeiCategory::Effect, "storage variable write", input.span);
             }
         }
-
-        // Visit only the index sub-expressions in the LHS (e.g., `i` in `arr[i] = x`)
-        // for read effects. Skip the root path to avoid double-warning as a read.
-        self.visit_assign_lhs_reads(&input.place);
-
-        self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_path(&mut self, input: &Path, _additional: &Self::AdditionalInput) -> Self::Output {

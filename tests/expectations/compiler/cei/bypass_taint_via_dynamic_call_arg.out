@@ -5,6 +5,20 @@ Warning [WCEI03713005]: Tainted value `price` (derived from external call `__dyn
      |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      |
      = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
+Warning [WCEI03713004]: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+    --> compiler-test:15:13
+     |
+  15 |             f_exchange.run();
+     |             ^^^^^^^^^^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+Warning [WCEI03713004]: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+    --> compiler-test:15:13
+     |
+  15 |             f_exchange.run();
+     |             ^^^^^^^^^^
+     |
+     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
 program oracle.aleo;
 
 mapping prices:

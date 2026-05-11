@@ -1,4 +1,4 @@
-// Tainted value flows through arithmetic derivation before reaching finalize.
+// Tainted value flows through a chain of arithmetic operations before reaching finalize.
 // collect_taint conservatively propagates taint through binary operations.
 program exchange.aleo {
     mapping rates: u32 => u64;

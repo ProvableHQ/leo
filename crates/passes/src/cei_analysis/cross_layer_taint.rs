@@ -154,6 +154,10 @@ impl CrossLayerTaintVisitor<'_> {
                 for member in &comp.members {
                     if let Some(expr) = &member.expression {
                         self.collect_taint_recursive(expr, taint);
+                    } else if let Some(info) = self.taint_map.get(&member.identifier.name) {
+                        // Shorthand initializer `S { x }` equivalent to `S { x: x }`.
+                        // Desugaring happens in later passes, so we resolve it here.
+                        taint.merge(info);
                     }
                 }
             }
@@ -183,34 +187,93 @@ impl CrossLayerTaintVisitor<'_> {
         if let Some(loc) = call.function.try_global_location() { loc.program != self.current_program } else { false }
     }
 
-    /// Peel through wrappers (TupleAccess, MemberAccess, Cast) to find an underlying call.
-    fn peel_to_call(expr: &Expression) -> Option<&Expression> {
+    /// Walk an expression tree, finding every external (or dynamic) call that returns
+    /// a Future — whether at the root, behind projection wrappers (`.0`, `.field`,
+    /// `as T`), or buried in a combinator (`(call(), x)`, `if c { call() } else { ... }`).
+    /// For each, emit tainted-argument warnings and insert its source location into
+    /// `sources`.  The bound variable inherits taint coupled to all collected sources.
+    fn collect_future_call_sources(&self, expr: &Expression, sources: &mut IndexSet<Location>) {
         match expr {
-            // Found the call.
-            Expression::Call(_) => Some(expr),
-            Expression::DynamicOp(dop) if matches!(dop.kind, DynamicOpKind::Call { .. }) => Some(expr),
-
-            // Wrappers that access a sub-part of a call result, peel through.
-            Expression::TupleAccess(ta) => Self::peel_to_call(&ta.tuple),
-            Expression::MemberAccess(ma) => Self::peel_to_call(&ma.inner),
-            Expression::Cast(c) => Self::peel_to_call(&c.expression),
-
-            // Not a call or wrapper around one.
-            Expression::Array(_)
-            | Expression::ArrayAccess(_)
-            | Expression::Async(_)
-            | Expression::Binary(_)
-            | Expression::Composite(_)
-            | Expression::Err(_)
-            | Expression::Intrinsic(_)
+            Expression::Call(call) => {
+                if self.is_external_call(call)
+                    && let Some(loc) = call.function.try_global_location()
+                    && let Some(ret_type) = self.state.type_table.get(&call.id)
+                    && Self::type_contains_future(&ret_type)
+                {
+                    let callee_desc = call.function.to_string();
+                    self.warn_tainted_call_arguments(&call.arguments, &callee_desc, call.span);
+                    sources.insert(loc.clone());
+                }
+                for arg in &call.arguments {
+                    self.collect_future_call_sources(arg, sources);
+                }
+            }
+            Expression::DynamicOp(dop) => {
+                if let DynamicOpKind::Call { arguments, .. } = &dop.kind
+                    && let Some(ret_type) = self.state.type_table.get(&dop.id)
+                    && Self::type_contains_future(&ret_type)
+                {
+                    self.warn_tainted_call_arguments(arguments, "<dynamic call>", dop.span);
+                    sources.insert(Location::dynamic());
+                }
+                self.collect_future_call_sources(&dop.target_program, sources);
+                if let Some(network) = &dop.network {
+                    self.collect_future_call_sources(network, sources);
+                }
+                match &dop.kind {
+                    DynamicOpKind::Call { arguments, .. } | DynamicOpKind::Op { arguments, .. } => {
+                        for arg in arguments {
+                            self.collect_future_call_sources(arg, sources);
+                        }
+                    }
+                    DynamicOpKind::Read { .. } => {}
+                }
+            }
+            Expression::Tuple(t) => {
+                for e in &t.elements {
+                    self.collect_future_call_sources(e, sources);
+                }
+            }
+            Expression::Array(a) => {
+                for e in &a.elements {
+                    self.collect_future_call_sources(e, sources);
+                }
+            }
+            Expression::ArrayAccess(a) => {
+                self.collect_future_call_sources(&a.array, sources);
+                self.collect_future_call_sources(&a.index, sources);
+            }
+            Expression::Composite(c) => {
+                for m in &c.members {
+                    if let Some(e) = &m.expression {
+                        self.collect_future_call_sources(e, sources);
+                    }
+                }
+            }
+            Expression::Ternary(t) => {
+                self.collect_future_call_sources(&t.condition, sources);
+                self.collect_future_call_sources(&t.if_true, sources);
+                self.collect_future_call_sources(&t.if_false, sources);
+            }
+            Expression::Binary(b) => {
+                self.collect_future_call_sources(&b.left, sources);
+                self.collect_future_call_sources(&b.right, sources);
+            }
+            Expression::Unary(u) => self.collect_future_call_sources(&u.receiver, sources),
+            Expression::Cast(c) => self.collect_future_call_sources(&c.expression, sources),
+            Expression::TupleAccess(a) => self.collect_future_call_sources(&a.tuple, sources),
+            Expression::MemberAccess(a) => self.collect_future_call_sources(&a.inner, sources),
+            Expression::Repeat(r) => self.collect_future_call_sources(&r.expr, sources),
+            Expression::Intrinsic(intr) => {
+                for arg in &intr.arguments {
+                    self.collect_future_call_sources(arg, sources);
+                }
+            }
+            Expression::Path(_)
             | Expression::Literal(_)
-            | Expression::Path(_)
-            | Expression::Repeat(_)
-            | Expression::Ternary(_)
-            | Expression::Tuple(_)
-            | Expression::DynamicOp(_)
-            | Expression::Unary(_)
-            | Expression::Unit(_) => None,
+            | Expression::Unit(_)
+            | Expression::Err(_)
+            | Expression::Async(_) => {}
         }
     }
 
@@ -284,6 +347,10 @@ impl CrossLayerTaintVisitor<'_> {
                 // Restore implicit taint to pre-conditional state.
                 self.implicit_taint = saved_implicit;
             }
+            // `const` bindings are compile-time constants, so their RHS
+            // cannot contain an external call and the bound value can never
+            // be tainted. We still walk the RHS for taint uses but skip the
+            // taint-map propagation.
             Statement::Const(decl) => self.check_expression_for_taint(&decl.value),
             Statement::Definition(def) => {
                 self.check_expression_for_taint(&def.value);
@@ -379,6 +446,18 @@ impl CrossLayerTaintVisitor<'_> {
                 for member in &comp.members {
                     if let Some(expr) = &member.expression {
                         self.check_expression_for_taint(expr);
+                    } else if let Some(info) = self.taint_map.get(&member.identifier.name)
+                        && info.is_tainted()
+                    {
+                        // Shorthand initializer `S { x }`, emit the warning against
+                        // the field identifier's span since there is no separate value expression.
+                        for future_id in &info.coupled_futures {
+                            self.emit_warning(CeiAnalyzerWarning::tainted_value_in_finalize(
+                                member.identifier.name,
+                                &future_id.source,
+                                member.identifier.span(),
+                            ));
+                        }
                     }
                 }
             }
@@ -413,58 +492,68 @@ impl AstVisitor for CrossLayerTaintVisitor<'_> {
             return;
         }
 
-        // Check if the RHS contains an external call returning a future.
-        // Peel through wrappers (TupleAccess, MemberAccess, Cast) to find the call.
-        if let Some(call_expr) = Self::peel_to_call(&input.value) {
-            // If wrappers were peeled, look up the bound type (the type after wrappers).
-            // This lets us detect when only the Future component is accessed.
-            let bound_type = self.state.type_table.get(&input.value.id());
-            match call_expr {
-                Expression::Call(call) if self.is_external_call(call) => {
-                    let call_loc = call.function.try_global_location().cloned();
-                    if let Some(ref loc) = call_loc
-                        && let Some(ret_type) = self.state.type_table.get(&call.id)
-                        && Self::type_contains_future(&ret_type)
-                    {
-                        // Callee has a finalize block, so arguments become finalize args.
-                        // Warn if any argument carries taint from a prior external call.
-                        let callee_desc = call.function.to_string();
-                        self.warn_tainted_call_arguments(&call.arguments, &callee_desc, call.span);
+        // Scan the entire RHS for external future-returning calls — at the root,
+        // behind projection wrappers, or embedded in combinators alike. Tainted-arg
+        // warnings are emitted as a side effect of this walk.
+        let mut call_sources = IndexSet::new();
+        self.collect_future_call_sources(&input.value, &mut call_sources);
 
-                        self.handle_external_call_with_future(input, loc, &ret_type, bound_type.as_ref());
-                        return;
-                    }
-                }
-                Expression::DynamicOp(dop) => {
-                    if let DynamicOpKind::Call { arguments, .. } = &dop.kind
-                        && let Some(ret_type) = self.state.type_table.get(&dop.id)
-                        && Self::type_contains_future(&ret_type)
-                    {
-                        // Callee has a finalize block, so arguments become finalize args.
-                        // Warn if any argument carries taint from a prior external call.
-                        self.warn_tainted_call_arguments(arguments, "<dynamic call>", dop.span);
+        // Taint derived from references to previously-tainted variables (plus the
+        // implicit taint of any enclosing tainted branch condition).
+        let propagated = self.collect_taint_with_implicit(&input.value);
 
-                        let loc = Location::dynamic();
-                        self.handle_external_call_with_future(input, &loc, &ret_type, bound_type.as_ref());
-                        return;
-                    }
-                }
-                _ => {}
+        // Taint freshly originated by call sources in the RHS.  Keyed by the bound
+        // variable's name; `variable` only participates in `IndexSet` dedup, never
+        // in warning text.
+        let mut originated = TaintInfo::default();
+        if !call_sources.is_empty() {
+            let bound_name = match &input.place {
+                DefinitionPlace::Single(id) => id.name,
+                DefinitionPlace::Multiple(ids) => ids.first().map(|i| i.name).unwrap_or_else(|| Symbol::intern("_")),
+            };
+            for source in call_sources {
+                originated.coupled_futures.insert(FutureId { variable: bound_name, source });
             }
         }
 
-        // For non-external-call definitions, propagate taint from the RHS,
-        // including implicit taint from enclosing tainted branch conditions.
-        let rhs_taint = self.collect_taint_with_implicit(&input.value);
-        if rhs_taint.is_tainted() {
-            match &input.place {
-                DefinitionPlace::Single(id) => {
-                    self.taint_map.insert(id.name, rhs_taint);
+        match &input.place {
+            DefinitionPlace::Single(id) => {
+                // A pure-Future Single binding that *only* receives taint from a call
+                // source (e.g. `let f: Final = ext_call();` or its embedded-combinator
+                // equivalent) is just the finalize handle, no proof-time payload to
+                // become stale.  If the binding also inherits propagated taint from a
+                // reference (e.g. `let f: Final = start.1;` where `start` is tainted),
+                // the conservative variable-granularity rule still applies and we
+                // taint normally.
+                let bound_is_future =
+                    matches!(self.state.type_table.get(&input.value.id()), Some(Type::Future(_)));
+                if bound_is_future && propagated.coupled_futures.is_empty() {
+                    return;
                 }
-                DefinitionPlace::Multiple(ids) => {
-                    // Conservatively: all variables in the destructuring get the same taint.
+                let mut merged = propagated;
+                merged.coupled_futures.extend(originated.coupled_futures);
+                if merged.is_tainted() {
+                    self.taint_map.insert(id.name, merged);
+                }
+            }
+            DefinitionPlace::Multiple(ids) => {
+                let mut merged = propagated;
+                merged.coupled_futures.extend(originated.coupled_futures);
+                if !merged.is_tainted() {
+                    return;
+                }
+                // Per-position: skip destructure slots whose element type is Future.
+                if let Some(Type::Tuple(tuple_ty)) = self.state.type_table.get(&input.value.id()) {
+                    let elements = tuple_ty.elements();
+                    for (i, id) in ids.iter().enumerate() {
+                        let is_future = elements.get(i).is_some_and(|t| matches!(t, Type::Future(_)));
+                        if !is_future {
+                            self.taint_map.insert(id.name, merged.clone());
+                        }
+                    }
+                } else {
                     for id in ids {
-                        self.taint_map.insert(id.name, rhs_taint.clone());
+                        self.taint_map.insert(id.name, merged.clone());
                     }
                 }
             }
@@ -554,70 +643,6 @@ impl CrossLayerTaintVisitor<'_> {
         }
     }
 
-    /// Handle an external call that returns a value paired with a Future.
-    /// Mark non-Future components as tainted, coupled to the Future's identity.
-    /// `ret_type` is the full return type of the call; `bound_type` is the type
-    /// actually bound by the definition (may differ when wrappers like TupleAccess are present).
-    fn handle_external_call_with_future(
-        &mut self,
-        def: &DefinitionStatement,
-        call_loc: &Location,
-        ret_type: &Type,
-        bound_type: Option<&Type>,
-    ) {
-        match &def.place {
-            DefinitionPlace::Multiple(ids) => {
-                // Match each destructured identifier to its tuple element type.
-                if let Type::Tuple(tuple_ty) = ret_type {
-                    let elements = tuple_ty.elements();
-
-                    // First, find which identifiers bind Futures.
-                    let mut future_ids = Vec::new();
-                    for (i, elem_ty) in elements.iter().enumerate() {
-                        if matches!(elem_ty, Type::Future(_))
-                            && let Some(id) = ids.get(i)
-                        {
-                            future_ids.push(FutureId { variable: id.name, source: call_loc.clone() });
-                        }
-                    }
-
-                    // Then, taint non-Future identifiers, coupled to the Futures found.
-                    for (i, elem_ty) in elements.iter().enumerate() {
-                        if !matches!(elem_ty, Type::Future(_))
-                            && let Some(id) = ids.get(i)
-                        {
-                            let mut taint = TaintInfo::default();
-                            taint.coupled_futures.extend(future_ids.iter().cloned());
-                            self.taint_map.insert(id.name, taint);
-                        }
-                    }
-                } else {
-                    // Conservative fallback: return type is not a tuple (unexpected for
-                    // a multi-binding destructure), taint all bound identifiers.
-                    let future_id = FutureId { variable: ids[0].name, source: call_loc.clone() };
-                    for id in ids {
-                        let mut taint = TaintInfo::default();
-                        taint.coupled_futures.insert(future_id.clone());
-                        self.taint_map.insert(id.name, taint);
-                    }
-                }
-            }
-            DefinitionPlace::Single(id) => {
-                // If the bound type is purely a Future, there is no proof-time value
-                // to become stale — the variable is just the finalize handle.
-                // Check the bound type first (accounts for wrappers like TupleAccess),
-                // then fall back to the call's return type.
-                let effective_type = bound_type.unwrap_or(ret_type);
-                if matches!(effective_type, Type::Future(_)) {
-                    return;
-                }
-                // The entire tuple is one variable, taint it coupled to any Future in the return.
-                let mut taint = TaintInfo::default();
-                taint.coupled_futures.insert(FutureId { variable: id.name, source: call_loc.clone() });
-                self.taint_map.insert(id.name, taint);
-            }
-        }
-    }
 }
 
 impl UnitVisitor for CrossLayerTaintVisitor<'_> {
