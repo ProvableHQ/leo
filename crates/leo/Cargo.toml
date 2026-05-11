@@ -60,8 +60,6 @@ leo-span          = { workspace = true }
 aleo-std           = { workspace = true }
 aleo-std-storage   = { workspace = true }
 anyhow             = { workspace = true }
-axum               = { workspace = true }
-axum-extra         = { workspace = true }
 backtrace          = { workspace = true }
 chrono             = { workspace = true }
 clap               = { workspace = true }
@@ -94,8 +92,6 @@ snarkvm            = { workspace = true, features = ["rocks"] }
 sys-info           = { workspace = true }
 tempfile           = { workspace = true }
 tokio              = { workspace = true }
-tower-http         = { workspace = true }
-tower_governor     = { workspace = true }
 tracing            = { workspace = true }
 tracing-subscriber = { workspace = true }
 ureq               = { workspace = true }
