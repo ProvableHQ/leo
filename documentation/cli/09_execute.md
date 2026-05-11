@@ -77,7 +77,7 @@ Attempting to determine the consensus version from the latest block height at {E
  ...
 ```
 
-See the **[Executing](./../guides/04_executing.md)** guide for more details.
+See the **[Executing](./../guides/05_executing.md)** guide for more details.
 
 ## Flags
 

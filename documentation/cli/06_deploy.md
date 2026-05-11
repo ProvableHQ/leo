@@ -75,7 +75,7 @@ Once it is deployed, it CANNOT be changed.
 ──────────────────────────────────────────────
 ```
 
-See the **[Deploying](./../guides/03_deploying.md)** guide for more details.
+See the **[Deploying](./../guides/04_deploying.md)** guide for more details.
 
 ## JSON Output
 

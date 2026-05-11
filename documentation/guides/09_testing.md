@@ -124,7 +124,7 @@ See the [`leo test` CLI documentation](./../cli/14_test.md).
 
 A local devnet can be a heavyweight but reliable way to test your application on Aleo.
 
-For more information, refer to the [Devnet](./07_devnet.md) guide
+For more information, refer to the [Devnet](./08_devnet.md) guide
 
 ## Deploying/Executing on Testnet
 

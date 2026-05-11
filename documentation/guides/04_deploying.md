@@ -222,7 +222,7 @@ Leo will:
 
 If your program is already deployed, you can upgrade it using the `leo upgrade` command.
 The upgrade will only work if your program is upgradable, meaning it has a constructor that allows for upgrades.
-See the [Upgradability Guide](../guides/09_program_upgradability.md) for more details on how to make your program upgradable.
+See the [Upgradability Guide](../guides/10_program_upgradability.md) for more details on how to make your program upgradable.
 
 ## Options and Environment Variables
 

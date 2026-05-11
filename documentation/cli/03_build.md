@@ -26,7 +26,7 @@ On invoking the build command, Leo automatically creates a `build/⁠` and `outp
   Leo ✅ Generated ABI at 'build/abi.json'.
 ```
 
-The build also generates an **ABI file** at `build/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/10_abi.md) for details on the format and type lowering specification.
+The build also generates an **ABI file** at `build/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/11_abi.md) for details on the format and type lowering specification.
 
 ## Flags
 
@@ -68,4 +68,20 @@ The build also generates an **ABI file** at `build/abi.json` describing your pro
     Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.
 --consensus-heights <CONSENSUS_HEIGHTS>
     Optional consensus heights to use. This should only be set if you are using a custom devnet.
+```
+
+## Workspace Behavior
+
+When run inside a [workspace](../guides/03_workspaces.md):
+
+- **From workspace root:** Builds all members in dependency order.
+- **From a member directory:** Builds only that member.
+- **With `--package <NAME>`:** Builds only the specified member.
+
+```bash
+# Build all workspace members
+leo build
+
+# Build only the swap member
+leo build -p swap
 ```

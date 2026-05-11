@@ -158,7 +158,7 @@ aleo12ux3gdauck0v60westgcpqj7v8rrcr3v346e4jtq04q7kkt22czsh808v2
 
 You can specify the private key to use by manually setting the `PRIVATE_KEY` environment variable, by passing the `--private-key http://localhost:3030` flag in the CLI, or by setting the `PRIVATE_KEY` variable in a `.env` file within the root directory of your Leo project.
 
-Once your private key and endpoint have been correctly set, deploying and executing largely function the same as they would on Testnet or Mainnet. For more details on either of those processes, check out the [**Deploying**](./03_deploying.md) and [**Executing**](./04_executing.md) guides.
+Once your private key and endpoint have been correctly set, deploying and executing largely function the same as they would on Testnet or Mainnet. For more details on either of those processes, check out the [**Deploying**](./04_deploying.md) and [**Executing**](./05_executing.md) guides.
 
 ## Querying Transaction Status
 

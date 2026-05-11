@@ -1,0 +1,15 @@
+{
+  "program": "swap.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "token.aleo",
+      "location": "local",
+      "path": "../token",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

@@ -144,7 +144,7 @@ Run from the library root:
 leo test
 ```
 
-See the [Testing guide](../guides/08_testing.md) for more details.
+See the [Testing guide](../guides/09_testing.md) for more details.
 
 ## How Libraries Work
 
