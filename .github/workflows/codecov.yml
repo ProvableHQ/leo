@@ -28,6 +28,9 @@ jobs:
       - name: Set up rust-cache
         uses: Swatinem/rust-cache@v2
 
+      - name: Install aleo-devnode
+        run: cargo install --git https://github.com/ProvableHQ/aleo-devnode
+
       - name: Test
         uses: actions-rs/cargo@v1
         with:
