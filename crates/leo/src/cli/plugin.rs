@@ -121,9 +121,7 @@ pub fn all() -> Vec<(String, PathBuf)> {
         }
     }
     // Resolve devnode: prefer aleo-devnode, fall back to leo-devnode.
-    if let Some(path) = find_exe(ALEO_DEVNODE)
-        .or_else(|| find_exe(&format!("{PLUGIN_PREFIX}{DEVNODE_SUBCMD}")))
-    {
+    if let Some(path) = find_exe(ALEO_DEVNODE).or_else(|| find_exe(&format!("{PLUGIN_PREFIX}{DEVNODE_SUBCMD}"))) {
         plugins.push((DEVNODE_SUBCMD.to_string(), path));
     }
 
