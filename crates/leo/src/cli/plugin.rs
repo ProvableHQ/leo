@@ -25,6 +25,14 @@ use std::{
 };
 
 const PLUGIN_PREFIX: &str = "leo-";
+const ALEO_DEVNODE: &str = "aleo-devnode";
+
+/// Returns the binary name for a given subcommand, applying prefix rules.
+///
+/// `devnode` is the sole exception: it maps to `aleo-devnode` rather than `leo-devnode`.
+pub fn binary_name_for(subcmd: &str) -> String {
+    if subcmd == "devnode" { ALEO_DEVNODE.to_string() } else { format!("{PLUGIN_PREFIX}{subcmd}") }
+}
 
 /// Scan `PATH` for an executable named `name`.
 pub fn find_exe(name: &str) -> Option<PathBuf> {
@@ -106,6 +114,13 @@ pub fn all() -> Vec<(String, PathBuf)> {
             }
         }
     }
+    // aleo-devnode is the canonical devnode plugin; add it if not already shadowed by leo-devnode.
+    if !seen.contains("devnode") {
+        if let Some(path) = find_exe(ALEO_DEVNODE) {
+            plugins.push(("devnode".to_string(), path));
+        }
+    }
+
     plugins.sort_by(|(a, _), (b, _)| a.cmp(b));
     plugins
 }
