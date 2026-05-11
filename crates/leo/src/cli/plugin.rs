@@ -26,12 +26,17 @@ use std::{
 
 const PLUGIN_PREFIX: &str = "leo-";
 const ALEO_DEVNODE: &str = "aleo-devnode";
+const DEVNODE_SUBCMD: &str = "devnode";
 
 /// Returns the binary name for a given subcommand, applying prefix rules.
 ///
-/// `devnode` is the sole exception: it maps to `aleo-devnode` rather than `leo-devnode`.
+/// For `devnode`, prefers `aleo-devnode` if present on PATH, falling back to `leo-devnode`.
+/// All other subcommands map to `leo-<subcmd>`.
 pub fn binary_name_for(subcmd: &str) -> String {
-    if subcmd == "devnode" { ALEO_DEVNODE.to_string() } else { format!("{PLUGIN_PREFIX}{subcmd}") }
+    if subcmd == DEVNODE_SUBCMD && find_exe(ALEO_DEVNODE).is_some() {
+        return ALEO_DEVNODE.to_string();
+    }
+    format!("{PLUGIN_PREFIX}{subcmd}")
 }
 
 /// Scan `PATH` for an executable named `name`.
@@ -106,6 +111,7 @@ pub fn all() -> Vec<(String, PathBuf)> {
             };
             let stem = name.strip_suffix(std::env::consts::EXE_SUFFIX).unwrap_or(name);
             if let Some(subcmd) = stem.strip_prefix(PLUGIN_PREFIX)
+                && subcmd != DEVNODE_SUBCMD  // devnode resolved separately below
                 && !subcmd.is_empty()
                 && is_executable(&path)
                 && seen.insert(subcmd.to_string())
@@ -114,11 +120,11 @@ pub fn all() -> Vec<(String, PathBuf)> {
             }
         }
     }
-    // aleo-devnode is the canonical devnode plugin; add it if not already shadowed by leo-devnode.
-    if !seen.contains("devnode")
-        && let Some(path) = find_exe(ALEO_DEVNODE)
+    // Resolve devnode: prefer aleo-devnode, fall back to leo-devnode.
+    if let Some(path) = find_exe(ALEO_DEVNODE)
+        .or_else(|| find_exe(&format!("{PLUGIN_PREFIX}{DEVNODE_SUBCMD}")))
     {
-        plugins.push(("devnode".to_string(), path));
+        plugins.push((DEVNODE_SUBCMD.to_string(), path));
     }
 
     plugins.sort_by(|(a, _), (b, _)| a.cmp(b));
