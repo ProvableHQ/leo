@@ -115,10 +115,10 @@ pub fn all() -> Vec<(String, PathBuf)> {
         }
     }
     // aleo-devnode is the canonical devnode plugin; add it if not already shadowed by leo-devnode.
-    if !seen.contains("devnode") {
-        if let Some(path) = find_exe(ALEO_DEVNODE) {
-            plugins.push(("devnode".to_string(), path));
-        }
+    if !seen.contains("devnode")
+        && let Some(path) = find_exe(ALEO_DEVNODE)
+    {
+        plugins.push(("devnode".to_string(), path));
     }
 
     plugins.sort_by(|(a, _), (b, _)| a.cmp(b));
