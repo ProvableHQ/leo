@@ -29,8 +29,8 @@ fn pop_value(values: &mut Vec<Value>) -> Result<Value, String> {
     values.pop().ok_or_else(|| "value expected during constant evaluation".to_string())
 }
 
-fn type_fail<T, E: std::fmt::Debug>(r: Result<T, E>) -> Result<T, String> {
-    r.map_err(|e| format!("type failure: {e:?}"))
+fn type_fail<T, E>(r: Result<T, E>) -> Result<T, String> {
+    r.map_err(|_| "type failure".to_string())
 }
 
 fn snark<T>(r: Result<T, anyhow::Error>) -> Result<T, String> {

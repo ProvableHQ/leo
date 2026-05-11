@@ -82,6 +82,7 @@ tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }
 walkdir            = "2.5"
 which              = "8.0"
+xxhash-rust       = { version = "0.8", features = [ "xxh3" ] }
 
 [profile.release]
 opt-level = 3

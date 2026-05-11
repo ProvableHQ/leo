@@ -23,8 +23,8 @@ use crate::{BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVar
 
 use super::{errors, *};
 
-fn parse_tc<T, E: std::fmt::Debug>(r: Result<T, E>) -> Result<T, String> {
-    r.map_err(|e| format!("type failure: {e:?}"))
+fn parse_tc<T, E: std::fmt::Display>(r: Result<T, E>) -> Result<T, String> {
+    r.map_err(|e| format!("type failure: {e}"))
 }
 
 impl Value {

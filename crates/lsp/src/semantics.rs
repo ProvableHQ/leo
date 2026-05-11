@@ -14,11 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! Shared semantic data model for LSP highlighting and navigation.
+//!
+//! Compiler and syntax collectors emit rich source occurrences into this
+//! module's types. Package analysis then lowers them into compact file IDs,
+//! symbol-key IDs, and byte ranges so semantic tokens, go-to-definition,
+//! references, and future rename support can reuse one bounded index.
+
 use leo_ast::Location;
 use leo_span::Symbol;
 use line_index::LineIndex;
 use std::{
     collections::HashMap,
+    hash::{Hash, Hasher},
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -67,6 +75,45 @@ pub enum SemanticKind {
     Operator,
 }
 
+impl SemanticKind {
+    /// Pack the fixed semantic-kind legend into the occurrence flag word.
+    pub fn to_packed_bits(self) -> u32 {
+        match self {
+            Self::Namespace => 0,
+            Self::Type => 1,
+            Self::Interface => 2,
+            Self::Function => 3,
+            Self::Parameter => 4,
+            Self::Variable => 5,
+            Self::Property => 6,
+            Self::Keyword => 7,
+            Self::Comment => 8,
+            Self::String => 9,
+            Self::Number => 10,
+            Self::Operator => 11,
+        }
+    }
+
+    /// Unpack a semantic kind previously written by [`Self::to_packed_bits`].
+    pub fn from_packed_bits(bits: u32) -> Self {
+        match bits {
+            0 => Self::Namespace,
+            1 => Self::Type,
+            2 => Self::Interface,
+            3 => Self::Function,
+            4 => Self::Parameter,
+            5 => Self::Variable,
+            6 => Self::Property,
+            7 => Self::Keyword,
+            8 => Self::Comment,
+            9 => Self::String,
+            10 => Self::Number,
+            11 => Self::Operator,
+            _ => panic!("invalid packed semantic kind {bits}"),
+        }
+    }
+}
+
 /// Declaration-vs-reference role tracked for later navigation features.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OccurrenceRole {
@@ -83,8 +130,8 @@ pub enum SymbolIdentity {
     GlobalItem { location: Location, declaration: Option<FileRange> },
     /// A member declaration or access owned by the current surrounding item.
     Member { owner: Option<Location>, name: Symbol, declaration: Option<FileRange> },
-    /// A program or imported namespace reference.
-    Program { name: Symbol, declaration: Option<FileRange> },
+    /// A program declaration or namespace occurrence scoped by package root.
+    Program { program: Symbol, package_root: Option<Arc<PathBuf>>, declaration: Option<FileRange> },
     /// Syntax-only occurrence without enough semantic data to identify the symbol.
     Unknown,
 }
@@ -104,7 +151,10 @@ impl SymbolIdentity {
                 Some(SymbolKey::Member { owner: owner.clone(), name: *name })
             }
             Self::Member { owner: None, .. } | Self::Unknown => None,
-            Self::Program { name, .. } => Some(SymbolKey::Program { name: *name }),
+            Self::Program { program, package_root: Some(package_root), .. } => {
+                Some(SymbolKey::Program { program: *program, package_root: Arc::clone(package_root) })
+            }
+            Self::Program { package_root: None, .. } => None,
         }
     }
 
@@ -131,7 +181,7 @@ impl SymbolIdentity {
 /// contain `FileRange`, which duplicates paths and range objects. Worker
 /// lowering converts every key into [`CompactSymbolKey`] after file IDs are
 /// interned for the package analysis.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Eq)]
 pub enum SymbolKey {
     /// A lexical binding keyed by its declaration token.
     Local { declaration: FileRange },
@@ -139,8 +189,56 @@ pub enum SymbolKey {
     GlobalItem { location: Location },
     /// A member keyed by concrete owner and member name.
     Member { owner: Location, name: Symbol },
-    /// A program or namespace key. This is navigation-only for PR 3.
-    Program { name: Symbol },
+    /// A program or namespace key scoped by resolved package root.
+    Program { program: Symbol, package_root: Arc<PathBuf> },
+}
+
+impl PartialEq for SymbolKey {
+    /// Compare symbol keys while treating equal package-root paths as equal Arcs.
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Local { declaration: left }, Self::Local { declaration: right }) => left == right,
+            (Self::GlobalItem { location: left }, Self::GlobalItem { location: right }) => left == right,
+            (
+                Self::Member { owner: left_owner, name: left_name },
+                Self::Member { owner: right_owner, name: right_name },
+            ) => left_owner == right_owner && left_name == right_name,
+            (
+                Self::Program { program: left_program, package_root: left_root },
+                Self::Program { program: right_program, package_root: right_root },
+            ) => {
+                left_program == right_program
+                    && (Arc::ptr_eq(left_root, right_root) || left_root.as_ref() == right_root.as_ref())
+            }
+            _ => false,
+        }
+    }
+}
+
+impl Hash for SymbolKey {
+    /// Hash symbol keys by semantic identity rather than Arc pointer identity.
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::Local { declaration } => {
+                0_u8.hash(state);
+                declaration.hash(state);
+            }
+            Self::GlobalItem { location } => {
+                1_u8.hash(state);
+                location.hash(state);
+            }
+            Self::Member { owner, name } => {
+                2_u8.hash(state);
+                owner.hash(state);
+                name.hash(state);
+            }
+            Self::Program { program, package_root } => {
+                3_u8.hash(state);
+                program.hash(state);
+                package_root.as_ref().hash(state);
+            }
+        }
+    }
 }
 
 /// Compact file identifier used inside package-level semantic caches.
@@ -149,7 +247,7 @@ pub type FileId = u32;
 /// Compact symbol-key identifier used inside package-level semantic caches.
 pub type SymbolKeyId = u32;
 
-/// Sentinel stored in [`CompactOccurrence::key`] for syntax-only tokens.
+/// Sentinel packed into [`CompactOccurrence`] for syntax-only tokens without a key.
 pub const NO_SYMBOL_KEY: SymbolKeyId = u32::MAX;
 
 /// File-relative byte range stored without cloning paths.
@@ -164,7 +262,7 @@ pub struct CompactRange {
 }
 
 /// Cached semantic key after local declarations have been lowered to file IDs.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Eq)]
 pub enum CompactSymbolKey {
     /// A lexical binding keyed by its compact declaration token.
     Local { declaration: CompactRange },
@@ -172,30 +270,134 @@ pub enum CompactSymbolKey {
     GlobalItem { location: Location },
     /// A member keyed by concrete owner and member name.
     Member { owner: Location, name: Symbol },
-    /// A program or namespace key. This is navigation-only for PR 3.
-    Program { name: Symbol },
+    /// A program or namespace key scoped by resolved package root.
+    Program { program: Symbol, package_root: Arc<PathBuf> },
+}
+
+impl PartialEq for CompactSymbolKey {
+    /// Compare compact keys while preserving path-value equality for program roots.
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Local { declaration: left }, Self::Local { declaration: right }) => left == right,
+            (Self::GlobalItem { location: left }, Self::GlobalItem { location: right }) => left == right,
+            (
+                Self::Member { owner: left_owner, name: left_name },
+                Self::Member { owner: right_owner, name: right_name },
+            ) => left_owner == right_owner && left_name == right_name,
+            (
+                Self::Program { program: left_program, package_root: left_root },
+                Self::Program { program: right_program, package_root: right_root },
+            ) => {
+                left_program == right_program
+                    && (Arc::ptr_eq(left_root, right_root) || left_root.as_ref() == right_root.as_ref())
+            }
+            _ => false,
+        }
+    }
+}
+
+impl Hash for CompactSymbolKey {
+    /// Hash compact keys by semantic identity rather than Arc pointer identity.
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self {
+            Self::Local { declaration } => {
+                0_u8.hash(state);
+                declaration.hash(state);
+            }
+            Self::GlobalItem { location } => {
+                1_u8.hash(state);
+                location.hash(state);
+            }
+            Self::Member { owner, name } => {
+                2_u8.hash(state);
+                owner.hash(state);
+                name.hash(state);
+            }
+            Self::Program { program, package_root } => {
+                3_u8.hash(state);
+                program.hash(state);
+                package_root.as_ref().hash(state);
+            }
+        }
+    }
 }
 
 /// Compact occurrence retained by package analysis.
+///
+/// The semantic key and token metadata intentionally share one trailing word:
+/// low 26 bits store the package-local key ID, while the high 6 bits store
+/// declaration/reference, readonly, and semantic-kind flags. That keeps the
+/// occurrence table at 16 bytes, which is the memory budget that pays for the
+/// secondary references index.
+#[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CompactOccurrence {
     /// Source range for the occurrence.
     pub range: CompactRange,
-    /// Interned semantic key, or [`NO_SYMBOL_KEY`] for syntax-only/unknown tokens.
-    pub key: SymbolKeyId,
-    /// Declaration/reference role for semantic-token modifiers and navigation.
-    pub role: OccurrenceRole,
-    /// Internal token kind reused by semantic-token document views.
-    pub token_kind: SemanticKind,
-    /// Whether this occurrence carries the readonly semantic-token modifier.
-    pub readonly: bool,
+    /// Packed semantic key plus role/readonly/kind flags.
+    key_and_flags: u32,
 }
 
+const PACKED_KEY_BITS: u32 = 26;
+const PACKED_KEY_MASK: u32 = (1 << PACKED_KEY_BITS) - 1;
+const PACKED_NO_SYMBOL_KEY: u32 = PACKED_KEY_MASK;
+const FLAG_ROLE_DECLARATION: u32 = 1 << PACKED_KEY_BITS;
+const FLAG_READONLY: u32 = 1 << (PACKED_KEY_BITS + 1);
+const FLAG_KIND_SHIFT: u32 = PACKED_KEY_BITS + 2;
+const FLAG_KIND_MASK: u32 = 0b1111 << FLAG_KIND_SHIFT;
+
 impl CompactOccurrence {
+    /// Construct a compact occurrence with packed metadata flags.
+    pub fn new(
+        range: CompactRange,
+        key: SymbolKeyId,
+        role: OccurrenceRole,
+        token_kind: SemanticKind,
+        readonly: bool,
+    ) -> Self {
+        let mut key_and_flags = pack_symbol_key(key) | (token_kind.to_packed_bits() << FLAG_KIND_SHIFT);
+        if role == OccurrenceRole::Declaration {
+            key_and_flags |= FLAG_ROLE_DECLARATION;
+        }
+        if readonly {
+            key_and_flags |= FLAG_READONLY;
+        }
+        Self { range, key_and_flags }
+    }
+
     /// Return the optional semantic key for navigation-grade occurrences.
     pub fn key_id(&self) -> Option<SymbolKeyId> {
-        (self.key != NO_SYMBOL_KEY).then_some(self.key)
+        let key = self.key_and_flags & PACKED_KEY_MASK;
+        (key != PACKED_NO_SYMBOL_KEY).then_some(key)
     }
+
+    /// Return whether this occurrence is a declaration or reference.
+    pub fn role(&self) -> OccurrenceRole {
+        if self.key_and_flags & FLAG_ROLE_DECLARATION != 0 {
+            OccurrenceRole::Declaration
+        } else {
+            OccurrenceRole::Reference
+        }
+    }
+
+    /// Return the token kind carried by this occurrence.
+    pub fn token_kind(&self) -> SemanticKind {
+        SemanticKind::from_packed_bits((self.key_and_flags & FLAG_KIND_MASK) >> FLAG_KIND_SHIFT)
+    }
+
+    /// Return whether this occurrence carries the readonly modifier.
+    pub fn readonly(&self) -> bool {
+        self.key_and_flags & FLAG_READONLY != 0
+    }
+}
+
+/// Pack an optional symbol key into the reserved low bits of an occurrence.
+fn pack_symbol_key(key: SymbolKeyId) -> u32 {
+    if key == NO_SYMBOL_KEY {
+        return PACKED_NO_SYMBOL_KEY;
+    }
+    assert!(key < PACKED_NO_SYMBOL_KEY, "too many distinct symbol keys for one LSP package index");
+    key
 }
 
 /// Borrowed occurrence returned by fast cursor lookup.
@@ -236,6 +438,8 @@ pub struct AnalyzedFile {
     pub fingerprint: SourceFingerprint,
     /// Open-buffer line index retained only for unsaved editor content.
     pub open_line_index: Option<Arc<LineIndex>>,
+    /// Virtual sentinel paths are semantic identities only, never LSP locations.
+    pub is_sentinel: bool,
 }
 
 /// Memory-light analyzed-file table owned by one package analysis.
@@ -324,10 +528,18 @@ pub struct SemanticIndex {
     pub occurrences: Arc<[CompactOccurrence]>,
     /// Per-file occurrence slices into `occurrences`.
     pub file_occurrence_ranges: Arc<[(FileId, std::ops::Range<u32>)]>,
-    /// Per-key definition slices into `definition_ranges`.
-    pub definitions: Arc<[(SymbolKeyId, std::ops::Range<u32>)]>,
+    /// Sorted distinct keys with at least one definition target.
+    pub definition_keys: Arc<[SymbolKeyId]>,
+    /// Cumulative end offsets into `definition_ranges`.
+    pub definition_ends: Arc<[u32]>,
     /// Deduplicated compact definition targets.
     pub definition_ranges: Arc<[CompactRange]>,
+    /// Sorted distinct keys with at least one occurrence.
+    pub key_occurrence_keys: Arc<[SymbolKeyId]>,
+    /// Cumulative end offsets into `key_occurrence_indices`.
+    pub key_occurrence_ends: Arc<[u32]>,
+    /// Occurrence indices grouped by key and ordered by file/range.
+    pub key_occurrence_indices: Arc<[u32]>,
 }
 
 impl SemanticIndex {
@@ -362,13 +574,13 @@ impl SemanticIndex {
                 Some(intern_symbol_key(compact, &mut key_ids))
             });
 
-            compact_occurrences.push(CompactOccurrence {
+            compact_occurrences.push(CompactOccurrence::new(
                 range,
-                key: key.unwrap_or(NO_SYMBOL_KEY),
-                role: occurrence.role,
-                token_kind: occurrence.token_kind,
-                readonly: occurrence.readonly,
-            });
+                key.unwrap_or(NO_SYMBOL_KEY),
+                occurrence.role,
+                occurrence.token_kind,
+                occurrence.readonly,
+            ));
 
             if let Some(key) = key {
                 if occurrence.role == OccurrenceRole::Declaration {
@@ -395,7 +607,9 @@ impl SemanticIndex {
         });
 
         let file_occurrence_ranges = file_occurrence_ranges(&compact_occurrences);
-        let (definitions, definition_ranges) = definition_slices(definition_pairs);
+        let (definition_keys, definition_ends, definition_ranges) = definition_slices(definition_pairs);
+        let (key_occurrence_keys, key_occurrence_ends, key_occurrence_indices) =
+            key_occurrence_slices(&compact_occurrences);
         let mut file_lookup =
             files.iter().enumerate().map(|(id, path)| (Arc::clone(path), id as FileId)).collect::<Vec<_>>();
         file_lookup.sort_by(|(left, _), (right, _)| left.cmp(right));
@@ -408,6 +622,7 @@ impl SemanticIndex {
                 path: Arc::clone(path),
                 fingerprint: fingerprint_for_path(path.as_ref()),
                 open_line_index: open_line_index_for_path(path.as_ref()),
+                is_sentinel: is_sentinel_path(path.as_ref()),
             })
             .collect();
 
@@ -417,8 +632,12 @@ impl SemanticIndex {
                 file_lookup: Arc::from(file_lookup),
                 occurrences: Arc::from(compact_occurrences),
                 file_occurrence_ranges: Arc::from(file_occurrence_ranges),
-                definitions: Arc::from(definitions),
+                definition_keys: Arc::from(definition_keys),
+                definition_ends: Arc::from(definition_ends),
                 definition_ranges: Arc::from(definition_ranges),
+                key_occurrence_keys: Arc::from(key_occurrence_keys),
+                key_occurrence_ends: Arc::from(key_occurrence_ends),
+                key_occurrence_indices: Arc::from(key_occurrence_indices),
             },
             AnalyzedFileSet::new(analyzed_files),
         )
@@ -455,11 +674,20 @@ impl SemanticIndex {
 
     /// Return all deduplicated definition targets for a compact key.
     pub fn definitions_for(&self, key: SymbolKeyId) -> &[CompactRange] {
-        let Ok(index) = self.definitions.binary_search_by_key(&key, |(candidate, _)| *candidate) else {
+        let Ok(index) = self.definition_keys.binary_search(&key) else {
             return &[];
         };
-        let (_, range) = &self.definitions[index];
-        &self.definition_ranges[range.start as usize..range.end as usize]
+        let start = if index == 0 { 0 } else { self.definition_ends[index - 1] };
+        let end = self.definition_ends[index];
+        &self.definition_ranges[start as usize..end as usize]
+    }
+
+    /// Return all occurrences for a compact key in deterministic file/range order.
+    pub fn occurrences_for(&self, key: SymbolKeyId) -> impl Iterator<Item = &CompactOccurrence> + '_ {
+        let range = self.key_occurrence_index_range(key).unwrap_or(0..0);
+        self.key_occurrence_indices[range.start as usize..range.end as usize]
+            .iter()
+            .map(|index| &self.occurrences[*index as usize])
     }
 
     /// Return semantic-token occurrences for one file.
@@ -479,9 +707,9 @@ impl SemanticIndex {
                     start: occurrence.range.start,
                     end: occurrence.range.end,
                 },
-                token_kind: occurrence.token_kind,
-                role: occurrence.role,
-                readonly: occurrence.readonly,
+                token_kind: occurrence.token_kind(),
+                role: occurrence.role(),
+                readonly: occurrence.readonly(),
             })
             .collect()
     }
@@ -496,6 +724,13 @@ impl SemanticIndex {
     fn file_occurrence_range(&self, file: FileId) -> Option<std::ops::Range<u32>> {
         let index = self.file_occurrence_ranges.binary_search_by_key(&file, |(candidate, _)| *candidate).ok()?;
         Some(self.file_occurrence_ranges[index].1.clone())
+    }
+
+    /// Return the compact index slice for one symbol key.
+    fn key_occurrence_index_range(&self, key: SymbolKeyId) -> Option<std::ops::Range<u32>> {
+        let index = self.key_occurrence_keys.binary_search(&key).ok()?;
+        let start = if index == 0 { 0 } else { self.key_occurrence_ends[index - 1] };
+        Some(start..self.key_occurrence_ends[index])
     }
 }
 
@@ -564,7 +799,7 @@ fn compact_symbol_key(key: SymbolKey, path_ids: &HashMap<Arc<PathBuf>, FileId>) 
         }
         SymbolKey::GlobalItem { location } => Some(CompactSymbolKey::GlobalItem { location }),
         SymbolKey::Member { owner, name } => Some(CompactSymbolKey::Member { owner, name }),
-        SymbolKey::Program { name } => Some(CompactSymbolKey::Program { name }),
+        SymbolKey::Program { program, package_root } => Some(CompactSymbolKey::Program { program, package_root }),
     }
 }
 
@@ -595,38 +830,77 @@ fn file_occurrence_ranges(occurrences: &[CompactOccurrence]) -> Vec<(FileId, std
 }
 
 /// Build compact definition lookup tables from `(key, target)` pairs.
-fn definition_slices(
-    mut pairs: Vec<(SymbolKeyId, CompactRange)>,
-) -> (Vec<(SymbolKeyId, std::ops::Range<u32>)>, Vec<CompactRange>) {
+fn definition_slices(mut pairs: Vec<(SymbolKeyId, CompactRange)>) -> (Vec<SymbolKeyId>, Vec<u32>, Vec<CompactRange>) {
     pairs.sort_by(|(left_key, left_range), (right_key, right_range)| {
         left_key.cmp(right_key).then_with(|| left_range.cmp(right_range))
     });
     pairs.dedup();
 
-    // Store targets in one flat range arena and keep a sorted `(key, slice)`
-    // table. That keeps package caches compact while preserving binary-search
-    // lookup for definition requests.
-    let mut definitions = Vec::new();
+    // CSR keeps the key lookup table compact while preserving binary-search
+    // lookup for definition and references requests.
+    let mut keys = Vec::new();
+    let mut ends = Vec::new();
     let mut ranges = Vec::new();
     let mut start = 0_usize;
     while start < pairs.len() {
         let key = pairs[start].0;
-        let range_start = ranges.len() as u32;
         let mut end = start;
         while end < pairs.len() && pairs[end].0 == key {
             ranges.push(pairs[end].1);
             end += 1;
         }
-        definitions.push((key, range_start..ranges.len() as u32));
+        keys.push(key);
+        ends.push(ranges.len() as u32);
         start = end;
     }
 
-    (definitions, ranges)
+    (keys, ends, ranges)
+}
+
+/// Build the secondary occurrence index in key/file/range order.
+fn key_occurrence_slices(occurrences: &[CompactOccurrence]) -> (Vec<SymbolKeyId>, Vec<u32>, Vec<u32>) {
+    let mut pairs = Vec::<(SymbolKeyId, u32)>::new();
+    for (index, occurrence) in occurrences.iter().enumerate() {
+        if let Some(key) = occurrence.key_id() {
+            pairs.push((key, index as u32));
+        }
+    }
+
+    pairs.sort_unstable_by(|left, right| {
+        left.0.cmp(&right.0).then_with(|| {
+            let left_range = occurrences[left.1 as usize].range;
+            let right_range = occurrences[right.1 as usize].range;
+            left_range.cmp(&right_range)
+        })
+    });
+
+    let mut keys = Vec::<SymbolKeyId>::new();
+    let mut ends = Vec::<u32>::new();
+    let mut indices = Vec::<u32>::with_capacity(pairs.len());
+    let mut start = 0_usize;
+    while start < pairs.len() {
+        let key = pairs[start].0;
+        let mut end = start;
+        while end < pairs.len() && pairs[end].0 == key {
+            indices.push(pairs[end].1);
+            end += 1;
+        }
+        keys.push(key);
+        ends.push(indices.len() as u32);
+        start = end;
+    }
+
+    (keys, ends, indices)
 }
 
 /// Return a compact range length, saturating defensively for malformed inputs.
 fn range_len(range: CompactRange) -> u32 {
     range.end.saturating_sub(range.start)
+}
+
+/// Return whether an interned path is a compiler-bridge virtual sentinel.
+pub(crate) fn is_sentinel_path(path: &Path) -> bool {
+    path.as_os_str().to_string_lossy().starts_with("leo-vfs:")
 }
 
 /// Sort occurrences into stable file-relative source order.
@@ -686,7 +960,19 @@ pub fn merge_occurrences(
 
 #[cfg(test)]
 mod tests {
-    use super::{FileRange, OccurrenceRole, SemanticKind, SymbolIdentity, SymbolOccurrence, merge_occurrences};
+    use super::{
+        CompactOccurrence,
+        CompactRange,
+        FileRange,
+        OccurrenceRole,
+        SemanticIndex,
+        SemanticKind,
+        SourceFingerprint,
+        SymbolIdentity,
+        SymbolKeyId,
+        SymbolOccurrence,
+        merge_occurrences,
+    };
     use std::{path::PathBuf, sync::Arc};
 
     /// Build a minimal occurrence for merge-order unit tests.
@@ -698,6 +984,65 @@ mod tests {
             token_kind,
             readonly: false,
         }
+    }
+
+    /// Verifies every semantic kind survives compact occurrence packing.
+    #[test]
+    fn compact_occurrence_flags_round_trip() {
+        let range = CompactRange { file: 0, start: 1, end: 4 };
+        let kinds = [
+            SemanticKind::Namespace,
+            SemanticKind::Type,
+            SemanticKind::Interface,
+            SemanticKind::Function,
+            SemanticKind::Parameter,
+            SemanticKind::Variable,
+            SemanticKind::Property,
+            SemanticKind::Keyword,
+            SemanticKind::Comment,
+            SemanticKind::String,
+            SemanticKind::Number,
+            SemanticKind::Operator,
+        ];
+
+        for kind in kinds {
+            let occurrence = CompactOccurrence::new(range, 7, OccurrenceRole::Declaration, kind, true);
+            assert_eq!(occurrence.key_id(), Some(7));
+            assert_eq!(occurrence.role(), OccurrenceRole::Declaration);
+            assert_eq!(occurrence.token_kind(), kind);
+            assert!(occurrence.readonly());
+        }
+        assert_eq!(std::mem::size_of::<CompactOccurrence>(), 16);
+    }
+
+    /// Verifies the secondary occurrence index returns source-ordered matches.
+    #[test]
+    fn occurrences_for_returns_keyed_source_order() {
+        let path = Arc::new(PathBuf::from("main.leo"));
+        let declaration = FileRange::new(Arc::clone(&path), 4, 9).expect("declaration range");
+        let occurrences = vec![
+            SymbolOccurrence {
+                range: FileRange::new(Arc::clone(&path), 20, 25).expect("reference range"),
+                identity: SymbolIdentity::Local { declaration: declaration.clone() },
+                role: OccurrenceRole::Reference,
+                token_kind: SemanticKind::Variable,
+                readonly: false,
+            },
+            SymbolOccurrence {
+                range: declaration.clone(),
+                identity: SymbolIdentity::Local { declaration },
+                role: OccurrenceRole::Declaration,
+                token_kind: SemanticKind::Variable,
+                readonly: false,
+            },
+        ];
+
+        let (index, _) = SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None);
+        let key = index.occurrences[0].key_id().expect("keyed declaration");
+        let starts = index.occurrences_for(key).map(|occurrence| occurrence.range.start).collect::<Vec<_>>();
+
+        assert_eq!(starts, vec![4, 20]);
+        assert!(index.occurrences_for(SymbolKeyId::MAX - 1).next().is_none());
     }
 
     /// Verifies compiler occurrences win exact range conflicts with syntax fallback.

@@ -16,19 +16,28 @@
 
 #![allow(clippy::mutable_key_type)]
 
+//! Main `leo-lsp` protocol loop and routing-thread state.
+//!
+//! This module owns the initialized LSP lifecycle, open-document routing,
+//! request cancellation, worker completion handling, and response-pool
+//! handoffs. Feature modules answer semantic questions; this layer preserves
+//! freshness, ordering, and single-writer JSON-RPC response semantics.
+
 use crate::{
     document_store::{AnalysisBucket, DocumentStore, DocumentViewKey, PackageAnalysisKey},
     features::{
         goto_definition::{
             DefinitionQuery,
-            position_to_offset,
             resolve as resolve_definition,
             response_value as definition_response_value,
         },
+        lsp_range::position_to_offset,
+        references::ReferenceQuery,
         semantic_tokens::{capability as semantic_tokens_capability, empty_response_value, response_value},
     },
     panic_boundary::catch_unwind,
     project_model::{ProjectModel, uri_to_file_path},
+    response_pool::{OpenLineIndexes, ResponseCompletion, ResponseJob, ResponsePool, ResponseResult},
     scheduler::{PackageAnalysis, Scheduler, WorkerEvent},
     semantics::{CachedDocumentView, CachedPackageAnalysis},
 };
@@ -44,6 +53,7 @@ use lsp_types::{
     InitializeResult,
     NumberOrString,
     OneOf,
+    ReferenceParams,
     SemanticTokensParams,
     ServerCapabilities,
     ServerInfo,
@@ -58,7 +68,10 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     path::PathBuf,
     process::ExitCode,
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 
 /// JSON-RPC code for internal server errors.
@@ -84,12 +97,18 @@ const CANCEL_REQUEST: &str = "$/cancelRequest";
 const SEMANTIC_TOKENS_FULL: &str = "textDocument/semanticTokens/full";
 /// LSP go-to-definition request method.
 const TEXT_DOCUMENT_DEFINITION: &str = "textDocument/definition";
+/// LSP find-all-references request method.
+const TEXT_DOCUMENT_REFERENCES: &str = "textDocument/references";
 /// Maximum package analyses retained on the routing thread.
 const MAX_PACKAGE_CACHE_ENTRIES: usize = 8;
 /// Maximum pending go-to-definition requests across all packages.
 const MAX_PENDING_DEFINITIONS: usize = 128;
 /// Maximum pending go-to-definition requests waiting on one package key.
 const MAX_PENDING_DEFINITIONS_PER_KEY: usize = 16;
+/// Maximum pending references requests across all packages.
+const MAX_PENDING_REFERENCES: usize = 128;
+/// Maximum pending references requests waiting on one package key.
+const MAX_PENDING_REFERENCES_PER_KEY: usize = 16;
 
 /// In-memory state for one running `leo-lsp` server instance.
 ///
@@ -105,9 +124,11 @@ struct ServerState {
     documents: DocumentStore,
     project_model: ProjectModel,
     scheduler: Scheduler,
+    response_pool: ResponsePool,
     analysis: AnalysisCaches,
     semantic_token_requests: SemanticTokenRequestState,
     definition_requests: DefinitionRequestState,
+    reference_requests: ReferencesRequestState,
     client_definition_link_support: bool,
     hooks: TestHooks,
 }
@@ -158,6 +179,28 @@ struct PendingDefinitionRequest {
     query: DefinitionQuery,
 }
 
+/// Pending references requests keyed by package analysis.
+#[derive(Debug, Default)]
+struct ReferencesRequestState {
+    /// Waiters and in-flight conversions grouped by package analysis.
+    pending_by_package: HashMap<PackageAnalysisKey, Vec<PendingReferencesRequest>>,
+    /// Reverse lookup used to cancel or complete a request by ID.
+    pending_owner: HashMap<RequestId, PackageAnalysisKey>,
+}
+
+/// One pending references request with cancellation state owned by routing.
+#[derive(Debug, Clone)]
+struct PendingReferencesRequest {
+    /// Original LSP request ID to answer when conversion completes.
+    id: RequestId,
+    /// Cursor and freshness state captured when the request arrived.
+    query: ReferenceQuery,
+    /// Cancellation flag observed by the response pool.
+    cancel: Arc<AtomicBool>,
+    /// Whether this request has already been handed to the response pool.
+    dispatched: bool,
+}
+
 /// Run the production LSP server with hooks loaded from the process environment.
 pub(crate) fn run(connection: Connection) -> Result<ExitCode> {
     run_with_hooks(connection, TestHooks::from_env())
@@ -190,9 +233,11 @@ fn run_with_hooks(connection: Connection, hooks: TestHooks) -> Result<ExitCode> 
         documents: DocumentStore::default(),
         project_model: ProjectModel::default(),
         scheduler: Scheduler::new(hooks.panic_on_worker_job),
+        response_pool: ResponsePool::new(),
         analysis: AnalysisCaches::default(),
         semantic_token_requests: SemanticTokenRequestState::default(),
         definition_requests: DefinitionRequestState::default(),
+        reference_requests: ReferencesRequestState::default(),
         client_definition_link_support,
         hooks,
     };
@@ -217,10 +262,16 @@ fn run_with_hooks(connection: Connection, hooks: TestHooks) -> Result<ExitCode> 
                     state.handle_worker_event(&connection, event);
                 }
             }
+            recv(state.response_pool.completions()) -> completion => {
+                if let Ok(completion) = completion {
+                    state.handle_response_completion(&connection, completion);
+                }
+            }
         }
     }
 
     state.scheduler.shutdown();
+    state.response_pool.shutdown();
     Ok(state.exit_code.unwrap_or(ExitCode::from(1)))
 }
 
@@ -282,6 +333,11 @@ impl ServerState {
                 let params: GotoDefinitionParams =
                     serde_json::from_value(params).context("failed to deserialize textDocument/definition")?;
                 self.handle_goto_definition(connection, request_id, params)
+            }
+            TEXT_DOCUMENT_REFERENCES => {
+                let params: ReferenceParams =
+                    serde_json::from_value(params).context("failed to deserialize textDocument/references")?;
+                self.handle_references(connection, request_id, params)
             }
             _ => {
                 tracing::debug!(method, "request is not implemented");
@@ -431,6 +487,9 @@ impl ServerState {
         if let Err(error) = send_definition_nulls(connection, self.definition_requests.clear_uri(&uri)) {
             tracing::error!(uri = uri.as_str(), error = %error, "failed to flush definition close responses");
         }
+        if let Err(error) = send_reference_nulls(connection, self.reference_requests.clear_uri(&uri)) {
+            tracing::error!(uri = uri.as_str(), error = %error, "failed to flush references close responses");
+        }
         if let Some(bucket) = previous_bucket {
             self.analysis.invalidate_bucket(&bucket);
             self.cancel_pending_bucket_requests(connection, &bucket, "package analysis was superseded");
@@ -439,7 +498,7 @@ impl ServerState {
         }
     }
 
-    /// Remove a pending semantic-token or definition request by LSP request ID.
+    /// Remove a pending semantic-token, definition, or references request by LSP request ID.
     fn handle_cancel_request(&mut self, connection: &Connection, params: CancelParams) -> Result<()> {
         let request_id = request_id_from_cancel(params.id);
         if self.semantic_token_requests.remove_pending_request(&request_id) {
@@ -456,6 +515,14 @@ impl ServerState {
                 ErrorCode::RequestCanceled as i32,
                 "definition request cancelled",
             )
+        } else if let Some(pending) = self.reference_requests.remove_pending_request(&request_id) {
+            pending.cancel.store(true, Ordering::SeqCst);
+            send_error_response(
+                connection,
+                request_id,
+                ErrorCode::RequestCanceled as i32,
+                "references request cancelled",
+            )
         } else {
             Ok(())
         }
@@ -469,9 +536,16 @@ impl ServerState {
                 if self.documents.generation(&uri) == Some(generation)
                     && self.documents.package_key(&uri) == Some(key.clone())
                 {
-                    self.analysis.store_package(Arc::clone(&result.package));
+                    for evicted in self.analysis.store_package(Arc::clone(&result.package)) {
+                        self.cancel_pending_package_requests(
+                            connection,
+                            &evicted,
+                            "package analysis was evicted from cache",
+                        );
+                    }
                     self.store_document_view(connection, result.document_view);
                     self.answer_pending_definitions(connection, &key);
+                    self.answer_pending_references(&key);
                     self.enqueue_pending_document_views_for_package(&key);
                     tracing::debug!(
                         uri = uri.as_str(),
@@ -538,6 +612,18 @@ impl ServerState {
                     ) {
                         tracing::error!(uri = uri.as_str(), error = %error, "failed to send definition analysis panic");
                     }
+                    let references = self.reference_requests.take_package(&key);
+                    for pending in &references {
+                        pending.cancel.store(true, Ordering::SeqCst);
+                    }
+                    if let Err(error) = send_error_responses(
+                        connection,
+                        references.into_iter().map(|pending| pending.id).collect(),
+                        INTERNAL_ERROR,
+                        "references analysis panicked; see server logs for details",
+                    ) {
+                        tracing::error!(uri = uri.as_str(), error = %error, "failed to send references analysis panic");
+                    }
                 } else {
                     self.cancel_pending_package_requests(connection, &key, "package analysis was superseded");
                 }
@@ -561,6 +647,36 @@ impl ServerState {
                         &key,
                         "semantic token document view was superseded",
                     );
+                }
+            }
+        }
+    }
+
+    /// Forward a response-pool completion if the request is still live.
+    fn handle_response_completion(&mut self, connection: &Connection, completion: ResponseCompletion) {
+        match completion {
+            ResponseCompletion::References { id, key, cancel, result } => {
+                let Some(pending) = self.reference_requests.get(&id) else {
+                    return;
+                };
+                // JSON-RPC IDs can be reused after cancellation. The package
+                // key proves freshness for the analysis; the Arc identity
+                // proves this completion belongs to the same dispatched waiter,
+                // not an older request that happened to use the same ID.
+                if pending.query.view_key.package != key || !Arc::ptr_eq(&pending.cancel, &cancel) {
+                    return;
+                }
+                let Some(_pending) = self.reference_requests.remove_pending_request(&id) else {
+                    return;
+                };
+                let send_result = match result {
+                    ResponseResult::Ok(value) => send_ok_response(connection, id, value),
+                    ResponseResult::InternalError(message) => {
+                        send_error_response(connection, id, INTERNAL_ERROR, message)
+                    }
+                };
+                if let Err(error) = send_result {
+                    tracing::error!(error = %error, "failed to send references response");
                 }
             }
         }
@@ -660,6 +776,63 @@ impl ServerState {
         }
     }
 
+    /// Answer or queue one find-all-references request.
+    fn handle_references(
+        &mut self,
+        connection: &Connection,
+        request_id: RequestId,
+        params: ReferenceParams,
+    ) -> Result<()> {
+        let uri = params.text_document_position.text_document.uri;
+        let position = params.text_document_position.position;
+        let Some(document) = self.documents.open_document(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        if document.file_path.is_none() {
+            return send_ok_response(connection, request_id, Value::Null);
+        }
+        let Some(offset) = position_to_offset(document.line_index.as_ref(), position) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        let Some(view_key) = self.documents.document_view_key(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+
+        if self.analysis.failed_packages.contains(&view_key.package) {
+            return send_error_response(
+                connection,
+                request_id,
+                INTERNAL_ERROR,
+                "references analysis panicked; see server logs for details",
+            );
+        }
+
+        let package = self.analysis.packages.get(&view_key.package).cloned();
+        let query = ReferenceQuery {
+            offset,
+            position,
+            view_key: view_key.clone(),
+            include_declaration: params.context.include_declaration,
+        };
+        let cancel = Arc::new(AtomicBool::new(false));
+        let dispatched = package.is_some();
+        if !self.reference_requests.queue(query, request_id.clone(), Arc::clone(&cancel), dispatched) {
+            return send_error_response(
+                connection,
+                request_id,
+                ErrorCode::RequestCanceled as i32,
+                "too many pending references requests",
+            );
+        }
+
+        if let Some(package) = package {
+            self.dispatch_reference_job(request_id, view_key.package, package, cancel);
+        } else {
+            self.ensure_package_analysis(&view_key.package, &uri);
+        }
+        Ok(())
+    }
+
     /// Ensure the package and document-view analysis needed for a token request is queued.
     fn ensure_analysis_for_view(&mut self, view_key: &DocumentViewKey) {
         if let Some(package) = self.analysis.packages.get(&view_key.package).cloned() {
@@ -722,6 +895,36 @@ impl ServerState {
         }
     }
 
+    /// Dispatch queued references requests unblocked by a cached package.
+    fn answer_pending_references(&mut self, key: &PackageAnalysisKey) {
+        let Some(package) = self.analysis.packages.get(key).cloned() else {
+            return;
+        };
+        for pending in self.reference_requests.mark_undispatched(key) {
+            self.dispatch_reference_job(pending.id, key.clone(), Arc::clone(&package), Arc::clone(&pending.cancel));
+        }
+    }
+
+    /// Hand one references request to the response pool.
+    fn dispatch_reference_job(
+        &self,
+        request_id: RequestId,
+        _key: PackageAnalysisKey,
+        package: Arc<CachedPackageAnalysis>,
+        cancel: Arc<AtomicBool>,
+    ) {
+        let Some(pending) = self.reference_requests.get(&request_id) else {
+            return;
+        };
+        self.response_pool.submit(ResponseJob::References {
+            id: request_id,
+            query: Box::new(pending.query.clone()),
+            package,
+            open_line_indexes: OpenLineIndexes::snapshot(&self.documents),
+            cancel,
+        });
+    }
+
     /// Start document-view jobs unblocked by a newly cached package analysis.
     fn enqueue_pending_document_views_for_package(&mut self, key: &PackageAnalysisKey) {
         let Some(package) = self.analysis.packages.get(key).cloned() else {
@@ -754,7 +957,7 @@ impl ServerState {
         self.cancel_pending_bucket_requests(connection, current_bucket, message);
     }
 
-    /// Cancel semantic-token and definition waiters tied to one analysis bucket.
+    /// Cancel semantic-token, definition, and references waiters tied to one analysis bucket.
     fn cancel_pending_bucket_requests(
         &mut self,
         connection: &Connection,
@@ -780,9 +983,22 @@ impl ServerState {
         ) {
             tracing::error!(error = %error, "failed to cancel definition bucket waiters");
         }
+
+        let reference_requests = self.reference_requests.take_bucket(bucket);
+        for pending in &reference_requests {
+            pending.cancel.store(true, Ordering::SeqCst);
+        }
+        if let Err(error) = send_error_responses(
+            connection,
+            reference_requests.into_iter().map(|pending| pending.id).collect(),
+            ErrorCode::RequestCanceled as i32,
+            format!("references {message}"),
+        ) {
+            tracing::error!(error = %error, "failed to cancel references bucket waiters");
+        }
     }
 
-    /// Cancel semantic-token and definition waiters tied to one package key.
+    /// Cancel semantic-token, definition, and references waiters tied to one package key.
     fn cancel_pending_package_requests(
         &mut self,
         connection: &Connection,
@@ -807,6 +1023,19 @@ impl ServerState {
             format!("definition {message}"),
         ) {
             tracing::error!(error = %error, "failed to cancel definition package waiters");
+        }
+
+        let reference_requests = self.reference_requests.take_package(key);
+        for pending in &reference_requests {
+            pending.cancel.store(true, Ordering::SeqCst);
+        }
+        if let Err(error) = send_error_responses(
+            connection,
+            reference_requests.into_iter().map(|pending| pending.id).collect(),
+            ErrorCode::RequestCanceled as i32,
+            format!("references {message}"),
+        ) {
+            tracing::error!(error = %error, "failed to cancel references package waiters");
         }
     }
 
@@ -853,12 +1082,13 @@ impl AnalysisCaches {
     }
 
     /// Store a package analysis and enforce the routing-thread LRU cap.
-    fn store_package(&mut self, package: Arc<CachedPackageAnalysis>) {
+    fn store_package(&mut self, package: Arc<CachedPackageAnalysis>) -> Vec<PackageAnalysisKey> {
         self.failed_packages.remove(&package.key);
         if !self.packages.contains_key(&package.key) {
             self.package_order.push_back(package.key.clone());
         }
         self.packages.insert(package.key.clone(), package);
+        let mut evicted = Vec::new();
         // Bound package analyses separately from worker stub caches. This keeps
         // the routing thread from retaining package-sized indexes for closed or
         // long-idle generations.
@@ -866,8 +1096,10 @@ impl AnalysisCaches {
             if let Some(oldest) = self.package_order.pop_front() {
                 self.packages.remove(&oldest);
                 self.failed_packages.remove(&oldest);
+                evicted.push(oldest);
             }
         }
+        evicted
     }
 
     /// Remember that current package analysis failed so repeated requests fail fast.
@@ -1008,6 +1240,105 @@ impl DefinitionRequestState {
     }
 }
 
+impl ReferencesRequestState {
+    /// Queue a references request, enforcing global and per-package caps.
+    fn queue(
+        &mut self,
+        query: ReferenceQuery,
+        request_id: RequestId,
+        cancel: Arc<AtomicBool>,
+        dispatched: bool,
+    ) -> bool {
+        if self.pending_owner.len() >= MAX_PENDING_REFERENCES {
+            return false;
+        }
+        let package = query.view_key.package.clone();
+        let queue = self.pending_by_package.entry(package.clone()).or_default();
+        if queue.len() >= MAX_PENDING_REFERENCES_PER_KEY {
+            return false;
+        }
+        queue.push(PendingReferencesRequest { id: request_id.clone(), query, cancel, dispatched });
+        self.pending_owner.insert(request_id, package);
+        true
+    }
+
+    /// Return one pending references request without mutating ownership.
+    fn get(&self, request_id: &RequestId) -> Option<&PendingReferencesRequest> {
+        let package = self.pending_owner.get(request_id)?;
+        self.pending_by_package.get(package)?.iter().find(|pending| &pending.id == request_id)
+    }
+
+    /// Remove one pending references request by request ID.
+    fn remove_pending_request(&mut self, request_id: &RequestId) -> Option<PendingReferencesRequest> {
+        let package = self.pending_owner.remove(request_id)?;
+        let queue = self.pending_by_package.get_mut(&package)?;
+        let index = queue.iter().position(|pending| &pending.id == request_id)?;
+        let pending = queue.remove(index);
+        if queue.is_empty() {
+            self.pending_by_package.remove(&package);
+        }
+        Some(pending)
+    }
+
+    /// Mark undispatched requests for one package as handed to the response pool.
+    fn mark_undispatched(&mut self, package: &PackageAnalysisKey) -> Vec<PendingReferencesRequest> {
+        let Some(queue) = self.pending_by_package.get_mut(package) else {
+            return Vec::new();
+        };
+        let mut pending = Vec::new();
+        for request in queue.iter_mut() {
+            if !request.dispatched {
+                request.dispatched = true;
+                pending.push(request.clone());
+            }
+        }
+        pending
+    }
+
+    /// Drain references requests whose source document has closed.
+    fn clear_uri(&mut self, uri: &Uri) -> Vec<PendingReferencesRequest> {
+        let packages = self.pending_by_package.keys().cloned().collect::<Vec<_>>();
+        let mut cleared = Vec::new();
+        for package in packages {
+            let Some(queue) = self.pending_by_package.get_mut(&package) else {
+                continue;
+            };
+            let mut index = 0;
+            while index < queue.len() {
+                if &queue[index].query.view_key.uri == uri {
+                    let pending = queue.remove(index);
+                    self.pending_owner.remove(&pending.id);
+                    cleared.push(pending);
+                } else {
+                    index += 1;
+                }
+            }
+            if queue.is_empty() {
+                self.pending_by_package.remove(&package);
+            }
+        }
+        cleared
+    }
+
+    /// Drain references requests waiting on one package key.
+    fn take_package(&mut self, package: &PackageAnalysisKey) -> Vec<PendingReferencesRequest> {
+        let Some(requests) = self.pending_by_package.remove(package) else {
+            return Vec::new();
+        };
+        for request in &requests {
+            self.pending_owner.remove(&request.id);
+        }
+        requests
+    }
+
+    /// Drain references requests waiting on any package key in a bucket.
+    fn take_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingReferencesRequest> {
+        let packages =
+            self.pending_by_package.keys().filter(|package| &package.bucket == bucket).cloned().collect::<Vec<_>>();
+        packages.into_iter().flat_map(|package| self.take_package(&package)).collect()
+    }
+}
+
 /// Collect initialize-time workspace roots using LSP's preferred fallback order.
 #[allow(deprecated)]
 fn collect_workspace_roots(params: &InitializeParams) -> Vec<PathBuf> {
@@ -1040,6 +1371,7 @@ fn server_capabilities() -> ServerCapabilities {
         })),
         semantic_tokens_provider: Some(semantic_tokens_capability()),
         definition_provider: Some(OneOf::Left(true)),
+        references_provider: Some(OneOf::Left(true)),
         ..Default::default()
     }
 }
@@ -1116,6 +1448,15 @@ fn send_definition_nulls(connection: &Connection, requests: Vec<PendingDefinitio
     Ok(())
 }
 
+/// Send successful `null` references responses for requests orphaned by close.
+fn send_reference_nulls(connection: &Connection, requests: Vec<PendingReferencesRequest>) -> Result<()> {
+    for request in requests {
+        request.cancel.store(true, Ordering::SeqCst);
+        send_ok_response(connection, request.id, Value::Null)?;
+    }
+    Ok(())
+}
+
 /// Send the same error payload to every queued waiter on a URI.
 fn send_error_responses(
     connection: &Connection,
@@ -1176,12 +1517,13 @@ impl TestHooks {
 #[cfg(test)]
 mod tests {
     use super::{DID_CHANGE, TestHooks, run_with_hooks};
-    use lsp_server::{Connection, ErrorCode, Message, Notification, Request, Response};
+    use lsp_server::{Connection, ErrorCode, Message, Notification, Request, RequestId, Response};
     use lsp_types::{
         CancelParams,
         DidChangeTextDocumentParams,
         DidOpenTextDocumentParams,
         NumberOrString,
+        Position,
         SemanticTokensParams,
         TextDocumentContentChangeEvent,
         TextDocumentItem,
@@ -1189,7 +1531,17 @@ mod tests {
         VersionedTextDocumentIdentifier,
     };
     use serde_json::{Value, json};
-    use std::{fs, path::Path, process::ExitCode, sync::Arc, thread, time::Duration};
+    use std::{
+        fs,
+        path::Path,
+        process::ExitCode,
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering},
+        },
+        thread,
+        time::Duration,
+    };
     use tempfile::tempdir;
 
     /// Spawn the real server loop over an in-memory transport.
@@ -1247,6 +1599,11 @@ mod tests {
         }
     }
 
+    /// Build a references query for direct pending-state tests.
+    fn reference_query(key: crate::document_store::DocumentViewKey) -> super::ReferenceQuery {
+        super::ReferenceQuery { offset: 0, position: Position::new(0, 0), view_key: key, include_declaration: true }
+    }
+
     /// Build isolated server state for direct state-machine tests.
     fn test_state() -> super::ServerState {
         super::ServerState {
@@ -1256,9 +1613,11 @@ mod tests {
             documents: crate::document_store::DocumentStore::default(),
             project_model: crate::project_model::ProjectModel::default(),
             scheduler: crate::scheduler::Scheduler::new(false),
+            response_pool: super::ResponsePool::new(),
             analysis: super::AnalysisCaches::default(),
             semantic_token_requests: super::SemanticTokenRequestState::default(),
             definition_requests: super::DefinitionRequestState::default(),
+            reference_requests: super::ReferencesRequestState::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         }
@@ -1404,6 +1763,63 @@ mod tests {
         state.scheduler.shutdown();
     }
 
+    /// Verifies package cancellation drains pending references and flips pool cancel flags.
+    #[test]
+    fn package_cancellation_cancels_pending_references() {
+        let (server, client) = Connection::memory();
+        let mut state = test_state();
+        let uri: Uri = "untitled:main.leo".parse().expect("uri");
+
+        open_unmanaged_document(&mut state, &uri, 1, "program test.aleo {}\n");
+        let key = state.documents.document_view_key(&uri).expect("document view key");
+        let cancel = Arc::new(AtomicBool::new(false));
+        assert!(state.reference_requests.queue(reference_query(key.clone()), 2.into(), Arc::clone(&cancel), true));
+
+        state.cancel_pending_package_requests(&server, &key.package, "package analysis was evicted from cache");
+
+        let response = recv_response(&client);
+        assert_eq!(response.id, 2.into());
+        let error = response.error.expect("cancelled references response");
+        assert_eq!(error.code, ErrorCode::RequestCanceled as i32);
+        assert!(error.message.contains("evicted"));
+        assert!(cancel.load(Ordering::SeqCst));
+        assert!(state.reference_requests.pending_by_package.is_empty());
+        assert!(state.reference_requests.pending_owner.is_empty());
+        state.scheduler.shutdown();
+    }
+
+    /// Verifies a late response-pool completion cannot steal a reused request ID.
+    #[test]
+    fn stale_reference_completion_with_reused_id_is_dropped() {
+        let (server, client) = Connection::memory();
+        let mut state = test_state();
+        let uri: Uri = "untitled:main.leo".parse().expect("uri");
+
+        open_unmanaged_document(&mut state, &uri, 1, "program test.aleo {}\n");
+        let key = state.documents.document_view_key(&uri).expect("document view key");
+        let request_id: RequestId = 2.into();
+        let old_cancel = Arc::new(AtomicBool::new(true));
+        let new_cancel = Arc::new(AtomicBool::new(false));
+        assert!(state.reference_requests.queue(
+            reference_query(key.clone()),
+            request_id.clone(),
+            Arc::clone(&new_cancel),
+            true,
+        ));
+
+        state.handle_response_completion(&server, super::ResponseCompletion::References {
+            id: request_id.clone(),
+            key: key.package,
+            cancel: old_cancel,
+            result: super::ResponseResult::Ok(Value::Null),
+        });
+
+        assert!(client.receiver.recv_timeout(Duration::from_millis(50)).is_err());
+        assert!(state.reference_requests.get(&request_id).is_some());
+        assert!(!new_cancel.load(Ordering::SeqCst));
+        state.scheduler.shutdown();
+    }
+
     /// Verifies worker cancellation fails semantic-token waiters for that package.
     #[test]
     fn cancelled_package_analysis_fails_pending_waiters() {
@@ -1524,9 +1940,11 @@ mod tests {
             documents: crate::document_store::DocumentStore::default(),
             project_model: crate::project_model::ProjectModel::default(),
             scheduler: crate::scheduler::Scheduler::new(false),
+            response_pool: super::ResponsePool::new(),
             analysis: super::AnalysisCaches::default(),
             semantic_token_requests: super::SemanticTokenRequestState::default(),
             definition_requests: super::DefinitionRequestState::default(),
+            reference_requests: super::ReferencesRequestState::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         };

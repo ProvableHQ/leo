@@ -23,7 +23,16 @@ use crate::{AstSnapshots, CompilerOptions, errors};
 use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
 use leo_errors::{Handler, Result};
-use leo_package::{CompilationUnit, Dependency, Location, MANIFEST_FILENAME, Manifest, PackageKind, ProgramData};
+use leo_package::{
+    CompilationUnit,
+    Dependency,
+    Location,
+    MANIFEST_FILENAME,
+    Manifest,
+    PackageKind,
+    ProgramData,
+    resolve_workspace_dependency,
+};
 use leo_passes::*;
 use leo_span::{
     Span,
@@ -964,6 +973,12 @@ fn collect_local_declared_dependencies_recursive(
 ) -> Result<()> {
     for dependency in manifest.dependencies.iter().flatten() {
         let dependency = normalize_local_dependency(base_path, dependency.clone())?;
+        // Resolve workspace deps early - converts to Location::Local with an absolute path.
+        let dependency = if dependency.location == Location::Workspace {
+            resolve_workspace_dependency(base_path, dependency)?
+        } else {
+            dependency
+        };
         if dependency.location != Location::Local {
             continue;
         }
