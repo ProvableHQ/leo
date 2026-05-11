@@ -43,12 +43,21 @@ Each member is a self-contained Leo package. It has its own `build/` and `output
 
 ## Member Dependencies
 
-Members can depend on each other using [local path dependencies](./02_dependencies.md#local-dependencies). For example, if `swap` depends on `token`, its `program.json` would include:
+Members can depend on each other using [workspace dependencies](./02_dependencies.md#workspace-dependencies). For example, if `swap` depends on `token`, add the dependency with:
+
+```bash
+cd swap/
+leo add --workspace token
+```
+
+This writes a workspace dependency entry to the member's `program.json`:
 
 ```json file=../code_snippets/workspaces/swap/program.json title="swap/program.json"
 ```
 
-The `path` field is relative to the member's own directory, just like any other local dependency.
+A workspace dependency uses `"location": "workspace"` and requires no `path` - Leo automatically resolves the member's location from `workspace.json` at build time.
+
+Alternatively, members can use [local path dependencies](./02_dependencies.md#local-dependencies) with `"location": "local"` and an explicit relative `path`. Workspace dependencies are preferred because they are shorter to write and do not break if you reorganize directories.
 
 ## Build Order
 

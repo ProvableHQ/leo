@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, MANIFEST_FILENAME, Manifest, errors};
+use crate::{Dependency, Location, MANIFEST_FILENAME, Manifest, errors};
 
 use leo_ast::DiGraph;
 use leo_errors::{Backtraced, Result};
@@ -144,6 +144,20 @@ impl Workspace {
     }
 }
 
+/// Resolve a `Location::Workspace` dependency by looking up its name in the
+/// enclosing workspace, returning a new `Dependency` with `Location::Local`
+/// and the resolved absolute path.
+///
+/// `package_dir` is the directory of the package that declared the dependency.
+pub fn resolve_workspace_dependency(package_dir: &Path, dep: Dependency) -> Result<Dependency> {
+    let workspace =
+        Workspace::discover(package_dir)?.ok_or_else(|| errors::workspace_dep_outside_workspace(&dep.name))?;
+    let member_path = workspace
+        .find_member(&dep.name)
+        .ok_or_else(|| errors::workspace_dep_member_not_found(&dep.name, workspace.root_directory.display()))?;
+    Ok(Dependency { location: Location::Local, path: Some(member_path.clone()), ..dep })
+}
+
 /// Determine the build order for workspace members by analysing cross-member
 /// local dependencies.
 ///
@@ -174,28 +188,54 @@ fn order_members(members: &[(PathBuf, String)]) -> Result<Vec<(PathBuf, String)>
         graph.add_node(dir_name.to_string());
     }
 
-    // Scan each member's manifest for local dependencies pointing to other members.
+    // Also index members by program name for workspace dep lookup.
+    let name_to_dir_name: std::collections::HashMap<&str, &str> = members
+        .iter()
+        .filter_map(|(path, prog_name)| {
+            let dir_name = path.file_name()?.to_str()?;
+            Some((prog_name.as_str(), dir_name))
+        })
+        .collect();
+
+    // Scan each member's manifest for local/workspace dependencies pointing to other members.
     for (member_path, _) in members {
         let member_dir_name = member_path.file_name().and_then(|n| n.to_str()).unwrap_or_default();
         let manifest_path = member_path.join(MANIFEST_FILENAME);
         let manifest = Manifest::read_from_file(&manifest_path)?;
 
         for dep in manifest.dependencies.iter().flatten() {
-            if dep.location != Location::Local {
-                continue;
-            }
-            let Some(dep_path) = &dep.path else {
-                continue;
+            let dep_dir_name = match dep.location {
+                Location::Local => {
+                    let Some(dep_path) = &dep.path else { continue };
+                    let resolved = if dep_path.is_absolute() { dep_path.clone() } else { member_path.join(dep_path) };
+                    let Ok(canonical) = resolved.canonicalize() else { continue };
+                    let Some(&name) = path_to_dir_name.get(canonical.as_path()) else { continue };
+                    name
+                }
+                Location::Workspace => {
+                    // Match by directory basename or program name.
+                    if let Some(&name) = path_to_dir_name.values().find(|&&n| {
+                        n == dep.name
+                            || format!("{n}.aleo") == dep.name
+                            || dep.name.strip_suffix(".aleo").is_some_and(|s| s == n)
+                    }) {
+                        name
+                    } else if let Some(&name) = name_to_dir_name.get(dep.name.as_str()) {
+                        name
+                    } else {
+                        // Also try with/without .aleo suffix on program name.
+                        let alt = if dep.name.ends_with(".aleo") {
+                            dep.name.strip_suffix(".aleo").unwrap().to_string()
+                        } else {
+                            format!("{}.aleo", dep.name)
+                        };
+                        let Some(&name) = name_to_dir_name.get(alt.as_str()) else { continue };
+                        name
+                    }
+                }
+                _ => continue,
             };
-            // Resolve relative paths against the member directory.
-            let resolved = if dep_path.is_absolute() { dep_path.clone() } else { member_path.join(dep_path) };
-            let Ok(canonical) = resolved.canonicalize() else {
-                continue;
-            };
-            // If this dependency points to another workspace member, add an edge.
-            if let Some(&dep_dir_name) = path_to_dir_name.get(canonical.as_path()) {
-                graph.add_edge(member_dir_name.to_string(), dep_dir_name.to_string());
-            }
+            graph.add_edge(member_dir_name.to_string(), dep_dir_name.to_string());
         }
     }
 
@@ -378,5 +418,138 @@ mod tests {
         assert!(ws.find_member("nonexistent").is_none());
 
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// Create a member whose dependencies use `Location::Workspace` (no path).
+    fn create_member_with_workspace_deps(workspace_dir: &Path, name: &str, dep_names: &[&str]) {
+        let member_dir = workspace_dir.join(name);
+        std::fs::create_dir_all(member_dir.join("src")).unwrap();
+
+        let program_name = format!("{name}.aleo");
+        let dependencies: Vec<_> = dep_names
+            .iter()
+            .map(|dep_name| Dependency {
+                name: format!("{dep_name}.aleo"),
+                location: Location::Workspace,
+                path: None,
+                edition: None,
+            })
+            .collect();
+
+        let manifest = Manifest {
+            program: program_name,
+            version: "0.1.0".to_string(),
+            description: String::new(),
+            license: "MIT".to_string(),
+            leo: "0.0.0".to_string(),
+            dependencies: if dependencies.is_empty() { None } else { Some(dependencies) },
+            dev_dependencies: None,
+        };
+
+        manifest.write_to_file(member_dir.join(MANIFEST_FILENAME)).unwrap();
+
+        std::fs::write(
+            member_dir.join("src/main.leo"),
+            format!("program {name}.aleo {{\n    @noupgrade\n    constructor() {{}}\n}}\n"),
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn workspace_resolve_workspace_dep() {
+        let dir = temp_dir().join("ws_test_resolve_ws_dep");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        create_member_with_workspace_deps(&dir, "beta", &["alpha"]);
+        create_workspace(&dir, &["alpha", "beta"]);
+
+        let beta_dir = dir.join("beta");
+        let dep =
+            Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, path: None, edition: None };
+        let resolved = resolve_workspace_dependency(&beta_dir, dep).unwrap();
+        assert_eq!(resolved.location, Location::Local);
+        assert!(resolved.path.is_some());
+        assert!(resolved.path.unwrap().ends_with("alpha"));
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_dependency_ordering_with_workspace_location() {
+        let dir = temp_dir().join("ws_test_ordering_ws_loc");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // alpha has no deps, beta depends on alpha via Location::Workspace.
+        create_member(&dir, "alpha", &[]);
+        create_member_with_workspace_deps(&dir, "beta", &["alpha"]);
+        create_workspace(&dir, &["beta", "alpha"]); // intentionally wrong order
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        // alpha should come before beta regardless of manifest order.
+        let names: Vec<&str> = ws.member_names.iter().map(|s| s.as_str()).collect();
+        let alpha_pos = names.iter().position(|n| *n == "alpha.aleo").unwrap();
+        let beta_pos = names.iter().position(|n| *n == "beta.aleo").unwrap();
+        assert!(alpha_pos < beta_pos, "alpha should be ordered before beta");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_dep_outside_workspace_errors() {
+        let dir = temp_dir().join("ws_test_dep_no_ws");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // No workspace.json - just a standalone directory.
+        let dep =
+            Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, path: None, edition: None };
+        let result = resolve_workspace_dependency(&dir, dep);
+        assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_dep_member_not_found_errors() {
+        let dir = temp_dir().join("ws_test_dep_not_found");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        create_workspace(&dir, &["alpha"]);
+
+        // Try to resolve a workspace dep on "nonexistent" which is not a member.
+        let dep = Dependency {
+            name: "nonexistent.aleo".to_string(),
+            location: Location::Workspace,
+            path: None,
+            edition: None,
+        };
+        let result = resolve_workspace_dependency(&dir.join("alpha"), dep);
+        assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_circular_workspace_deps_error() {
+        let dir = temp_dir().join("ws_test_circular_ws_deps");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // alpha depends on beta, beta depends on alpha, both via Location::Workspace.
+        create_member_with_workspace_deps(&dir, "alpha", &["beta"]);
+        create_member_with_workspace_deps(&dir, "beta", &["alpha"]);
+        create_workspace(&dir, &["alpha", "beta"]);
+
+        let result = Workspace::from_directory(&dir);
+        assert!(result.is_err(), "circular workspace deps should be detected");
+        let err_msg = format!("{}", result.unwrap_err());
+        assert!(err_msg.contains("circular"), "error should mention circularity: {err_msg}");
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

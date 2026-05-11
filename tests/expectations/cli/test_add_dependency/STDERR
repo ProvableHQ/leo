@@ -1,14 +1,14 @@
 --- 1. leo add with no source flag (should fail) ---
 error: the following required arguments were not provided:
-  <--local <LOCAL>|--network|--edition <EDITION>>
+  <--local <LOCAL>|--network|--edition <EDITION>|--workspace>
 
-Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>> <NAME>
+Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace> <NAME>
 
 For more information, try '--help'.
 --- 2. leo add with multiple flags (should fail) ---
 error: the argument '--network' cannot be used with '--local <LOCAL>'
 
-Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>> <NAME>
+Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace> <NAME>
 
 For more information, try '--help'.
 --- 3. leo add --network (should succeed) ---

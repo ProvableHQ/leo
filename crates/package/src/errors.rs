@@ -185,3 +185,23 @@ pub(crate) fn workspace_member_not_found(member: impl Display, workspace_root: i
 pub(crate) fn workspace_manifest_error(path: impl Display, error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 72, format!("Failed to read workspace manifest at '{path}': {error}"))
 }
+
+/// A dependency uses `"location": "workspace"` but no enclosing workspace exists.
+pub(crate) fn workspace_dep_outside_workspace(dep_name: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 73,
+        format!("Dependency '{dep_name}' has location 'workspace' but no enclosing workspace was found."),
+    )
+    .with_help("Create a `workspace.json` in a parent directory, or change the dependency location to 'local' with an explicit path.")
+}
+
+/// A workspace dependency names a member that does not exist in the workspace.
+pub(crate) fn workspace_dep_member_not_found(dep_name: impl Display, workspace_root: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 74,
+        format!("Workspace dependency '{dep_name}' not found in workspace at '{workspace_root}'."),
+    )
+    .with_help("Check the `members` list in `workspace.json` and ensure the member's `program.json` has a matching program name.")
+}

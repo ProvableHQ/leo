@@ -62,6 +62,9 @@ pub struct DependencySource {
         group = "source"
     )]
     pub(crate) edition: Option<u16>,
+
+    #[clap(short = 'w', long, help = "Depend on another member of the enclosing workspace.", group = "source")]
+    pub(crate) workspace: bool,
 }
 
 impl Command for LeoAdd {
@@ -141,8 +144,23 @@ impl Command for LeoAdd {
                 // The dep is a program: normalize the name to include `.aleo`.
                 (normalize_program_name(&self.name)?, Location::Local, Some(local_path.clone()))
             }
+        } else if self.source.workspace {
+            // Workspace dependency - validate that an enclosing workspace exists and the member is listed.
+            let ws = leo_package::Workspace::discover(&path)?.ok_or_else(|| {
+                crate::errors::custom(
+                    "Cannot add a workspace dependency: no `workspace.json` found in any parent directory.",
+                )
+            })?;
+            let name = normalize_program_name(&self.name)?;
+            if ws.find_member(&name).is_none() {
+                return Err(crate::errors::custom(format!(
+                    "No workspace member named `{name}` found. Check the `members` list in `workspace.json`.",
+                ))
+                .into());
+            }
+            (name, Location::Workspace, None)
         } else {
-            // Network or edition dependency — must be a program, not a library.
+            // Network or edition dependency - must be a program, not a library.
             if current_is_library {
                 return Err(crate::errors::custom(
                     "A library package can only depend on other libraries. Use `--local <path>` to add a library dependency.",
@@ -159,21 +177,27 @@ impl Command for LeoAdd {
         let deps = if self.dev { &mut manifest.dev_dependencies } else { &mut manifest.dependencies };
 
         if let Some(existing) = deps.get_or_insert_default().iter_mut().find(|dep| dep.name == new_dependency.name) {
-            if let Some(existing_path) = &existing.path {
-                tracing::warn!(
+            match existing.location {
+                Location::Local => tracing::warn!(
                     "⚠️ Dependency `{name}` already exists as a local dependency at `{}`. Overwriting.",
-                    existing_path.display()
-                );
-            } else {
-                tracing::warn!("⚠️ Dependency `{name}` already exists as a network dependency. Overwriting.");
+                    existing.path.as_ref().map(|p| p.display().to_string()).unwrap_or_default()
+                ),
+                Location::Workspace => {
+                    tracing::warn!("⚠️ Dependency `{name}` already exists as a workspace dependency. Overwriting.")
+                }
+                _ => tracing::warn!("⚠️ Dependency `{name}` already exists as a network dependency. Overwriting."),
             }
             *existing = new_dependency;
         } else {
             deps.as_mut().unwrap().push(new_dependency);
 
-            match dep_path {
-                Some(p) => tracing::info!("✅ Added local dependency `{name}` at path `{}`.", p.display()),
-                None => tracing::info!("✅ Added network dependency `{name}`."),
+            match location {
+                Location::Local => tracing::info!(
+                    "✅ Added local dependency `{name}` at path `{}`.",
+                    dep_path.as_ref().map(|p| p.display().to_string()).unwrap_or_default()
+                ),
+                Location::Workspace => tracing::info!("✅ Added workspace dependency `{name}`."),
+                _ => tracing::info!("✅ Added network dependency `{name}`."),
             }
         }
 
