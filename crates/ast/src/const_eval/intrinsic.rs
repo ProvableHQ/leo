@@ -19,95 +19,107 @@ use snarkvm::{
     synthesizer::program::{DeserializeVariant, SerializeVariant},
 };
 
-use crate::{
-    ArrayType,
-    Expression,
-    Intrinsic,
-    Type,
-    const_eval::{ExpectTc, Value},
-};
-use leo_errors::{ConstEvalError, Result};
+use crate::{ArrayType, Expression, Intrinsic, Type, const_eval::Value};
+use leo_errors::Formatted;
 use leo_span::Span;
 
-use super::*;
+use super::{errors, *};
 
-fn pop_value(values: &mut Vec<Value>) -> Result<Value> {
-    match values.pop() {
-        Some(v) => Ok(v),
-        None => Err(ConstEvalError::new("value expected during constant evaluation".to_string()).into()),
-    }
+fn pop_value(values: &mut Vec<Value>) -> Result<Value, String> {
+    values.pop().ok_or_else(|| "value expected during constant evaluation".to_string())
+}
+
+fn type_fail<T, E: std::fmt::Debug>(r: Result<T, E>) -> Result<T, String> {
+    r.map_err(|e| format!("type failure: {e:?}"))
+}
+
+fn snark<T>(r: Result<T, anyhow::Error>) -> Result<T, String> {
+    r.map_err(|e| format!("{e}"))
 }
 
 pub fn evaluate_intrinsic(
     values: &mut Vec<Value>,
     intrinsic: Intrinsic,
-    _arguments: &[Expression],
+    arguments: &[Expression],
     span: Span,
-) -> Result<Option<Value>> {
+) -> Result<Option<Value>, Formatted> {
+    evaluate_intrinsic_inner(values, intrinsic, arguments).map_err(|reason| errors::intrinsic_failure(reason, span))
+}
+
+fn evaluate_intrinsic_inner(
+    values: &mut Vec<Value>,
+    intrinsic: Intrinsic,
+    _arguments: &[Expression],
+) -> Result<Option<Value>, String> {
     use snarkvm::{
         prelude::LiteralType,
         synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant},
     };
 
-    let dohash = |values: &mut Vec<Value>, variant: HashVariant, typ: Type| -> Result<Value> {
-        let input = pop_value(values)?.try_into().expect_tc(span)?;
-        let value = snarkvm::synthesizer::program::evaluate_hash(variant, &input, &typ.to_snarkvm()?)?;
+    let dohash = |values: &mut Vec<Value>, variant: HashVariant, typ: Type| -> Result<Value, String> {
+        let input = type_fail(pop_value(values)?.try_into())?;
+        let value = snark(snarkvm::synthesizer::program::evaluate_hash(variant, &input, &snark(typ.to_snarkvm())?))?;
         Ok(value.into())
     };
 
-    let docommit = |values: &mut Vec<Value>, variant: CommitVariant, typ: LiteralType| -> Result<Value> {
-        let randomizer: Scalar = pop_value(values)?.try_into().expect_tc(span)?;
-        let input: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
-        let value = snarkvm::synthesizer::program::evaluate_commit(variant, &input, &randomizer, typ)?;
+    let docommit = |values: &mut Vec<Value>, variant: CommitVariant, typ: LiteralType| -> Result<Value, String> {
+        let randomizer: Scalar = type_fail(pop_value(values)?.try_into())?;
+        let input: SvmValue = type_fail(pop_value(values)?.try_into())?;
+        let value = snark(snarkvm::synthesizer::program::evaluate_commit(variant, &input, &randomizer, typ))?;
         Ok(value.into())
     };
 
-    let doschnorr = |values: &mut Vec<Value>| -> Result<Value> {
-        let signature: Signature = pop_value(values)?.try_into().expect_tc(span)?;
-        let address: Address = pop_value(values)?.try_into().expect_tc(span)?;
-        let message: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
-        let is_valid = snarkvm::synthesizer::program::evaluate_schnorr_verification(&signature, &address, &message)?;
-        Ok(Boolean::new(is_valid).into())
-    };
-
-    let doecdsa = |values: &mut Vec<Value>, variant: ECDSAVerifyVariant| -> Result<Value> {
-        let signature: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
-        let public_key: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
-        let message: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
+    let doschnorr = |values: &mut Vec<Value>| -> Result<Value, String> {
+        let signature: Signature = type_fail(pop_value(values)?.try_into())?;
+        let address: Address = type_fail(pop_value(values)?.try_into())?;
+        let message: SvmValue = type_fail(pop_value(values)?.try_into())?;
         let is_valid =
-            snarkvm::synthesizer::program::evaluate_ecdsa_verification(variant, &signature, &public_key, &message)?;
+            snark(snarkvm::synthesizer::program::evaluate_schnorr_verification(&signature, &address, &message))?;
         Ok(Boolean::new(is_valid).into())
     };
 
-    let doserialize = |values: &mut Vec<Value>, variant: SerializeVariant| -> Result<Value> {
-        let input: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
+    let doecdsa = |values: &mut Vec<Value>, variant: ECDSAVerifyVariant| -> Result<Value, String> {
+        let signature: SvmValue = type_fail(pop_value(values)?.try_into())?;
+        let public_key: SvmValue = type_fail(pop_value(values)?.try_into())?;
+        let message: SvmValue = type_fail(pop_value(values)?.try_into())?;
+        let is_valid = snark(snarkvm::synthesizer::program::evaluate_ecdsa_verification(
+            variant,
+            &signature,
+            &public_key,
+            &message,
+        ))?;
+        Ok(Boolean::new(is_valid).into())
+    };
+
+    let doserialize = |values: &mut Vec<Value>, variant: SerializeVariant| -> Result<Value, String> {
+        let input: SvmValue = type_fail(pop_value(values)?.try_into())?;
         let num_bits = match variant {
             SerializeVariant::ToBits => input.to_bits_le().len(),
             SerializeVariant::ToBitsRaw => input.to_bits_raw_le().len(),
         };
         let Ok(num_bits) = u32::try_from(num_bits) else {
-            crate::halt_no_span2!("cannot serialize value with more than 2^32 bits");
+            return Err("cannot serialize value with more than 2^32 bits".into());
         };
-        let array_type = ArrayType::bit_array(num_bits).to_snarkvm()?;
-        let value = snarkvm::synthesizer::program::evaluate_serialize(variant, &input, &array_type)?;
+        let array_type = snark(ArrayType::bit_array(num_bits).to_snarkvm())?;
+        let value = snark(snarkvm::synthesizer::program::evaluate_serialize(variant, &input, &array_type))?;
         Ok(value.into())
     };
 
-    let dodeserialize = |values: &mut Vec<Value>, variant: DeserializeVariant, type_: Type| -> Result<Value> {
-        let value: SvmValue = pop_value(values)?.try_into().expect_tc(span)?;
+    let dodeserialize = |values: &mut Vec<Value>, variant: DeserializeVariant, type_: Type| -> Result<Value, String> {
+        let value: SvmValue = type_fail(pop_value(values)?.try_into())?;
         let bits = match value {
-            SvmValue::Plaintext(plaintext) => plaintext.as_bit_array()?,
-            _ => crate::halt_no_span2!("expected array for deserialization"),
+            SvmValue::Plaintext(plaintext) => snark(plaintext.as_bit_array())?,
+            _ => return Err("expected array for deserialization".into()),
         };
         let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
         let get_external_struct_fail = |_: &SvmLocator| anyhow::bail!("structs are not supported");
-        let value = snarkvm::synthesizer::program::evaluate_deserialize(
+        let value = snark(snarkvm::synthesizer::program::evaluate_deserialize(
             variant,
             &bits,
-            &type_.to_snarkvm()?,
+            &snark(type_.to_snarkvm())?,
             &get_struct_fail,
             &get_external_struct_fail,
-        )?;
+        ))?;
         Ok(value.into())
     };
 
@@ -123,11 +135,11 @@ pub fn evaluate_intrinsic(
         Intrinsic::Serialize(variant) => doserialize(values, variant)?,
         Intrinsic::Deserialize(variant, type_) => dodeserialize(values, variant, type_)?,
         Intrinsic::GroupToXCoordinate => {
-            let g: Group = pop_value(values)?.try_into().expect_tc(span)?;
+            let g: Group = type_fail(pop_value(values)?.try_into())?;
             g.to_x_coordinate().into()
         }
         Intrinsic::GroupToYCoordinate => {
-            let g: Group = pop_value(values)?.try_into().expect_tc(span)?;
+            let g: Group = type_fail(pop_value(values)?.try_into())?;
             g.to_y_coordinate().into()
         }
         Intrinsic::MappingGet

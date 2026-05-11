@@ -1,4 +1,4 @@
-[ESAZ0374006] Error: Unary operation `-170141183460469231731687303715884105728i128.neg()` failed at compile time: negation overflow.
+[ECEV0378001] Error: Unary operation `-170141183460469231731687303715884105728i128.neg()` failed at compile time: negation overflow.
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return -a; // This line attempts to return 170141183460469231731687303715884105728i128 however, the largest i128 value is 170141183460469231731687303715884105727i128.

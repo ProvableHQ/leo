@@ -63,41 +63,8 @@ pub(crate) fn misplaced_final(span: Span) -> Formatted {
         .with_help("Finals should be created, assigned to a variable, and consumed without being moved or reassigned.")
 }
 
-pub(crate) fn compile_time_unary_op(value: impl Display, op: impl Display, err: impl Display, span: Span) -> Formatted {
-    Formatted::error(
-        CODE_PREFIX,
-        CODE_MASK + 6,
-        format!("Unary operation `{value}.{op}()` failed at compile time: {err}."),
-        span,
-    )
-}
-
-pub(crate) fn compile_time_binary_op(
-    value_lhs: impl Display,
-    value_rhs: impl Display,
-    op: impl Display,
-    err: impl Display,
-    span: Span,
-) -> Formatted {
-    Formatted::error(
-        CODE_PREFIX,
-        CODE_MASK + 7,
-        format!("Binary operation `{value_lhs} {op} {value_rhs}` failed at compile time: {err}."),
-        span,
-    )
-}
-
 pub(crate) fn compile_time_cast(value: impl Display, type_: impl Display, span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 8, format!("Compile time cast failure: `{value} as {type_}`."), span)
-}
-
-pub(crate) fn compile_intrinsic(err: impl Display, span: Span) -> Formatted {
-    Formatted::error(
-        CODE_PREFIX,
-        CODE_MASK + 9,
-        format!("Error during compile time evaluation of this intrinsic: {err}."),
-        span,
-    )
 }
 
 pub(crate) fn array_bounds(index: impl Display, len: impl Display, span: Span) -> Formatted {

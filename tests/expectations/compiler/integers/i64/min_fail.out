@@ -1,4 +1,4 @@
-[ESAZ0374007] Error: Binary operation `-9223372036854775807i64 - 2i64` failed at compile time: sub overflow.
+[ECEV0378000] Error: Binary operation `-9223372036854775807i64 - 2i64` failed at compile time: sub overflow.
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return a - 2i64; // This line attempts to return -9223372036854775809i64 however, the smallest i64 value is -9223372036854775808i64.
