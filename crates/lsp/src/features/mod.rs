@@ -27,5 +27,7 @@ pub mod goto_definition;
 pub mod lsp_range;
 /// Find-all-references query resolution.
 pub mod references;
+/// Rename and prepare-rename query resolution.
+pub mod rename;
 /// Semantic token capability wiring and wire-format encoding helpers.
 pub mod semantic_tokens;

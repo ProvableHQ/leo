@@ -23,6 +23,7 @@ mod compiler_bridge;
 mod document_store;
 mod features;
 mod panic_boundary;
+mod pending;
 mod project_model;
 mod response_pool;
 mod scheduler;

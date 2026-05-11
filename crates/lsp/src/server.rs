@@ -31,13 +31,23 @@ use crate::{
             resolve as resolve_definition,
             response_value as definition_response_value,
         },
-        lsp_range::position_to_offset,
+        lsp_range::{byte_range_to_lsp_range, position_to_offset},
         references::ReferenceQuery,
+        rename::{PrepareRenameQuery, RenameQuery, prepare_rename_target, validate_new_name},
         semantic_tokens::{capability as semantic_tokens_capability, empty_response_value, response_value},
     },
     panic_boundary::catch_unwind,
+    pending::{PendingFeature, PendingRequest, cancel_drained},
     project_model::{ProjectModel, uri_to_file_path},
-    response_pool::{OpenLineIndexes, ResponseCompletion, ResponseJob, ResponsePool, ResponseResult},
+    response_pool::{
+        OpenSnapshot,
+        REQUEST_FAILED,
+        RenameResult,
+        ResponseCompletion,
+        ResponseJob,
+        ResponsePool,
+        ResponseResult,
+    },
     scheduler::{PackageAnalysis, Scheduler, WorkerEvent},
     semantics::{CachedDocumentView, CachedPackageAnalysis},
 };
@@ -53,15 +63,21 @@ use lsp_types::{
     InitializeResult,
     NumberOrString,
     OneOf,
+    PrepareRenameResponse,
+    Range,
     ReferenceParams,
+    RenameOptions,
+    RenameParams,
     SemanticTokensParams,
     ServerCapabilities,
     ServerInfo,
     TextDocumentContentChangeEvent,
+    TextDocumentPositionParams,
     TextDocumentSyncCapability,
     TextDocumentSyncKind,
     TextDocumentSyncOptions,
     Uri,
+    WorkDoneProgressOptions,
 };
 use serde_json::Value;
 use std::{
@@ -99,6 +115,10 @@ const SEMANTIC_TOKENS_FULL: &str = "textDocument/semanticTokens/full";
 const TEXT_DOCUMENT_DEFINITION: &str = "textDocument/definition";
 /// LSP find-all-references request method.
 const TEXT_DOCUMENT_REFERENCES: &str = "textDocument/references";
+/// LSP rename request method.
+const TEXT_DOCUMENT_RENAME: &str = "textDocument/rename";
+/// LSP prepare-rename request method.
+const TEXT_DOCUMENT_PREPARE_RENAME: &str = "textDocument/prepareRename";
 /// Maximum package analyses retained on the routing thread.
 const MAX_PACKAGE_CACHE_ENTRIES: usize = 8;
 /// Maximum pending go-to-definition requests across all packages.
@@ -109,6 +129,14 @@ const MAX_PENDING_DEFINITIONS_PER_KEY: usize = 16;
 const MAX_PENDING_REFERENCES: usize = 128;
 /// Maximum pending references requests waiting on one package key.
 const MAX_PENDING_REFERENCES_PER_KEY: usize = 16;
+/// Maximum pending rename requests across all packages.
+const MAX_PENDING_RENAMES: usize = 128;
+/// Maximum pending rename requests waiting on one package key.
+const MAX_PENDING_RENAMES_PER_KEY: usize = 16;
+/// Maximum pending prepare-rename requests across all packages.
+const MAX_PENDING_PREPARE_RENAMES: usize = 128;
+/// Maximum pending prepare-rename requests waiting on one package key.
+const MAX_PENDING_PREPARE_RENAMES_PER_KEY: usize = 16;
 
 /// In-memory state for one running `leo-lsp` server instance.
 ///
@@ -129,6 +157,8 @@ struct ServerState {
     semantic_token_requests: SemanticTokenRequestState,
     definition_requests: DefinitionRequestState,
     reference_requests: ReferencesRequestState,
+    rename_requests: RenameRequestState,
+    prepare_rename_requests: PrepareRenameRequestState,
     client_definition_link_support: bool,
     hooks: TestHooks,
 }
@@ -201,6 +231,46 @@ struct PendingReferencesRequest {
     dispatched: bool,
 }
 
+/// Pending rename requests keyed by package analysis.
+#[derive(Debug, Default)]
+struct RenameRequestState {
+    /// Waiters and in-flight conversions grouped by package analysis.
+    pending_by_package: HashMap<PackageAnalysisKey, Vec<PendingRenameRequest>>,
+    /// Reverse lookup used to cancel or complete a request by ID.
+    pending_owner: HashMap<RequestId, PackageAnalysisKey>,
+}
+
+/// One pending rename request with cancellation state owned by routing.
+#[derive(Debug, Clone)]
+struct PendingRenameRequest {
+    /// Original LSP request ID to answer when conversion completes.
+    id: RequestId,
+    /// Cursor, view freshness, and validated new-name state.
+    query: RenameQuery,
+    /// Cancellation flag observed by the response pool.
+    cancel: Arc<AtomicBool>,
+    /// Whether this request has already been handed to the response pool.
+    dispatched: bool,
+}
+
+/// Pending prepare-rename requests keyed by package analysis.
+#[derive(Debug, Default)]
+struct PrepareRenameRequestState {
+    /// Waiters grouped by package analysis. Prepare-rename never enters the pool.
+    pending_by_package: HashMap<PackageAnalysisKey, Vec<PendingPrepareRenameRequest>>,
+    /// Reverse lookup used to cancel a request by ID.
+    pending_owner: HashMap<RequestId, PackageAnalysisKey>,
+}
+
+/// One pending prepare-rename request, answered synchronously on cache hit.
+#[derive(Debug, Clone)]
+struct PendingPrepareRenameRequest {
+    /// Original LSP request ID to answer when analysis arrives.
+    id: RequestId,
+    /// Cursor and view freshness captured when the request arrived.
+    query: PrepareRenameQuery,
+}
+
 /// Run the production LSP server with hooks loaded from the process environment.
 pub(crate) fn run(connection: Connection) -> Result<ExitCode> {
     run_with_hooks(connection, TestHooks::from_env())
@@ -238,6 +308,8 @@ fn run_with_hooks(connection: Connection, hooks: TestHooks) -> Result<ExitCode> 
         semantic_token_requests: SemanticTokenRequestState::default(),
         definition_requests: DefinitionRequestState::default(),
         reference_requests: ReferencesRequestState::default(),
+        rename_requests: RenameRequestState::default(),
+        prepare_rename_requests: PrepareRenameRequestState::default(),
         client_definition_link_support,
         hooks,
     };
@@ -338,6 +410,16 @@ impl ServerState {
                 let params: ReferenceParams =
                     serde_json::from_value(params).context("failed to deserialize textDocument/references")?;
                 self.handle_references(connection, request_id, params)
+            }
+            TEXT_DOCUMENT_RENAME => {
+                let params: RenameParams =
+                    serde_json::from_value(params).context("failed to deserialize textDocument/rename")?;
+                self.handle_rename(connection, request_id, params)
+            }
+            TEXT_DOCUMENT_PREPARE_RENAME => {
+                let params: TextDocumentPositionParams =
+                    serde_json::from_value(params).context("failed to deserialize textDocument/prepareRename")?;
+                self.handle_prepare_rename(connection, request_id, params)
             }
             _ => {
                 tracing::debug!(method, "request is not implemented");
@@ -490,6 +572,27 @@ impl ServerState {
         if let Err(error) = send_reference_nulls(connection, self.reference_requests.clear_uri(&uri)) {
             tracing::error!(uri = uri.as_str(), error = %error, "failed to flush references close responses");
         }
+        // Rename and prepare-rename reply with `RequestCanceled` on close
+        // because the user closing the document is backing out of the
+        // action, not the server stating "not renameable".
+        log_drain(
+            cancel_drained(
+                connection,
+                self.rename_requests.drain_uri(&uri),
+                ErrorCode::RequestCanceled as i32,
+                "rename request cancelled by close",
+            ),
+            "rename close waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.prepare_rename_requests.drain_uri(&uri),
+                ErrorCode::RequestCanceled as i32,
+                "prepare-rename request cancelled by close",
+            ),
+            "prepare-rename close waiters",
+        );
         if let Some(bucket) = previous_bucket {
             self.analysis.invalidate_bucket(&bucket);
             self.cancel_pending_bucket_requests(connection, &bucket, "package analysis was superseded");
@@ -523,6 +626,16 @@ impl ServerState {
                 ErrorCode::RequestCanceled as i32,
                 "references request cancelled",
             )
+        } else if let Some(pending) = self.rename_requests.remove_pending_request(&request_id) {
+            pending.cancel.store(true, Ordering::SeqCst);
+            send_error_response(connection, request_id, ErrorCode::RequestCanceled as i32, "rename request cancelled")
+        } else if self.prepare_rename_requests.remove_pending_request(&request_id).is_some() {
+            send_error_response(
+                connection,
+                request_id,
+                ErrorCode::RequestCanceled as i32,
+                "prepare-rename request cancelled",
+            )
         } else {
             Ok(())
         }
@@ -546,6 +659,8 @@ impl ServerState {
                     self.store_document_view(connection, result.document_view);
                     self.answer_pending_definitions(connection, &key);
                     self.answer_pending_references(&key);
+                    self.answer_pending_prepare_renames(connection, &key);
+                    self.answer_pending_renames(&key);
                     self.enqueue_pending_document_views_for_package(&key);
                     tracing::debug!(
                         uri = uri.as_str(),
@@ -595,35 +710,11 @@ impl ServerState {
                     && self.documents.package_key(&uri) == Some(key.clone())
                 {
                     self.analysis.store_failed_package(key.clone());
-                    let pending_semantic = self.semantic_token_requests.take_package(&key);
-                    if let Err(error) = send_error_responses(
+                    self.fail_pending_package_requests(
                         connection,
-                        pending_semantic,
-                        INTERNAL_ERROR,
-                        "semantic token analysis panicked; see server logs for details",
-                    ) {
-                        tracing::error!(uri = uri.as_str(), error = %error, "failed to send semantic analysis panic");
-                    }
-                    if let Err(error) = send_error_responses(
-                        connection,
-                        self.definition_requests.take_package(&key).into_iter().map(|pending| pending.id).collect(),
-                        INTERNAL_ERROR,
-                        "definition analysis panicked; see server logs for details",
-                    ) {
-                        tracing::error!(uri = uri.as_str(), error = %error, "failed to send definition analysis panic");
-                    }
-                    let references = self.reference_requests.take_package(&key);
-                    for pending in &references {
-                        pending.cancel.store(true, Ordering::SeqCst);
-                    }
-                    if let Err(error) = send_error_responses(
-                        connection,
-                        references.into_iter().map(|pending| pending.id).collect(),
-                        INTERNAL_ERROR,
-                        "references analysis panicked; see server logs for details",
-                    ) {
-                        tracing::error!(uri = uri.as_str(), error = %error, "failed to send references analysis panic");
-                    }
+                        &key,
+                        "analysis panicked; see server logs for details",
+                    );
                 } else {
                     self.cancel_pending_package_requests(connection, &key, "package analysis was superseded");
                 }
@@ -677,6 +768,27 @@ impl ServerState {
                 };
                 if let Err(error) = send_result {
                     tracing::error!(error = %error, "failed to send references response");
+                }
+            }
+            ResponseCompletion::Rename { id, key, cancel, result } => {
+                let Some(pending) = self.rename_requests.get(&id) else {
+                    return;
+                };
+                if pending.query.view_key.package != key || !Arc::ptr_eq(&pending.cancel, &cancel) {
+                    return;
+                }
+                let Some(_pending) = self.rename_requests.remove_pending_request(&id) else {
+                    return;
+                };
+                let send_result = match result {
+                    RenameResult::Ok(value) => send_ok_response(connection, id, value),
+                    RenameResult::InternalError(message) => {
+                        send_error_response(connection, id, INTERNAL_ERROR, message)
+                    }
+                    RenameResult::RequestFailed { code, message } => send_error_response(connection, id, code, message),
+                };
+                if let Err(error) = send_result {
+                    tracing::error!(error = %error, "failed to send rename response");
                 }
             }
         }
@@ -833,6 +945,117 @@ impl ServerState {
         Ok(())
     }
 
+    /// Answer or queue one prepare-rename request.
+    fn handle_prepare_rename(
+        &mut self,
+        connection: &Connection,
+        request_id: RequestId,
+        params: TextDocumentPositionParams,
+    ) -> Result<()> {
+        let uri = params.text_document.uri;
+        let position = params.position;
+        let Some(document) = self.documents.open_document(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        let Some(file_path) = document.file_path.clone() else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        let Some(offset) = position_to_offset(document.line_index.as_ref(), position) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        let line_index = Arc::clone(&document.line_index);
+        let Some(view_key) = self.documents.document_view_key(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+
+        if self.analysis.failed_packages.contains(&view_key.package) {
+            return send_error_response(
+                connection,
+                request_id,
+                INTERNAL_ERROR,
+                "prepare-rename analysis panicked; see server logs for details",
+            );
+        }
+
+        let query = PrepareRenameQuery { offset, position, view_key: view_key.clone() };
+
+        if let Some(package) = self.analysis.packages.get(&view_key.package).cloned() {
+            let value =
+                prepare_rename_response_value(&query, package.as_ref(), file_path.as_ref(), line_index.as_ref());
+            return send_ok_response(connection, request_id, value);
+        }
+
+        if !self.prepare_rename_requests.queue(query, request_id.clone()) {
+            return send_error_response(
+                connection,
+                request_id,
+                ErrorCode::RequestCanceled as i32,
+                "too many pending prepare-rename requests",
+            );
+        }
+        self.ensure_package_analysis(&view_key.package, &uri);
+        Ok(())
+    }
+
+    /// Answer or queue one rename request.
+    fn handle_rename(&mut self, connection: &Connection, request_id: RequestId, params: RenameParams) -> Result<()> {
+        let uri = params.text_document_position.text_document.uri;
+        let position = params.text_document_position.position;
+        let new_name = params.new_name;
+
+        // Validate the new name synchronously before allocating any pending-state
+        // slot or pool resources. Statically unrenameable inputs reject inline.
+        if let Err(error) = validate_new_name(&new_name) {
+            let crate::features::rename::RenameError::InvalidIdentifier(message) = error else {
+                // validate_new_name only ever returns InvalidIdentifier.
+                unreachable!("validate_new_name returned non-identifier error");
+            };
+            return send_error_response(connection, request_id, REQUEST_FAILED, message);
+        }
+
+        let Some(document) = self.documents.open_document(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        if document.file_path.is_none() {
+            return send_ok_response(connection, request_id, Value::Null);
+        }
+        let Some(offset) = position_to_offset(document.line_index.as_ref(), position) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+        let Some(view_key) = self.documents.document_view_key(&uri) else {
+            return send_ok_response(connection, request_id, Value::Null);
+        };
+
+        if self.analysis.failed_packages.contains(&view_key.package) {
+            return send_error_response(
+                connection,
+                request_id,
+                INTERNAL_ERROR,
+                "rename analysis panicked; see server logs for details",
+            );
+        }
+
+        let package = self.analysis.packages.get(&view_key.package).cloned();
+        let query = RenameQuery { offset, position, view_key: view_key.clone(), new_name };
+        let cancel = Arc::new(AtomicBool::new(false));
+        let dispatched = package.is_some();
+        if !self.rename_requests.queue(query, request_id.clone(), Arc::clone(&cancel), dispatched) {
+            return send_error_response(
+                connection,
+                request_id,
+                ErrorCode::RequestCanceled as i32,
+                "too many pending rename requests",
+            );
+        }
+
+        if let Some(package) = package {
+            self.dispatch_rename_job(request_id, view_key.package, package, cancel);
+        } else {
+            self.ensure_package_analysis(&view_key.package, &uri);
+        }
+        Ok(())
+    }
+
     /// Ensure the package and document-view analysis needed for a token request is queued.
     fn ensure_analysis_for_view(&mut self, view_key: &DocumentViewKey) {
         if let Some(package) = self.analysis.packages.get(&view_key.package).cloned() {
@@ -920,7 +1143,68 @@ impl ServerState {
             id: request_id,
             query: Box::new(pending.query.clone()),
             package,
-            open_line_indexes: OpenLineIndexes::snapshot(&self.documents),
+            open_snapshot: OpenSnapshot::snapshot(&self.documents),
+            cancel,
+        });
+    }
+
+    /// Dispatch queued rename requests unblocked by a cached package.
+    fn answer_pending_renames(&mut self, key: &PackageAnalysisKey) {
+        let Some(package) = self.analysis.packages.get(key).cloned() else {
+            return;
+        };
+        for pending in self.rename_requests.mark_undispatched(key) {
+            self.dispatch_rename_job(pending.id, key.clone(), Arc::clone(&package), Arc::clone(&pending.cancel));
+        }
+    }
+
+    /// Resolve queued prepare-rename requests synchronously against a cached package.
+    fn answer_pending_prepare_renames(&mut self, connection: &Connection, key: &PackageAnalysisKey) {
+        let Some(package) = self.analysis.packages.get(key).cloned() else {
+            return;
+        };
+        for pending in self.prepare_rename_requests.take_package(key) {
+            let Some(document) = self.documents.open_document(&pending.query.view_key.uri) else {
+                if let Err(error) = send_ok_response(connection, pending.id, Value::Null) {
+                    tracing::error!(error = %error, "failed to send prepare-rename response");
+                }
+                continue;
+            };
+            let Some(file_path) = document.file_path.clone() else {
+                if let Err(error) = send_ok_response(connection, pending.id, Value::Null) {
+                    tracing::error!(error = %error, "failed to send prepare-rename response");
+                }
+                continue;
+            };
+            let line_index = Arc::clone(&document.line_index);
+            let value = prepare_rename_response_value(
+                &pending.query,
+                package.as_ref(),
+                file_path.as_ref(),
+                line_index.as_ref(),
+            );
+            if let Err(error) = send_ok_response(connection, pending.id, value) {
+                tracing::error!(error = %error, "failed to send prepare-rename response");
+            }
+        }
+    }
+
+    /// Hand one rename request to the response pool.
+    fn dispatch_rename_job(
+        &self,
+        request_id: RequestId,
+        _key: PackageAnalysisKey,
+        package: Arc<CachedPackageAnalysis>,
+        cancel: Arc<AtomicBool>,
+    ) {
+        let Some(pending) = self.rename_requests.get(&request_id) else {
+            return;
+        };
+        self.response_pool.submit(ResponseJob::Rename {
+            id: request_id,
+            query: Box::new(pending.query.clone()),
+            package,
+            open_snapshot: OpenSnapshot::snapshot(&self.documents),
             cancel,
         });
     }
@@ -957,86 +1241,168 @@ impl ServerState {
         self.cancel_pending_bucket_requests(connection, current_bucket, message);
     }
 
-    /// Cancel semantic-token, definition, and references waiters tied to one analysis bucket.
+    /// Cancel every pending waiter tied to one analysis bucket.
+    ///
+    /// `cancel_drained` flips per-feature cancel flags before sending the
+    /// reply so an in-flight pool job whose bucket just bumped observes the
+    /// cancellation and drops its completion on arrival.
     fn cancel_pending_bucket_requests(
         &mut self,
         connection: &Connection,
         bucket: &AnalysisBucket,
         message: &'static str,
     ) {
-        if let Err(error) = send_error_responses(
-            connection,
-            self.semantic_token_requests.take_bucket(bucket),
-            ErrorCode::RequestCanceled as i32,
-            format!("semantic token {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel semantic token bucket waiters");
-        }
-
-        let definition_requests =
-            self.definition_requests.take_bucket(bucket).into_iter().map(|pending| pending.id).collect();
-        if let Err(error) = send_error_responses(
-            connection,
-            definition_requests,
-            ErrorCode::RequestCanceled as i32,
-            format!("definition {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel definition bucket waiters");
-        }
-
-        let reference_requests = self.reference_requests.take_bucket(bucket);
-        for pending in &reference_requests {
-            pending.cancel.store(true, Ordering::SeqCst);
-        }
-        if let Err(error) = send_error_responses(
-            connection,
-            reference_requests.into_iter().map(|pending| pending.id).collect(),
-            ErrorCode::RequestCanceled as i32,
-            format!("references {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel references bucket waiters");
-        }
+        let code = ErrorCode::RequestCanceled as i32;
+        log_drain(
+            cancel_drained(
+                connection,
+                self.semantic_token_requests.drain_bucket(bucket),
+                code,
+                format!("semantic token {message}"),
+            ),
+            "semantic token bucket waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.definition_requests.drain_bucket(bucket),
+                code,
+                format!("definition {message}"),
+            ),
+            "definition bucket waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.reference_requests.drain_bucket(bucket),
+                code,
+                format!("references {message}"),
+            ),
+            "references bucket waiters",
+        );
+        log_drain(
+            cancel_drained(connection, self.rename_requests.drain_bucket(bucket), code, format!("rename {message}")),
+            "rename bucket waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.prepare_rename_requests.drain_bucket(bucket),
+                code,
+                format!("prepare-rename {message}"),
+            ),
+            "prepare-rename bucket waiters",
+        );
     }
 
-    /// Cancel semantic-token, definition, and references waiters tied to one package key.
+    /// Fail every pending waiter tied to one package analysis key with `INTERNAL_ERROR`.
+    ///
+    /// Used by `PackagePanicked` for the still-current package key. Mirrors
+    /// the structure of `cancel_pending_package_requests` but maps to
+    /// `INTERNAL_ERROR` and a panic-shaped message per feature so the spec's
+    /// "shared drain helper... becomes load-bearing" goal is met for the
+    /// panic path too.
+    fn fail_pending_package_requests(
+        &mut self,
+        connection: &Connection,
+        key: &PackageAnalysisKey,
+        message: &'static str,
+    ) {
+        log_drain(
+            cancel_drained(
+                connection,
+                self.semantic_token_requests.drain_package(key),
+                INTERNAL_ERROR,
+                format!("semantic token {message}"),
+            ),
+            "semantic token panic waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.definition_requests.drain_package(key),
+                INTERNAL_ERROR,
+                format!("definition {message}"),
+            ),
+            "definition panic waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.reference_requests.drain_package(key),
+                INTERNAL_ERROR,
+                format!("references {message}"),
+            ),
+            "references panic waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.rename_requests.drain_package(key),
+                INTERNAL_ERROR,
+                format!("rename {message}"),
+            ),
+            "rename panic waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.prepare_rename_requests.drain_package(key),
+                INTERNAL_ERROR,
+                format!("prepare-rename {message}"),
+            ),
+            "prepare-rename panic waiters",
+        );
+    }
+
+    /// Cancel every pending waiter tied to one package analysis key.
     fn cancel_pending_package_requests(
         &mut self,
         connection: &Connection,
         key: &PackageAnalysisKey,
         message: &'static str,
     ) {
-        if let Err(error) = send_error_responses(
-            connection,
-            self.semantic_token_requests.take_package(key),
-            ErrorCode::RequestCanceled as i32,
-            format!("semantic token {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel semantic token package waiters");
-        }
-
-        let definition_requests =
-            self.definition_requests.take_package(key).into_iter().map(|pending| pending.id).collect();
-        if let Err(error) = send_error_responses(
-            connection,
-            definition_requests,
-            ErrorCode::RequestCanceled as i32,
-            format!("definition {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel definition package waiters");
-        }
-
-        let reference_requests = self.reference_requests.take_package(key);
-        for pending in &reference_requests {
-            pending.cancel.store(true, Ordering::SeqCst);
-        }
-        if let Err(error) = send_error_responses(
-            connection,
-            reference_requests.into_iter().map(|pending| pending.id).collect(),
-            ErrorCode::RequestCanceled as i32,
-            format!("references {message}"),
-        ) {
-            tracing::error!(error = %error, "failed to cancel references package waiters");
-        }
+        let code = ErrorCode::RequestCanceled as i32;
+        log_drain(
+            cancel_drained(
+                connection,
+                self.semantic_token_requests.drain_package(key),
+                code,
+                format!("semantic token {message}"),
+            ),
+            "semantic token package waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.definition_requests.drain_package(key),
+                code,
+                format!("definition {message}"),
+            ),
+            "definition package waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.reference_requests.drain_package(key),
+                code,
+                format!("references {message}"),
+            ),
+            "references package waiters",
+        );
+        log_drain(
+            cancel_drained(connection, self.rename_requests.drain_package(key), code, format!("rename {message}")),
+            "rename package waiters",
+        );
+        log_drain(
+            cancel_drained(
+                connection,
+                self.prepare_rename_requests.drain_package(key),
+                code,
+                format!("prepare-rename {message}"),
+            ),
+            "prepare-rename package waiters",
+        );
     }
 
     /// Cancel semantic-token waiters tied to one document-view key.
@@ -1339,6 +1705,328 @@ impl ReferencesRequestState {
     }
 }
 
+impl RenameRequestState {
+    /// Queue a rename request, enforcing global and per-package caps.
+    fn queue(&mut self, query: RenameQuery, request_id: RequestId, cancel: Arc<AtomicBool>, dispatched: bool) -> bool {
+        if self.pending_owner.len() >= MAX_PENDING_RENAMES {
+            return false;
+        }
+        let package = query.view_key.package.clone();
+        let queue = self.pending_by_package.entry(package.clone()).or_default();
+        if queue.len() >= MAX_PENDING_RENAMES_PER_KEY {
+            return false;
+        }
+        queue.push(PendingRenameRequest { id: request_id.clone(), query, cancel, dispatched });
+        self.pending_owner.insert(request_id, package);
+        true
+    }
+
+    /// Return one pending rename request without mutating ownership.
+    fn get(&self, request_id: &RequestId) -> Option<&PendingRenameRequest> {
+        let package = self.pending_owner.get(request_id)?;
+        self.pending_by_package.get(package)?.iter().find(|pending| &pending.id == request_id)
+    }
+
+    /// Remove one pending rename request by request ID.
+    fn remove_pending_request(&mut self, request_id: &RequestId) -> Option<PendingRenameRequest> {
+        let package = self.pending_owner.remove(request_id)?;
+        let queue = self.pending_by_package.get_mut(&package)?;
+        let index = queue.iter().position(|pending| &pending.id == request_id)?;
+        let pending = queue.remove(index);
+        if queue.is_empty() {
+            self.pending_by_package.remove(&package);
+        }
+        Some(pending)
+    }
+
+    /// Mark undispatched rename requests for one package as handed to the response pool.
+    fn mark_undispatched(&mut self, package: &PackageAnalysisKey) -> Vec<PendingRenameRequest> {
+        let Some(queue) = self.pending_by_package.get_mut(package) else {
+            return Vec::new();
+        };
+        let mut pending = Vec::new();
+        for request in queue.iter_mut() {
+            if !request.dispatched {
+                request.dispatched = true;
+                pending.push(request.clone());
+            }
+        }
+        pending
+    }
+
+    /// Drain rename requests whose source document has closed.
+    fn clear_uri(&mut self, uri: &Uri) -> Vec<PendingRenameRequest> {
+        let packages = self.pending_by_package.keys().cloned().collect::<Vec<_>>();
+        let mut cleared = Vec::new();
+        for package in packages {
+            let Some(queue) = self.pending_by_package.get_mut(&package) else {
+                continue;
+            };
+            let mut index = 0;
+            while index < queue.len() {
+                if &queue[index].query.view_key.uri == uri {
+                    let pending = queue.remove(index);
+                    self.pending_owner.remove(&pending.id);
+                    cleared.push(pending);
+                } else {
+                    index += 1;
+                }
+            }
+            if queue.is_empty() {
+                self.pending_by_package.remove(&package);
+            }
+        }
+        cleared
+    }
+
+    /// Drain rename requests waiting on one package key.
+    fn take_package(&mut self, package: &PackageAnalysisKey) -> Vec<PendingRenameRequest> {
+        let Some(requests) = self.pending_by_package.remove(package) else {
+            return Vec::new();
+        };
+        for request in &requests {
+            self.pending_owner.remove(&request.id);
+        }
+        requests
+    }
+
+    /// Drain rename requests waiting on any package key in a bucket.
+    fn take_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingRenameRequest> {
+        let packages =
+            self.pending_by_package.keys().filter(|package| &package.bucket == bucket).cloned().collect::<Vec<_>>();
+        packages.into_iter().flat_map(|package| self.take_package(&package)).collect()
+    }
+}
+
+impl PrepareRenameRequestState {
+    /// Queue a prepare-rename request, enforcing global and per-package caps.
+    fn queue(&mut self, query: PrepareRenameQuery, request_id: RequestId) -> bool {
+        if self.pending_owner.len() >= MAX_PENDING_PREPARE_RENAMES {
+            return false;
+        }
+        let package = query.view_key.package.clone();
+        let queue = self.pending_by_package.entry(package.clone()).or_default();
+        if queue.len() >= MAX_PENDING_PREPARE_RENAMES_PER_KEY {
+            return false;
+        }
+        queue.push(PendingPrepareRenameRequest { id: request_id.clone(), query });
+        self.pending_owner.insert(request_id, package);
+        true
+    }
+
+    /// Remove one pending prepare-rename request by request ID.
+    fn remove_pending_request(&mut self, request_id: &RequestId) -> Option<PendingPrepareRenameRequest> {
+        let package = self.pending_owner.remove(request_id)?;
+        let queue = self.pending_by_package.get_mut(&package)?;
+        let index = queue.iter().position(|pending| &pending.id == request_id)?;
+        let pending = queue.remove(index);
+        if queue.is_empty() {
+            self.pending_by_package.remove(&package);
+        }
+        Some(pending)
+    }
+
+    /// Drain prepare-rename requests whose source document has closed.
+    fn clear_uri(&mut self, uri: &Uri) -> Vec<PendingPrepareRenameRequest> {
+        let packages = self.pending_by_package.keys().cloned().collect::<Vec<_>>();
+        let mut cleared = Vec::new();
+        for package in packages {
+            let Some(queue) = self.pending_by_package.get_mut(&package) else {
+                continue;
+            };
+            let mut index = 0;
+            while index < queue.len() {
+                if &queue[index].query.view_key.uri == uri {
+                    let pending = queue.remove(index);
+                    self.pending_owner.remove(&pending.id);
+                    cleared.push(pending);
+                } else {
+                    index += 1;
+                }
+            }
+            if queue.is_empty() {
+                self.pending_by_package.remove(&package);
+            }
+        }
+        cleared
+    }
+
+    /// Drain prepare-rename requests waiting on one package key.
+    fn take_package(&mut self, package: &PackageAnalysisKey) -> Vec<PendingPrepareRenameRequest> {
+        let Some(requests) = self.pending_by_package.remove(package) else {
+            return Vec::new();
+        };
+        for request in &requests {
+            self.pending_owner.remove(&request.id);
+        }
+        requests
+    }
+
+    /// Drain prepare-rename requests waiting on any package key in a bucket.
+    fn take_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingPrepareRenameRequest> {
+        let packages =
+            self.pending_by_package.keys().filter(|package| &package.bucket == bucket).cloned().collect::<Vec<_>>();
+        packages.into_iter().flat_map(|package| self.take_package(&package)).collect()
+    }
+}
+
+impl PendingRequest for PendingDefinitionRequest {
+    /// Return the JSON-RPC request ID this definition waiter answers.
+    fn id(&self) -> &RequestId {
+        &self.id
+    }
+}
+
+impl PendingRequest for PendingReferencesRequest {
+    /// Return the JSON-RPC request ID this references waiter answers.
+    fn id(&self) -> &RequestId {
+        &self.id
+    }
+
+    /// Expose the per-request cancel flag so a routing-thread cancel path can
+    /// flip it before the in-flight pool job emits a stale response.
+    fn cancel_flag(&self) -> Option<&Arc<AtomicBool>> {
+        Some(&self.cancel)
+    }
+}
+
+impl PendingRequest for PendingRenameRequest {
+    /// Return the JSON-RPC request ID this rename waiter answers.
+    fn id(&self) -> &RequestId {
+        &self.id
+    }
+
+    /// Expose the per-request cancel flag so a routing-thread cancel path can
+    /// flip it before the in-flight pool job emits a stale `WorkspaceEdit`.
+    fn cancel_flag(&self) -> Option<&Arc<AtomicBool>> {
+        Some(&self.cancel)
+    }
+}
+
+impl PendingRequest for PendingPrepareRenameRequest {
+    /// Return the JSON-RPC request ID this prepare-rename waiter answers.
+    fn id(&self) -> &RequestId {
+        &self.id
+    }
+}
+
+impl PendingFeature for SemanticTokenRequestState {
+    /// Pending semantic-token waiters carry no per-request payload beyond the ID.
+    type Request = RequestId;
+
+    /// Drain semantic-token waiters whose source document has closed.
+    fn drain_uri(&mut self, uri: &Uri) -> Vec<RequestId> {
+        self.clear_uri(uri)
+    }
+
+    /// Drain semantic-token waiters blocked on one package key.
+    fn drain_package(&mut self, key: &PackageAnalysisKey) -> Vec<RequestId> {
+        self.take_package(key)
+    }
+
+    /// Drain semantic-token waiters blocked on one analysis bucket.
+    fn drain_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<RequestId> {
+        self.take_bucket(bucket)
+    }
+}
+
+impl PendingFeature for DefinitionRequestState {
+    /// Pending definition waiters retain their original cursor query.
+    type Request = PendingDefinitionRequest;
+
+    /// Drain definition waiters whose source document has closed.
+    fn drain_uri(&mut self, uri: &Uri) -> Vec<PendingDefinitionRequest> {
+        self.clear_uri(uri)
+    }
+
+    /// Drain definition waiters blocked on one package key.
+    fn drain_package(&mut self, key: &PackageAnalysisKey) -> Vec<PendingDefinitionRequest> {
+        self.take_package(key)
+    }
+
+    /// Drain definition waiters blocked on one analysis bucket.
+    fn drain_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingDefinitionRequest> {
+        self.take_bucket(bucket)
+    }
+}
+
+impl PendingFeature for ReferencesRequestState {
+    /// Pending references waiters carry a cancel flag observed by the response pool.
+    type Request = PendingReferencesRequest;
+
+    /// Drain references waiters whose source document has closed.
+    fn drain_uri(&mut self, uri: &Uri) -> Vec<PendingReferencesRequest> {
+        self.clear_uri(uri)
+    }
+
+    /// Drain references waiters blocked on one package key.
+    fn drain_package(&mut self, key: &PackageAnalysisKey) -> Vec<PendingReferencesRequest> {
+        self.take_package(key)
+    }
+
+    /// Drain references waiters blocked on one analysis bucket.
+    fn drain_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingReferencesRequest> {
+        self.take_bucket(bucket)
+    }
+}
+
+impl PendingFeature for RenameRequestState {
+    /// Pending rename waiters carry a cancel flag observed by the response pool.
+    type Request = PendingRenameRequest;
+
+    /// Drain rename waiters whose source document has closed.
+    fn drain_uri(&mut self, uri: &Uri) -> Vec<PendingRenameRequest> {
+        self.clear_uri(uri)
+    }
+
+    /// Drain rename waiters blocked on one package key.
+    fn drain_package(&mut self, key: &PackageAnalysisKey) -> Vec<PendingRenameRequest> {
+        self.take_package(key)
+    }
+
+    /// Drain rename waiters blocked on one analysis bucket.
+    fn drain_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingRenameRequest> {
+        self.take_bucket(bucket)
+    }
+}
+
+impl PendingFeature for PrepareRenameRequestState {
+    /// Pending prepare-rename waiters retain only cursor query state.
+    type Request = PendingPrepareRenameRequest;
+
+    /// Drain prepare-rename waiters whose source document has closed.
+    fn drain_uri(&mut self, uri: &Uri) -> Vec<PendingPrepareRenameRequest> {
+        self.clear_uri(uri)
+    }
+
+    /// Drain prepare-rename waiters blocked on one package key.
+    fn drain_package(&mut self, key: &PackageAnalysisKey) -> Vec<PendingPrepareRenameRequest> {
+        self.take_package(key)
+    }
+
+    /// Drain prepare-rename waiters blocked on one analysis bucket.
+    fn drain_bucket(&mut self, bucket: &AnalysisBucket) -> Vec<PendingPrepareRenameRequest> {
+        self.take_bucket(bucket)
+    }
+}
+
+/// Convert a prepare-rename target to the LSP wire payload.
+fn prepare_rename_response_value(
+    query: &PrepareRenameQuery,
+    package: &CachedPackageAnalysis,
+    source_path: &std::path::Path,
+    line_index: &line_index::LineIndex,
+) -> Value {
+    let Some(range) = prepare_rename_target(query, package, source_path) else {
+        return Value::Null;
+    };
+    let Some(lsp_range) = byte_range_to_lsp_range(line_index, range.start, range.end) else {
+        return Value::Null;
+    };
+    let response: Range = lsp_range;
+    serde_json::to_value(PrepareRenameResponse::Range(response)).expect("PrepareRenameResponse should serialize")
+}
+
 /// Collect initialize-time workspace roots using LSP's preferred fallback order.
 #[allow(deprecated)]
 fn collect_workspace_roots(params: &InitializeParams) -> Vec<PathBuf> {
@@ -1372,6 +2060,10 @@ fn server_capabilities() -> ServerCapabilities {
         semantic_tokens_provider: Some(semantic_tokens_capability()),
         definition_provider: Some(OneOf::Left(true)),
         references_provider: Some(OneOf::Left(true)),
+        rename_provider: Some(OneOf::Right(RenameOptions {
+            prepare_provider: Some(true),
+            work_done_progress_options: WorkDoneProgressOptions::default(),
+        })),
         ..Default::default()
     }
 }
@@ -1455,6 +2147,16 @@ fn send_reference_nulls(connection: &Connection, requests: Vec<PendingReferences
         send_ok_response(connection, request.id, Value::Null)?;
     }
     Ok(())
+}
+
+/// Log and discard a `cancel_drained` failure without surfacing it to callers.
+///
+/// The drain helpers fan out across five pending-state owners; one feature's
+/// transport failure must not short-circuit the remaining four.
+fn log_drain(result: Result<()>, what: &'static str) {
+    if let Err(error) = result {
+        tracing::error!(error = %error, "failed to cancel {what}");
+    }
 }
 
 /// Send the same error payload to every queued waiter on a URI.
@@ -1618,6 +2320,8 @@ mod tests {
             semantic_token_requests: super::SemanticTokenRequestState::default(),
             definition_requests: super::DefinitionRequestState::default(),
             reference_requests: super::ReferencesRequestState::default(),
+            rename_requests: super::RenameRequestState::default(),
+            prepare_rename_requests: super::PrepareRenameRequestState::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         }
@@ -1945,6 +2649,8 @@ mod tests {
             semantic_token_requests: super::SemanticTokenRequestState::default(),
             definition_requests: super::DefinitionRequestState::default(),
             reference_requests: super::ReferencesRequestState::default(),
+            rename_requests: super::RenameRequestState::default(),
+            prepare_rename_requests: super::PrepareRenameRequestState::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         };
