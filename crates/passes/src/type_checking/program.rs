@@ -430,6 +430,9 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     self.emit_err(crate::errors::type_checker::undefined_type(&input.key_type, input.span));
                 }
             }
+            Type::DynRecord => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "dyn record", input.span));
+            }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => {
                 self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "mapping", input.span))
@@ -467,6 +470,9 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 } else {
                     self.emit_err(crate::errors::type_checker::undefined_type(&input.value_type, input.span));
                 }
+            }
+            Type::DynRecord => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "dyn record", input.span));
             }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => {
