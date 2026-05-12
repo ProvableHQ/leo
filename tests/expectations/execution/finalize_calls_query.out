@@ -1,0 +1,58 @@
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+mapping totals:
+    key as address.public;
+    value as u64.public;
+
+query get_balance:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    output r1 as u64.public;
+
+function cache_total:
+    input r0 as address.private;
+    async cache_total r0 into r1;
+    output r1 as test.aleo/cache_total.future;
+
+finalize cache_total:
+    input r0 as address.public;
+    call get_balance r0 into r1;
+    add r1 100u64 into r2;
+    set r2 into totals[r0];
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1mkpw4lcfcc7pzt90hugtkc665l6gh2zv5wm745pjhcdd2h5uyuqsqq035u",
+      "program": "test.aleo",
+      "function": "cache_total",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4336839086441028044451527891237737607430791764407588462497204273217899396326field",
+          "value": "ciphertext1qgqgzefu93fgv7y5k88da4lf38f9y57gh0gdrplsug0q86lfhvhejq8uck4t2tnur7s0vqhxt6slzy5yu2xqj6mlf9hm0xck4nwfygwxqu84mq8x"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1850273694807680306957701428175192739245754467265193012140436200479609819478field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: cache_total,\n  arguments: [\n    aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9\n  ]\n}"
+        }
+      ],
+      "tpk": "5582946931104013804761995824389229816524446959504854535855220028591757702781group",
+      "tcm": "7643696013285596612514512690913778840777169110862747769323878480270353543320field",
+      "scm": "6569167315023091242600312010540626595986594229229790937956880959963300180772field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

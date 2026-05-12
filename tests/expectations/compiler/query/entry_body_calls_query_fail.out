@@ -1,0 +1,5 @@
+[ETYC0372042] Error: Only regular fns can be called from a transition body outside a `final {}` block.
+    ╭─[ compiler-test:14:24 ]
+    │
+ 14 │         let bal: u64 = get_balance(addr);
+────╯

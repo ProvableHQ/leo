@@ -1128,18 +1128,36 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
-            Variant::Finalize if !matches!(func.variant, Variant::FinalFn | Variant::Fn) => self.emit_err(
-                // FIXME: better error
-                crate::errors::type_checker::can_only_call_inline_function(
-                    "a regular function or constructor",
+            // `Variant::Finalize` covers two things: the user-facing `constructor { ... }` body
+            // (snarkVM still forbids `call` here, scope unchanged) and the hoisted-from-`final {}`
+            // synthetic function (snarkVM PR #3253 lets these call `Variant::Query` targets).
+            Variant::Finalize
+                if {
+                    let callee_is_inlined = matches!(func.variant, Variant::FinalFn | Variant::Fn);
+                    let callee_is_allowed_query =
+                        matches!(func.variant, Variant::Query) && !self.scope_state.is_constructor;
+                    !callee_is_inlined && !callee_is_allowed_query
+                } =>
+            {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
+                    // FIXME: better error
+                    if self.scope_state.is_constructor { "a constructor" } else { "a final block" },
                     input.span,
-                ),
-            ),
+                ))
+            }
             Variant::Fn if !matches!(func.variant, Variant::Fn) => {
                 self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                     "a regular function or constructor",
                     input.span,
                 ))
+            }
+            // `final fn` helpers are inlined by the function-inlining pass into whichever
+            // `final {}` block calls them, so their callees must be things that are legal
+            // inside a finalize body: another inlineable callee (`Fn` / `FinalFn`) or a
+            // `Query` target. `EntryPoint` / `Finalize` callees would leave a stray `call`
+            // in finalize that snarkVM rejects at deploy.
+            Variant::FinalFn if !matches!(func.variant, Variant::Fn | Variant::FinalFn | Variant::Query) => {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final fn", input.span))
             }
             // Query functions are leaves: snarkVM rejects any `call` instruction inside a
             // `query` block, so the only callees Leo will ever emit from a query body are
@@ -1148,17 +1166,30 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // finalizes, final fns) is rejected here for a clean Leo-level diagnostic.
             Variant::Query if !matches!(func.variant, Variant::Fn) => self
                 .emit_err(crate::errors::type_checker::can_only_call_inline_function("a query function", input.span)),
-            Variant::EntryPoint
-                if matches!(func.variant, Variant::EntryPoint)
-                    && callee_program == self.scope_state.unit_name.unwrap() =>
-            {
-                self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span))
+            Variant::EntryPoint => {
+                if matches!(func.variant, Variant::EntryPoint) && callee_program == self.scope_state.unit_name.unwrap()
+                {
+                    self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
+                } else if matches!(func.variant, Variant::Query) && self.async_block_id.is_none() {
+                    // Calling a query from a transition body (outside `final {}`) compiles to a
+                    // top-level `call` in the Aleo `function:` section. snarkVM only accepts
+                    // query calls inside a `finalize:` body, so reject here with a clear
+                    // Leo-level message instead of deferring to the cryptic snarkVM error.
+                    self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
+                        "a transition body outside a `final {}` block",
+                        input.span,
+                    ));
+                }
             }
             _ => {}
         }
 
-        // Make sure we're not calling an entry point or finalize from a final block
-        if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
+        // Calls inside a `final {}` block are restricted. `FinalFn` and `Fn` callees are inlined
+        // by the function-inlining pass, so no `call` is emitted. `Query` callees survive as
+        // real `call` instructions; snarkVM (PR #3253) accepts them inside a finalize body
+        // because it checks at type-init that the call target resolves to a query.
+        // Anything else (entry points, finalizes) is rejected here.
+        if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn | Variant::Query) {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return Type::Err;

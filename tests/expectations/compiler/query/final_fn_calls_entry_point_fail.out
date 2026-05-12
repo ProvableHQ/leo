@@ -1,0 +1,5 @@
+[ETYC0372042] Error: Only regular fns can be called from a final fn.
+   ╭─[ compiler-test:5:18 ]
+   │
+ 5 │     let y: u32 = data.aleo::read(x);
+───╯

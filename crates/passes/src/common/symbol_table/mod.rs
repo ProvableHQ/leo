@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, Type};
+use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, Type, Variant};
 use leo_errors::{Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
@@ -283,18 +283,20 @@ impl SymbolTable {
         if self.is_visible(current_unit, &location.program) { self.functions.get(location) } else { None }
     }
 
-    /// Returns true if `location` refers to an entry point in a different compilation unit than
-    /// `current_unit`. Cross-unit entry-point calls must be emitted as direct Aleo `call`
-    /// instructions — inlining an entry-point body into a different compilation unit would lose
-    /// its transition semantics (record creation, signing, finalize scheduling).
-    pub fn is_cross_program_entry(&self, current_unit: Symbol, location: &Location) -> bool {
+    /// Returns true if `location` refers to a function in a different compilation unit than
+    /// `current_unit` that must remain a direct Aleo `call`. This covers entry points (where
+    /// inlining would lose transition semantics — record creation, signing, finalize scheduling)
+    /// and queries (V15 read-only functions that snarkVM dispatches to at run time and that are
+    /// never inlined by the function-inlining pass).
+    pub fn is_cross_program_call_target(&self, current_unit: Symbol, location: &Location) -> bool {
         location.program != current_unit
-            && self
-                .lookup_function(current_unit, location)
-                .expect("the symbol table must know about every callee at this stage")
-                .function
-                .variant
-                .is_entry()
+            && matches!(
+                self.lookup_function(current_unit, location)
+                    .expect("the symbol table must know about every callee at this stage")
+                    .function
+                    .variant,
+                Variant::EntryPoint | Variant::Query,
+            )
     }
 
     /// Access an interface by this name if it exists and is accessible from the compilation unit `current_unit`.

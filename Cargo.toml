@@ -68,9 +68,9 @@ serial_test        = "3.1"
 sha2               = "0.10"
 similar            = "2.6"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-# TODO: switch back to a published version once a release is cut after snarkVM PR #3238 (read-only `query` functions, V15) merged into `staging`.
+# TODO: switch back to a published version once a release is cut after snarkVM PRs #3238 (read-only `query` functions, V15) and #3253 (finalize-calls-query) merged into `staging`.
 # `history` is required to compile `Process::evaluate_query_with_history`, the public-facing query entry point.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "6440df18da2ae90d5fadf180959eb7b7133a66de", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "a3f40b7a5a824e1dbb0734bbd74cf711973b110b", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

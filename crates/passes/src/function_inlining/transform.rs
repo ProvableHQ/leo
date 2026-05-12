@@ -208,9 +208,10 @@ impl AstReconstructor for TransformVisitor<'_> {
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let function_location = input.function.expect_global_location();
 
-        // Cross-program entry-point calls are always emitted as direct Aleo `call`s — inlining
-        // an entry-point body into a different program would lose its transition semantics.
-        if self.state.symbol_table.is_cross_program_entry(self.program, function_location) {
+        // Cross-program entry-point and query calls are always emitted as direct Aleo `call`s.
+        // Entry points cannot be inlined without losing transition semantics; queries are never
+        // inlined and snarkVM dispatches to them at run time.
+        if self.state.symbol_table.is_cross_program_call_target(self.program, function_location) {
             return (input.into(), Default::default());
         }
 
@@ -273,8 +274,10 @@ impl AstReconstructor for TransformVisitor<'_> {
                 // Has only empty arguments
                 optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
                 }
-                // Queries cannot be called from anywhere in Leo source — type checking
-                // rejects calls to them — so we should never reach this arm. Mirror EntryPoint.
+                // Queries are callable from `final {}` blocks (snarkVM PR #3253). We must not
+                // inline them: snarkVM dispatches into the program's `query` block at run time,
+                // so codegen needs to emit a real `call` instruction. EntryPoint / Finalize
+                // are never inlined for the usual reasons.
                 Variant::EntryPoint | Variant::Finalize | Variant::Query => false,
             };
 
