@@ -71,6 +71,11 @@ similar            = "2.6"
 # TODO: switch back to a published version once a release is cut after snarkVM PRs #3238 (read-only `query` functions, V15) and #3253 (finalize-calls-query) merged into `staging`.
 # `history` is required to compile `Process::evaluate_query_with_history`, the public-facing query entry point.
 snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "a3f40b7a5a824e1dbb0734bbd74cf711973b110b", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+# Wasm-friendly snarkVM subsets pinned at the same rev as the umbrella crate; used by
+# `leo-ast` and `leo-disassembler` on `wasm32-unknown-unknown` where the full `snarkvm`
+# crate pulls in native-only ledger/package code.
+snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "a3f40b7a5a824e1dbb0734bbd74cf711973b110b", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "a3f40b7a5a824e1dbb0734bbd74cf711973b110b", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

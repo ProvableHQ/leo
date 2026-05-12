@@ -212,6 +212,9 @@ mod validate {
         "comment_before_program",
         "malformed_missing_program_rbrace",
         "wrap_binary_chain",
+        // `final query fn` is the explicit parser-failure case; the formatter cannot be
+        // expected to round-trip a syntactically invalid construct.
+        "final_query_fail",
     ];
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -478,6 +481,9 @@ mod validate {
 
             for file_path in &leo_files {
                 let name = file_path.file_stem().unwrap().to_str().unwrap();
+                if SKIP_VALIDATION.contains(&name) {
+                    continue;
+                }
                 let source = std::fs::read_to_string(file_path)
                     .unwrap_or_else(|_| panic!("Failed to read: {}", file_path.display()));
 
@@ -545,10 +551,14 @@ mod validate {
                 compiler_ast_tested,
                 rowan_tested
             );
+            let skipped = leo_files
+                .iter()
+                .filter(|p| SKIP_VALIDATION.contains(&p.file_stem().and_then(|s| s.to_str()).unwrap_or_default()))
+                .count();
             assert_eq!(
-                compiler_ast_tested + rowan_tested,
+                compiler_ast_tested + rowan_tested + skipped,
                 leo_files.len(),
-                "every tracked workspace .leo file should use either compiler AST or rowan fallback validation"
+                "every tracked workspace .leo file should use either compiler AST or rowan fallback validation, or be in SKIP_VALIDATION"
             );
             assert!(failures.is_empty(), "{} file(s) have AST mismatches: {failures:?}", failures.len());
         });
