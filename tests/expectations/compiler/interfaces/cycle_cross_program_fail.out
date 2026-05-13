@@ -1,9 +1,13 @@
 [ECHI03712000] Error: Interface `lib.aleo/B` not found.
    ╭─[ compiler-test:3:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 3 │ ╭─▶ interface A: lib.aleo::B {
+   ┆ ┆   
+ 5 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 Error [ECHI03712010]: Cyclic interface inheritance detected: lib.aleo/B -> test.aleo/A -> lib.aleo/B
      |
@@ -15,7 +19,11 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: Interface `lib.aleo/B` not found.
    ╭─[ compiler-test:3:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 3 │ ╭─▶ interface A: lib.aleo::B {
+   ┆ ┆   
+ 5 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯

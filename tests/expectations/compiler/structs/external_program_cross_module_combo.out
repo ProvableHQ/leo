@@ -156,9 +156,13 @@ Note: Treating dependencies as Aleo produces different results:
 [ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
     ╭─[ compiler-test:18:9 ]
     │
-    │ 
-    │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+ 18 │ ╭─▶         let seg: child.aleo::shapes::Segment = child.aleo::shapes::Segment {
+    ┆ ┆   
+ 21 │ ├─▶         };
+    │ │                
+    │ ╰──────────────── 
+    │     
+    │     Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
 ────╯
 [ETYC0372005] Error: Unknown struct or record `child.aleo::shapes::Segment`
     ╭─[ compiler-test:18:48 ]

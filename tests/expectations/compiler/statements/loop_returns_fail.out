@@ -1,16 +1,24 @@
 [ETYC0372026] Error: Loop body contains a return statement or always returns.
    ╭─[ compiler-test:4:5 ]
    │
-   │ 
-   │ 
-   │ Help: Remove the code in the loop body that always returns.
+ 4 │ ╭─▶     for i: u32 in 0u32..9u32 {
+   ┆ ┆   
+ 6 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
+   │     
+   │     Help: Remove the code in the loop body that always returns.
 ───╯
 [ETYC0372026] Error: Loop body contains a return statement or always returns.
     ╭─[ compiler-test:7:5 ]
     │
-    │ 
-    │ 
-    │ Help: Remove the code in the loop body that always returns.
+  7 │ ╭─▶     for i: u32 in 0u32..9u32 {
+    ┆ ┆   
+ 13 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Remove the code in the loop body that always returns.
 ────╯
 [ETYC0372083] Error: A program must have at least one entry point fn.
    ╭─[ compiler-test:1:9 ]

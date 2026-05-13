@@ -5,7 +5,11 @@ Found:
 fn store(s: test.aleo::Slot::[16u32]) -> u32
     ╭─[ compiler-test:14:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 14 │ ╭─▶     fn store(s: Slot::[16u32]) -> u32 {
+    ┆ ┆   
+ 16 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯

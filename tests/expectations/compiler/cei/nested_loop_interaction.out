@@ -1,14 +1,14 @@
 [WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:14:9 ]
     │
-    │ 
+ 14 │     for i: u32 in 0u32..2u32 {
     │ 
     │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
 ────╯
 [WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
-    ╭─[ compiler-test:16:9 ]
+    ╭─[ compiler-test:16:13 ]
     │
-    │ 
+ 16 │         for j: u32 in 0u32..2u32 {
     │ 
     │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
 ────╯

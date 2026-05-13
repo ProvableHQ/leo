@@ -35,14 +35,22 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: Interface `ext_lib/base_lib::Base` not found.
    ╭─[ compiler-test:1:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 1 │ ╭─▶ interface Extended : base_lib::Base {
+   ┆ ┆   
+ 3 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [ECHI03712000] Error: Interface `ext_lib/base_lib::Base` not found.
    ╭─[ compiler-test:1:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 1 │ ╭─▶ interface Extended : base_lib::Base {
+   ┆ ┆   
+ 3 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯

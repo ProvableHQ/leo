@@ -31,7 +31,10 @@
 [EPAR0370047] Error: Only `const` declarations, `struct` definitions, `fn` functions, and `interface` definitions are allowed in a library.
    ╭─[ test_7:1:1 ]
    │
-   ┆ 
+ 1 │ ╭─▶ @noupgrade
+ 2 │ ├─▶ constructor() {}
+   │ │                     
+   │ ╰───────────────────── 
 ───╯
 [EPAR0370047] Error: expected `import`, `program`, or module item at top level
    ╭─[ test_8:1:1 ]

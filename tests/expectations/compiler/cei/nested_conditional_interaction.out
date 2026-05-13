@@ -8,9 +8,13 @@
 [WSAZ0374000] Warning: Not all paths through the function run all Finals. 3/4 paths contain at least one Final that is never run.
     ╭─[ compiler-test:13:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+ 13 │ ╭─▶ final fn finalize_do_work(f: Final, a: u32) {
+    ┆ ┆   
+ 24 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
 ────╯
 program dep.aleo;
 

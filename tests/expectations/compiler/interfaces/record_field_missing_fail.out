@@ -1,7 +1,11 @@
 [ECHI03712012] Error: Record `Token` in program `test.aleo` is missing required field `amount` specified by interface `test.aleo/TokenInterface`.
     ╭─[ compiler-test:10:5 ]
     │
-    │ 
+ 10 │ ╭─▶     record Token {
+    ┆ ┆   
+ 12 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
     │
     ├─[ compiler-test:10:5 ]
     │

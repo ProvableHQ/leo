@@ -8,9 +8,13 @@
 [ETYC0372017] Error: The type `b28668.aleo::Goo` is not found in the current scope.
     ╭─[ compiler-test:11:9 ]
     │
-    │ 
-    │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+ 11 │ ╭─▶         let g: Goo::[y] = Goo::[y] {
+    ┆ ┆   
+ 13 │ ├─▶         };
+    │ │                
+    │ ╰──────────────── 
+    │     
+    │     Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
 ────╯
 [ETYC0372005] Error: Unknown struct or record `b28668.aleo::Goo`
     ╭─[ compiler-test:11:27 ]

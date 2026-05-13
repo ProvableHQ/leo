@@ -1,9 +1,13 @@
 [ETYC0372104] Error: Not all Finals were consumed: result2
     ╭─[ compiler-test:18:19 ]
     │
-    │ 
-    │ 
-    │ Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
+ 18 │ ╭─▶             final {
+    ┆ ┆   
+ 20 │ ├─▶             },
+    │ │                    
+    │ ╰──────────────────── 
+    │     
+    │     Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
 ────╯
 [WCEI03713004] Warning: Value `result` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
     ╭─[ compiler-test:19:17 ]
