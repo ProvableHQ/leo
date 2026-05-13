@@ -17,10 +17,11 @@
 use crate::{
     CompilerState,
     cei_analysis::effect_summary::{AutomatonState, CeiCategory, EffectSummary, classify_intrinsic, peel_assign_root},
+    errors::cei_analyzer,
 };
 
 use leo_ast::*;
-use leo_errors::CeiAnalyzerWarning;
+use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -44,7 +45,7 @@ pub struct FinalizeCeiVisitor<'a> {
 
 impl FinalizeCeiVisitor<'_> {
     /// Emits a CEI analyzer warning.
-    pub fn emit_warning(&self, warning: CeiAnalyzerWarning) {
+    pub fn emit_warning(&self, warning: Formatted) {
         self.state.handler.emit_warning(warning);
     }
 
@@ -81,10 +82,10 @@ impl FinalizeCeiVisitor<'_> {
         if self.automaton_state == AutomatonState::AfterInteraction {
             match category {
                 CeiCategory::Check => {
-                    self.emit_warning(CeiAnalyzerWarning::check_after_interaction(description, span));
+                    self.emit_warning(cei_analyzer::check_after_interaction(description, span));
                 }
                 CeiCategory::Effect => {
-                    self.emit_warning(CeiAnalyzerWarning::effect_after_interaction(description, span));
+                    self.emit_warning(cei_analyzer::effect_after_interaction(description, span));
                 }
                 CeiCategory::Interaction => {} // Interactions after interactions are fine.
             }
@@ -131,10 +132,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
             if self.automaton_state == AutomatonState::AfterInteraction
                 && (callee_summary.has_checks || callee_summary.has_effects)
             {
-                self.emit_warning(CeiAnalyzerWarning::callee_has_effects_after_interaction(
-                    &input.function,
-                    input.span(),
-                ));
+                self.emit_warning(cei_analyzer::callee_has_effects_after_interaction(&input.function, input.span()));
             }
 
             // If the callee has interactions, transition to AfterInteraction.
@@ -272,7 +270,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
 
         // If the loop body contains interactions alongside checks or effects, warn.
         if loop_summary.has_interactions && (loop_summary.has_checks || loop_summary.has_effects) {
-            self.emit_warning(CeiAnalyzerWarning::cei_violation_in_loop(input.span));
+            self.emit_warning(cei_analyzer::cei_violation_in_loop(input.span));
         }
 
         // Walk the loop body for detailed per-statement warnings.

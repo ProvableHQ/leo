@@ -1,5 +1,5 @@
-Error [ESAZ0374010]: Array index 0 out of bounds (array length is 0).
-    --> compiler-test:10:16
-     |
-  10 |         sum += arr[0u32];
-     |                ^^^^^^^^^
+[ESAZ0374010] Error: Array index 0 out of bounds (array length is 0).
+    ╭─[ compiler-test:10:16 ]
+    │
+ 10 │         sum += arr[0u32];
+────╯

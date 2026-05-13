@@ -1,21 +1,21 @@
-Error [ESAZ0374005]: A Final may not be used in this way
-    --> compiler-test:12:30
-     |
-  12 |         let start_2: Final = start.1;
-     |                              ^^^^^^^
-     |
-     = Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
-Warning [WCEI03713004]: Value `start` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
-    --> compiler-test:16:17
-     |
-  16 |                 start.1.run();
-     |                 ^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
-Warning [WCEI03713004]: Value `start_2` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
-    --> compiler-test:17:17
-     |
-  17 |                 start_2.run();
-     |                 ^^^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[ESAZ0374005] Error: A Final may not be used in this way
+    ╭─[ compiler-test:12:30 ]
+    │
+ 12 │         let start_2: Final = start.1;
+    │ 
+    │ Help: Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+────╯
+[WCEI03713004] Warning: Value `start` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:16:17 ]
+    │
+ 16 │                 start.1.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `start_2` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:17:17 ]
+    │
+ 17 │                 start_2.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯

@@ -1,5 +1,5 @@
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:4:9
-     |
-   4 |         let str: string = "a a a";
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372045] Error: Strings are not yet supported.
+   ╭─[ compiler-test:4:9 ]
+   │
+ 4 │         let str: string = "a a a";
+───╯

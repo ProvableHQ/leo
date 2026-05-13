@@ -1,12 +1,12 @@
-Error [ETYC0372147]: Invalid expression in a final block. `self.caller` cannot be used directly here.
-    --> compiler-test:6:34
-     |
-   6 |                 finalize_matches(self.caller);
-     |                                  ^^^^^^^^^^^
-     |
-     = Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`
-Error [ETYC0372066]: `self.caller` is not a valid operand in a finalization context.
-    --> compiler-test:13:21
-     |
-  13 |     assert_eq(addr, self.caller);
-     |                     ^^^^^^^^^^^
+[ETYC0372147] Error: Invalid expression in a final block. `self.caller` cannot be used directly here.
+   ╭─[ compiler-test:6:34 ]
+   │
+ 6 │                 finalize_matches(self.caller);
+   │ 
+   │ Help: Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`
+───╯
+[ETYC0372066] Error: `self.caller` is not a valid operand in a finalization context.
+    ╭─[ compiler-test:13:21 ]
+    │
+ 13 │     assert_eq(addr, self.caller);
+────╯

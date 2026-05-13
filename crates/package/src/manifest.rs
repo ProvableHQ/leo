@@ -16,7 +16,7 @@
 
 use crate::*;
 
-use leo_errors::PackageError;
+use leo_errors::Backtraced;
 
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -38,26 +38,26 @@ pub struct Manifest {
 
 impl Manifest {
     /// Write the manifest to the given `path` as a JSON string.
-    pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), PackageError> {
+    pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), Backtraced> {
         // Serialize the manifest to a JSON string.
         let mut contents = serde_json::to_string_pretty(&self)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.as_ref().display(), err))?;
+            .map_err(|err| crate::errors::failed_to_serialize_manifest_file(path.as_ref().display(), err))?;
 
         // The seralized string doesn't end in a newline.
         contents.push('\n');
 
         // Write the manifest to the file.
-        std::fs::write(path, contents).map_err(PackageError::failed_to_write_manifest)
+        std::fs::write(path, contents).map_err(crate::errors::failed_to_write_manifest)
     }
 
     /// Read a Manifest from the given file as a JSON string.
-    pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, PackageError> {
+    pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, Backtraced> {
         // Read the manifest file.
         let contents = std::fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_load_package(path.as_ref().display()))?;
+            .map_err(|_| crate::errors::failed_to_load_package(path.as_ref().display()))?;
         // Deserialize the manifest.
         serde_json::from_str(&contents)
-            .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.as_ref().display(), err))
+            .map_err(|err| crate::errors::failed_to_deserialize_manifest_file(path.as_ref().display(), err))
     }
 }
 

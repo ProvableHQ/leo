@@ -1,10 +1,10 @@
-Warning [WCEI03713002]: Call to `caller.aleo::read_and_store` (which contains checks or effects) occurs after an interaction (Final.run()).
-    --> compiler-test:30:5
-     |
-  30 |     read_and_store(target, key);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713002] Warning: Call to `caller.aleo::read_and_store` (which contains checks or effects) occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:30:7 ]
+    │
+ 30 │     read_and_store(target, key);
+    │ 
+    │ Help: Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 mapping dep_data:

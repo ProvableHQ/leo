@@ -1,37 +1,17 @@
-Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
-    --> compiler-test:22:5
-     |
-  22 |     Mapping::set(balances, 0u32, a);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
-Warning [WSAZ0374000]: Not all paths through the function run all Finals. 1/2 paths contain at least one Final that is never run.
-    --> compiler-test:13:1
-     |
-  13 | final fn finalize_do_work(f: Final, a: u32) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |     if a > 10u32 {
-     |     ^^^^^^^^^^^^^^
-  15 |         // Then-branch: no interaction, just a noop
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  16 |         Mapping::set(balances, 99u32, 0u32);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  17 |     } else {
-     |     ^^^^^^^^
-  18 |         // Else-branch: interaction happens here
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  19 |         f.run();
-     |         ^^^^^^^^
-  20 |     }
-     |     ^
-  21 |     // [E] Effect after conditional where one branch had interaction — should warn
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  22 |     Mapping::set(balances, 0u32, a);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  23 | }
-     | ^
-     |
-     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:22:7 ]
+    │
+ 22 │     Mapping::set(balances, 0u32, a);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WSAZ0374000] Warning: Not all paths through the function run all Finals. 1/2 paths contain at least one Final that is never run.
+    ╭─[ compiler-test:13:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+────╯
 program dep.aleo;
 
 mapping dep_data:

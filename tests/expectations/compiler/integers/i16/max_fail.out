@@ -1,5 +1,5 @@
-Error [ETYC0372008]: The value 32768 is not a valid `i16`
-    --> compiler-test:3:22
-     |
-   3 |         let a: i16 = 32768i16;
-     |                      ^^^^^^^^
+[ETYC0372008] Error: The value 32768 is not a valid `i16`
+   ╭─[ compiler-test:3:22 ]
+   │
+ 3 │         let a: i16 = 32768i16;
+───╯

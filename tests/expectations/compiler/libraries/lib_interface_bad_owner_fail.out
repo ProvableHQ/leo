@@ -1,17 +1,10 @@
-Error [ECHI03712014]: Field `owner` in record prototype `BadToken` must have type `address`, found `u32`. The `owner` field of a record is always `address`.
-    --> compiler-test:8:9
-     |
-   8 |         owner: u32,  // must be `address`
-     |         ^^^^^^^^^^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:2:1
-     |
-   2 | 
-   3 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   4 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   5 |         ..
-     |         ^^
-   6 |     }
-     |     ^
+[ECHI03712014] Error: Field `owner` in record prototype `BadToken` must have type `address`, found `u32`. The `owner` field of a record is always `address`.
+   ╭─[ compiler-test:8:9 ]
+   │
+ 8 │         owner: u32,  // must be `address`
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ compiler-test:1:21 ]
+   │
+   │ 
+───╯

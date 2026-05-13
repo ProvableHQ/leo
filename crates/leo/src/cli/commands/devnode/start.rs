@@ -86,14 +86,13 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
     initialize_terminal_logger(command.verbosity).expect("Failed to initialize logger");
 
     // Parse the listener address.
-    let socket_addr: SocketAddr = command
-        .socket_addr
-        .parse()
-        .map_err(|e| CliError::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e)))?;
+    let socket_addr: SocketAddr = command.socket_addr.parse().map_err(|e| {
+        crate::errors::custom(format!("Failed to parse listener address '{}': {}", command.socket_addr, e))
+    })?;
     // Load the genesis block.
     let genesis_block: Block<TestnetV0> = if command.genesis_path != "blank" {
         Block::from_bytes_le(&std::fs::read(&command.genesis_path).map_err(|e| {
-            CliError::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
+            crate::errors::custom(format!("Failed to read genesis block file '{}': {}", command.genesis_path, e))
         })?)?
     } else {
         // This genesis block is stored in $TMPDIR when running snarkos start --dev 0 --dev-num-validators N
@@ -103,17 +102,17 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
         Some(path) => {
             if command.clear_storage && path.exists() {
                 for entry in std::fs::read_dir(&path)
-                    .map_err(|e| CliError::custom(format!("Failed to read ledger directory: {e}")))?
+                    .map_err(|e| crate::errors::custom(format!("Failed to read ledger directory: {e}")))?
                 {
-                    let entry = entry.map_err(|e| CliError::custom(format!("Failed to read entry: {e}")))?;
+                    let entry = entry.map_err(|e| crate::errors::custom(format!("Failed to read entry: {e}")))?;
                     let entry_path = entry.path();
                     if entry_path.is_dir() {
                         std::fs::remove_dir_all(&entry_path).map_err(|e| {
-                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                            crate::errors::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
                         })?;
                     } else {
                         std::fs::remove_file(&entry_path).map_err(|e| {
-                            CliError::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
+                            crate::errors::custom(format!("Failed to remove '{}': {e}", entry_path.display()))
                         })?;
                     }
                 }
@@ -124,7 +123,7 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
             let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
                 tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
                     .await
-                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+                    .map_err(|e| crate::errors::custom(format!("Failed to load ledger: {e}")))??;
             run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
         }
         None => {
@@ -132,7 +131,7 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
             let ledger: Ledger<TestnetV0, ConsensusMemory<TestnetV0>> =
                 tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
                     .await
-                    .map_err(|e| CliError::custom(format!("Failed to load ledger: {e}")))??;
+                    .map_err(|e| crate::errors::custom(format!("Failed to load ledger: {e}")))??;
             run_devnode(socket_addr, ledger, command.manual_block_creation, private_key).await?
         }
     }
@@ -178,13 +177,11 @@ async fn run_devnode<C: 'static + ConsensusStorage<TestnetV0>>(
 
 fn resolve_private_key(private_key: &Option<String>) -> Result<PrivateKey<TestnetV0>> {
     match private_key {
-        Some(pk) => {
-            Ok(PrivateKey::<TestnetV0>::from_str(pk)
-                .map_err(|e| CliError::custom(format!("Invalid private key: {e}")))?)
-        }
+        Some(pk) => Ok(PrivateKey::<TestnetV0>::from_str(pk)
+            .map_err(|e| crate::errors::custom(format!("Invalid private key: {e}")))?),
         None => {
             let pk = std::env::var("PRIVATE_KEY").map_err(|e| {
-                CliError::custom(format!(
+                crate::errors::custom(format!(
                     "
 Failed to load `PRIVATE_KEY` from the environment: {e}
 Please either:
@@ -193,7 +190,7 @@ Please either:
                 ))
             })?;
             Ok(PrivateKey::<TestnetV0>::from_str(&pk)
-                .map_err(|e| CliError::custom(format!("Invalid private key: {e}")))?)
+                .map_err(|e| crate::errors::custom(format!("Invalid private key: {e}")))?)
         }
     }
 }

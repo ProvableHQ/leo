@@ -1,17 +1,17 @@
-Warning [WCEI03713004]: Value `combined` used in finalize block is derived from external call `dep_a.aleo/get_value`, whose finalize may alter the state this value depends on.
-    --> compiler-test:15:41
-     |
-  15 |             Mapping::set(results, 0u32, combined);
-     |                                         ^^^^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
-Warning [WCEI03713004]: Value `combined` used in finalize block is derived from external call `dep_b.aleo/get_value`, whose finalize may alter the state this value depends on.
-    --> compiler-test:15:41
-     |
-  15 |             Mapping::set(results, 0u32, combined);
-     |                                         ^^^^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `combined` used in finalize block is derived from external call `dep_a.aleo/get_value`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:15:41 ]
+    │
+ 15 │             Mapping::set(results, 0u32, combined);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `combined` used in finalize block is derived from external call `dep_b.aleo/get_value`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:15:41 ]
+    │
+ 15 │             Mapping::set(results, 0u32, combined);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program dep_a.aleo;
 
 mapping data_a:

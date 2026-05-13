@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use crate::{CompilerState, errors::cei_analyzer};
 
 use leo_ast::*;
-use leo_errors::CeiAnalyzerWarning;
+use leo_errors::Formatted;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
@@ -73,7 +73,7 @@ pub struct CrossLayerTaintVisitor<'a> {
 
 impl CrossLayerTaintVisitor<'_> {
     /// Emits a CEI analyzer warning.
-    pub fn emit_warning(&self, warning: CeiAnalyzerWarning) {
+    pub fn emit_warning(&self, warning: Formatted) {
         self.state.handler.emit_warning(warning);
     }
 
@@ -389,11 +389,7 @@ impl CrossLayerTaintVisitor<'_> {
                 {
                     // Emit warning for each coupled future source.
                     for future_id in &info.coupled_futures {
-                        self.emit_warning(CeiAnalyzerWarning::tainted_value_in_finalize(
-                            sym,
-                            &future_id.source,
-                            path.span(),
-                        ));
+                        self.emit_warning(cei_analyzer::tainted_value_in_finalize(sym, &future_id.source, path.span()));
                     }
                 }
             }
@@ -452,7 +448,7 @@ impl CrossLayerTaintVisitor<'_> {
                         // Shorthand initializer `S { x }`, emit the warning against
                         // the field identifier's span since there is no separate value expression.
                         for future_id in &info.coupled_futures {
-                            self.emit_warning(CeiAnalyzerWarning::tainted_value_in_finalize(
+                            self.emit_warning(cei_analyzer::tainted_value_in_finalize(
                                 member.identifier.name,
                                 &future_id.source,
                                 member.identifier.span(),
@@ -525,8 +521,7 @@ impl AstVisitor for CrossLayerTaintVisitor<'_> {
                 // reference (e.g. `let f: Final = start.1;` where `start` is tainted),
                 // the conservative variable-granularity rule still applies and we
                 // taint normally.
-                let bound_is_future =
-                    matches!(self.state.type_table.get(&input.value.id()), Some(Type::Future(_)));
+                let bound_is_future = matches!(self.state.type_table.get(&input.value.id()), Some(Type::Future(_)));
                 if bound_is_future && propagated.coupled_futures.is_empty() {
                     return;
                 }
@@ -632,7 +627,7 @@ impl CrossLayerTaintVisitor<'_> {
             let taint = self.collect_taint(arg);
             if taint.is_tainted() {
                 for future_id in &taint.coupled_futures {
-                    self.emit_warning(CeiAnalyzerWarning::tainted_argument_to_external_call(
+                    self.emit_warning(cei_analyzer::tainted_argument_to_external_call(
                         arg,
                         callee_desc,
                         &future_id.source,
@@ -642,7 +637,6 @@ impl CrossLayerTaintVisitor<'_> {
             }
         }
     }
-
 }
 
 impl UnitVisitor for CrossLayerTaintVisitor<'_> {

@@ -116,6 +116,42 @@ pub(crate) fn uri_to_file_path(uri: &Uri) -> Option<PathBuf> {
     }
 }
 
+/// Convert a native filesystem path into an LSP `file:` URI.
+///
+/// The helper keeps URI construction centralized so editor responses do not
+/// depend on hand-built `file://{path}` strings. It canonicalizes paths when
+/// possible, preserves unresolved paths when necessary, and percent-encodes
+/// bytes that are not safe in a URI path.
+pub(crate) fn path_to_file_uri(path: &Path) -> Option<Uri> {
+    let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+
+    #[cfg(target_os = "windows")]
+    let raw = {
+        let display = path.display().to_string();
+        let display = display.strip_prefix(r"\\?\").unwrap_or(display.as_str());
+        format!("/{}", display.replace('\\', "/"))
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let raw = path.display().to_string();
+
+    format!("file://{}", percent_encode_path(&raw)).parse().ok()
+}
+
+/// Percent-encode a native path string for the path component of a `file:` URI.
+fn percent_encode_path(path: &str) -> String {
+    let mut encoded = String::with_capacity(path.len());
+    for byte in path.bytes() {
+        if matches!(byte, b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'/' | b'.' | b'-' | b'_' | b'~' | b':') {
+            encoded.push(byte as char);
+        } else {
+            use std::fmt::Write;
+            let _ = write!(encoded, "%{byte:02X}");
+        }
+    }
+    encoded
+}
+
 /// Find the nearest package root that owns the given document path.
 fn find_package_root(path: &Path) -> Option<PathBuf> {
     let start = if path.is_dir() { Some(path) } else { path.parent() }?;
@@ -197,6 +233,7 @@ mod tests {
     use std::{fs, path::Path};
     use tempfile::tempdir;
 
+    /// Build a test `file:` URI from a native path.
     fn file_uri(path: &Path) -> Uri {
         #[cfg(target_os = "windows")]
         let path = format!("/{}", path.display()).replace('\\', "/");
@@ -207,6 +244,7 @@ mod tests {
         format!("file://{path}").parse().expect("file uri")
     }
 
+    /// Verifies project discovery chooses the nearest manifest ancestor.
     #[test]
     fn resolves_nearest_manifest_ancestor() {
         let tempdir = tempdir().expect("tempdir");
@@ -231,6 +269,7 @@ mod tests {
         assert_eq!(resolved.kind, ProjectKind::Program);
     }
 
+    /// Verifies non-file documents remain unmanaged.
     #[test]
     fn non_file_uris_are_unmanaged() {
         let mut projects = ProjectModel::default();
@@ -241,6 +280,7 @@ mod tests {
         assert!(project.is_none());
     }
 
+    /// Verifies a previous miss can become managed after a manifest appears.
     #[test]
     fn discovers_manifest_added_after_initial_miss() {
         let tempdir = tempdir().expect("tempdir");
@@ -264,6 +304,7 @@ mod tests {
         assert_eq!(resolved.package_root.as_ref(), &package_root.canonicalize().expect("canonical package root"));
     }
 
+    /// Verifies cached project roots are invalidated after manifest removal.
     #[test]
     fn invalidates_cached_root_after_manifest_removal() {
         let tempdir = tempdir().expect("tempdir");
@@ -287,6 +328,7 @@ mod tests {
         assert!(projects.resolve_document_context(&file_uri).1.is_none());
     }
 
+    /// Verifies library packages resolve to library entrypoints.
     #[test]
     fn resolves_library_entrypoints() {
         let tempdir = tempdir().expect("tempdir");
@@ -308,6 +350,7 @@ mod tests {
         assert_eq!(resolved.program_name.as_ref(), "math_lib");
     }
 
+    /// Verifies manifest content changes refresh cached project context.
     #[test]
     fn refreshes_cached_context_after_manifest_content_change() {
         let tempdir = tempdir().expect("tempdir");
@@ -338,6 +381,7 @@ mod tests {
         assert_eq!(refreshed.program_name.as_ref(), "updated.aleo");
     }
 
+    /// Verifies same-size manifest rewrites produce a new revision.
     #[test]
     fn manifest_revision_changes_on_same_size_rewrite() {
         let tempdir = tempdir().expect("tempdir");

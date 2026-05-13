@@ -24,7 +24,6 @@ use crate::{
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{Function, Location, *};
-use leo_errors::TypeCheckerWarning;
 use leo_span::{Symbol, sym};
 
 pub struct TransformVisitor<'a> {
@@ -228,7 +227,7 @@ impl AstReconstructor for TransformVisitor<'_> {
         // Mandatory inlining conditions
         let mandatory_cond = |cond: bool, msg: &str| -> bool {
             if cond && has_no_inline_annotation {
-                self.state.handler.emit_warning(TypeCheckerWarning::no_inline_ignored(
+                self.state.handler.emit_warning(crate::errors::type_checker::no_inline_ignored(
                     callee.identifier.name,
                     msg,
                     callee.annotations.iter().find(|a| a.identifier.name == sym::no_inline).unwrap().span,

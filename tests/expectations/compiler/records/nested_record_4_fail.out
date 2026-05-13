@@ -1,29 +1,29 @@
-Error [ETYC0372050]: A record cannot contain a tuple.
-    --> compiler-test:4:9
-     |
-   4 |         bar: (Bar, Bar),
-     |         ^^^
-Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:14:5
-     |
-  14 |     bar: (Token2, Token2),
-     |     ^^^
-Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:14:5
-     |
-  14 |     bar: (Token2, Token2),
-     |     ^^^
-     |
-     = Remove the record `test.aleo::Token2` from `Bar`.
-Error [ETYC0372030]: A struct or record cannot contain another record.
-    --> compiler-test:14:5
-     |
-  14 |     bar: (Token2, Token2),
-     |     ^^^
-     |
-     = Remove the record `test.aleo::Token2` from `Bar`.
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {
-     |         ^^^^^^^^^
+[ETYC0372050] Error: A record cannot contain a tuple.
+   ╭─[ compiler-test:4:9 ]
+   │
+ 4 │         bar: (Bar, Bar),
+───╯
+[ETYC0372050] Error: A struct cannot contain a tuple.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     bar: (Token2, Token2),
+────╯
+[ETYC0372030] Error: A struct or record cannot contain another record.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     bar: (Token2, Token2),
+    │ 
+    │ Help: Remove the record `test.aleo::Token2` from `Bar`.
+────╯
+[ETYC0372030] Error: A struct or record cannot contain another record.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     bar: (Token2, Token2),
+    │ 
+    │ Help: Remove the record `test.aleo::Token2` from `Bar`.
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {
+───╯

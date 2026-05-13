@@ -70,11 +70,11 @@ impl Command for LeoBlock {
             is_valid_numerical_input(&range[1])?;
 
             // Parse the range values.
-            let end = &range[1].parse::<u32>().map_err(|_| UtilError::invalid_bound(&range[1]))?;
-            let start = &range[0].parse::<u32>().map_err(|_| UtilError::invalid_bound(&range[0]))?;
+            let end = &range[1].parse::<u32>().map_err(|_| crate::errors::invalid_bound(&range[1]))?;
+            let start = &range[0].parse::<u32>().map_err(|_| crate::errors::invalid_bound(&range[0]))?;
             // Make sure the range is not too large.
             if end - start > 50 {
-                return Err(UtilError::invalid_range().into());
+                return Err(crate::errors::invalid_range().into());
             }
             format!("blocks?start={}&end={}", range[0], range[1])
         } else if self.transactions {

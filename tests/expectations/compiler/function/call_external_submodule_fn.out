@@ -22,8 +22,8 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::helpers::bump`
-    --> compiler-test:7:16
-     |
-   7 |         return child.aleo::helpers::bump(x);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::helpers::bump`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return child.aleo::helpers::bump(x);
+───╯

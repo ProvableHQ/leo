@@ -24,8 +24,8 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::add_const`
-    --> compiler-test:7:16
-     |
-   7 |         return child.aleo::add_const::[10u32](x);
-     |                ^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::add_const`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return child.aleo::add_const::[10u32](x);
+───╯

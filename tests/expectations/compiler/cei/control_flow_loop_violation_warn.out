@@ -1,21 +1,10 @@
-Warning [WCEI03713003]: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
-    --> compiler-test:10:13
-     |
-  10 |             for i: u32 in 0u32..3u32 {
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  11 |                 // [E] Effect: loop writes state before interaction
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |                 counters.set(i, a + i);
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^
-  13 | 
-  14 |                 // [I] Interaction after loop that wrote state
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |                 f.run();
-     |                 ^^^^^^^^
-  16 |             }
-     |             ^
-     |
-     = Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
+[WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
+    ╭─[ compiler-test:10:13 ]
+    │
+    │ 
+    │ 
+    │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
+────╯
 program dep.aleo;
 
 mapping dep_data:

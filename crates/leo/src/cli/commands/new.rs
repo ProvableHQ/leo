@@ -45,7 +45,7 @@ impl Command for LeoNew {
 
         // Change the cwd to the Leo package directory to initialize all files.
         std::env::set_current_dir(&package_path)
-            .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
+            .map_err(|err| crate::errors::failed_to_set_cwd(package_path.display(), err))?;
 
         let full_path = Package::initialize(&self.name, &package_path, self.library)?;
 

@@ -16,8 +16,8 @@
 
 use crate::{CompilerState, ConditionalTreeNode, static_analysis::await_checker::AwaitChecker};
 
+use crate::errors::static_analyzer;
 use leo_ast::*;
-use leo_errors::{StaticAnalyzerError, StaticAnalyzerWarning};
 use leo_span::{Span, Symbol};
 
 pub struct StaticAnalyzingVisitor<'a> {
@@ -33,12 +33,12 @@ pub struct StaticAnalyzingVisitor<'a> {
 }
 
 impl StaticAnalyzingVisitor<'_> {
-    pub fn emit_err(&self, err: StaticAnalyzerError) {
+    pub fn emit_err(&self, err: leo_errors::Formatted) {
         self.state.handler.emit_err(err);
     }
 
     /// Emits a type checker warning
-    pub fn emit_warning(&self, warning: StaticAnalyzerWarning) {
+    pub fn emit_warning(&self, warning: leo_errors::Formatted) {
         self.state.handler.emit_warning(warning);
     }
 
@@ -48,7 +48,7 @@ impl StaticAnalyzingVisitor<'_> {
         let future_variable = match future {
             Some(Expression::Path(path)) => path,
             _ => {
-                return self.emit_err(StaticAnalyzerError::invalid_run_call(span));
+                return self.emit_err(static_analyzer::invalid_run_call(span));
             }
         };
 
@@ -56,19 +56,19 @@ impl StaticAnalyzingVisitor<'_> {
         match self.state.type_table.get(&future_variable.id) {
             Some(type_) => {
                 if !matches!(type_, Type::Future(_)) {
-                    self.emit_err(StaticAnalyzerError::expected_final(type_, future_variable.span()));
+                    self.emit_err(static_analyzer::expected_final(type_, future_variable.span()));
                 }
                 // Mark the future as consumed.
                 // If the call returns true, it means that a future was not awaited in the order of the input list, emit a warning.
                 if self.await_checker.remove(&future_variable.identifier().name) {
-                    self.emit_warning(StaticAnalyzerWarning::final_not_awaited_in_order(
+                    self.emit_warning(static_analyzer::final_not_awaited_in_order(
                         future_variable,
                         future_variable.span(),
                     ));
                 }
             }
             None => {
-                self.emit_err(StaticAnalyzerError::expected_final(future_variable, future_variable.span()));
+                self.emit_err(static_analyzer::expected_final(future_variable, future_variable.span()));
             }
         }
     }
@@ -100,7 +100,7 @@ impl StaticAnalyzingVisitor<'_> {
 
         // If the async function takes a future as an argument, emit an error.
         if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
-            self.emit_err(StaticAnalyzerError::entry_point_final_call_with_final_argument(function_path, span));
+            self.emit_err(static_analyzer::entry_point_final_call_with_final_argument(function_path, span));
         }
     }
 }

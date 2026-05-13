@@ -1,5 +1,5 @@
-Error [EPAR0370009]: unexpected string: expected '100u8', found 'identifier in path'
-    --> test:2:12
-     |
-   2 |     return 100u8(0u8);
-     |            ^^^^^
+[EPAR0370009] Error: unexpected string: expected '100u8', found 'identifier in path'
+   ╭─[ test:2:12 ]
+   │
+ 2 │     return 100u8(0u8);
+───╯

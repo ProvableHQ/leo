@@ -1,15 +1,15 @@
-Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:6:12
-     |
-   6 |     return x > sender;
-     |            ^
-Error [ETYC0372117]: Expected a field, scalar, or integer but type `address` was found.
-    --> compiler-test:6:16
-     |
-   6 |     return x > sender;
-     |                ^^^^^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372117] Error: Expected a field, scalar, or integer but type `address` was found.
+   ╭─[ compiler-test:6:12 ]
+   │
+ 6 │     return x > sender;
+───╯
+[ETYC0372117] Error: Expected a field, scalar, or integer but type `address` was found.
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │     return x > sender;
+───╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

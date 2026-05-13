@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `u64` but type `bool` was found.
-    --> compiler-test:13:60
-     |
-  13 |     let val: u64 = Bank@(target)::balances.get_or_use(key, true);
-     |                                                            ^^^^
+[ETYC0372117] Error: Expected type `u64` but type `bool` was found.
+    ╭─[ compiler-test:13:60 ]
+    │
+ 13 │     let val: u64 = Bank@(target)::balances.get_or_use(key, true);
+────╯

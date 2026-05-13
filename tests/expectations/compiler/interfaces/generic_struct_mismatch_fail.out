@@ -1,15 +1,11 @@
-Error [ECHI03712004]: Function `store` does not match the signature required by interface `test.aleo/Storer`.
+[ECHI03712004] Error: Function `store` does not match the signature required by interface `test.aleo/Storer`.
 Expected:
 fn store(s: test.aleo::Slot::[8u32]) -> u32
 Found:
 fn store(s: test.aleo::Slot::[16u32]) -> u32
-    --> compiler-test:14:5
-     |
-  14 |     fn store(s: Slot::[16u32]) -> u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |         return s.val;
-     |         ^^^^^^^^^^^^^
-  16 |     }
-     |     ^
-     |
-     = Function signatures must match exactly: same parameter types, modes, order, and return type.
+    ╭─[ compiler-test:14:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯

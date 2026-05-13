@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, Type};
-use leo_errors::{AstError, Color, Label, LeoError, Result};
+use leo_errors::{Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
@@ -559,12 +559,11 @@ impl SymbolTable {
     }
 
     pub fn emit_shadow_error(name: Symbol, span: Span, prev_span: Span) -> LeoError {
-        AstError::name_defined_multiple_times(name, span)
-            .with_labels(vec![
-                Label::new(format!("previous definition of `{name}` here"), prev_span).with_color(Color::Blue),
-                Label::new(format!("`{name}` redefined here"), span),
-            ])
-            .into()
+        crate::errors::ast::name_defined_multiple_times(name, span, vec![
+            Label::new(prev_span).with_message(format!("previous definition of `{name}` here")).with_color(Color::Blue),
+            Label::new(span).with_message(format!("`{name}` redefined here")),
+        ])
+        .into()
     }
 
     fn check_shadow_global(&self, location: &Location, span: Span) -> Result<()> {
@@ -624,7 +623,7 @@ impl SymbolTable {
             func.finalizer = Some(Finalizer { location: callee_location, future_inputs, inferred_inputs });
             Ok(())
         } else {
-            Err(AstError::function_not_found(caller.path.iter().format("::")).into())
+            Err(crate::errors::ast::function_not_found(caller.path.iter().format("::")).into())
         }
     }
 }

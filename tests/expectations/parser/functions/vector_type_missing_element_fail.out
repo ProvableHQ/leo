@@ -1,12 +1,12 @@
-Error [EPAR0370047]: expected parameter name
-    --> test:1:6
-     |
-   1 | fn f([]) {}
-     |      ^
-Error [EPAR0370027]: Missing a program scope in a Leo file.
-    --> test:1:1
-     |
-   1 | fn f([]) {}
-     | ^^^^^^^^^^^
-     |
-     = Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+[EPAR0370047] Error: expected parameter name
+   ╭─[ test:1:6 ]
+   │
+ 1 │ fn f([]) {}
+───╯
+[EPAR0370027] Error: Missing a program scope in a Leo file.
+   ╭─[ test:1:1 ]
+   │
+ 1 │ fn f([]) {}
+   │ 
+   │ Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+───╯

@@ -1,10 +1,10 @@
-Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:2:27
-     |
-   2 |     fn bar(a: u8) -> (u8, (u8, u8)) {
-     |                           ^^^^^^^^
-Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:3:20
-     |
-   3 |         return (a, (a + a, a * a));
-     |                    ^^^^^^^^^^^^^^
+[ETYC0372049] Error: A tuple type cannot contain a tuple.
+   ╭─[ compiler-test:2:27 ]
+   │
+ 2 │     fn bar(a: u8) -> (u8, (u8, u8)) {
+───╯
+[ETYC0372052] Error: A tuple expression cannot contain another tuple expression.
+   ╭─[ compiler-test:3:20 ]
+   │
+ 3 │         return (a, (a + a, a * a));
+───╯

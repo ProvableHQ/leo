@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected ';' -- found 'i8'
-    --> compiler-test:4:15
-     |
-   4 |     let i = 1 i8;
-     |               ^^
+[EPAR0370005] Error: expected ';' -- found 'i8'
+   ╭─[ compiler-test:4:15 ]
+   │
+ 4 │     let i = 1 i8;
+───╯

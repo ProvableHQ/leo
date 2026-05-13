@@ -1,17 +1,17 @@
-Warning [WCEI03713004]: Value `action` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
-    --> compiler-test:19:41
-     |
-  19 |             Mapping::set(positions, id, action);
-     |                                         ^^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
-Warning [WCEI03713004]: Value `flag` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
-    --> compiler-test:20:37
-     |
-  20 |             Mapping::set(flags, id, flag);
-     |                                     ^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `action` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:19:41 ]
+    │
+ 19 │             Mapping::set(positions, id, action);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `flag` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:20:37 ]
+    │
+ 20 │             Mapping::set(flags, id, flag);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program oracle.aleo;
 
 mapping prices:

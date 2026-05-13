@@ -1,1 +1,3 @@
-Output 'r4' does not match the expected output operand type: expected 'dynamic.future', found 'test.aleo/main.future'
+Error [EDIS03713001]: Dependency `.aleo` failed snarkVM validation: Output 'r4' does not match the expected output operand type: expected 'dynamic.future', found 'test.aleo/main.future'.
+     |
+     = This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but rejects semantically. Regenerate the dependency from Leo source if possible.

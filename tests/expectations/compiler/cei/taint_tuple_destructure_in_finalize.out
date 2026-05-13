@@ -1,17 +1,17 @@
-Warning [WCEI03713004]: Value `rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    --> compiler-test:11:39
-     |
-  11 |             let (a, b): (u64, u64) = (rate, amount);
-     |                                       ^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
-Warning [WCEI03713004]: Value `a` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    --> compiler-test:13:40
-     |
-  13 |             Mapping::set(balances, id, a);
-     |                                        ^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:11:39 ]
+    │
+ 11 │             let (a, b): (u64, u64) = (rate, amount);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `a` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:13:40 ]
+    │
+ 13 │             Mapping::set(balances, id, a);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program exchange.aleo;
 
 mapping rates:

@@ -267,13 +267,13 @@ pub fn get_consensus_version(
             get_latest_block_height(endpoint, network, context, network_retries)
                 .and_then(|current_block_height| get_consensus_version_from_height(current_block_height, heights))
                 .map_err(|_| {
-                    CliError::custom(
+                    crate::errors::custom(
                         "Failed to get consensus version. Ensure that your endpoint is valid or provide an explicit version to use via `--consensus-version`",
                     )
                         .into()
                 })
         }
-        Some(version) => Err(CliError::custom(format!("Invalid consensus version: {version}")).into()),
+        Some(version) => Err(crate::errors::custom(format!("Invalid consensus version: {version}")).into()),
     };
 
     // Check `{endpoint}/{network}/consensus_version` endpoint for the consensus version.
@@ -316,7 +316,7 @@ pub fn get_consensus_version_from_height(seek_height: u32, heights: &[u32]) -> R
         // If the specified height was not found, determine whether to return an appropriate version.
         Err(index) => {
             if index == 0 {
-                return Err(CliError::custom("Expected consensus version 1 to exist at height 0.").into());
+                return Err(crate::errors::custom("Expected consensus version 1 to exist at height 0.").into());
             } else {
                 // Return the appropriate version belonging to the height *lower* than the sought height.
                 index - 1
@@ -344,7 +344,7 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         12 => Ok(ConsensusVersion::V12),
         13 => Ok(ConsensusVersion::V13),
         14 => Ok(ConsensusVersion::V14),
-        _ => Err(CliError::custom(format!(
+        _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
         .into()),
@@ -414,7 +414,8 @@ pub fn get_endpoint(endpoint: &Option<String>) -> Result<String> {
         None => {
             // Load the endpoint from the environment.
             std::env::var("ENDPOINT").map_err(|_| {
-                CliError::custom("Please provide the `--endpoint` or set the `ENDPOINT` environment variable.").into()
+                crate::errors::custom("Please provide the `--endpoint` or set the `ENDPOINT` environment variable.")
+                    .into()
             })
         }
     }
@@ -428,7 +429,7 @@ pub fn get_network(network: &Option<NetworkName>) -> Result<NetworkName> {
         None => {
             // Load the network from the environment.
             let network = std::env::var("NETWORK").map_err(|_| {
-                CliError::custom("Please provide the `--network` or set the `NETWORK` environment variable.")
+                crate::errors::custom("Please provide the `--network` or set the `NETWORK` environment variable.")
             })?;
             // Parse the network.
             Ok(NetworkName::from_str(&network)?)
@@ -443,8 +444,9 @@ pub fn get_private_key<N: Network>(private_key: &Option<String>) -> Result<Priva
         Some(private_key) => Ok(PrivateKey::<N>::from_str(private_key)?),
         None => {
             // Load the private key from the environment.
-            let private_key = std::env::var("PRIVATE_KEY")
-                .map_err(|e| CliError::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}")))?;
+            let private_key = std::env::var("PRIVATE_KEY").map_err(|e| {
+                crate::errors::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}"))
+            })?;
             // Parse the private key.
             Ok(PrivateKey::<N>::from_str(&private_key)?)
         }

@@ -86,7 +86,7 @@ impl Command for LeoTransaction {
         } else if let Some(program) = self.from_program {
             // Check that the program name is valid.
             if !leo_package::is_valid_program_name(&program) {
-                return Err(CliError::invalid_package_name("program", program).into());
+                return Err(crate::errors::invalid_package_name("program", program).into());
             }
             format!("find/transactionID/deployment/{program}")
         } else if let Some(id) = self.id {

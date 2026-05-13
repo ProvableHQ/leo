@@ -1,15 +1,8 @@
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> test:8:1
-     |
-   8 | 
-   9 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  10 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  11 |         ..
-     |         ^^
-  12 |     }
-     |     ^
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ test:7:18 ]
+    │
+    │ 
+────╯
 program test.aleo {
     record Token {
         owner: address,

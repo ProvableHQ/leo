@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown function `test.aleo::increment`
-    --> compiler-test:11:5
-     |
-  11 |     increment(amounts, addr, amount);
-     |     ^^^^^^^^^
+[ETYC0372005] Error: Unknown function `test.aleo::increment`
+    ╭─[ compiler-test:11:5 ]
+    │
+ 11 │     increment(amounts, addr, amount);
+────╯

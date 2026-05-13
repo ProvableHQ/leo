@@ -1,0 +1,484 @@
+{
+  "program": "storage_demo.aleo",
+  "implements": [],
+  "structs": [
+    {
+      "path": [
+        "Point"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I64"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I64"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [
+    {
+      "name": "flag",
+      "ty": {
+        "Plaintext": {
+          "Primitive": "Boolean"
+        }
+      }
+    },
+    {
+      "name": "counter",
+      "ty": {
+        "Plaintext": {
+          "Primitive": {
+            "UInt": "U64"
+          }
+        }
+      }
+    },
+    {
+      "name": "tiny",
+      "ty": {
+        "Plaintext": {
+          "Primitive": {
+            "UInt": "U8"
+          }
+        }
+      }
+    },
+    {
+      "name": "signed",
+      "ty": {
+        "Plaintext": {
+          "Primitive": {
+            "Int": "I64"
+          }
+        }
+      }
+    },
+    {
+      "name": "tag",
+      "ty": {
+        "Plaintext": {
+          "Primitive": "Address"
+        }
+      }
+    },
+    {
+      "name": "marker",
+      "ty": {
+        "Plaintext": {
+          "Primitive": "Field"
+        }
+      }
+    },
+    {
+      "name": "pivot",
+      "ty": {
+        "Plaintext": {
+          "Primitive": "Group"
+        }
+      }
+    },
+    {
+      "name": "point",
+      "ty": {
+        "Plaintext": {
+          "Struct": {
+            "path": [
+              "Point"
+            ],
+            "program": "storage_demo.aleo"
+          }
+        }
+      }
+    },
+    {
+      "name": "quad",
+      "ty": {
+        "Plaintext": {
+          "Array": {
+            "element": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            },
+            "length": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "history",
+      "ty": {
+        "Vector": {
+          "Plaintext": {
+            "Primitive": {
+              "UInt": "U32"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "functions": [
+    {
+      "name": "set_flag",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "b",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Boolean"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_counter",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "bump_counter",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "clear_counter",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_tiny",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U8"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_signed",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "Int": "I64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_tag",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_marker",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "f",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Field"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_pivot",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "g",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Group"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_point",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "p",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "storage_demo.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_quad",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "a",
+          "ty": {
+            "Plaintext": {
+              "Array": {
+                "element": {
+                  "Primitive": {
+                    "UInt": "U32"
+                  }
+                },
+                "length": 4
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "push_history",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "pop_history",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "set_history",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "i",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        },
+        {
+          "name": "v",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "swap_remove_history",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "i",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "clear_history",
+      "is_final": true,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": "Final",
+          "mode": "None"
+        }
+      ]
+    }
+  ]
+}

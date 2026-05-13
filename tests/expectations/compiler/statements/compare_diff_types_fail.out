@@ -1,64 +1,64 @@
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `==`.
-    --> compiler-test:4:19
-     |
-   4 |     let b: bool = a == 1u8;
-     |                   ^^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `!=`.
-    --> compiler-test:5:19
-     |
-   5 |     let c: bool = a != 1u8;
-     |                   ^^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>`.
-    --> compiler-test:6:19
-     |
-   6 |     let d: bool = a > 1u8;
-     |                   ^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<`.
-    --> compiler-test:7:19
-     |
-   7 |     let e: bool = a < 1u8;
-     |                   ^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `>=`.
-    --> compiler-test:8:19
-     |
-   8 |     let f: bool = a >= 1u8;
-     |                   ^^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372119]: Received different types `i8` and `u8` for the operation `<=`.
-    --> compiler-test:9:19
-     |
-   9 |     let g: bool = a <= 1u8;
-     |                   ^^^^^^^^
-     |
-     = Make both operands the same type.
-Error [ETYC0372117]: Expected type `u32` but type `i8` was found.
-    --> compiler-test:10:18
-     |
-  10 |     let h: u32 = a * 1u8;
-     |                  ^
-Error [ETYC0372117]: Expected type `u32` but type `u8` was found.
-    --> compiler-test:10:22
-     |
-  10 |     let h: u32 = a * 1u8;
-     |                      ^^^
-Error [ETYC0372120]: Received types `i8` and `u8` for the operation `*`.
-    --> compiler-test:10:18
-     |
-  10 |     let h: u32 = a * 1u8;
-     |                  ^^^^^^^
-     |
-     = Valid operands are two integers of the same type, two fields, or a scalar and a group.
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `==`.
+   ╭─[ compiler-test:4:19 ]
+   │
+ 4 │     let b: bool = a == 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `!=`.
+   ╭─[ compiler-test:5:19 ]
+   │
+ 5 │     let c: bool = a != 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `>`.
+   ╭─[ compiler-test:6:19 ]
+   │
+ 6 │     let d: bool = a > 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `<`.
+   ╭─[ compiler-test:7:19 ]
+   │
+ 7 │     let e: bool = a < 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `>=`.
+   ╭─[ compiler-test:8:19 ]
+   │
+ 8 │     let f: bool = a >= 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372119] Error: Received different types `i8` and `u8` for the operation `<=`.
+   ╭─[ compiler-test:9:19 ]
+   │
+ 9 │     let g: bool = a <= 1u8;
+   │ 
+   │ Help: Make both operands the same type.
+───╯
+[ETYC0372117] Error: Expected type `u32` but type `i8` was found.
+    ╭─[ compiler-test:10:18 ]
+    │
+ 10 │     let h: u32 = a * 1u8;
+────╯
+[ETYC0372117] Error: Expected type `u32` but type `u8` was found.
+    ╭─[ compiler-test:10:22 ]
+    │
+ 10 │     let h: u32 = a * 1u8;
+────╯
+[ETYC0372120] Error: Received types `i8` and `u8` for the operation `*`.
+    ╭─[ compiler-test:10:18 ]
+    │
+ 10 │     let h: u32 = a * 1u8;
+    │ 
+    │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

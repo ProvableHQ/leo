@@ -43,48 +43,48 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372017]: The type `child.aleo::types::Point` is not found in the current scope.
-    --> compiler-test:7:17
-     |
-   7 |     fn use_type(p: child.aleo::types::Point) -> u32 {
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372017]: The type `child.aleo::types::Point` is not found in the current scope.
-    --> compiler-test:8:16
-     |
-   8 |         return p.x + p.y;
-     |                ^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372017]: The type `child.aleo::types::Point` is not found in the current scope.
-    --> compiler-test:8:22
-     |
-   8 |         return p.x + p.y;
-     |                      ^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372017]: The type `child.aleo::types::Point` is not found in the current scope.
-    --> compiler-test:12:39
-     |
-  12 |     fn make_struct(x: u32, y: u32) -> child.aleo::types::Point {
-     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372005]: Unknown struct or record `child.aleo::types::Point`
-    --> compiler-test:13:16
-     |
-  13 |         return child.aleo::types::Point { x: x, y: y };
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372017]: The type `child.aleo::types::Point` is not found in the current scope.
-    --> compiler-test:17:44
-     |
-  17 |     fn call_child_entry(x: u32, y: u32) -> child.aleo::types::Point {
-     |                                            ^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372003]: Expected type `child.aleo::types::Point` but type `child.aleo::Point__A2e5UeHolpJ` was found
-    --> compiler-test:18:16
-     |
-  18 |         return child.aleo::make_point_entry(x, y);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372017] Error: The type `child.aleo::types::Point` is not found in the current scope.
+   ╭─[ compiler-test:7:17 ]
+   │
+ 7 │     fn use_type(p: child.aleo::types::Point) -> u32 {
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372017] Error: The type `child.aleo::types::Point` is not found in the current scope.
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return p.x + p.y;
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372017] Error: The type `child.aleo::types::Point` is not found in the current scope.
+   ╭─[ compiler-test:8:22 ]
+   │
+ 8 │         return p.x + p.y;
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372017] Error: The type `child.aleo::types::Point` is not found in the current scope.
+    ╭─[ compiler-test:12:39 ]
+    │
+ 12 │     fn make_struct(x: u32, y: u32) -> child.aleo::types::Point {
+    │ 
+    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+────╯
+[ETYC0372005] Error: Unknown struct or record `child.aleo::types::Point`
+    ╭─[ compiler-test:13:16 ]
+    │
+ 13 │         return child.aleo::types::Point { x: x, y: y };
+────╯
+[ETYC0372017] Error: The type `child.aleo::types::Point` is not found in the current scope.
+    ╭─[ compiler-test:17:44 ]
+    │
+ 17 │     fn call_child_entry(x: u32, y: u32) -> child.aleo::types::Point {
+    │ 
+    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+────╯
+[ETYC0372003] Error: Expected type `child.aleo::types::Point` but type `child.aleo::Point__A2e5UeHolpJ` was found
+    ╭─[ compiler-test:18:16 ]
+    │
+ 18 │         return child.aleo::make_point_entry(x, y);
+────╯

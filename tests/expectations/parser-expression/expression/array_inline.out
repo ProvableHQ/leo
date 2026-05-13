@@ -1,52 +1,52 @@
 []
 
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_1:1:2
-     |
-   1 | [,]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_2:1:2
-     |
-   1 | [,,]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_3:1:4
-     |
-   1 | [0,,]
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_4:1:2
-     |
-   1 | [,0]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_5:1:2
-     |
-   1 | [,0,]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_6:1:2
-     |
-   1 | [;]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_7:1:2
-     |
-   1 | [;;]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_8:1:4
-     |
-   1 | [0;;]
-     |    ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_9:1:2
-     |
-   1 | [;0]
-     |  ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
-    --> test_10:1:2
-     |
-   1 | [;0;]
-     |  ^
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_1:1:2 ]
+   │
+ 1 │ [,]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_2:1:2 ]
+   │
+ 1 │ [,,]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_3:1:4 ]
+   │
+ 1 │ [0,,]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_4:1:2 ]
+   │
+ 1 │ [,0]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_5:1:2 ]
+   │
+ 1 │ [,0,]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_6:1:2 ]
+   │
+ 1 │ [;]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_7:1:2 ]
+   │
+ 1 │ [;;]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_8:1:4 ]
+   │
+ 1 │ [0;;]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_9:1:2 ]
+   │
+ 1 │ [;0]
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ';'
+   ╭─[ test_10:1:2 ]
+   │
+ 1 │ [;0;]
+───╯

@@ -1,10 +1,10 @@
-Warning [WCEI03713004]: Value `price` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
-    --> compiler-test:10:42
-     |
-  10 |         return final { finalize_trade(f, price, id); };
-     |                                          ^^^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `price` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:10:42 ]
+    │
+ 10 │         return final { finalize_trade(f, price, id); };
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program oracle.aleo;
 
 mapping prices:

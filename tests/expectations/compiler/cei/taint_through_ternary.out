@@ -1,10 +1,10 @@
-Warning [WCEI03713004]: Value `val` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    --> compiler-test:13:42
-     |
-  13 |             Mapping::set(balances, 0u32, val);
-     |                                          ^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `val` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:13:44 ]
+    │
+ 13 │             Mapping::set(balances, 0u32, val);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program exchange.aleo;
 
 mapping rates:

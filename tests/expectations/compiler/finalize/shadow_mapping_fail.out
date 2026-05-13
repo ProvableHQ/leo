@@ -1,16 +1,30 @@
-Error [EAST0372017]: The name `bar` is defined multiple times.
-    --> compiler-test:8:12
-     |
-   2 |       mapping bar: u8 => u8;
-     |       ^^^^^^^^^^^^^^^^^^^^^^ previous definition of `bar` here
-   ...
-   8 |       fn foo(bar: u8) -> u8 {
-     |              ^^^ `bar` redefined here
-Error [EAST0372017]: The name `bar` is defined multiple times.
-    --> compiler-test:13:13
-     |
-   2 |       mapping bar: u8 => u8;
-     |       ^^^^^^^^^^^^^^^^^^^^^^ previous definition of `bar` here
-   ...
-  13 |           let bar: u8 = a + 1u8;
-     |               ^^^ `bar` redefined here
+[EAST0372017] Error: The name `bar` is defined multiple times.
+   ╭─[ compiler-test:8:12 ]
+   │
+ 8 │     fn foo(bar: u8) -> u8 {
+   │
+   ├─[ compiler-test:8:12 ]
+   │
+ 2 │     mapping bar: u8 => u8;
+   │     ───────────┬──────────  
+   │                ╰──────────── previous definition of `bar` here
+   │ 
+ 8 │     fn foo(bar: u8) -> u8 {
+   │            ─┬─  
+   │             ╰─── `bar` redefined here
+───╯
+[EAST0372017] Error: The name `bar` is defined multiple times.
+    ╭─[ compiler-test:13:13 ]
+    │
+ 13 │         let bar: u8 = a + 1u8;
+    │
+    ├─[ compiler-test:13:13 ]
+    │
+  2 │     mapping bar: u8 => u8;
+    │     ───────────┬──────────  
+    │                ╰──────────── previous definition of `bar` here
+    │ 
+ 13 │         let bar: u8 = a + 1u8;
+    │             ─┬─  
+    │              ╰─── `bar` redefined here
+────╯

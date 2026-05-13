@@ -1,10 +1,10 @@
-Warning [WCEI03713001]: Effect operation `_mapping_remove` occurs after an interaction (Final.run()).
-    --> compiler-test:17:5
-     |
-  17 |     Mapping::remove(balances, 0u32);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713001] Warning: Effect operation `_mapping_remove` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:17:7 ]
+    │
+ 17 │     Mapping::remove(balances, 0u32);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 mapping dep_data:

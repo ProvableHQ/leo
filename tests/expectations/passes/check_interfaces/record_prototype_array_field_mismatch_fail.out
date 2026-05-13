@@ -1,12 +1,19 @@
-Error [ECHI03712013]: Field `data` in record `Entry` does not match the type required by interface `test.aleo/Vault`.
+[ECHI03712013] Error: Field `data` in record `Entry` does not match the type required by interface `test.aleo/Vault`.
 Expected:  [u8; 32]
 Found:  [u8; 16]
-    --> test:17:9
-     |
-   8 |           data: [u8; 32],
-     |           ^^^^^^^^^^^^^^ expected by interface here
-   ...
-  17 |           data: [u8; 16],
-     |           ^^^^^^^^^^^^^^ type mismatch here
-     |
-     = Field types and modes must match exactly.
+    ╭─[ test:17:9 ]
+    │
+ 17 │         data: [u8; 16],
+    │
+    ├─[ test:17:9 ]
+    │
+  8 │         data: [u8; 32],
+    │         ───────┬──────  
+    │                ╰──────── expected by interface here
+    │ 
+ 17 │         data: [u8; 16],
+    │         ───────┬──────  
+    │                ╰──────── type mismatch here
+    │ 
+    │ Help: Field types and modes must match exactly.
+────╯

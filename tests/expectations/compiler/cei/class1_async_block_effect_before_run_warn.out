@@ -1,10 +1,10 @@
-Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
-    --> compiler-test:15:13
-     |
-  15 |             balances.set(1u32, a);
-     |             ^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:15:15 ]
+    │
+ 15 │             balances.set(1u32, a);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 mapping dep_data:

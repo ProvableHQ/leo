@@ -1,10 +1,10 @@
-Error [ETYC0372077]: An array cannot have more than 32 elements, found one with 33 elements
-    --> compiler-test:37:70
-     |
-  37 |     let v1: bool = Snark::verify_batch(too_many_vks, varuna_version, too_many_inputs, proof);
-     |                                                                      ^^^^^^^^^^^^^^^
-Error [ETYC0372077]: An array cannot have more than 128 elements, found one with 130 elements
-    --> compiler-test:40:70
-     |
-  40 |     let v2: bool = Snark::verify_batch(overflow_vks, varuna_version, overflow_inputs, proof);
-     |                                                                      ^^^^^^^^^^^^^^^
+[ETYC0372077] Error: An array cannot have more than 32 elements, found one with 33 elements
+    ╭─[ compiler-test:37:70 ]
+    │
+ 37 │     let v1: bool = Snark::verify_batch(too_many_vks, varuna_version, too_many_inputs, proof);
+────╯
+[ETYC0372077] Error: An array cannot have more than 128 elements, found one with 130 elements
+    ╭─[ compiler-test:40:70 ]
+    │
+ 40 │     let v2: bool = Snark::verify_batch(overflow_vks, varuna_version, overflow_inputs, proof);
+────╯

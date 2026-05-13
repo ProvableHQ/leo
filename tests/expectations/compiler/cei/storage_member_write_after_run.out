@@ -1,17 +1,17 @@
-Warning [WCEI03713001]: Effect operation `storage variable write` occurs after an interaction (Final.run()).
-    --> compiler-test:18:5
-     |
-  18 |     counter = a;
-     |     ^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
-Warning [WCEI03713001]: Effect operation `storage variable write` occurs after an interaction (Final.run()).
-    --> compiler-test:20:5
-     |
-  20 |     flag = true;
-     |     ^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:18:7 ]
+    │
+    │ 
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:20:9 ]
+    │
+    │ 
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 mapping dep_data:

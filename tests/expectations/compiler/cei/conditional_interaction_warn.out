@@ -1,35 +1,17 @@
-Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
-    --> compiler-test:21:5
-     |
-  21 |     Mapping::set(balances, 1u32, a + 1u32);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
-Warning [WSAZ0374000]: Not all paths through the function run all Finals. 1/2 paths contain at least one Final that is never run.
-    --> compiler-test:13:1
-     |
-  13 | final fn finalize_do_work(f: Final, a: u32) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |     // [E] Effect always happens
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |     Mapping::set(balances, 0u32, a);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  16 |     // [I] Interaction is conditional
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  17 |     if a > 5u32 {
-     |     ^^^^^^^^^^^^^
-  18 |         f.run();
-     |         ^^^^^^^^
-  19 |     }
-     |     ^
-  20 |     // [E] More effects after conditional interaction
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  21 |     Mapping::set(balances, 1u32, a + 1u32);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  22 | }
-     | ^
-     |
-     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:21:5 ]
+    │
+ 21 │     Mapping::set(balances, 1u32, a + 1u32);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WSAZ0374000] Warning: Not all paths through the function run all Finals. 1/2 paths contain at least one Final that is never run.
+    ╭─[ compiler-test:13:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+────╯
 program dep.aleo;
 
 mapping dep_data:

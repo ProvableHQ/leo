@@ -129,7 +129,7 @@ fn handle_synthesize<A: Aleo>(
 
     // Parse the program name as a `ProgramID`.
     let program_id = ProgramID::<A::Network>::from_str(&command.program_name)
-        .map_err(|e| CliError::custom(format!("Failed to parse program name: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("Failed to parse program name: {e}")))?;
 
     // Get all the dependencies in the package if it exists.
     // Get the programs and optional manifests for all programs.
@@ -146,7 +146,7 @@ fn handle_synthesize<A: Aleo>(
             .filter(|unit| !unit.kind.is_library())
             .map(|unit| {
                 let program_id = ProgramID::<A::Network>::from_str(&format!("{}", unit.name))
-                    .map_err(|e| CliError::custom(format!("Failed to parse program ID: {e}")))?;
+                    .map_err(|e| crate::errors::custom(format!("Failed to parse program ID: {e}")))?;
                 match &unit.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
                     ProgramData::SourcePath { source, .. } => {
@@ -158,7 +158,10 @@ fn handle_synthesize<A: Aleo>(
                         };
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
-                            CliError::custom(format!("Failed to read bytecode at {}: {e}", bytecode_path.display()))
+                            crate::errors::custom(format!(
+                                "Failed to read bytecode at {}: {e}",
+                                bytecode_path.display()
+                            ))
                         })?;
                         // Return the bytecode and the manifest.
                         Ok((program_id, bytecode, unit.edition))
@@ -176,7 +179,7 @@ fn handle_synthesize<A: Aleo>(
         .map(|(_, bytecode, edition)| {
             // Parse the program.
             let program = snarkvm::prelude::Program::<A::Network>::from_str(&bytecode)
-                .map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to parse program: {e}")))?;
             // Return the program and its name.
             Ok((program, edition))
         })
@@ -278,7 +281,7 @@ fn handle_synthesize<A: Aleo>(
             verifier_size: verifier_bytes.len(),
         };
         let metadata_pretty = serde_json::to_string_pretty(&metadata)
-            .map_err(|e| CliError::custom(format!("Failed to serialize metadata: {e}")))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to serialize metadata: {e}")))?;
 
         let circuit_info = CircuitInfo {
             num_public_inputs: verifying_key.circuit_info.num_public_inputs as u64,
@@ -297,7 +300,8 @@ fn handle_synthesize<A: Aleo>(
         });
 
         if let Some(path) = &command.action.save {
-            std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+            std::fs::create_dir_all(path)
+                .map_err(|e| crate::errors::custom(format!("Failed to create directory: {e}")))?;
             let timestamp = chrono::Utc::now().timestamp();
             let edition_str = if command.local { "local".to_string() } else { edition.to_string() };
             let prefix = format!("{network}.{program_id}.{name}.{edition_str}");
@@ -309,11 +313,11 @@ fn handle_synthesize<A: Aleo>(
                 metadata_file_path.parent().unwrap().display()
             );
             std::fs::write(&prover_file_path, &prover_bytes)
-                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to write to file: {e}")))?;
             std::fs::write(&verifier_file_path, &verifier_bytes)
-                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to write to file: {e}")))?;
             std::fs::write(&metadata_file_path, metadata_pretty.as_bytes())
-                .map_err(|e| CliError::custom(format!("Failed to write to file: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to write to file: {e}")))?;
         }
 
         Ok(())

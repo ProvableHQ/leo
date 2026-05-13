@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown struct or record `test.aleo::Foo`
-    --> compiler-test:7:17
-     |
-   7 |         let f = Foo::[x] { y: 0 };
-     |                 ^^^
+[ETYC0372005] Error: Unknown struct or record `test.aleo::Foo`
+   ╭─[ compiler-test:7:17 ]
+   │
+ 7 │         let f = Foo::[x] { y: 0 };
+───╯

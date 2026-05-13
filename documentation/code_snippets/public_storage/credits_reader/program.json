@@ -1,0 +1,14 @@
+{
+  "program": "credits_reader.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "local",
+      "path": "../credits_mock",
+      "edition": null
+    }
+  ]
+}

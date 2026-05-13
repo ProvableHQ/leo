@@ -1,17 +1,17 @@
-Warning [WCEI03713000]: Check operation `storage variable read` occurs after an interaction (Final.run()).
-    --> compiler-test:20:24
-     |
-  20 |     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
-     |                        ^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
-Warning [WCEI03713001]: Effect operation `storage variable write` occurs after an interaction (Final.run()).
-    --> compiler-test:22:5
-     |
-  22 |     my_counter = dep_val;
-     |     ^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:20:26 ]
+    │
+ 20 │     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
+    │ 
+    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:22:7 ]
+    │
+    │ 
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 struct Optional__JzunLORyB8U:
@@ -71,8 +71,8 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown variable `dep.aleo::dep_counter`
-    --> compiler-test:20:24
-     |
-  20 |     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
-     |                        ^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown variable `dep.aleo::dep_counter`
+    ╭─[ compiler-test:20:26 ]
+    │
+ 20 │     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
+────╯

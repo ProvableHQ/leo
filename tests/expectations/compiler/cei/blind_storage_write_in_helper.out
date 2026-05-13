@@ -1,10 +1,10 @@
-Warning [WCEI03713002]: Call to `caller.aleo::write_counter` (which contains checks or effects) occurs after an interaction (Final.run()).
-    --> compiler-test:24:5
-     |
-  24 |     write_counter(a);
-     |     ^^^^^^^^^^^^^^^^
-     |
-     = Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.
+[WCEI03713002] Warning: Call to `caller.aleo::write_counter` (which contains checks or effects) occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:24:7 ]
+    │
+ 24 │     write_counter(a);
+    │ 
+    │ Help: Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
 program dep.aleo;
 
 mapping dep_data:

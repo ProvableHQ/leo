@@ -1,255 +1,255 @@
-Error [EPAR0370047]: expected field name or tuple index
-    --> test_0:1:3
-     |
-   1 | x.-12
-     |   ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_4:1:6
-     |
-   1 | x.0_.
-     |      ^
-Error [EPAR0370052]: Digit i invalid in radix 10 (token 0_import).
-    --> test_5:1:3
-     |
-   1 | x.0_import
-     |   ^^^^^^^^
-Error [EPAR0370005]: expected ';' -- found ','
-    --> test_6:1:5
-     |
-   1 | x.0_,
-     |     ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_7:1:6
-     |
-   1 | x.0_*
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_8:1:6
-     |
-   1 | x.0_+
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_9:1:6
-     |
-   1 | x.0_-
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_10:1:6
-     |
-   1 | x.0_/
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_11:1:6
-     |
-   1 | x.0_[
-     |      ^
-Error [EPAR0370005]: expected ';' -- found ']'
-    --> test_12:1:5
-     |
-   1 | x.0_]
-     |     ^
-Error [EPAR0370005]: expected ';' -- found '{'
-    --> test_13:1:5
-     |
-   1 | x.0_{
-     |     ^
-Error [EPAR0370005]: expected ';' -- found '}'
-    --> test_14:1:5
-     |
-   1 | x.0_}
-     |     ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_15:1:6
-     |
-   1 | x.0_(
-     |      ^
-Error [EPAR0370005]: expected ';' -- found ')'
-    --> test_16:1:5
-     |
-   1 | x.0_)
-     |     ^
-Error [EPAR0370005]: expected ';' -- found ':'
-    --> test_17:1:5
-     |
-   1 | x.0_:
-     |     ^
-Error [EPAR0370005]: expected ';' -- found '::'
-    --> test_18:1:5
-     |
-   1 | x.0_::
-     |     ^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_19:1:6
-     |
-   1 | x.0_?
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_20:1:6
-     |
-   1 | x.0__
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_21:1:6
-     |
-   1 | x.0_=
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_22:1:7
-     |
-   1 | x.0_==
-     |       ^
-Error [EPAR0370005]: expected ';' -- found '!'
-    --> test_23:1:5
-     |
-   1 | x.0_!
-     |     ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_24:1:7
-     |
-   1 | x.0_!=
-     |       ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_25:1:6
-     |
-   1 | x.0_>
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_26:1:7
-     |
-   1 | x.0_>=
-     |       ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_27:1:6
-     |
-   1 | x.0_<
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_28:1:7
-     |
-   1 | x.0_<=
-     |       ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_29:1:6
-     |
-   1 | x.0_>
-     |      ^
-Error [EPAR0370005]: expected ';' -- found '..'
-    --> test_30:1:5
-     |
-   1 | x.0_..
-     |     ^^
-Error [EPAR0370052]: Digit a invalid in radix 10 (token 0_as).
-    --> test_31:1:3
-     |
-   1 | x.0_as
-     |   ^^^^
-Error [EPAR0370052]: Digit c invalid in radix 10 (token 0_console).
-    --> test_32:1:3
-     |
-   1 | x.0_console
-     |   ^^^^^^^^^
-Error [EPAR0370052]: Digit c invalid in radix 10 (token 0_const).
-    --> test_33:1:3
-     |
-   1 | x.0_const
-     |   ^^^^^^^
-Error [EPAR0370052]: Digit l invalid in radix 10 (token 0_let).
-    --> test_34:1:3
-     |
-   1 | x.0_let
-     |   ^^^^^
-Error [EPAR0370052]: Digit f invalid in radix 10 (token 0_for).
-    --> test_35:1:3
-     |
-   1 | x.0_for
-     |   ^^^^^
-Error [EPAR0370052]: Digit i invalid in radix 10 (token 0_if).
-    --> test_36:1:3
-     |
-   1 | x.0_if
-     |   ^^^^
-Error [EPAR0370052]: Digit e invalid in radix 10 (token 0_else).
-    --> test_37:1:3
-     |
-   1 | x.0_else
-     |   ^^^^^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_38:1:7
-     |
-   1 | x.0_i8
-     |       ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_39:1:8
-     |
-   1 | x.0_i16
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_40:1:8
-     |
-   1 | x.0_i32
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_41:1:8
-     |
-   1 | x.0_i64
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_42:1:9
-     |
-   1 | x.0_i128
-     |         ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_43:1:7
-     |
-   1 | x.0_u8
-     |       ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_44:1:8
-     |
-   1 | x.0_u16
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_45:1:8
-     |
-   1 | x.0_u32
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_46:1:8
-     |
-   1 | x.0_u64
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_47:1:9
-     |
-   1 | x.0_u128
-     |         ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_48:1:6
-     |
-   1 | x.0_&
-     |      ^
-Error [EPAR0370052]: Digit r invalid in radix 10 (token 0_return).
-    --> test_49:1:3
-     |
-   1 | x.0_return
-     |   ^^^^^^^^
-Error [EPAR0370052]: Digit s invalid in radix 10 (token 0_self).
-    --> test_50:1:3
-     |
-   1 | x.0_self
-     |   ^^^^^^
-Error [EPAR0370052]: Digit S invalid in radix 10 (token 0_Self).
-    --> test_51:1:3
-     |
-   1 | x.0_Self
-     |   ^^^^^^
-Error [EPAR0370052]: Digit t invalid in radix 10 (token 0_true).
-    --> test_52:1:3
-     |
-   1 | x.0_true
-     |   ^^^^^^
-Error [EPAR0370052]: Digit f invalid in radix 10 (token 0_false).
-    --> test_53:1:3
-     |
-   1 | x.0_false
-     |   ^^^^^^^
+[EPAR0370047] Error: expected field name or tuple index
+   ╭─[ test_0:1:3 ]
+   │
+ 1 │ x.-12
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_4:1:6 ]
+   │
+ 1 │ x.0_.
+───╯
+[EPAR0370052] Error: Digit i invalid in radix 10 (token 0_import).
+   ╭─[ test_5:1:3 ]
+   │
+ 1 │ x.0_import
+───╯
+[EPAR0370005] Error: expected ';' -- found ','
+   ╭─[ test_6:1:5 ]
+   │
+ 1 │ x.0_,
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_7:1:6 ]
+   │
+ 1 │ x.0_*
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_8:1:6 ]
+   │
+ 1 │ x.0_+
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_9:1:6 ]
+   │
+ 1 │ x.0_-
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_10:1:6 ]
+   │
+ 1 │ x.0_/
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_11:1:6 ]
+   │
+ 1 │ x.0_[
+───╯
+[EPAR0370005] Error: expected ';' -- found ']'
+   ╭─[ test_12:1:5 ]
+   │
+ 1 │ x.0_]
+───╯
+[EPAR0370005] Error: expected ';' -- found '{'
+   ╭─[ test_13:1:5 ]
+   │
+ 1 │ x.0_{
+───╯
+[EPAR0370005] Error: expected ';' -- found '}'
+   ╭─[ test_14:1:5 ]
+   │
+ 1 │ x.0_}
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_15:1:6 ]
+   │
+ 1 │ x.0_(
+───╯
+[EPAR0370005] Error: expected ';' -- found ')'
+   ╭─[ test_16:1:5 ]
+   │
+ 1 │ x.0_)
+───╯
+[EPAR0370005] Error: expected ';' -- found ':'
+   ╭─[ test_17:1:5 ]
+   │
+ 1 │ x.0_:
+───╯
+[EPAR0370005] Error: expected ';' -- found '::'
+   ╭─[ test_18:1:5 ]
+   │
+ 1 │ x.0_::
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_19:1:6 ]
+   │
+ 1 │ x.0_?
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_20:1:6 ]
+   │
+ 1 │ x.0__
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_21:1:6 ]
+   │
+ 1 │ x.0_=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_22:1:7 ]
+   │
+ 1 │ x.0_==
+───╯
+[EPAR0370005] Error: expected ';' -- found '!'
+   ╭─[ test_23:1:5 ]
+   │
+ 1 │ x.0_!
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_24:1:7 ]
+   │
+ 1 │ x.0_!=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_25:1:6 ]
+   │
+ 1 │ x.0_>
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_26:1:7 ]
+   │
+ 1 │ x.0_>=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_27:1:6 ]
+   │
+ 1 │ x.0_<
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_28:1:7 ]
+   │
+ 1 │ x.0_<=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_29:1:6 ]
+   │
+ 1 │ x.0_>
+───╯
+[EPAR0370005] Error: expected ';' -- found '..'
+   ╭─[ test_30:1:5 ]
+   │
+ 1 │ x.0_..
+───╯
+[EPAR0370052] Error: Digit a invalid in radix 10 (token 0_as).
+   ╭─[ test_31:1:3 ]
+   │
+ 1 │ x.0_as
+───╯
+[EPAR0370052] Error: Digit c invalid in radix 10 (token 0_console).
+   ╭─[ test_32:1:3 ]
+   │
+ 1 │ x.0_console
+───╯
+[EPAR0370052] Error: Digit c invalid in radix 10 (token 0_const).
+   ╭─[ test_33:1:3 ]
+   │
+ 1 │ x.0_const
+───╯
+[EPAR0370052] Error: Digit l invalid in radix 10 (token 0_let).
+   ╭─[ test_34:1:3 ]
+   │
+ 1 │ x.0_let
+───╯
+[EPAR0370052] Error: Digit f invalid in radix 10 (token 0_for).
+   ╭─[ test_35:1:3 ]
+   │
+ 1 │ x.0_for
+───╯
+[EPAR0370052] Error: Digit i invalid in radix 10 (token 0_if).
+   ╭─[ test_36:1:3 ]
+   │
+ 1 │ x.0_if
+───╯
+[EPAR0370052] Error: Digit e invalid in radix 10 (token 0_else).
+   ╭─[ test_37:1:3 ]
+   │
+ 1 │ x.0_else
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_38:1:7 ]
+   │
+ 1 │ x.0_i8
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_39:1:8 ]
+   │
+ 1 │ x.0_i16
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_40:1:8 ]
+   │
+ 1 │ x.0_i32
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_41:1:8 ]
+   │
+ 1 │ x.0_i64
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_42:1:9 ]
+   │
+ 1 │ x.0_i128
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_43:1:7 ]
+   │
+ 1 │ x.0_u8
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_44:1:8 ]
+   │
+ 1 │ x.0_u16
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_45:1:8 ]
+   │
+ 1 │ x.0_u32
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_46:1:8 ]
+   │
+ 1 │ x.0_u64
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_47:1:9 ]
+   │
+ 1 │ x.0_u128
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_48:1:6 ]
+   │
+ 1 │ x.0_&
+───╯
+[EPAR0370052] Error: Digit r invalid in radix 10 (token 0_return).
+   ╭─[ test_49:1:3 ]
+   │
+ 1 │ x.0_return
+───╯
+[EPAR0370052] Error: Digit s invalid in radix 10 (token 0_self).
+   ╭─[ test_50:1:3 ]
+   │
+ 1 │ x.0_self
+───╯
+[EPAR0370052] Error: Digit S invalid in radix 10 (token 0_Self).
+   ╭─[ test_51:1:3 ]
+   │
+ 1 │ x.0_Self
+───╯
+[EPAR0370052] Error: Digit t invalid in radix 10 (token 0_true).
+   ╭─[ test_52:1:3 ]
+   │
+ 1 │ x.0_true
+───╯
+[EPAR0370052] Error: Digit f invalid in radix 10 (token 0_false).
+   ╭─[ test_53:1:3 ]
+   │
+ 1 │ x.0_false
+───╯

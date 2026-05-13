@@ -1,61 +1,17 @@
-Warning [WCEI03713001]: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
-    --> compiler-test:34:5
-     |
-  34 |     Mapping::set(balances, 0u32, a);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
-Warning [WSAZ0374000]: Not all paths through the function run all Finals. 4/5 paths contain at least one Final that is never run.
-    --> compiler-test:13:1
-     |
-  13 | final fn finalize_do_work(f: Final, a: u32) {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  14 |     // 4 levels of nesting: interaction only fires in the deepest branch
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  15 |     if a > 100u32 {
-     |     ^^^^^^^^^^^^^^^
-  16 |         if a > 200u32 {
-     |         ^^^^^^^^^^^^^^^
-  17 |             if a > 300u32 {
-     |             ^^^^^^^^^^^^^^^
-  18 |                 if a > 400u32 {
-     |                 ^^^^^^^^^^^^^^^
-  19 |                     // [I] Interaction at depth 4
-     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  20 |                     f.run();
-     |                     ^^^^^^^^
-  21 |                 } else {
-     |                 ^^^^^^^^
-  22 |                     Mapping::set(balances, 99u32, 0u32);
-     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  23 |                 }
-     |                 ^
-  24 |             } else {
-     |             ^^^^^^^^
-  25 |                 Mapping::set(balances, 98u32, 0u32);
-     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  26 |             }
-     |             ^
-  27 |         } else {
-     |         ^^^^^^^^
-  28 |             Mapping::set(balances, 97u32, 0u32);
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  29 |         }
-     |         ^
-  30 |     } else {
-     |     ^^^^^^^^
-  31 |         Mapping::set(balances, 96u32, 0u32);
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  32 |     }
-     |     ^
-  33 |     // [E] Effect after the deeply nested conditional — should warn
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  34 |     Mapping::set(balances, 0u32, a);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  35 | }
-     | ^
-     |
-     = Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:34:7 ]
+    │
+ 34 │     Mapping::set(balances, 0u32, a);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WSAZ0374000] Warning: Not all paths through the function run all Finals. 4/5 paths contain at least one Final that is never run.
+    ╭─[ compiler-test:13:1 ]
+    │
+    ┆ 
+    │ 
+    │ Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+────╯
 program dep.aleo;
 
 mapping dep_data:

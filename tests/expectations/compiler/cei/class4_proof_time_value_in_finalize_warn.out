@@ -1,10 +1,10 @@
-Warning [WCEI03713004]: Value `val` used in finalize block is derived from external call `token.aleo/get_supply`, whose finalize may alter the state this value depends on.
-    --> compiler-test:11:50
-     |
-  11 |         return final { finalize_make_decision(f, val, id); };
-     |                                                  ^^^
-     |
-     = The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+[WCEI03713004] Warning: Value `val` used in finalize block is derived from external call `token.aleo/get_supply`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:11:50 ]
+    │
+ 11 │         return final { finalize_make_decision(f, val, id); };
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program token.aleo;
 
 mapping supply:

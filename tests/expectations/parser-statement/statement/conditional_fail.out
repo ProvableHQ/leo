@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected {
-    --> test_0:1:17
-     |
-   1 | if true {} else let x = 2;
-     |                 ^^^
+[EPAR0370047] Error: expected {
+   ╭─[ test_0:1:17 ]
+   │
+ 1 │ if true {} else let x = 2;
+───╯

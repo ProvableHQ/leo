@@ -27,6 +27,28 @@ use color_backtrace::{BacktracePrinter, Verbosity};
 /// The indent for an error message.
 pub(crate) const INDENT: &str = "    ";
 
+/// Computes the exit code from a code identifier and error code.
+pub fn compute_exit_code(code_identifier: i8, code: i32) -> i32 {
+    let base = if code_identifier > 99 {
+        code_identifier as i32 * 100_000
+    } else if code_identifier as i32 > 9 {
+        code_identifier as i32 * 10_000
+    } else {
+        code_identifier as i32 * 1_000
+    };
+    base + code
+}
+
+/// Formats a unique error identifier string.
+pub fn format_error_code(type_: &str, code_identifier: i8, code: i32) -> String {
+    format!("E{type_}{code_identifier:0>3}{code:0>4}")
+}
+
+/// Formats a unique warning identifier string.
+pub fn format_warning_code(type_: &str, code_identifier: i8, code: i32) -> String {
+    format!("W{type_}{code_identifier:0>3}{code:0>4}")
+}
+
 /// Backtraced compiler output type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
@@ -40,8 +62,6 @@ pub struct Backtraced {
     pub help: Option<String>,
     /// The error exit code.
     pub code: i32,
-    /// The error leading digits identifier.
-    pub code_identifier: i8,
     /// The characters representing the type of error.
     pub type_: String,
     /// Is this Backtrace a warning or error?
@@ -58,7 +78,6 @@ impl Backtraced {
         message: S,
         help: Option<String>,
         code: i32,
-        code_identifier: i8,
         type_: String,
         error: bool,
         backtrace: Backtrace,
@@ -66,42 +85,37 @@ impl Backtraced {
     where
         S: ToString,
     {
-        Self { message: message.to_string(), help, code, code_identifier, type_, error, backtrace }
+        Self { message: message.to_string(), help, code, type_, error, backtrace }
+    }
+
+    /// Create a new error.
+    pub fn error(code_prefix: &str, code: i32, message: impl ToString) -> Self {
+        Self::new_from_backtrace(message, None, code, code_prefix.to_string(), true, Backtrace::new())
+    }
+
+    /// Create a new warning.
+    pub fn warning(code_prefix: &str, code: i32, message: impl ToString) -> Self {
+        Self::new_from_backtrace(message, None, code, code_prefix.to_string(), false, Backtrace::new())
+    }
+
+    pub fn with_help(mut self, help: impl fmt::Display) -> Self {
+        self.help = Some(help.to_string());
+        self
     }
 
     /// Gets the backtraced error exit code.
     pub fn exit_code(&self) -> i32 {
-        let mut code: i32;
-        if self.code_identifier > 99 {
-            code = self.code_identifier as i32 * 100_000;
-        } else if self.code_identifier as i32 > 9 {
-            code = self.code_identifier as i32 * 10_000;
-        } else {
-            code = self.code_identifier as i32 * 1_000;
-        }
-        code += self.code;
-
-        code
+        compute_exit_code(37, self.code)
     }
 
     /// Gets a unique error identifier.
     pub fn error_code(&self) -> String {
-        format!(
-            "E{error_type}{code_identifier:0>3}{exit_code:0>4}",
-            error_type = self.type_,
-            code_identifier = self.code_identifier,
-            exit_code = self.code,
-        )
+        format_error_code(&self.type_, 37, self.code)
     }
 
     /// Gets a unique warning identifier.
     pub fn warning_code(&self) -> String {
-        format!(
-            "W{error_type}{code_identifier:0>3}{exit_code:0>4}",
-            error_type = self.type_,
-            code_identifier = self.code_identifier,
-            exit_code = self.code,
-        )
+        format_warning_code(&self.type_, 37, self.code)
     }
 }
 

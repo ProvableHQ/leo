@@ -101,7 +101,7 @@ impl Command for LeoRemove {
             dependencies.retain(|dep| dep.name != name);
 
             if dependencies.len() == original_len {
-                return Err(PackageError::dependency_not_found(name).into());
+                return Err(crate::errors::dependency_not_found(name).into());
             }
         }
 

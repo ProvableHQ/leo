@@ -16,7 +16,6 @@
 
 use super::*;
 use leo_ast::NetworkName;
-use leo_errors::UtilError;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -256,7 +255,7 @@ fn generate_new_account<N: Network>(
         // Sample a random field element.
         None => PrivateKey::new(&mut ChaChaRng::from_entropy()),
     }
-    .map_err(CliError::failed_to_parse_seed)?;
+    .map_err(crate::errors::failed_to_parse_seed)?;
 
     // Derive the view key and address and print to stdout.
     print_keys(private_key, discreet)?;
@@ -280,12 +279,12 @@ fn import_account<N: Network>(
     let priv_key = match discreet {
         true => {
             let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
-            FromStr::from_str(&private_key_input).map_err(CliError::failed_to_parse_private_key)?
+            FromStr::from_str(&private_key_input).map_err(crate::errors::failed_to_parse_private_key)?
         }
         false => match private_key {
-            Some(private_key) => FromStr::from_str(&private_key).map_err(CliError::failed_to_parse_private_key)?,
+            Some(private_key) => FromStr::from_str(&private_key).map_err(crate::errors::failed_to_parse_private_key)?,
             None => {
-                return Err(CliError::failed_to_execute_account(
+                return Err(crate::errors::failed_to_execute_account(
                     "Missing private key argument. Provide a private key or use the '--discreet' flag to enter it securely.",
                 )
                 .into());
@@ -340,7 +339,7 @@ pub(crate) fn sign_message<N: Network>(
     // Parse the private key.
     let private_key_string = private_key_string.trim();
     let private_key = PrivateKey::<N>::from_str(private_key_string)
-        .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid private key"))?;
+        .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid private key"))?;
 
     // Sample a random field element.
     let mut rng = ChaChaRng::from_entropy();
@@ -351,10 +350,10 @@ pub(crate) fn sign_message<N: Network>(
     } else {
         let fields = Value::<N>::from_str(&message)?
             .to_fields()
-            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid Aleo value"))?;
+            .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid Aleo value"))?;
         private_key.sign(&fields, &mut rng)
     }
-    .map_err(|_| CliError::cli_runtime_error("Failed to sign the message"))?
+    .map_err(|_| crate::errors::cli_runtime_error("Failed to sign the message"))?
     .to_string();
     // Return the signature as a string
     Ok(signature)
@@ -371,7 +370,7 @@ pub(crate) fn verify_message<N: Network>(
     let address = Address::<N>::from_str(&address)?;
 
     let signature = Signature::<N>::from_str(&signature)
-        .map_err(|e| CliError::cli_invalid_input(format!("Failed to parse a valid signature: {e}")))?;
+        .map_err(|e| crate::errors::cli_invalid_input(format!("Failed to parse a valid signature: {e}")))?;
 
     // Verify the signature
     let verified = if raw {
@@ -379,14 +378,14 @@ pub(crate) fn verify_message<N: Network>(
     } else {
         let fields = Value::<N>::from_str(&message)?
             .to_fields()
-            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid Aleo value"))?;
+            .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid Aleo value"))?;
         signature.verify(&address, &fields)
     };
 
     // Return the verification result
     match verified {
         true => Ok("✅ The signature is valid".to_string()),
-        false => Err(CliError::cli_runtime_error("❌ The signature is invalid"))?,
+        false => Err(crate::errors::cli_runtime_error("❌ The signature is invalid"))?,
     }
 }
 
@@ -404,27 +403,27 @@ pub(crate) fn decrypt_ciphertext<N: Network>(
     let view_key = if key_string.starts_with("APrivateKey1") {
         // If the key starts with "APrivateKey1", treat it as a private key.
         let private_key = PrivateKey::<N>::from_str(key_string)
-            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid private key"))?;
+            .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid private key"))?;
         // Convert the private key to a view key.
         ViewKey::<N>::try_from(&private_key)
-            .map_err(|_| CliError::cli_invalid_input("Failed to convert private key to view key"))?
+            .map_err(|_| crate::errors::cli_invalid_input("Failed to convert private key to view key"))?
     } else if key_string.starts_with("AViewKey1") {
         // If the key starts with "AViewKey1", treat it as a view key.
         ViewKey::<N>::from_str(key_string)
-            .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid view key"))?
+            .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid view key"))?
     } else {
         // If the key is neither, return an error.
-        Err(CliError::cli_invalid_input("Invalid key format. Expected a private or view key."))?
+        Err(crate::errors::cli_invalid_input("Invalid key format. Expected a private or view key."))?
     };
 
     // Parse the ciphertext as record ciphertext.
     let record_ciphertext = Record::<N, Ciphertext<N>>::from_str(ciphertext)
-        .map_err(|_| CliError::cli_invalid_input("Failed to parse a valid record ciphertext"))?;
+        .map_err(|_| crate::errors::cli_invalid_input("Failed to parse a valid record ciphertext"))?;
 
     // Decrypt the record.
     let decrypted_value = record_ciphertext
         .decrypt(&view_key)
-        .map_err(|_| CliError::cli_runtime_error("Failed to decrypt the record ciphertext"))?;
+        .map_err(|_| crate::errors::cli_runtime_error("Failed to decrypt the record ciphertext"))?;
 
     // Return the decrypted value as a string.
     Ok(decrypted_value.to_string())
@@ -435,14 +434,15 @@ fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'s
     match (key, key_file) {
         (Some(key), None) => Ok(key),
         (None, Some(key_file)) => {
-            let path =
-                key_file.parse::<PathBuf>().map_err(|e| CliError::cli_invalid_input(format!("Invalid path - {e}")))?;
-            std::fs::read_to_string(path).map_err(|e| UtilError::failed_to_read_file(e).into())
+            let path = key_file
+                .parse::<PathBuf>()
+                .map_err(|e| crate::errors::cli_invalid_input(format!("Invalid path - {e}")))?;
+            std::fs::read_to_string(path).map_err(|e| crate::errors::failed_to_read_file(e).into())
         }
         (None, None) => {
             // Attempt to pull any of the environment variables
             env_vars.iter().find_map(|&var| std::env::var(var).ok()).ok_or_else(|| {
-                CliError::cli_invalid_input(format!(
+                crate::errors::cli_invalid_input(format!(
                     "Missing the '--key', '--key-file', or the following environment variables: '{}'",
                     env_vars.iter().format(",")
                 ))
@@ -450,7 +450,7 @@ fn get_key_string(key: Option<String>, key_file: Option<String>, env_vars: &[&'s
             })
         }
         (Some(_), Some(_)) => {
-            Err(CliError::cli_invalid_input("Cannot specify both the '--key' and '--key-file' flags").into())
+            Err(crate::errors::cli_invalid_input("Cannot specify both the '--key' and '--key-file' flags").into())
         }
     }
 }
@@ -465,7 +465,7 @@ fn write_to_env_file<N: Network>(
     let program_dir = ctx.dir()?;
     let env_path = program_dir.join(".env");
     std::fs::write(env_path, format!("NETWORK={network}\nPRIVATE_KEY={private_key}\nENDPOINT={endpoint}\n"))
-        .map_err(PackageError::io_error_env_file)?;
+        .map_err(crate::errors::io_error_env_file)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
 }

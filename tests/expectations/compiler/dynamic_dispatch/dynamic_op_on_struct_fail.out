@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown interface `test.aleo::Point`
-    --> compiler-test:14:19
-     |
-  14 |     let v: u64? = Point@(target)::balances.get(key);
-     |                   ^^^^^
+[ETYC0372005] Error: Unknown interface `test.aleo::Point`
+    ╭─[ compiler-test:14:19 ]
+    │
+ 14 │     let v: u64? = Point@(target)::balances.get(key);
+────╯

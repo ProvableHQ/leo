@@ -1,13 +1,7 @@
-Error [ESAZ0374012]: The `@custom` constructor has no statements after dead code elimination.
-    --> compiler-test:4:5
-     |
-   4 |     @custom
-     |     ^^^^^^^
-   5 |     constructor() {
-     |     ^^^^^^^^^^^^^^^
-   6 |         let x = self.program_owner;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   7 |     }
-     |     ^
-     |
-     = Add a non-trivial implementation
+[ESAZ0374012] Error: The `@custom` constructor has no statements after dead code elimination.
+   ╭─[ compiler-test:4:5 ]
+   │
+   │ 
+   │ 
+   │ Help: Add a non-trivial implementation
+───╯

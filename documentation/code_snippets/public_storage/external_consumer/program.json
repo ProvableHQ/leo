@@ -1,0 +1,14 @@
+{
+  "program": "consumer.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "external_program.aleo",
+      "location": "local",
+      "path": "../external_dep",
+      "edition": null
+    }
+  ]
+}

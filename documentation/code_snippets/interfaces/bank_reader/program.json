@@ -1,0 +1,14 @@
+{
+  "program": "checker.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "bank.aleo",
+      "location": "local",
+      "path": "../bank",
+      "edition": null
+    }
+  ]
+}

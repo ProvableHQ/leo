@@ -1,52 +1,52 @@
-Error [EPAR0370005]: expected '=' -- found '_leading_double_underscore'
-    --> test:20:14
-     |
-  20 |         let __leading_double_underscore: bool = false;
-     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370046]: Identifier My__Struct cannot contain a double underscore `__`
-    --> test:1:8
-     |
-   1 | struct My__Struct {
-     |        ^^^^^^^^^^
-Error [EPAR0370046]: Identifier field__name cannot contain a double underscore `__`
-    --> test:2:5
-     |
-   2 |     field__name: u8,
-     |     ^^^^^^^^^^^
-Error [EPAR0370046]: Identifier test__function cannot contain a double underscore `__`
-    --> test:5:4
-     |
-   5 | fn test__function(param__name: u8) -> bool {
-     |    ^^^^^^^^^^^^^^
-Error [EPAR0370046]: Identifier param__name cannot contain a double underscore `__`
-    --> test:5:19
-     |
-   5 | fn test__function(param__name: u8) -> bool {
-     |                   ^^^^^^^^^^^
-Error [EPAR0370046]: Identifier triple___underscore cannot contain a double underscore `__`
-    --> test:9:4
-     |
-   9 | fn triple___underscore(param___name: u8) -> bool {
-     |    ^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370046]: Identifier param___name cannot contain a double underscore `__`
-    --> test:9:24
-     |
-   9 | fn triple___underscore(param___name: u8) -> bool {
-     |                        ^^^^^^^^^^^^
-Error [EPAR0370046]: Identifier test__var cannot contain a double underscore `__`
-    --> test:15:13
-     |
-  15 |         let test__var: u32 = 42u32;
-     |             ^^^^^^^^^
-Error [EPAR0370046]: Identifier trailing_double_underscore__ cannot contain a double underscore `__`
-    --> test:16:13
-     |
-  16 |         let trailing_double_underscore__: bool = true;
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [EPAR0370053]: Identifiers cannot start with an underscore.
-    --> test:20:14
-     |
-  20 |         let __leading_double_underscore: bool = false;
-     |              ^^^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Identifiers must start with a letter.
+[EPAR0370005] Error: expected '=' -- found '_leading_double_underscore'
+    ╭─[ test:20:14 ]
+    │
+ 20 │         let __leading_double_underscore: bool = false;
+────╯
+[EPAR0370046] Error: Identifier My__Struct cannot contain a double underscore `__`
+   ╭─[ test:1:8 ]
+   │
+ 1 │ struct My__Struct {
+───╯
+[EPAR0370046] Error: Identifier field__name cannot contain a double underscore `__`
+   ╭─[ test:2:5 ]
+   │
+ 2 │     field__name: u8,
+───╯
+[EPAR0370046] Error: Identifier test__function cannot contain a double underscore `__`
+   ╭─[ test:5:4 ]
+   │
+ 5 │ fn test__function(param__name: u8) -> bool {
+───╯
+[EPAR0370046] Error: Identifier param__name cannot contain a double underscore `__`
+   ╭─[ test:5:19 ]
+   │
+ 5 │ fn test__function(param__name: u8) -> bool {
+───╯
+[EPAR0370046] Error: Identifier triple___underscore cannot contain a double underscore `__`
+   ╭─[ test:9:4 ]
+   │
+ 9 │ fn triple___underscore(param___name: u8) -> bool {
+───╯
+[EPAR0370046] Error: Identifier param___name cannot contain a double underscore `__`
+   ╭─[ test:9:24 ]
+   │
+ 9 │ fn triple___underscore(param___name: u8) -> bool {
+───╯
+[EPAR0370046] Error: Identifier test__var cannot contain a double underscore `__`
+    ╭─[ test:15:13 ]
+    │
+ 15 │         let test__var: u32 = 42u32;
+────╯
+[EPAR0370046] Error: Identifier trailing_double_underscore__ cannot contain a double underscore `__`
+    ╭─[ test:16:13 ]
+    │
+ 16 │         let trailing_double_underscore__: bool = true;
+────╯
+[EPAR0370053] Error: Identifiers cannot start with an underscore.
+    ╭─[ test:20:14 ]
+    │
+ 20 │         let __leading_double_underscore: bool = false;
+    │ 
+    │ Help: Identifiers must start with a letter.
+────╯

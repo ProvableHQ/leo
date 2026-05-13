@@ -14,5 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! LSP feature modules owned by `leo-lsp`.
+//!
+//! Each child module owns one protocol-facing capability or one shared helper
+//! layer used by those capabilities. Server routing stays outside this module;
+//! feature modules consume snapshot-safe semantic data and return LSP-ready
+//! values.
+
+/// Go-to-definition query resolution.
+pub mod goto_definition;
+/// Shared LSP range and URI conversion helpers.
+pub mod lsp_range;
+/// Find-all-references query resolution.
+pub mod references;
+/// Rename and prepare-rename query resolution.
+pub mod rename;
 /// Semantic token capability wiring and wire-format encoding helpers.
 pub mod semantic_tokens;

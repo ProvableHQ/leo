@@ -27,7 +27,7 @@ pub fn confirm(prompt: &str, skip_confirmation: bool) -> Result<bool> {
         .with_prompt(prompt)
         .default(false)
         .interact()
-        .map_err(|e| CliError::custom(format!("Failed to prompt user: {e}")).into());
+        .map_err(|e| crate::errors::custom(format!("Failed to prompt user: {e}")).into());
 
     // Print a newline for better formatting.
     println!();
@@ -46,7 +46,7 @@ pub fn warn_and_confirm(warning: &str, skip_confirmation: bool) -> Result<bool> 
         .with_prompt("Do you want to continue?")
         .default(false)
         .interact()
-        .map_err(|e| CliError::custom(format!("Failed to prompt user: {e}")).into());
+        .map_err(|e| crate::errors::custom(format!("Failed to prompt user: {e}")).into());
 
     // Print a newline for better formatting.
     println!();
@@ -70,7 +70,7 @@ pub fn confirm_fee<N: Network>(
         let public_balance = get_public_balance(private_key, endpoint, network, context)? as f64 / 1_000_000.0;
         println!("💰Your current public balance is {public_balance} credits.\n");
         if public_balance < total_cost {
-            return Err(PackageError::insufficient_balance(address, public_balance, total_cost).into());
+            return Err(crate::errors::insufficient_balance(address, public_balance, total_cost).into());
         }
     }
     // Confirm the transaction.

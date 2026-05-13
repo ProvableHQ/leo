@@ -1,6 +1,14 @@
 **/target
 !crates/fmt/tests/target/
 !crates/fmt/tests/target/**
+
+# Build artifacts from documentation example projects. We ignore the *contents*
+# (rather than the directories themselves) so specific files inside can be
+# un-ignored — the docs import a few generated artifacts directly.
+documentation/code_snippets/**/build/**
+documentation/code_snippets/**/outputs/**
+!documentation/code_snippets/abi/token/build/abi.json
+!documentation/code_snippets/limitations/build/main.aleo
 /tmp/
 **/.idea/
 .DS_Store

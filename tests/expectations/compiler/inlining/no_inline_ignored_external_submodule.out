@@ -1,10 +1,10 @@
-Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because this is a module function.
-    --> math.leo:2:1
-     |
-   2 | @no_inline
-     | ^^^^^^^^^^
-     |
-     = Remove the `@no_inline` annotation to silence this warning.
+[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because this is a module function.
+   ╭─[ math.leo:2:1 ]
+   │
+ 2 │ @no_inline
+   │ 
+   │ Help: Remove the `@no_inline` annotation to silence this warning.
+───╯
 program child.aleo;
 
 function entry:
@@ -29,8 +29,8 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::math::helper`
-    --> compiler-test:7:16
-     |
-   7 |         return child.aleo::math::helper(x);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::math::helper`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return child.aleo::math::helper(x);
+───╯
