@@ -35,7 +35,7 @@
 
    ╭─[ test_6:1:2 ]
    │
-   │ 
+ 1 │ /🦀*/
 ───╯
 [EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '/'
    ╭─[ test_6:1:1 ]

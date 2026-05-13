@@ -5,14 +5,22 @@ Found:
 fn external_transfer(t: test.aleo::Token) -> test.aleo::Token
     ╭─[ compiler-test:15:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 15 │ ╭─▶     fn external_transfer(t: Token) -> Token {
+    ┆ ┆   
+ 17 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ compiler-test:4:21 ]
    │
-   │ 
+ 4 │ ╭─▶ interface HasMixed {
+   ┆ ┆   
+ 8 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯
 
 

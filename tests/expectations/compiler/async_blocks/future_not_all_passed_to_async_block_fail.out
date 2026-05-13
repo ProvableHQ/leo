@@ -1,7 +1,11 @@
 [ETYC0372104] Error: Not all Finals were consumed: f1
     ╭─[ compiler-test:14:22 ]
     │
-    │ 
-    │ 
-    │ Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
+ 14 │ ╭─▶         return final {
+    ┆ ┆   
+ 20 │ ├─▶         };
+    │ │                
+    │ ╰──────────────── 
+    │     
+    │     Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
 ────╯

@@ -1,12 +1,20 @@
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ interfaces.leo:2:21 ]
    │
-   │ 
+ 2 │ ╭─▶ interface HasToken {
+   ┆ ┆   
+ 6 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ interfaces.leo:2:21 ]
    │
-   │ 
+ 2 │ ╭─▶ interface HasToken {
+   ┆ ┆   
+ 6 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯
 program test.aleo;
 

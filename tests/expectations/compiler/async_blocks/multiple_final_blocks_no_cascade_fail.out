@@ -1,7 +1,11 @@
 [ETYC0372150] Error: An entry point fn cannot contain more than one `final` block.
     ╭─[ compiler-test:9:25 ]
     │
-    │ 
-    │ 
-    │ Help: Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
+  9 │ ╭─▶         let f2: Final = final {
+    ┆ ┆   
+ 11 │ ├─▶         };
+    │ │                
+    │ ╰──────────────── 
+    │     
+    │     Help: Combine the logic into a single `final` block, or restructure your code to avoid multiple final blocks within the same entry point fn.
 ────╯

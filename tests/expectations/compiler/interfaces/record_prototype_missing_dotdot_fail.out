@@ -6,5 +6,9 @@
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ compiler-test:1:27 ]
    │
-   │ 
+ 1 │ ╭─▶ interface TokenInterface {
+   ┆ ┆   
+ 4 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯

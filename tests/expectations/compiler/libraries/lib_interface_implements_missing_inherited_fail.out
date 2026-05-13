@@ -5,21 +5,33 @@ Found:
 fn process(v: u64) -> u32
     ╭─[ compiler-test:12:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 12 │ ╭─▶     fn process(v: u64) -> u32 {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`.
     ╭─[ compiler-test:7:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Add the missing function with the exact signature specified in the interface.
+  7 │ ╭─▶ program main.aleo : top_lib::Top {
+    ┆ ┆   
+ 18 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Add the missing function with the exact signature specified in the interface.
 ────╯
 [ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `reset`.
     ╭─[ compiler-test:7:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Add the missing function with the exact signature specified in the interface.
+  7 │ ╭─▶ program main.aleo : top_lib::Top {
+    ┆ ┆   
+ 18 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Add the missing function with the exact signature specified in the interface.
 ────╯

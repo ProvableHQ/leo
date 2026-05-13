@@ -6,7 +6,11 @@
 [ETYC0372013] Error: Composite initialization expression for `Token` is missing member `owner`.
     ╭─[ compiler-test:12:12 ]
     │
-    │ 
+ 12 │ ╭─▶     return Token {
+    ┆ ┆   
+ 15 │ ├─▶     };
+    │ │            
+    │ ╰──────────── 
 ────╯
 [ETYC0372083] Error: A program must have at least one entry point fn.
    ╭─[ compiler-test:1:9 ]

@@ -51,7 +51,11 @@
 [EPAR0370027] Error: Missing a program scope in a Leo file.
     ╭─[ test:1:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+  1 │ ╭─▶ struct import
+    ┆ ┆   
+ 56 │ ├─▶ program test.aleo {}
+    │ │                          
+    │ ╰────────────────────────── 
+    │     
+    │     Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
 ────╯
