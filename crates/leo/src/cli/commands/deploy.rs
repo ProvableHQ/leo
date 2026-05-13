@@ -85,6 +85,17 @@ pub struct Task<N: Network> {
     pub bytecode_size: usize,
 }
 
+/// One-time deployment state shared across workspace members.
+struct DeploySetup<N: Network> {
+    private_key: PrivateKey<N>,
+    address: Address<N>,
+    endpoint: String,
+    consensus_version: ConsensusVersion,
+    network: NetworkName,
+    vm: VM<N, ConsensusMemory<N>>,
+    query: SnarkVMQuery<N, BlockMemory<N>>,
+}
+
 impl Command for LeoDeploy {
     type Input = Package;
     type Output = DeployOutput;
@@ -130,15 +141,32 @@ impl Command for LeoDeploy {
             }
         }
     }
+
+    fn execute(self, context: Context) -> Result<Self::Output> {
+        // Intercept workspace mode before the default prelude+apply flow.
+        match context.resolve_targets()? {
+            Some(targets) if targets.len() > 1 => handle_workspace_deploy(self, context, targets),
+            _ => {
+                // Single target or no workspace: use the standard flow.
+                let input = self.prelude(context.clone())?;
+                let span = self.log_span();
+                let span = span.enter();
+                let out = self.apply(context, input);
+                drop(span);
+                out
+            }
+        }
+    }
 }
 
-// A helper function to handle deployment logic.
-fn handle_deploy<N: Network, A: Aleo<Network = N>>(
+// ── Extracted helpers ───────────────────────────────────────────────────────
+
+/// Create the one-time deployment setup: credentials, consensus, VM, and query.
+fn create_deploy_setup<N: Network>(
     command: &LeoDeploy,
-    context: Context,
+    context: &Context,
     network: NetworkName,
-    package: Package,
-) -> Result<<LeoDeploy as Command>::Output> {
+) -> Result<DeploySetup<N>> {
     // Get the private key and associated address, accounting for overrides.
     let private_key = get_private_key(&command.env_override.private_key)?;
     let address =
@@ -174,6 +202,35 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         std::env::set_var("CONSENSUS_VERSION_HEIGHTS", consensus_heights_string);
     }
 
+    // Get the consensus version.
+    let consensus_version = get_consensus_version(
+        &command.extra.consensus_version,
+        &endpoint,
+        network,
+        &consensus_heights,
+        context,
+        command.env_override.network_retries,
+    )?;
+
+    // Initialize a new VM.
+    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
+
+    // Specify the query.
+    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
+        endpoint
+            .parse::<Uri>()
+            .map_err(|e| crate::errors::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+    );
+
+    Ok(DeploySetup { private_key, address, endpoint, consensus_version, network, vm, query })
+}
+
+/// Extract programs from a package and create deployment tasks.
+fn prepare_package_tasks<N: Network>(
+    command: &LeoDeploy,
+    setup: &DeploySetup<N>,
+    package: &Package,
+) -> Result<(Vec<Task<N>>, Vec<Task<N>>, HashSet<ProgramID<N>>)> {
     // Get all the programs but tests and libraries (libraries have no AVM bytecode).
     let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
@@ -204,7 +261,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         .collect::<Result<_>>()?;
 
     // Parse the fee options.
-    let fee_options = parse_fee_options(&private_key, &command.fee_options, programs_and_bytecode.len())?;
+    let fee_options = parse_fee_options(&setup.private_key, &command.fee_options, programs_and_bytecode.len())?;
 
     let tasks: Vec<Task<N>> = programs_and_bytecode
         .into_iter()
@@ -241,51 +298,15 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         })
         .collect();
 
-    // Get the consensus version.
-    let consensus_version = get_consensus_version(
-        &command.extra.consensus_version,
-        &endpoint,
-        network,
-        &consensus_heights,
-        &context,
-        command.env_override.network_retries,
-    )?;
+    Ok((local, remote, skipped))
+}
 
-    // Build the config for JSON output.
-    let config = Some(Config {
-        address: address.to_string(),
-        network: network.to_string(),
-        endpoint: Some(endpoint.clone()),
-        consensus_version: Some(consensus_version as u8),
-    });
-
-    // Print a summary of the deployment plan.
-    print_deployment_plan(
-        &private_key,
-        &address,
-        &endpoint,
-        &network,
-        &local,
-        &skipped,
-        &remote,
-        &check_tasks_for_warnings(&endpoint, network, &local, consensus_version, command),
-        consensus_version,
-        command,
-    );
-
-    // Prompt the user to confirm the plan.
-    if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
-        println!("❌ Deployment aborted.");
-        return Ok(DeployOutput::default());
+/// Load remote dependencies into the shared VM.
+fn load_remote_deps<N: Network>(command: &LeoDeploy, setup: &DeploySetup<N>, remote: Vec<Task<N>>) -> Result<()> {
+    if remote.is_empty() {
+        return Ok(());
     }
 
-    // Initialize an RNG.
-    let rng = &mut rand::thread_rng();
-
-    // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
-
-    // Load the remote dependencies into the VM.
     let programs_and_editions = remote
         .into_iter()
         .map(|task| {
@@ -294,8 +315,8 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
                 Some(e) => e,
                 None => leo_package::fetch_latest_edition(
                     &task.id.to_string(),
-                    &endpoint,
-                    network,
+                    &setup.endpoint,
+                    setup.network,
                     command.env_override.network_retries,
                 )?,
             };
@@ -304,25 +325,29 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         .collect::<Result<Vec<_>>>()?;
 
     // Check for programs that violate edition/constructor requirements.
-    check_edition_constructor_requirements(&programs_and_editions, consensus_version, "deploy")?;
+    check_edition_constructor_requirements(&programs_and_editions, setup.consensus_version, "deploy")?;
+    setup.vm.process().write().add_programs_with_editions(&programs_and_editions)?;
+    Ok(())
+}
 
-    vm.process().write().add_programs_with_editions(&programs_and_editions)?;
-
-    // Specify the query
-    let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
-        endpoint
-            .parse::<Uri>()
-            .map_err(|e| crate::errors::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
-    );
-
-    // For each of the programs, generate a deployment transaction.
+/// Generate deployment transactions for local programs.
+///
+/// Returns `None` if the user aborted (e.g. declined a constructor confirmation).
+fn generate_deploy_transactions<N: Network, A: Aleo<Network = N>>(
+    command: &LeoDeploy,
+    setup: &DeploySetup<N>,
+    local: Vec<Task<N>>,
+    skipped: &HashSet<ProgramID<N>>,
+    already_deployed: &mut HashSet<ProgramID<N>>,
+) -> Result<Option<(Vec<(ProgramID<N>, Transaction<N>)>, Vec<DeploymentStats>)>> {
+    let rng = &mut rand::thread_rng();
     let mut transactions = Vec::new();
     let mut all_stats = Vec::new();
-    let mut all_broadcasts = Vec::new();
+
     for Task { id, program, edition, priority_fee, record, bytecode_size, .. } in local {
-        // If the program is a local dependency that is not skipped, generate a deployment transaction.
-        if !skipped.contains(&id) {
-            // If the program contains an upgrade config, confirm with the user that they want to proceed.
+        // Deploy if not user-skipped and not already deployed by an earlier workspace member.
+        if !skipped.contains(&id) && !already_deployed.contains(&id) {
+            // If the program has a constructor, confirm with the user.
             if let Some(constructor) = program.constructor() {
                 println!(
                     r"
@@ -336,37 +361,44 @@ Once it is deployed, it CANNOT be changed.
                 );
                 if !confirm("Would you like to proceed?", command.extra.yes)? {
                     println!("❌ Deployment aborted.");
-                    return Ok(DeployOutput::default());
+                    return Ok(None);
                 }
             }
             println!("📦 Creating deployment transaction for '{}'...\n", id.to_string().bold());
             let (transaction, stats) = if command.skip_deploy_certificate {
                 println!("⚠️  Skipping deployment certificate and verifier key generation as per user request.\n");
                 deploy_with_placeholder_certificate::<N, A, _>(
-                    &vm,
-                    &private_key,
+                    &setup.vm,
+                    &setup.private_key,
                     &program,
                     edition.unwrap_or(0),
                     record,
                     priority_fee,
                     bytecode_size,
-                    consensus_version,
-                    &query,
+                    setup.consensus_version,
+                    &setup.query,
                     command.env_override.network_retries,
                     rng,
                 )?
             } else {
                 // Generate the transaction.
-                let transaction = vm
-                    .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
+                let transaction = setup
+                    .vm
+                    .deploy(&setup.private_key, &program, record, priority_fee.unwrap_or(0), Some(&setup.query), rng)
                     .map_err(|e| crate::errors::custom(format!("Failed to generate deployment transaction: {e}")))?;
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Add the program to the VM before calculating function costs.
-                vm.process().write().add_program(&program)?;
+                setup.vm.process().write().add_program(&program)?;
                 // Compute the deployment stats.
-                let stats =
-                    compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size, rng)?;
+                let stats = compute_deployment_stats(
+                    &setup.vm,
+                    deployment,
+                    priority_fee,
+                    setup.consensus_version,
+                    bytecode_size,
+                    rng,
+                )?;
                 (transaction, stats)
             };
 
@@ -374,21 +406,34 @@ Once it is deployed, it CANNOT be changed.
             print_deployment_summary(&id.to_string(), &stats);
             transactions.push((id, transaction));
             all_stats.push(stats);
+            already_deployed.insert(id);
 
             if !command.skip_deploy_certificate {
                 // Validate the deployment limits for the current transaction.
                 let (program_id, transaction) = transactions.last().expect("Transaction was just pushed");
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-                validate_deployment_limits(deployment, program_id, &network)?;
+                validate_deployment_limits(deployment, program_id, &setup.network)?;
             }
         }
 
         // Add the program to the VM. This ensures skipped programs are available for later imports.
-        if let Err(e) = vm.process().write().add_program(&program) {
+        if let Err(e) = setup.vm.process().write().add_program(&program) {
             tracing::debug!("Program {id} already in VM: {e}");
         }
     }
 
+    Ok(Some((transactions, all_stats)))
+}
+
+/// Handle print/save/broadcast of deployment transactions.
+fn output_and_broadcast<N: Network>(
+    command: &LeoDeploy,
+    setup: &DeploySetup<N>,
+    context: &Context,
+    config: Option<Config>,
+    transactions: &[(ProgramID<N>, Transaction<N>)],
+    all_stats: &[DeploymentStats],
+) -> Result<DeployOutput> {
     // If the `print` option is set, print the deployment transaction to the console.
     // The transaction is printed in JSON format.
     if command.action.print {
@@ -418,23 +463,35 @@ Once it is deployed, it CANNOT be changed.
     }
 
     // If the `broadcast` option is set, broadcast each deployment transaction to the network.
+    let mut all_broadcasts = Vec::new();
     if command.action.broadcast {
         for (i, (program_id, transaction)) in transactions.iter().enumerate() {
             println!("\n📡 Broadcasting deployment for {}...", program_id.to_string().bold());
             // Get and confirm the fee with the user.
             let fee = transaction.fee_transition().expect("Expected a fee in the transaction");
-            if !confirm_fee(&fee, &private_key, &address, &endpoint, network, &context, command.extra.yes)? {
+            if !confirm_fee(
+                &fee,
+                &setup.private_key,
+                &setup.address,
+                &setup.endpoint,
+                setup.network,
+                context,
+                command.extra.yes,
+            )? {
                 println!("⏩ Deployment skipped.");
                 continue;
             }
             let fee_id = fee.id().to_string();
             let fee_transaction_id = Transaction::from_fee(fee.clone())?.id().to_string();
             let id = transaction.id().to_string();
-            let height_before =
-                check_transaction::current_height(&endpoint, network, command.env_override.network_retries)?;
+            let height_before = check_transaction::current_height(
+                &setup.endpoint,
+                setup.network,
+                command.env_override.network_retries,
+            )?;
             // Broadcast the transaction to the network.
             let (message, status) = handle_broadcast(
-                &format!("{endpoint}/{network}/transaction/broadcast"),
+                &format!("{}/{}/transaction/broadcast", setup.endpoint, setup.network),
                 transaction,
                 &program_id.to_string(),
             )?;
@@ -455,8 +512,8 @@ Once it is deployed, it CANNOT be changed.
                     let tx_status = check_transaction::check_transaction_with_message(
                         &id,
                         Some(&fee_id),
-                        &endpoint,
-                        network,
+                        &setup.endpoint,
+                        setup.network,
                         height_before + 1,
                         command.extra.max_wait,
                         command.extra.blocks_to_check,
@@ -468,7 +525,7 @@ Once it is deployed, it CANNOT be changed.
                     } else if fail_and_prompt("could not find the transaction on the network")? {
                         continue;
                     } else {
-                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
+                        return Ok(build_deploy_output(config.clone(), transactions, all_stats, &all_broadcasts));
                     }
                     all_broadcasts.push(BroadcastStats {
                         fee_id: fee_id.clone(),
@@ -480,15 +537,277 @@ Once it is deployed, it CANNOT be changed.
                     if fail_and_prompt(&message)? {
                         continue;
                     } else {
-                        return Ok(build_deploy_output(config.clone(), &transactions, &all_stats, &all_broadcasts));
+                        return Ok(build_deploy_output(config.clone(), transactions, all_stats, &all_broadcasts));
                     }
                 }
             }
         }
     }
 
-    Ok(build_deploy_output(config, &transactions, &all_stats, &all_broadcasts))
+    Ok(build_deploy_output(config, transactions, all_stats, &all_broadcasts))
 }
+
+// ── Single-package deploy ───────────────────────────────────────────────────
+
+// Handle deployment for a single package (non-workspace mode).
+fn handle_deploy<N: Network, A: Aleo<Network = N>>(
+    command: &LeoDeploy,
+    context: Context,
+    network: NetworkName,
+    package: Package,
+) -> Result<<LeoDeploy as Command>::Output> {
+    let setup = create_deploy_setup::<N>(command, &context, network)?;
+    let config = Some(Config {
+        address: setup.address.to_string(),
+        network: network.to_string(),
+        endpoint: Some(setup.endpoint.clone()),
+        consensus_version: Some(setup.consensus_version as u8),
+    });
+
+    let (local, remote, skipped) = prepare_package_tasks::<N>(command, &setup, &package)?;
+
+    // Print a summary of the deployment plan.
+    print_deployment_plan(
+        &setup.private_key,
+        &setup.address,
+        &setup.endpoint,
+        &network,
+        &local,
+        &skipped,
+        &remote,
+        &check_tasks_for_warnings(&setup.endpoint, network, &local, setup.consensus_version, command),
+        setup.consensus_version,
+        command,
+    );
+
+    // Prompt the user to confirm the plan.
+    if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
+        println!("❌ Deployment aborted.");
+        return Ok(DeployOutput::default());
+    }
+
+    // Load remote dependencies into the VM.
+    load_remote_deps(command, &setup, remote)?;
+
+    // Generate deployment transactions.
+    let mut already_deployed = HashSet::new();
+    match generate_deploy_transactions::<N, A>(command, &setup, local, &skipped, &mut already_deployed)? {
+        Some((transactions, stats)) => output_and_broadcast(command, &setup, &context, config, &transactions, &stats),
+        None => Ok(DeployOutput::default()),
+    }
+}
+
+// ── Workspace deploy ────────────────────────────────────────────────────────
+
+/// Handle deployment for workspace mode: build each member, then deploy all.
+fn handle_workspace_deploy(command: LeoDeploy, context: Context, targets: Vec<PathBuf>) -> Result<DeployOutput> {
+    // Build each member, collecting deployable packages.
+    let mut packages = Vec::new();
+    for target in &targets {
+        let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+        println!("\n--- building workspace member '{member_name}' ---");
+        let member_ctx = context.with_path(target.clone());
+        let package = LeoBuild {
+            env_override: command.env_override.clone(),
+            options: {
+                let mut opts = command.build_options.clone();
+                opts.no_cache = true;
+                opts
+            },
+        }
+        .execute(member_ctx)?;
+        // Skip library packages - they cannot be deployed.
+        if !package.compilation_units.last().is_some_and(|p| p.kind.is_library()) {
+            packages.push((member_name.to_string(), package));
+        }
+    }
+
+    if packages.is_empty() {
+        return Err(crate::errors::custom("No deployable workspace members found (all are libraries).").into());
+    }
+
+    // Get the network, accounting for overrides.
+    let network = get_network(&command.env_override.network)?;
+    match network {
+        NetworkName::TestnetV0 => {
+            handle_workspace_deploy_inner::<TestnetV0, AleoTestnetV0>(&command, context, network, packages)
+        }
+        NetworkName::MainnetV0 => {
+            #[cfg(feature = "only_testnet")]
+            panic!("Mainnet chosen with only_testnet feature");
+            #[cfg(not(feature = "only_testnet"))]
+            handle_workspace_deploy_inner::<MainnetV0, snarkvm::circuit::AleoV0>(&command, context, network, packages)
+        }
+        NetworkName::CanaryV0 => {
+            #[cfg(feature = "only_testnet")]
+            panic!("Canary chosen with only_testnet feature");
+            #[cfg(not(feature = "only_testnet"))]
+            handle_workspace_deploy_inner::<CanaryV0, snarkvm::circuit::AleoCanaryV0>(
+                &command, context, network, packages,
+            )
+        }
+    }
+}
+
+/// Inner workspace deploy logic, generic over network type.
+fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
+    command: &LeoDeploy,
+    context: Context,
+    network: NetworkName,
+    packages: Vec<(String, Package)>,
+) -> Result<DeployOutput> {
+    let setup = create_deploy_setup::<N>(command, &context, network)?;
+    let config = Some(Config {
+        address: setup.address.to_string(),
+        network: network.to_string(),
+        endpoint: Some(setup.endpoint.clone()),
+        consensus_version: Some(setup.consensus_version as u8),
+    });
+
+    // Prepare tasks for all members, deduplicating remote deps.
+    let mut member_tasks: Vec<(String, Vec<Task<N>>, HashSet<ProgramID<N>>)> = Vec::new();
+    let mut all_remote: Vec<Task<N>> = Vec::new();
+    let mut seen_remote_ids: HashSet<ProgramID<N>> = HashSet::new();
+
+    for (name, package) in &packages {
+        let (local, remote, skipped) = prepare_package_tasks::<N>(command, &setup, package)?;
+        for task in remote {
+            if seen_remote_ids.insert(task.id) {
+                all_remote.push(task);
+            }
+        }
+        member_tasks.push((name.clone(), local, skipped));
+    }
+
+    // Collect warnings across all members.
+    let mut all_warnings = Vec::new();
+    for (_, local, _) in &member_tasks {
+        all_warnings.extend(check_tasks_for_warnings(
+            &setup.endpoint,
+            network,
+            local,
+            setup.consensus_version,
+            command,
+        ));
+    }
+
+    // Print workspace deployment plan.
+    print_workspace_deployment_plan(&setup, &member_tasks, &all_remote, &all_warnings, command);
+
+    // Prompt user confirmation once for the entire workspace.
+    if !confirm("Do you want to proceed with deployment?", command.extra.yes)? {
+        println!("❌ Deployment aborted.");
+        return Ok(DeployOutput::default());
+    }
+
+    // Load all unique remote deps into the shared VM.
+    load_remote_deps(command, &setup, all_remote)?;
+
+    // Deploy each member's programs in dependency order with shared VM.
+    let mut already_deployed: HashSet<ProgramID<N>> = HashSet::new();
+    let mut all_transactions = Vec::new();
+    let mut all_stats = Vec::new();
+
+    for (name, local, skipped) in member_tasks {
+        println!("\n--- deploying workspace member '{name}' ---");
+        match generate_deploy_transactions::<N, A>(command, &setup, local, &skipped, &mut already_deployed)? {
+            Some((txns, stats)) => {
+                all_transactions.extend(txns);
+                all_stats.extend(stats);
+            }
+            None => return Ok(DeployOutput::default()),
+        }
+    }
+
+    output_and_broadcast(command, &setup, &context, config, &all_transactions, &all_stats)
+}
+
+/// Pretty-print the workspace deployment plan.
+fn print_workspace_deployment_plan<N: Network>(
+    setup: &DeploySetup<N>,
+    member_tasks: &[(String, Vec<Task<N>>, HashSet<ProgramID<N>>)],
+    all_remote: &[Task<N>],
+    warnings: &[String],
+    command: &LeoDeploy,
+) {
+    println!("\n{}", "🛠️  Workspace Deployment Plan".bold());
+    println!("{}", "──────────────────────────────────────────────".dimmed());
+
+    // ── Configuration ────────────────────────────────────────────────────
+    println!("{}", "🔧 Configuration:".bold());
+    println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &setup.private_key.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Address:".cyan(), format!("{}...", &setup.address.to_string()[..24]).yellow());
+    println!("  {:20}{}", "Endpoint:".cyan(), setup.endpoint.yellow());
+    println!("  {:20}{}", "Network:".cyan(), setup.network.to_string().yellow());
+    println!("  {:20}{}", "Consensus Version:".cyan(), (setup.consensus_version as u8).to_string().yellow());
+
+    // ── Workspace members ───────────────────────────────────────────────
+    let mut already_seen: HashSet<ProgramID<N>> = HashSet::new();
+    println!("\n{}", "📦 Workspace Members:".bold());
+    for (name, local, skipped) in member_tasks {
+        println!("  {}:", name.bold());
+        if local.is_empty() {
+            println!("    (no programs)");
+            continue;
+        }
+        for task in local {
+            if skipped.contains(&task.id) {
+                println!("    • {} {}", task.id.to_string().dimmed(), "(skipped by --skip)".dimmed());
+            } else if already_seen.contains(&task.id) {
+                println!("    • {} {}", task.id.to_string().dimmed(), "(already covered by earlier member)".dimmed());
+            } else {
+                let priority_fee_str = task.priority_fee.map_or("0".into(), |v| v.to_string());
+                let record_str = if task.record.is_some() { "yes" } else { "no (public fee)" };
+                println!(
+                    "    • {}  │ priority fee: {}  │ fee record: {}",
+                    task.id.to_string().cyan(),
+                    priority_fee_str,
+                    record_str
+                );
+                already_seen.insert(task.id);
+            }
+        }
+    }
+
+    // ── Remote dependencies ──────────────────────────────────────────────
+    if !all_remote.is_empty() {
+        println!("\n{}", "🌐 Remote Dependencies:".bold().red());
+        println!("{}", "(Leo will not generate transactions for these programs)".bold().red());
+        for task in all_remote {
+            println!("  • {}", task.id.to_string().dimmed());
+        }
+    }
+
+    // ── Actions ──────────────────────────────────────────────────────────
+    println!("\n{}", "⚙️ Actions:".bold());
+    if command.action.print {
+        println!("  • Transaction(s) will be printed to the console.");
+    } else {
+        println!("  • Transaction(s) will NOT be printed to the console.");
+    }
+    if let Some(path) = &command.action.save {
+        println!("  • Transaction(s) will be saved to {}", path.bold());
+    } else {
+        println!("  • Transaction(s) will NOT be saved to a file.");
+    }
+    if command.action.broadcast {
+        println!("  • Transaction(s) will be broadcast to {}", setup.endpoint.bold());
+    } else {
+        println!("  • Transaction(s) will NOT be broadcast to the network.");
+    }
+
+    // ── Warnings ─────────────────────────────────────────────────────────
+    if !warnings.is_empty() {
+        println!("\n{}", "⚠️ Warnings:".bold().red());
+        for warning in warnings {
+            println!("  • {}", warning.dimmed());
+        }
+    }
+
+    println!("{}", "──────────────────────────────────────────────\n".dimmed());
+}
+
+// ── Unchanged helpers ───────────────────────────────────────────────────────
 
 /// Check the tasks to warn the user about any potential issues.
 /// The following properties are checked:

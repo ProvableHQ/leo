@@ -832,6 +832,102 @@ mod tests {
 
     #[test]
     #[serial]
+    fn workspace_deploy_builds_all_members_test() {
+        // Workspace deploy should build all members before attempting deployment.
+        // Without a network endpoint, deploy will fail after the build phase, but
+        // we can verify that build artifacts were created for all members.
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "deploy_builds");
+
+        let deploy = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Deploy {
+                command: crate::cli::commands::LeoDeploy {
+                    fee_options: Default::default(),
+                    action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                        endpoint: Some("http://localhost:1".to_string()),
+                        consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
+                        ..Default::default()
+                    },
+                    extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
+                    skip: vec![],
+                    build_options: Default::default(),
+                    skip_deploy_certificate: true,
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            // Deploy will fail because there is no reachable endpoint, but it
+            // should have already built both workspace members before that.
+            let _ = run_with_args(deploy);
+        });
+
+        // Verify both members were built.
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_deploy_package_flag_test() {
+        // With --package, deploy should only build and deploy that member.
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "deploy_pkg_flag");
+
+        let deploy = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Deploy {
+                command: crate::cli::commands::LeoDeploy {
+                    fee_options: Default::default(),
+                    action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                        endpoint: Some("http://localhost:1".to_string()),
+                        consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
+                        ..Default::default()
+                    },
+                    extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
+                    skip: vec![],
+                    build_options: Default::default(),
+                    skip_deploy_certificate: true,
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            // Filter to just token.
+            package: Some("token".to_string()),
+        };
+
+        create_session_if_not_set_then(|_| {
+            let _ = run_with_args(deploy);
+        });
+
+        // --package=token targets a single member, so resolve_targets returns 1 target.
+        // This falls through to the single-package deploy path, building only token.
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("swap/build/main.aleo").exists(), "swap should NOT be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
     fn workspace_backward_compat_test() {
         let temp_dir = temp_dir();
         let pkg_name = "standalone_pkg";
