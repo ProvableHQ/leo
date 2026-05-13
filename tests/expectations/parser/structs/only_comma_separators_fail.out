@@ -1,10 +1,16 @@
 [EPAR0370047] Error: expected field name
     ╭─[ test:9:5 ]
     │
-    │ 
+  9 │ ╭─▶     ;
+ 10 │ ├─▶     y: u8
+    │ │               
+    │ ╰─────────────── 
 ────╯
 [EPAR0370047] Error: expected field name
     ╭─[ test:15:5 ]
     │
-    │ 
+ 15 │ ╭─▶     ;
+ 16 │ ├─▶     y: u8;
+    │ │                
+    │ ╰──────────────── 
 ────╯

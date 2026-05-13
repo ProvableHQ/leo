@@ -1,9 +1,13 @@
 [ETYC0372035] Error: Loop body contains a final context.
    ╭─[ compiler-test:7:9 ]
    │
-   │ 
-   │ 
-   │ Help: Remove the final context.
+ 7 │ ╭─▶         for j in 0u32..2u32 {
+   ┆ ┆   
+ 9 │ ├─▶         }
+   │ │               
+   │ ╰─────────────── 
+   │     
+   │     Help: Remove the final context.
 ───╯
 [ETYC0372151] Error: `final` blocks are not allowed inside conditional blocks.
     ╭─[ compiler-test:14:21 ]

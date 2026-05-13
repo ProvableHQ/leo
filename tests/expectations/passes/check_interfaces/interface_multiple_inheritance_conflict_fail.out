@@ -1,7 +1,10 @@
 [ECHI03712001] Error: Interface `C` has a conflicting definition for `process` inherited from `A`. Members with the same name must have identical signatures.
     ╭─[ test:11:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+ 11 │ ╭─▶ interface C: A + B {
+ 12 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯

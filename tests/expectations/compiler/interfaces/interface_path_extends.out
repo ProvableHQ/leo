@@ -19,14 +19,22 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: Interface `lib.aleo/Base` not found.
    ╭─[ compiler-test:4:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 4 │ ╭─▶ interface Extended: lib.aleo::Base {
+   ┆ ┆   
+ 6 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [ECHI03712000] Error: Interface `lib.aleo/Base` not found.
    ╭─[ compiler-test:4:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 4 │ ╭─▶ interface Extended: lib.aleo::Base {
+   ┆ ┆   
+ 6 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯

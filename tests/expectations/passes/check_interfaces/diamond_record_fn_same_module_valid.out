@@ -1,7 +1,11 @@
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     ╭─[ test:10:18 ]
     │
-    │ 
+ 10 │ ╭─▶ interface IBase {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 program test.aleo {
     record Token {

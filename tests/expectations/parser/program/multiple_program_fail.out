@@ -1,7 +1,11 @@
 [EPAR0370055] Error: A Leo program can only have one `program` declaration.
     ╭─[ test:7:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Remove the duplicate `program` block. Only one is allowed per program.
+  7 │ ╭─▶ program test2.aleo {
+    ┆ ┆   
+ 11 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Remove the duplicate `program` block. Only one is allowed per program.
 ────╯

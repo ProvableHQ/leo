@@ -1,14 +1,22 @@
 [ECHI03712000] Error: Interface `lib_a/lib_b::sub::Middle` not found.
    ╭─[ compiler-test:1:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 1 │ ╭─▶ interface Top : lib_b::sub::Middle {
+   ┆ ┆   
+ 3 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [ECHI03712000] Error: Interface `lib_a/lib_b::sub::Middle` not found.
    ╭─[ compiler-test:1:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 1 │ ╭─▶ interface Top : lib_b::sub::Middle {
+   ┆ ┆   
+ 3 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
