@@ -1,0 +1,19 @@
+program test.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    async do_work r0 into r1;
+    output r1 as test.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as u32.public;
+    get.or_use balances[0u32] 0u32 into r1;
+    add r1 r0 into r2;
+    set r2 into balances[0u32];
+    get.or_use balances[1u32] 0u32 into r3;
+    add r3 1u32 into r4;
+    set r4 into balances[1u32];

@@ -22,6 +22,9 @@ mod errors;
 mod static_analysis;
 pub use static_analysis::*;
 
+mod cei_analysis;
+pub use cei_analysis::*;
+
 mod code_generation;
 pub use code_generation::*;
 

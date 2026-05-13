@@ -1,0 +1,48 @@
+[WCEI03713004] Warning: Value `adjusted_rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:14:45 ]
+    │
+ 14 │         return final { finalize_transfer(f, adjusted_rate, local_val, id); };
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+program exchange.aleo;
+
+mapping rates:
+    key as u32.public;
+    value as u64.public;
+
+function get_rate:
+    input r0 as u32.private;
+    async get_rate r0 into r1;
+    output 100u64 as u64.private;
+    output r1 as exchange.aleo/get_rate.future;
+
+finalize get_rate:
+    input r0 as u32.public;
+    get.or_use rates[r0] 0u64 into r1;
+    set r1 into rates[r0];
+// --- Next Program --- //
+import exchange.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u64.public;
+
+function transfer:
+    input r0 as u32.private;
+    input r1 as u64.private;
+    call exchange.aleo/get_rate r0 into r2 r3;
+    mul r2 2u64 into r4;
+    mul r1 2u64 into r5;
+    async transfer r3 r4 r5 r0 into r6;
+    output r6 as caller.aleo/transfer.future;
+
+finalize transfer:
+    input r0 as exchange.aleo/get_rate.future;
+    input r1 as u64.public;
+    input r2 as u64.public;
+    input r3 as u32.public;
+    add r1 r2 into r4;
+    set r4 into balances[r3];
+    await r0;

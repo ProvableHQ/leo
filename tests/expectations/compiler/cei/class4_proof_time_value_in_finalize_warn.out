@@ -1,0 +1,43 @@
+[WCEI03713004] Warning: Value `val` used in finalize block is derived from external call `token.aleo/get_supply`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:11:50 ]
+    │
+ 11 │         return final { finalize_make_decision(f, val, id); };
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+program token.aleo;
+
+mapping supply:
+    key as u32.public;
+    value as u32.public;
+
+function get_supply:
+    input r0 as u32.private;
+    async get_supply r0 into r1;
+    output 100u32 as u32.private;
+    output r1 as token.aleo/get_supply.future;
+
+finalize get_supply:
+    input r0 as u32.public;
+    get.or_use supply[r0] 0u32 into r1;
+    set r1 into supply[r0];
+// --- Next Program --- //
+import token.aleo;
+program caller.aleo;
+
+mapping decisions:
+    key as u32.public;
+    value as u32.public;
+
+function make_decision:
+    input r0 as u32.private;
+    call token.aleo/get_supply r0 into r1 r2;
+    async make_decision r2 r1 r0 into r3;
+    output r3 as caller.aleo/make_decision.future;
+
+finalize make_decision:
+    input r0 as token.aleo/get_supply.future;
+    input r1 as u32.public;
+    input r2 as u32.public;
+    set r1 into decisions[r2];
+    await r0;

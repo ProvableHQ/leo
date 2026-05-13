@@ -1,0 +1,48 @@
+[WCEI03713004] Warning: Value `final_amount` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:19:41 ]
+    │
+ 19 │             Mapping::set(positions, id, final_amount);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+program oracle.aleo;
+
+mapping prices:
+    key as u32.public;
+    value as u64.public;
+
+function get_price:
+    input r0 as u32.private;
+    async get_price r0 into r1;
+    output 500u64 as u64.private;
+    output r1 as oracle.aleo/get_price.future;
+
+finalize get_price:
+    input r0 as u32.public;
+    set 50u64 into prices[r0];
+// --- Next Program --- //
+import oracle.aleo;
+program trader.aleo;
+
+mapping positions:
+    key as u32.public;
+    value as u64.public;
+
+function trade:
+    input r0 as u32.private;
+    call oracle.aleo/get_price r0 into r1 r2;
+    gt r1 400u64 into r3;
+    ternary r3 10u64 1u64 into r4;
+    mul r4 5u64 into r5;
+    async trade r0 r5 r2 into r6;
+    output r6 as trader.aleo/trade.future;
+
+finalize trade:
+    input r0 as u32.public;
+    input r1 as u64.public;
+    input r2 as oracle.aleo/get_price.future;
+    set r1 into positions[r0];
+    await r2;
+
+constructor:
+    assert.eq edition 0u16;

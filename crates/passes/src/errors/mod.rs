@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub(crate) mod ast;
+pub(crate) mod cei_analyzer;
 pub(crate) mod check_interfaces;
 pub(crate) mod compiler;
 pub(crate) mod loop_unroller;

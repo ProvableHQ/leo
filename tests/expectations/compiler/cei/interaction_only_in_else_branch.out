@@ -1,0 +1,57 @@
+[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     Mapping::set(balances, 0u32, a);
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+[WSAZ0374000] Warning: Not all paths through the function run all Finals. 1/2 paths contain at least one Final that is never run.
+    ╭─[ compiler-test:13:1 ]
+    │
+ 13 │ ╭─▶ final fn finalize_do_work(f: Final, a: u32) {
+    ┆ ┆   
+ 23 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.
+────╯
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/update r0 into r1;
+    async do_work r1 r0 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as u32.public;
+    gt r1 10u32 into r2;
+    branch.eq r2 false to end_then_0_0;
+    set 0u32 into balances[99u32];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    await r0;
+    position end_otherwise_0_1;
+    set r1 into balances[0u32];

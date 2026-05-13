@@ -9,3 +9,10 @@
     │     
     │     Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
 ────╯
+[WCEI03713004] Warning: Value `result` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:19:24 ]
+    │
+ 19 │                 finish(result.1);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯

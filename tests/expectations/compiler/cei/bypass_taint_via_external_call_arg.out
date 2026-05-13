@@ -1,0 +1,73 @@
+[WCEI03713005] Warning: Tainted value `price` (derived from external call `oracle.aleo/get_price`) is passed as an argument to `exchange.aleo::execute_trade`, whose finalize will use the potentially stale value.
+    ╭─[ compiler-test:14:33 ]
+    │
+ 14 │         let f_exchange: Final = exchange.aleo::execute_trade(id, price);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
+────╯
+[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:20:13 ]
+    │
+ 20 │             f_exchange.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `exchange.aleo/execute_trade`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:20:13 ]
+    │
+ 20 │             f_exchange.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+program oracle.aleo;
+
+mapping prices:
+    key as u32.public;
+    value as u64.public;
+
+function get_price:
+    input r0 as u32.private;
+    async get_price r0 into r1;
+    output 500u64 as u64.private;
+    output r1 as oracle.aleo/get_price.future;
+
+finalize get_price:
+    input r0 as u32.public;
+    set 50u64 into prices[r0];
+// --- Next Program --- //
+program exchange.aleo;
+
+mapping trades:
+    key as u32.public;
+    value as u64.public;
+
+function execute_trade:
+    input r0 as u32.private;
+    input r1 as u64.private;
+    async execute_trade r0 r1 into r2;
+    output r2 as exchange.aleo/execute_trade.future;
+
+finalize execute_trade:
+    input r0 as u32.public;
+    input r1 as u64.public;
+    set r1 into trades[r0];
+// --- Next Program --- //
+import oracle.aleo;
+import exchange.aleo;
+program trader.aleo;
+
+function trade:
+    input r0 as u32.private;
+    call oracle.aleo/get_price r0 into r1 r2;
+    call exchange.aleo/execute_trade r0 r1 into r3;
+    async trade r2 r3 into r4;
+    output r4 as trader.aleo/trade.future;
+
+finalize trade:
+    input r0 as oracle.aleo/get_price.future;
+    input r1 as exchange.aleo/execute_trade.future;
+    await r0;
+    await r1;
+
+constructor:
+    assert.eq edition 0u16;
