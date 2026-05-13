@@ -1,5 +1,5 @@
 [WCEI03713001] Warning: Effect operation `_vector_push` occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:20:7 ]
+    ╭─[ compiler-test:20:5 ]
     │
  20 │     items.push(a);
     │ 

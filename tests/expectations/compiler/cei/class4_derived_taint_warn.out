@@ -1,5 +1,5 @@
 [WCEI03713004] Warning: Value `adjusted_rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:14:47 ]
+    ╭─[ compiler-test:14:45 ]
     │
  14 │         return final { finalize_transfer(f, adjusted_rate, local_val, id); };
     │ 

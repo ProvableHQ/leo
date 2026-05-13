@@ -1,5 +1,5 @@
 [WCEI03713004] Warning: Value `action` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:22:43 ]
+    ╭─[ compiler-test:22:41 ]
     │
  22 │             Mapping::set(positions, id, action);
     │ 

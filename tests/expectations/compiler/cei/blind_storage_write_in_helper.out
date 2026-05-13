@@ -1,5 +1,5 @@
 [WCEI03713002] Warning: Call to `caller.aleo::write_counter` (which contains checks or effects) occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:24:7 ]
+    ╭─[ compiler-test:24:5 ]
     │
  24 │     write_counter(a);
     │ 

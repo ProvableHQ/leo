@@ -1,5 +1,5 @@
 [WCEI03713000] Warning: Check operation `dynamic storage op `get`` occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:24:22 ]
+    ╭─[ compiler-test:24:20 ]
     │
  24 │     let val: u64 = Bank@(target)::balances.get(key);
     │ 

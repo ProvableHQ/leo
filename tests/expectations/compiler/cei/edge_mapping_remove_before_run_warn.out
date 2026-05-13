@@ -1,5 +1,5 @@
 [WCEI03713001] Warning: Effect operation `_mapping_remove` occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:17:7 ]
+    ╭─[ compiler-test:17:5 ]
     │
  17 │     Mapping::remove(balances, 0u32);
     │ 

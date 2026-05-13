@@ -1,19 +1,19 @@
 [WCEI03713005] Warning: Tainted value `price` (derived from external call `__dynamic__/__dynamic__`) is passed as an argument to `<dynamic call>`, whose finalize will use the potentially stale value.
-    ╭─[ compiler-test:11:35 ]
+    ╭─[ compiler-test:11:33 ]
     │
  11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
     │ 
     │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
 ────╯
 [WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:15:15 ]
+    ╭─[ compiler-test:15:13 ]
     │
  15 │             f_exchange.run();
     │ 
     │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
 ────╯
 [WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:15:15 ]
+    ╭─[ compiler-test:15:13 ]
     │
  15 │             f_exchange.run();
     │ 
@@ -79,12 +79,12 @@ constructor:
 Note: Treating dependencies as Aleo produces different results:
 
 [ETYC0372005] Error: Unknown interface `oracle.aleo::Oracle`
-   ╭─[ compiler-test:8:49 ]
+   ╭─[ compiler-test:8:47 ]
    │
  8 │         let (price, f_oracle): (u64, Final) = oracle.aleo::Oracle@(oracle_target)::get_price(id);
 ───╯
 [ETYC0372005] Error: Unknown interface `exchange.aleo::Exchange`
-    ╭─[ compiler-test:11:35 ]
+    ╭─[ compiler-test:11:33 ]
     │
  11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
 ────╯

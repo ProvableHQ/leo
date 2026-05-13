@@ -1,5 +1,5 @@
 [WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:18:7 ]
+    ╭─[ compiler-test:18:5 ]
     │
  18 │     Mapping::set(balances, key, val);
     │ 

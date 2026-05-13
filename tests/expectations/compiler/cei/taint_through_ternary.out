@@ -1,5 +1,5 @@
 [WCEI03713004] Warning: Value `val` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:13:44 ]
+    ╭─[ compiler-test:13:42 ]
     │
  13 │             Mapping::set(balances, 0u32, val);
     │ 

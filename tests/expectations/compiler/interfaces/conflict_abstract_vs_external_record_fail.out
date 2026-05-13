@@ -1,14 +1,14 @@
 [ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
-    ╭─[ compiler-test:17:3 ]
+    ╭─[ compiler-test:17:1 ]
     │
-    │ 
+ 17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯
 [ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
-    ╭─[ compiler-test:17:3 ]
+    ╭─[ compiler-test:17:1 ]
     │
-    │ 
+ 17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯
@@ -23,9 +23,9 @@
 Note: Treating dependencies as Aleo produces different results:
 
 [ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
-    ╭─[ compiler-test:17:3 ]
+    ╭─[ compiler-test:17:1 ]
     │
-    │ 
+ 17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯

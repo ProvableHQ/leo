@@ -1,7 +1,7 @@
 [WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
-    ╭─[ compiler-test:10:13 ]
+    ╭─[ compiler-test:10:17 ]
     │
-    │ 
+ 10 │             for i: u32 in 0u32..3u32 {
     │ 
     │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
 ────╯

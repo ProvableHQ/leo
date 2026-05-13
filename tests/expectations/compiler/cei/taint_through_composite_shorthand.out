@@ -1,5 +1,5 @@
 [WCEI03713004] Warning: Value `b` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:19:44 ]
+    ╭─[ compiler-test:19:42 ]
     │
  19 │             Mapping::set(balances, 0u32, b.rate);
     │ 

@@ -270,7 +270,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
 
         // If the loop body contains interactions alongside checks or effects, warn.
         if loop_summary.has_interactions && (loop_summary.has_checks || loop_summary.has_effects) {
-            self.emit_warning(cei_analyzer::cei_violation_in_loop(input.span));
+            self.emit_warning(cei_analyzer::cei_violation_in_loop(input.variable.span()));
         }
 
         // Walk the loop body for detailed per-statement warnings.

@@ -1,5 +1,5 @@
 [WCEI03713000] Warning: Check operation `dynamic storage read `total`` occurs after an interaction (Final.run()).
-    ╭─[ compiler-test:24:23 ]
+    ╭─[ compiler-test:24:21 ]
     │
  24 │     let val: u64? = Counter@(target)::total;
     │ 

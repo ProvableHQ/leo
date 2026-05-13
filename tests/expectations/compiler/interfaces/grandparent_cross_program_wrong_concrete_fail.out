@@ -3,7 +3,7 @@ Expected:
 fn fn2(t: parent.aleo::Token) -> parent.aleo::Token
 Found:
 fn fn2(t: other.aleo::Token) -> other.aleo::Token
-    ╭─[ compiler-test:16:7 ]
+    ╭─[ compiler-test:16:5 ]
     │
     │ 
     │ 
@@ -14,7 +14,7 @@ Expected:
 fn fn1(t: grandparent.aleo::Token) -> grandparent.aleo::Token
 Found:
 fn fn1(t: other.aleo::Token) -> other.aleo::Token
-    ╭─[ compiler-test:12:7 ]
+    ╭─[ compiler-test:12:5 ]
     │
     │ 
     │ 

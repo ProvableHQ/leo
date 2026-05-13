@@ -1,5 +1,5 @@
 [WCEI03713004] Warning: Value `step3` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
-    ╭─[ compiler-test:15:44 ]
+    ╭─[ compiler-test:15:42 ]
     │
  15 │             Mapping::set(balances, 0u32, step3);
     │ 
