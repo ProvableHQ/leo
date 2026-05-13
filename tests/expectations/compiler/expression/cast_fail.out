@@ -1,25 +1,25 @@
-Error [ETYC0372045]: Strings are not yet supported.
-    --> compiler-test:10:9
-     |
-  10 |         let b: string = a as string;
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, address, or identifier but type `string` was found.
-    --> compiler-test:10:25
-     |
-  10 |         let b: string = a as string;
-     |                         ^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, address, or identifier but type `test.aleo::Foo` was found.
-    --> compiler-test:13:24
-     |
-  13 |         let d: field = c as field;
-     |                        ^
-Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, address, or identifier but type `(field, field)` was found.
-    --> compiler-test:16:24
-     |
-  16 |         let f: field = e as field;
-     |                        ^
-Error [ETYC0372117]: Expected an integer, bool, field, group, scalar, address, or identifier but type `(field => field)` was found.
-    --> compiler-test:23:20
-     |
-  23 |     let b: field = balances as field;
-     |                    ^^^^^^^^
+[ETYC0372045] Error: Strings are not yet supported.
+    ╭─[ compiler-test:10:9 ]
+    │
+ 10 │         let b: string = a as string;
+────╯
+[ETYC0372117] Error: Expected an integer, bool, field, group, scalar, address, or identifier but type `string` was found.
+    ╭─[ compiler-test:10:25 ]
+    │
+ 10 │         let b: string = a as string;
+────╯
+[ETYC0372117] Error: Expected an integer, bool, field, group, scalar, address, or identifier but type `test.aleo::Foo` was found.
+    ╭─[ compiler-test:13:24 ]
+    │
+ 13 │         let d: field = c as field;
+────╯
+[ETYC0372117] Error: Expected an integer, bool, field, group, scalar, address, or identifier but type `(field, field)` was found.
+    ╭─[ compiler-test:16:24 ]
+    │
+ 16 │         let f: field = e as field;
+────╯
+[ETYC0372117] Error: Expected an integer, bool, field, group, scalar, address, or identifier but type `(field => field)` was found.
+    ╭─[ compiler-test:23:20 ]
+    │
+ 23 │     let b: field = balances as field;
+────╯

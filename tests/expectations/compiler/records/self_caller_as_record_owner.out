@@ -1,17 +1,17 @@
-Warning [WTYC0372004]: `self.caller` used as the owner of record `test0.aleo::Token`
-    --> compiler-test:7:31
-     |
-   7 |         return Token { owner: self.caller };
-     |                               ^^^^^^^^^^^
-     |
-     = `self.caller` may refer to a program address, which cannot spend records.
-Warning [WTYC0372004]: `self.caller` used as the owner of record `test0.aleo::Token`
-    --> compiler-test:11:39
-     |
-  11 |         let t: Token = Token { owner: self.caller };
-     |                                       ^^^^^^^^^^^
-     |
-     = `self.caller` may refer to a program address, which cannot spend records.
+[WTYC0372004] Warning: `self.caller` used as the owner of record `test0.aleo::Token`
+   ╭─[ compiler-test:7:31 ]
+   │
+ 7 │         return Token { owner: self.caller };
+   │ 
+   │ Help: `self.caller` may refer to a program address, which cannot spend records.
+───╯
+[WTYC0372004] Warning: `self.caller` used as the owner of record `test0.aleo::Token`
+    ╭─[ compiler-test:11:39 ]
+    │
+ 11 │         let t: Token = Token { owner: self.caller };
+    │ 
+    │ Help: `self.caller` may refer to a program address, which cannot spend records.
+────╯
 program test0.aleo;
 
 record Token:

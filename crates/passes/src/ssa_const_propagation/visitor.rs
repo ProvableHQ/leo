@@ -17,7 +17,7 @@
 use crate::CompilerState;
 
 use leo_ast::{Expression, Location, Node, NodeID, const_eval::Value};
-use leo_errors::StaticAnalyzerError;
+use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -48,7 +48,7 @@ pub fn is_atom(expr: &Expression) -> bool {
 
 impl SsaConstPropagationVisitor<'_> {
     /// Emit a `StaticAnalyzerError`.
-    pub fn emit_err(&self, err: StaticAnalyzerError) {
+    pub fn emit_err(&self, err: Formatted) {
         self.state.handler.emit_err(err);
     }
 

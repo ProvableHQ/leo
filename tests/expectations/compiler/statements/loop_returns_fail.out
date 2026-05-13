@@ -1,35 +1,19 @@
-Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:4:5
-     |
-   4 |     for i: u32 in 0u32..9u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   5 |         return false;
-     |         ^^^^^^^^^^^^^
-   6 |     }
-     |     ^
-     |
-     = Remove the code in the loop body that always returns.
-Error [ETYC0372026]: Loop body contains a return statement or always returns.
-    --> compiler-test:7:5
-     |
-   7 |     for i: u32 in 0u32..9u32 {
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
-   8 |         if (x == 0u32) {
-     |         ^^^^^^^^^^^^^^^^
-   9 |             return false;
-     |             ^^^^^^^^^^^^^
-  10 |         } else {
-     |         ^^^^^^^^
-  11 |             return true;
-     |             ^^^^^^^^^^^^
-  12 |         }
-     |         ^
-  13 |     }
-     |     ^
-     |
-     = Remove the code in the loop body that always returns.
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372026] Error: Loop body contains a return statement or always returns.
+   ╭─[ compiler-test:4:5 ]
+   │
+   │ 
+   │ 
+   │ Help: Remove the code in the loop body that always returns.
+───╯
+[ETYC0372026] Error: Loop body contains a return statement or always returns.
+    ╭─[ compiler-test:7:5 ]
+    │
+    │ 
+    │ 
+    │ Help: Remove the code in the loop body that always returns.
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

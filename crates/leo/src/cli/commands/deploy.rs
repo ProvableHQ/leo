@@ -108,7 +108,7 @@ impl Command for LeoDeploy {
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // Libraries cannot be deployed.
         if input.compilation_units.last().is_some_and(|p| p.kind.is_library()) {
-            return Err(CliError::custom("Cannot deploy a library package. Only programs can be deployed.").into());
+            return Err(crate::errors::custom("Cannot deploy a library package. Only programs can be deployed.").into());
         }
 
         // Get the network, accounting for overrides.
@@ -142,7 +142,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
     // Get the private key and associated address, accounting for overrides.
     let private_key = get_private_key(&command.env_override.private_key)?;
     let address =
-        Address::try_from(&private_key).map_err(|e| CliError::custom(format!("Failed to parse address: {e}")))?;
+        Address::try_from(&private_key).map_err(|e| crate::errors::custom(format!("Failed to parse address: {e}")))?;
 
     // Get the endpoint, accounting for overrides.
     let endpoint = get_endpoint(&command.env_override.endpoint)?;
@@ -155,7 +155,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
-        .map_err(|e| CliError::custom(format!("⚠️ Invalid consensus heights: {e}")))?;
+        .map_err(|e| crate::errors::custom(format!("⚠️ Invalid consensus heights: {e}")))?;
     // Print the consensus heights being used.
     let consensus_heights_string = consensus_heights.iter().format(",").to_string();
     println!(
@@ -193,8 +193,9 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
                         // Some other dependency, so look in `imports`.
                         package.imports_directory().join(aleo_name)
                     };
-                    fs::read_to_string(aleo_path.clone())
-                        .map_err(|e| CliError::custom(format!("Failed to read file {}: {e}", aleo_path.display())))?
+                    fs::read_to_string(aleo_path.clone()).map_err(|e| {
+                        crate::errors::custom(format!("Failed to read file {}: {e}", aleo_path.display()))
+                    })?
                 }
             };
 
@@ -210,11 +211,12 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
         .zip(fee_options)
         .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
             let id_str = format!("{}", program.name);
-            let id =
-                id_str.parse().map_err(|e| CliError::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
+            let id = id_str
+                .parse()
+                .map_err(|e| crate::errors::custom(format!("Failed to parse program ID {id_str}: {e}")))?;
             let bytecode_size = bytecode.len();
             let parsed_program =
-                bytecode.parse().map_err(|e| CliError::custom(format!("Failed to parse program: {e}")))?;
+                bytecode.parse().map_err(|e| crate::errors::custom(format!("Failed to parse program: {e}")))?;
             Ok(Task {
                 id,
                 program: parsed_program,
@@ -310,7 +312,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
     let query = SnarkVMQuery::<N, BlockMemory<N>>::from(
         endpoint
             .parse::<Uri>()
-            .map_err(|e| CliError::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
+            .map_err(|e| crate::errors::custom(format!("Failed to parse endpoint URI '{endpoint}': {e}")))?,
     );
 
     // For each of the programs, generate a deployment transaction.
@@ -357,7 +359,7 @@ Once it is deployed, it CANNOT be changed.
                 // Generate the transaction.
                 let transaction = vm
                     .deploy(&private_key, &program, record, priority_fee.unwrap_or(0), Some(&query), rng)
-                    .map_err(|e| CliError::custom(format!("Failed to generate deployment transaction: {e}")))?;
+                    .map_err(|e| crate::errors::custom(format!("Failed to generate deployment transaction: {e}")))?;
                 // Get the deployment.
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
                 // Add the program to the VM before calculating function costs.
@@ -393,7 +395,7 @@ Once it is deployed, it CANNOT be changed.
         for (program_name, transaction) in transactions.iter() {
             // Pretty-print the transaction.
             let transaction_json = serde_json::to_string_pretty(transaction)
-                .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to serialize transaction: {e}")))?;
             println!("🖨️ Printing deployment for {program_name}\n{transaction_json}")
         }
     }
@@ -403,15 +405,15 @@ Once it is deployed, it CANNOT be changed.
     // The directory is created if it doesn't exist.
     if let Some(path) = &command.action.save {
         // Create the directory if it doesn't exist.
-        std::fs::create_dir_all(path).map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+        std::fs::create_dir_all(path).map_err(|e| crate::errors::custom(format!("Failed to create directory: {e}")))?;
         for (program_name, transaction) in transactions.iter() {
             // Save the transaction to a file.
             let file_path = PathBuf::from(path).join(format!("{program_name}.deployment.json"));
             println!("💾 Saving deployment for {program_name} at {}", file_path.display());
             let transaction_json = serde_json::to_string_pretty(transaction)
-                .map_err(|e| CliError::custom(format!("Failed to serialize transaction: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to serialize transaction: {e}")))?;
             std::fs::write(file_path, transaction_json)
-                .map_err(|e| CliError::custom(format!("Failed to write transaction to file: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to write transaction to file: {e}")))?;
         }
     }
 
@@ -561,7 +563,7 @@ pub(crate) fn validate_deployment_limits<N: Network>(
     // Check if the number of variables is within the limits.
     let combined_variables = deployment.num_combined_variables()?;
     if combined_variables > N::MAX_DEPLOYMENT_VARIABLES {
-        return Err(CliError::variable_limit_exceeded(
+        return Err(crate::errors::variable_limit_exceeded(
             program_id,
             combined_variables,
             N::MAX_DEPLOYMENT_VARIABLES,
@@ -573,7 +575,7 @@ pub(crate) fn validate_deployment_limits<N: Network>(
     // Check if the number of constraints is within the limits.
     let constraints = deployment.num_combined_constraints()?;
     if constraints > N::MAX_DEPLOYMENT_CONSTRAINTS {
-        return Err(CliError::constraint_limit_exceeded(
+        return Err(crate::errors::constraint_limit_exceeded(
             program_id,
             constraints,
             N::MAX_DEPLOYMENT_CONSTRAINTS,
@@ -854,7 +856,7 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
             .map(|ty| {
                 stack
                     .sample_value(&sample_address, &ty.into(), rng)
-                    .map_err(|e| CliError::custom(format!("Failed to sample value: {e}")).into())
+                    .map_err(|e| crate::errors::custom(format!("Failed to sample value: {e}")).into())
             })
             .collect::<Result<Vec<_>>>()?;
         let (finalize_cost, storage_cost, execution_cost) =

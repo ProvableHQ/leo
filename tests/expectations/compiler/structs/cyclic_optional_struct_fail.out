@@ -1,0 +1,5 @@
+[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/Node` --> `test.aleo/Node`
+   ╭─[ compiler-test:6:8 ]
+   │
+ 6 │ struct Node {
+───╯

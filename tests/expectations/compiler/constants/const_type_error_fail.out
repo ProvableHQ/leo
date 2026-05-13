@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected u8 but type `((u8, u8), u8)` was found.
-    --> compiler-test:6:23
-     |
-   6 |         const B: u8 = ((1u8, 1u8), 1u8);
-     |                       ^^^^^^^^^^^^^^^^^
+[ETYC0372117] Error: Expected u8 but type `((u8, u8), u8)` was found.
+   ╭─[ compiler-test:6:23 ]
+   │
+ 6 │         const B: u8 = ((1u8, 1u8), 1u8);
+───╯

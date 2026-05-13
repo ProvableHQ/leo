@@ -1,40 +1,40 @@
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:7:9
-     |
-   7 |         a + b;
-     |         ^^^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:8:9
-     |
-   8 |         flag ? a : b;
-     |         ^^^^^^^^^^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:9:9
-     |
-   9 |         foo.a;
-     |         ^^^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:10:9
-     |
-  10 |         Foo { a: a };
-     |         ^^^^^^^^^^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:11:9
-     |
-  11 |         a;
-     |         ^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:12:9
-     |
-  12 |         1u8;
-     |         ^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:13:9
-     |
-  13 |         -1i8;
-     |         ^^^^^
-Error [ETYC0372053]: An expression statement must be a function call.
-    --> compiler-test:14:9
-     |
-  14 |         1field;
-     |         ^^^^^^^
+[ETYC0372053] Error: An expression statement must be a function call.
+   ╭─[ compiler-test:7:9 ]
+   │
+ 7 │         a + b;
+───╯
+[ETYC0372053] Error: An expression statement must be a function call.
+   ╭─[ compiler-test:8:9 ]
+   │
+ 8 │         flag ? a : b;
+───╯
+[ETYC0372053] Error: An expression statement must be a function call.
+   ╭─[ compiler-test:9:9 ]
+   │
+ 9 │         foo.a;
+───╯
+[ETYC0372053] Error: An expression statement must be a function call.
+    ╭─[ compiler-test:10:9 ]
+    │
+ 10 │         Foo { a: a };
+────╯
+[ETYC0372053] Error: An expression statement must be a function call.
+    ╭─[ compiler-test:11:9 ]
+    │
+ 11 │         a;
+────╯
+[ETYC0372053] Error: An expression statement must be a function call.
+    ╭─[ compiler-test:12:9 ]
+    │
+ 12 │         1u8;
+────╯
+[ETYC0372053] Error: An expression statement must be a function call.
+    ╭─[ compiler-test:13:9 ]
+    │
+ 13 │         -1i8;
+────╯
+[ETYC0372053] Error: An expression statement must be a function call.
+    ╭─[ compiler-test:14:9 ]
+    │
+ 14 │         1field;
+────╯

@@ -12,8 +12,8 @@ foo.aleo::bar
 
 foo / bar
 
-Error [EPAR0370047]: expected '.' -- found '::'
-    --> test_7:1:5
-     |
-   1 | self::y
-     |     ^^
+[EPAR0370047] Error: expected '.' -- found '::'
+   ╭─[ test_7:1:5 ]
+   │
+ 1 │ self::y
+───╯

@@ -1,14 +1,14 @@
-Error [ECHI03712000]: Interface `lib.aleo/NotAnInterface` not found.
-    --> compiler-test:4:20
-     |
-   4 | program test.aleo: lib.aleo::NotAnInterface + u64 {
-     |                    ^^^^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
-Error [ECHI03712005]: `u64` is not an interface.
-    --> compiler-test:4:47
-     |
-   4 | program test.aleo: lib.aleo::NotAnInterface + u64 {
-     |                                               ^^^
-     |
-     = Only interface declarations can be inherited from.
+[ECHI03712000] Error: Interface `lib.aleo/NotAnInterface` not found.
+   ╭─[ compiler-test:4:20 ]
+   │
+ 4 │ program test.aleo: lib.aleo::NotAnInterface + u64 {
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯
+[ECHI03712005] Error: `u64` is not an interface.
+   ╭─[ compiler-test:4:47 ]
+   │
+ 4 │ program test.aleo: lib.aleo::NotAnInterface + u64 {
+   │ 
+   │ Help: Only interface declarations can be inherited from.
+───╯

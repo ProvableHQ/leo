@@ -1,0 +1,8 @@
+--- 1. leo add --workspace token (should succeed) ---
+--- 2. leo add --workspace --dev token (should succeed) ---
+--- 3. leo add --workspace nonexistent (should fail) ---
+Error [ECLI0377045]: No workspace member named `nonexistent.aleo` found. Check the `members` list in `workspace.json`.
+
+--- 4. leo add --workspace outside workspace (should fail) ---
+Error [ECLI0377045]: Cannot add a workspace dependency: no `workspace.json` found in any parent directory.
+

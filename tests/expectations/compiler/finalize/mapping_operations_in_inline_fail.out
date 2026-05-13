@@ -1,65 +1,65 @@
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:7:5
-     |
-   7 |     Mapping::set(values, 0u8, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::set` must be inside a `final fn` or a `final` block.
-    --> compiler-test:7:5
-     |
-   7 |     Mapping::set(values, 0u8, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:8:5
-     |
-   8 |     Mapping::get_or_use(account, self.caller, 1u64);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
-    --> compiler-test:8:5
-     |
-   8 |     Mapping::get_or_use(account, self.caller, 1u64);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:9:5
-     |
-   9 |     Mapping::get(values, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get` must be inside a `final fn` or a `final` block.
-    --> compiler-test:9:5
-     |
-   9 |     Mapping::get(values, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:13:5
-     |
-  13 |     Mapping::set(values, 0u8, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::set` must be inside a `final fn` or a `final` block.
-    --> compiler-test:13:5
-     |
-  13 |     Mapping::set(values, 0u8, 1u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:14:5
-     |
-  14 |     Mapping::get_or_use(account, self.caller, 1u64);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
-    --> compiler-test:14:5
-     |
-  14 |     Mapping::get_or_use(account, self.caller, 1u64);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:15:5
-     |
-  15 |     Mapping::get(values, 0u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372034]: `Mapping::get` must be inside a `final fn` or a `final` block.
-    --> compiler-test:15:5
-     |
-  15 |     Mapping::get(values, 0u8);
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {
-     |         ^^^^^^^^^
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+   ╭─[ compiler-test:7:5 ]
+   │
+ 7 │     Mapping::set(values, 0u8, 1u8);
+───╯
+[ETYC0372034] Error: `Mapping::set` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:7:5 ]
+   │
+ 7 │     Mapping::set(values, 0u8, 1u8);
+───╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+   ╭─[ compiler-test:8:5 ]
+   │
+ 8 │     Mapping::get_or_use(account, self.caller, 1u64);
+───╯
+[ETYC0372034] Error: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:8:5 ]
+   │
+ 8 │     Mapping::get_or_use(account, self.caller, 1u64);
+───╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+   ╭─[ compiler-test:9:5 ]
+   │
+ 9 │     Mapping::get(values, 1u8);
+───╯
+[ETYC0372034] Error: `Mapping::get` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:9:5 ]
+   │
+ 9 │     Mapping::get(values, 1u8);
+───╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+    ╭─[ compiler-test:13:5 ]
+    │
+ 13 │     Mapping::set(values, 0u8, 1u8);
+────╯
+[ETYC0372034] Error: `Mapping::set` must be inside a `final fn` or a `final` block.
+    ╭─[ compiler-test:13:5 ]
+    │
+ 13 │     Mapping::set(values, 0u8, 1u8);
+────╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     Mapping::get_or_use(account, self.caller, 1u64);
+────╯
+[ETYC0372034] Error: `Mapping::get_or_use` must be inside a `final fn` or a `final` block.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     Mapping::get_or_use(account, self.caller, 1u64);
+────╯
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+    ╭─[ compiler-test:15:5 ]
+    │
+ 15 │     Mapping::get(values, 0u8);
+────╯
+[ETYC0372034] Error: `Mapping::get` must be inside a `final fn` or a `final` block.
+    ╭─[ compiler-test:15:5 ]
+    │
+ 15 │     Mapping::get(values, 0u8);
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {
+───╯

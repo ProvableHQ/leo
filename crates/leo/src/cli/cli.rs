@@ -16,7 +16,7 @@
 
 use crate::cli::{commands::*, context::*, helpers::*};
 use clap::Parser;
-use leo_errors::{CliError, Result};
+use leo_errors::Result;
 use serde::Serialize;
 use std::{ffi::OsString, path::PathBuf, process::exit};
 
@@ -44,6 +44,9 @@ pub struct CLI {
 
     #[clap(long, global = true, help = "Path to aleo program registry")]
     pub home: Option<PathBuf>,
+
+    #[clap(short = 'p', long = "package", global = true, help = "Target a specific workspace member by name")]
+    pub package: Option<String>,
 }
 
 ///Leo compiler and package manager
@@ -228,7 +231,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path.clone(), cli.home, false));
+    let context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
 
     let command_name = cli.command.name();
     let mut command_output: Option<JsonOutput> = None;
@@ -281,16 +284,16 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
-                .map_err(|e| CliError::custom(format!("Failed to create directory: {e}")))?;
+                .map_err(|e| crate::errors::custom(format!("Failed to create directory: {e}")))?;
         }
         std::fs::write(&path, json)
-            .map_err(|e| CliError::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
+            .map_err(|e| crate::errors::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
     }
 
     if let Some(JsonOutput::Test(output)) = &command_output
         && output.failed > 0
     {
-        return Err(CliError::tests_failed(output.failed, output.tests.len()).into());
+        return Err(crate::errors::tests_failed(output.failed, output.tests.len()).into());
     }
 
     Ok(())
@@ -342,6 +345,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: Some(temp_dir.join(".aleo")),
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -390,6 +394,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -433,6 +438,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -473,6 +479,7 @@ mod tests {
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -503,6 +510,7 @@ mod tests {
             },
             path: Some(lib_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -526,13 +534,643 @@ mod tests {
         // by the OS, so we ignore errors here rather than failing an otherwise-passing test.
         let _ = std::fs::remove_dir_all(&lib_directory);
     }
+
+    #[test]
+    #[serial]
+    fn workspace_build_from_root_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "build_root");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("workspace build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_build_single_member_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "build_single");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.join("token")),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("single member build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("swap/build/main.aleo").exists(), "swap should NOT be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_package_flag_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "pkg_flag");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: Some("token".to_string()),
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("--package build should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("swap/build/main.aleo").exists(), "swap should NOT be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_package_flag_not_found_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "pkg_not_found");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: Default::default(),
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: Some("nonexistent".to_string()),
+        };
+
+        create_session_if_not_set_then(|_| {
+            let result = run_with_args(build);
+            assert!(result.is_err(), "--package with unknown member should error");
+        });
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_clean_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace(&temp_dir, "clean");
+
+        // Build first.
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("build should succeed");
+        });
+
+        assert!(ws_root.join("token/build").exists(), "token build dir should exist");
+        assert!(ws_root.join("swap/build").exists(), "swap build dir should exist");
+
+        // Clean.
+        let clean = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Clean { command: crate::cli::commands::LeoClean {} },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(clean).expect("workspace clean should succeed");
+        });
+
+        assert!(!ws_root.join("token/build").exists(), "token build dir should be cleaned");
+        assert!(!ws_root.join("swap/build").exists(), "swap build dir should be cleaned");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_build_workspace_dep_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "build_ws_dep");
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("workspace build with workspace deps should succeed");
+        });
+
+        assert!(ws_root.join("token/build/main.aleo").exists(), "token should be built");
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_build_single_member_workspace_dep_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "build_single_ws_dep");
+
+        // Build from the swap member directory (which depends on token via workspace).
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.join("swap")),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("single member build with workspace dep should succeed");
+        });
+
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_build_workspace_dev_dep_test() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_dev_deps(&temp_dir, "build_ws_dev_dep");
+
+        // Build from the swap member directory (which depends on token via dev_dependencies workspace).
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(ws_root.join("swap")),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("build with workspace dev dep should succeed");
+        });
+
+        assert!(ws_root.join("swap/build/main.aleo").exists(), "swap should be built");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_backward_compat_test() {
+        let temp_dir = temp_dir();
+        let pkg_name = "standalone_pkg";
+        let pkg_dir = temp_dir.join(pkg_name);
+
+        if pkg_dir.exists() {
+            std::fs::remove_dir_all(&pkg_dir).unwrap();
+        }
+
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("leo new should succeed");
+        });
+
+        let build = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Build {
+                command: crate::cli::commands::LeoBuild {
+                    options: Default::default(),
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        ..Default::default()
+                    },
+                },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(build).expect("standalone build should succeed");
+        });
+
+        assert!(pkg_dir.join("build/main.aleo").exists(), "build artifact should exist");
+
+        let _ = std::fs::remove_dir_all(&pkg_dir);
+    }
 }
 
 #[cfg(test)]
 mod test_helpers {
     use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
-    use std::path::Path;
+    use std::path::{Path, PathBuf};
+
+    /// Create a workspace with two members: `token` (no deps) and `swap` (depends on token).
+    ///
+    /// Returns the workspace root directory. Each caller should pass a unique
+    /// `name` to avoid temp-directory collisions under parallel test runners.
+    pub(crate) fn sample_workspace(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let token_dir = ws_root.join("token");
+        let swap_dir = ws_root.join("swap");
+
+        // Create token package.
+        std::fs::create_dir_all(token_dir.join("src")).unwrap();
+        std::fs::write(
+            token_dir.join("src/main.leo"),
+            "\
+program token.aleo {
+    fn mint(owner: address, amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            token_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "token.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create swap package (depends on token via local path).
+        std::fs::create_dir_all(swap_dir.join("src")).unwrap();
+        std::fs::write(
+            swap_dir.join("src/main.leo"),
+            "\
+import token.aleo;
+program swap.aleo {
+    fn do_swap(owner: address, amount: u32) -> u32 {
+        return token.aleo::mint(owner, amount);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            swap_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "swap.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": [{
+                    "name": "token.aleo",
+                    "location": "local",
+                    "path": "../token",
+                    "edition": null
+                }],
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
+
+    /// Like `sample_workspace`, but `swap` depends on `token` via `"location": "workspace"`
+    /// instead of `"location": "local"` with an explicit path.
+    pub(crate) fn sample_workspace_with_workspace_deps(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let token_dir = ws_root.join("token");
+        let swap_dir = ws_root.join("swap");
+
+        // Create token package (no deps).
+        std::fs::create_dir_all(token_dir.join("src")).unwrap();
+        std::fs::write(
+            token_dir.join("src/main.leo"),
+            "\
+program token.aleo {
+    fn mint(owner: address, amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            token_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "token.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create swap package (depends on token via workspace location).
+        std::fs::create_dir_all(swap_dir.join("src")).unwrap();
+        std::fs::write(
+            swap_dir.join("src/main.leo"),
+            "\
+import token.aleo;
+program swap.aleo {
+    fn do_swap(owner: address, amount: u32) -> u32 {
+        return token.aleo::mint(owner, amount);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            swap_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "swap.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": [{
+                    "name": "token.aleo",
+                    "location": "workspace"
+                }],
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
+
+    /// Like `sample_workspace_with_workspace_deps`, but `swap` depends on `token` via
+    /// `dev_dependencies` with `Location::Workspace` instead of `dependencies`.
+    pub(crate) fn sample_workspace_with_workspace_dev_deps(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let token_dir = ws_root.join("token");
+        let swap_dir = ws_root.join("swap");
+
+        // Create token package (no deps).
+        std::fs::create_dir_all(token_dir.join("src")).unwrap();
+        std::fs::write(
+            token_dir.join("src/main.leo"),
+            "\
+program token.aleo {
+    fn mint(owner: address, amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            token_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "token.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create swap package (token is a workspace dev_dependency - no import in main source).
+        std::fs::create_dir_all(swap_dir.join("src")).unwrap();
+        std::fs::write(
+            swap_dir.join("src/main.leo"),
+            "\
+program swap.aleo {
+    fn do_swap(amount: u32) -> u32 {
+        return amount;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            swap_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "swap.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": [{
+                    "name": "token.aleo",
+                    "location": "workspace"
+                }]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
@@ -552,6 +1190,7 @@ mod test_helpers {
             command: Commands::New { command: LeoNew { name: name.to_string(), library: false } },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -621,13 +1260,14 @@ function external_nested_function:
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
-                    source: DependencySource { local: None, network: true, edition: Some(0) },
+                    source: DependencySource { local: None, network: true, edition: Some(0), workspace: false },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(project_directory.clone()),
             home: None,
+            package: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -669,6 +1309,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "grandparent".to_string(), library: false } },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_parent_project = CLI {
@@ -679,6 +1320,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false } },
             path: Some(parent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_child_project = CLI {
@@ -689,6 +1331,7 @@ function external_nested_function:
             command: Commands::New { command: LeoNew { name: "child".to_string(), library: false } },
             path: Some(child_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `grandparent/src/main.leo`, `grandparent/parent/src/main.leo`, and `grandparent/parent/child/src/main.leo`
@@ -741,13 +1384,19 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
-                    source: DependencySource { local: Some(parent_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(parent_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_grandparent_dependency_2 = CLI {
@@ -758,13 +1407,19 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    source: DependencySource { local: Some(child_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(child_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_parent_dependency = CLI {
@@ -775,13 +1430,19 @@ program child.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
-                    source: DependencySource { local: Some(child_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(child_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(parent_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands
@@ -821,6 +1482,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_1_project = CLI {
@@ -831,6 +1493,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_2_project = CLI {
@@ -841,6 +1504,7 @@ program child.aleo {
             command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
@@ -916,13 +1580,19 @@ program inner_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(inner_1_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -933,13 +1603,19 @@ program inner_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(inner_2_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands
@@ -978,6 +1654,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "outer_2".to_string(), library: false } },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_1_project = CLI {
@@ -988,6 +1665,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
             path: Some(inner_1_directory.clone()),
             home: None,
+            package: None,
         };
 
         let create_inner_2_project = CLI {
@@ -998,6 +1676,7 @@ program inner_2.aleo {
             command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
             path: Some(inner_2_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Add source files `outer_2/src/main.leo` and `outer_2/inner/src/main.leo`
@@ -1023,7 +1702,7 @@ program outer_2.aleo {
         owner: address,
         a: u32,
     }
-    
+
     fn main(public a: u32, b: u32) -> (inner_2.aleo::Yoo, Hello) {
         let d: inner_1.aleo::Foo = inner_1.aleo::main(1u32,1u32);
         let e: u32 = inner_1.aleo::main_2(inner_1.aleo::Foo {a: a, b: b, c: inner_1.aleo::Boo {a:1u32, b:1u32}});
@@ -1107,13 +1786,19 @@ program inner_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
-                    source: DependencySource { local: Some(inner_1_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(inner_1_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -1124,13 +1809,19 @@ program inner_2.aleo {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
-                    source: DependencySource { local: Some(inner_2_directory.clone()), network: false, edition: None },
+                    source: DependencySource {
+                        local: Some(inner_2_directory.clone()),
+                        network: false,
+                        edition: None,
+                        workspace: false,
+                    },
                     clear: false,
                     dev: false,
                 },
             },
             path: Some(outer_directory.clone()),
             home: None,
+            package: None,
         };
 
         // Execute all commands

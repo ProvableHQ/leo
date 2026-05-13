@@ -1,12 +1,12 @@
-Error [ETYC0372165]: This function has an output of type `u32?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
-    --> compiler-test:11:26
-     |
-  11 |     fn find(key: u32) -> u32? {
-     |                          ^^^^
-     |
-     = Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
-Error [ETYC0372043]: Cannot call a local entry point fn from an entry point fn.
-    --> compiler-test:17:16
-     |
-  17 |         return find(key).unwrap();
-     |                ^^^^^^^^^
+[ETYC0372165] Error: This function has an output of type `u32?`, which is or contains an optional type and is not allowed as an output of an entry point fn.
+    ╭─[ compiler-test:11:26 ]
+    │
+ 11 │     fn find(key: u32) -> u32? {
+    │ 
+    │ Help: Outputs of entry point fns cannot be optional or contain optionals. Consider moving the optionality outside the function call.
+────╯
+[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         return find(key).unwrap();
+────╯

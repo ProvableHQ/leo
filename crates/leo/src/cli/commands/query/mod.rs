@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::NetworkName;
-use leo_errors::UtilError;
 use leo_package::{fetch_from_network, verify_valid_program};
 
 use super::*;

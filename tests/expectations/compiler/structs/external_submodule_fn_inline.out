@@ -23,8 +23,8 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::utils::helper`
-    --> compiler-test:7:16
-     |
-   7 |         return child.aleo::utils::helper(x);
-     |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::utils::helper`
+   ╭─[ compiler-test:7:16 ]
+   │
+ 7 │         return child.aleo::utils::helper(x);
+───╯

@@ -1,10 +1,10 @@
-Error [ETYC0372133]: Record name `FooBar` is prefixed by the record name `Foo`. Record names must not be prefixes of other record names.
-    --> compiler-test:16:12
-     |
-  16 |     record FooBar {
-     |            ^^^^^^
-Error [ETYC0372133]: Record name `FooBarBaz` is prefixed by the record name `FooBar`. Record names must not be prefixes of other record names.
-    --> compiler-test:11:12
-     |
-  11 |     record FooBarBaz {
-     |            ^^^^^^^^^
+[ETYC0372133] Error: Record name `FooBar` is prefixed by the record name `Foo`. Record names must not be prefixes of other record names.
+    ╭─[ compiler-test:16:12 ]
+    │
+ 16 │     record FooBar {
+────╯
+[ETYC0372133] Error: Record name `FooBarBaz` is prefixed by the record name `FooBar`. Record names must not be prefixes of other record names.
+    ╭─[ compiler-test:11:12 ]
+    │
+ 11 │     record FooBarBaz {
+────╯

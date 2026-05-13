@@ -35,30 +35,46 @@ impl Command for LeoClean {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = context.dir()?;
-
-        let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
-
-        if !manifest_path.exists() {
-            return Err(anyhow!(
-                "{} doesn't exist - this doesn't appear to be a Leo package.",
-                leo_package::MANIFEST_FILENAME
-            )
-            .into());
+        match context.resolve_targets()? {
+            Some(targets) => {
+                for target in &targets {
+                    let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+                    if targets.len() > 1 {
+                        println!("\n--- workspace member '{member_name}' ---");
+                    }
+                    clean_package(context.with_path(target.clone()))?;
+                }
+                Ok(())
+            }
+            None => clean_package(context),
         }
-
-        // Removes the outputs/ directory.
-        let outputs_path = path.join(leo_package::OUTPUTS_DIRECTORY);
-        if std::fs::remove_dir_all(&outputs_path).is_ok() {
-            tracing::info!("🧹 Cleaned the outputs directory {}", outputs_path.display().to_string().dimmed());
-        }
-
-        // Removes the build/ directory.
-        let build_path = path.join(leo_package::BUILD_DIRECTORY);
-        if std::fs::remove_dir_all(&build_path).is_ok() {
-            tracing::info!("🧹 Cleaned the build directory {}", build_path.display().to_string().dimmed());
-        }
-
-        Ok(())
     }
+}
+
+fn clean_package(context: Context) -> Result<()> {
+    let path = context.dir()?;
+
+    let manifest_path = path.join(leo_package::MANIFEST_FILENAME);
+
+    if !manifest_path.exists() {
+        return Err(anyhow!(
+            "{} doesn't exist - this doesn't appear to be a Leo package.",
+            leo_package::MANIFEST_FILENAME
+        )
+        .into());
+    }
+
+    // Removes the outputs/ directory.
+    let outputs_path = path.join(leo_package::OUTPUTS_DIRECTORY);
+    if std::fs::remove_dir_all(&outputs_path).is_ok() {
+        tracing::info!("🧹 Cleaned the outputs directory {}", outputs_path.display().to_string().dimmed());
+    }
+
+    // Removes the build/ directory.
+    let build_path = path.join(leo_package::BUILD_DIRECTORY);
+    if std::fs::remove_dir_all(&build_path).is_ok() {
+        tracing::info!("🧹 Cleaned the build directory {}", build_path.display().to_string().dimmed());
+    }
+
+    Ok(())
 }

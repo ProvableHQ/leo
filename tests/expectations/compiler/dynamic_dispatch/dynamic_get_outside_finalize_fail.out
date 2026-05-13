@@ -1,5 +1,5 @@
-Error [ETYC0372067]: This operation can only be used in a final fn, a final block, or script.
-    --> compiler-test:4:24
-     |
-   4 |         let val: u64 = _dynamic_get::[u64](prog, net, m, key);
-     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+   ╭─[ compiler-test:4:24 ]
+   │
+ 4 │         let val: u64 = _dynamic_get::[u64](prog, net, m, key);
+───╯

@@ -1,80 +1,80 @@
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:5:5
-     |
-   5 |     @test
-     |     ^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:8:5
-     |
-   8 |     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @should_fail appears outside of tests.
-    --> compiler-test:11:5
-     |
-  11 |     @should_fail
-     |     ^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @should_fail appears without @test.
-    --> compiler-test:11:5
-     |
-  11 |     @should_fail
-     |     ^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:15:5
-     |
-  15 |     @test
-     |     ^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @should_fail appears outside of tests.
-    --> compiler-test:14:5
-     |
-  14 |     @should_fail
-     |     ^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Invalid key `bogus_key` for annotation @test.
-    --> compiler-test:18:5
-     |
-  18 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:18:5
-     |
-  18 |     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
-     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:1:1
-     |
-   1 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
-    --> compiler-test:1:1
-     |
-   1 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Duplicate annotation @test.
-    --> compiler-test:22:1
-     |
-  22 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:22:1
-     |
-  22 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
-    --> compiler-test:22:1
-     |
-  22 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:26:1
-     |
-  26 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
-    --> compiler-test:26:1
-     |
-  26 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:27:9
-     |
-  27 | fn foo8(x: u8) -> u8 {
-     |         ^^^^^
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+   ╭─[ compiler-test:5:5 ]
+   │
+ 5 │     @test
+───╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+   ╭─[ compiler-test:8:5 ]
+   │
+ 8 │     @test(private_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+───╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    ╭─[ compiler-test:11:5 ]
+    │
+ 11 │     @should_fail
+────╯
+[ETYC0372129] Error: Invalid annotation: Annotation @should_fail appears without @test.
+    ╭─[ compiler-test:11:5 ]
+    │
+ 11 │     @should_fail
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+    ╭─[ compiler-test:15:5 ]
+    │
+ 15 │     @test
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @should_fail appears outside of tests.
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     @should_fail
+────╯
+[ETYC0372129] Error: Invalid annotation: Invalid key `bogus_key` for annotation @test.
+    ╭─[ compiler-test:18:5 ]
+    │
+ 18 │     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+    ╭─[ compiler-test:18:5 ]
+    │
+ 18 │     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+   ╭─[ compiler-test:1:1 ]
+   │
+ 1 │ @test
+───╯
+[ETYC0372129] Error: Invalid annotation: Annotation @test may appear only on transitions.
+   ╭─[ compiler-test:1:1 ]
+   │
+ 1 │ @test
+───╯
+[ETYC0372129] Error: Invalid annotation: Duplicate annotation @test.
+    ╭─[ compiler-test:22:1 ]
+    │
+ 22 │ @test
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+    ╭─[ compiler-test:22:1 ]
+    │
+ 22 │ @test
+────╯
+[ETYC0372129] Error: Invalid annotation: Annotation @test may appear only on transitions.
+    ╭─[ compiler-test:22:1 ]
+    │
+ 22 │ @test
+────╯
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+    ╭─[ compiler-test:26:1 ]
+    │
+ 26 │ @test
+────╯
+[ETYC0372129] Error: Invalid annotation: Annotation @test may appear only on transitions.
+    ╭─[ compiler-test:26:1 ]
+    │
+ 26 │ @test
+────╯
+[ETYC0372129] Error: Invalid annotation: A test procedure cannot have inputs.
+    ╭─[ compiler-test:27:9 ]
+    │
+ 27 │ fn foo8(x: u8) -> u8 {
+────╯

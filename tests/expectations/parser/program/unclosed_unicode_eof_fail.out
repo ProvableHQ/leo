@@ -1,17 +1,17 @@
-Error [EPAR0370050]: Could not lex the following content: `'`.
+[EPAR0370050] Error: Could not lex the following content: `'`.
 
-    --> test:4:19
-     |
-   4 |     let d: char = '\u
-     |                   ^
-Error [EPAR0370050]: Could not lex the following content: `\`.
+   ╭─[ test:4:19 ]
+   │
+ 4 │     let d: char = '\u
+───╯
+[EPAR0370050] Error: Could not lex the following content: `\`.
 
-    --> test:4:20
-     |
-   4 |     let d: char = '\u
-     |                    ^
-Error [EPAR0370005]: expected ';' -- found '}'
-    --> test:5:1
-     |
-   5 | }
-     | ^
+   ╭─[ test:4:20 ]
+   │
+ 4 │     let d: char = '\u
+───╯
+[EPAR0370005] Error: expected ';' -- found '}'
+   ╭─[ test:5:1 ]
+   │
+ 5 │ }
+───╯

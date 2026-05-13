@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `foo.aleo::Foo::[0u32]` but type `foo.aleo::Foo::[1u32]` was found.
-    --> compiler-test:15:12
-     |
-  15 |     return Foo::[2 * N + 1] { x: 0 };
-     |            ^^^
+[ETYC0372117] Error: Expected type `foo.aleo::Foo::[0u32]` but type `foo.aleo::Foo::[1u32]` was found.
+    ╭─[ compiler-test:15:12 ]
+    │
+ 15 │     return Foo::[2 * N + 1] { x: 0 };
+────╯

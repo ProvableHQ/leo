@@ -32,13 +32,13 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-Error [ETYC0372005]: Unknown function `child.aleo::foo`
-    --> compiler-test:7:22
-     |
-   7 |         let a: u32 = child.aleo::foo(x);
-     |                      ^^^^^^^^^^^^^^^
-Error [ETYC0372005]: Unknown function `child.aleo::foo`
-    --> compiler-test:8:22
-     |
-   8 |         let b: u32 = child.aleo::foo(y);
-     |                      ^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown function `child.aleo::foo`
+   ╭─[ compiler-test:7:22 ]
+   │
+ 7 │         let a: u32 = child.aleo::foo(x);
+───╯
+[ETYC0372005] Error: Unknown function `child.aleo::foo`
+   ╭─[ compiler-test:8:22 ]
+   │
+ 8 │         let b: u32 = child.aleo::foo(y);
+───╯

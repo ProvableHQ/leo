@@ -1,25 +1,25 @@
-Error [ETYC0372129]: Invalid annotation: Test annotation @test appears outside of tests.
-    --> compiler-test:3:1
-     |
-   3 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: Annotation @test may appear only on transitions.
-    --> compiler-test:3:1
-     |
-   3 | @test
-     | ^^^^^
-Error [ETYC0372129]: Invalid annotation: A test procedure cannot have inputs.
-    --> compiler-test:4:8
-     |
-   4 | fn foo(a: u8, b: u8) -> u8 {
-     |        ^^^^^
-Error [ETYC0372027]: Unknown annotation: `@program`.
-    --> compiler-test:8:1
-     |
-   8 | @program
-     | ^^^^^^^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372129] Error: Invalid annotation: Test annotation @test appears outside of tests.
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ @test
+───╯
+[ETYC0372129] Error: Invalid annotation: Annotation @test may appear only on transitions.
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ @test
+───╯
+[ETYC0372129] Error: Invalid annotation: A test procedure cannot have inputs.
+   ╭─[ compiler-test:4:8 ]
+   │
+ 4 │ fn foo(a: u8, b: u8) -> u8 {
+───╯
+[ETYC0372027] Error: Unknown annotation: `@program`.
+   ╭─[ compiler-test:8:1 ]
+   │
+ 8 │ @program
+───╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

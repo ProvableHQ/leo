@@ -1,203 +1,203 @@
 let x = expr
 
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_1:1:9
-     |
-   1 | let x = ();
-     |         ^^
-Error [EPAR0370005]: expected ':' -- found '='
-    --> test_5:1:9
-     |
-   1 | const x = expr;
-     |         ^
-Error [EPAR0370005]: expected ':' -- found '='
-    --> test_6:1:9
-     |
-   1 | const x = ();
-     |         ^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_6:1:11
-     |
-   1 | const x = ();
-     |           ^^
-Error [EPAR0370005]: expected ':' -- found '='
-    --> test_7:1:9
-     |
-   1 | const x = x+y;
-     |         ^
-Error [EPAR0370005]: expected ':' -- found '='
-    --> test_8:1:9
-     |
-   1 | const x = (x,y);
-     |         ^
-Error [EPAR0370005]: expected ':' -- found '='
-    --> test_9:1:9
-     |
-   1 | const x = x();
-     |         ^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_11:1:14
-     |
-   1 | let x: u32 = ();
-     |              ^^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_16:1:16
-     |
-   1 | const x: u32 = ();
-     |                ^^
-Error [EPAR0370047]: expected pattern
-    --> test_20:1:10
-     |
-   1 | let (x,y,,) = ();
-     |          ^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_20:1:15
-     |
-   1 | let (x,y,,) = ();
-     |               ^^
-Error [EPAR0370047]: expected pattern
-    --> test_21:1:6
-     |
-   1 | let (,x,y) = ();
-     |      ^^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_21:1:14
-     |
-   1 | let (,x,y) = ();
-     |              ^^
-Error [EPAR0370047]: expected pattern
-    --> test_22:1:8
-     |
-   1 | let (x,,y) = ();
-     |        ^^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_22:1:14
-     |
-   1 | let (x,,y) = ();
-     |              ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
-    --> test_23:1:16
-     |
-   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
-     |                ^
-Error [EPAR0370029]: A tuple expression must have at least two elements.
-    --> test_23:1:13
-     |
-   1 | let x: [u8; (2,,)] = [[0,0], [0,0]];
-     |             ^^^^^
-Error [EPAR0370047]: expected type
-    --> test_24:1:8
-     |
-   1 | let x: const = expr;
-     |        ^^^^^
-Error [EPAR0370047]: expected type
-    --> test_25:1:10
-     |
-   1 | const x: let = expr;
-     |          ^^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_26:1:4
-     |
-   1 | let
-     |    ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_27:1:6
-     |
-   1 | let x
-     |      ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_28:1:7
-     |
-   1 | let x:
-     |       ^
-Error [EPAR0370005]: expected ')' -- found ']'
-    --> test_29:1:14
-     |
-   1 | let x = (a, y]);
-     |              ^
-Error [EPAR0370047]: expected pattern
-    --> test_30:1:5
-     |
-   1 | let = 1u8;
-     |     ^^^^^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_30:1:11
-     |
-   1 | let = 1u8;
-     |           ^
-Error [EPAR0370047]: expected pattern
-    --> test_31:1:4
-     |
-   1 | let;
-     |    ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_31:1:5
-     |
-   1 | let;
-     |     ^
-Error [EPAR0370005]: expected '=' -- found '1u8'
-    --> test_32:1:7
-     |
-   1 | let x 1u8;
-     |       ^^^
-Error [EPAR0370005]: expected '=' -- found ';'
-    --> test_33:1:10
-     |
-   1 | let x: u8;
-     |          ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_33:1:11
-     |
-   1 | let x: u8;
-     |           ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_34:1:10
-     |
-   1 | let x: u8
-     |          ^
-Error [EPAR0370047]: expected type
-    --> test_35:1:8
-     |
-   1 | let x: = 1;
-     |        ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_37:1:12
-     |
-   1 | let x: [u8;
-     |            ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_38:1:23
-     |
-   1 | let x: [u8; 1u8] = [1,
-     |                       ^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
-    --> test_39:1:15
-     |
-   1 | let dbg: u8 = ];
-     |               ^
-Error [EPAR0370050]: Could not lex the following content: `🦀`.
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_1:1:9 ]
+   │
+ 1 │ let x = ();
+───╯
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ test_5:1:9 ]
+   │
+ 1 │ const x = expr;
+───╯
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ test_6:1:9 ]
+   │
+ 1 │ const x = ();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_6:1:11 ]
+   │
+ 1 │ const x = ();
+───╯
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ test_7:1:9 ]
+   │
+ 1 │ const x = x+y;
+───╯
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ test_8:1:9 ]
+   │
+ 1 │ const x = (x,y);
+───╯
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ test_9:1:9 ]
+   │
+ 1 │ const x = x();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_11:1:14 ]
+   │
+ 1 │ let x: u32 = ();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_16:1:16 ]
+   │
+ 1 │ const x: u32 = ();
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_20:1:10 ]
+   │
+ 1 │ let (x,y,,) = ();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_20:1:15 ]
+   │
+ 1 │ let (x,y,,) = ();
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_21:1:6 ]
+   │
+ 1 │ let (,x,y) = ();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_21:1:14 ]
+   │
+ 1 │ let (,x,y) = ();
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_22:1:8 ]
+   │
+ 1 │ let (x,,y) = ();
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_22:1:14 ]
+   │
+ 1 │ let (x,,y) = ();
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+   ╭─[ test_23:1:16 ]
+   │
+ 1 │ let x: [u8; (2,,)] = [[0,0], [0,0]];
+───╯
+[EPAR0370029] Error: A tuple expression must have at least two elements.
+   ╭─[ test_23:1:13 ]
+   │
+ 1 │ let x: [u8; (2,,)] = [[0,0], [0,0]];
+───╯
+[EPAR0370047] Error: expected type
+   ╭─[ test_24:1:8 ]
+   │
+ 1 │ let x: const = expr;
+───╯
+[EPAR0370047] Error: expected type
+   ╭─[ test_25:1:10 ]
+   │
+ 1 │ const x: let = expr;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_26:1:4 ]
+   │
+ 1 │ let
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_27:1:6 ]
+   │
+ 1 │ let x
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_28:1:7 ]
+   │
+ 1 │ let x:
+───╯
+[EPAR0370005] Error: expected ')' -- found ']'
+   ╭─[ test_29:1:14 ]
+   │
+ 1 │ let x = (a, y]);
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_30:1:5 ]
+   │
+ 1 │ let = 1u8;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_30:1:11 ]
+   │
+ 1 │ let = 1u8;
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_31:1:4 ]
+   │
+ 1 │ let;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_31:1:5 ]
+   │
+ 1 │ let;
+───╯
+[EPAR0370005] Error: expected '=' -- found '1u8'
+   ╭─[ test_32:1:7 ]
+   │
+ 1 │ let x 1u8;
+───╯
+[EPAR0370005] Error: expected '=' -- found ';'
+   ╭─[ test_33:1:10 ]
+   │
+ 1 │ let x: u8;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_33:1:11 ]
+   │
+ 1 │ let x: u8;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_34:1:10 ]
+   │
+ 1 │ let x: u8
+───╯
+[EPAR0370047] Error: expected type
+   ╭─[ test_35:1:8 ]
+   │
+ 1 │ let x: = 1;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_37:1:12 ]
+   │
+ 1 │ let x: [u8;
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_38:1:23 ]
+   │
+ 1 │ let x: [u8; 1u8] = [1,
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
+   ╭─[ test_39:1:15 ]
+   │
+ 1 │ let dbg: u8 = ];
+───╯
+[EPAR0370050] Error: Could not lex the following content: `🦀`.
 
-    --> test_40:1:5
-     |
-   1 | let 🦀: u8 = 0;
-     |     ^^^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
-    --> test_41:1:11
-     |
-   1 | let (x) = ...;
-     |           ^^
-Error [EPAR0370005]: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
-    --> test_42:1:12
-     |
-   1 | let (x,) = ...;
-     |            ^^
-Error [EPAR0370005]: expected '=' -- found '1'
-    --> test_43:1:6
-     |
-   1 | let _1: u8 = 1u8;
-     |      ^
-Error [EPAR0370047]: expected pattern
-    --> test_44:1:5
-     |
-   1 | let 1___091: u8 = 12u8;
-     |     ^^^^^^^
+   ╭─[ test_40:1:5 ]
+   │
+ 1 │ let 🦀: u8 = 0;
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+   ╭─[ test_41:1:11 ]
+   │
+ 1 │ let (x) = ...;
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+   ╭─[ test_42:1:12 ]
+   │
+ 1 │ let (x,) = ...;
+───╯
+[EPAR0370005] Error: expected '=' -- found '1'
+   ╭─[ test_43:1:6 ]
+   │
+ 1 │ let _1: u8 = 1u8;
+───╯
+[EPAR0370047] Error: expected pattern
+   ╭─[ test_44:1:5 ]
+   │
+ 1 │ let 1___091: u8 = 12u8;
+───╯

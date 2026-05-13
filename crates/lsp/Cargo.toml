@@ -40,6 +40,7 @@ lsp-types          = { workspace = true }
 serde_json         = { workspace = true }
 tracing            = { workspace = true }
 tracing-subscriber = { workspace = true }
+xxhash-rust        = { workspace = true }
 
 [dev-dependencies]
 serde_json = { workspace = true }

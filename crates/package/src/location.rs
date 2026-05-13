@@ -29,4 +29,8 @@ pub enum Location {
     /// A dependency in the `tests` directory - a test.
     #[serde(rename = "test")]
     Test,
+    /// A dependency on another member of the same workspace.
+    /// Resolved to `Local` with an absolute path during manifest loading.
+    #[serde(rename = "workspace")]
+    Workspace,
 }

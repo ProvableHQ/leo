@@ -1,265 +1,265 @@
-Error [EPAR0370047]: expected identifier after ::
-    --> test_0:1:4
-     |
-   1 | x::;
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_1:1:4
-     |
-   1 | x::.
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_2:1:4
-     |
-   1 | x::import
-     |    ^^^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_3:1:4
-     |
-   1 | x::,
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_4:1:4
-     |
-   1 | x::*
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_5:1:4
-     |
-   1 | x::+
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_6:1:4
-     |
-   1 | x::-
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_7:1:4
-     |
-   1 | x::/
-     |    ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_8:1:5
-     |
-   1 | x::[
-     |     ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_9:1:4
-     |
-   1 | x::]
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_10:1:4
-     |
-   1 | x::{
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_11:1:4
-     |
-   1 | x::}
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_12:1:4
-     |
-   1 | x::(
-     |    ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_12:1:5
-     |
-   1 | x::(
-     |     ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_13:1:4
-     |
-   1 | x::)
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_14:1:4
-     |
-   1 | x:::
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_15:1:4
-     |
-   1 | x::::
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_16:1:4
-     |
-   1 | x::?
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_17:1:4
-     |
-   1 | x::_
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_18:1:4
-     |
-   1 | x::=
-     |    ^
-Error [EPAR0370003]: unexpected EOF
-    --> test_18:1:5
-     |
-   1 | x::=
-     |     ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_19:1:4
-     |
-   1 | x::==
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_20:1:4
-     |
-   1 | x::!
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_21:1:4
-     |
-   1 | x::!=
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_22:1:4
-     |
-   1 | x::>
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_23:1:4
-     |
-   1 | x::>=
-     |    ^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_24:1:5
-     |
-   1 | x::<
-     |     ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_25:1:4
-     |
-   1 | x::<=
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_26:1:4
-     |
-   1 | x::>
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_27:1:4
-     |
-   1 | x::..
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_28:1:4
-     |
-   1 | x::as
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_29:1:4
-     |
-   1 | x::const
-     |    ^^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_30:1:4
-     |
-   1 | x::let
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_31:1:4
-     |
-   1 | x::for
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_32:1:4
-     |
-   1 | x::if
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_33:1:4
-     |
-   1 | x::else
-     |    ^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_34:1:4
-     |
-   1 | x::i8
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_35:1:4
-     |
-   1 | x::i16
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_36:1:4
-     |
-   1 | x::i32
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_37:1:4
-     |
-   1 | x::i64
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_38:1:4
-     |
-   1 | x::i128
-     |    ^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_39:1:4
-     |
-   1 | x::u8
-     |    ^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_40:1:4
-     |
-   1 | x::u16
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_41:1:4
-     |
-   1 | x::u32
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_42:1:4
-     |
-   1 | x::u64
-     |    ^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_43:1:4
-     |
-   1 | x::u128
-     |    ^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_44:1:4
-     |
-   1 | x::&
-     |    ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_45:1:4
-     |
-   1 | x::return
-     |    ^^^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_46:1:4
-     |
-   1 | x::self
-     |    ^^^^
-Error [EPAR0370003]: unexpected EOF
-    --> test_47:1:8
-     |
-   1 | x::Self
-     |        ^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_48:1:4
-     |
-   1 | x::true
-     |    ^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_49:1:4
-     |
-   1 | x::false
-     |    ^^^^^
-Error [EPAR0370047]: expected identifier after ::
-    --> test_50:1:4
-     |
-   1 | x::0
-     |    ^
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_0:1:4 ]
+   │
+ 1 │ x::;
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_1:1:4 ]
+   │
+ 1 │ x::.
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_2:1:4 ]
+   │
+ 1 │ x::import
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_3:1:4 ]
+   │
+ 1 │ x::,
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_4:1:4 ]
+   │
+ 1 │ x::*
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_5:1:4 ]
+   │
+ 1 │ x::+
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_6:1:4 ]
+   │
+ 1 │ x::-
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_7:1:4 ]
+   │
+ 1 │ x::/
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_8:1:5 ]
+   │
+ 1 │ x::[
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_9:1:4 ]
+   │
+ 1 │ x::]
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_10:1:4 ]
+   │
+ 1 │ x::{
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_11:1:4 ]
+   │
+ 1 │ x::}
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_12:1:4 ]
+   │
+ 1 │ x::(
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_12:1:5 ]
+   │
+ 1 │ x::(
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_13:1:4 ]
+   │
+ 1 │ x::)
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_14:1:4 ]
+   │
+ 1 │ x:::
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_15:1:4 ]
+   │
+ 1 │ x::::
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_16:1:4 ]
+   │
+ 1 │ x::?
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_17:1:4 ]
+   │
+ 1 │ x::_
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_18:1:4 ]
+   │
+ 1 │ x::=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_18:1:5 ]
+   │
+ 1 │ x::=
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_19:1:4 ]
+   │
+ 1 │ x::==
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_20:1:4 ]
+   │
+ 1 │ x::!
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_21:1:4 ]
+   │
+ 1 │ x::!=
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_22:1:4 ]
+   │
+ 1 │ x::>
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_23:1:4 ]
+   │
+ 1 │ x::>=
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_24:1:5 ]
+   │
+ 1 │ x::<
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_25:1:4 ]
+   │
+ 1 │ x::<=
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_26:1:4 ]
+   │
+ 1 │ x::>
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_27:1:4 ]
+   │
+ 1 │ x::..
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_28:1:4 ]
+   │
+ 1 │ x::as
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_29:1:4 ]
+   │
+ 1 │ x::const
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_30:1:4 ]
+   │
+ 1 │ x::let
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_31:1:4 ]
+   │
+ 1 │ x::for
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_32:1:4 ]
+   │
+ 1 │ x::if
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_33:1:4 ]
+   │
+ 1 │ x::else
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_34:1:4 ]
+   │
+ 1 │ x::i8
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_35:1:4 ]
+   │
+ 1 │ x::i16
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_36:1:4 ]
+   │
+ 1 │ x::i32
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_37:1:4 ]
+   │
+ 1 │ x::i64
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_38:1:4 ]
+   │
+ 1 │ x::i128
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_39:1:4 ]
+   │
+ 1 │ x::u8
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_40:1:4 ]
+   │
+ 1 │ x::u16
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_41:1:4 ]
+   │
+ 1 │ x::u32
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_42:1:4 ]
+   │
+ 1 │ x::u64
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_43:1:4 ]
+   │
+ 1 │ x::u128
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_44:1:4 ]
+   │
+ 1 │ x::&
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_45:1:4 ]
+   │
+ 1 │ x::return
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_46:1:4 ]
+   │
+ 1 │ x::self
+───╯
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ test_47:1:8 ]
+   │
+ 1 │ x::Self
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_48:1:4 ]
+   │
+ 1 │ x::true
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_49:1:4 ]
+   │
+ 1 │ x::false
+───╯
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_50:1:4 ]
+   │
+ 1 │ x::0
+───╯

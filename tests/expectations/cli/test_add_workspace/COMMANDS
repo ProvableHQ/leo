@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+cd swap || exit 1
+
+echo "--- 1. leo add --workspace token (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --workspace token
+cat program.json
+
+echo "--- 2. leo add --workspace --dev token (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --workspace --dev token
+cat program.json
+
+echo "--- 3. leo add --workspace nonexistent (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --workspace nonexistent || true
+echo "exit code: $?"
+
+echo "--- 4. leo add --workspace outside workspace (should fail) ---" | tee /dev/stderr
+# Create a standalone package in an isolated temp directory (no workspace.json ancestor).
+STANDALONE_DIR=$(mktemp -d)
+mkdir -p "${STANDALONE_DIR}/src"
+cat > "${STANDALONE_DIR}/program.json" << 'MANIFEST'
+{
+  "program": "standalone.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}
+MANIFEST
+cat > "${STANDALONE_DIR}/src/main.leo" << 'SRC'
+program standalone.aleo {
+    @noupgrade
+    constructor() {}
+}
+SRC
+cd "${STANDALONE_DIR}" || exit 1
+${LEO_BIN} --disable-update-check add --workspace token || true
+echo "exit code: $?"
+rm -rf "${STANDALONE_DIR}"

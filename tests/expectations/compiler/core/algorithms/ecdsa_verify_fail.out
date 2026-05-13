@@ -1,50 +1,50 @@
-Error [ETYC0372117]: Expected a [u8; 65] but type `[u8; 64]` was found.
-    --> compiler-test:45:41
-     |
-  45 |     let v1: bool = ECDSA::verify_digest(sig_wrong_size, addr_wrong_size_2, digest_wrong_size);
-     |                                         ^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 65] but type `u64` was found.
-    --> compiler-test:48:44
-     |
-  48 |     let v2: bool = ECDSA::verify_keccak256(sig_wrong_type, addr_wrong_size_2, msg);
-     |                                            ^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 33] but type `[u8; 20]` was found.
-    --> compiler-test:51:54
-     |
-  51 |     let v3: bool = ECDSA::verify_digest(sig_correct, addr_wrong_size_1, msg);
-     |                                                      ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 20] but type `[u8; 33]` was found.
-    --> compiler-test:54:58
-     |
-  54 |     let v4: bool = ECDSA::verify_digest_eth(sig_correct, addr_wrong_size_2, msg);
-     |                                                          ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `u8` but type `u32` was found.
-    --> compiler-test:57:56
-     |
-  57 |     let v5: bool = ECDSA::verify_sha3_256(sig_correct, addr_wrong_elem, msg);
-     |                                                        ^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 20] but type `[u8; 33]` was found.
-    --> compiler-test:60:61
-     |
-  60 |     let v6: bool = ECDSA::verify_keccak256_eth(sig_correct, addr_wrong_size_2, msg);
-     |                                                             ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 33] but type `[u8; 20]` was found.
-    --> compiler-test:63:56
-     |
-  63 |     let v7: bool = ECDSA::verify_sha3_512(sig_correct, addr_wrong_size_1, msg);
-     |                                                        ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 65] but type `[u8; 64]` was found.
-    --> compiler-test:66:44
-     |
-  66 |     let v8: bool = ECDSA::verify_keccak384(sig_wrong_size, addr_wrong_size_1, msg);
-     |                                            ^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 32] but type `[u8; 31]` was found.
-    --> compiler-test:69:73
-     |
-  69 |     let v9: bool = ECDSA::verify_digest(sig_correct, addr_wrong_size_2, digest_wrong_size);
-     |                                                                         ^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected a [u8; 32] but type `[u8; 31]` was found.
-    --> compiler-test:72:78
-     |
-  72 |     let v10: bool = ECDSA::verify_digest_eth(sig_correct, addr_wrong_size_1, digest_wrong_size);
-     |                                                                              ^^^^^^^^^^^^^^^^^
+[ETYC0372117] Error: Expected a [u8; 65] but type `[u8; 64]` was found.
+    ╭─[ compiler-test:45:41 ]
+    │
+ 45 │     let v1: bool = ECDSA::verify_digest(sig_wrong_size, addr_wrong_size_2, digest_wrong_size);
+────╯
+[ETYC0372117] Error: Expected a [u8; 65] but type `u64` was found.
+    ╭─[ compiler-test:48:44 ]
+    │
+ 48 │     let v2: bool = ECDSA::verify_keccak256(sig_wrong_type, addr_wrong_size_2, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 33] but type `[u8; 20]` was found.
+    ╭─[ compiler-test:51:54 ]
+    │
+ 51 │     let v3: bool = ECDSA::verify_digest(sig_correct, addr_wrong_size_1, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 20] but type `[u8; 33]` was found.
+    ╭─[ compiler-test:54:58 ]
+    │
+ 54 │     let v4: bool = ECDSA::verify_digest_eth(sig_correct, addr_wrong_size_2, msg);
+────╯
+[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+    ╭─[ compiler-test:57:56 ]
+    │
+ 57 │     let v5: bool = ECDSA::verify_sha3_256(sig_correct, addr_wrong_elem, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 20] but type `[u8; 33]` was found.
+    ╭─[ compiler-test:60:61 ]
+    │
+ 60 │     let v6: bool = ECDSA::verify_keccak256_eth(sig_correct, addr_wrong_size_2, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 33] but type `[u8; 20]` was found.
+    ╭─[ compiler-test:63:56 ]
+    │
+ 63 │     let v7: bool = ECDSA::verify_sha3_512(sig_correct, addr_wrong_size_1, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 65] but type `[u8; 64]` was found.
+    ╭─[ compiler-test:66:44 ]
+    │
+ 66 │     let v8: bool = ECDSA::verify_keccak384(sig_wrong_size, addr_wrong_size_1, msg);
+────╯
+[ETYC0372117] Error: Expected a [u8; 32] but type `[u8; 31]` was found.
+    ╭─[ compiler-test:69:73 ]
+    │
+ 69 │     let v9: bool = ECDSA::verify_digest(sig_correct, addr_wrong_size_2, digest_wrong_size);
+────╯
+[ETYC0372117] Error: Expected a [u8; 32] but type `[u8; 31]` was found.
+    ╭─[ compiler-test:72:78 ]
+    │
+ 72 │     let v10: bool = ECDSA::verify_digest_eth(sig_correct, addr_wrong_size_1, digest_wrong_size);
+────╯

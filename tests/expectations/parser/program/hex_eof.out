@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected ';' -- found '}'
-    --> test:5:1
-     |
-   5 | }
-     | ^
+[EPAR0370005] Error: expected ';' -- found '}'
+   ╭─[ test:5:1 ]
+   │
+ 5 │ }
+───╯

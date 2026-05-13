@@ -26,7 +26,7 @@
 
 use crate::span::Span;
 
-use std::{cell::RefCell, fmt, path::PathBuf, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, fmt, path::PathBuf, rc::Rc};
 
 /// The source map containing all recorded sources,
 /// methods to register new ones,
@@ -277,4 +277,46 @@ pub struct LineCol {
     pub line: u32,
     /// The column offset into the line.
     pub col: u32,
+}
+
+/// A cache for ariadne that lazily reads from Leo's session-global `SourceMap`.
+///
+/// Entries are populated on demand in `fetch()`.
+/// Keyed by `file.absolute_start` (the `u32` source ID used in `AriadneSpan`).
+pub struct LeoSourceCache {
+    sources: HashMap<u32, ariadne::Source<String>>,
+    names: HashMap<u32, FileName>,
+}
+
+impl LeoSourceCache {
+    pub fn new() -> Self {
+        Self { sources: HashMap::new(), names: HashMap::new() }
+    }
+}
+
+impl Default for LeoSourceCache {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ariadne::Cache<u32> for LeoSourceCache {
+    type Storage = String;
+
+    fn fetch(&mut self, id: &u32) -> Result<&ariadne::Source<String>, impl fmt::Debug> {
+        if !self.sources.contains_key(id) {
+            use crate::symbol::with_session_globals;
+            with_session_globals(|s| {
+                if let Some(file) = s.source_map.find_source_file(*id) {
+                    self.sources.insert(file.absolute_start, ariadne::Source::from(file.src.clone()));
+                    self.names.insert(file.absolute_start, file.name.clone());
+                }
+            });
+        }
+        self.sources.get(id).ok_or_else(|| format!("unknown source file with start offset {id}"))
+    }
+
+    fn display<'a>(&self, id: &'a u32) -> Option<impl fmt::Display + 'a> {
+        self.names.get(id).cloned()
+    }
 }

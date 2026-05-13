@@ -5,4 +5,4 @@
 --- leo build lib_a (should fail: circular dependency) ---
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
-build exit code: 100
+build exit code: 28

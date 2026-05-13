@@ -1,5 +1,5 @@
-Error [ESAZ0374006]: Unary operation `-9223372036854775808i64.neg()` failed at compile time: negation overflow.
-    --> compiler-test:6:16
-     |
-   6 |         return -a; // This line attempts to return 9223372036854775808i64 however, the largest i64 value is 9223372036854775807i64.
-     |                ^^
+[ESAZ0374006] Error: Unary operation `-9223372036854775808i64.neg()` failed at compile time: negation overflow.
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │         return -a; // This line attempts to return 9223372036854775808i64 however, the largest i64 value is 9223372036854775807i64.
+───╯

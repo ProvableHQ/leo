@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected constant name
-    --> compiler-test:1:7
-     |
-   1 | const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
-     |       ^
+[EPAR0370047] Error: expected constant name
+   ╭─[ compiler-test:1:7 ]
+   │
+ 1 │ const (HELLO,GOODBYE): (u8,u8) = (1u8, 1u8);
+───╯

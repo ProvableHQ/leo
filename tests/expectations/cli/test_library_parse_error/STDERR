@@ -1,21 +1,21 @@
 --- leo add --local bad_lib ---
 --- leo build (should fail: library has parse error) ---
-Error [EPAR0370005]: expected ':' -- found '='
-    --> SOURCE_DIRECTORY/lib.leo:2:14
-     |
-   2 | const BROKEN = ;
-     |              ^
+[EPAR0370005] Error: expected ':' -- found '='
+   ╭─[ SOURCE_DIRECTORY/lib.leo:2:14 ]
+   │
+ 2 │ const BROKEN = ;
+───╯
 
-Error [EPAR0370005]: expected '=' -- found ';'
-    --> SOURCE_DIRECTORY/lib.leo:2:16
-     |
-   2 | const BROKEN = ;
-     |                ^
+[EPAR0370005] Error: expected '=' -- found ';'
+   ╭─[ SOURCE_DIRECTORY/lib.leo:2:16 ]
+   │
+ 2 │ const BROKEN = ;
+───╯
 
-Error [EPAR0370003]: unexpected EOF
-    --> SOURCE_DIRECTORY/lib.leo:3:1
-     |
-
-     | ^
+[EPAR0370003] Error: unexpected EOF
+   ╭─[ SOURCE_DIRECTORY/lib.leo:2:18 ]
+   │
+ 2 │ const BROKEN = ;
+───╯
 
 

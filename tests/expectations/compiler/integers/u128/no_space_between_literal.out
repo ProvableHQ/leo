@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected ';' -- found 'u128'
-    --> compiler-test:4:15
-     |
-   4 |     let i = 1 u128;
-     |               ^^^^
+[EPAR0370005] Error: expected ';' -- found 'u128'
+   ╭─[ compiler-test:4:15 ]
+   │
+ 4 │     let i = 1 u128;
+───╯

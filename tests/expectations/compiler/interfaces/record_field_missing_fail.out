@@ -1,12 +1,19 @@
-Error [ECHI03712012]: Record `Token` in program `test.aleo` is missing required field `amount` specified by interface `test.aleo/TokenInterface`.
-    --> compiler-test:10:5
-     |
-   4 |           amount: u64,
-     |           ^^^^^^^^^^^ required by interface here
-   ...
-  10 | /     record Token {
-  11 | |         owner: address,
-  12 | |     }
-     | |_____- record is missing field `amount`
-     |
-     = Add the missing field with the exact type and mode specified in the interface.
+[ECHI03712012] Error: Record `Token` in program `test.aleo` is missing required field `amount` specified by interface `test.aleo/TokenInterface`.
+    ╭─[ compiler-test:10:5 ]
+    │
+    │ 
+    │
+    ├─[ compiler-test:10:5 ]
+    │
+  4 │             amount: u64,
+    │             ─────┬─────  
+    │                  ╰─────── required by interface here
+    │ 
+ 10 │ ╭─▶     record Token {
+    ┆ ┆   
+ 12 │ ├─▶     }
+    │ │           
+    │ ╰─────────── record is missing field `amount`
+    │     
+    │     Help: Add the missing field with the exact type and mode specified in the interface.
+────╯

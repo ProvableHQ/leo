@@ -22,6 +22,8 @@
 mod compiler;
 pub use compiler::*;
 
+mod errors;
+
 mod options;
 pub use options::*;
 

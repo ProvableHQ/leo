@@ -1,10 +1,10 @@
-Warning [WTYC0372005]: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize).
-    --> compiler-test:1:1
-     |
-   1 | @no_inline
-     | ^^^^^^^^^^
-     |
-     = Remove the `@no_inline` annotation to silence this warning.
+[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize).
+   ╭─[ compiler-test:1:1 ]
+   │
+ 1 │ @no_inline
+   │ 
+   │ Help: Remove the `@no_inline` annotation to silence this warning.
+───╯
 program test.aleo;
 
 mapping account:

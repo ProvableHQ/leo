@@ -1,26 +1,42 @@
-Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`. Fields with the same name must have identical types and modes.
-    --> test:24:1
-     |
-   9 |           amount: u64,
-     |           ^^^^^^^^^^^ defined in `ILeft` here
-   ...
-  18 |           amount: u128,
-     |           ^^^^^^^^^^^^ conflicts with definition here
-   ...
-  24 |   interface ICombined: ILeft + IRight {}
-     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ conflict detected here
-     |
-     = Ensure both interfaces define the same type and mode for this field, or rename one of them.
-Error [ECHI03712011]: Record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`. Fields with the same name must have identical types and modes.
-    --> test:24:1
-     |
-   9 |           amount: u64,
-     |           ^^^^^^^^^^^ defined in `ILeft` here
-   ...
-  18 |           amount: u128,
-     |           ^^^^^^^^^^^^ conflicts with definition here
-   ...
-  24 |   interface ICombined: ILeft + IRight {}
-     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ conflict detected here
-     |
-     = Ensure both interfaces define the same type and mode for this field, or rename one of them.
+[ECHI03712011] Error: Record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`. Fields with the same name must have identical types and modes.
+    ╭─[ test:24:1 ]
+    │
+ 24 │ interface ICombined: ILeft + IRight {}
+    │
+    ├─[ test:24:1 ]
+    │
+  9 │         amount: u64,
+    │         ─────┬─────  
+    │              ╰─────── defined in `ILeft` here
+    │ 
+ 18 │         amount: u128,
+    │         ──────┬─────  
+    │               ╰─────── conflicts with definition here
+    │ 
+ 24 │ interface ICombined: ILeft + IRight {}
+    │ ───────────────────┬──────────────────  
+    │                    ╰──────────────────── conflict detected here
+    │ 
+    │ Help: Ensure both interfaces define the same type and mode for this field, or rename one of them.
+────╯
+[ECHI03712011] Error: Record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`. Fields with the same name must have identical types and modes.
+    ╭─[ test:24:1 ]
+    │
+ 24 │ interface ICombined: ILeft + IRight {}
+    │
+    ├─[ test:24:1 ]
+    │
+  9 │         amount: u64,
+    │         ─────┬─────  
+    │              ╰─────── defined in `ILeft` here
+    │ 
+ 18 │         amount: u128,
+    │         ──────┬─────  
+    │               ╰─────── conflicts with definition here
+    │ 
+ 24 │ interface ICombined: ILeft + IRight {}
+    │ ───────────────────┬──────────────────  
+    │                    ╰──────────────────── conflict detected here
+    │ 
+    │ Help: Ensure both interfaces define the same type and mode for this field, or rename one of them.
+────╯

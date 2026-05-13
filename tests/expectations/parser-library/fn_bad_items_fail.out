@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test_0:1:1
-     |
-   1 | transition bad() {}
-     | ^^^^^^^^^^
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+   ╭─[ test_0:1:1 ]
+   │
+ 1 │ transition bad() {}
+───╯

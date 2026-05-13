@@ -1,51 +1,23 @@
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:3:1
-     |
-   3 | 
-   4 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   5 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   6 |         ..
-     |         ^^
-   7 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:11:1
-     |
-  11 | 
-  12 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  13 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  14 |         ..
-     |         ^^
-  15 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:3:1
-     |
-   3 | 
-   4 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   5 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   6 |         ..
-     |         ^^
-   7 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> interfaces.leo:11:1
-     |
-  11 | 
-  12 |     record Token {
-     |     ^^^^^^^^^^^^^^
-  13 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-  14 |         ..
-     |         ^^
-  15 |     }
-     |     ^
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ interfaces.leo:2:18 ]
+   │
+   │ 
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ interfaces.leo:10:26 ]
+    │
+    │ 
+────╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ interfaces.leo:2:18 ]
+   │
+   │ 
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+    ╭─[ interfaces.leo:10:26 ]
+    │
+    │ 
+────╯
 program test.aleo;
 
 record Token:

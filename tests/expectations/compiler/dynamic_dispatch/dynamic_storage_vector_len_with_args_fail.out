@@ -1,5 +1,5 @@
-Error [ETYC0372006]: Call expected `0` args, but got `1`
-    --> compiler-test:13:18
-     |
-  13 |     let n: u32 = Logs@(target)::entries.len(0u32);
-     |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372006] Error: Call expected `0` args, but got `1`
+    ╭─[ compiler-test:13:18 ]
+    │
+ 13 │     let n: u32 = Logs@(target)::entries.len(0u32);
+────╯

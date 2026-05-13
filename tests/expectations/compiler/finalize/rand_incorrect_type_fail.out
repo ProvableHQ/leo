@@ -1,10 +1,10 @@
-Error [ETYC0372117]: Expected type `scalar` but type `field` was found.
-    --> compiler-test:10:21
-     |
-  10 |     let a: scalar = ChaCha::rand_field();
-     |                     ^^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `group` but type `field` was found.
-    --> compiler-test:11:20
-     |
-  11 |     let b: group = ChaCha::rand_field();
-     |                    ^^^^^^^^^^^^^^^^^^^^
+[ETYC0372117] Error: Expected type `scalar` but type `field` was found.
+    ╭─[ compiler-test:10:21 ]
+    │
+ 10 │     let a: scalar = ChaCha::rand_field();
+────╯
+[ETYC0372117] Error: Expected type `group` but type `field` was found.
+    ╭─[ compiler-test:11:20 ]
+    │
+ 11 │     let b: group = ChaCha::rand_field();
+────╯

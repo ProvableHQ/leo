@@ -18,12 +18,21 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::{AstSnapshots, CompilerOptions};
+use crate::{AstSnapshots, CompilerOptions, errors};
 
 use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
-use leo_errors::{CompilerError, Handler, PackageError, Result};
-use leo_package::{CompilationUnit, Dependency, Location, MANIFEST_FILENAME, Manifest, PackageKind, ProgramData};
+use leo_errors::{Handler, Result};
+use leo_package::{
+    CompilationUnit,
+    Dependency,
+    Location,
+    MANIFEST_FILENAME,
+    Manifest,
+    PackageKind,
+    ProgramData,
+    resolve_workspace_dependency,
+};
 use leo_passes::*;
 use leo_span::{
     Span,
@@ -99,6 +108,7 @@ pub struct Compiler {
 }
 
 impl Compiler {
+    /// Return the network selected for this compiler instance.
     pub fn network(&self) -> NetworkName {
         self.state.network
     }
@@ -136,7 +146,7 @@ impl Compiler {
         let program_scope = program.program_scopes.values().next().unwrap();
         if let Some(unit_name) = &self.unit_name {
             if unit_name != &program_scope.program_id.as_symbol().to_string() {
-                return Err(CompilerError::program_name_should_match_file_name(
+                return Err(crate::errors::program_name_should_match_file_name(
                     program_scope.program_id.as_symbol(),
                     // If this is a test, use the filename as the expected name.
                     if self.state.is_test {
@@ -325,6 +335,7 @@ impl Compiler {
         }
     }
 
+    /// Run a compiler pass without an external cancellation check.
     pub fn do_pass<P: Pass>(&mut self, input: P::Input) -> Result<P::Output> {
         self.do_pass_with_check::<P, _>(input, &mut || Ok(()))
     }
@@ -550,17 +561,17 @@ impl Compiler {
         // Read the contents of the main source file.
         let source = file_source
             .read_file(entry_file_path)
-            .map_err(|e| CompilerError::file_read_error(entry_file_path.display().to_string(), e))?;
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
 
         let files = file_source
             .list_leo_files(source_directory, entry_file_path)
-            .map_err(|e| CompilerError::file_read_error(source_directory.display().to_string(), e))?;
+            .map_err(|e| crate::errors::file_read_error(source_directory.display().to_string(), e))?;
 
         let mut modules = Vec::with_capacity(files.len());
         for path in files {
             let module_source = file_source
                 .read_file(&path)
-                .map_err(|e| CompilerError::file_read_error(path.display().to_string(), e))?;
+                .map_err(|e| crate::errors::file_read_error(path.display().to_string(), e))?;
             modules.push((module_source, FileName::Real(path)));
         }
 
@@ -695,7 +706,7 @@ impl Compiler {
             Ast::Library(_) => String::new(), // empty for libraries
         };
 
-        fs::write(&full_filename, contents).map_err(|e| CompilerError::failed_ast_file(full_filename.display(), e))?;
+        fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
 
         Ok(())
     }
@@ -771,7 +782,7 @@ impl Compiler {
 
             // Look up the corresponding stub.
             let Some(stub) = self.import_stubs.get(&import_symbol) else {
-                return Err(CompilerError::imported_program_not_found(
+                return Err(crate::errors::imported_program_not_found(
                     self.unit_name.as_ref().unwrap(),
                     import_symbol,
                     span,
@@ -882,9 +893,23 @@ impl Compiler {
 /// change the stub set. Editor caches can hash or stat those paths to know when
 /// dependency-backed semantic state must be rebuilt.
 pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) -> Result<LoadedImportStubs> {
+    load_import_stubs_for_package_with_file_source(package_root, network, &DiskFileSource)
+}
+
+/// Load local dependency stubs using an explicit file source for Leo source reads.
+///
+/// This variant lets editor integrations serve unsaved overlays and record the
+/// exact disk bytes used for dependency source stubs. Manifest discovery still
+/// reads the real filesystem because dependencies are package-level metadata,
+/// but every parsed Leo source file flows through `file_source`.
+pub fn load_import_stubs_for_package_with_file_source(
+    package_root: &Path,
+    network: NetworkName,
+    file_source: &impl FileSource,
+) -> Result<LoadedImportStubs> {
     create_session_if_not_set_then(|_| {
         let package_root =
-            package_root.canonicalize().map_err(|error| PackageError::failed_path(package_root.display(), error))?;
+            package_root.canonicalize().map_err(|error| crate::errors::failed_path(package_root.display(), error))?;
         let declared_dependencies = collect_local_declared_dependencies(&package_root)?;
         let mut import_stubs = IndexMap::new();
         let mut watch_paths = vec![package_root.join(MANIFEST_FILENAME)];
@@ -899,15 +924,19 @@ pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) 
                 CompilationUnit::from_aleo_path(*name, path, &declared_dependencies)?
             } else {
                 let unit = CompilationUnit::from_package_path(*name, path)?;
-                watch_paths.extend(unit_watch_paths(&unit)?);
+                watch_paths.extend(unit_watch_paths(&unit, file_source)?);
                 unit
             };
 
             let stub = match &unit.data {
                 ProgramData::Bytecode(bytecode) => disassemble_dependency_bytecode(unit.name, bytecode, network)?,
-                ProgramData::SourcePath { directory, source } => {
-                    load_source_dependency_stub(&unit, source, dependency_source_directory(directory, source), network)?
-                }
+                ProgramData::SourcePath { directory, source } => load_source_dependency_stub(
+                    &unit,
+                    source,
+                    dependency_source_directory(directory, source),
+                    network,
+                    file_source,
+                )?,
             };
             import_stubs.insert(unit.name, stub);
         }
@@ -944,6 +973,12 @@ fn collect_local_declared_dependencies_recursive(
 ) -> Result<()> {
     for dependency in manifest.dependencies.iter().flatten() {
         let dependency = normalize_local_dependency(base_path, dependency.clone())?;
+        // Resolve workspace deps early - converts to Location::Local with an absolute path.
+        let dependency = if dependency.location == Location::Workspace {
+            resolve_workspace_dependency(base_path, dependency)?
+        } else {
+            dependency
+        };
         if dependency.location != Location::Local {
             continue;
         }
@@ -975,14 +1010,14 @@ fn normalize_local_dependency(base_path: &Path, mut dependency: Dependency) -> R
         && !path.is_absolute()
     {
         let joined = base_path.join(&*path);
-        *path = joined.canonicalize().map_err(|error| PackageError::failed_path(joined.display(), error))?;
+        *path = joined.canonicalize().map_err(|error| crate::errors::failed_path(joined.display(), error))?;
     }
 
     Ok(dependency)
 }
 
 /// Return the manifest and source files whose metadata should invalidate one stubbed unit.
-fn unit_watch_paths(unit: &CompilationUnit) -> Result<Vec<PathBuf>> {
+fn unit_watch_paths(unit: &CompilationUnit, file_source: &impl FileSource) -> Result<Vec<PathBuf>> {
     let ProgramData::SourcePath { directory, source } = &unit.data else {
         return Ok(Vec::new());
     };
@@ -990,13 +1025,30 @@ fn unit_watch_paths(unit: &CompilationUnit) -> Result<Vec<PathBuf>> {
     let source_directory = dependency_source_directory(directory, source);
     let mut watch_paths = vec![directory.join(MANIFEST_FILENAME), source_directory.clone(), source.clone()];
     if source_directory.is_dir() {
-        let mut modules = DiskFileSource
+        collect_source_directories(&source_directory, &mut watch_paths)?;
+        let mut modules = file_source
             .list_leo_files(&source_directory, source)
-            .map_err(|error| CompilerError::file_read_error(source_directory.display().to_string(), error))?;
+            .map_err(|error| crate::errors::file_read_error(source_directory.display().to_string(), error))?;
         watch_paths.append(&mut modules);
     }
 
     Ok(watch_paths)
+}
+
+/// Collect source directories whose mtimes signal nested module creation/removal.
+fn collect_source_directories(dir: &Path, watch_paths: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in fs::read_dir(dir).map_err(|error| errors::file_read_error(dir.display().to_string(), error))? {
+        let entry = entry.map_err(|error| errors::file_read_error(dir.display().to_string(), error))?;
+        let path = entry.path();
+        if path.is_dir() {
+            // Watching only existing `.leo` files misses the first file added to
+            // an already-existing nested module directory. Include directories
+            // so LSP-side cache revisions notice those create/remove events.
+            watch_paths.push(path.clone());
+            collect_source_directories(&path, watch_paths)?;
+        }
+    }
+    Ok(())
 }
 
 /// Parse a local dependency just far enough to recover the public interface
@@ -1006,6 +1058,7 @@ fn load_source_dependency_stub(
     source: &Path,
     source_directory: PathBuf,
     network: NetworkName,
+    file_source: &impl FileSource,
 ) -> Result<Stub> {
     let handler = Handler::default();
     let node_builder = Rc::new(NodeBuilder::default());
@@ -1027,18 +1080,19 @@ fn load_source_dependency_stub(
                 library_name,
                 source,
                 &source_directory,
-                &DiskFileSource,
+                file_source,
             )?;
             Ok(library.into())
         }
         PackageKind::Program | PackageKind::Test => {
             let program =
-                compiler.parse_program_from_directory_with_file_source(source, &source_directory, &DiskFileSource)?;
+                compiler.parse_program_from_directory_with_file_source(source, &source_directory, file_source)?;
             Ok(extract_program_interface_stub(unit.name, &program))
         }
     }
 }
 
+/// Build the public interface stub for a source dependency program.
 fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> Stub {
     let scope = program.program_scopes.values().next().expect("program AST should contain one program scope");
 
@@ -1097,19 +1151,19 @@ fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> S
 fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
     let disassembled = match network {
         NetworkName::MainnetV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
         }
         NetworkName::TestnetV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
         }
         NetworkName::CanaryV0 => {
-            leo_disassembler::disassemble_from_str::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
+            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
         }
     };
 
     disassembled
         .map(Into::into)
-        .map_err(|err| CompilerError::file_read_error(format!("dependency bytecode for `{program_name}`"), err).into())
+        .map_err(|err| crate::errors::file_read_error(format!("dependency bytecode for `{program_name}`"), err).into())
 }
 
 #[cfg(test)]
@@ -1124,6 +1178,7 @@ mod tests {
 
     use indexmap::IndexMap;
 
+    /// Verifies library parsing can read every source file from an in-memory source.
     #[test]
     fn parse_library_from_directory_in_memory() {
         create_session_if_not_set_then(|_| {
@@ -1168,6 +1223,7 @@ mod tests {
         });
     }
 
+    /// Verifies in-memory library builds still reject type errors.
     #[test]
     fn build_library_from_directory_in_memory_rejects_type_error() {
         create_session_if_not_set_then(|_| {
@@ -1205,6 +1261,7 @@ mod tests {
         });
     }
 
+    /// Verifies in-memory program parsing can load sibling modules.
     #[test]
     fn parse_program_from_directory_in_memory_with_module() {
         create_session_if_not_set_then(|_| {

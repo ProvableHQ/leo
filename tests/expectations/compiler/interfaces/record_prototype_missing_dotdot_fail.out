@@ -1,15 +1,10 @@
-Error [EPAR0370047]: expected `..`; fully constraining record fields in interfaces is not yet supported
-    --> compiler-test:4:5
-     |
-   4 |     }
-     |     ^
-Warning [WPAR0370002]: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    --> compiler-test:2:1
-     |
-   2 | 
-   3 |     record Token {
-     |     ^^^^^^^^^^^^^^
-   4 |         owner: address,
-     |         ^^^^^^^^^^^^^^^
-   5 |     }
-     |     ^
+[EPAR0370047] Error: expected `..`; fully constraining record fields in interfaces is not yet supported
+   ╭─[ compiler-test:4:5 ]
+   │
+ 4 │     }
+───╯
+[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+   ╭─[ compiler-test:1:27 ]
+   │
+   │ 
+───╯

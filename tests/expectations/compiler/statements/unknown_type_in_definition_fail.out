@@ -1,12 +1,12 @@
-Error [ETYC0372017]: The type `test.aleo::Foo` is not found in the current scope.
-    --> compiler-test:3:9
-     |
-   3 |         let b: Foo = 1u8;
-     |         ^^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372117]: Expected type `test.aleo::Foo` but type `u8` was found.
-    --> compiler-test:3:22
-     |
-   3 |         let b: Foo = 1u8;
-     |                      ^^^
+[ETYC0372017] Error: The type `test.aleo::Foo` is not found in the current scope.
+   ╭─[ compiler-test:3:9 ]
+   │
+ 3 │         let b: Foo = 1u8;
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372117] Error: Expected type `test.aleo::Foo` but type `u8` was found.
+   ╭─[ compiler-test:3:22 ]
+   │
+ 3 │         let b: Foo = 1u8;
+───╯

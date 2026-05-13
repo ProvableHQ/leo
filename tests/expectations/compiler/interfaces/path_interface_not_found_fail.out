@@ -1,7 +1,7 @@
-Error [ECHI03712000]: Interface `lib.aleo/NonExistent` not found.
-    --> compiler-test:4:20
-     |
-   4 | program test.aleo: lib.aleo::NonExistent {
-     |                    ^^^^^^^^^^^^^^^^^^^^^
-     |
-     = Make sure the interface is defined in the current program or an imported program.
+[ECHI03712000] Error: Interface `lib.aleo/NonExistent` not found.
+   ╭─[ compiler-test:4:20 ]
+   │
+ 4 │ program test.aleo: lib.aleo::NonExistent {
+   │ 
+   │ Help: Make sure the interface is defined in the current program or an imported program.
+───╯

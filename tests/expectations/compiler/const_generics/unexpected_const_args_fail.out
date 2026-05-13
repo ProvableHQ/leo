@@ -1,49 +1,49 @@
-Error [ETYC0372146]: unexpected generic const argment for test.aleo::M::[6].
-    --> compiler-test:4:8
-     |
-   4 |     g: M::[6],
-     |        ^
-     |
-     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
-Error [ETYC0372146]: unexpected generic const argment for test.aleo::baz::[5].
-    --> compiler-test:5:8
-     |
-   5 |     f: baz::[5],
-     |        ^^^
-     |
-     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
-Error [ETYC0372017]: The type `test.aleo::M` is not found in the current scope.
-    --> compiler-test:4:5
-     |
-   4 |     g: M::[6],
-     |     ^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372017]: The type `test.aleo::baz` is not found in the current scope.
-    --> compiler-test:5:5
-     |
-   5 |     f: baz::[5],
-     |     ^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372146]: unexpected generic const argment for test.aleo::x::[5].
-    --> compiler-test:13:16
-     |
-  13 |         let y: x::[5] = [3];
-     |                ^
-     |
-     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
-Error [ETYC0372017]: The type `test.aleo::x` is not found in the current scope.
-    --> compiler-test:13:9
-     |
-  13 |         let y: x::[5] = [3];
-     |         ^^^^^^^^^^^^^^^^^^^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372004]: Could not determine the type of `3`
-    --> compiler-test:13:26
-     |
-  13 |         let y: x::[5] = [3];
-     |                          ^
-     |
-     = Consider using explicit type annotations.
+[ETYC0372146] Error: unexpected generic const argment for test.aleo::M::[6].
+   ╭─[ compiler-test:4:8 ]
+   │
+ 4 │     g: M::[6],
+   │ 
+   │ Help: If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+───╯
+[ETYC0372146] Error: unexpected generic const argment for test.aleo::baz::[5].
+   ╭─[ compiler-test:5:8 ]
+   │
+ 5 │     f: baz::[5],
+   │ 
+   │ Help: If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+───╯
+[ETYC0372017] Error: The type `test.aleo::M` is not found in the current scope.
+   ╭─[ compiler-test:4:5 ]
+   │
+ 4 │     g: M::[6],
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372017] Error: The type `test.aleo::baz` is not found in the current scope.
+   ╭─[ compiler-test:5:5 ]
+   │
+ 5 │     f: baz::[5],
+   │ 
+   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+───╯
+[ETYC0372146] Error: unexpected generic const argment for test.aleo::x::[5].
+    ╭─[ compiler-test:13:16 ]
+    │
+ 13 │         let y: x::[5] = [3];
+    │ 
+    │ Help: If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+────╯
+[ETYC0372017] Error: The type `test.aleo::x` is not found in the current scope.
+    ╭─[ compiler-test:13:9 ]
+    │
+ 13 │         let y: x::[5] = [3];
+    │ 
+    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+────╯
+[ETYC0372004] Error: Could not determine the type of `3`
+    ╭─[ compiler-test:13:26 ]
+    │
+ 13 │         let y: x::[5] = [3];
+    │ 
+    │ Help: Consider using explicit type annotations.
+────╯

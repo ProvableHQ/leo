@@ -1,60 +1,60 @@
-Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:6:22
-     |
-   6 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                      ^^^^
-Error [ETYC0372140]: Composite type expected `1` const args, but got `0`
-    --> compiler-test:6:32
-     |
-   6 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                                ^^^
-Error [ETYC0372140]: Composite type expected `1` const args, but got `2`
-    --> compiler-test:6:44
-     |
-   6 |     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
-     |                                            ^^^
-Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:7:23
-     |
-   7 |         let x = foo::[5u16]();
-     |                       ^^^^
-Error [ETYC0372140]: Call expected `1` const args, but got `0`
-    --> compiler-test:8:17
-     |
-   8 |         let y = foo::[]();
-     |                 ^^^^^^^^^
-Error [ETYC0372140]: Call expected `1` const args, but got `2`
-    --> compiler-test:9:17
-     |
-   9 |         let z = foo::[5u32, 5u32]();
-     |                 ^^^^^^^^^^^^^^^^^^^
-Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:11:23
-     |
-  11 |         let f1: Foo::[5u16] = Foo::[5u16] { x: 0 };
-     |                       ^^^^
-Error [ETYC0372117]: Expected type `u32` but type `u16` was found.
-    --> compiler-test:11:37
-     |
-  11 |         let f1: Foo::[5u16] = Foo::[5u16] { x: 0 };
-     |                                     ^^^^
-Error [ETYC0372140]: Composite type expected `1` const args, but got `0`
-    --> compiler-test:12:17
-     |
-  12 |         let f2: Foo::[] = Foo::[] { x: 0 };
-     |                 ^^^
-Error [ETYC0372140]: Composite expression expected `1` const args, but got `0`
-    --> compiler-test:12:27
-     |
-  12 |         let f2: Foo::[] = Foo::[] { x: 0 };
-     |                           ^^^^^^^^^^^^^^^^
-Error [ETYC0372140]: Composite type expected `1` const args, but got `2`
-    --> compiler-test:13:17
-     |
-  13 |         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };
-     |                 ^^^
-Error [ETYC0372140]: Composite expression expected `1` const args, but got `2`
-    --> compiler-test:13:37
-     |
-  13 |         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };
-     |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ETYC0372117] Error: Expected type `u32` but type `u16` was found.
+   ╭─[ compiler-test:6:22 ]
+   │
+ 6 │     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+───╯
+[ETYC0372140] Error: Composite type expected `1` const args, but got `0`
+   ╭─[ compiler-test:6:32 ]
+   │
+ 6 │     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+───╯
+[ETYC0372140] Error: Composite type expected `1` const args, but got `2`
+   ╭─[ compiler-test:6:44 ]
+   │
+ 6 │     fn main(a: Foo::[5u16], b: Foo::[], c: Foo::[5u32, 5u32]) {
+───╯
+[ETYC0372117] Error: Expected type `u32` but type `u16` was found.
+   ╭─[ compiler-test:7:23 ]
+   │
+ 7 │         let x = foo::[5u16]();
+───╯
+[ETYC0372140] Error: Call expected `1` const args, but got `0`
+   ╭─[ compiler-test:8:17 ]
+   │
+ 8 │         let y = foo::[]();
+───╯
+[ETYC0372140] Error: Call expected `1` const args, but got `2`
+   ╭─[ compiler-test:9:17 ]
+   │
+ 9 │         let z = foo::[5u32, 5u32]();
+───╯
+[ETYC0372117] Error: Expected type `u32` but type `u16` was found.
+    ╭─[ compiler-test:11:23 ]
+    │
+ 11 │         let f1: Foo::[5u16] = Foo::[5u16] { x: 0 };
+────╯
+[ETYC0372117] Error: Expected type `u32` but type `u16` was found.
+    ╭─[ compiler-test:11:37 ]
+    │
+ 11 │         let f1: Foo::[5u16] = Foo::[5u16] { x: 0 };
+────╯
+[ETYC0372140] Error: Composite type expected `1` const args, but got `0`
+    ╭─[ compiler-test:12:17 ]
+    │
+ 12 │         let f2: Foo::[] = Foo::[] { x: 0 };
+────╯
+[ETYC0372140] Error: Composite expression expected `1` const args, but got `0`
+    ╭─[ compiler-test:12:27 ]
+    │
+ 12 │         let f2: Foo::[] = Foo::[] { x: 0 };
+────╯
+[ETYC0372140] Error: Composite type expected `1` const args, but got `2`
+    ╭─[ compiler-test:13:17 ]
+    │
+ 13 │         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };
+────╯
+[ETYC0372140] Error: Composite expression expected `1` const args, but got `2`
+    ╭─[ compiler-test:13:37 ]
+    │
+ 13 │         let f3: Foo::[5u32, 5u32] = Foo::[5u32, 5u32] { x: 0 };
+────╯

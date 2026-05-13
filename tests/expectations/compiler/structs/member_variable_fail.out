@@ -1,7 +1,7 @@
-Error [ETYC0372018]: Variable y is not a member of struct Foo {
+[ETYC0372018] Error: Variable y is not a member of struct Foo {
     x: u32,
 }.
-    --> compiler-test:8:21
-     |
-   8 |         let err = a.y;
-     |                     ^
+   ╭─[ compiler-test:8:21 ]
+   │
+ 8 │         let err = a.y;
+───╯

@@ -1,5 +1,5 @@
-Error [ETYC0372034]: `block.height` must be inside a `final fn` or a `final` block.
-    --> compiler-test:3:27
-     |
-   3 |         assert_eq(height, block.height);
-     |                           ^^^^^^^^^^^^
+[ETYC0372034] Error: `block.height` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:3:27 ]
+   │
+ 3 │         assert_eq(height, block.height);
+───╯

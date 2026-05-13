@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected field name or tuple index
-    --> compiler-test:5:21
-     |
-   5 |     return (t.0, t. - 1); // Index `t.-1` is invalid.
-     |                     ^
+[EPAR0370047] Error: expected field name or tuple index
+   ╭─[ compiler-test:5:21 ]
+   │
+ 5 │     return (t.0, t. - 1); // Index `t.-1` is invalid.
+───╯

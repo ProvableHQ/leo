@@ -1,5 +1,5 @@
-Error [ESAZ0374007]: Binary operation `241u8 + 15u8` failed at compile time: add overflow.
-    --> compiler-test:19:17
-     |
-  19 |             c = c + i;
-     |                 ^^^^^
+[ESAZ0374007] Error: Binary operation `241u8 + 15u8` failed at compile time: add overflow.
+    ╭─[ compiler-test:19:17 ]
+    │
+ 19 │             c = c + i;
+────╯

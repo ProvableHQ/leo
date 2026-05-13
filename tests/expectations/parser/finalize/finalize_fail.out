@@ -1,20 +1,20 @@
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:3:2
-     |
-   3 | }finalize {
-     |  ^^^^^^^^
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:9:2
-     |
-   9 | }finalize() {
-     |  ^^^^^^^^
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:15:2
-     |
-  15 | }finalie() {
-     |  ^^^^^^^
-Error [EPAR0370047]: expected `import`, `program`, or module item at top level
-    --> test:21:2
-     |
-  21 | }finalize main() floo {
-     |  ^^^^^^^^
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+   ╭─[ test:3:2 ]
+   │
+ 3 │ }finalize {
+───╯
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+   ╭─[ test:9:2 ]
+   │
+ 9 │ }finalize() {
+───╯
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+    ╭─[ test:15:2 ]
+    │
+ 15 │ }finalie() {
+────╯
+[EPAR0370047] Error: expected `import`, `program`, or module item at top level
+    ╭─[ test:21:2 ]
+    │
+ 21 │ }finalize main() floo {
+────╯

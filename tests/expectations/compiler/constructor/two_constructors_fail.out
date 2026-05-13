@@ -1,11 +1,5 @@
-Error [EPAR0370047]: A program can only have one constructor.
-    --> compiler-test:9:5
-     |
-   9 |     @custom
-     |     ^^^^^^^
-  10 |     constructor() {
-     |     ^^^^^^^^^^^^^^^
-  11 |         assert_eq(true, true);
-     |         ^^^^^^^^^^^^^^^^^^^^^^
-  12 |     }
-     |     ^
+[EPAR0370047] Error: A program can only have one constructor.
+    ╭─[ compiler-test:9:5 ]
+    │
+    │ 
+────╯

@@ -1,5 +1,5 @@
-Error [ETYC0372117]: Expected type `u64` but type `u32` was found.
-    --> compiler-test:2:18
-     |
-   2 |     let x: u64 = block.height;
-     |                  ^^^^^^^^^^^^
+[ETYC0372117] Error: Expected type `u64` but type `u32` was found.
+   ╭─[ compiler-test:2:18 ]
+   │
+ 2 │     let x: u64 = block.height;
+───╯

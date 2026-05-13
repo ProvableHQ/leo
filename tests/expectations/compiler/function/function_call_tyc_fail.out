@@ -1,15 +1,15 @@
-Error [ETYC0372003]: Expected type `i8` but type `u8` was found
-    --> compiler-test:13:13
-     |
-  13 |         x = f1(1u8);
-     |             ^^^^^^^
-Error [ETYC0372003]: Expected type `i8` but type `u8` was found
-    --> compiler-test:17:13
-     |
-  17 |         y = f3(y, z);
-     |             ^^^^^^^^
-Error [ETYC0372117]: Expected type `u8` but type `i8` was found.
-    --> compiler-test:17:16
-     |
-  17 |         y = f3(y, z);
-     |                ^
+[ETYC0372003] Error: Expected type `i8` but type `u8` was found
+    ╭─[ compiler-test:13:13 ]
+    │
+ 13 │         x = f1(1u8);
+────╯
+[ETYC0372003] Error: Expected type `i8` but type `u8` was found
+    ╭─[ compiler-test:17:13 ]
+    │
+ 17 │         y = f3(y, z);
+────╯
+[ETYC0372117] Error: Expected type `u8` but type `i8` was found.
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         y = f3(y, z);
+────╯

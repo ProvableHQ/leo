@@ -1,5 +1,5 @@
-Error [ETYC0372005]: Unknown variable `test.aleo::group::GENERATOR`
-    --> compiler-test:3:24
-     |
-   3 |         let a: group = group::GENERATOR;
-     |                        ^^^^^^^^^^^^^^^^
+[ETYC0372005] Error: Unknown variable `test.aleo::group::GENERATOR`
+   ╭─[ compiler-test:3:24 ]
+   │
+ 3 │         let a: group = group::GENERATOR;
+───╯

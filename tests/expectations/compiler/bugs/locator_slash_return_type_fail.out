@@ -1,5 +1,5 @@
-Error [EPAR0370047]: expected {
-    --> compiler-test:5:27
-     |
-   5 |     fn f() -> credits.aleo/credits {
-     |                           ^
+[EPAR0370047] Error: expected {
+   ╭─[ compiler-test:5:27 ]
+   │
+ 5 │     fn f() -> credits.aleo/credits {
+───╯

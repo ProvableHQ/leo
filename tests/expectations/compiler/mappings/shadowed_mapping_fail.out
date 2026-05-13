@@ -1,7 +1,14 @@
-Error [EAST0372017]: The name `one` is defined multiple times.
-    --> compiler-test:3:5
-     |
-   2 |       mapping one: field => field;
-     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ previous definition of `one` here
-   3 |       mapping one: field => field;
-     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `one` redefined here
+[EAST0372017] Error: The name `one` is defined multiple times.
+   ╭─[ compiler-test:3:5 ]
+   │
+ 3 │     mapping one: field => field;
+   │
+   ├─[ compiler-test:3:5 ]
+   │
+ 2 │     mapping one: field => field;
+   │     ──────────────┬─────────────  
+   │                   ╰─────────────── previous definition of `one` here
+ 3 │     mapping one: field => field;
+   │     ──────────────┬─────────────  
+   │                   ╰─────────────── `one` redefined here
+───╯

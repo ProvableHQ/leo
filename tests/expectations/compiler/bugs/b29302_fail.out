@@ -1,5 +1,5 @@
-Error [EPAR0370021]: The type of `2u32` has no associated function `exp` that takes 1 argument(s).
-    --> compiler-test:9:20
-     |
-   9 |     fn main(x: S::[2u32.exp(2u32)]);
-     |                    ^^^^^^^^^^^^^^
+[EPAR0370021] Error: The type of `2u32` has no associated function `exp` that takes 1 argument(s).
+   ╭─[ compiler-test:9:20 ]
+   │
+ 9 │     fn main(x: S::[2u32.exp(2u32)]);
+───╯

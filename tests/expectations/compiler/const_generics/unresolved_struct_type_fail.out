@@ -1,30 +1,26 @@
-Error [ETYC0372146]: unexpected generic const argment for b28668.aleo::Goo::[y].
-    --> compiler-test:11:16
-     |
-  11 |         let g: Goo::[y] = Goo::[y] {
-     |                ^^^
-     |
-     = If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
-Error [ETYC0372017]: The type `b28668.aleo::Goo` is not found in the current scope.
-    --> compiler-test:11:9
-     |
-  11 |         let g: Goo::[y] = Goo::[y] {
-     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  12 |             z: Foo::[self.caller] { x: 5 },
-     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  13 |         };
-     |         ^^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
-Error [ETYC0372005]: Unknown struct or record `b28668.aleo::Goo`
-    --> compiler-test:11:27
-     |
-  11 |         let g: Goo::[y] = Goo::[y] {
-     |                           ^^^
-Error [ETYC0372017]: The type `b28668.aleo::Goo::[y]` is not found in the current scope.
-    --> compiler-test:14:16
-     |
-  14 |         return g.z.x;
-     |                ^
-     |
-     = If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+[ETYC0372146] Error: unexpected generic const argment for b28668.aleo::Goo::[y].
+    ╭─[ compiler-test:11:16 ]
+    │
+ 11 │         let g: Goo::[y] = Goo::[y] {
+    │ 
+    │ Help: If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+────╯
+[ETYC0372017] Error: The type `b28668.aleo::Goo` is not found in the current scope.
+    ╭─[ compiler-test:11:9 ]
+    │
+    │ 
+    │ 
+    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+────╯
+[ETYC0372005] Error: Unknown struct or record `b28668.aleo::Goo`
+    ╭─[ compiler-test:11:27 ]
+    │
+ 11 │         let g: Goo::[y] = Goo::[y] {
+────╯
+[ETYC0372017] Error: The type `b28668.aleo::Goo::[y]` is not found in the current scope.
+    ╭─[ compiler-test:14:16 ]
+    │
+ 14 │         return g.z.x;
+    │ 
+    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+────╯

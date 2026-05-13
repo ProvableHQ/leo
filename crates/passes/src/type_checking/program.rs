@@ -18,12 +18,39 @@ use super::TypeCheckingVisitor;
 use crate::VariableSymbol;
 
 use leo_ast::{DiGraphError, Type, *};
-use leo_errors::{Label, TypeCheckerError};
+use leo_errors::Label;
 use leo_span::{Symbol, sym};
 
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::collections::{BTreeMap, HashMap};
+
+/// Recursively walks a member type and adds a composite-dependency edge from
+/// `composite_location` to every composite reachable through any combination of
+/// `Optional`, `Array`, and `Tuple` wrappers. This is the single source of truth
+/// for which member types create composite-graph edges; enumerating shapes one
+/// at a time historically missed cases such as `Node?`, `[Node?; N]`, and
+/// `[[Node; N]; M]?`, allowing programs that should be diagnosed as cyclic to
+/// crash the type checker with a stack overflow instead.
+fn add_composite_dependencies(member_type: &Type, composite_location: &Location, graph: &mut CompositeGraph) {
+    match member_type {
+        Type::Composite(composite_member_type) => {
+            graph.add_edge(composite_location.clone(), composite_member_type.path.expect_global_location().clone());
+        }
+        Type::Array(array_type) => {
+            add_composite_dependencies(array_type.element_type(), composite_location, graph);
+        }
+        Type::Optional(OptionalType { inner }) => {
+            add_composite_dependencies(inner, composite_location, graph);
+        }
+        Type::Tuple(tuple_type) => {
+            for elem in tuple_type.elements().iter() {
+                add_composite_dependencies(elem, composite_location, graph);
+            }
+        }
+        _ => {}
+    }
+}
 
 impl UnitVisitor for TypeCheckingVisitor<'_> {
     fn visit_program(&mut self, input: &Program) {
@@ -32,7 +59,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             if let Stub::FromAleo { program, .. } = stub {
                 // Check that naming and ordering is consistent.
                 if symbol != &program.stub_id.as_symbol() {
-                    self.emit_err(TypeCheckerError::stub_name_mismatch(
+                    self.emit_err(crate::errors::type_checker::stub_name_mismatch(
                         symbol,
                         program.stub_id.name,
                         program.stub_id.network.span,
@@ -69,9 +96,9 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // errors for `Foo/FooBar` and for `FooBar/FooBarBaz` but not for `Foo/FooBarBaz`.
         for ((prev_name, _), (curr_name, curr_span)) in record_info.iter().tuple_windows() {
             if curr_name.starts_with(prev_name) {
-                self.state
-                    .handler
-                    .emit_err(TypeCheckerError::record_prefixed_by_other_record(curr_name, prev_name, *curr_span));
+                self.state.handler.emit_err(crate::errors::type_checker::record_prefixed_by_other_record(
+                    curr_name, prev_name, *curr_span,
+                ));
             }
         }
 
@@ -83,8 +110,22 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the composite dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.composite_graph.post_order() {
-            self.emit_err(TypeCheckerError::cyclic_composite_dependency(
+            // Anchor the diagnostic at the first composite in the cycle so users can navigate
+            // to a relevant declaration. Falls back to a default span if the composite somehow
+            // can't be resolved (e.g. it lives in an external program we don't have a stub for).
+            let span = path
+                .first()
+                .and_then(|loc| {
+                    self.state
+                        .symbol_table
+                        .lookup_struct(loc.program, loc)
+                        .or_else(|| self.state.symbol_table.lookup_record(loc.program, loc))
+                })
+                .map(|c| c.identifier.span)
+                .unwrap_or_default();
+            self.emit_err(crate::errors::type_checker::cyclic_composite_dependency(
                 path.iter().map(|loc| loc.to_string()).collect(),
+                span,
             ));
         }
 
@@ -102,7 +143,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the number of mappings does not exceed the maximum.
         if mapping_count > self.limits.max_mappings {
-            self.emit_err(TypeCheckerError::too_many_mappings(
+            self.emit_err(crate::errors::type_checker::too_many_mappings(
                 self.limits.max_mappings,
                 input.program_id.name.span + input.program_id.network.span,
             ));
@@ -131,13 +172,13 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the call graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.state.call_graph.post_order() {
-            self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
+            self.emit_err(crate::errors::type_checker::cyclic_function_dependency(path));
         }
 
         // TODO: Need similar checks for composites (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > self.limits.max_functions {
-            self.emit_err(TypeCheckerError::too_many_entry_points(
+            self.emit_err(crate::errors::type_checker::too_many_entry_points(
                 self.limits.max_functions,
                 input.program_id.name.span + input.program_id.network.span,
             ));
@@ -145,7 +186,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Check that each program has at least one transition function.
         // This is a snarkvm requirement.
         else if transition_count == 0 {
-            self.emit_err(TypeCheckerError::no_entry_points(
+            self.emit_err(crate::errors::type_checker::no_entry_points(
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -191,7 +232,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Entry point functions declared in interfaces cannot have const generic parameters.
         for (_, prototype) in &input.functions {
             if !prototype.const_parameters.is_empty() {
-                self.emit_err(TypeCheckerError::cannot_have_const_generics(
+                self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
                     "Entry point functions",
                     prototype.identifier.span,
                 ));
@@ -211,7 +252,9 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
-            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
+            self.emit_err(crate::errors::type_checker::stubs_cannot_have_const_declarations(
+                input.consts.first().unwrap().1.span,
+            ));
         }
 
         // Typecheck the program's composites.
@@ -225,7 +268,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.in_conditional_scope(|slf| {
             slf.in_scope(input.id, |slf| {
                 if input.is_record && !input.const_parameters.is_empty() {
-                    slf.emit_err(TypeCheckerError::unexpected_record_const_parameters(input.span));
+                    slf.emit_err(crate::errors::type_checker::unexpected_record_const_parameters(input.span));
                 } else {
                     input
                         .const_parameters
@@ -240,7 +283,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                             const_param.type_(),
                             Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
                         ) {
-                            slf.emit_err(TypeCheckerError::bad_const_generic_type(
+                            slf.emit_err(crate::errors::type_checker::bad_const_generic_type(
                                 const_param.type_(),
                                 const_param.span(),
                             ));
@@ -266,16 +309,18 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
             if let Some(first_span) = used.get(&identifier.name) {
                 self.emit_err(if input.is_record {
-                    TypeCheckerError::duplicate_record_variable(identifier.name, *span).with_labels(vec![
-                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                    crate::errors::type_checker::duplicate_record_variable(identifier.name, *span).with_labels(vec![
+                        Label::new(*first_span)
+                            .with_message(format!("`{}` first declared here", identifier.name))
                             .with_color(leo_errors::Color::Blue),
-                        Label::new("record variable already declared", *span),
+                        Label::new(*span).with_message("record variable already declared"),
                     ])
                 } else {
-                    TypeCheckerError::duplicate_struct_member(identifier.name, *span).with_labels(vec![
-                        Label::new(format!("`{}` first declared here", identifier.name), *first_span)
+                    crate::errors::type_checker::duplicate_struct_member(identifier.name, *span).with_labels(vec![
+                        Label::new(*first_span)
+                            .with_message(format!("`{}` first declared here", identifier.name))
                             .with_color(leo_errors::Color::Blue),
-                        Label::new("struct field already declared", *span),
+                        Label::new(*span).with_message("struct field already declared"),
                     ])
                 });
             } else {
@@ -285,43 +330,50 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
-            let check_has_field =
-                |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
-                    (identifier.name == need).then_some((identifier, type_))
-                }) {
-                    Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
-                    Some((field, _)) => {
-                        self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
-                    }
-                    None => {
-                        self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
-                    }
-                };
+            let check_has_field = |need, expected_ty: Type| match input
+                .members
+                .iter()
+                .find_map(|Member { identifier, type_, .. }| (identifier.name == need).then_some((identifier, type_)))
+            {
+                Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
+                Some((field, _)) => {
+                    self.emit_err(crate::errors::type_checker::record_var_wrong_type(field, expected_ty, input.span()));
+                }
+                None => {
+                    self.emit_err(crate::errors::type_checker::required_record_variable(
+                        need,
+                        expected_ty,
+                        input.span(),
+                    ));
+                }
+            };
             check_has_field(sym::owner, Type::Address);
 
             for Member { identifier, type_, span, .. } in input.members.iter() {
                 if self.contains_optional_type(type_) {
-                    self.emit_err(TypeCheckerError::record_field_cannot_be_optional(identifier, type_, *span));
+                    self.emit_err(crate::errors::type_checker::record_field_cannot_be_optional(
+                        identifier, type_, *span,
+                    ));
                 }
             }
         }
         // For structs, check that there is at least one member.
         else if input.members.is_empty() {
-            self.emit_err(TypeCheckerError::empty_struct(input.span()));
+            self.emit_err(crate::errors::type_checker::empty_struct(input.span()));
         } else if input.members.iter().all(|m| m.type_.is_empty()) {
-            self.emit_err(TypeCheckerError::zero_size_struct(input.span()));
+            self.emit_err(crate::errors::type_checker::zero_size_struct(input.span()));
         }
 
         if !(input.is_record && self.scope_state.is_stub) {
             for Member { mode, identifier, type_, span, .. } in input.members.iter() {
                 // Check that the member type is not a tuple.
                 if matches!(type_, Type::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                    self.emit_err(crate::errors::type_checker::composite_data_type_cannot_contain_tuple(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
                     ));
                 } else if matches!(type_, Type::Future(..)) {
-                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_final(
+                    self.emit_err(crate::errors::type_checker::composite_data_type_cannot_contain_final(
                         if input.is_record { "record" } else { "struct" },
                         identifier.span,
                     ));
@@ -340,26 +392,16 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     .collect::<Vec<Symbol>>();
                 let this_program = self.scope_state.unit_name.unwrap();
                 let composite_location = Location::new(this_program, composite_path);
-                if let Type::Composite(composite_member_type) = type_ {
-                    // Note that since there are no cycles in the program dependency graph, there are no cycles in the
-                    // composite dependency graph caused by external composites.
-                    self.state
-                        .composite_graph
-                        .add_edge(composite_location, composite_member_type.path.expect_global_location().clone());
-                } else if let Type::Array(array_type) = type_ {
-                    // Get the base element type.
-                    let base_element_type = array_type.base_element_type();
-                    // If the base element type is a composite, then add it to the composite dependency graph.
-                    if let Type::Composite(member_type) = base_element_type {
-                        self.state
-                            .composite_graph
-                            .add_edge(composite_location, member_type.path.expect_global_location().clone());
-                    }
-                }
+                // Walk the member type and add a composite-graph edge for every composite reachable
+                // through any combination of `Optional`, `Array`, and `Tuple` wrappers. Using a
+                // recursive walk (rather than enumerating one shape at a time) ensures shapes like
+                // `Node?`, `[Node?; N]`, `[[Node; N]; M]?`, and arbitrary deeper nestings all
+                // participate in cycle detection.
+                add_composite_dependencies(type_, &composite_location, &mut self.state.composite_graph);
 
                 // If the input is a struct, then check that the member does not have a mode.
                 if !input.is_record && !matches!(mode, Mode::None) {
-                    self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                    self.emit_err(crate::errors::type_checker::struct_cannot_have_member_mode(*span));
                 }
             }
         }
@@ -373,28 +415,37 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a future, tuple, record, or mapping.
         match input.key_type.clone() {
-            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "future", input.span)),
-            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
+            Type::Future(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "future", input.span))
+            }
+            Type::Tuple(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "tuple", input.span))
+            }
             Type::Composite(composite_type) => {
                 if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
-                        self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
+                        self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "record", input.span));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.key_type, input.span));
+                    self.emit_err(crate::errors::type_checker::undefined_type(&input.key_type, input.span));
                 }
             }
+            Type::DynRecord => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "dyn record", input.span));
+            }
             // Note that this is not possible since the parser does not currently accept mapping types.
-            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "mapping", input.span)),
+            Type::Mapping(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "mapping", input.span))
+            }
             _ => {}
         }
 
         if input.key_type.is_empty() {
-            self.emit_err(TypeCheckerError::invalid_mapping_type("key", "zero sized type", input.span));
+            self.emit_err(crate::errors::type_checker::invalid_mapping_type("key", "zero sized type", input.span));
         }
 
         if self.contains_optional_type(&input.key_type) {
-            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+            self.emit_err(crate::errors::type_checker::optional_type_not_allowed_in_mapping(
                 input.key_type.clone(),
                 "key",
                 input.span,
@@ -405,28 +456,37 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a future, tuple, record or mapping.
         match input.value_type.clone() {
-            Type::Future(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "future", input.span)),
-            Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
+            Type::Future(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "future", input.span))
+            }
+            Type::Tuple(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "tuple", input.span))
+            }
             Type::Composite(composite_type) => {
                 if let Some(comp) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if comp.is_record {
-                        self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
+                        self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "record", input.span));
                     }
                 } else {
-                    self.emit_err(TypeCheckerError::undefined_type(&input.value_type, input.span));
+                    self.emit_err(crate::errors::type_checker::undefined_type(&input.value_type, input.span));
                 }
             }
+            Type::DynRecord => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "dyn record", input.span));
+            }
             // Note that this is not possible since the parser does not currently accept mapping types.
-            Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
+            Type::Mapping(_) => {
+                self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "mapping", input.span))
+            }
             _ => {}
         }
 
         if input.value_type.is_empty() {
-            self.emit_err(TypeCheckerError::invalid_mapping_type("value", "zero sized type", input.span));
+            self.emit_err(crate::errors::type_checker::invalid_mapping_type("value", "zero sized type", input.span));
         }
 
         if self.contains_optional_type(&input.value_type) {
-            self.emit_err(TypeCheckerError::optional_type_not_allowed_in_mapping(
+            self.emit_err(crate::errors::type_checker::optional_type_not_allowed_in_mapping(
                 input.value_type.clone(),
                 "value",
                 input.span,
@@ -456,7 +516,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Check that the function's annotations are valid.
         for annotation in function.annotations.iter() {
             if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
-                self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+                self.emit_err(crate::errors::type_checker::unknown_annotation(annotation, annotation.span))
             }
         }
 
@@ -470,14 +530,14 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 let annotation = get(symbol);
                 for key in annotation.map.keys() {
                     if !allowed_keys.contains(key) {
-                        self.emit_err(TypeCheckerError::annotation_error(
+                        self.emit_err(crate::errors::type_checker::annotation_error(
                             format_args!("Invalid key `{key}` for annotation @{symbol}"),
                             annotation.span,
                         ));
                     }
                 }
                 if count > 1 {
-                    self.emit_err(TypeCheckerError::annotation_error(
+                    self.emit_err(crate::errors::type_checker::annotation_error(
                         format_args!("Duplicate annotation @{symbol}"),
                         annotation.span,
                     ));
@@ -490,35 +550,35 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         let has_should_fail = check_annotation(sym::should_fail, &[]);
 
         if has_test && !self.state.is_test {
-            self.emit_err(TypeCheckerError::annotation_error(
+            self.emit_err(crate::errors::type_checker::annotation_error(
                 format_args!("Test annotation @test appears outside of tests"),
                 get(sym::test).span,
             ));
         }
 
         if has_should_fail && !self.state.is_test {
-            self.emit_err(TypeCheckerError::annotation_error(
+            self.emit_err(crate::errors::type_checker::annotation_error(
                 format_args!("Test annotation @should_fail appears outside of tests"),
                 get(sym::should_fail).span,
             ));
         }
 
         if has_should_fail && !has_test {
-            self.emit_err(TypeCheckerError::annotation_error(
+            self.emit_err(crate::errors::type_checker::annotation_error(
                 format_args!("Annotation @should_fail appears without @test"),
                 get(sym::should_fail).span,
             ));
         }
 
         if has_test && !self.scope_state.variant.unwrap().is_entry() {
-            self.emit_err(TypeCheckerError::annotation_error(
+            self.emit_err(crate::errors::type_checker::annotation_error(
                 format_args!("Annotation @test may appear only on transitions"),
                 get(sym::test).span,
             ));
         }
 
         if (has_test) && !function.input.is_empty() {
-            self.emit_err(TypeCheckerError::annotation_error(
+            self.emit_err(crate::errors::type_checker::annotation_error(
                 "A test procedure cannot have inputs",
                 function.input[0].span,
             ));
@@ -543,7 +603,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
                 // If the function has a return type, then check that it has a return.
                 if function.output_type != Type::Unit && !slf.scope_state.has_return {
-                    slf.emit_err(TypeCheckerError::missing_return(function.span));
+                    slf.emit_err(crate::errors::type_checker::missing_return(function.span));
                 }
             })
         });
@@ -570,7 +630,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         let upgrade_variant = match result {
             Ok(upgrade_variant) => upgrade_variant,
             Err(e) => {
-                self.emit_err(TypeCheckerError::custom(e, constructor.span));
+                self.emit_err(crate::errors::type_checker::custom(e, constructor.span));
                 return;
             }
         };
@@ -578,10 +638,13 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Validate the number of statements.
         match (&upgrade_variant, constructor.block.statements.is_empty()) {
             (UpgradeVariant::Custom, true) => {
-                self.emit_err(TypeCheckerError::custom("A 'custom' constructor cannot be empty", constructor.span));
+                self.emit_err(crate::errors::type_checker::custom(
+                    "A 'custom' constructor cannot be empty",
+                    constructor.span,
+                ));
             }
             (UpgradeVariant::NoUpgrade | UpgradeVariant::Admin { .. } | UpgradeVariant::Checksum { .. }, false) => {
-                self.emit_err(TypeCheckerError::custom("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
+                self.emit_err(crate::errors::type_checker::custom("A 'noupgrade', 'admin', or 'checksum' constructor must be empty. The Leo compiler will insert the appropriate code.", constructor.span));
             }
             _ => {}
         }
@@ -592,15 +655,14 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             let Some(VariableSymbol { type_: Some(Type::Mapping(mapping_type)), .. }) =
                 self.state.symbol_table.lookup_global(self.scope_state.unit_name.unwrap(), mapping)
             else {
-                self.emit_err(TypeCheckerError::custom(
+                self.emit_err(crate::errors::type_checker::custom(
                     format!("The mapping '{mapping}' does not exist. Please ensure that it is imported or defined in your program."),
-                    constructor.annotations[0].span,
-                ));
+                    constructor.annotations[0].span));
                 return;
             };
             // Check that the mapping key type matches the expected key type.
             if *mapping_type.key != *key_type {
-                self.emit_err(TypeCheckerError::custom(
+                self.emit_err(crate::errors::type_checker::custom(
                     format!(
                         "The mapping '{}' key type '{}' does not match the key '{}' in the `@checksum` annotation",
                         mapping, mapping_type.key, key
@@ -622,7 +684,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 false
             };
             if !check_value_type(&mapping_type.value) {
-                self.emit_err(TypeCheckerError::custom(
+                self.emit_err(crate::errors::type_checker::custom(
                     format!("The mapping '{}' value type '{}' must be a '[u8; 32]'", mapping, mapping_type.value),
                     constructor.annotations[0].span,
                 ));
@@ -638,12 +700,18 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the constructor does not call `finalize`.
         if self.scope_state.has_called_finalize {
-            self.emit_err(TypeCheckerError::custom("The constructor cannot call `finalize`.", constructor.span));
+            self.emit_err(crate::errors::type_checker::custom(
+                "The constructor cannot call `finalize`.",
+                constructor.span,
+            ));
         }
 
         // Check that the constructor does not have an `async` block.
         if self.scope_state.already_contains_an_async_block {
-            self.emit_err(TypeCheckerError::custom("The constructor cannot have an `async` block.", constructor.span));
+            self.emit_err(crate::errors::type_checker::custom(
+                "The constructor cannot have an `async` block.",
+                constructor.span,
+            ));
         }
 
         self.scope_state.reset();

@@ -1,5 +1,5 @@
-Error [ETYC0372156]: Unknown vector operation `push`. Expected `get` or `len`.
-    --> compiler-test:13:28
-     |
-  13 |     Logs@(target)::entries.push(v);
-     |                            ^^^^
+[ETYC0372156] Error: Unknown vector operation `push`. Expected `get` or `len`.
+    ╭─[ compiler-test:13:28 ]
+    │
+ 13 │     Logs@(target)::entries.push(v);
+────╯

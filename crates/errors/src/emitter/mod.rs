@@ -19,7 +19,8 @@ use crate::LeoWarning;
 use super::LeoError;
 
 use itertools::Itertools as _;
-use std::{cell::RefCell, fmt, rc::Rc};
+use leo_span::Span;
+use std::{cell::RefCell, collections::HashSet, fmt, rc::Rc};
 
 /// Types that are sinks for compiler errors.
 pub trait Emitter {
@@ -151,6 +152,8 @@ pub struct HandlerInner {
     warn_count: usize,
     /// The Emitter used.
     emitter: Box<dyn Emitter>,
+    /// Spans and error codes for which a warning has already been emitted (used for dedup).
+    warned_spans: HashSet<(Span, String)>,
 }
 
 impl Default for Handler {
@@ -163,7 +166,12 @@ impl Handler {
     /// Construct a `Handler` using the given `emitter`.
     pub fn new<T: 'static + Emitter>(emitter: T) -> Self {
         Handler {
-            inner: Rc::new(RefCell::new(HandlerInner { err_count: 0, warn_count: 0, emitter: Box::new(emitter) })),
+            inner: Rc::new(RefCell::new(HandlerInner {
+                err_count: 0,
+                warn_count: 0,
+                emitter: Box::new(emitter),
+                warned_spans: HashSet::new(),
+            })),
         }
     }
 
@@ -198,6 +206,16 @@ impl Handler {
         let mut inner = self.inner.borrow_mut();
         inner.warn_count = inner.warn_count.saturating_add(1);
         inner.emitter.emit_warning(warning.into());
+    }
+
+    /// Emit a warning only once per span. Subsequent calls with the same span are ignored.
+    pub fn emit_warning_once(&self, span: Span, warning: impl Into<LeoWarning>) {
+        let mut inner = self.inner.borrow_mut();
+        let warn = warning.into();
+        if inner.warned_spans.insert((span, warn.error_code())) {
+            inner.warn_count = inner.warn_count.saturating_add(1);
+            inner.emitter.emit_warning(warn);
+        }
     }
 
     /// The number of errors thus far.
@@ -238,7 +256,7 @@ impl Handler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ParserError;
+    use crate::Formatted;
     use leo_span::{Span, create_session_if_not_set_then};
 
     #[test]
@@ -254,19 +272,19 @@ mod tests {
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
                 assert_eq!(h.err_count(), 0);
-                h.emit_err(ParserError::invalid_import_list(s));
+                h.emit_err(Formatted::error("TST", 0, "test error", s));
                 assert_eq!(h.err_count(), 1);
-                h.emit_err(ParserError::unexpected_eof(s));
+                h.emit_err(Formatted::error("TST", 0, "test error", s));
                 assert_eq!(h.err_count(), 2);
-                Err(ParserError::spread_in_array_init(s).into())
+                Err(Formatted::error("TST", 0, "test error", s).into())
             });
 
             assert_eq!(res.unwrap_err().len(), 3);
 
             let res: Result<(), _> = Handler::with(|h| {
                 let s = Span::default();
-                h.emit_err(ParserError::invalid_import_list(s));
-                h.emit_err(ParserError::unexpected_eof(s));
+                h.emit_err(Formatted::error("TST", 0, "test error", s));
+                h.emit_err(Formatted::error("TST", 0, "test error", s));
                 Ok(())
             });
             assert_eq!(res.unwrap_err().len(), 2);

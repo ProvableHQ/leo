@@ -273,7 +273,13 @@ impl BlockToFunctionRewriter<'_> {
 
                 // All other variables become parameters to the function being built.
                 let var = self.state.symbol_table.lookup_local(local_var_name)?;
-                Some(make_inputs_and_arguments(self, local_var_name, &var.type_.expect("must be known by now"), *index))
+                // The variable's type is `None` only when an earlier type-checking diagnostic
+                // already prevented it from being typed (e.g. a tuple-pattern arity mismatch
+                // like `let (a, b, c): (u32, u32) = ...` leaves the surplus identifier
+                // un-typed). Skip such variables so the rewriter does not panic before the
+                // user-facing diagnostic surfaces.
+                let ty = var.type_.clone()?;
+                Some(make_inputs_and_arguments(self, local_var_name, &ty, *index))
             })
             .flatten()
             .unzip();

@@ -1,5 +1,5 @@
-Error [EPAR0370047]: Unsupported special access
-    --> compiler-test:3:16
-     |
-   3 |         return self.foo == addr;
-     |                ^^^^^^^^
+[EPAR0370047] Error: Unsupported special access
+   ╭─[ compiler-test:3:16 ]
+   │
+ 3 │         return self.foo == addr;
+───╯

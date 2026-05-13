@@ -1,5 +1,5 @@
-Error [EPAR0370005]: expected ';' -- found 'scalar'
-    --> compiler-test:4:15
-     |
-   4 |     let f = 1 scalar;
-     |               ^^^^^^
+[EPAR0370005] Error: expected ';' -- found 'scalar'
+   ╭─[ compiler-test:4:15 ]
+   │
+ 4 │     let f = 1 scalar;
+───╯

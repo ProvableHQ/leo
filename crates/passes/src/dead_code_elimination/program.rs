@@ -16,8 +16,8 @@
 
 use super::DeadCodeEliminatingVisitor;
 
+use crate::errors::static_analyzer;
 use leo_ast::{AstReconstructor, Constructor, Function, Location, UnitReconstructor, UpgradeVariant};
-use leo_errors::StaticAnalyzerError;
 
 impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
     fn reconstruct_program_scope(&mut self, mut input: leo_ast::ProgramScope) -> leo_ast::ProgramScope {
@@ -64,7 +64,7 @@ impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
             == UpgradeVariant::Custom
             && input.block.statements.is_empty()
         {
-            self.state.handler.emit_err(StaticAnalyzerError::custom_error(
+            self.state.handler.emit_err(static_analyzer::custom_error(
                 "The `@custom` constructor has no statements after dead code elimination.",
                 Some("Add a non-trivial implementation"),
                 input.span,

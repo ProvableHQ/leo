@@ -1,40 +1,40 @@
-Error [ETYC0372050]: A struct cannot contain a tuple.
-    --> compiler-test:21:5
-     |
-  21 |     mem: (u8, u16),
-     |     ^^^
-Error [ETYC0372051]: A function cannot take in a tuple as input.
-    --> compiler-test:7:8
-     |
-   7 | fn foo(a: (u8, u16)) -> (u8, u16) {
-     |        ^^^^^^^^^^^^
-Error [ETYC0372049]: A tuple type cannot contain a tuple.
-    --> compiler-test:11:26
-     |
-  11 | fn bar(zz: bool) -> (u8, (u16, u32)) {
-     |                          ^^^^^^^^^^
-Error [ETYC0372052]: A tuple expression cannot contain another tuple expression.
-    --> compiler-test:12:18
-     |
-  12 |     return (1u8, (2u16, 3u32));
-     |                  ^^^^^^^^^^^^
-Error [ETYC0372117]: Expected an integer but type `(u8, u16)` was found.
-    --> compiler-test:16:9
-     |
-  16 |     for i: (u8, u16) in 0u8..2u8 {}
-     |         ^
-Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:16:25
-     |
-  16 |     for i: (u8, u16) in 0u8..2u8 {}
-     |                         ^^^
-Error [ETYC0372117]: Expected type `(u8, u16)` but type `u8` was found.
-    --> compiler-test:16:30
-     |
-  16 |     for i: (u8, u16) in 0u8..2u8 {}
-     |                              ^^^
-Error [ETYC0372083]: A program must have at least one entry point fn.
-    --> compiler-test:1:9
-     |
-   1 | program test.aleo {}
-     |         ^^^^^^^^^
+[ETYC0372050] Error: A struct cannot contain a tuple.
+    ╭─[ compiler-test:21:5 ]
+    │
+ 21 │     mem: (u8, u16),
+────╯
+[ETYC0372051] Error: A function cannot take in a tuple as input.
+   ╭─[ compiler-test:7:8 ]
+   │
+ 7 │ fn foo(a: (u8, u16)) -> (u8, u16) {
+───╯
+[ETYC0372049] Error: A tuple type cannot contain a tuple.
+    ╭─[ compiler-test:11:26 ]
+    │
+ 11 │ fn bar(zz: bool) -> (u8, (u16, u32)) {
+────╯
+[ETYC0372052] Error: A tuple expression cannot contain another tuple expression.
+    ╭─[ compiler-test:12:18 ]
+    │
+ 12 │     return (1u8, (2u16, 3u32));
+────╯
+[ETYC0372117] Error: Expected an integer but type `(u8, u16)` was found.
+    ╭─[ compiler-test:16:9 ]
+    │
+ 16 │     for i: (u8, u16) in 0u8..2u8 {}
+────╯
+[ETYC0372117] Error: Expected type `(u8, u16)` but type `u8` was found.
+    ╭─[ compiler-test:16:25 ]
+    │
+ 16 │     for i: (u8, u16) in 0u8..2u8 {}
+────╯
+[ETYC0372117] Error: Expected type `(u8, u16)` but type `u8` was found.
+    ╭─[ compiler-test:16:30 ]
+    │
+ 16 │     for i: (u8, u16) in 0u8..2u8 {}
+────╯
+[ETYC0372083] Error: A program must have at least one entry point fn.
+   ╭─[ compiler-test:1:9 ]
+   │
+ 1 │ program test.aleo {}
+───╯

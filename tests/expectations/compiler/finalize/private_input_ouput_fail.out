@@ -1,10 +1,10 @@
-Error [EPAR0370047]: expected {
-    --> compiler-test:3:15
-     |
-   3 |         final finalize_foo(a);
-     |               ^^^^^^^^^^^^
-Error [EPAR0370047]: expected {
-    --> compiler-test:8:15
-     |
-   8 |         final finalize_bar(a);
-     |               ^^^^^^^^^^^^
+[EPAR0370047] Error: expected {
+   ╭─[ compiler-test:3:15 ]
+   │
+ 3 │         final finalize_foo(a);
+───╯
+[EPAR0370047] Error: expected {
+   ╭─[ compiler-test:8:15 ]
+   │
+ 8 │         final finalize_bar(a);
+───╯

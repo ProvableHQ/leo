@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Verifies that @test unit tests can read storage variables — singletons of
+# every supported type and storage vectors with all permitted operations
+# (push, pop, get, set, len, clear, swap_remove) — through the standard
+# `program.aleo::storage_var` access syntax inside finalize blocks.
+
+LEO_BIN=${1}
+
+${LEO_BIN} --disable-update-check test

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{LeoError, Result, UtilError};
+use leo_errors::{LeoError, Result};
 
 // A valid hash is 61 characters long, with preface "ab1" and all characters lowercase or numbers.
 pub fn is_valid_hash(hash: &str) -> Result<(), LeoError> {
     if hash.len() != 61 {
-        Err(UtilError::invalid_input_id_len(hash, "hash").into())
+        Err(crate::errors::invalid_input_id_len(hash, "hash").into())
     } else if !hash.starts_with("ab1") && hash.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()) {
-        Err(UtilError::invalid_input_id(hash, "hash", "ab1").into())
+        Err(crate::errors::invalid_input_id(hash, "hash", "ab1").into())
     } else {
         Ok(())
     }
@@ -30,11 +30,11 @@ pub fn is_valid_hash(hash: &str) -> Result<(), LeoError> {
 // A valid transaction id is 61 characters long, with preface "at1" and all characters lowercase or numbers.
 pub fn is_valid_transaction_id(transaction: &str) -> Result<(), LeoError> {
     if transaction.len() != 61 {
-        Err(UtilError::invalid_input_id_len(transaction, "transaction").into())
+        Err(crate::errors::invalid_input_id_len(transaction, "transaction").into())
     } else if !transaction.starts_with("at1")
         && transaction.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
     {
-        Err(UtilError::invalid_input_id(transaction, "transaction", "at1").into())
+        Err(crate::errors::invalid_input_id(transaction, "transaction", "at1").into())
     } else {
         Ok(())
     }
@@ -43,10 +43,10 @@ pub fn is_valid_transaction_id(transaction: &str) -> Result<(), LeoError> {
 // A valid transition id is 61 characters long, with preface "au1" and all characters lowercase or numbers.
 pub fn is_valid_transition_id(transition: &str) -> Result<(), LeoError> {
     if transition.len() != 61 {
-        Err(UtilError::invalid_input_id_len(transition, "transition").into())
+        Err(crate::errors::invalid_input_id_len(transition, "transition").into())
     } else if !transition.starts_with("au1") && transition.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
     {
-        Err(UtilError::invalid_input_id(transition, "transition", "au1").into())
+        Err(crate::errors::invalid_input_id(transition, "transition", "au1").into())
     } else {
         Ok(())
     }
@@ -54,14 +54,14 @@ pub fn is_valid_transition_id(transition: &str) -> Result<(), LeoError> {
 
 // A valid numerical input is a u32.
 pub fn is_valid_numerical_input(num: &str) -> Result<(), LeoError> {
-    if num.parse::<u32>().is_err() { Err(UtilError::invalid_numerical_input(num).into()) } else { Ok(()) }
+    if num.parse::<u32>().is_err() { Err(crate::errors::invalid_numerical_input(num).into()) } else { Ok(()) }
 }
 
 // A valid height or hash.
 pub fn is_valid_height_or_hash(input: &str) -> Result<(), LeoError> {
     match (is_valid_hash(input), is_valid_numerical_input(input)) {
         (Ok(_), _) | (_, Ok(_)) => Ok(()),
-        _ => Err(UtilError::invalid_height_or_hash(input).into()),
+        _ => Err(crate::errors::invalid_height_or_hash(input).into()),
     }
 }
 
@@ -74,6 +74,6 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
     } else if split.len() == 2 && split[0].chars().all(|c| c.is_numeric()) && split[1].is_empty() {
         Ok(field.to_string())
     } else {
-        Err(UtilError::invalid_field(field).into())
+        Err(crate::errors::invalid_field(field).into())
     }
 }

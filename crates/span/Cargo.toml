@@ -19,6 +19,7 @@ edition = "2024"
 
 [dependencies]
 # third party dependencies
+ariadne      = { workspace = true }
 fxhash       = { workspace = true }
 indexmap     = { workspace = true }
 scoped-tls   = { workspace = true }
