@@ -3,7 +3,7 @@ Expected:
 fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token
 Found:
 fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token
-    ╭─[ compiler-test:11:7 ]
+    ╭─[ compiler-test:11:5 ]
     │
     │ 
     │ 
@@ -14,7 +14,7 @@ Expected:
 fn stake(t: lib2.aleo::Token) -> lib2.aleo::Token
 Found:
 fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token
-    ╭─[ compiler-test:15:7 ]
+    ╭─[ compiler-test:15:5 ]
     │
     │ 
     │ 

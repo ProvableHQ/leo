@@ -22,7 +22,7 @@ use leo_span::{
 };
 
 pub use ariadne::Color;
-use ariadne::Report;
+use ariadne::{IndexType, Report};
 use std::fmt;
 
 /// Represents error labels.
@@ -205,7 +205,7 @@ impl Formatted {
                 if self.inner.error { ariadne::ReportKind::Error } else { ariadne::ReportKind::Warning },
                 primary_span,
             )
-            .with_config(ariadne::Config::default().with_color(is_color()))
+            .with_config(ariadne::Config::default().with_color(is_color()).with_index_type(IndexType::Byte))
             .with_message(&self.inner.message)
             .with_code(if self.inner.error { self.error_code() } else { self.warning_code() })
             .with_labels(primary_label.chain(extra_labels));
