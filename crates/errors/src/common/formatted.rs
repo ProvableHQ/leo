@@ -22,7 +22,7 @@ use leo_span::{
 };
 
 pub use ariadne::Color;
-use ariadne::Report;
+use ariadne::{IndexType, Report};
 use std::fmt;
 
 /// Represents error labels.
@@ -188,8 +188,20 @@ impl Formatted {
         with_session_globals(|s| {
             let primary_span = Self::resolve_span(self.inner.span, &s.source_map);
 
-            // Always include a label for the primary span so ariadne renders the source snippet.
-            let primary_label = std::iter::once(ariadne::Label::new(primary_span.clone()).with_color(primary_color));
+            // Ariadne only renders source lines for a multi-line label when its message is `Some(_)`
+            // (see `multi_labels_with_message` in ariadne's write.rs). For single-line spans we skip
+            // `with_message` to avoid the dangling `─┬─` / `╰──` decorations under the caret.
+            let primary_is_multiline = s.source_map.find_source_file(self.inner.span.lo).is_some_and(|f| {
+                let lo = (self.inner.span.lo - f.absolute_start) as usize;
+                let hi = (self.inner.span.hi - f.absolute_start) as usize;
+                f.src.as_bytes().get(lo..hi).is_some_and(|b| b.contains(&b'\n'))
+            });
+            let mut primary = ariadne::Label::new(primary_span.clone()).with_color(primary_color);
+            if primary_is_multiline {
+                primary = primary.with_message("");
+            }
+            let primary_label = std::iter::once(primary);
+
             let extra_labels: Vec<_> = self
                 .inner
                 .labels
@@ -205,7 +217,7 @@ impl Formatted {
                 if self.inner.error { ariadne::ReportKind::Error } else { ariadne::ReportKind::Warning },
                 primary_span,
             )
-            .with_config(ariadne::Config::default().with_color(is_color()))
+            .with_config(ariadne::Config::default().with_color(is_color()).with_index_type(IndexType::Byte))
             .with_message(&self.inner.message)
             .with_code(if self.inner.error { self.error_code() } else { self.warning_code() })
             .with_labels(primary_label.chain(extra_labels));

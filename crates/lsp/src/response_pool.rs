@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![allow(clippy::mutable_key_type)]
+
 //! Small response-conversion pool for navigation requests with disk targets.
 //!
 //! Package analysis stores compact byte ranges, not retained file text. This
@@ -24,18 +26,29 @@
 use crate::{
     document_store::{DocumentStore, PackageAnalysisKey},
     features::{
-        lsp_range::{compact_range_to_location_with_line_index, read_verified_disk_text},
+        lsp_range::{byte_range_to_lsp_range, compact_range_to_location_with_line_index, read_verified_disk_text},
         references::{ReferenceQuery, resolve_targets, response_value as references_response_value},
+        rename::{RenameError, RenameQuery, resolve_targets as resolve_rename_targets},
     },
+    project_model::path_to_file_uri,
     semantics::{CachedPackageAnalysis, FileId, SourceFingerprint},
 };
 use crossbeam_channel::{Receiver, Sender, unbounded};
 use line_index::LineIndex;
 use lsp_server::RequestId;
-use lsp_types::{Location, Uri};
+use lsp_types::{
+    DocumentChanges,
+    Location,
+    OneOf,
+    OptionalVersionedTextDocumentIdentifier,
+    TextDocumentEdit,
+    TextEdit,
+    Uri,
+    WorkspaceEdit,
+};
 use serde_json::Value;
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     panic::{AssertUnwindSafe, catch_unwind},
     path::{Path, PathBuf},
     sync::{
@@ -45,7 +58,11 @@ use std::{
     thread::{self, JoinHandle},
 };
 
+/// Fixed worker thread count for the response materialization pool.
 const RESPONSE_WORKERS: usize = 2;
+
+/// JSON-RPC code for `RequestFailed` (LSP 3.17 spec).
+pub const REQUEST_FAILED: i32 = -32803;
 
 /// Bounded worker pool for response materialization.
 #[derive(Debug)]
@@ -66,8 +83,21 @@ pub enum ResponseJob {
         query: Box<ReferenceQuery>,
         /// Package analysis containing compact reference ranges.
         package: Arc<CachedPackageAnalysis>,
-        /// Open-buffer line indexes captured when the job was dispatched.
-        open_line_indexes: Arc<OpenLineIndexes>,
+        /// Open-document snapshot captured when the job was dispatched.
+        open_snapshot: Arc<OpenSnapshot>,
+        /// Cancellation flag shared with the routing thread.
+        cancel: Arc<AtomicBool>,
+    },
+    /// Convert one rename query into a `WorkspaceEdit` JSON-RPC response.
+    Rename {
+        /// Original JSON-RPC request ID.
+        id: RequestId,
+        /// Cursor and validated new-name query captured by the routing thread.
+        query: Box<RenameQuery>,
+        /// Package analysis containing compact rename targets.
+        package: Arc<CachedPackageAnalysis>,
+        /// Open-document snapshot captured when the job was dispatched.
+        open_snapshot: Arc<OpenSnapshot>,
         /// Cancellation flag shared with the routing thread.
         cancel: Arc<AtomicBool>,
     },
@@ -75,11 +105,21 @@ pub enum ResponseJob {
     Shutdown,
 }
 
-/// Snapshot of open-document line indexes captured at job dispatch time.
+/// Snapshot of open-document line indexes, paths, and versions captured at
+/// job dispatch time.
+///
+/// Versions are keyed by the canonical `Arc<PathBuf>` from
+/// `OpenDocument::file_path`, not by the client-supplied URI. The client
+/// URI may differ from the canonical path on platforms where
+/// `path.canonicalize()` rewrites the prefix (macOS `/Users` →
+/// `/private/Users`, Windows verbatim paths). Path-keyed lookup keeps
+/// `OpenBuffer` files matching their `OptionalVersionedTextDocumentIdentifier`
+/// version stamp regardless of where the analysis happens to recover them.
 #[derive(Debug, Default)]
-pub struct OpenLineIndexes {
+pub struct OpenSnapshot {
     indexes: HashMap<Arc<PathBuf>, Arc<LineIndex>>,
     uri_paths: Vec<(Uri, Arc<PathBuf>)>,
+    versions: HashMap<Arc<PathBuf>, i32>,
 }
 
 /// Pool-to-routing notification sent after a job completes.
@@ -96,6 +136,17 @@ pub enum ResponseCompletion {
         /// Final response payload or error.
         result: ResponseResult,
     },
+    /// Completed rename response materialization.
+    Rename {
+        /// Original JSON-RPC request ID.
+        id: RequestId,
+        /// Package key the response was computed against.
+        key: PackageAnalysisKey,
+        /// Cancellation token captured at dispatch, used to reject reused IDs.
+        cancel: Arc<AtomicBool>,
+        /// Final rename response or error.
+        result: RenameResult,
+    },
 }
 
 /// Prepared response payload returned to the routing thread.
@@ -105,6 +156,17 @@ pub enum ResponseResult {
     Ok(Value),
     /// Internal error message to return for a failed conversion.
     InternalError(String),
+}
+
+/// Rename-scoped result returned to the routing thread.
+#[derive(Debug)]
+pub enum RenameResult {
+    /// Successful JSON-RPC result payload (`WorkspaceEdit` or `Value::Null`).
+    Ok(Value),
+    /// Internal error message returned for pool-worker panics.
+    InternalError(String),
+    /// LSP `RequestFailed` error with a stable diagnostic message.
+    RequestFailed { code: i32, message: String },
 }
 
 impl ResponsePool {
@@ -156,19 +218,21 @@ impl Default for ResponsePool {
     }
 }
 
-impl OpenLineIndexes {
-    /// Snapshot open file paths and line indexes with Arc clones only.
+impl OpenSnapshot {
+    /// Snapshot open file paths, line indexes, and document versions.
     pub fn snapshot(documents: &DocumentStore) -> Arc<Self> {
         let mut indexes = HashMap::new();
         let mut uri_paths = Vec::new();
+        let mut versions = HashMap::new();
         for (uri, document) in documents.iter_open() {
             let Some(path) = document.file_path.as_ref() else {
                 continue;
             };
             indexes.entry(Arc::clone(path)).or_insert_with(|| Arc::clone(&document.line_index));
             uri_paths.push((uri.clone(), Arc::clone(path)));
+            versions.entry(Arc::clone(path)).or_insert(document.version);
         }
-        Arc::new(Self { indexes, uri_paths })
+        Arc::new(Self { indexes, uri_paths, versions })
     }
 
     /// Return the open line index for a path, if that file is currently open.
@@ -179,6 +243,12 @@ impl OpenLineIndexes {
     /// Return the native path for an open document URI in this snapshot.
     fn path_for_uri(&self, uri: &Uri) -> Option<&Arc<PathBuf>> {
         self.uri_paths.iter().find_map(|(candidate, path)| (candidate == uri).then_some(path))
+    }
+
+    /// Return the open-buffer version for a canonical path captured at
+    /// dispatch time.
+    fn version_for_path(&self, path: &Path) -> Option<i32> {
+        self.versions.iter().find_map(|(candidate, version)| (candidate.as_path() == path).then_some(*version))
     }
 }
 
@@ -193,11 +263,11 @@ fn spawn_worker(
         .spawn(move || {
             while let Ok(job) = job_rx.recv() {
                 match job {
-                    ResponseJob::References { id, query, package, open_line_indexes, cancel } => {
+                    ResponseJob::References { id, query, package, open_snapshot, cancel } => {
                         let key = package.key.clone();
                         let completion_cancel = Arc::clone(&cancel);
                         let result = catch_unwind(AssertUnwindSafe(|| {
-                            references_response(*query, package, open_line_indexes, cancel)
+                            references_response(*query, package, open_snapshot, cancel)
                         }));
                         let result = match result {
                             Ok(Some(value)) => ResponseResult::Ok(value),
@@ -207,6 +277,25 @@ fn spawn_worker(
                             ),
                         };
                         let _ = completion_tx.send(ResponseCompletion::References {
+                            id,
+                            key,
+                            cancel: completion_cancel,
+                            result,
+                        });
+                    }
+                    ResponseJob::Rename { id, query, package, open_snapshot, cancel } => {
+                        let key = package.key.clone();
+                        let completion_cancel = Arc::clone(&cancel);
+                        let result =
+                            catch_unwind(AssertUnwindSafe(|| rename_response(*query, package, open_snapshot, cancel)));
+                        let result = match result {
+                            Ok(Some(result)) => result,
+                            Ok(None) => continue,
+                            Err(_) => RenameResult::InternalError(
+                                "rename response conversion panicked; see server logs for details".to_owned(),
+                            ),
+                        };
+                        let _ = completion_tx.send(ResponseCompletion::Rename {
                             id,
                             key,
                             cancel: completion_cancel,
@@ -224,10 +313,10 @@ fn spawn_worker(
 fn references_response(
     query: ReferenceQuery,
     package: Arc<CachedPackageAnalysis>,
-    open_line_indexes: Arc<OpenLineIndexes>,
+    open_snapshot: Arc<OpenSnapshot>,
     cancel: Arc<AtomicBool>,
 ) -> Option<Value> {
-    let Some(source_path) = open_line_indexes.path_for_uri(&query.view_key.uri) else {
+    let Some(source_path) = open_snapshot.path_for_uri(&query.view_key.uri) else {
         return Some(references_response_value(false, Vec::new()));
     };
     let targets = resolve_targets(&query, package.as_ref(), source_path.as_ref());
@@ -250,7 +339,7 @@ fn references_response(
             file,
             &targets.ranges[start..end],
             package.as_ref(),
-            open_line_indexes.as_ref(),
+            open_snapshot.as_ref(),
             &mut locations,
         );
         start = end;
@@ -264,7 +353,7 @@ fn append_file_locations(
     file_id: FileId,
     ranges: &[crate::semantics::CompactRange],
     package: &CachedPackageAnalysis,
-    open_line_indexes: &OpenLineIndexes,
+    open_snapshot: &OpenSnapshot,
     locations: &mut Vec<Location>,
 ) {
     let Some(file) = package.analyzed_files.get(file_id) else {
@@ -276,7 +365,7 @@ fn append_file_locations(
 
     match &file.fingerprint {
         SourceFingerprint::OpenBuffer => {
-            let line_index = file.open_line_index.as_ref().or_else(|| open_line_indexes.get(file.path.as_ref()));
+            let line_index = file.open_line_index.as_ref().or_else(|| open_snapshot.get(file.path.as_ref()));
             let Some(line_index) = line_index else {
                 return;
             };
@@ -307,4 +396,158 @@ fn append_locations_with_line_index(
             locations.push(Location { uri, range });
         }
     }
+}
+
+/// Resolve and materialize one rename response off the routing thread.
+///
+/// Returns `Some(RenameResult)` when the worker has produced a payload (`Ok`,
+/// `RequestFailed`, or `InternalError`). Returns `None` when cancellation
+/// flipped before materialization completed; the routing thread drops the
+/// in-flight job in that case.
+fn rename_response(
+    query: RenameQuery,
+    package: Arc<CachedPackageAnalysis>,
+    open_snapshot: Arc<OpenSnapshot>,
+    cancel: Arc<AtomicBool>,
+) -> Option<RenameResult> {
+    let Some(source_path) = open_snapshot.path_for_uri(&query.view_key.uri) else {
+        return Some(RenameResult::Ok(Value::Null));
+    };
+    let targets = match resolve_rename_targets(&query, package.as_ref(), source_path.as_ref()) {
+        Ok(targets) => targets,
+        Err(RenameError::NotRenameable) => return Some(RenameResult::Ok(Value::Null)),
+        Err(error) => return Some(rename_error_to_result(error)),
+    };
+    if targets.is_empty() {
+        return Some(RenameResult::Ok(Value::Null));
+    }
+
+    // Group occurrences by FileId to batch one disk read + one LineIndex per file.
+    let mut by_file: BTreeMap<FileId, Vec<crate::semantics::CompactRange>> = BTreeMap::new();
+    for target in &targets {
+        by_file.entry(target.file).or_default().push(target.range);
+    }
+
+    let mut document_edits: BTreeMap<Uri, (OptionalVersionedTextDocumentIdentifier, Vec<TextEdit>)> = BTreeMap::new();
+    for (file_id, ranges) in by_file {
+        if cancel.load(Ordering::SeqCst) {
+            return None;
+        }
+        let Some(file) = package.analyzed_files.get(file_id) else {
+            return Some(RenameResult::RequestFailed {
+                code: REQUEST_FAILED,
+                message: "rename target references unknown analyzed file".to_owned(),
+            });
+        };
+        let Some(uri) = path_to_file_uri(file.path.as_ref()) else {
+            return Some(RenameResult::RequestFailed {
+                code: REQUEST_FAILED,
+                message: format!("rename target '{}' cannot be expressed as an LSP URI", file.path.display()),
+            });
+        };
+
+        let (line_index, owned_index, version) = match &file.fingerprint {
+            SourceFingerprint::OpenBuffer => {
+                let line_index =
+                    file.open_line_index.as_ref().cloned().or_else(|| open_snapshot.get(file.path.as_ref()).cloned());
+                let Some(line_index) = line_index else {
+                    return Some(RenameResult::RequestFailed {
+                        code: REQUEST_FAILED,
+                        message: format!("rename target '{}' has no open-buffer line index", file.path.display()),
+                    });
+                };
+                let version = open_snapshot.version_for_path(file.path.as_ref());
+                (LineIndexRef::Shared(line_index), None, version)
+            }
+            SourceFingerprint::Disk { .. } => {
+                let Some(text) = read_verified_disk_text(file.path.as_ref(), &file.fingerprint) else {
+                    return Some(RenameResult::RequestFailed {
+                        code: REQUEST_FAILED,
+                        message: format!(
+                            "source for '{}' changed since analysis; please retry rename",
+                            file.path.display()
+                        ),
+                    });
+                };
+                let owned = LineIndex::new(text.as_str());
+                (LineIndexRef::Owned, Some(owned), None)
+            }
+            SourceFingerprint::Volatile => {
+                return Some(RenameResult::RequestFailed {
+                    code: REQUEST_FAILED,
+                    message: format!("rename target '{}' has volatile source", file.path.display()),
+                });
+            }
+        };
+
+        let line_index_ref: &LineIndex = match &line_index {
+            LineIndexRef::Shared(arc) => arc.as_ref(),
+            LineIndexRef::Owned => owned_index.as_ref().expect("owned line index"),
+        };
+
+        let mut edits: Vec<TextEdit> = Vec::with_capacity(ranges.len());
+        let mut last_end: Option<u32> = None;
+        for range in &ranges {
+            // Per-URI ranges inherit `(start, end)` order from `occurrences_for`;
+            // the worker pins that contract instead of resorting.
+            debug_assert!(
+                last_end.map(|prev| prev <= range.start).unwrap_or(true),
+                "rename ranges must be in non-decreasing order"
+            );
+            last_end = Some(range.end);
+            let Some(lsp_range) = byte_range_to_lsp_range(line_index_ref, range.start, range.end) else {
+                return Some(RenameResult::RequestFailed {
+                    code: REQUEST_FAILED,
+                    message: format!("rename target range fell outside source for '{}'", file.path.display()),
+                });
+            };
+            edits.push(TextEdit { range: lsp_range, new_text: query.new_name.clone() });
+        }
+
+        document_edits.insert(uri.clone(), (OptionalVersionedTextDocumentIdentifier { uri, version }, edits));
+    }
+
+    let text_document_edits = document_edits
+        .into_iter()
+        .map(|(_uri, (text_document, edits))| TextDocumentEdit {
+            text_document,
+            edits: edits.into_iter().map(OneOf::Left).collect(),
+        })
+        .collect::<Vec<_>>();
+
+    let workspace_edit = WorkspaceEdit {
+        changes: None,
+        document_changes: Some(DocumentChanges::Edits(text_document_edits)),
+        change_annotations: None,
+    };
+    let value = serde_json::to_value(workspace_edit).expect("WorkspaceEdit should serialize");
+    Some(RenameResult::Ok(value))
+}
+
+/// Convert a per-file rename rejection into the corresponding `RequestFailed` result.
+fn rename_error_to_result(error: RenameError) -> RenameResult {
+    match error {
+        RenameError::InvalidIdentifier(message) => RenameResult::RequestFailed { code: REQUEST_FAILED, message },
+        RenameError::NotRenameable => RenameResult::Ok(Value::Null),
+        RenameError::SourceChanged { path } => RenameResult::RequestFailed {
+            code: REQUEST_FAILED,
+            message: format!("source for '{path}' changed since analysis; please retry rename"),
+        },
+        RenameError::LeavesPackage { path } => RenameResult::RequestFailed {
+            code: REQUEST_FAILED,
+            message: format!("rename target '{path}' leaves the current package"),
+        },
+        RenameError::VolatileSource { path } => RenameResult::RequestFailed {
+            code: REQUEST_FAILED,
+            message: format!("rename target '{path}' has volatile source"),
+        },
+    }
+}
+
+/// Per-file line index slot that keeps both Arc-shared and worker-owned indexes addressable.
+enum LineIndexRef {
+    /// Open-buffer line index borrowed from `AnalyzedFile` or the snapshot.
+    Shared(Arc<LineIndex>),
+    /// Disk-backed line index built once per file by the worker.
+    Owned,
 }

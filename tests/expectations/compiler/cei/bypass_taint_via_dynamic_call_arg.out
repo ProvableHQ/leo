@@ -1,0 +1,90 @@
+[WCEI03713005] Warning: Tainted value `price` (derived from external call `__dynamic__/__dynamic__`) is passed as an argument to `<dynamic call>`, whose finalize will use the potentially stale value.
+    ╭─[ compiler-test:11:33 ]
+    │
+ 11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
+────╯
+[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:15:13 ]
+    │
+ 15 │             f_exchange.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:15:13 ]
+    │
+ 15 │             f_exchange.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+program oracle.aleo;
+
+mapping prices:
+    key as u32.public;
+    value as u64.public;
+
+function get_price:
+    input r0 as u32.private;
+    async get_price r0 into r1;
+    output 500u64 as u64.private;
+    output r1 as oracle.aleo/get_price.future;
+
+finalize get_price:
+    input r0 as u32.public;
+    set 50u64 into prices[r0];
+// --- Next Program --- //
+program exchange.aleo;
+
+mapping trades:
+    key as u32.public;
+    value as u64.public;
+
+function execute_trade:
+    input r0 as u32.private;
+    input r1 as u64.private;
+    async execute_trade r0 r1 into r2;
+    output r2 as exchange.aleo/execute_trade.future;
+
+finalize execute_trade:
+    input r0 as u32.public;
+    input r1 as u64.public;
+    set r1 into trades[r0];
+// --- Next Program --- //
+import oracle.aleo;
+import exchange.aleo;
+program trader.aleo;
+
+function trade:
+    input r0 as u32.private;
+    input r1 as field.private;
+    input r2 as field.private;
+    call.dynamic r1 'aleo' 'get_price' with r0 (as u32.private) into r3 r4 (as u64.private dynamic.future);
+    call.dynamic r2 'aleo' 'execute_trade' with r0 r3 (as u32.private u64.private) into r5 (as dynamic.future);
+    async trade r4 r5 into r6;
+    output r6 as trader.aleo/trade.future;
+
+finalize trade:
+    input r0 as dynamic.future;
+    input r1 as dynamic.future;
+    await r0;
+    await r1;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372005] Error: Unknown interface `oracle.aleo::Oracle`
+   ╭─[ compiler-test:8:47 ]
+   │
+ 8 │         let (price, f_oracle): (u64, Final) = oracle.aleo::Oracle@(oracle_target)::get_price(id);
+───╯
+[ETYC0372005] Error: Unknown interface `exchange.aleo::Exchange`
+    ╭─[ compiler-test:11:33 ]
+    │
+ 11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
+────╯

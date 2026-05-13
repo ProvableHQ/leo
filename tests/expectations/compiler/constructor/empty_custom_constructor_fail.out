@@ -1,7 +1,11 @@
 [ESAZ0374012] Error: The `@custom` constructor has no statements after dead code elimination.
    ╭─[ compiler-test:4:5 ]
    │
-   │ 
-   │ 
-   │ Help: Add a non-trivial implementation
+ 4 │ ╭─▶     @custom
+   ┆ ┆   
+ 7 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
+   │     
+   │     Help: Add a non-trivial implementation
 ───╯

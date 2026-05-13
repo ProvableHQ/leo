@@ -1,5 +1,8 @@
 [ETYC0372156] Error: A 'custom' constructor cannot be empty
    ╭─[ compiler-test:4:5 ]
    │
-   │ 
+ 4 │ ╭─▶     @custom
+ 5 │ ├─▶     constructor() {}
+   │ │                          
+   │ ╰────────────────────────── 
 ───╯

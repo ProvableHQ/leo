@@ -5,9 +5,13 @@ Found:
 fn foo() -> u32
     ╭─[ compiler-test:8:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+  8 │ ╭─▶     fn foo() -> u32 {
+    ┆ ┆   
+ 10 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [ECHI03712004] Error: Function `baz` does not match the signature required by interface `test.aleo/AbstractProgram`.
 Expected:

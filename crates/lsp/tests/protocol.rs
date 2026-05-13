@@ -166,6 +166,7 @@ fn initialize_shutdown_exit_round_trip() {
     assert_eq!(initialize["result"]["capabilities"]["semanticTokensProvider"]["full"], json!(true));
     assert_eq!(initialize["result"]["capabilities"]["definitionProvider"], json!(true));
     assert_eq!(initialize["result"]["capabilities"]["referencesProvider"], json!(true));
+    assert_eq!(initialize["result"]["capabilities"]["renameProvider"]["prepareProvider"], json!(true));
     assert_eq!(
         initialize["result"]["capabilities"]["semanticTokensProvider"]["legend"]["tokenTypes"],
         json!([
@@ -1172,4 +1173,226 @@ fn semantic_tokens_full_returns_internal_error_after_worker_panic() {
     let (status, stderr) = server.finish();
     assert!(status.success(), "stderr:\n{stderr}");
     assert!(stderr.contains("INTERNAL PANIC"), "stderr:\n{stderr}");
+}
+
+/// Send a rename request and return the raw JSON response.
+fn request_rename(
+    server: &mut TestServer,
+    id: i64,
+    document_uri: &Uri,
+    source: &str,
+    needle: &str,
+    occurrence: usize,
+    new_name: &str,
+) -> Value {
+    server.request(
+        id,
+        "textDocument/rename",
+        json!({
+            "textDocument": { "uri": document_uri },
+            "position": position_json(source, needle, occurrence),
+            "newName": new_name,
+        }),
+    )
+}
+
+/// Send a prepareRename request and return the raw JSON response.
+fn request_prepare_rename(
+    server: &mut TestServer,
+    id: i64,
+    document_uri: &Uri,
+    source: &str,
+    needle: &str,
+    occurrence: usize,
+) -> Value {
+    server.request(
+        id,
+        "textDocument/prepareRename",
+        json!({
+            "textDocument": { "uri": document_uri },
+            "position": position_json(source, needle, occurrence),
+        }),
+    )
+}
+
+/// Verifies prepareRename returns the cursor occurrence range for a renameable local.
+#[test]
+fn prepare_rename_returns_local_range() {
+    let source = concat!(
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let total: u32 = 1u32;\n",
+        "        let next: u32 = total + 1u32;\n",
+        "        return total + next;\n",
+        "    }\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, _canonical) = write_test_package(source);
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let response = request_prepare_rename(&mut server, 2, &document_uri, source, "total", 1);
+    // PrepareRenameResponse::Range serializes as the raw range payload.
+    assert_eq!(response["result"], range_json(source, "total", 1), "bad prepareRename: {response}");
+
+    let null = request_prepare_rename(&mut server, 3, &document_uri, source, "u32", 0);
+    assert_eq!(null["result"], Value::Null, "primitive type should not be renameable: {null}");
+
+    let shutdown = server.request(4, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies rename returns a versioned WorkspaceEdit covering every local occurrence.
+#[test]
+fn rename_returns_workspace_edit_for_local() {
+    let source = concat!(
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let total: u32 = 1u32;\n",
+        "        let next: u32 = total + 1u32;\n",
+        "        return total + next;\n",
+        "    }\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, canonical_uri) = write_test_package(source);
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let response = request_rename(&mut server, 2, &document_uri, source, "total", 1, "subtotal");
+    let edits = response["result"]["documentChanges"].as_array().expect("documentChanges array");
+    assert_eq!(edits.len(), 1, "single-file rename: {response}");
+    let document_edit = &edits[0];
+    assert_eq!(document_edit["textDocument"]["uri"], json!(canonical_uri.to_string()));
+    // OptionalVersionedTextDocumentIdentifier carries the open-buffer version
+    // when the analyzed fingerprint is `OpenBuffer`, or `null` when the file
+    // was read from disk. Both are LSP-correct; the client uses the version
+    // to refuse stale-buffer applies when present.
+    let version = &document_edit["textDocument"]["version"];
+    assert!(version.is_null() || version == &json!(1), "bad version: {version}");
+    let text_edits = document_edit["edits"].as_array().expect("text edits");
+    assert_eq!(text_edits.len(), 3, "three occurrences: {response}");
+    for edit in text_edits {
+        assert_eq!(edit["newText"], json!("subtotal"));
+    }
+    assert_eq!(text_edits[0]["range"], range_json(source, "total", 0));
+    assert_eq!(text_edits[1]["range"], range_json(source, "total", 1));
+    assert_eq!(text_edits[2]["range"], range_json(source, "total", 2));
+
+    let shutdown = server.request(3, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies rename rejects keyword new-names with `RequestFailed` (LSP -32803).
+#[test]
+fn rename_rejects_keyword_new_name() {
+    let source = concat!(
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let total: u32 = 1u32;\n",
+        "        return total;\n",
+        "    }\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, _canonical) = write_test_package(source);
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    let response = request_rename(&mut server, 2, &document_uri, source, "total", 1, "let");
+    assert_eq!(response["error"]["code"], json!(-32803), "{response}");
+    assert!(response["error"]["message"].as_str().expect("rename keyword error").contains("keyword"), "{response}");
+
+    let invalid = request_rename(&mut server, 3, &document_uri, source, "total", 1, "1abc");
+    assert_eq!(invalid["error"]["code"], json!(-32803), "{invalid}");
+    let empty = request_rename(&mut server, 4, &document_uri, source, "total", 1, "");
+    assert_eq!(empty["error"]["code"], json!(-32803), "{empty}");
+
+    let shutdown = server.request(5, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies rename returns null when the cursor is on a non-renameable position.
+#[test]
+fn rename_returns_null_on_non_renameable_cursor() {
+    let source = concat!(
+        "program demo.aleo {\n",
+        "    fn main() -> u32 {\n",
+        "        let total: u32 = 1u32;\n",
+        "        return total;\n",
+        "    }\n",
+        "}\n",
+    );
+    let (_tempdir, document_uri, _canonical) = write_test_package(source);
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+    open_document(&mut server, &document_uri, source);
+
+    // Cursor on the program identifier `demo` - Program identities are out of PR 5 scope.
+    let on_program = request_rename(&mut server, 2, &document_uri, source, "demo", 0, "renamed");
+    assert_eq!(on_program["result"], Value::Null, "{on_program}");
+
+    // Cursor on the `u32` keyword/type primitive - no occurrence.
+    let on_keyword = request_rename(&mut server, 3, &document_uri, source, "u32", 0, "renamed");
+    assert_eq!(on_keyword["result"], Value::Null, "{on_keyword}");
+
+    let shutdown = server.request(4, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
+/// Verifies rename and prepareRename return null on unopened documents.
+#[test]
+fn rename_returns_null_for_unopened_document() {
+    let mut server = TestServer::spawn(&[]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+
+    let uri: Uri = "file:///does/not/exist.leo".parse().expect("uri");
+    let prepare = server.request(
+        2,
+        "textDocument/prepareRename",
+        json!({
+            "textDocument": { "uri": uri },
+            "position": { "line": 0, "character": 0 },
+        }),
+    );
+    assert_eq!(prepare["result"], Value::Null, "{prepare}");
+
+    let rename = server.request(
+        3,
+        "textDocument/rename",
+        json!({
+            "textDocument": { "uri": uri },
+            "position": { "line": 0, "character": 0 },
+            "newName": "renamed",
+        }),
+    );
+    assert_eq!(rename["result"], Value::Null, "{rename}");
+
+    let shutdown = server.request(4, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
 }

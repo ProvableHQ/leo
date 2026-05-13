@@ -1,6 +1,10 @@
 [EPAR0370047] Error: expected type
-    ╭─[ compiler-test:29:1 ]
+    ╭─[ compiler-test:28:30 ]
     │
- 29 │                    // let swap = arr[j];
+ 28 │                    let swap: = arr[j];
 ────╯
 [EPAR0370003] Error: unexpected EOF
+    ╭─[ compiler-test:36:7 ]
+    │
+ 36 │     }
+────╯

@@ -5,7 +5,11 @@ Found:
 fn convert(value: u64) -> u64
     ╭─[ test:9:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+  9 │ ╭─▶     fn convert(value: u64) -> u64 {
+    ┆ ┆   
+ 11 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯

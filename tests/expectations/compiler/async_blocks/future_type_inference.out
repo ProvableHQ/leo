@@ -1,3 +1,17 @@
+[WCEI03713004] Warning: Value `transfer_output` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:19:17 ]
+    │
+ 19 │                 transfer_output.1.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
+[WCEI03713004] Warning: Value `mint_output` used in finalize block is derived from external call `multi_token_support_program.aleo/mint_private`, whose finalize may alter the state this value depends on.
+    ╭─[ compiler-test:20:17 ]
+    │
+ 20 │                 mint_output.1.run();
+    │ 
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+────╯
 program credits.aleo;
 
 record credits:

@@ -1,12 +1,20 @@
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    ╭─[ compiler-test:11:2 ]
+    ╭─[ compiler-test:10:18 ]
     │
-    │ 
+ 10 │ ╭─▶ interface ILeft {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ compiler-test:3:19 ]
    │
-   │ 
+ 3 │ ╭─▶ interface IRight {
+   ┆ ┆   
+ 7 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯
 program lib1.aleo;
 
@@ -54,22 +62,38 @@ Note: Treating dependencies as Aleo produces different results:
    │ Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    ╭─[ compiler-test:11:2 ]
+    ╭─[ compiler-test:10:18 ]
     │
-    │ 
+ 10 │ ╭─▶ interface ILeft {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
-    ╭─[ compiler-test:11:2 ]
+    ╭─[ compiler-test:10:18 ]
     │
-    │ 
+ 10 │ ╭─▶ interface ILeft {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ compiler-test:3:19 ]
    │
-   │ 
+ 3 │ ╭─▶ interface IRight {
+   ┆ ┆   
+ 7 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
    ╭─[ compiler-test:3:19 ]
    │
-   │ 
+ 3 │ ╭─▶ interface IRight {
+   ┆ ┆   
+ 7 │ ├─▶     }
+   │ │           
+   │ ╰─────────── 
 ───╯

@@ -5,7 +5,7 @@ Error [EDIS03713000]: Failed to parse the source file for `.aleo` into a valid A
 Note: Treating dependencies as Aleo produces different results:
 
 [ECHI03712000] Error: Interface `lib.aleo/contracts::Adder` not found.
-   ╭─[ compiler-test:6:26 ]
+   ╭─[ compiler-test:6:24 ]
    │
  6 │ program consumer.aleo: lib.aleo::contracts::Adder {
    │ 

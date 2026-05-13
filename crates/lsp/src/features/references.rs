@@ -111,7 +111,8 @@ mod tests {
         let key =
             PackageAnalysisKey { bucket: AnalysisBucket::UnmanagedDocument { uri: uri.clone() }, bucket_generation: 1 };
         let view_key = DocumentViewKey { uri, document_generation: 1, package: key.clone() };
-        let (index, analyzed_files) = SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None);
+        let (index, analyzed_files) =
+            SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None, |_| true);
         (
             CachedPackageAnalysis {
                 key,

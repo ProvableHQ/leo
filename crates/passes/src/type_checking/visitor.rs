@@ -1681,6 +1681,9 @@ impl TypeCheckingVisitor<'_> {
                     span,
                 ))
             }
+            Type::DynRecord => {
+                self.emit_err(crate::errors::type_checker::struct_or_record_cannot_contain_record(parent, type_, span))
+            }
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
                     self.assert_member_is_not_record(span, parent, type_)
@@ -1749,6 +1752,10 @@ impl TypeCheckingVisitor<'_> {
                                 self.emit_err(crate::errors::type_checker::array_element_cannot_be_record(span));
                             }
                         }
+                    }
+                    // Array elements cannot be `dyn record`.
+                    Type::DynRecord => {
+                        self.emit_err(crate::errors::type_checker::array_element_cannot_be_record(span));
                     }
                     _ => {} // Do nothing.
                 }

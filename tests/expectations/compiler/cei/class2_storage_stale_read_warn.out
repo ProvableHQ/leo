@@ -1,0 +1,56 @@
+[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     counter = old_val + a;
+    │ 
+    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+────╯
+program dep.aleo;
+
+mapping dep_data:
+    key as u32.public;
+    value as u32.public;
+
+function update:
+    input r0 as u32.private;
+    async update r0 into r1;
+    output r1 as dep.aleo/update.future;
+
+finalize update:
+    input r0 as u32.public;
+    set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+struct Optional__JzunLORyB8U:
+    is_some as boolean;
+    val as u32;
+
+mapping counter__:
+    key as boolean.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/update r0 into r1;
+    async do_work r1 r0 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/update.future;
+    input r1 as u32.public;
+    contains counter__[false] into r2;
+    get.or_use counter__[false] 0u32 into r3;
+    ternary r2 r3 0u32 into r4;
+    cast r2 r4 into r5 as Optional__JzunLORyB8U;
+    ternary r5.is_some r5.val 0u32 into r6;
+    await r0;
+    add r6 r1 into r7;
+    set r7 into counter__[false];
+
+constructor:
+    assert.eq edition 0u16;

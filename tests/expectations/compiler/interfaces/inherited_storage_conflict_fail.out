@@ -1,14 +1,20 @@
 [ECHI03712001] Error: Interface `Combined` has a conflicting definition for `value` inherited from `Storage1`. Members with the same name must have identical signatures.
     ╭─[ compiler-test:9:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+  9 │ ╭─▶ interface Combined: Storage1 + Storage2 {
+ 10 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯
 [ECHI03712001] Error: Interface `Combined` has a conflicting definition for `value` inherited from `Storage1`. Members with the same name must have identical signatures.
     ╭─[ compiler-test:9:1 ]
     │
-    ┆ 
-    │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+  9 │ ╭─▶ interface Combined: Storage1 + Storage2 {
+ 10 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Ensure both interfaces define the same signature for this member, or rename one of them.
 ────╯

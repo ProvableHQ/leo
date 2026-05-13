@@ -440,6 +440,10 @@ pub struct AnalyzedFile {
     pub open_line_index: Option<Arc<LineIndex>>,
     /// Virtual sentinel paths are semantic identities only, never LSP locations.
     pub is_sentinel: bool,
+    /// True when this file is a source file of the currently-analyzed package.
+    /// False for dependency stubs and any other file outside the package source
+    /// tree. Sentinel files are always `false`.
+    pub in_package_scope: bool,
 }
 
 /// Memory-light analyzed-file table owned by one package analysis.
@@ -540,6 +544,9 @@ pub struct SemanticIndex {
     pub key_occurrence_ends: Arc<[u32]>,
     /// Occurrence indices grouped by key and ordered by file/range.
     pub key_occurrence_indices: Arc<[u32]>,
+    /// Sorted compact key IDs whose source `SymbolKey` is the `Program` variant.
+    /// Used by rename to reject Program-typed cursors in O(log p).
+    pub program_keys: Arc<[SymbolKeyId]>,
 }
 
 impl SemanticIndex {
@@ -552,6 +559,7 @@ impl SemanticIndex {
         occurrences: &[SymbolOccurrence],
         mut fingerprint_for_path: impl FnMut(&Path) -> SourceFingerprint,
         mut open_line_index_for_path: impl FnMut(&Path) -> Option<Arc<LineIndex>>,
+        mut in_package_scope_for_path: impl FnMut(&Path) -> bool,
     ) -> (Self, AnalyzedFileSet) {
         let mut path_ids = HashMap::<Arc<PathBuf>, FileId>::new();
         let mut files = Vec::<Arc<PathBuf>>::new();
@@ -566,12 +574,18 @@ impl SemanticIndex {
         let mut key_ids = HashMap::<CompactSymbolKey, SymbolKeyId>::new();
         let mut compact_occurrences = Vec::<CompactOccurrence>::with_capacity(occurrences.len());
         let mut definition_pairs = Vec::<(SymbolKeyId, CompactRange)>::new();
+        let mut program_keys = Vec::<SymbolKeyId>::new();
 
         for occurrence in occurrences {
             let range = compact_range(&occurrence.range, &path_ids).expect("occurrence file interned");
             let key = occurrence.identity.key().and_then(|key| {
                 let compact = compact_symbol_key(key, &path_ids)?;
-                Some(intern_symbol_key(compact, &mut key_ids))
+                let is_program = matches!(compact, CompactSymbolKey::Program { .. });
+                let id = intern_symbol_key(compact, &mut key_ids);
+                if is_program && !program_keys.contains(&id) {
+                    program_keys.push(id);
+                }
+                Some(id)
             });
 
             compact_occurrences.push(CompactOccurrence::new(
@@ -617,14 +631,20 @@ impl SemanticIndex {
         let analyzed_files = files
             .iter()
             .enumerate()
-            .map(|(id, path)| AnalyzedFile {
-                id: id as FileId,
-                path: Arc::clone(path),
-                fingerprint: fingerprint_for_path(path.as_ref()),
-                open_line_index: open_line_index_for_path(path.as_ref()),
-                is_sentinel: is_sentinel_path(path.as_ref()),
+            .map(|(id, path)| {
+                let is_sentinel = is_sentinel_path(path.as_ref());
+                AnalyzedFile {
+                    id: id as FileId,
+                    path: Arc::clone(path),
+                    fingerprint: fingerprint_for_path(path.as_ref()),
+                    open_line_index: open_line_index_for_path(path.as_ref()),
+                    is_sentinel,
+                    in_package_scope: !is_sentinel && in_package_scope_for_path(path.as_ref()),
+                }
             })
             .collect();
+
+        program_keys.sort_unstable();
 
         (
             Self {
@@ -638,9 +658,15 @@ impl SemanticIndex {
                 key_occurrence_keys: Arc::from(key_occurrence_keys),
                 key_occurrence_ends: Arc::from(key_occurrence_ends),
                 key_occurrence_indices: Arc::from(key_occurrence_indices),
+                program_keys: Arc::from(program_keys),
             },
             AnalyzedFileSet::new(analyzed_files),
         )
+    }
+
+    /// Return whether a compact key ID corresponds to the `Program` variant.
+    pub fn is_program_key(&self, key: SymbolKeyId) -> bool {
+        self.program_keys.binary_search(&key).is_ok()
     }
 
     /// Return the navigation-grade occurrence under a cursor byte offset.
@@ -1037,7 +1063,7 @@ mod tests {
             },
         ];
 
-        let (index, _) = SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None);
+        let (index, _) = SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None, |_| true);
         let key = index.occurrences[0].key_id().expect("keyed declaration");
         let starts = index.occurrences_for(key).map(|occurrence| occurrence.range.start).collect::<Vec<_>>();
 

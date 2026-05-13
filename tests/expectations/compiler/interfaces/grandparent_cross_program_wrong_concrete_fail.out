@@ -3,27 +3,39 @@ Expected:
 fn fn2(t: parent.aleo::Token) -> parent.aleo::Token
 Found:
 fn fn2(t: other.aleo::Token) -> other.aleo::Token
-    ╭─[ compiler-test:16:7 ]
+    ╭─[ compiler-test:16:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 16 │ ╭─▶     fn fn2(t: other.aleo::Token) -> other.aleo::Token {
+    ┆ ┆   
+ 18 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [ECHI03712004] Error: Function `fn1` does not match the signature required by interface `parent.aleo/IP`.
 Expected:
 fn fn1(t: grandparent.aleo::Token) -> grandparent.aleo::Token
 Found:
 fn fn1(t: other.aleo::Token) -> other.aleo::Token
-    ╭─[ compiler-test:12:7 ]
+    ╭─[ compiler-test:12:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 12 │ ╭─▶     fn fn1(t: other.aleo::Token) -> other.aleo::Token {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     ╭─[ compiler-test:11:16 ]
     │
-    │ 
+ 11 │ ╭─▶ interface IGP {
+    ┆ ┆   
+ 15 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 
 
@@ -33,17 +45,29 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: Interface `grandparent.aleo/IGP` not found.
    ╭─[ compiler-test:4:1 ]
    │
-   ┆ 
-   │ 
-   │ Help: Make sure the interface is defined in the current program or an imported program.
+ 4 │ ╭─▶ interface IP: grandparent.aleo::IGP {
+   ┆ ┆   
+ 6 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+   │     
+   │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     ╭─[ compiler-test:11:16 ]
     │
-    │ 
+ 11 │ ╭─▶ interface IGP {
+    ┆ ┆   
+ 15 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯
 [WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
     ╭─[ compiler-test:11:16 ]
     │
-    │ 
+ 11 │ ╭─▶ interface IGP {
+    ┆ ┆   
+ 15 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
 ────╯

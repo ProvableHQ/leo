@@ -362,6 +362,7 @@ fn package_analysis(
                 .unwrap_or(SourceFingerprint::Volatile)
         },
         |path| open_line_index(snapshot.open_overlays.as_ref(), path),
+        |path| package_source_files.contains(path),
     );
     let index = Arc::new(index);
     let package = Arc::new(CachedPackageAnalysis {

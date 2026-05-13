@@ -5,7 +5,11 @@ Found:
 fn hash(input: [u8; 16]) -> [u8; 32]
     ╭─[ test:11:5 ]
     │
-    │ 
-    │ 
-    │ Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+ 11 │ ╭─▶     fn hash(input: [u8; 16]) -> [u8; 32] {
+    ┆ ┆   
+ 13 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
