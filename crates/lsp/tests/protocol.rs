@@ -161,8 +161,11 @@ fn initialize_shutdown_exit_round_trip() {
         json!({
             "openClose": true,
             "change": 1,
+            "save": { "includeText": false },
         })
     );
+    // PR 6 ships push diagnostics only, so `diagnosticProvider` must remain absent.
+    assert!(initialize["result"]["capabilities"].get("diagnosticProvider").is_none());
     assert_eq!(initialize["result"]["capabilities"]["semanticTokensProvider"]["full"], json!(true));
     assert_eq!(initialize["result"]["capabilities"]["definitionProvider"], json!(true));
     assert_eq!(initialize["result"]["capabilities"]["referencesProvider"], json!(true));

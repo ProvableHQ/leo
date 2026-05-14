@@ -26,6 +26,7 @@
 use crate::{
     document_store::{AnalysisBucket, DocumentStore, DocumentViewKey, PackageAnalysisKey},
     features::{
+        diagnostics::{DiagnosticClientCapabilitySnapshot, DiagnosticEntry, DiagnosticSet, entry_to_lsp_diagnostic},
         goto_definition::{
             DefinitionQuery,
             resolve as resolve_definition,
@@ -55,19 +56,23 @@ use anyhow::{Context, Result};
 use lsp_server::{Connection, ErrorCode, Message, Notification, Request, RequestId, Response, ResponseError};
 use lsp_types::{
     CancelParams,
+    Diagnostic,
     DidChangeTextDocumentParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
+    DidSaveTextDocumentParams,
     GotoDefinitionParams,
     InitializeParams,
     InitializeResult,
     NumberOrString,
     OneOf,
     PrepareRenameResponse,
+    PublishDiagnosticsParams,
     Range,
     ReferenceParams,
     RenameOptions,
     RenameParams,
+    SaveOptions,
     SemanticTokensParams,
     ServerCapabilities,
     ServerInfo,
@@ -76,6 +81,7 @@ use lsp_types::{
     TextDocumentSyncCapability,
     TextDocumentSyncKind,
     TextDocumentSyncOptions,
+    TextDocumentSyncSaveOptions,
     Uri,
     WorkDoneProgressOptions,
 };
@@ -105,8 +111,12 @@ const SHUTDOWN: &str = "shutdown";
 const DID_OPEN: &str = "textDocument/didOpen";
 /// LSP full-document change notification method.
 const DID_CHANGE: &str = "textDocument/didChange";
+/// LSP save-document notification method.
+const DID_SAVE: &str = "textDocument/didSave";
 /// LSP close-document notification method.
 const DID_CLOSE: &str = "textDocument/didClose";
+/// LSP push-diagnostics notification method.
+const PUBLISH_DIAGNOSTICS: &str = "textDocument/publishDiagnostics";
 /// LSP request-cancellation notification method.
 const CANCEL_REQUEST: &str = "$/cancelRequest";
 /// LSP semantic-token request method.
@@ -159,8 +169,32 @@ struct ServerState {
     reference_requests: ReferencesRequestState,
     rename_requests: RenameRequestState,
     prepare_rename_requests: PrepareRenameRequestState,
+    /// Diagnostic publish bookkeeping that enforces the staleness invariant.
+    diagnostics: DiagnosticPublishState,
+    /// Snapshot of the client's diagnostic capabilities captured at initialize.
+    diagnostic_capabilities: DiagnosticClientCapabilitySnapshot,
     client_definition_link_support: bool,
     hooks: TestHooks,
+}
+
+/// Routing-thread bookkeeping for the diagnostics publish path.
+#[derive(Debug, Default)]
+struct DiagnosticPublishState {
+    /// Save-triggered publishes waiting on an in-flight worker job. At most
+    /// one pending publish per package key; later saves overwrite the trigger.
+    pending_by_package: HashMap<PackageAnalysisKey, PendingDiagnosticPublish>,
+    /// URIs currently published into each bucket; used to clear stale URIs
+    /// when a later publish drops one out of the visible set.
+    published_by_bucket: HashMap<AnalysisBucket, HashSet<Uri>>,
+    /// URIs marked diagnostics-untrusted by a malformed full-sync `didChange`.
+    /// While present, the URI cannot receive non-empty diagnostics.
+    untrusted_uris: HashSet<Uri>,
+}
+
+#[derive(Debug, Clone)]
+struct PendingDiagnosticPublish {
+    /// URI that requested the save and receives any synthetic spanless entries.
+    trigger_uri: Uri,
 }
 
 /// Shared semantic analysis and encoded document views.
@@ -283,6 +317,7 @@ fn run_with_hooks(connection: Connection, hooks: TestHooks) -> Result<ExitCode> 
         serde_json::from_value(params).context("failed to deserialize initialize params")?;
     let workspace_roots = collect_workspace_roots(&initialize_params);
     let client_definition_link_support = client_supports_definition_links(&initialize_params);
+    let diagnostic_capabilities = DiagnosticClientCapabilitySnapshot::from_initialize(&initialize_params);
 
     // Finish the initialize handshake before any main-loop state exists so the
     // steady-state server only has to reason about post-initialize traffic.
@@ -310,6 +345,8 @@ fn run_with_hooks(connection: Connection, hooks: TestHooks) -> Result<ExitCode> 
         reference_requests: ReferencesRequestState::default(),
         rename_requests: RenameRequestState::default(),
         prepare_rename_requests: PrepareRenameRequestState::default(),
+        diagnostics: DiagnosticPublishState::default(),
+        diagnostic_capabilities,
         client_definition_link_support,
         hooks,
     };
@@ -471,6 +508,12 @@ impl ServerState {
                 self.handle_did_change(connection, params);
                 Ok(false)
             }
+            DID_SAVE => {
+                let params: DidSaveTextDocumentParams =
+                    serde_json::from_value(notification.params).context("failed to deserialize didSave")?;
+                self.handle_did_save(connection, params);
+                Ok(false)
+            }
             DID_CLOSE => {
                 let params: DidCloseTextDocumentParams =
                     serde_json::from_value(notification.params).context("failed to deserialize didClose")?;
@@ -521,11 +564,29 @@ impl ServerState {
     }
 
     /// Commit a full-document change and refresh package ownership before analysis.
+    ///
+    /// Every observed edit clears previously published diagnostics for the
+    /// affected bucket in the same routing turn, so a stale worker completion
+    /// cannot restore old ranges. Malformed full-sync payloads additionally
+    /// flag the URI diagnostics-untrusted until trusted text is committed.
     fn handle_did_change(&mut self, connection: &Connection, params: DidChangeTextDocumentParams) {
         let DidChangeTextDocumentParams { text_document, content_changes } = params;
         let previous_bucket = self.documents.package_key(&text_document.uri).map(|key| key.bucket);
+        let incoming_version = text_document.version;
 
         let Some(text) = extract_full_sync_text(content_changes) else {
+            // Malformed payload: clear current diagnostics and mark the URI
+            // untrusted so a later save cannot reuse the cached analysis.
+            self.clear_diagnostics_for_did_change(
+                connection,
+                &text_document.uri,
+                incoming_version,
+                previous_bucket.as_ref(),
+                previous_bucket.as_ref(),
+            );
+            if previous_bucket.is_some() {
+                self.diagnostics.untrusted_uris.insert(text_document.uri.clone());
+            }
             return;
         };
         // Re-resolve package ownership on every committed edit so semantic
@@ -534,7 +595,7 @@ impl ServerState {
         let (file_path, project) = self.project_model.resolve_document_context(&text_document.uri);
 
         let Some(prepared) =
-            self.documents.prepare_full_change(&text_document.uri, text_document.version, text, file_path, project)
+            self.documents.prepare_full_change(&text_document.uri, incoming_version, text, file_path, project)
         else {
             tracing::debug!(uri = text_document.uri.as_str(), "ignoring didChange for unopened document");
             return;
@@ -543,6 +604,15 @@ impl ServerState {
         self.hooks.maybe_panic_notification(DID_CHANGE);
 
         let snapshot = self.documents.commit_change(prepared);
+        // Trusted text resets the diagnostics-untrusted flag.
+        self.diagnostics.untrusted_uris.remove(&text_document.uri);
+        self.clear_diagnostics_for_did_change(
+            connection,
+            &text_document.uri,
+            incoming_version,
+            previous_bucket.as_ref(),
+            Some(&snapshot.package_key.bucket),
+        );
         self.invalidate_bucket_for_new_snapshot(
             connection,
             previous_bucket.as_ref(),
@@ -554,11 +624,91 @@ impl ServerState {
         self.scheduler.enqueue_package(snapshot);
     }
 
+    /// Handle a `textDocument/didSave` by publishing or queuing diagnostics.
+    ///
+    /// Save is the only event that produces a non-empty publish. The handler
+    /// publishes immediately from the cached package result when available,
+    /// records a pending marker if analysis is still in flight, and
+    /// short-circuits if the URI is diagnostics-untrusted or the package
+    /// analysis has failed.
+    fn handle_did_save(&mut self, connection: &Connection, params: DidSaveTextDocumentParams) {
+        let uri = params.text_document.uri;
+        let Some(document) = self.documents.open_document(&uri) else {
+            return;
+        };
+        if document.file_path.is_none() {
+            // Unmanaged buffers without a file path cannot resolve compiler
+            // spans to a real path, so we cannot reasonably publish anything
+            // beyond a clear.
+            self.clear_uri_only(connection, &uri);
+            return;
+        }
+        if self.diagnostics.untrusted_uris.contains(&uri) {
+            self.clear_uri_only(connection, &uri);
+            return;
+        }
+        let Some(package_key) = self.documents.package_key(&uri) else {
+            return;
+        };
+
+        self.hooks.maybe_panic_notification(DID_SAVE);
+
+        if self.analysis.failed_packages.contains(&package_key) {
+            // Analysis crashed; drop any visible diagnostics and bail.
+            self.clear_bucket(connection, &package_key.bucket, None);
+            self.diagnostics.pending_by_package.remove(&package_key);
+            return;
+        }
+
+        if let Some(package) = self.analysis.packages.get(&package_key).cloned() {
+            if self.package_freshness_ok(&package_key) {
+                self.diagnostics.pending_by_package.remove(&package_key);
+                self.publish_diagnostic_set(connection, &uri, package.diagnostics.as_ref());
+                return;
+            }
+            // The cached analysis exists but at least one open sibling has
+            // drifted; throw it away and enqueue a fresh analysis with a
+            // pending publish marker so the next completion satisfies the
+            // save.
+            self.analysis.invalidate_bucket(&package_key.bucket);
+            self.cancel_pending_bucket_requests(connection, &package_key.bucket, "package analysis was superseded");
+        }
+
+        self.diagnostics
+            .pending_by_package
+            .insert(package_key.clone(), PendingDiagnosticPublish { trigger_uri: uri.clone() });
+        self.ensure_package_analysis(&package_key, &uri);
+    }
+
+    /// Verify every open document in the bucket still resolves to the same package key.
+    ///
+    /// Cached package diagnostics may only be reused on `didSave` when every
+    /// open sibling in the bucket still claims the same package generation.
+    /// This catches the race where a sibling close/open changed the bucket
+    /// generation between the worker completion and the save.
+    fn package_freshness_ok(&self, key: &PackageAnalysisKey) -> bool {
+        let mut saw_any = false;
+        for (uri, document) in self.documents.iter_open() {
+            if document.analysis_bucket != key.bucket {
+                continue;
+            }
+            saw_any = true;
+            let Some(open_key) = self.documents.package_key(uri) else {
+                return false;
+            };
+            if &open_key != key {
+                return false;
+            }
+        }
+        saw_any
+    }
+
     /// Close a document and flush or cancel any waiters tied to its bucket.
     fn handle_did_close(&mut self, connection: &Connection, params: DidCloseTextDocumentParams) {
         self.hooks.maybe_panic_notification(DID_CLOSE);
         let uri = params.text_document.uri;
         let previous_bucket = self.documents.package_key(&uri).map(|key| key.bucket);
+        self.clear_diagnostics_for_did_close(connection, &uri);
         self.documents.close(&uri);
         self.scheduler.set_open_buckets(self.documents.open_buckets());
         if let Err(error) =
@@ -596,6 +746,7 @@ impl ServerState {
         if let Some(bucket) = previous_bucket {
             self.analysis.invalidate_bucket(&bucket);
             self.cancel_pending_bucket_requests(connection, &bucket, "package analysis was superseded");
+            self.diagnostics.pending_by_package.retain(|key, _| key.bucket != bucket);
         } else {
             self.analysis.invalidate_uri(&uri);
         }
@@ -655,6 +806,7 @@ impl ServerState {
                             &evicted,
                             "package analysis was evicted from cache",
                         );
+                        self.diagnostics.pending_by_package.remove(&evicted);
                     }
                     self.store_document_view(connection, result.document_view);
                     self.answer_pending_definitions(connection, &key);
@@ -662,6 +814,9 @@ impl ServerState {
                     self.answer_pending_prepare_renames(connection, &key);
                     self.answer_pending_renames(&key);
                     self.enqueue_pending_document_views_for_package(&key);
+                    // Diagnostics are published last so any pending save
+                    // marker observes the freshly cached package result.
+                    self.publish_pending_diagnostics(connection, &key);
                     tracing::debug!(
                         uri = uri.as_str(),
                         generation,
@@ -670,6 +825,7 @@ impl ServerState {
                     );
                 } else {
                     self.cancel_pending_package_requests(connection, &key, "package analysis was superseded");
+                    self.diagnostics.pending_by_package.remove(&key);
                     tracing::debug!(uri = uri.as_str(), generation, "dropping stale package worker completion");
                 }
             }
@@ -688,6 +844,7 @@ impl ServerState {
             WorkerEvent::PackageCancelled { key, uri, generation } => {
                 self.analysis.in_flight_packages.remove(&key);
                 self.cancel_pending_package_requests(connection, &key, "package analysis was cancelled");
+                self.diagnostics.pending_by_package.remove(&key);
                 tracing::debug!(uri = uri.as_str(), generation, "worker cancelled stale package analysis");
             }
             WorkerEvent::DocumentViewCancelled { key } => {
@@ -706,6 +863,7 @@ impl ServerState {
             WorkerEvent::PackagePanicked { key, uri, generation, report } => {
                 report.log();
                 self.analysis.in_flight_packages.remove(&key);
+                self.diagnostics.pending_by_package.remove(&key);
                 if self.documents.generation(&uri) == Some(generation)
                     && self.documents.package_key(&uri) == Some(key.clone())
                 {
@@ -715,6 +873,9 @@ impl ServerState {
                         &key,
                         "analysis panicked; see server logs for details",
                     );
+                    // Drop visible diagnostics so the editor stops showing
+                    // stale errors after the analysis panicked.
+                    self.clear_bucket(connection, &key.bucket, None);
                 } else {
                     self.cancel_pending_package_requests(connection, &key, "package analysis was superseded");
                 }
@@ -1221,6 +1382,10 @@ impl ServerState {
     }
 
     /// Invalidate stale analysis state when a document enters a new package snapshot.
+    ///
+    /// Diagnostic publishes pending against the affected buckets are dropped
+    /// here so a stale worker completion that arrives after the edit cannot
+    /// resurrect old diagnostic ranges.
     fn invalidate_bucket_for_new_snapshot(
         &mut self,
         connection: &Connection,
@@ -1231,14 +1396,18 @@ impl ServerState {
         // Package analysis spans all open buffers in the bucket. Any committed
         // edit or bucket move invalidates package-level state, document views,
         // in-flight markers, and pending waiters that depended on old inputs.
+        let mut buckets: HashSet<AnalysisBucket> = HashSet::new();
         if let Some(previous_bucket) = previous_bucket
             && previous_bucket != current_bucket
         {
             self.analysis.invalidate_bucket(previous_bucket);
             self.cancel_pending_bucket_requests(connection, previous_bucket, message);
+            buckets.insert(previous_bucket.clone());
         }
         self.analysis.invalidate_bucket(current_bucket);
         self.cancel_pending_bucket_requests(connection, current_bucket, message);
+        buckets.insert(current_bucket.clone());
+        self.diagnostics.pending_by_package.retain(|key, _| !buckets.contains(&key.bucket));
     }
 
     /// Cancel every pending waiter tied to one analysis bucket.
@@ -1420,6 +1589,180 @@ impl ServerState {
         ) {
             tracing::error!(uri = key.uri.as_str(), error = %error, "failed to cancel semantic token view waiters");
         }
+    }
+
+    /// Clear stale diagnostics for the buckets affected by a `didChange`.
+    ///
+    /// The edited URI clears with the incoming version; sibling URIs use
+    /// their own current open versions. Pending save publishes for the
+    /// affected buckets are dropped too.
+    fn clear_diagnostics_for_did_change(
+        &mut self,
+        connection: &Connection,
+        edited_uri: &Uri,
+        incoming_version: i32,
+        previous_bucket: Option<&AnalysisBucket>,
+        current_bucket: Option<&AnalysisBucket>,
+    ) {
+        let mut buckets: HashSet<AnalysisBucket> = HashSet::new();
+        if let Some(bucket) = previous_bucket {
+            buckets.insert(bucket.clone());
+        }
+        if let Some(bucket) = current_bucket {
+            buckets.insert(bucket.clone());
+        }
+        for bucket in &buckets {
+            self.clear_bucket(connection, bucket, Some((edited_uri, incoming_version)));
+        }
+        self.diagnostics.pending_by_package.retain(|key, _| !buckets.contains(&key.bucket));
+    }
+
+    /// Clear a single previously-published URI without touching its siblings.
+    fn clear_uri_only(&mut self, connection: &Connection, uri: &Uri) {
+        let Some(bucket) = self.documents.package_key(uri).map(|key| key.bucket) else {
+            return;
+        };
+        let was_published = self.diagnostics.published_by_bucket.get(&bucket).is_some_and(|uris| uris.contains(uri));
+        if !was_published {
+            return;
+        }
+        let version = self.documents.open_document(uri).map(|document| document.version);
+        if let Err(error) = send_publish_diagnostics(connection, uri, version, Vec::new()) {
+            tracing::error!(uri = uri.as_str(), error = %error, "failed to clear diagnostics for uri");
+        }
+        if let Some(uris) = self.diagnostics.published_by_bucket.get_mut(&bucket) {
+            uris.remove(uri);
+            if uris.is_empty() {
+                self.diagnostics.published_by_bucket.remove(&bucket);
+            }
+        }
+    }
+
+    /// Clear every previously-published URI in a bucket.
+    ///
+    /// When `edited_uri` is supplied, that URI's clear is stamped with the
+    /// supplied incoming `didChange` version; all other URIs use their own
+    /// current open versions (or none if no longer open).
+    fn clear_bucket(&mut self, connection: &Connection, bucket: &AnalysisBucket, edited_uri: Option<(&Uri, i32)>) {
+        let Some(uris) = self.diagnostics.published_by_bucket.remove(bucket) else {
+            return;
+        };
+        for uri in &uris {
+            let version = match edited_uri {
+                Some((edited, version)) if uri == edited => Some(version),
+                _ => self.documents.open_document(uri).map(|document| document.version),
+            };
+            if let Err(error) = send_publish_diagnostics(connection, uri, version, Vec::new()) {
+                tracing::error!(uri = uri.as_str(), error = %error, "failed to clear diagnostics for bucket uri");
+            }
+        }
+    }
+
+    /// Drop diagnostic state for a closed URI.
+    fn clear_diagnostics_for_did_close(&mut self, connection: &Connection, uri: &Uri) {
+        if let Err(error) = send_publish_diagnostics(connection, uri, None, Vec::new()) {
+            tracing::error!(uri = uri.as_str(), error = %error, "failed to clear diagnostics on close");
+        }
+        for uris in self.diagnostics.published_by_bucket.values_mut() {
+            uris.remove(uri);
+        }
+        self.diagnostics.published_by_bucket.retain(|_, uris| !uris.is_empty());
+        self.diagnostics.pending_by_package.retain(|_, pending| &pending.trigger_uri != uri);
+        self.diagnostics.untrusted_uris.remove(uri);
+    }
+
+    /// Publish a cached diagnostic set.
+    ///
+    /// Entries are grouped by the open URI their path resolves to;
+    /// diagnostics whose path is not currently open are suppressed.
+    /// Synthetic spanless entries are pinned to `trigger_uri`. After the
+    /// new publish lands, any URI from the bucket's previous publish set
+    /// that is no longer present receives an empty clear.
+    fn publish_diagnostic_set(&mut self, connection: &Connection, trigger_uri: &Uri, set: &DiagnosticSet) {
+        let bucket = set.key.bucket.clone();
+        let mut grouped: HashMap<Uri, (Option<i32>, Vec<Diagnostic>)> = HashMap::new();
+        for entry in set.entries.iter() {
+            let targets = self.entry_publish_targets(entry, &set.key, trigger_uri);
+            if targets.is_empty() {
+                continue;
+            }
+            let payload = entry_to_lsp_diagnostic(entry, &self.diagnostic_capabilities);
+            for (uri, version) in targets {
+                let bucket = grouped.entry(uri).or_insert_with(|| (Some(version), Vec::new()));
+                bucket.0 = Some(version);
+                bucket.1.push(payload.clone());
+            }
+        }
+
+        for (uri, (version, diagnostics)) in &grouped {
+            if let Err(error) = send_publish_diagnostics(connection, uri, *version, diagnostics.clone()) {
+                tracing::error!(uri = uri.as_str(), error = %error, "failed to publish diagnostics");
+            }
+        }
+
+        let previous = self.diagnostics.published_by_bucket.remove(&bucket).unwrap_or_default();
+        for uri in &previous {
+            if grouped.contains_key(uri) {
+                continue;
+            }
+            let version = self.documents.open_document(uri).map(|document| document.version);
+            if let Err(error) = send_publish_diagnostics(connection, uri, version, Vec::new()) {
+                tracing::error!(uri = uri.as_str(), error = %error, "failed to clear stale uri");
+            }
+        }
+
+        if !grouped.is_empty() {
+            self.diagnostics.published_by_bucket.insert(bucket, grouped.into_keys().collect());
+        }
+    }
+
+    /// Resolve one diagnostic entry to the open URI/version pairs that should
+    /// receive it. Returns at most one target per URI.
+    fn entry_publish_targets(
+        &self,
+        entry: &DiagnosticEntry,
+        key: &PackageAnalysisKey,
+        trigger_uri: &Uri,
+    ) -> Vec<(Uri, i32)> {
+        if entry.synthetic {
+            // Synthetic entries are pinned to the saved document.
+            return self
+                .documents
+                .open_document(trigger_uri)
+                .map(|document| vec![(trigger_uri.clone(), document.version)])
+                .unwrap_or_default();
+        }
+        let mut targets: Vec<(Uri, i32)> = self
+            .documents
+            .open_documents_for_path(entry.path.as_path())
+            .into_iter()
+            .filter(|target| target.package_key == *key)
+            .filter(|target| !self.diagnostics.untrusted_uris.contains(&target.uri))
+            .map(|target| (target.uri, target.version))
+            .collect();
+        targets.sort_by(|left, right| left.0.as_str().cmp(right.0.as_str()));
+        targets.dedup_by(|left, right| left.0 == right.0);
+        targets
+    }
+
+    /// Satisfy any pending save-triggered publish for a freshly cached package.
+    fn publish_pending_diagnostics(&mut self, connection: &Connection, key: &PackageAnalysisKey) {
+        let Some(pending) = self.diagnostics.pending_by_package.remove(key) else {
+            return;
+        };
+        if self.diagnostics.untrusted_uris.contains(&pending.trigger_uri) {
+            return;
+        }
+        let Some(current_key) = self.documents.package_key(&pending.trigger_uri) else {
+            return;
+        };
+        if &current_key != key || !self.package_freshness_ok(key) {
+            return;
+        }
+        let Some(package) = self.analysis.packages.get(key).cloned() else {
+            return;
+        };
+        self.publish_diagnostic_set(connection, &pending.trigger_uri, package.diagnostics.as_ref());
     }
 }
 
@@ -2048,6 +2391,10 @@ fn collect_workspace_roots(params: &InitializeParams) -> Vec<PathBuf> {
 }
 
 /// Advertise the LSP capabilities implemented by this server.
+///
+/// `save.includeText = false` because the server has authoritative content
+/// from full-sync `didChange` already. `diagnosticProvider` is intentionally
+/// absent: this server ships push diagnostics only.
 fn server_capabilities() -> ServerCapabilities {
     ServerCapabilities {
         text_document_sync: Some(TextDocumentSyncCapability::Options(TextDocumentSyncOptions {
@@ -2055,7 +2402,7 @@ fn server_capabilities() -> ServerCapabilities {
             change: Some(TextDocumentSyncKind::FULL),
             will_save: None,
             will_save_wait_until: None,
-            save: None,
+            save: Some(TextDocumentSyncSaveOptions::SaveOptions(SaveOptions { include_text: Some(false) })),
         })),
         semantic_tokens_provider: Some(semantic_tokens_capability()),
         definition_provider: Some(OneOf::Left(true)),
@@ -2108,6 +2455,26 @@ fn request_id_from_cancel(id: NumberOrString) -> RequestId {
 fn send_ok_response(connection: &Connection, id: RequestId, result: Value) -> Result<()> {
     let response = Response { id, result: Some(result), error: None };
     connection.sender.send(Message::Response(response))?;
+    Ok(())
+}
+
+/// Send a `textDocument/publishDiagnostics` notification.
+///
+/// `version` is wired through verbatim so empty clears for previously open
+/// URIs can carry their open version while clears for never-opened URIs omit
+/// the version entirely.
+fn send_publish_diagnostics(
+    connection: &Connection,
+    uri: &Uri,
+    version: Option<i32>,
+    diagnostics: Vec<Diagnostic>,
+) -> Result<()> {
+    let params = PublishDiagnosticsParams { uri: uri.clone(), diagnostics, version };
+    let notification = Notification {
+        method: PUBLISH_DIAGNOSTICS.to_owned(),
+        params: serde_json::to_value(params).context("failed to serialize publishDiagnostics params")?,
+    };
+    connection.sender.send(Message::Notification(notification))?;
     Ok(())
 }
 
@@ -2322,6 +2689,8 @@ mod tests {
             reference_requests: super::ReferencesRequestState::default(),
             rename_requests: super::RenameRequestState::default(),
             prepare_rename_requests: super::PrepareRenameRequestState::default(),
+            diagnostics: super::DiagnosticPublishState::default(),
+            diagnostic_capabilities: super::DiagnosticClientCapabilitySnapshot::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         }
@@ -2364,6 +2733,105 @@ mod tests {
         assert!(state.analysis.in_flight_packages.is_empty());
         assert!(state.analysis.failed_views.is_empty());
         assert!(state.analysis.in_flight_views.is_empty());
+        state.scheduler.shutdown();
+    }
+
+    /// Build a one-entry `DiagnosticSet` keyed to the document at `uri`.
+    fn diagnostic_set_for_path(
+        state: &super::ServerState,
+        uri: &Uri,
+        path: &std::path::Path,
+        synthetic: bool,
+    ) -> super::DiagnosticSet {
+        use crate::features::diagnostics::{
+            DiagnosticEntry,
+            DiagnosticRange,
+            DiagnosticRelatedEntry,
+            DiagnosticSet,
+            DiagnosticSeverityInternal,
+        };
+        let key = state.documents.package_key(uri).expect("package key");
+        let entry = DiagnosticEntry {
+            path: Arc::new(path.to_path_buf()),
+            range: DiagnosticRange { start_line: 0, start_character: 0, end_line: 0, end_character: 1 },
+            severity: DiagnosticSeverityInternal::Error,
+            message: Arc::from("boom"),
+            related: Arc::from(Vec::<DiagnosticRelatedEntry>::new()),
+            synthetic,
+        };
+        DiagnosticSet { key, entries: Arc::from(vec![entry]) }
+    }
+
+    /// Drain the publishDiagnostics notifications observed on `client`.
+    fn drain_publish_notifications(client: &Connection) -> Vec<serde_json::Value> {
+        let mut out = Vec::new();
+        while let Ok(message) = client.receiver.recv_timeout(Duration::from_millis(20)) {
+            match message {
+                Message::Notification(notification) if notification.method == "textDocument/publishDiagnostics" => {
+                    out.push(notification.params)
+                }
+                Message::Notification(_) | Message::Response(_) | Message::Request(_) => {}
+            }
+        }
+        out
+    }
+
+    /// Path-only diagnostic with no matching open document is suppressed.
+    #[test]
+    fn publish_suppresses_entries_without_open_uri() {
+        let (server, client) = Connection::memory();
+        let mut state = test_state();
+        let uri: Uri = "file:///tmp/a.leo".parse().expect("uri");
+        open_unmanaged_document(&mut state, &uri, 1, "program test.aleo {}\n");
+
+        let unrelated = std::path::PathBuf::from("/tmp/elsewhere.leo");
+        let set = diagnostic_set_for_path(&state, &uri, &unrelated, false);
+        state.publish_diagnostic_set(&server, &uri, &set);
+
+        assert!(drain_publish_notifications(&client).is_empty());
+        state.scheduler.shutdown();
+    }
+
+    /// A URI flagged untrusted does not receive a non-empty publish.
+    #[test]
+    fn publish_suppresses_untrusted_uris() {
+        let (server, client) = Connection::memory();
+        let mut state = test_state();
+        let path = std::path::PathBuf::from("/tmp/lsp-publish-test/main.leo");
+        let uri: Uri = "file:///tmp/lsp-publish-test/main.leo".parse().expect("uri");
+        state.documents.commit_open(state.documents.prepare_open(
+            uri.clone(),
+            "leo".to_owned(),
+            1,
+            "program test.aleo {}\n".to_owned(),
+            Some(Arc::new(path.clone())),
+            None,
+        ));
+        state.diagnostics.untrusted_uris.insert(uri.clone());
+
+        let set = diagnostic_set_for_path(&state, &uri, &path, false);
+        state.publish_diagnostic_set(&server, &uri, &set);
+
+        assert!(drain_publish_notifications(&client).is_empty());
+        state.scheduler.shutdown();
+    }
+
+    /// Synthetic entries always land on the trigger URI.
+    #[test]
+    fn publish_pins_synthetic_entries_to_trigger_uri() {
+        let (server, client) = Connection::memory();
+        let mut state = test_state();
+        let uri: Uri = "untitled:main.leo".parse().expect("uri");
+        open_unmanaged_document(&mut state, &uri, 1, "program test.aleo {}\n");
+        let path = std::path::PathBuf::from("/tmp/vfs/synthetic.leo");
+
+        let set = diagnostic_set_for_path(&state, &uri, &path, true);
+        state.publish_diagnostic_set(&server, &uri, &set);
+
+        let publishes = drain_publish_notifications(&client);
+        assert_eq!(publishes.len(), 1);
+        assert_eq!(publishes[0]["uri"], json!(uri.to_string()));
+        assert_eq!(publishes[0]["version"], json!(1));
         state.scheduler.shutdown();
     }
 
@@ -2651,6 +3119,8 @@ mod tests {
             reference_requests: super::ReferencesRequestState::default(),
             rename_requests: super::RenameRequestState::default(),
             prepare_rename_requests: super::PrepareRenameRequestState::default(),
+            diagnostics: super::DiagnosticPublishState::default(),
+            diagnostic_capabilities: super::DiagnosticClientCapabilitySnapshot::default(),
             client_definition_link_support: false,
             hooks: TestHooks::default(),
         };
