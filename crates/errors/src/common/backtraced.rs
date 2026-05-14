@@ -117,6 +117,14 @@ impl Backtraced {
     pub fn warning_code(&self) -> String {
         format_warning_code(&self.type_, 37, self.code)
     }
+
+    /// Return whether this diagnostic represents an error rather than a warning.
+    ///
+    /// LSP severity mapping inspects this flag rather than the rendered prefix
+    /// in the diagnostic's `Display` output.
+    pub fn is_error(&self) -> bool {
+        self.error
+    }
 }
 
 impl fmt::Display for Backtraced {

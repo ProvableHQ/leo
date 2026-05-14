@@ -21,6 +21,8 @@
 //! feature modules consume snapshot-safe semantic data and return LSP-ready
 //! values.
 
+/// Diagnostic lowering and LSP wire-format conversion.
+pub mod diagnostics;
 /// Go-to-definition query resolution.
 pub mod goto_definition;
 /// Shared LSP range and URI conversion helpers.

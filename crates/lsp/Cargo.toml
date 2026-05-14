@@ -43,5 +43,6 @@ tracing-subscriber = { workspace = true }
 xxhash-rust        = { workspace = true }
 
 [dev-dependencies]
-serde_json = { workspace = true }
-tempfile   = { workspace = true }
+crossbeam-channel = { workspace = true }
+serde_json        = { workspace = true }
+tempfile          = { workspace = true }

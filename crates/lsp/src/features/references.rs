@@ -115,10 +115,11 @@ mod tests {
             SemanticIndex::build(&occurrences, |_| SourceFingerprint::Volatile, |_| None, |_| true);
         (
             CachedPackageAnalysis {
-                key,
+                key: key.clone(),
                 index: Arc::new(index),
                 analyzed_files: Arc::new(analyzed_files),
                 source: SemanticSource::CompilerEnhanced,
+                diagnostics: Arc::new(crate::features::diagnostics::DiagnosticSet::empty(key)),
             },
             view_key,
             path,

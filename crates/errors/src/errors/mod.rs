@@ -56,6 +56,36 @@ impl LeoError {
             SnarkVM(_) => 11000,
         }
     }
+
+    /// Borrow a structured, LSP-agnostic view of this error.
+    ///
+    /// Only [`LeoError::Formatted`] variants carry a span and labeled
+    /// secondary information, so other variants return `None`. The caller is
+    /// expected to fall back to a synthetic package-level diagnostic in that
+    /// case; see the `leo-lsp` diagnostics module for an example.
+    ///
+    /// [`LeoError::LastErrorCode`] is a sentinel used to signal that an error
+    /// has already been emitted through a handler. It deliberately returns
+    /// `None` so it is never published as a separate diagnostic.
+    pub fn diagnostic_view(&self) -> Option<crate::DiagnosticView<'_>> {
+        match self {
+            LeoError::Formatted(formatted) => Some(formatted.diagnostic_view()),
+            LeoError::Backtraced(_)
+            | LeoError::ConstEvalError(_)
+            | LeoError::LastErrorCode(_)
+            | LeoError::SnarkVM(_) => None,
+        }
+    }
+
+    /// Return whether this error is the sentinel raised after a handler emit.
+    ///
+    /// `Handler::last_err` produces [`LeoError::LastErrorCode`] when the
+    /// emitter has already buffered a real diagnostic. Consumers should skip
+    /// the sentinel when collecting structured diagnostics so the original
+    /// error is published exactly once.
+    pub fn is_last_error_code(&self) -> bool {
+        matches!(self, LeoError::LastErrorCode(_))
+    }
 }
 
 /// The LeoWarning type that contains all sub warning types.
@@ -70,6 +100,18 @@ impl LeoWarning {
         use LeoWarning::*;
         match self {
             Formatted(w) => w.warning_code(),
+        }
+    }
+
+    /// Borrow a structured, LSP-agnostic view of this warning.
+    ///
+    /// Every variant currently wraps a [`Formatted`] payload, so the view is
+    /// always available. The signature is kept symmetric with
+    /// [`LeoError::diagnostic_view`] so future variants that lack span data
+    /// can opt out without breaking call sites.
+    pub fn diagnostic_view(&self) -> Option<crate::DiagnosticView<'_>> {
+        match self {
+            LeoWarning::Formatted(formatted) => Some(formatted.diagnostic_view()),
         }
     }
 }

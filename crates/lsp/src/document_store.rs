@@ -161,6 +161,17 @@ pub struct DocumentViewSnapshot {
     pub cancel_token: Arc<AtomicU64>,
 }
 
+/// One open document captured for diagnostic publishing.
+///
+/// `package_key` is captured at lookup time so the publisher can reject paths
+/// whose owning document has drifted to a different bucket since analysis.
+#[derive(Debug, Clone)]
+pub(crate) struct OpenDocumentTarget {
+    pub uri: Uri,
+    pub version: i32,
+    pub package_key: PackageAnalysisKey,
+}
+
 /// Fully prepared document mutation ready to be committed atomically.
 ///
 /// Preparing a mutation never changes visible server state. Only the
@@ -361,6 +372,30 @@ impl DocumentStore {
             project: document.project.clone(),
             cancel_token: Arc::clone(&document.cancel_token),
         })
+    }
+
+    /// Return every currently open document whose `file_path` matches `path`.
+    ///
+    /// Used by the diagnostics publisher to map compiler error paths back to
+    /// the LSP URIs and versions the client opened the file under, preserving
+    /// the client-supplied URI shape rather than synthesizing a canonical one.
+    /// A single path may match more than one URI when the client opens the
+    /// same file twice; callers should treat the result as authoritative.
+    pub(crate) fn open_documents_for_path(&self, path: &Path) -> Vec<OpenDocumentTarget> {
+        self.documents
+            .iter()
+            .filter_map(|(uri, document)| {
+                if document.file_path.as_deref().is_some_and(|candidate| candidate.as_path() == path) {
+                    Some(OpenDocumentTarget {
+                        uri: uri.clone(),
+                        version: document.version,
+                        package_key: self.package_key_for_bucket(&document.analysis_bucket),
+                    })
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 
     /// Return the line index for an open path captured by current document state.

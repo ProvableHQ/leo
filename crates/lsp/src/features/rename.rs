@@ -236,10 +236,11 @@ mod tests {
             |path| in_scope(path),
         );
         CachedPackageAnalysis {
-            key,
+            key: key.clone(),
             index: Arc::new(index),
             analyzed_files: Arc::new(analyzed_files),
             source: SemanticSource::CompilerEnhanced,
+            diagnostics: Arc::new(crate::features::diagnostics::DiagnosticSet::empty(key)),
         }
     }
 
