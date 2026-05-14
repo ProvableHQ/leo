@@ -51,6 +51,11 @@ pub struct Program {
     /// Public entry points (program functions only, not internal helpers).
     /// Compiled to Aleo `transition`s.
     pub functions: Vec<Function>,
+    /// Read-only `view fn` entry points (V15). Compiled to Aleo `view` blocks.
+    /// Off-consensus, plaintext-only inputs and outputs, no transactions or fees.
+    /// Defaults to empty for backwards compatibility with pre-V15 ABI consumers.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub views: Vec<Function>,
 }
 
 /// The ABI for a single Leo interface.
@@ -65,8 +70,11 @@ pub struct Interface {
     pub path: Path,
     /// Inherited interfaces, by reference. Not flattened.
     pub parents: Vec<InterfaceRef>,
-    /// Locally declared function prototypes.
+    /// Locally declared function prototypes (`fn`).
     pub functions: Vec<Function>,
+    /// Locally declared view-function prototypes (`view fn`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub views: Vec<Function>,
     /// Locally declared record prototypes.
     pub records: Vec<Record>,
     /// Locally declared mapping prototypes.

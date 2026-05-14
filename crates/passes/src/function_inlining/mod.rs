@@ -68,8 +68,9 @@
 //! const generic, so this pass sees only regular parameters.
 //!
 //! **Phase 1 — Analysis.** `AnalysisVisitor` walks the AST and records every function called
-//! from a `Fn`/`FinalFn`/`Finalize` body or a constructor. The resulting `always_inline` set
-//! force-inlines any function that reaches an on-chain context even transitively.
+//! from a `Fn`/`FinalFn`/`Finalize`/`View` body or a constructor. The resulting `always_inline`
+//! set force-inlines any function that reaches an on-chain context (or a view body, which cannot
+//! contain a `call` instruction) even transitively.
 //!
 //! **Phase 2 — Transform.**
 //!

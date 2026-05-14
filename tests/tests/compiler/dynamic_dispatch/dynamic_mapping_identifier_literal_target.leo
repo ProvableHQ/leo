@@ -4,7 +4,7 @@ interface Bank {
 }
 
 program test.aleo {
-    fn query(key: address) -> Final {
+    fn lookup(key: address) -> Final {
         return final { finalize_query(key); };
     }
 }

@@ -1,0 +1,30 @@
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+function bump:
+    input r0 as address.private;
+    input r1 as u64.private;
+    async bump r0 r1 into r2;
+    output r2 as test.aleo/bump.future;
+
+finalize bump:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use balances[r0] 0u64 into r2;
+    gt r2 r1 into r3;
+    ternary r3 r1 r2 into r4;
+    set r4 into balances[r0];
+
+view capped_balance:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use balances[r0] 0u64 into r2;
+    gt r2 r1 into r3;
+    ternary r3 r1 r2 into r4;
+    output r4 as u64.public;
+
+constructor:
+    assert.eq edition 0u16;

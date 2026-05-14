@@ -208,9 +208,8 @@ impl AstReconstructor for TransformVisitor<'_> {
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let function_location = input.function.expect_global_location();
 
-        // Cross-program entry-point calls are always emitted as direct Aleo `call`s — inlining
-        // an entry-point body into a different program would lose its transition semantics.
-        if self.state.symbol_table.is_cross_program_entry(self.program, function_location) {
+        // Cross-program externally-callable callees are emitted as direct Aleo `call`s.
+        if self.state.symbol_table.is_cross_program_call_target(self.program, function_location) {
             return (input.into(), Default::default());
         }
 
@@ -273,7 +272,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                 // Has only empty arguments
                 optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
                 }
-                Variant::EntryPoint | Variant::Finalize => false,
+                Variant::EntryPoint | Variant::Finalize | Variant::View => false,
             };
 
         // Inline the callee function, if required, otherwise, return the call expression.

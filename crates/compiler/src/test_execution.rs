@@ -156,6 +156,13 @@ fn execution_runner(source: &str) -> String {
         } else if let Some(rest) = line.strip_prefix("input = ") {
             // Get quote-delimited strings.
             cases.last_mut().unwrap().input = re_input.captures_iter(rest).map(|s| s[1].to_string()).collect();
+        } else if let Some(rest) = line.strip_prefix("seed_mapping = ") {
+            // `seed_mapping = ["mapping_name", "key_value", "value"]` — three quote-delimited
+            // strings. Multiple `seed_mapping` lines are accumulated for the current case.
+            let parts: Vec<String> = re_input.captures_iter(rest).map(|s| s[1].to_string()).collect();
+            assert_eq!(parts.len(), 3, "seed_mapping expects 3 quote-delimited strings: mapping, key, value");
+            let [mapping, key, value]: [String; 3] = parts.try_into().unwrap();
+            cases.last_mut().unwrap().seed_mapping.push(crate::run::SeedMapping { mapping, key, value });
         } else if let Some(rest) = line.strip_prefix("seed = ") {
             config.seed = rest.parse::<u64>().unwrap();
         } else if let Some(rest) = line.strip_prefix("start_height = ") {

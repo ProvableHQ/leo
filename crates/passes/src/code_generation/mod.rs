@@ -280,6 +280,7 @@ pub enum AleoFunctional {
     Closure(AleoClosure),
     Function(AleoFunction),
     Finalize(AleoFinalize),
+    View(AleoView),
 }
 impl AleoFunctional {
     pub fn as_closure(self) -> AleoClosure {
@@ -304,7 +305,36 @@ impl Display for AleoFunctional {
             Self::Closure(c) => c.fmt(f),
             Self::Function(fun) => fun.fmt(f),
             Self::Finalize(fin) => fin.fmt(f),
+            Self::View(v) => v.fmt(f),
         }
+    }
+}
+
+/// An Aleo `view` block — a read-only entry point introduced in V15.
+/// Bytecode shape:
+///
+/// ```aleo
+/// view <name>:
+///     input r0 as <type>.public;
+///     ...
+///     output r1 as <type>.public;
+/// ```
+#[derive(Debug)]
+pub struct AleoView {
+    name: String,
+    inputs: Vec<AleoInput>,
+    statements: Vec<AleoStmt>,
+}
+impl Display for AleoView {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "view {}:", self.name)?;
+        for input in &self.inputs {
+            write!(f, "{}", input)?;
+        }
+        for stm in &self.statements {
+            write!(f, "{}", stm)?;
+        }
+        Ok(())
     }
 }
 
@@ -546,11 +576,7 @@ impl Display for AleoStmt {
                 writeln!(f, "    ternary {cond} {if_true} {if_false} into {dest};")
             }
             Self::Commit(variant, arg0, arg1, dest, type_) => {
-                writeln!(
-                    f,
-                    "    {} {arg0} {arg1} into {dest} as {type_};",
-                    CommitVariant::opcode(variant.clone() as u8)
-                )
+                writeln!(f, "    {} {arg0} {arg1} into {dest} as {type_};", CommitVariant::opcode(*variant as u8))
             }
             Self::Hash(variant, arg0, dest, type_) => {
                 writeln!(f, "    {} {arg0} into {dest} as {type_};", variant.opcode())

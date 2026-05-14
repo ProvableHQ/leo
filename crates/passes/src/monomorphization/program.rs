@@ -81,7 +81,7 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map
                     .get(location)
                     .map(|f| {
-                        matches!(f.variant, Variant::EntryPoint)
+                        f.variant.is_externally_callable()
                             || (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)

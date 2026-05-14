@@ -183,8 +183,8 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
-        // Check that each program has at least one transition function.
-        // This is a snarkvm requirement.
+        // Check that each program has at least one transition function. This is a snarkVM
+        // requirement; views do not count toward this minimum.
         else if transition_count == 0 {
             self.emit_err(crate::errors::type_checker::no_entry_points(
                 input.program_id.name.span + input.program_id.network.span,
@@ -596,7 +596,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 // Store the name of the function.
                 slf.scope_state.function = Some(function.name());
 
-                // Query helper function to type check function parameters and outputs.
+                // Type check the function's parameters and outputs.
                 slf.check_function_signature(function, false);
 
                 slf.visit_block(&function.block);
@@ -616,7 +616,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         self.scope_state.reset();
         // Set the scope state before traversing the constructor.
         self.scope_state.function = Some(sym::constructor);
-        // Note: We set the variant to `AsyncFunction` since constructors have similar semantics.
+        // Constructors execute in the on-chain finalize context; `is_constructor` disambiguates.
         self.scope_state.variant = Some(Variant::Finalize);
         self.scope_state.is_constructor = true;
 
@@ -745,7 +745,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             );
         }
 
-        // Query helper function to type check function parameters and outputs.
+        // Type check the function's parameters and outputs.
         self.check_function_signature(&Function::from(input.clone()), /* is_stub */ true);
     }
 

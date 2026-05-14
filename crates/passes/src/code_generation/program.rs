@@ -229,7 +229,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // though it may already have been inlined.
         let function_name = match function.variant {
             Variant::FinalFn => return None,
-            Variant::EntryPoint => function.identifier.to_string(),
+            // EntryPoints and Views are externally-callable top-level components, so their
+            // bytecode names are the source identifier verbatim.
+            Variant::EntryPoint | Variant::View => function.identifier.to_string(),
             // Closures may carry monomorphized names like `foo::[5u32]` that aren't legal Aleo
             // identifiers, so legalize them.
             Variant::Fn => Self::legalize_path(&[function.identifier.name])
@@ -267,7 +269,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     // Note that this unwrap is safe because we set the variant at the beginning of the function.
                     let visibility = match (self.variant.unwrap(), input.mode) {
                         (Variant::EntryPoint, Mode::None) => Some(AleoVisibility::Private),
-                        (Variant::Finalize, Mode::None) => Some(AleoVisibility::Public),
+                        (Variant::Finalize | Variant::View, Mode::None) => Some(AleoVisibility::Public),
                         (_, mode) => AleoVisibility::maybe_from(mode),
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
@@ -305,8 +307,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         if matches!(self.variant.unwrap(), Variant::Fn | Variant::Finalize)
             && statements.iter().all(|stm| matches!(stm, AleoStmt::Output(..)))
         {
-            // There are no real instructions, which is invalid in Aleo, so
-            // add a dummy instruction.
+            // A closure or finalize body with only outputs has no real instructions, which is
+            // invalid in Aleo; insert a no-op `assert.eq true true` so the body parses. View
+            // bodies accept zero commands at the snarkVM level, so they don't need this.
             statements.insert(0, AleoStmt::AssertEq(AleoExpr::Bool(true), AleoExpr::Bool(true)));
         }
 
@@ -339,6 +342,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             Variant::Finalize => {
                 Some(AleoFunctional::Finalize(AleoFinalize { caller_name: function_name, inputs, statements }))
             }
+            Variant::View => Some(AleoFunctional::View(AleoView { name: function_name, inputs, statements })),
         }
     }
 

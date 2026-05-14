@@ -168,9 +168,9 @@ pub(crate) fn unknown_annotation(annotation: impl Display, span: Span) -> Format
     )
 }
 
-pub(crate) fn regular_function_inputs_cannot_have_modes(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 28, "regular `fn` inputs cannot have visibility modes", span)
-        .with_help("Remove the mode, or move this function inside the `program` block to make it an entry point fn.")
+pub(crate) fn function_inputs_cannot_have_modes(kind: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 28, format!("{kind} inputs cannot have visibility modes"), span)
+        .with_help("Remove the `public`, `private`, or `constant` modifier.")
 }
 
 pub(crate) fn struct_or_record_cannot_contain_record(
@@ -193,9 +193,9 @@ pub(crate) fn invalid_mapping_type(component: impl Display, type_: impl Display,
     .with_help("Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.")
 }
 
-pub(crate) fn final_fn_input_must_be_public(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 32, "an input to a `final fn` must be public", span)
-        .with_help("Add the `public` modifier to the input variable, or remove the visibility modifier entirely.")
+pub(crate) fn function_outputs_cannot_have_modes(kind: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 32, format!("{kind} outputs cannot have visibility modes"), span)
+        .with_help("Remove the `public`, `private`, or `constant` modifier.")
 }
 
 pub(crate) fn invalid_operation_outside_finalize(operation: impl Display, span: Span) -> Formatted {

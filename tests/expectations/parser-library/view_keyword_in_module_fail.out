@@ -1,0 +1,17 @@
+[EPAR0370047] Error: expected parameter name
+   ╭─[ test_0:1:14 ]
+   │
+ 1 │ fn read_view(view: u32) -> u32 {
+───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `view`
+   ╭─[ test_0:2:8 ]
+   │
+ 2 │ return view;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
+───╯
+[EPAR0370047] Error: expected field name
+   ╭─[ test_1:2:1 ]
+   │
+ 2 │ view: u32,
+───╯

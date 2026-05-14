@@ -44,7 +44,7 @@ impl AstVisitor for AnalysisVisitor {
         // Extract the function path segments
         let callee_path = input.function.segments();
 
-        if matches!(self.current_variant, Some(Variant::Finalize | Variant::FinalFn | Variant::Fn))
+        if matches!(self.current_variant, Some(Variant::Finalize | Variant::FinalFn | Variant::Fn | Variant::View))
             || self.in_constructor
         {
             self.functions_to_inline.insert(callee_path.clone());

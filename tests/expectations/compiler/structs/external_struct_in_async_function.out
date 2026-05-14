@@ -1,20 +1,7 @@
-program parent.aleo;
-
-struct TestStruct:
-    data0 as u128;
-    data1 as u128;
-
-function init:
-    cast 0u128 1u128 into r0 as TestStruct;
-    async init r0 into r1;
-    output r1 as parent.aleo/init.future;
-
-finalize init:
-    input r0 as TestStruct.public;
-    assert.eq 0u32 0u32;
-// --- Next Program --- //
-import parent.aleo;
-program child.aleo;
-
-function main:
-    output 1u32 as u32.private;
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:13:24 ]
+    │
+ 13 │ final fn finalize_init(public test_struct: TestStruct) {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯

@@ -60,7 +60,7 @@ use snarkvm::{
         execution_cost,
         store::{ConsensusStore, helpers::memory::ConsensusMemory},
     },
-    synthesizer::program::ProgramCore,
+    synthesizer::program::{FinalizeStoreTrait, ProgramCore, StackTrait},
 };
 use std::{
     fmt,
@@ -88,6 +88,20 @@ pub struct Program {
     pub name: String,
 }
 
+/// A single finalize-store entry to write before a case is evaluated.
+///
+/// `run_without_ledger` doesn't run finalize blocks, so mappings are otherwise empty — seeding
+/// is the only way to give view test cases (and finalize-reading transitions) state to read.
+#[derive(Clone, Debug)]
+pub struct SeedMapping {
+    /// Mapping name in the case's `program_name`.
+    pub mapping: String,
+    /// Plaintext key in snarkVM display form.
+    pub key: String,
+    /// Plaintext value in snarkVM display form.
+    pub value: String,
+}
+
 /// A particular case to run.
 #[derive(Clone, Debug, Default)]
 pub struct Case {
@@ -95,6 +109,8 @@ pub struct Case {
     pub function: String,
     pub private_key: Option<String>,
     pub input: Vec<String>,
+    /// Pre-populated finalize-store entries written before the case is evaluated.
+    pub seed_mapping: Vec<SeedMapping>,
 }
 
 /// The status of a case that was run.
@@ -217,7 +233,7 @@ fn deploy_without_proof(
     let owner = ProgramOwner::new(private_key, deployment_id, rng)?;
 
     // Calculate the minimum deployment cost.
-    let (minimum_deployment_cost, _) = deployment_cost(&vm.process().read(), &deployment, consensus_version)?;
+    let (minimum_deployment_cost, _) = deployment_cost(vm.process(), &deployment, consensus_version)?;
 
     // Authorize the fee (public, no proof).
     let fee_authorization = vm.authorize_fee_public(private_key, minimum_deployment_cost, 0, deployment_id, rng)?;
@@ -243,14 +259,14 @@ fn execute_without_proof(
     let authorization = vm.authorize(private_key, program_id, function_name, inputs, rng)?;
 
     // Evaluate to get the response (outputs, no proving).
-    let response = vm.process().read().evaluate::<AleoTestnetV0>(authorization.clone())?;
+    let response = vm.process().evaluate::<AleoTestnetV0>(authorization.clone())?;
 
     // Build the execution without a proof.
     let state_root = vm.block_store().current_state_root();
     let execution = Execution::from(authorization.transitions().values().cloned(), state_root, None)?;
 
     // Calculate the execution cost for fee authorization.
-    let (cost, _) = execution_cost(&vm.process().read(), &execution, consensus_version)?;
+    let (cost, _) = execution_cost(vm.process(), &execution, consensus_version)?;
 
     // Authorize and create the fee without a proof.
     let execution_id = authorization.to_execution_id()?;
@@ -309,8 +325,21 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
                 Err(e) => return failed_outcome(format!("Consensus store open error: {e}")),
             };
 
-            if let Err(e) = vm.process().write().add_programs_with_editions(&programs_and_editions) {
+            if let Err(e) = vm.process().lock().add_programs_with_editions(&programs_and_editions) {
                 return failed_outcome(format!("Failed to add programs: {e}"));
+            }
+
+            // `add_programs_with_editions` registers programs in the process but does not touch
+            // the finalize store. Views that read mappings need the mappings to be present in
+            // the finalize store, so initialize each program's mappings here. This mirrors what
+            // a real deployment would do during finalize.
+            for (program, _) in &programs_and_editions {
+                for mapping_name in program.mappings().keys() {
+                    // `initialize_mapping` returns an error if the mapping is already present.
+                    // We discard that error: across multiple cases the same mapping is initialized
+                    // each time.
+                    let _ = vm.finalize_store().initialize_mapping(*program.id(), *mapping_name);
+                }
             }
 
             let private_key = match PrivateKey::from_str(leo_ast::TEST_PRIVATE_KEY) {
@@ -325,40 +354,148 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
                 Ok(fid) => fid,
                 Err(e) => return failed_outcome(format!("FunctionID parse error: {e}")),
             };
-            let inputs = case.input.iter();
 
-            // --- catch panics from authorize ---
-            let authorization = match catch_unwind(AssertUnwindSafe(|| {
-                vm.authorize(&private_key, program_id, function_id, inputs, rng)
-            })) {
-                Ok(Ok(auth)) => auth,
-                Ok(Err(e)) => return failed_outcome(format!("{e}")),
-                Err(e) => return failed_outcome(format!("{e:?}")),
-            };
-
-            // --- catch panics from evaluate ---
-            let response =
-                match catch_unwind(AssertUnwindSafe(|| vm.process().read().evaluate::<AleoTestnetV0>(authorization))) {
-                    Ok(Ok(resp)) => resp,
-                    Ok(Err(e)) => return failed_outcome(format!("{e}")),
-                    Err(e) => return failed_outcome(format!("{e:?}")),
+            // Seed any pre-populated mapping entries before evaluating the case. Useful for
+            // view test cases where `run_without_ledger` doesn't run finalize blocks, so
+            // mappings are otherwise empty.
+            for SeedMapping { mapping: mapping_name_str, key: key_str, value: value_str } in &case.seed_mapping {
+                let mapping_name = match Identifier::<CurrentNetwork>::from_str(mapping_name_str) {
+                    Ok(n) => n,
+                    Err(e) => return failed_outcome(format!("Failed to parse seed mapping name: {e}")),
                 };
+                let key = match snarkvm::prelude::Plaintext::<CurrentNetwork>::from_str(key_str) {
+                    Ok(k) => k,
+                    Err(e) => return failed_outcome(format!("Failed to parse seed key: {e}")),
+                };
+                let value = match SvmValue::<CurrentNetwork>::from_str(value_str) {
+                    Ok(v) => v,
+                    Err(e) => return failed_outcome(format!("Failed to parse seed value: {e}")),
+                };
+                if let Err(e) = vm.finalize_store().update_key_value(program_id, mapping_name, key, value) {
+                    return failed_outcome(format!("Failed to seed mapping: {e}"));
+                }
+            }
 
-            let outputs = response.outputs();
-            let output = match outputs.len() {
-                0 => Value::make_unit(),
-                1 => outputs[0].clone().into(),
-                _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
-            };
+            // Views and transitions take different snarkVM paths:
+            //   - Transitions go through `authorize` + `evaluate`, producing a transition object.
+            //   - Views go through `evaluate_view_at_height`, returning plaintext outputs with no transition and
+            //     no transaction.
+            let is_view = vm
+                .process()
+                .get_stack(program_id)
+                .map(|stack| stack.program().contains_view(&function_id))
+                .unwrap_or(false);
 
-            EvaluationOutcome {
-                outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
-                status: EvaluationStatus::Success,
+            if is_view {
+                handle_view(case, &vm, program_id, function_id)
+            } else {
+                handle_transition(case, &vm, program_id, function_id, &private_key, rng)
             }
         })
         .collect();
 
     Ok(outcomes)
+}
+
+/// Evaluate a single view-fn case against `vm`'s in-memory finalize store and return the outcome.
+fn handle_view(
+    case: &Case,
+    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    program_id: ProgramID<CurrentNetwork>,
+    function_id: Identifier<CurrentNetwork>,
+) -> EvaluationOutcome {
+    let failed = |e: String| failed_evaluation_outcome(case, e);
+    let parsed_inputs: Vec<SvmValue<CurrentNetwork>> = match case
+        .input
+        .iter()
+        .map(|s| SvmValue::<CurrentNetwork>::from_str(s))
+        .collect::<std::result::Result<Vec<_>, _>>()
+    {
+        Ok(v) => v,
+        Err(e) => return failed(format!("Failed to parse view input: {e}")),
+    };
+    // For an empty in-memory consensus store there is no block 0, so route directly through
+    // `Process::evaluate_view_at_height` with a fabricated `FinalizeGlobalState`. Tests are off-consensus by
+    // construction, so the values here only matter for queries that read `block.height` / `network.id`.
+    let state = match snarkvm::synthesizer::program::FinalizeGlobalState::new::<CurrentNetwork>(
+        0,
+        0,
+        None,
+        0,
+        0,
+        Default::default(),
+    ) {
+        Ok(s) => s,
+        Err(e) => return failed(format!("Failed to build FinalizeGlobalState: {e}")),
+    };
+    let response = match catch_unwind(AssertUnwindSafe(|| {
+        vm.process().evaluate_view_at_height(state, vm.finalize_store(), program_id, function_id, parsed_inputs, 0)
+    })) {
+        Ok(Ok(resp)) => resp,
+        Ok(Err(e)) => return failed(format!("{e}")),
+        Err(e) => return failed(format!("{e:?}")),
+    };
+    let output = match response.len() {
+        0 => Value::make_unit(),
+        1 => response[0].clone().into(),
+        _ => Value::make_tuple(response.iter().map(|x| x.clone().into())),
+    };
+    EvaluationOutcome {
+        outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
+        status: EvaluationStatus::Success,
+    }
+}
+
+/// Evaluate a single transition case (authorize + evaluate) against `vm` and return the outcome.
+fn handle_transition(
+    case: &Case,
+    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    program_id: ProgramID<CurrentNetwork>,
+    function_id: Identifier<CurrentNetwork>,
+    private_key: &PrivateKey<CurrentNetwork>,
+    rng: &mut ChaCha20Rng,
+) -> EvaluationOutcome {
+    let failed = |e: String| failed_evaluation_outcome(case, e);
+    let inputs = case.input.iter();
+
+    // --- catch panics from authorize ---
+    let authorization =
+        match catch_unwind(AssertUnwindSafe(|| vm.authorize(private_key, program_id, function_id, inputs, rng))) {
+            Ok(Ok(auth)) => auth,
+            Ok(Err(e)) => return failed(format!("{e}")),
+            Err(e) => return failed(format!("{e:?}")),
+        };
+
+    // --- catch panics from evaluate ---
+    let response = match catch_unwind(AssertUnwindSafe(|| vm.process().evaluate::<AleoTestnetV0>(authorization))) {
+        Ok(Ok(resp)) => resp,
+        Ok(Err(e)) => return failed(format!("{e}")),
+        Err(e) => return failed(format!("{e:?}")),
+    };
+
+    let outputs = response.outputs();
+    let output = match outputs.len() {
+        0 => Value::make_unit(),
+        1 => outputs[0].clone().into(),
+        _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
+    };
+
+    EvaluationOutcome {
+        outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
+        status: EvaluationStatus::Success,
+    }
+}
+
+/// Build a `Failed` outcome carrying `e` for the given case.
+fn failed_evaluation_outcome(case: &Case, e: String) -> EvaluationOutcome {
+    EvaluationOutcome {
+        outcome: Outcome {
+            program_name: case.program_name.clone(),
+            function: case.function.clone(),
+            output: Value::make_unit(),
+        },
+        status: EvaluationStatus::Failed(e),
+    }
 }
 
 /// Run the functions indicated by `cases` from the programs in `config`.

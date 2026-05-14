@@ -1,0 +1,21 @@
+--- run on a view fn should fail with a clear message ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'test_run_view_rejected.aleo'
+       Leo     4 statements before dead code elimination.
+       Leo     4 statements after dead code elimination.
+       Leo     The program checksum is: '[1u8, 43u8, 21u8, 138u8, 213u8, 227u8, 250u8, 18u8, 2u8, 90u8, 97u8, 212u8, 0u8, 159u8, 18u8, 119u8, 199u8, 226u8, 137u8, 197u8, 2u8, 164u8, 98u8, 134u8, 100u8, 134u8, 88u8, 242u8, 18u8, 177u8, 87u8, 118u8]'.
+       Leo     Program size: 0.34 KB / 500.00 KB
+       Leo ✅ Compiled 'test_run_view_rejected.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI at 'build/abi.json'.
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
+Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and cannot be simulated by `leo run` (which evaluates against an empty in-memory finalize store). Query a live node — `leo query view` is the planned entry point once the corresponding snarkOS REST endpoint is exposed.
+
+--- run on a regular fn should still work ---
+  - test_run_view_rejected.aleo (local)
+
+➡️  Output
+
+ • 1u32

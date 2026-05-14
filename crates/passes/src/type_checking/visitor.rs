@@ -778,7 +778,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::SnarkVerify => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify", true, function_span);
+                self.check_access_allowed("Snark::verify", true, false, function_span);
 
                 // arg0: [u8; N] — verifying key (1D byte array)
                 let Type::Array(vk_arr) = &arguments[0].0 else {
@@ -844,7 +844,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::SnarkVerifyBatch => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify_batch", true, function_span);
+                self.check_access_allowed("Snark::verify_batch", true, false, function_span);
 
                 // arg0: [[u8; N]; M] — verifying keys (2D byte array)
                 let Type::Array(vks_outer) = &arguments[0].0 else {
@@ -980,8 +980,8 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
-                // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Mapping::get", true, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                self.check_access_allowed("Mapping::get", true, true, function_span);
 
                 if !self.check_path_receiver("Mapping", "get", "mapping", map_expr) {
                     return Type::Err;
@@ -998,7 +998,7 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Mapping::set", true, function_span);
+                self.check_access_allowed("Mapping::set", true, false, function_span);
 
                 if !self.check_path_receiver("Mapping", "set", "mapping", map_expr) {
                     return Type::Err;
@@ -1017,8 +1017,8 @@ impl TypeCheckingVisitor<'_> {
                 Type::Unit
             }
             Intrinsic::MappingGetOrUse => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::get_or_use", true, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                self.check_access_allowed("Mapping::get_or_use", true, true, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1038,7 +1038,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::remove", true, function_span);
+                self.check_access_allowed("Mapping::remove", true, false, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1067,8 +1067,8 @@ impl TypeCheckingVisitor<'_> {
                 Type::Unit
             }
             Intrinsic::MappingContains => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::contains", true, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                self.check_access_allowed("Mapping::contains", true, true, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1116,8 +1116,8 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
-                // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::get", true, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                self.check_access_allowed("Vector::get", true, true, function_span);
 
                 if !self.check_path_receiver("Vector", "get", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1134,7 +1134,7 @@ impl TypeCheckingVisitor<'_> {
                 }
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::set", true, function_span);
+                self.check_access_allowed("Vector::set", true, false, function_span);
 
                 if !self.check_path_receiver("Vector", "set", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1166,7 +1166,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(val_ty, element_type, val_expr.span());
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::push", true, function_span);
+                self.check_access_allowed("Vector::push", true, false, function_span);
 
                 if !self.check_path_receiver("Vector", "push", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1187,8 +1187,8 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::VectorLen => {
                 let (vec_ty, vec_expr) = &arguments[0];
 
-                // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::len", true, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                self.check_access_allowed("Vector::len", true, true, function_span);
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1205,7 +1205,7 @@ impl TypeCheckingVisitor<'_> {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::pop", true, function_span);
+                self.check_access_allowed("Vector::pop", true, false, function_span);
 
                 let Type::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1232,7 +1232,7 @@ impl TypeCheckingVisitor<'_> {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::swap_remove", true, function_span);
+                self.check_access_allowed("Vector::swap_remove", true, false, function_span);
 
                 let Type::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1262,6 +1262,8 @@ impl TypeCheckingVisitor<'_> {
                     self.assert_vector_type(vec_ty, vec_expr.span());
                     return Type::Err;
                 }
+
+                self.check_access_allowed("Vector::clear", true, false, function_span);
 
                 if !self.check_path_receiver("Vector", "clear", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1508,7 +1510,7 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfAddress => Type::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.caller", false, function_span);
+                self.check_access_allowed("self.caller", false, false, function_span);
                 Type::Address
             }
             Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
@@ -1524,27 +1526,30 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfId => Type::Address,
             Intrinsic::SelfProgramOwner => {
                 // Check that the operation is only invoked in a `finalize` block.
-                self.check_access_allowed("program_owner", true, function_span);
+                self.check_access_allowed("program_owner", true, false, function_span);
                 Type::Address
             }
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.signer", false, function_span);
+                self.check_access_allowed("self.signer", false, false, function_span);
                 Type::Address
             }
             Intrinsic::BlockHeight => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("block.height", true, function_span);
+                // Check that the operation is invoked in a `finalize` block or a view.
+                // Views see the latest block height via FinalizeGlobalState::for_view.
+                self.check_access_allowed("block.height", true, true, function_span);
                 Type::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
-                // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("block.timestamp", true, function_span);
+                // Check that the operation is invoked in a `finalize` block. Rejected in view fns:
+                // snarkVM fills `block_timestamp` with `None` for view evaluations because there
+                // is no transaction-time semantic for an off-consensus read.
+                self.check_access_allowed("block.timestamp", true, false, function_span);
                 Type::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
-                // Check that the operation is not invoked outside a `finalize` block.
-                self.check_access_allowed("network.id", true, function_span);
+                // Check that the operation is not invoked outside a `finalize` block or a view.
+                self.check_access_allowed("network.id", true, true, function_span);
                 Type::Integer(IntegerType::U16)
             }
             // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
@@ -1569,6 +1574,9 @@ impl TypeCheckingVisitor<'_> {
             }
             Variant::Fn => {
                 self.emit_err(crate::errors::type_checker::dynamic_call_not_allowed_here("a regular function", span));
+            }
+            Variant::View => {
+                self.emit_err(crate::errors::type_checker::dynamic_call_not_allowed_here("a view function", span));
             }
             Variant::EntryPoint => {}
         }
@@ -2167,6 +2175,11 @@ impl TypeCheckingVisitor<'_> {
                     "`final fn` functions",
                     function.identifier.span(),
                 ));
+            } else if matches!(self.scope_state.variant, Some(Variant::View)) {
+                self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
+                    "`view fn` functions",
+                    function.identifier.span(),
+                ));
             }
         }
 
@@ -2205,8 +2218,9 @@ impl TypeCheckingVisitor<'_> {
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
         }
 
-        // Ensure there aren't too many inputs
-        if (function.variant.is_entry() || function.variant.is_finalize())
+        // Ensure there aren't too many inputs (entry points, finalize blocks, and view fns are
+        // externally-callable and bound by snarkVM's MAX_INPUTS).
+        if (function.variant.is_entry() || function.variant.is_finalize() || function.variant.is_view())
             && function.input.len() > self.limits.max_inputs
         {
             self.state.handler.emit_err(crate::errors::type_checker::function_has_too_many_inputs(
@@ -2267,14 +2281,19 @@ impl TypeCheckingVisitor<'_> {
                 Variant::EntryPoint if input.mode() == Mode::Constant => {
                     self.emit_err(crate::errors::type_checker::entry_point_fn_inputs_cannot_be_const(input.span()))
                 }
-                // If the function is a standard function, then check that the parameters do not have an associated mode.
-                Variant::Fn if input.mode() != Mode::None => {
-                    self.emit_err(crate::errors::type_checker::regular_function_inputs_cannot_have_modes(input.span()))
-                }
-                // If the function is run onchain, then check that the input parameter is not constant or private.
-                Variant::Finalize | Variant::FinalFn if matches!(input.mode(), Mode::Constant | Mode::Private) => {
-                    self.emit_err(crate::errors::type_checker::final_fn_input_must_be_public(input.span()));
-                }
+                // Helpers, finalize bodies, `final fn`s, and views all lower their input
+                // visibility from the variant alone (helpers are inlined; finalize/final fn/view
+                // inputs are always `.public`), so an explicit modifier is always redundant or
+                // contradictory. Reject any non-`None` mode with a single customizable error.
+                Variant::Fn if input.mode() != Mode::None => self.emit_err(
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("regular `fn`", input.span()),
+                ),
+                Variant::Finalize | Variant::FinalFn if input.mode() != Mode::None => self.emit_err(
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("`final fn`", input.span()),
+                ),
+                Variant::View if input.mode() != Mode::None => self.emit_err(
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("`view fn`", input.span()),
+                ),
                 _ => {} // Do nothing.
             }
 
@@ -2295,8 +2314,11 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Ensure there aren't too many outputs
-        if function.output.len() > self.limits.max_outputs && matches!(function.variant, Variant::EntryPoint) {
+        // Ensure there aren't too many outputs (entry points and view fns are
+        // externally-callable and bound by snarkVM's MAX_OUTPUTS).
+        if function.output.len() > self.limits.max_outputs
+            && matches!(function.variant, Variant::EntryPoint | Variant::View)
+        {
             self.state.handler.emit_err(crate::errors::type_checker::function_has_too_many_outputs(
                 function.variant,
                 function.identifier,
@@ -2343,6 +2365,13 @@ impl TypeCheckingVisitor<'_> {
             // For functions, only public and private outputs are allowed
             if function_output.mode == Mode::Constant {
                 self.emit_err(crate::errors::type_checker::cannot_have_constant_output_mode(function_output.span));
+            }
+            // View outputs lower to `.public` from the variant alone, same as their inputs.
+            if matches!(function.variant, Variant::View) && function_output.mode != Mode::None {
+                self.emit_err(crate::errors::type_checker::function_outputs_cannot_have_modes(
+                    "`view fn`",
+                    function_output.span,
+                ));
             }
             // Async transitions must return exactly one future, and it must be in the last position.
             if function.has_final_output()
@@ -2446,10 +2475,21 @@ impl TypeCheckingVisitor<'_> {
         self.state.symbol_table.set_local_type(name.name, ty.clone());
     }
 
-    // Validates whether an access operation is allowed in the current function or block context.
-    // This prevents illegal use of certain operations depending on whether the code is inside
-    // an async function, an async block, or a finalize block.
-    pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, span: Span) {
+    /// Validates whether an access operation is allowed in the current function or block context.
+    /// `finalize_op` is true for ops that require a finalize context; `allowed_in_view` is true
+    /// for the read-only subset that view bodies also accept.
+    pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, allowed_in_view: bool, span: Span) {
+        let in_view = matches!(self.scope_state.variant, Some(Variant::View));
+
+        if in_view {
+            if !allowed_in_view {
+                self.state
+                    .handler
+                    .emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
+            }
+            return;
+        }
+
         // Case 1: Operation is not a finalize op, and we're inside an `async` function.
         if self.scope_state.variant.is_some_and(|v| v.is_onchain()) && !finalize_op {
             self.state.handler.emit_err(crate::errors::type_checker::invalid_operation_inside_finalize(name, span));

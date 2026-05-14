@@ -1,0 +1,5 @@
+[EPAR0370047] Error: `final` and `view` cannot be combined
+   ╭─[ test:2:11 ]
+   │
+ 2 │     final view fn bad() -> u32 {
+───╯

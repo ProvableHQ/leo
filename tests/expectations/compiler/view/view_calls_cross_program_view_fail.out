@@ -1,0 +1,7 @@
+[ETYC0372042] Error: only regular `fn`s can be called from a view function
+   ╭─[ compiler-test:6:16 ]
+   │
+ 6 │         return data.aleo::get_balance(addr);
+   │ 
+   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
+───╯

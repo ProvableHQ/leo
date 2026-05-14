@@ -9,7 +9,7 @@
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -21,7 +21,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  14
+  Consensus Version:  15
 
 📦 Deployment Tasks:
   • persistent_counter.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -87,7 +87,7 @@ Transaction accepted.
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI at 'build/abi.json'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -99,7 +99,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  14
+  Consensus Version:  15
 
 🎯 Execution Target:
   Program:        persistent_counter.aleo

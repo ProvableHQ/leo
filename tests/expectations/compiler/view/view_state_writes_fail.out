@@ -1,0 +1,63 @@
+[ETYC0372034] Error: `storage write` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:14:9 ]
+    │
+ 14 │         flag = 1u32;
+    │ 
+    │ Help: Move the `storage write` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `storage write` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:15:9 ]
+    │
+ 15 │         flag = none;
+    │ 
+    │ Help: Move the `storage write` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Mapping::set` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:17:9 ]
+    │
+ 17 │         balances.set(addr, val);
+    │ 
+    │ Help: Move the `Mapping::set` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Mapping::remove` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:18:9 ]
+    │
+ 18 │         balances.remove(addr);
+    │ 
+    │ Help: Move the `Mapping::remove` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Vector::set` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:20:9 ]
+    │
+ 20 │         items.set(0u32, val);
+    │ 
+    │ Help: Move the `Vector::set` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Vector::push` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:21:9 ]
+    │
+ 21 │         items.push(val);
+    │ 
+    │ Help: Move the `Vector::push` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Vector::pop` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:22:22 ]
+    │
+ 22 │         let popped = items.pop();
+    │ 
+    │ Help: Move the `Vector::pop` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Vector::swap_remove` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:23:23 ]
+    │
+ 23 │         let swapped = items.swap_remove(0u32);
+    │ 
+    │ Help: Move the `Vector::swap_remove` call into a `final fn` or wrap it in a `final { … }` block.
+────╯
+[ETYC0372034] Error: `Vector::clear` must be inside a `final fn` or a `final` block
+    ╭─[ compiler-test:24:9 ]
+    │
+ 24 │         items.clear();
+    │ 
+    │ Help: Move the `Vector::clear` call into a `final fn` or wrap it in a `final { … }` block.
+────╯

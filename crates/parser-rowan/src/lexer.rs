@@ -316,6 +316,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "constant" => KW_CONSTANT,
         "final" => KW_FINAL,
         "Final" => KW_FINAL_UPPER,
+        "view" => KW_VIEW,
         "fn" => KW_FN,
         "Fn" => KW_FN_UPPER,
         "struct" => KW_STRUCT,

@@ -9,6 +9,20 @@
     │     
     │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:14:31 ]
+    │
+ 14 │ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:14:57 ]
+    │
+ 14 │ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
 [ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:19:1 ]
     │

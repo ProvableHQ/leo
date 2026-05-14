@@ -1,0 +1,72 @@
+[WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
+    ╭─[ compiler-test:22:9 ]
+    │
+ 22 │     for i: u32 in 0u32..3u32 {
+    │ 
+    │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
+────╯
+[WCEI03713002] Warning: the call to `caller.aleo::balance_of` runs after an interaction (`Final.run()`), and `caller.aleo::balance_of` itself performs checks or effects
+    ╭─[ compiler-test:26:24 ]
+    │
+ 26 │         let val: u32 = balance_of(i);
+    │ 
+    │ Help: Move the call to `caller.aleo::balance_of` above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.
+────╯
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
+    ╭─[ compiler-test:27:9 ]
+    │
+ 27 │         assert(val >= 0u32);
+    │ 
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
+────╯
+program dep.aleo;
+
+mapping shared:
+    key as u32.public;
+    value as u32.public;
+
+function modify:
+    input r0 as u32.private;
+    async modify r0 into r1;
+    output r1 as dep.aleo/modify.future;
+
+finalize modify:
+    input r0 as u32.public;
+    set r0 into shared[0u32];
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+view balance_of:
+    input r0 as u32.public;
+    get.or_use balances[r0] 0u32 into r1;
+    output r1 as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/modify r0 into r1;
+    async do_work r1 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/modify.future;
+    await r0;
+    call balance_of 0u32 into r1;
+    gte r1 0u32 into r2;
+    assert.eq r2 true;
+    await r0;
+    call balance_of 1u32 into r3;
+    gte r3 0u32 into r4;
+    assert.eq r4 true;
+    await r0;
+    call balance_of 2u32 into r5;
+    gte r5 0u32 into r6;
+    assert.eq r6 true;

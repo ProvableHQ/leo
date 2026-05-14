@@ -69,6 +69,7 @@ impl UnitVisitor for NameValidationVisitor<'_> {
         match function.variant {
             EntryPoint => self.is_not_keyword(function.identifier, "entry point fn", &[]),
             Fn => self.is_not_keyword(function.identifier, "regular fn", &[]),
+            View => self.is_not_keyword(function.identifier, "view fn", &[]),
             FinalFn | Finalize => {}
         }
     }
@@ -78,6 +79,7 @@ impl UnitVisitor for NameValidationVisitor<'_> {
         match input.variant {
             EntryPoint => self.is_not_keyword(input.identifier, "entry point fn", &[]),
             Fn => self.is_not_keyword(input.identifier, "regular fn", &[]),
+            View => self.is_not_keyword(input.identifier, "view fn", &[]),
             FinalFn | Finalize => {}
         }
     }

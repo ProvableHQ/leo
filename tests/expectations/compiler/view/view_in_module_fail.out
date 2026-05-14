@@ -1,0 +1,9 @@
+[EPAR0370047] Error: `view fn` is only allowed inside a `program { ... }` block.
+   ╭─[ mymod.leo:2:1 ]
+   │
+ 2 │ ╭─▶ view fn helper(x: u64) -> u64 {
+   ┆ ┆   
+ 4 │ ├─▶ }
+   │ │       
+   │ ╰─────── 
+───╯

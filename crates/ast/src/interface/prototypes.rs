@@ -27,6 +27,7 @@ use crate::{
     Output,
     TupleType,
     Type,
+    Variant,
     indent_display::Indent,
 };
 use itertools::Itertools;
@@ -97,6 +98,9 @@ crate::simple_node_impl!(StorageVariablePrototype);
 pub struct FunctionPrototype {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
+    /// `Variant::Fn` for a plain `fn name(...)` prototype, `Variant::View` for `view fn name(...)`.
+    /// Other variants are not allowed in interface position.
+    pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's const parameters.
@@ -117,6 +121,7 @@ impl FunctionPrototype {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
+        variant: Variant,
         identifier: Identifier,
         const_parameters: Vec<ConstParameter>,
         input: Vec<Input>,
@@ -130,7 +135,7 @@ impl FunctionPrototype {
             _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
-        Self { annotations, identifier, const_parameters, input, output, output_type, span, id }
+        Self { annotations, variant, identifier, const_parameters, input, output, output_type, span, id }
     }
 }
 
@@ -153,7 +158,10 @@ impl fmt::Display for FunctionPrototype {
         for annotation in &self.annotations {
             writeln!(f, "{annotation}")?;
         }
-        write!(f, "fn {}", self.identifier)?;
+        match self.variant {
+            Variant::View => write!(f, "view fn {}", self.identifier)?,
+            _ => write!(f, "fn {}", self.identifier)?,
+        }
         if !self.const_parameters.is_empty() {
             write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;
         }

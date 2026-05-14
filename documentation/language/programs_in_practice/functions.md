@@ -4,7 +4,7 @@ title: Functions
 sidebar_label: Functions
 ---
 
-[general tags]: # "fn, final, entry_function, helper_function, final_fn"
+[general tags]: # "fn, final, view, entry_function, helper_function, final_fn, view_fn"
 
 ## Entry Functions
 
@@ -47,6 +47,34 @@ When finalization logic is shared across multiple entry functions, it can be ext
 ```
 
 The body of `decrement_balance` is inlined into each caller's `final { }` block at compile time — no shared function exists in the compiled output.
+
+## View Functions
+
+A `view fn` is a read-only entry point. It is declared inside a `program {}` block with the `view` modifier and exposes a query that can be evaluated by a node without producing a transaction.
+
+```leo file=../../code_snippets/functions/view_basic/src/main.leo#file showLineNumbers
+```
+
+A `view fn` body sees the same on-chain context as a `final {}` block — it can read mappings, storage, vectors, `block.height`, and `network.id`. Beyond the `final {}` rules above, a view adds these restrictions:
+
+- **Read-only.** All state writes are rejected — both singleton storage assignment (`counter = 5u64;`, `counter = none;`) and the mutating intrinsics `Mapping::set`, `Mapping::remove`, `Vector::set`, `Vector::push`, `Vector::pop`, `Vector::swap_remove`, `Vector::clear`.
+- **Leaf in the emitted bytecode.** A view may call a helper `fn` (its body is fully inlined into the view), but it cannot `call` another `view fn`, a `final fn`, or an entry point. This keeps the emitted Aleo `view` block free of `call` instructions, which snarkVM requires. Dynamic calls (the `dyn ...` form) are also rejected.
+- No `block.timestamp`, `Snark::verify`, `Snark::verify_batch`, or `program_owner` — these are available in `final {}` but not when a node evaluates a view off-consensus.
+- Returns plaintext only (no records); cannot be combined with `final`.
+
+### Calling Views from On-chain Code
+
+`view fn`s are only callable from a finalize context — a `final {}` block, a `final fn` helper, or a hoisted finalize body. A plain entry-function body cannot call a view directly.
+
+```leo file=../../code_snippets/functions/view_in_finalize/src/main.leo#file showLineNumbers
+```
+
+The view is not inlined into its caller; codegen emits a real `call` instruction inside the on-chain body, and snarkVM accepts it because the call target resolves to a view.
+
+The same rule applies across programs — a `final {}` block can call a `view fn` exposed by an imported program:
+
+```leo file=../../code_snippets/functions/view_cross_program_caller/src/main.leo#file showLineNumbers
+```
 
 ## Helper Function
 
@@ -101,7 +129,9 @@ The compiler accepts `@inline` as a recognized annotation name, but **no compile
 
 ## Function Call Rules
 
-- An entry `fn` can call: helper `fn`, `final fn`, and external entry `fn`s.
+- An entry `fn` can call: helper `fn`s, `final fn`s, and external entry `fn`s. Local entry `fn`s and `view fn`s (outside a `final {}` block) are rejected.
 - A helper `fn` can only call: other helper `fn`s.
-- A `final fn` can only call: other `final fn`s.
+- A `final fn` can call: helper `fn`s, other `final fn`s, and `view fn`s.
+- A `final {}` block can call: helper `fn`s, `final fn`s, and `view fn`s (same-program or cross-program).
+- A `view fn` can only call helper `fn`s (which get inlined). Other `view fn`s, `final fn`s, and entry points are rejected.
 - Recursive calls (direct or indirect) are not allowed.

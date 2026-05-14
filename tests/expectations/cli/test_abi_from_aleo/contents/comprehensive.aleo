@@ -123,5 +123,17 @@ finalize update_balance:
     input r1 as u64.public;
     set r1 into balances[r0];
 
+view get_balance:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    output r1 as u64.public;
+
+view echo_point:
+    input r0 as Point.public;
+    output r0 as Point.public;
+
+view current_counter:
+    output 0u32 as u32.public;
+
 constructor:
     assert.eq edition 0u16;

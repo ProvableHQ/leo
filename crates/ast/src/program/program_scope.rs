@@ -76,9 +76,12 @@ impl fmt::Display for ProgramScope {
         for (_, function) in self.functions.iter().filter(|f| f.1.variant.is_entry()) {
             writeln!(f, "{}", Indent(function))?;
         }
+        for (_, function) in self.functions.iter().filter(|f| f.1.variant.is_view()) {
+            writeln!(f, "{}", Indent(function))?;
+        }
         writeln!(f, "}}")?;
 
-        for (_, function) in self.functions.iter().filter(|f| !f.1.variant.is_entry()) {
+        for (_, function) in self.functions.iter().filter(|f| !f.1.variant.is_entry() && !f.1.variant.is_view()) {
             writeln!(f, "{}", Indent(function))?;
         }
         Ok(())

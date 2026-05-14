@@ -3,3 +3,7 @@
 LEO_BIN=${1}
 
 ${LEO_BIN} --disable-update-check build
+
+echo ""
+echo "=== build/abi.json ==="
+cat build/abi.json

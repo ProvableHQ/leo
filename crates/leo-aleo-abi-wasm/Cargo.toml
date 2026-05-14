@@ -22,3 +22,7 @@ serde_json = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
+# Enable the `wasm_js` backend on `getrandom 0.4`. snarkVM's `rand 0.10` chain pulls
+# `getrandom 0.4` in transitively, and on `wasm32-unknown-unknown` that crate
+# refuses to compile unless this feature is opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }

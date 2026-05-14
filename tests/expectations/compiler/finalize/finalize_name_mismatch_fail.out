@@ -5,3 +5,17 @@
    │ 
    │ Help: Check `test.aleo::finalize_mint_public` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:10:32 ]
+    │
+ 10 │ final fn finalize_mint_private(public receiver: address, public amount: u64) {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:10:58 ]
+    │
+ 10 │ final fn finalize_mint_private(public receiver: address, public amount: u64) {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯

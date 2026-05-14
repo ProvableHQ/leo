@@ -1964,7 +1964,15 @@ impl<'a> ConversionContext<'a> {
         interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
     ) -> Result<()> {
         match item.kind() {
-            FUNCTION_DEF | FINAL_FN_DEF => {
+            FUNCTION_DEF | FINAL_FN_DEF | VIEW_FN_DEF => {
+                if item.kind() == VIEW_FN_DEF && !is_in_program_block {
+                    // `view fn` is a program-only entry point; module files cannot declare them.
+                    let span = self.to_span(item);
+                    self.handler.emit_err(crate::errors::custom(
+                        "`view fn` is only allowed inside a `program { ... }` block.",
+                        span,
+                    ));
+                }
                 let func = self.to_function(item, is_in_program_block)?;
                 functions.push((func.identifier.name, func));
             }
@@ -2015,6 +2023,11 @@ impl<'a> ConversionContext<'a> {
                 }
                 _ => {}
             }
+        } else if item.kind() == VIEW_FN_DEF {
+            // `view fn` is a program-only entry point; libraries cannot declare them.
+            let span = self.to_span(item);
+            self.handler
+                .emit_err(crate::errors::custom("`view fn` is only allowed inside a `program { ... }` block.", span));
         } else if is_program_item(item.kind()) {
             // A recognized program-only item appeared in a library file.
             let span = self.to_span(item);
@@ -2299,17 +2312,23 @@ impl<'a> ConversionContext<'a> {
             .unwrap_or_else(|| self.error_block(span)))
     }
 
-    /// Convert a FUNCTION_DEF / FINAL_FN_DEF node to a Function.
+    /// Convert a FUNCTION_DEF / FINAL_FN_DEF / VIEW_FN_DEF / CONSTRUCTOR_DEF node to a Function.
     fn to_function(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Function> {
-        debug_assert!(matches!(node.kind(), FUNCTION_DEF | FINAL_FN_DEF | CONSTRUCTOR_DEF));
+        debug_assert!(matches!(node.kind(), FUNCTION_DEF | FINAL_FN_DEF | VIEW_FN_DEF | CONSTRUCTOR_DEF));
         let span = self.span_including_annotations(node, self.non_trivia_span(node));
         let id = self.builder.next_id();
 
         let annotations = self.collect_annotations(node)?;
 
-        // Determine variant
+        // Determine variant. `view fn` is a top-level read-only entry point and is only
+        // valid inside a `program { ... }` block; outside a program block we fall back to
+        // `Fn` and let the library/module diagnostic in `collect_library_item` reject it
+        // with a clear error.
         let variant = if is_in_program_block {
-            leo_ast::Variant::EntryPoint
+            match node.kind() {
+                VIEW_FN_DEF => leo_ast::Variant::View,
+                _ => leo_ast::Variant::EntryPoint,
+            }
         } else {
             match node.kind() {
                 FINAL_FN_DEF => leo_ast::Variant::FinalFn,
@@ -2726,6 +2745,9 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), FN_PROTOTYPE_DEF);
         let span = self.to_span(node);
 
+        // `view fn` prototypes at interface position carry a leading `KW_VIEW` token.
+        let is_view = tokens(node).any(|t| t.kind() == KW_VIEW);
+        let variant = if is_view { leo_ast::Variant::View } else { leo_ast::Variant::Fn };
         let identifier = self.require_ident(node, "function name");
 
         // Collect const generic parameters
@@ -2760,6 +2782,7 @@ impl<'a> ConversionContext<'a> {
 
         Ok(leo_ast::FunctionPrototype::new(
             vec![], // annotations (not supported in prototypes)
+            variant,
             identifier,
             const_parameters,
             input,
@@ -3331,6 +3354,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
         GLOBAL_CONST
             | FUNCTION_DEF
             | FINAL_FN_DEF
+            | VIEW_FN_DEF
             | STRUCT_DEF
             | RECORD_DEF
             | INTERFACE_DEF

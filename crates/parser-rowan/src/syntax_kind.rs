@@ -179,6 +179,8 @@ define_syntax_kinds! {
     KW_CONSTANT,
     /// `final`
     KW_FINAL,
+    /// `view`
+    KW_VIEW,
     /// `fn`
     KW_FN,
     /// `Fn`
@@ -381,6 +383,8 @@ define_syntax_kinds! {
     FUNCTION_DEF,
     /// Final function definition: `final fn ...`
     FINAL_FN_DEF,
+    /// View function definition: `view fn ...`. Read-only V15 entry point.
+    VIEW_FN_DEF,
     /// Constructor definition.
     CONSTRUCTOR_DEF,
     /// Struct definition.
@@ -628,6 +632,7 @@ impl SyntaxKind {
                 | KW_CONSTANT
                 | KW_FN
                 | KW_FINAL
+                | KW_VIEW
                 | KW_FN_UPPER
                 | KW_STRUCT
                 | KW_CONSTRUCTOR
@@ -891,6 +896,7 @@ impl SyntaxKind {
             KW_CONST => "'const'",
             KW_CONSTANT => "'constant'",
             KW_FINAL => "'final'",
+            KW_VIEW => "'view'",
             KW_FN => "'fn'",
             KW_FN_UPPER => "'Fn'",
             KW_STRUCT => "'struct'",

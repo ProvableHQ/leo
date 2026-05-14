@@ -1,0 +1,7 @@
+[ETYC0372042] Error: only regular `fn`s can be called from a final fn
+   ╭─[ compiler-test:5:18 ]
+   │
+ 5 │     let y: u32 = data.aleo::read(x);
+   │ 
+   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
+───╯

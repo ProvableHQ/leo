@@ -1,0 +1,14 @@
+{
+  "program": "cache.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "data.aleo",
+      "location": "local",
+      "path": "../view_cross_program_data",
+      "edition": null
+    }
+  ]
+}

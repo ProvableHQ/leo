@@ -1121,6 +1121,90 @@
         }
       ]
     }
+  ],
+  "views": [
+    {
+      "name": "get_balance",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": "Address"
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U64"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "echo_point",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "comprehensive.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "comprehensive.aleo"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    },
+    {
+      "name": "current_counter",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "None"
+        }
+      ]
+    }
   ]
 }
 

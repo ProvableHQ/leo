@@ -1,0 +1,21 @@
+[ETYC0372028] Error: `view fn` inputs cannot have visibility modes
+   ╭─[ compiler-test:7:26 ]
+   │
+ 7 │     view fn echo_private(private x: u32) -> u32 {
+   │ 
+   │ Help: Remove the `public`, `private`, or `constant` modifier.
+───╯
+[ETYC0372028] Error: `view fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:11:25 ]
+    │
+ 11 │     view fn echo_public(public y: u32) -> u32 {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372028] Error: `view fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:15:27 ]
+    │
+ 15 │     view fn echo_constant(constant z: u32) -> u32 {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯

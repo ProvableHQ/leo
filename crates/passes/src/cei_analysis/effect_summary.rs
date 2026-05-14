@@ -166,7 +166,7 @@ pub fn compute_effect_summaries(state: &CompilerState) -> IndexMap<Location, Eff
             continue;
         };
 
-        if !func_symbol.function.variant.is_onchain() {
+        if !func_symbol.function.variant.is_onchain() && !func_symbol.function.variant.is_view() {
             continue;
         }
 
