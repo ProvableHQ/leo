@@ -23,5 +23,4 @@ pub use evaluate::*;
 mod value;
 pub use value::*;
 
-mod util;
-pub use util::*;
+mod errors;

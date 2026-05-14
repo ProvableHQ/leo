@@ -14,10 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-/// Contains the Constant Evaluation error definitions.
-mod const_eval;
-pub use self::const_eval::*;
-
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
 #[derive(Debug, Error)]
@@ -26,8 +22,6 @@ pub enum LeoError {
     Formatted(#[from] crate::Formatted),
     #[error(transparent)]
     Backtraced(#[from] crate::Backtraced),
-    #[error(transparent)]
-    ConstEvalError(#[from] ConstEvalError),
     #[error("")]
     LastErrorCode(i32),
     #[error(transparent)]
@@ -40,7 +34,6 @@ impl LeoError {
         match self {
             Formatted(e) => e.error_code(),
             Backtraced(e) => e.error_code(),
-            ConstEvalError(_) => "Const Eval Error".to_string(),
             LastErrorCode(_) => unreachable!(),
             SnarkVM(_) => "SnarkVM Error".to_string(),
         }
@@ -51,7 +44,6 @@ impl LeoError {
         match self {
             Formatted(e) => e.exit_code(),
             Backtraced(e) => e.exit_code(),
-            ConstEvalError(_) => 1,
             LastErrorCode(code) => *code,
             SnarkVM(_) => 11000,
         }
@@ -70,10 +62,7 @@ impl LeoError {
     pub fn diagnostic_view(&self) -> Option<crate::DiagnosticView<'_>> {
         match self {
             LeoError::Formatted(formatted) => Some(formatted.diagnostic_view()),
-            LeoError::Backtraced(_)
-            | LeoError::ConstEvalError(_)
-            | LeoError::LastErrorCode(_)
-            | LeoError::SnarkVM(_) => None,
+            LeoError::Backtraced(_) | LeoError::LastErrorCode(_) | LeoError::SnarkVM(_) => None,
         }
     }
 

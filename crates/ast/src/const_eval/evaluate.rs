@@ -16,24 +16,16 @@
 
 use snarkvm::prelude::{Double, Inverse as _, Pow as _, ProgramID, Square as _, SquareRoot as _};
 
-use leo_errors::{ConstEvalError, Result};
+use leo_errors::Formatted;
 use leo_span::Span;
 
-use crate::{
-    BinaryOperation,
-    FromStrRadix as _,
-    IntegerType,
-    Literal,
-    LiteralVariant,
-    Type,
-    UnaryOperation,
-    fail2,
-    halt_no_span2,
-    halt2,
-    tc_fail2,
-};
+use crate::{BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVariant, Type, UnaryOperation};
 
-use super::*;
+use super::{errors, *};
+
+fn parse_tc<T, E: std::fmt::Display>(r: Result<T, E>) -> Result<T, String> {
+    r.map_err(|e| format!("type failure: {e}"))
+}
 
 impl Value {
     /// Are the values equal, according to SnarkVM?
@@ -41,13 +33,13 @@ impl Value {
     /// We use this rather than the Eq trait so we can
     /// fail when comparing values of different types,
     /// rather than just returning false.
-    pub fn eq(&self, rhs: &Self) -> Result<bool> {
+    pub fn eq(&self, rhs: &Self) -> Result<bool, String> {
         if self.id != rhs.id {
             return Ok(false);
         }
         use ValueVariants::*;
         Ok(match (&self.contents, &rhs.contents) {
-            (Unsuffixed(..), _) | (_, Unsuffixed(..)) => halt_no_span2!("Error"),
+            (Unsuffixed(..), _) | (_, Unsuffixed(..)) => return Err("equality on unsuffixed value".into()),
             (Unit, Unit) => true,
             (Tuple(x), Tuple(y)) => {
                 if x.len() != y.len() {
@@ -61,7 +53,7 @@ impl Value {
                 true
             }
             (Svm(x), Svm(y)) => x == y,
-            (_, _) => halt_no_span2!("Type failure"),
+            (_, _) => return Err("Type failure".into()),
         })
     }
 
@@ -69,7 +61,7 @@ impl Value {
     /// and a type is provided, parses the string into the corresponding `Value` variant. Handles integers of various
     /// widths and special types like `Field`, `Group`, and `Scalar`. If no type is given or the value is already typed,
     /// returns the original value. Returns an error if type inference is not possible or parsing fails.
-    pub fn resolve_if_unsuffixed(&self, ty: &Option<Type>, span: Span) -> Result<Value> {
+    pub fn resolve_if_unsuffixed(&self, ty: &Option<Type>) -> Result<Value, String> {
         if let ValueVariants::Unsuffixed(s) = &self.contents {
             if let Some(ty) = ty {
                 let value = match ty {
@@ -113,18 +105,12 @@ impl Value {
                         let s = s.replace("_", "");
                         i128::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Field => {
-                        SvmLiteralParam::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(span)?).into()
-                    }
-                    Type::Group => {
-                        SvmLiteralParam::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(span)?).into()
-                    }
+                    Type::Field => SvmLiteralParam::Field(parse_tc(prepare_snarkvm_string(s, "field").parse())?).into(),
+                    Type::Group => SvmLiteralParam::Group(parse_tc(prepare_snarkvm_string(s, "group").parse())?).into(),
                     Type::Scalar => {
-                        SvmLiteralParam::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(span)?).into()
+                        SvmLiteralParam::Scalar(parse_tc(prepare_snarkvm_string(s, "scalar").parse())?).into()
                     }
-                    _ => {
-                        halt2!(span, "cannot infer type of unsuffixed literal")
-                    }
+                    _ => return Err("cannot infer type of unsuffixed literal".into()),
                 };
                 Ok(value)
             } else {
@@ -136,27 +122,27 @@ impl Value {
     }
 }
 
-pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result<Value> {
+pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result<Value, String> {
     Ok(match &literal.variant {
         LiteralVariant::Address(s) => {
             if s.ends_with(".aleo") {
-                let program_id: ProgramID<CurrentNetwork> = s.parse()?;
-                program_id.to_address()?.into()
+                let program_id: ProgramID<CurrentNetwork> = parse_tc(s.parse())?;
+                parse_tc(program_id.to_address())?.into()
             } else {
-                let address: Address = s.parse().expect_tc(literal.span)?;
+                let address: Address = parse_tc(s.parse())?;
                 address.into()
             }
         }
         LiteralVariant::Boolean(b) => (*b).into(),
         LiteralVariant::Field(s) => {
-            SvmLiteralParam::Field(prepare_snarkvm_string(s, "field").parse().expect_tc(literal.span)?).into()
+            SvmLiteralParam::Field(parse_tc(prepare_snarkvm_string(s, "field").parse())?).into()
         }
         LiteralVariant::Group(s) => {
-            SvmLiteralParam::Group(prepare_snarkvm_string(s, "group").parse().expect_tc(literal.span)?).into()
+            SvmLiteralParam::Group(parse_tc(prepare_snarkvm_string(s, "group").parse())?).into()
         }
 
         LiteralVariant::Identifier(s) => {
-            let identifier = SvmIdentifierLiteral::new(s).expect_tc(literal.span)?;
+            let identifier = parse_tc(SvmIdentifierLiteral::new(s))?;
             SvmLiteralParam::Identifier(Box::new(identifier)).into()
         }
         LiteralVariant::Integer(IntegerType::U8, s, ..) => {
@@ -199,18 +185,18 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
             let s = s.replace("_", "");
             i128::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
         }
-        LiteralVariant::None => halt_no_span2!(""),
+        LiteralVariant::None => return Err("none literal has no value".into()),
         LiteralVariant::Scalar(s) => {
-            SvmLiteralParam::Scalar(prepare_snarkvm_string(s, "scalar").parse().expect_tc(literal.span)?).into()
+            SvmLiteralParam::Scalar(parse_tc(prepare_snarkvm_string(s, "scalar").parse())?).into()
         }
         LiteralVariant::Signature(s) => {
-            let signature: Signature = s.parse().expect_tc(literal.span)?;
+            let signature: Signature = parse_tc(s.parse())?;
             signature.into()
         }
         LiteralVariant::String(s) => Value::make_string(s.clone()),
         LiteralVariant::Unsuffixed(s) => {
             let unsuffixed = Value { id: None, contents: ValueVariants::Unsuffixed(s.clone()) };
-            unsuffixed.resolve_if_unsuffixed(expected_ty, literal.span)?
+            unsuffixed.resolve_if_unsuffixed(expected_ty)?
         }
     })
 }
@@ -222,48 +208,46 @@ fn resolve_unsuffixed_unary_op_operand(
     val: &Value,
     op: &UnaryOperation,
     expected_ty: &Option<Type>,
-    span: &Span,
-) -> Result<Value> {
+) -> Result<Value, String> {
     match op {
         UnaryOperation::Inverse | UnaryOperation::Square | UnaryOperation::SquareRoot => {
             // These ops only take a `field` and return a `field`
-            val.resolve_if_unsuffixed(&Some(Type::Field), *span)
+            val.resolve_if_unsuffixed(&Some(Type::Field))
         }
         UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {
             // These ops only take a `Group`
-            val.resolve_if_unsuffixed(&Some(Type::Group), *span)
+            val.resolve_if_unsuffixed(&Some(Type::Group))
         }
         _ => {
             // All other unary ops take the same type as the their return type
-            val.resolve_if_unsuffixed(expected_ty, *span)
+            val.resolve_if_unsuffixed(expected_ty)
         }
     }
 }
 
 /// Evaluate a unary operation.
-pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty: &Option<Type>) -> Result<Value> {
-    let value = resolve_unsuffixed_unary_op_operand(value, &op, expected_ty, &span)?;
+pub fn evaluate_unary(
+    span: Span,
+    op: UnaryOperation,
+    value: &Value,
+    expected_ty: &Option<Type>,
+) -> Result<Value, Formatted> {
+    evaluate_unary_inner(op, value, expected_ty).map_err(|reason| errors::unary_op_failure(value, op, reason, span))
+}
+
+fn evaluate_unary_inner(op: UnaryOperation, value: &Value, expected_ty: &Option<Type>) -> Result<Value, String> {
+    let value = resolve_unsuffixed_unary_op_operand(value, &op, expected_ty)?;
     let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = &value.contents else {
-        halt2!(span, "Type error");
+        return Err("Type error".into());
     };
     let value_result: Value = match op {
         UnaryOperation::Abs => match literal {
-            SvmLiteralParam::I8(x) => {
-                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overflow"))?.into()
-            }
-            SvmLiteralParam::I16(x) => {
-                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
-            }
-            SvmLiteralParam::I32(x) => {
-                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
-            }
-            SvmLiteralParam::I64(x) => {
-                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
-            }
-            SvmLiteralParam::I128(x) => {
-                x.checked_abs().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "abs overlfow"))?.into()
-            }
-            _ => halt2!(span, "Type error"),
+            SvmLiteralParam::I8(x) => x.checked_abs().ok_or_else(|| "abs overflow".to_string())?.into(),
+            SvmLiteralParam::I16(x) => x.checked_abs().ok_or_else(|| "abs overflow".to_string())?.into(),
+            SvmLiteralParam::I32(x) => x.checked_abs().ok_or_else(|| "abs overflow".to_string())?.into(),
+            SvmLiteralParam::I64(x) => x.checked_abs().ok_or_else(|| "abs overflow".to_string())?.into(),
+            SvmLiteralParam::I128(x) => x.checked_abs().ok_or_else(|| "abs overflow".to_string())?.into(),
+            _ => return Err("Type error".into()),
         },
         UnaryOperation::AbsWrapped => match literal {
             SvmLiteralParam::I8(x) => (x.unsigned_abs() as i8).into(),
@@ -271,41 +255,31 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty
             SvmLiteralParam::I32(x) => (x.unsigned_abs() as i32).into(),
             SvmLiteralParam::I64(x) => (x.unsigned_abs() as i64).into(),
             SvmLiteralParam::I128(x) => (x.unsigned_abs() as i128).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         UnaryOperation::Double => match literal {
             SvmLiteralParam::Field(x) => <Field as Double>::double(x).into(),
             SvmLiteralParam::Group(x) => <Group as Double>::double(x).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         UnaryOperation::Inverse => match literal {
             SvmLiteralParam::Field(x) => {
                 let Ok(y) = x.inverse() else {
-                    halt2!(span, "attempt to invert 0field");
+                    return Err("attempt to invert 0field".into());
                 };
                 y.into()
             }
-            _ => halt2!(span, "Can only invert fields"),
+            _ => return Err("Can only invert fields".into()),
         },
         UnaryOperation::Negate => match literal {
-            SvmLiteralParam::I8(x) => {
-                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
-            }
-            SvmLiteralParam::I16(x) => {
-                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
-            }
-            SvmLiteralParam::I32(x) => {
-                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
-            }
-            SvmLiteralParam::I64(x) => {
-                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
-            }
-            SvmLiteralParam::I128(x) => {
-                x.checked_neg().ok_or_else::<ConstEvalError, _>(|| fail2!(span, "negation overflow"))?.into()
-            }
+            SvmLiteralParam::I8(x) => x.checked_neg().ok_or_else(|| "negation overflow".to_string())?.into(),
+            SvmLiteralParam::I16(x) => x.checked_neg().ok_or_else(|| "negation overflow".to_string())?.into(),
+            SvmLiteralParam::I32(x) => x.checked_neg().ok_or_else(|| "negation overflow".to_string())?.into(),
+            SvmLiteralParam::I64(x) => x.checked_neg().ok_or_else(|| "negation overflow".to_string())?.into(),
+            SvmLiteralParam::I128(x) => x.checked_neg().ok_or_else(|| "negation overflow".to_string())?.into(),
             SvmLiteralParam::Group(x) => (-*x).into(),
             SvmLiteralParam::Field(x) => (-*x).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         UnaryOperation::Not => match literal {
             SvmLiteralParam::Boolean(x) => (!**x).into(),
@@ -319,25 +293,23 @@ pub fn evaluate_unary(span: Span, op: UnaryOperation, value: &Value, expected_ty
             SvmLiteralParam::I32(x) => (!**x).into(),
             SvmLiteralParam::I64(x) => (!**x).into(),
             SvmLiteralParam::I128(x) => (!**x).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         UnaryOperation::Square => match literal {
             SvmLiteralParam::Field(x) => x.square().into(),
-            _ => halt2!(span, "Can only square fields"),
+            _ => return Err("Can only square fields".into()),
         },
         UnaryOperation::SquareRoot => match literal {
-            SvmLiteralParam::Field(x) => {
-                x.square_root().map_err::<ConstEvalError, _>(|e| fail2!(span, "square root failure: {e}"))?.into()
-            }
-            _ => halt2!(span, "Can only apply square_root to fields"),
+            SvmLiteralParam::Field(x) => x.square_root().map_err(|e| format!("square root failure: {e}"))?.into(),
+            _ => return Err("Can only apply square_root to fields".into()),
         },
         UnaryOperation::ToXCoordinate => match literal {
             SvmLiteral::Group(x) => x.to_x_coordinate().into(),
-            _ => tc_fail2!(),
+            _ => panic!("type checker failure"),
         },
         UnaryOperation::ToYCoordinate => match literal {
             SvmLiteral::Group(x) => x.to_y_coordinate().into(),
-            _ => tc_fail2!(),
+            _ => panic!("type checker failure"),
         },
     };
 
@@ -353,8 +325,7 @@ fn resolve_unsuffixed_binary_op_operands(
     rhs: &Value,
     op: &BinaryOperation,
     expected_ty: &Option<Type>,
-    span: &Span,
-) -> Result<(Value, Value)> {
+) -> Result<(Value, Value), String> {
     use Type::*;
 
     let lhs_ty = lhs.get_numeric_type();
@@ -365,15 +336,15 @@ fn resolve_unsuffixed_binary_op_operands(
             // For a `Mul`, if on operand is a Scalar, then the other must ba a `Group`. Otherwise, both ops must have
             // the same type as the return type of the multiplication.
             let lhs = match rhs_ty {
-                Some(Group) => lhs.resolve_if_unsuffixed(&Some(Scalar), *span)?,
-                Some(Scalar) => lhs.resolve_if_unsuffixed(&Some(Group), *span)?,
-                _ => lhs.resolve_if_unsuffixed(&rhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+                Some(Group) => lhs.resolve_if_unsuffixed(&Some(Scalar))?,
+                Some(Scalar) => lhs.resolve_if_unsuffixed(&Some(Group))?,
+                _ => lhs.resolve_if_unsuffixed(&rhs_ty)?.resolve_if_unsuffixed(expected_ty)?,
             };
 
             let rhs = match lhs_ty {
-                Some(Group) => rhs.resolve_if_unsuffixed(&Some(Scalar), *span)?,
-                Some(Scalar) => rhs.resolve_if_unsuffixed(&Some(Group), *span)?,
-                _ => rhs.resolve_if_unsuffixed(&lhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+                Some(Group) => rhs.resolve_if_unsuffixed(&Some(Scalar))?,
+                Some(Scalar) => rhs.resolve_if_unsuffixed(&Some(Group))?,
+                _ => rhs.resolve_if_unsuffixed(&lhs_ty)?.resolve_if_unsuffixed(expected_ty)?,
             };
 
             (lhs, rhs)
@@ -382,16 +353,16 @@ fn resolve_unsuffixed_binary_op_operands(
             // For a `Pow`, if one operand is a `Field`, then the other must also be a `Field.
             // Otherwise, only the `lhs` must match the return type.
             let lhs_resolved = lhs
-                .resolve_if_unsuffixed(&rhs_ty.filter(|ty| matches!(ty, Type::Field)), *span)?
-                .resolve_if_unsuffixed(expected_ty, *span)?;
+                .resolve_if_unsuffixed(&rhs_ty.filter(|ty| matches!(ty, Type::Field)))?
+                .resolve_if_unsuffixed(expected_ty)?;
 
-            let rhs_resolved = rhs.resolve_if_unsuffixed(&lhs_ty.filter(|ty| matches!(ty, Type::Field)), *span)?;
+            let rhs_resolved = rhs.resolve_if_unsuffixed(&lhs_ty.filter(|ty| matches!(ty, Type::Field)))?;
 
             (lhs_resolved, rhs_resolved)
         }
         _ => (
-            lhs.resolve_if_unsuffixed(&rhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
-            rhs.resolve_if_unsuffixed(&lhs_ty, *span)?.resolve_if_unsuffixed(expected_ty, *span)?,
+            lhs.resolve_if_unsuffixed(&rhs_ty)?.resolve_if_unsuffixed(expected_ty)?,
+            rhs.resolve_if_unsuffixed(&lhs_ty)?.resolve_if_unsuffixed(expected_ty)?,
         ),
     })
 }
@@ -403,8 +374,18 @@ pub fn evaluate_binary(
     lhs: &Value,
     rhs: &Value,
     expected_ty: &Option<Type>,
-) -> Result<Value> {
-    let (lhs, rhs) = resolve_unsuffixed_binary_op_operands(lhs, rhs, &op, expected_ty, &span)?;
+) -> Result<Value, Formatted> {
+    evaluate_binary_inner(op, lhs, rhs, expected_ty)
+        .map_err(|reason| errors::binary_op_failure(lhs, op, rhs, reason, span))
+}
+
+fn evaluate_binary_inner(
+    op: BinaryOperation,
+    lhs: &Value,
+    rhs: &Value,
+    expected_ty: &Option<Type>,
+) -> Result<Value, String> {
+    let (lhs, rhs) = resolve_unsuffixed_binary_op_operands(lhs, rhs, &op, expected_ty)?;
 
     match op {
         BinaryOperation::Eq => return lhs.eq(&rhs).map(|x| x.into()),
@@ -413,10 +394,10 @@ pub fn evaluate_binary(
     }
 
     let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(lhs, ..))) = &lhs.contents else {
-        halt2!(span, "Type error");
+        return Err("Type error".into());
     };
     let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(rhs, ..))) = &rhs.contents else {
-        halt2!(span, "Type error");
+        return Err("Type error".into());
     };
     let value = match op {
         BinaryOperation::Add => {
@@ -434,9 +415,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::Group(x), SvmLiteralParam::Group(y)) => Some((*x + y).into()),
                 (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x + y).into()),
                 (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => Some((*x + y).into()),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "add overflow");
+                return Err("add overflow".into());
             };
             value
         }
@@ -451,11 +432,11 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (*x).wrapping_add(**y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x).wrapping_add(**y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x).wrapping_add(**y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::And => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x && **y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::BitwiseAnd => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x & **y).into(),
@@ -469,7 +450,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x & **y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x & **y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x & **y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Div => {
             let Some(value) = (match (lhs, rhs) {
@@ -484,9 +465,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (*x).checked_div(**y).map(|z| z.into()),
                 (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x).checked_div(**y).map(|z| z.into()),
                 (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => y.inverse().map(|y| (*x * y).into()).ok(),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "div overflow");
+                return Err("div overflow".into());
             };
             value
         }
@@ -501,7 +482,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) if **y != 0 => (*x).wrapping_div(**y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Eq => unreachable!("This case was handled above"),
         BinaryOperation::Gte => match (lhs, rhs) {
@@ -517,7 +498,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x >= *y).into(),
             (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x >= *y).into(),
             (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x >= *y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Gt => match (lhs, rhs) {
             (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x > *y).into(),
@@ -532,7 +513,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x > *y).into(),
             (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x > *y).into(),
             (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x > *y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Lte => match (lhs, rhs) {
             (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x <= *y).into(),
@@ -547,7 +528,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x <= *y).into(),
             (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x <= *y).into(),
             (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x <= *y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Lt => match (lhs, rhs) {
             (SvmLiteralParam::U8(x), SvmLiteralParam::U8(y)) => (*x < *y).into(),
@@ -562,7 +543,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (*x < *y).into(),
             (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => (*x < *y).into(),
             (SvmLiteralParam::Scalar(x), SvmLiteralParam::Scalar(y)) => (*x < *y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Mod => {
             let Some(value) = (match (lhs, rhs) {
@@ -571,9 +552,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::U32(x), SvmLiteralParam::U32(y)) => x.checked_rem(**y).map(|z| z.into()),
                 (SvmLiteralParam::U64(x), SvmLiteralParam::U64(y)) => x.checked_rem(**y).map(|z| z.into()),
                 (SvmLiteralParam::U128(x), SvmLiteralParam::U128(y)) => x.checked_rem(**y).map(|z| z.into()),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "mod overflow");
+                return Err("mod overflow".into());
             };
             value
         }
@@ -592,9 +573,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x * y).into()),
                 (SvmLiteralParam::Group(x), SvmLiteralParam::Scalar(y)) => Some((*x * y).into()),
                 (SvmLiteralParam::Scalar(x), SvmLiteralParam::Group(y)) => Some((*x * y).into()),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "mul overflow");
+                return Err("mul overflow".into());
             };
             value
         }
@@ -609,24 +590,24 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => x.wrapping_mul(**y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => x.wrapping_mul(**y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => x.wrapping_mul(**y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::Nand => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (!(**x & **y)).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::Neq => unreachable!("This case was handled above"),
 
         BinaryOperation::Nor => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (!(**x | **y)).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::Or => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x | **y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::BitwiseOr => match (lhs, rhs) {
@@ -641,7 +622,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x | **y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x | **y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x | **y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::Pow => {
@@ -652,7 +633,7 @@ pub fn evaluate_binary(
                     SvmLiteralParam::U8(y) => (**y).into(),
                     SvmLiteralParam::U16(y) => (**y).into(),
                     SvmLiteralParam::U32(y) => **y,
-                    _ => tc_fail2!(),
+                    _ => panic!("type checker failure"),
                 };
 
                 let Some(value) = (match lhs {
@@ -666,9 +647,9 @@ pub fn evaluate_binary(
                     SvmLiteralParam::I32(x) => x.checked_pow(rhs).map(|z| z.into()),
                     SvmLiteralParam::I64(x) => x.checked_pow(rhs).map(|z| z.into()),
                     SvmLiteralParam::I128(x) => x.checked_pow(rhs).map(|z| z.into()),
-                    _ => halt2!(span, "Type error"),
+                    _ => return Err("Type error".into()),
                 }) else {
-                    halt2!(span, "pow overflow");
+                    return Err("pow overflow".into());
                 };
                 value
             }
@@ -678,7 +659,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::U8(y) => (**y).into(),
                 SvmLiteralParam::U16(y) => (**y).into(),
                 SvmLiteralParam::U32(y) => **y,
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             };
 
             match lhs {
@@ -692,7 +673,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::I32(x) => x.wrapping_pow(rhs).into(),
                 SvmLiteralParam::I64(x) => x.wrapping_pow(rhs).into(),
                 SvmLiteralParam::I128(x) => x.wrapping_pow(rhs).into(),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }
         }
 
@@ -708,9 +689,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x).checked_rem(**y).map(|z| z.into()),
                 (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x).checked_rem(**y).map(|z| z.into()),
                 (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).checked_rem(**y).map(|z| z.into()),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "rem error");
+                return Err("rem error".into());
             };
             value
         }
@@ -726,7 +707,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) if **y != 0 => (*x).wrapping_rem(**y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
 
         BinaryOperation::Shl => {
@@ -734,20 +715,20 @@ pub fn evaluate_binary(
                 SvmLiteralParam::U8(y) => (**y).into(),
                 SvmLiteralParam::U16(y) => (**y).into(),
                 SvmLiteralParam::U32(y) => **y,
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             };
             match lhs {
-                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => halt2!(span, "shl overflow"),
-                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => halt2!(span, "shl overflow"),
+                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => return Err("shl overflow".into()),
+                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => return Err("shl overflow".into()),
+                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => return Err("shl overflow".into()),
+                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => return Err("shl overflow".into()),
+                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => return Err("shl overflow".into()),
                 SvmLiteralParam::U8(x) => {
                     let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -756,7 +737,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -765,7 +746,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -774,7 +755,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -783,7 +764,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -792,7 +773,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -801,7 +782,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -810,7 +791,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -819,7 +800,7 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
@@ -828,11 +809,11 @@ pub fn evaluate_binary(
                     let shifted = (**x) << rhs;
                     let after_ones = x.count_ones();
                     if before_ones != after_ones {
-                        halt2!(span, "shl");
+                        return Err("shl".into());
                     }
                     shifted.into()
                 }
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }
         }
 
@@ -841,7 +822,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::U8(y) => (**y).into(),
                 SvmLiteralParam::U16(y) => (**y).into(),
                 SvmLiteralParam::U32(y) => **y,
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             };
             match lhs {
                 SvmLiteralParam::U8(x) => x.wrapping_shl(rhs).into(),
@@ -854,7 +835,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::I32(x) => x.wrapping_shl(rhs).into(),
                 SvmLiteralParam::I64(x) => x.wrapping_shl(rhs).into(),
                 SvmLiteralParam::I128(x) => x.wrapping_shl(rhs).into(),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }
         }
 
@@ -863,15 +844,15 @@ pub fn evaluate_binary(
                 SvmLiteralParam::U8(y) => (**y).into(),
                 SvmLiteralParam::U16(y) => (**y).into(),
                 SvmLiteralParam::U32(y) => **y,
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             };
 
             match lhs {
-                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => halt2!(span, "shr overflow"),
-                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => halt2!(span, "shr overflow"),
+                SvmLiteralParam::U8(_) | SvmLiteralParam::I8(_) if rhs >= 8 => return Err("shr overflow".into()),
+                SvmLiteralParam::U16(_) | SvmLiteralParam::I16(_) if rhs >= 16 => return Err("shr overflow".into()),
+                SvmLiteralParam::U32(_) | SvmLiteralParam::I32(_) if rhs >= 32 => return Err("shr overflow".into()),
+                SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => return Err("shr overflow".into()),
+                SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => return Err("shr overflow".into()),
                 SvmLiteralParam::U8(x) => (**x >> rhs).into(),
                 SvmLiteralParam::U16(x) => (**x >> rhs).into(),
                 SvmLiteralParam::U32(x) => (**x >> rhs).into(),
@@ -882,7 +863,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::I32(x) => (**x >> rhs).into(),
                 SvmLiteralParam::I64(x) => (**x >> rhs).into(),
                 SvmLiteralParam::I128(x) => (**x >> rhs).into(),
-                _ => tc_fail2!(),
+                _ => panic!("type checker failure"),
             }
         }
 
@@ -891,7 +872,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::U8(y) => (**y).into(),
                 SvmLiteralParam::U16(y) => (**y).into(),
                 SvmLiteralParam::U32(y) => **y,
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             };
 
             match lhs {
@@ -905,7 +886,7 @@ pub fn evaluate_binary(
                 SvmLiteralParam::I32(x) => (x.wrapping_shr(rhs)).into(),
                 SvmLiteralParam::I64(x) => (x.wrapping_shr(rhs)).into(),
                 SvmLiteralParam::I128(x) => (x.wrapping_shr(rhs)).into(),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }
         }
 
@@ -923,9 +904,9 @@ pub fn evaluate_binary(
                 (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).checked_sub(**y).map(|z| z.into()),
                 (SvmLiteralParam::Group(x), SvmLiteralParam::Group(y)) => Some((*x - *y).into()),
                 (SvmLiteralParam::Field(x), SvmLiteralParam::Field(y)) => Some((*x - *y).into()),
-                _ => halt2!(span, "Type error"),
+                _ => return Err("Type error".into()),
             }) else {
-                halt2!(span, "sub overflow");
+                return Err("sub overflow".into());
             };
             value
         }
@@ -941,7 +922,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x).wrapping_sub(**y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x).wrapping_sub(**y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x).wrapping_sub(**y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
         BinaryOperation::Xor => match (lhs, rhs) {
             (SvmLiteralParam::Boolean(x), SvmLiteralParam::Boolean(y)) => (**x ^ **y).into(),
@@ -955,7 +936,7 @@ pub fn evaluate_binary(
             (SvmLiteralParam::I32(x), SvmLiteralParam::I32(y)) => (**x ^ **y).into(),
             (SvmLiteralParam::I64(x), SvmLiteralParam::I64(y)) => (**x ^ **y).into(),
             (SvmLiteralParam::I128(x), SvmLiteralParam::I128(y)) => (**x ^ **y).into(),
-            _ => halt2!(span, "Type error"),
+            _ => return Err("Type error".into()),
         },
     };
 

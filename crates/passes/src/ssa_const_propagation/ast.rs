@@ -16,7 +16,6 @@
 
 use super::{SsaConstPropagationVisitor, visitor::is_atom};
 
-use crate::errors::static_analyzer;
 use leo_ast::{
     const_eval::{self, Value},
     *,
@@ -150,9 +149,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => {
-                    self.emit_err(static_analyzer::compile_time_binary_op(lhs_value, rhs_value, input.op, err, span))
-                }
+                Err(err) => self.emit_err(err),
             }
         }
 
@@ -173,7 +170,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(static_analyzer::compile_time_unary_op(value, input.op, err, span)),
+                Err(err) => self.emit_err(err),
             }
         }
         (UnaryExpression { receiver, ..input }.into(), None)
