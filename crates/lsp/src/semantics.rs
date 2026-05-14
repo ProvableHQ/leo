@@ -760,7 +760,9 @@ impl SemanticIndex {
     }
 }
 
-/// Package-level semantic analysis shared by navigation and semantic tokens.
+/// Package-level semantic analysis shared by navigation, semantic tokens, and
+/// diagnostics. All three are package-keyed and invalidated together when the
+/// bucket generation changes.
 #[derive(Debug, Clone)]
 pub struct CachedPackageAnalysis {
     /// Freshness key for this package analysis.
@@ -772,6 +774,8 @@ pub struct CachedPackageAnalysis {
     /// Whether compiler analysis refined the syntax fallback.
     #[allow(dead_code)]
     pub source: SemanticSource,
+    /// Diagnostics collected during this analysis; always present, possibly empty.
+    pub diagnostics: Arc<crate::features::diagnostics::DiagnosticSet>,
 }
 
 /// Small per-document semantic-token view built from a package analysis.

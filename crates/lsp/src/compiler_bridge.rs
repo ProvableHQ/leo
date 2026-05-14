@@ -27,7 +27,7 @@
 
 use crate::{
     document_store::{AnalysisBucket, DocumentSnapshot, DocumentViewSnapshot, OpenFileOverlay},
-    features::{lsp_range::hash_text, semantic_tokens::encode_tokens},
+    features::{diagnostics::CompilerDiagnostic, lsp_range::hash_text, semantic_tokens::encode_tokens},
     project_model::ProjectContext,
     semantics::{
         CachedDocumentView,
@@ -200,11 +200,17 @@ enum WatchedPathStamp {
     Directory { modified_nanos: u128 },
 }
 
-/// Compiler occurrences plus source fingerprints captured by the file source.
+/// Compiler frontend outputs lowered into LSP-friendly shapes.
+///
+/// `occurrences` is `None` when the frontend bailed before walking the AST;
+/// the caller falls back to syntax-only highlighting but still publishes the
+/// buffered diagnostics. Span resolution happens here, inside the live Leo
+/// session, because the source map is gone once the session ends.
 #[derive(Debug)]
 struct CompilerOutput {
-    occurrences: Vec<SymbolOccurrence>,
+    occurrences: Option<Vec<SymbolOccurrence>>,
     fingerprints: HashMap<PathBuf, SourceFingerprint>,
+    diagnostic_entries: Vec<crate::features::diagnostics::DiagnosticEntry>,
 }
 
 /// Program roots available to one compiler semantic collection pass.
@@ -269,8 +275,8 @@ impl ProgramRoots {
 /// Syntax analysis always runs first so the server can return a best-effort
 /// token stream even when package discovery, dependency loading, or compiler
 /// analysis fail. Compiler-backed occurrences then replace matching syntax
-/// ranges when available so navigation reuses the same semantic truth as
-/// highlighting.
+/// ranges when available, and any buffered diagnostics from the same compiler
+/// pass are threaded through to the cached package result.
 pub fn analyze_package_snapshot(
     snapshot: &DocumentSnapshot,
     package_cache: &mut PackageAnalysisCache,
@@ -283,6 +289,7 @@ pub fn analyze_package_snapshot(
             syntax.tokens,
             SemanticSource::SyntaxOnly,
             HashMap::new(),
+            Vec::new(),
         );
     }
 
@@ -294,11 +301,12 @@ pub fn analyze_package_snapshot(
             syntax.tokens,
             SemanticSource::SyntaxOnly,
             HashMap::new(),
+            Vec::new(),
         );
     }
 
-    let (occurrences, lexical_tokens, source, fingerprints) = match compiler_occurrences {
-        Some(CompilerOutput { occurrences, fingerprints }) => {
+    let (occurrences, lexical_tokens, source, fingerprints, diagnostic_entries) = match compiler_occurrences {
+        Some(CompilerOutput { occurrences: Some(occurrences), fingerprints, diagnostic_entries }) => {
             let mut merged_fingerprints = syntax.fingerprints;
             merged_fingerprints.extend(fingerprints);
             (
@@ -306,15 +314,28 @@ pub fn analyze_package_snapshot(
                 syntax.tokens,
                 SemanticSource::CompilerEnhanced,
                 merged_fingerprints,
+                diagnostic_entries,
             )
         }
-        None => {
+        Some(CompilerOutput { occurrences: None, diagnostic_entries, .. }) => {
+            // The compiler buffered diagnostics but did not produce usable
+            // AST occurrences (typical when the parser bailed). Use the
+            // package-fallback syntax tokens — they cover the full module
+            // listing — and still publish the buffered diagnostics so users
+            // see the parse error.
             let syntax = syntax_semantics::collect_package_fallback(snapshot);
-            (syntax.occurrences, syntax.tokens, SemanticSource::SyntaxOnly, syntax.fingerprints)
+            (syntax.occurrences, syntax.tokens, SemanticSource::SyntaxOnly, syntax.fingerprints, diagnostic_entries)
+        }
+        None => {
+            // Compiler analysis declined to run at all (no usable file
+            // source). Fall back to syntax tokens with no diagnostics;
+            // "compiler unavailable" is not a user-facing condition.
+            let syntax = syntax_semantics::collect_package_fallback(snapshot);
+            (syntax.occurrences, syntax.tokens, SemanticSource::SyntaxOnly, syntax.fingerprints, Vec::new())
         }
     };
 
-    package_analysis(snapshot, occurrences, lexical_tokens, source, fingerprints)
+    package_analysis(snapshot, occurrences, lexical_tokens, source, fingerprints, diagnostic_entries)
 }
 
 /// Compatibility helper retained for PR 2 tests and callers.
@@ -341,13 +362,15 @@ pub fn build_document_view(snapshot: &DocumentViewSnapshot, package: Arc<CachedP
     CachedDocumentView { key: snapshot.key.clone(), encoded_tokens }
 }
 
-/// Lower merged occurrences into a shared package index and trigger-document view.
+/// Lower merged occurrences and lowered diagnostic entries into a shared
+/// package index, document view, and immutable diagnostic set.
 fn package_analysis(
     snapshot: &DocumentSnapshot,
     mut occurrences: Vec<SymbolOccurrence>,
     lexical_tokens: Vec<SemanticTokenOccurrence>,
     source: SemanticSource,
     recorded_fingerprints: HashMap<PathBuf, SourceFingerprint>,
+    diagnostic_entries: Vec<crate::features::diagnostics::DiagnosticEntry>,
 ) -> PackageWorkerAnalysis {
     let package_source_files = PackageSourceFiles::from_snapshot(snapshot);
     retain_in_scope_occurrences(&mut occurrences, &package_source_files);
@@ -365,11 +388,16 @@ fn package_analysis(
         |path| package_source_files.contains(path),
     );
     let index = Arc::new(index);
+    let diagnostics = Arc::new(crate::features::diagnostics::DiagnosticSet {
+        key: snapshot.package_key.clone(),
+        entries: Arc::from(crate::features::diagnostics::finalize_entries(diagnostic_entries)),
+    });
     let package = Arc::new(CachedPackageAnalysis {
         key: snapshot.package_key.clone(),
         index: Arc::clone(&index),
         analyzed_files: Arc::new(analyzed_files),
         source,
+        diagnostics,
     });
 
     let package_tokens =
@@ -445,8 +473,9 @@ fn semantic_token_occurrences(
 
 /// Try to refine syntax occurrences with compiler frontend analysis.
 ///
-/// Failures stay local to this helper so callers can fall back to syntax-only
-/// highlighting without treating compiler analysis as fatal.
+/// Dependency-stub failures and handler-buffered errors both flow back as
+/// `CompilerOutput` so the caller can publish them as diagnostics even when
+/// no AST was produced.
 fn compiler_occurrences(
     snapshot: &DocumentSnapshot,
     package_cache: &mut PackageAnalysisCache,
@@ -457,20 +486,34 @@ fn compiler_occurrences(
 
     let input = compiler_input(snapshot)?;
 
+    let trigger_path = snapshot.file_path.clone();
     let result = create_session_if_not_set_then(|_| {
         // Dependency resolution and parsing intern symbols, so the worker must
         // enter a Leo session before it asks the compiler for frontend state.
         let file_source = RecordingFileSource::new(Arc::clone(&snapshot.open_overlays));
         match input {
             CompilerInput::ManagedPackage { project } => {
-                let import_stubs = package_cache.import_stubs_for(project.as_ref(), &file_source).map_err(|error| {
-                    tracing::debug!(
-                        package = project.package_root.display().to_string(),
-                        error,
-                        "dependency stub loading failed"
-                    );
-                    error
-                })?;
+                let import_stubs = match package_cache.import_stubs_for(project.as_ref(), &file_source) {
+                    Ok(import_stubs) => import_stubs,
+                    Err(error) => {
+                        tracing::debug!(
+                            package = project.package_root.display().to_string(),
+                            error = error.as_str(),
+                            "dependency stub loading failed"
+                        );
+                        // Surface stub-loading errors as a synthetic
+                        // package-level diagnostic. Falling back to syntax-only
+                        // analysis is still useful, but the user needs to see
+                        // why their import graph cannot be resolved.
+                        let synthetic = vec![dependency_load_error(&error)];
+                        let diagnostic_entries = lower_compiler_diagnostics(&synthetic, &[], trigger_path.as_ref());
+                        return Ok::<_, String>(CompilerOutput {
+                            occurrences: None,
+                            fingerprints: file_source.fingerprints_with(&[]),
+                            diagnostic_entries,
+                        });
+                    }
+                };
                 let program_roots = ProgramRoots::for_package(
                     Arc::clone(&project.package_root),
                     Arc::clone(&import_stubs.dependency_roots),
@@ -482,7 +525,7 @@ fn compiler_occurrences(
                 // Run the compiler against every open same-package editor
                 // buffer while recording fingerprints for disk files at the
                 // exact read boundary.
-                let output = run_compiler_analysis(
+                let outcome = run_compiler_analysis(
                     Some(project.program_name.to_string()),
                     project.entry_file.as_ref(),
                     project.source_directory.as_ref(),
@@ -490,13 +533,15 @@ fn compiler_occurrences(
                     import_stubs.import_stubs.as_ref().clone(),
                     program_roots,
                     || check_snapshot_current(snapshot),
-                )
-                .map_err(|error| error.to_string())?;
+                );
 
+                let diagnostic_entries =
+                    lower_compiler_diagnostics(&outcome.errors, &outcome.warnings, trigger_path.as_ref());
                 check_snapshot_current(snapshot).map_err(|error| error.to_string())?;
                 Ok::<_, String>(CompilerOutput {
-                    occurrences: output,
+                    occurrences: outcome.occurrences,
                     fingerprints: file_source.fingerprints_with(import_stubs.fingerprints.as_ref()),
+                    diagnostic_entries,
                 })
             }
             CompilerInput::StandaloneProgram { file_path, source_directory } => {
@@ -510,7 +555,7 @@ fn compiler_occurrences(
                 // Loose editor buffers should be analyzed as exactly one file.
                 // Scanning the parent directory would accidentally treat
                 // formatter fixtures or unrelated scratch files as Leo modules.
-                let output = run_compiler_analysis(
+                let outcome = run_compiler_analysis(
                     None,
                     file_path.as_ref(),
                     source_directory.as_ref(),
@@ -518,13 +563,15 @@ fn compiler_occurrences(
                     IndexMap::new(),
                     program_roots,
                     || check_snapshot_current(snapshot),
-                )
-                .map_err(|error| error.to_string())?;
+                );
 
+                let diagnostic_entries =
+                    lower_compiler_diagnostics(&outcome.errors, &outcome.warnings, trigger_path.as_ref());
                 check_snapshot_current(snapshot).map_err(|error| error.to_string())?;
                 Ok::<_, String>(CompilerOutput {
-                    occurrences: output,
+                    occurrences: outcome.occurrences,
                     fingerprints: file_source.fingerprints_with(&[]),
+                    diagnostic_entries,
                 })
             }
         }
@@ -537,6 +584,35 @@ fn compiler_occurrences(
             None
         }
     }
+}
+
+/// Wrap a dependency-stub load failure as a `Backtraced` error so it lowers
+/// into a synthetic diagnostic on the saved trigger document.
+fn dependency_load_error(message: &str) -> leo_errors::LeoError {
+    leo_errors::Backtraced::new_from_backtrace(
+        format!("Leo dependency analysis failed: {message}"),
+        None,
+        0,
+        "LSP".to_owned(),
+        true,
+        leo_errors::Backtrace::new(),
+    )
+    .into()
+}
+
+/// Lower buffered compiler errors and warnings into LSP-ready entries.
+///
+/// Must run inside `create_session_if_not_set_then` because span resolution
+/// reads the source map through `with_session_globals`.
+fn lower_compiler_diagnostics(
+    errors: &[leo_errors::LeoError],
+    warnings: &[leo_errors::LeoWarning],
+    trigger_path: Option<&Arc<PathBuf>>,
+) -> Vec<crate::features::diagnostics::DiagnosticEntry> {
+    let mut diagnostics: Vec<CompilerDiagnostic<'_>> = Vec::with_capacity(errors.len() + warnings.len());
+    diagnostics.extend(errors.iter().map(CompilerDiagnostic::Error));
+    diagnostics.extend(warnings.iter().map(CompilerDiagnostic::Warning));
+    crate::features::diagnostics::lower_diagnostic_entries(trigger_path, diagnostics)
 }
 
 /// Compiler frontend input shape selected for a document snapshot.
@@ -562,7 +638,23 @@ fn compiler_input(snapshot: &DocumentSnapshot) -> Option<CompilerInput> {
     })
 }
 
-/// Run frontend analysis and immediately collect semantic occurrences.
+/// Result of running the compiler frontend for one LSP analysis pass.
+///
+/// `occurrences` is `None` when analysis failed before the AST walker ran;
+/// `errors` and `warnings` may still be populated in that case.
+struct CompilerAnalysisOutcome {
+    occurrences: Option<Vec<SymbolOccurrence>>,
+    errors: Vec<leo_errors::LeoError>,
+    warnings: Vec<leo_errors::LeoWarning>,
+}
+
+/// Run frontend analysis with a buffered handler and capture both semantic
+/// occurrences and diagnostics.
+///
+/// After the frontend runs we drain both buffers and merge in any
+/// final `LeoError` that the analysis call returned, taking care to drop the
+/// `LastErrorCode` sentinel because the real diagnostic has already been
+/// emitted through the handler.
 fn run_compiler_analysis(
     expected_unit_name: Option<String>,
     entry_file: &StdPath,
@@ -571,11 +663,12 @@ fn run_compiler_analysis(
     import_stubs: IndexMap<Symbol, leo_ast::Stub>,
     program_roots: ProgramRoots,
     mut should_continue: impl FnMut() -> leo_errors::Result<()>,
-) -> leo_errors::Result<Vec<SymbolOccurrence>> {
+) -> CompilerAnalysisOutcome {
+    let (handler, emitter) = Handler::new_with_buf();
     let mut compiler = Compiler::new(
         expected_unit_name,
         false,
-        Handler::default(),
+        handler,
         Rc::new(leo_ast::NodeBuilder::default()),
         PathBuf::default(),
         Some(leo_compiler::CompilerOptions::default()),
@@ -583,15 +676,39 @@ fn run_compiler_analysis(
         leo_ast::NetworkName::TestnetV0,
     );
 
-    let frontend = compiler.analyze_frontend_from_directory_with_file_source_and_check(
+    let frontend_result = compiler.analyze_frontend_from_directory_with_file_source_and_check(
         entry_file,
         source_directory,
         file_source,
         &mut should_continue,
-    )?;
+    );
 
-    let FrontendAnalysis { ast, symbol_table, type_table } = frontend;
-    Ok(CompilerSemanticCollector::new(symbol_table, type_table, program_roots).collect(ast))
+    // Collect AST-derived occurrences when the frontend ran to completion;
+    // diagnostics flow through the handler regardless.
+    let mut returned_error: Option<leo_errors::LeoError> = None;
+    let occurrences = match frontend_result {
+        Ok(FrontendAnalysis { ast, symbol_table, type_table }) => {
+            Some(CompilerSemanticCollector::new(symbol_table, type_table, program_roots).collect(ast))
+        }
+        Err(error) => {
+            returned_error = Some(error);
+            None
+        }
+    };
+
+    let mut errors = emitter.extract_errs().into_inner();
+    let warnings = emitter.extract_warnings().into_inner();
+    if let Some(returned) = returned_error
+        && !returned.is_last_error_code()
+    {
+        // `LastErrorCode` is the handler's way of saying "I already buffered
+        // the real diagnostic," so we drop it here to avoid double-publishing
+        // the same error. Any other `LeoError` represents a failure path the
+        // frontend never had a chance to push through the handler — keep it.
+        errors.push(returned);
+    }
+
+    CompilerAnalysisOutcome { occurrences, errors, warnings }
 }
 
 /// File source that serves all open same-package buffers and records read fingerprints.
