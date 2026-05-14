@@ -85,6 +85,15 @@ pub struct Task<N: Network> {
     pub bytecode_size: usize,
 }
 
+/// Prepared tasks partitioned into local, remote, and skipped sets.
+type PreparedTasks<N> = (Vec<Task<N>>, Vec<Task<N>>, HashSet<ProgramID<N>>);
+
+/// Deployment transactions paired with their stats.
+type DeployTransactions<N> = (Vec<(ProgramID<N>, Transaction<N>)>, Vec<DeploymentStats>);
+
+/// Per-member task info: (member name, local tasks, skipped set).
+type MemberTasks<N> = (String, Vec<Task<N>>, HashSet<ProgramID<N>>);
+
 /// One-time deployment state shared across workspace members.
 struct DeploySetup<N: Network> {
     private_key: PrivateKey<N>,
@@ -230,7 +239,7 @@ fn prepare_package_tasks<N: Network>(
     command: &LeoDeploy,
     setup: &DeploySetup<N>,
     package: &Package,
-) -> Result<(Vec<Task<N>>, Vec<Task<N>>, HashSet<ProgramID<N>>)> {
+) -> Result<PreparedTasks<N>> {
     // Get all the programs but tests and libraries (libraries have no AVM bytecode).
     let programs = package.compilation_units.iter().filter(|unit| unit.kind.is_program()).cloned();
 
@@ -339,7 +348,7 @@ fn generate_deploy_transactions<N: Network, A: Aleo<Network = N>>(
     local: Vec<Task<N>>,
     skipped: &HashSet<ProgramID<N>>,
     already_deployed: &mut HashSet<ProgramID<N>>,
-) -> Result<Option<(Vec<(ProgramID<N>, Transaction<N>)>, Vec<DeploymentStats>)>> {
+) -> Result<Option<DeployTransactions<N>>> {
     let rng = &mut rand::thread_rng();
     let mut transactions = Vec::new();
     let mut all_stats = Vec::new();
@@ -665,7 +674,7 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
     });
 
     // Prepare tasks for all members, deduplicating remote deps.
-    let mut member_tasks: Vec<(String, Vec<Task<N>>, HashSet<ProgramID<N>>)> = Vec::new();
+    let mut member_tasks: Vec<MemberTasks<N>> = Vec::new();
     let mut all_remote: Vec<Task<N>> = Vec::new();
     let mut seen_remote_ids: HashSet<ProgramID<N>> = HashSet::new();
 
@@ -725,7 +734,7 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
 /// Pretty-print the workspace deployment plan.
 fn print_workspace_deployment_plan<N: Network>(
     setup: &DeploySetup<N>,
-    member_tasks: &[(String, Vec<Task<N>>, HashSet<ProgramID<N>>)],
+    member_tasks: &[MemberTasks<N>],
     all_remote: &[Task<N>],
     warnings: &[String],
     command: &LeoDeploy,
