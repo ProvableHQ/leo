@@ -109,6 +109,22 @@ This is useful for scripting and CI/CD pipelines:
 jq '.deployments[0].transaction_id' build/json-outputs/deploy.json
 ```
 
+## Workspace Behavior
+
+When run inside a [workspace](../guides/03_workspaces.md):
+
+- **From workspace root:** Builds and deploys all members in dependency order. Programs shared between members (e.g. a dependency that appears in multiple members) are deployed only once.
+- **From a member directory:** Deploys only that member.
+- **With `--package <NAME>`:** Deploys only the specified member.
+
+```bash
+# Deploy all workspace members
+leo deploy --broadcast
+
+# Deploy only the swap member
+leo deploy --broadcast -p swap
+```
+
 ## Flags
 
 ### `--private-key <PRIVATE_KEY>`

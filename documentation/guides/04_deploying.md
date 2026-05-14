@@ -224,6 +224,36 @@ If your program is already deployed, you can upgrade it using the `leo upgrade` 
 The upgrade will only work if your program is upgradable, meaning it has a constructor that allows for upgrades.
 See the [Upgradability Guide](../guides/10_program_upgradability.md) for more details on how to make your program upgradable.
 
+## Workspace Deployment
+
+When your project uses a [workspace](./03_workspaces.md), `leo deploy` from the workspace root deploys all members in dependency order. Leo uses a single shared VM across all members, which provides accurate fee estimation and ensures programs shared between members are deployed exactly once.
+
+For example, with a workspace containing `token` and `swap` (where `swap` depends on `token`):
+
+```bash
+leo deploy --broadcast --devnet
+```
+
+Leo will:
+
+1. Build `token`, then `swap` (dependency order).
+2. Display a workspace deployment plan showing all programs grouped by member.
+3. Ask for a single confirmation for the entire workspace.
+4. Deploy `token.aleo` (from the `token` member).
+5. Deploy `swap.aleo` (from the `swap` member), skipping `token.aleo` since it was already deployed.
+
+Use `--package` (or `-p`) to deploy a single member:
+
+```bash
+leo deploy --broadcast -p token
+```
+
+Use `--skip` to exclude specific programs across all members:
+
+```bash
+leo deploy --broadcast --skip token
+```
+
 ## Options and Environment Variables
 
 The target network, the Private Key, and a node API endpoint need to be specified for a deployment or upgrade.
