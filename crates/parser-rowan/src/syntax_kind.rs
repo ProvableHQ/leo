@@ -381,6 +381,8 @@ define_syntax_kinds! {
     FUNCTION_DEF,
     /// Final function definition: `final fn ...`
     FINAL_FN_DEF,
+    /// View function definition: `view fn ...`. Read-only V15 entry point.
+    VIEW_FN_DEF,
     /// Constructor definition.
     CONSTRUCTOR_DEF,
     /// Struct definition.

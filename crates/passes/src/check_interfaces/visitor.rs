@@ -33,6 +33,7 @@ use leo_ast::{
     StorageVariablePrototype,
     Type,
     UnitVisitor,
+    Variant,
 };
 use leo_errors::{Color, Label};
 use leo_span::{Span, Symbol, sym};
@@ -590,6 +591,16 @@ impl<'a> CheckInterfacesVisitor<'a> {
         proto: &FunctionPrototype,
         prototype_record_locations: &IndexSet<Location>,
     ) -> bool {
+        // Variant must match. A `view fn` prototype must be implemented by a `view fn`
+        // (and conversely, a plain `fn` prototype must be implemented by a plain `fn`
+        // entry point — entry-point functions are `Variant::EntryPoint` in source, so
+        // we treat `Fn` (interface side) and `EntryPoint` (impl side) as compatible.)
+        match (proto.variant, func.variant) {
+            (Variant::View, Variant::View) => {}
+            (Variant::Fn, Variant::EntryPoint | Variant::Fn) => {}
+            _ => return false,
+        }
+
         // Input parameters must match exactly.
         func.input.len() == proto.input.len() &&
 
@@ -621,8 +632,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
     fn format_prototype_signature(proto: &FunctionPrototype) -> String {
         let inputs: Vec<String> = proto.input.iter().map(|i| i.to_string()).collect();
+        let kw = if matches!(proto.variant, Variant::View) { "view fn" } else { "fn" };
         format!(
-            "{}fn {}({}) -> {}",
+            "{}{kw} {}({}) -> {}",
             proto.annotations.iter().map(|ann| format!("{ann}\n")).collect::<Vec<String>>().join(""),
             proto.identifier.name,
             inputs.join(", "),
@@ -632,8 +644,9 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
     fn format_function_signature(func: &Function) -> String {
         let inputs: Vec<String> = func.input.iter().map(|i| i.to_string()).collect();
+        let kw = if matches!(func.variant, Variant::View) { "view fn" } else { "fn" };
         format!(
-            "{}fn {}({}) -> {}",
+            "{}{kw} {}({}) -> {}",
             func.annotations.iter().map(|ann| format!("{ann}\n")).collect::<Vec<String>>().join(""),
             func.identifier.name,
             inputs.join(", "),

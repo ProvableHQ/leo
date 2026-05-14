@@ -1,0 +1,5 @@
+[ETYC0372042] Error: Only regular fns can be called from a view function.
+    ╭─[ compiler-test:10:16 ]
+    │
+ 10 │         return inner(x);
+────╯

@@ -33,7 +33,9 @@ impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
                 match fun.variant {
                     Fn => call_count > 0,
                     FinalFn => false,
-                    EntryPoint | Finalize => true,
+                    // Views are externally callable and never called from inside the program,
+                    // so they are always retained — same treatment as EntryPoint and Finalize.
+                    EntryPoint | Finalize | View => true,
                 }
             })
             .collect::<Vec<_>>()

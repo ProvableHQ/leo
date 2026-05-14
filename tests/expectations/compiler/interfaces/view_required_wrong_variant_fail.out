@@ -1,0 +1,15 @@
+[ECHI03712004] Error: Function `balance_of` does not match the signature required by interface `scratch.aleo/IToken`.
+Expected:
+view fn balance_of(account: address) -> u128
+Found:
+fn balance_of(account: address) -> u128
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │ ╭─▶     fn balance_of(account: address) -> u128 {
+    ┆ ┆   
+ 16 │ ├─▶     }
+    │ │           
+    │ ╰─────────── 
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯

@@ -526,7 +526,7 @@ fn validate_compiled_programs(programs: &IndexMap<String, ProgramForValidation>,
 fn validate_compiled_programs_inner<N: snarkvm::prelude::Network>(
     programs: &IndexMap<String, ProgramForValidation>,
 ) -> Result<()> {
-    let mut process = SvmProcess::<N>::load().map_err(|e| {
+    let process = SvmProcess::<N>::load().map_err(|e| {
         crate::errors::custom(format!("Failed to initialize snarkVM process for bytecode validation: {e}"))
     })?;
 
@@ -536,7 +536,7 @@ fn validate_compiled_programs_inner<N: snarkvm::prelude::Network>(
 
         let checksum = program.to_checksum().iter().join(", ");
 
-        process.add_program_with_edition(&program, LOCAL_PROGRAM_DEFAULT_EDITION).map_err(|e| {
+        process.lock().add_program_with_edition(&program, LOCAL_PROGRAM_DEFAULT_EDITION).map_err(|e| {
             if *is_leo_compiled {
                 crate::errors::generated_invalid_bytecode(name, path.display(), &checksum, e)
             } else {

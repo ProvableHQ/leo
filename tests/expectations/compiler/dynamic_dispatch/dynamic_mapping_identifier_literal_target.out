@@ -1,10 +1,10 @@
 program test.aleo;
 
-function query:
+function lookup:
     input r0 as address.private;
-    async query r0 into r1;
-    output r1 as test.aleo/query.future;
+    async lookup r0 into r1;
+    output r1 as test.aleo/lookup.future;
 
-finalize query:
+finalize lookup:
     input r0 as address.public;
     get.dynamic 'test' 'aleo' 'balances'[r0] into r1 as u64;

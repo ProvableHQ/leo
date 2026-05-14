@@ -120,6 +120,14 @@ impl Parser<'_, '_> {
                 KW_INTERFACE => {
                     self.parse_interface_def();
                 }
+                // Contextual `view fn ...` at top level. Parse it so we get a clean parse tree;
+                // the rowan→AST converter rejects views outside a `program { ... }` block with
+                // a targeted diagnostic (see `collect_program_item` / `collect_library_item`).
+                IDENT if self.at_contextual_view_fn() => {
+                    if self.parse_module_item().is_none() {
+                        self.error_and_bump("expected module item");
+                    }
+                }
                 _ => {
                     self.error("expected `import`, `program`, or module item at top level");
                     self.recover(&[KW_IMPORT, KW_PROGRAM, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, KW_INTERFACE, AT]);
@@ -153,6 +161,11 @@ impl Parser<'_, '_> {
     ///
     /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
+        if self.at_contextual_view_fn() {
+            // `view fn` may appear in modules so we get a clean parse tree;
+            // the rowan→AST converter rejects views outside a `program` block.
+            return self.parse_function_or_constructor();
+        }
         match self.current() {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
@@ -160,6 +173,15 @@ impl Parser<'_, '_> {
             AT | KW_FN | KW_FINAL => self.parse_function_or_constructor(),
             _ => None,
         }
+    }
+
+    /// Returns true if the current non-trivia token is the contextual identifier
+    /// `view` followed by `fn`. `view` is intentionally not a hard keyword:
+    /// snarkVM only restricts `view` as a *bytecode* program-component name at
+    /// V15+, while pre-V15 Leo source is allowed to use `view` as a regular
+    /// identifier (e.g., `let view = 5;`).
+    fn at_contextual_view_fn(&self) -> bool {
+        self.at(IDENT) && self.current_non_trivia_text() == "view" && self.nth(1) == KW_FN
     }
 
     /// Parse an import declaration: `import program.aleo;`
@@ -243,6 +265,8 @@ impl Parser<'_, '_> {
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
             KW_FN | KW_FINAL | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            // Contextual `view fn ...` (V15 read-only entry point).
+            IDENT if self.at_contextual_view_fn() => self.parse_function_or_constructor(),
             KW_SCRIPT => {
                 self.error("'script' functions are no longer supported; use @test on entry point functions instead");
                 self.bump_any();
@@ -498,7 +522,7 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a function definition.
-    /// Parse fn, final fn, script, or constructor variants.
+    /// Parse fn, final fn, view fn, or constructor variants.
     /// Annotations are parsed as children of the function node.
     fn parse_function_or_constructor(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
@@ -508,14 +532,34 @@ impl Parser<'_, '_> {
             self.parse_annotation();
         }
 
-        // Optional final keyword
+        // Optional `final` keyword (mutually exclusive with `view`).
         let ate_final = self.eat(KW_FINAL);
 
-        // Dispatch based on what follows
+        // Optional contextual `view` identifier (V15 read-only entry point).
+        // Errors if combined with `final`; otherwise consumes the IDENT and
+        // proceeds to parse a regular `fn` body.
+        let ate_view = if !ate_final && self.at_contextual_view_fn() {
+            self.bump_any(); // consume `view` IDENT
+            true
+        } else if ate_final && self.at_contextual_view_fn() {
+            // `final view fn` is not allowed.
+            self.error("`final` and `view` cannot be combined");
+            // Consume the `view` IDENT for recovery so we still parse the body.
+            self.bump_any();
+            false
+        } else {
+            false
+        };
+
+        // Dispatch based on what follows.
         match self.current() {
             KW_FN => {
                 self.parse_function_body();
-                let kind = if ate_final { FINAL_FN_DEF } else { FUNCTION_DEF };
+                let kind = match (ate_final, ate_view) {
+                    (true, _) => FINAL_FN_DEF,
+                    (false, true) => VIEW_FN_DEF,
+                    (false, false) => FUNCTION_DEF,
+                };
                 Some(m.complete(self, kind))
             }
             KW_CONSTRUCTOR => {
@@ -714,8 +758,13 @@ impl Parser<'_, '_> {
         Some(m.complete(self, INTERFACE_DEF))
     }
 
-    /// Parse an interface item: function prototype or record prototype
+    /// Parse an interface item: function prototype, view fn prototype, or record/mapping/storage prototype
     fn parse_interface_item(&mut self) -> bool {
+        // Contextual `view fn` prototype (V15 read-only entry point).
+        if self.at_contextual_view_fn() {
+            self.parse_fn_prototype();
+            return true;
+        }
         match self.current() {
             KW_FN => {
                 self.parse_fn_prototype();
@@ -737,9 +786,16 @@ impl Parser<'_, '_> {
         }
     }
 
-    /// Parse function prototype: `fn name(...) [-> Type];`
+    /// Parse function prototype: `[view] fn name(...) [-> Type];`
+    ///
+    /// The leading `view` contextual keyword is optional. When present, the prototype
+    /// is recorded as a view fn (see `to_function_prototype`).
     fn parse_fn_prototype(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
+        // Optional contextual `view` identifier (V15 read-only entry point).
+        if self.at_contextual_view_fn() {
+            self.bump_any(); // consume `view` IDENT
+        }
         self.bump_any(); // fn
 
         // Name
@@ -1106,6 +1162,89 @@ mod tests {
                   R_BRACE@62..63 "}"
         "#]]);
     }
+    // =========================================================================
+    // Query Functions
+    // =========================================================================
+
+    #[test]
+    fn parse_view_function() {
+        check_file_no_errors(
+            "program test.aleo { mapping balances: address => u64; view fn balance_of(addr: address) -> u64 { return 0u64; } }",
+        );
+    }
+
+    #[test]
+    fn parse_view_uses_view_node_kind() {
+        check_file("program test.aleo { view fn q() -> u64 { return 0u64; } }", expect![[r#"
+                ROOT@0..57
+                  PROGRAM_DECL@0..57
+                    KW_PROGRAM@0..7 "program"
+                    WHITESPACE@7..8 " "
+                    IDENT@8..12 "test"
+                    DOT@12..13 "."
+                    KW_ALEO@13..17 "aleo"
+                    WHITESPACE@17..18 " "
+                    L_BRACE@18..19 "{"
+                    VIEW_FN_DEF@19..55
+                      WHITESPACE@19..20 " "
+                      IDENT@20..24 "view"
+                      WHITESPACE@24..25 " "
+                      KW_FN@25..27 "fn"
+                      WHITESPACE@27..28 " "
+                      IDENT@28..29 "q"
+                      PARAM_LIST@29..31
+                        L_PAREN@29..30 "("
+                        R_PAREN@30..31 ")"
+                      WHITESPACE@31..32 " "
+                      ARROW@32..34 "->"
+                      WHITESPACE@34..35 " "
+                      TYPE_PRIMITIVE@35..38
+                        KW_U64@35..38 "u64"
+                      BLOCK@38..55
+                        WHITESPACE@38..39 " "
+                        L_BRACE@39..40 "{"
+                        WHITESPACE@40..41 " "
+                        RETURN_STMT@41..53
+                          KW_RETURN@41..47 "return"
+                          WHITESPACE@47..48 " "
+                          LITERAL_INT@48..52
+                            INTEGER@48..52 "0u64"
+                          SEMICOLON@52..53 ";"
+                        WHITESPACE@53..54 " "
+                        R_BRACE@54..55 "}"
+                    WHITESPACE@55..56 " "
+                    R_BRACE@56..57 "}"
+            "#]]);
+    }
+
+    #[test]
+    fn parse_view_with_input() {
+        check_file_no_errors("program test.aleo { view fn q(addr: address, k: u32) -> u64 { return 1u64; } }");
+    }
+
+    #[test]
+    fn parse_final_view_rejected() {
+        let input = "program test.aleo { final view fn q() {} }";
+        let (tokens, _) = lex(input);
+        let mut parser = Parser::new(input, &tokens);
+        let root = parser.start();
+        parser.parse_file_items();
+        root.complete(&mut parser, ROOT);
+        let parse: Parse = parser.finish(vec![]);
+        let errors = parse.errors();
+        assert!(
+            errors.iter().any(|e| e.message.contains("`final` and `view` cannot be combined")),
+            "expected `final view` rejection, got: {errors:?}"
+        );
+    }
+
+    #[test]
+    fn parse_view_as_identifier_still_works() {
+        // `view` is a contextual keyword, not a hard keyword. Using it as a
+        // local variable or parameter name in pre-V15 source must keep parsing.
+        check_file_no_errors("program test.aleo { fn f(view: u32) -> u32 { return view; } }");
+    }
+
     // =========================================================================
     // Const Generic Parameters (Declarations)
     // =========================================================================

@@ -124,10 +124,10 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let callee_loc = input_call.function.expect_global_location();
 
-        // Cross-program entry-point calls stay as direct Aleo `call`s and don't need
+        // Cross-program entry-point and view calls stay as direct Aleo `call`s and don't need
         // monomorphization. Everything else falls through: generic callees are monomorphized
         // below, non-generic ones bail at the `const_arguments.is_empty()` check.
-        if self.state.symbol_table.is_cross_program_entry(self.program, callee_loc) {
+        if self.state.symbol_table.is_cross_program_call_target(self.program, callee_loc) {
             return (input_call.into(), Default::default());
         }
 

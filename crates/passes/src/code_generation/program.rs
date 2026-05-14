@@ -227,7 +227,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // though it may already have been inlined.
         let function_name = match function.variant {
             Variant::FinalFn => return None,
-            Variant::EntryPoint => function.identifier.to_string(),
+            // EntryPoints and Views are externally-callable top-level components, so their
+            // bytecode names are the source identifier verbatim.
+            Variant::EntryPoint | Variant::View => function.identifier.to_string(),
             // Closures may carry monomorphized names like `foo::[5u32]` that aren't legal Aleo
             // identifiers, so legalize them.
             Variant::Fn => Self::legalize_path(&[function.identifier.name])
@@ -265,7 +267,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
                     // Note that this unwrap is safe because we set the variant at the beginning of the function.
                     let visibility = match (self.variant.unwrap(), input.mode) {
                         (Variant::EntryPoint, Mode::None) => Some(AleoVisibility::Private),
-                        (Variant::Finalize, Mode::None) => Some(AleoVisibility::Public),
+                        // Finalize and View inputs lower to `.public` at the bytecode level.
+                        (Variant::Finalize | Variant::View, Mode::None) => Some(AleoVisibility::Public),
                         (_, mode) => AleoVisibility::maybe_from(mode),
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
@@ -304,7 +307,9 @@ impl<'a> CodeGeneratingVisitor<'a> {
             && statements.iter().all(|stm| matches!(stm, AleoStmt::Output(..)))
         {
             // There are no real instructions, which is invalid in Aleo, so
-            // add a dummy instruction.
+            // add a dummy instruction. snarkVM PR #3253 relaxes the view parser to
+            // `many0`, so empty view bodies are accepted natively and don't need a
+            // dummy command here.
             statements.insert(0, AleoStmt::AssertEq(AleoExpr::Bool(true), AleoExpr::Bool(true)));
         }
 
@@ -337,6 +342,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             Variant::Finalize => {
                 Some(AleoFunctional::Finalize(AleoFinalize { caller_name: function_name, inputs, statements }))
             }
+            Variant::View => Some(AleoFunctional::View(AleoView { name: function_name, inputs, statements })),
         }
     }
 

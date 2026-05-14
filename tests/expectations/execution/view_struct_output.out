@@ -1,0 +1,40 @@
+program test.aleo;
+
+struct AccountSummary:
+    addr as address;
+    balance as u64;
+    nonce as u64;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+mapping nonces:
+    key as address.public;
+    value as u64.public;
+
+function dummy:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+view account_summary:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    get.or_use nonces[r0] 0u64 into r2;
+    cast r0 r1 r2 into r3 as AccountSummary;
+    output r3 as AccountSummary.public;
+
+view is_active:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    gt r1 0u64 into r2;
+    output r2 as boolean.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: {addr: aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9, balance: 1000u64, nonce: 7u64}
+status: success
+output: true
+status: success
+output: false

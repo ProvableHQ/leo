@@ -714,6 +714,7 @@ pub trait UnitReconstructor: AstReconstructor {
     fn reconstruct_function_prototype(&mut self, input: FunctionPrototype) -> FunctionPrototype {
         FunctionPrototype {
             annotations: input.annotations,
+            variant: input.variant,
             identifier: input.identifier,
             const_parameters: input
                 .const_parameters

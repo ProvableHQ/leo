@@ -7,7 +7,7 @@ interface Logger   {
 }
 
 program test.aleo   {
-    fn query(  target  :  field  ,  key  :  address  ,  i  :  u32  )  ->  Final   {
+    fn lookup(  target  :  field  ,  key  :  address  ,  i  :  u32  )  ->  Final   {
         let  x  :  u32  =  Logger@(  target  )  ::  recompute(  1u32  )  ;
         let  y  :  u32  =  Logger@(  target  ,  'aleo'  )  ::  recompute(  1u32  )  ;
         let  z  :  u32  =  Logger@(  target  )  ::  ping(  )  ;

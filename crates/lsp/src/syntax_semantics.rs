@@ -543,6 +543,7 @@ fn syntax_node_starts_scope(kind: SyntaxKind) -> bool {
         SyntaxKind::PROGRAM_DECL
             | SyntaxKind::FUNCTION_DEF
             | SyntaxKind::FINAL_FN_DEF
+            | SyntaxKind::VIEW_FN_DEF
             | SyntaxKind::CONSTRUCTOR_DEF
             | SyntaxKind::BLOCK
             | SyntaxKind::FOR_STMT
@@ -564,6 +565,8 @@ fn classify_syntax_token(token: &SyntaxToken) -> Option<(SemanticKind, Occurrenc
             node.kind(),
             SyntaxKind::PROGRAM_DECL
                 | SyntaxKind::FUNCTION_DEF
+                | SyntaxKind::FINAL_FN_DEF
+                | SyntaxKind::VIEW_FN_DEF
                 | SyntaxKind::CONSTRUCTOR_DEF
                 | SyntaxKind::STRUCT_DEF
                 | SyntaxKind::RECORD_DEF
@@ -598,7 +601,7 @@ fn classify_syntax_token(token: &SyntaxToken) -> Option<(SemanticKind, Occurrenc
         SyntaxKind::PROGRAM_DECL if next_non_trivia_token(token).is_some_and(|next| next.kind() == SyntaxKind::DOT) => {
             Some((SemanticKind::Namespace, OccurrenceRole::Declaration, false))
         }
-        SyntaxKind::FUNCTION_DEF | SyntaxKind::CONSTRUCTOR_DEF
+        SyntaxKind::FUNCTION_DEF | SyntaxKind::FINAL_FN_DEF | SyntaxKind::VIEW_FN_DEF | SyntaxKind::CONSTRUCTOR_DEF
             if token_after_keyword(token, &[SyntaxKind::KW_FN, SyntaxKind::KW_CONSTRUCTOR]) =>
         {
             Some((SemanticKind::Function, OccurrenceRole::Declaration, false))

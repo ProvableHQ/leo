@@ -183,8 +183,11 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
-        // Check that each program has at least one transition function.
-        // This is a snarkvm requirement.
+        // Check that each program has at least one transition function. snarkVM rejects
+        // deployments with zero functions ("No functions present in the deployment"), so we
+        // mirror that requirement here for a clean Leo-level diagnostic. Views don't count
+        // toward this minimum: a program that wants to expose only read APIs must still
+        // declare at least one transition (which can be a no-op if necessary).
         else if transition_count == 0 {
             self.emit_err(crate::errors::type_checker::no_entry_points(
                 input.program_id.name.span + input.program_id.network.span,

@@ -76,6 +76,11 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
     /// Flattens a function's body
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Set when the function is an on-chain function (Finalize or FinalFn).
+        // Views get flattened: while snarkVM supports `branch` instructions inside
+        // `view` blocks, the bytecode-level format requires `output` to come after all
+        // commands, so a Leo `if/else { return ... }` lowered as branches would emit
+        // outputs inside branches and fail to parse. Flattening to ternaries keeps the
+        // single-output structure intact.
         self.is_onchain = function.variant.is_onchain();
 
         // Flatten the function body.

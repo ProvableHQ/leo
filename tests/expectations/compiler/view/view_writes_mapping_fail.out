@@ -1,0 +1,5 @@
+[ETYC0372034] Error: `Mapping::set` must be inside a `final fn` or a `final` block.
+   ╭─[ compiler-test:8:9 ]
+   │
+ 8 │         balances.set(addr, val);
+───╯

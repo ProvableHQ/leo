@@ -1,0 +1,11 @@
+[ECHI03712002] Error: Program `scratch.aleo` implements interface `scratch.aleo/IToken` but is missing the required function `balance_of`.
+    ╭─[ compiler-test:9:1 ]
+    │
+  9 │ ╭─▶ program scratch.aleo: IToken {
+    ┆ ┆   
+ 16 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Add the missing function with the exact signature specified in the interface.
+────╯

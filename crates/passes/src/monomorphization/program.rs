@@ -81,7 +81,13 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
                 self.function_map
                     .get(location)
                     .map(|f| {
-                        matches!(f.variant, Variant::EntryPoint)
+                        // View functions are externally-callable read-only entry points; we
+                        // treat them as DFS roots for monomorphization alongside `EntryPoint`s.
+                        // (Views can also be called from `final {}` / `final fn` bodies, but
+                        // those edges are walked from the entry-point roots independently.)
+                        // Generic views are rejected by type checking, so const_parameters is
+                        // always empty here and an explicit check would be redundant.
+                        matches!(f.variant, Variant::EntryPoint | Variant::View)
                             || (f.variant == Variant::Fn && f.const_parameters.is_empty())
                     })
                     .unwrap_or(false)

@@ -572,8 +572,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
-        // Check that operation is not restricted to finalize blocks.
-        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
+        // Check that operation is not restricted to finalize blocks. Views are
+        // also a valid context for finalize-style **read** intrinsics; the more
+        // granular accept/reject decision happens in `check_intrinsic` (which
+        // calls `check_access_allowed_in_view` for the read-only allowlist and
+        // the standard `check_access_allowed` for everything else).
+        if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn | Variant::View))
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
         {
@@ -1124,30 +1128,69 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
-            Variant::Finalize if !matches!(func.variant, Variant::FinalFn | Variant::Fn) => self.emit_err(
-                // FIXME: better error
-                crate::errors::type_checker::can_only_call_inline_function(
-                    "a regular function or constructor",
+            // `Variant::Finalize` covers two things: the user-facing `constructor { ... }` body
+            // (snarkVM still forbids `call` here, scope unchanged) and the hoisted-from-`final {}`
+            // synthetic function (snarkVM PR #3253 lets these call `Variant::View` targets).
+            Variant::Finalize
+                if {
+                    let callee_is_inlined = matches!(func.variant, Variant::FinalFn | Variant::Fn);
+                    let callee_is_allowed_view =
+                        matches!(func.variant, Variant::View) && !self.scope_state.is_constructor;
+                    !callee_is_inlined && !callee_is_allowed_view
+                } =>
+            {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
+                    // FIXME: better error
+                    if self.scope_state.is_constructor { "a constructor" } else { "a final block" },
                     input.span,
-                ),
-            ),
+                ))
+            }
             Variant::Fn if !matches!(func.variant, Variant::Fn) => {
                 self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                     "a regular function or constructor",
                     input.span,
                 ))
             }
-            Variant::EntryPoint
-                if matches!(func.variant, Variant::EntryPoint)
-                    && callee_program == self.scope_state.unit_name.unwrap() =>
-            {
-                self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span))
+            // `final fn` helpers are inlined by the function-inlining pass into whichever
+            // `final {}` block calls them, so their callees must be things that are legal
+            // inside a finalize body: another inlineable callee (`Fn` / `FinalFn`) or a
+            // `View` target. `EntryPoint` / `Finalize` callees would leave a stray `call`
+            // in finalize that snarkVM rejects at deploy.
+            Variant::FinalFn if !matches!(func.variant, Variant::Fn | Variant::FinalFn | Variant::View) => {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final fn", input.span))
+            }
+            // View functions are leaves: snarkVM rejects any `call` instruction inside a
+            // `view` block, so the only callees Leo will ever emit from a view body are
+            // those that get fully inlined. Regular `Variant::Fn` callees are inlined by
+            // the function-inlining pass; everything else (other views, entry points,
+            // finalizes, final fns) is rejected here for a clean Leo-level diagnostic.
+            Variant::View if !matches!(func.variant, Variant::Fn) => {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a view function", input.span))
+            }
+            Variant::EntryPoint => {
+                if matches!(func.variant, Variant::EntryPoint) && callee_program == self.scope_state.unit_name.unwrap()
+                {
+                    self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
+                } else if matches!(func.variant, Variant::View) && self.async_block_id.is_none() {
+                    // Calling a view from a transition body (outside `final {}`) compiles to a
+                    // top-level `call` in the Aleo `function:` section. snarkVM only accepts
+                    // view calls inside a `finalize:` body, so reject here with a clear
+                    // Leo-level message instead of deferring to the cryptic snarkVM error.
+                    self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
+                        "a transition body outside a `final {}` block",
+                        input.span,
+                    ));
+                }
             }
             _ => {}
         }
 
-        // Make sure we're not calling an entry point or finalize from a final block
-        if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn) {
+        // Calls inside a `final {}` block are restricted. `FinalFn` and `Fn` callees are inlined
+        // by the function-inlining pass, so no `call` is emitted. `View` callees survive as
+        // real `call` instructions; snarkVM (PR #3253) accepts them inside a finalize body
+        // because it checks at type-init that the call target resolves to a view.
+        // Anything else (entry points, finalizes) is rejected here.
+        if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn | Variant::View) {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return Type::Err;
@@ -1537,7 +1580,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         if let Some(var) = var {
                             let ty = var.type_.expect("must be known by now");
                             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                                self.check_access_allowed("storage access", true, input.span());
+                                self.check_access_allowed_in_view("storage access", true, input.span());
                             }
 
                             self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
@@ -1622,7 +1665,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 return Type::Err;
             };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                self.check_access_allowed("storage access", true, input.span());
+                self.check_access_allowed_in_view("storage access", true, input.span());
             }
 
             self.maybe_assert_type(&ty, expected, input.span());

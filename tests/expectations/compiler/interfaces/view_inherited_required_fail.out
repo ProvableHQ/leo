@@ -1,0 +1,11 @@
+[ECHI03712002] Error: Program `scratch.aleo` implements interface `scratch.aleo/IExtended` but is missing the required function `total_supply`.
+    ╭─[ compiler-test:12:1 ]
+    │
+ 12 │ ╭─▶ program scratch.aleo: IExtended {
+    ┆ ┆   
+ 21 │ ├─▶ }
+    │ │       
+    │ ╰─────── 
+    │     
+    │     Help: Add the missing function with the exact signature specified in the interface.
+────╯

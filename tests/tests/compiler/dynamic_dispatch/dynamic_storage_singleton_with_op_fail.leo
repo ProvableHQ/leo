@@ -5,7 +5,7 @@ interface Counter {
 }
 
 program test.aleo {
-    fn query(target: field) -> Final {
+    fn lookup(target: field) -> Final {
         return final { finalize_query(target); };
     }
 }
