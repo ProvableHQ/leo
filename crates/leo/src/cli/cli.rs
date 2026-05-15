@@ -928,6 +928,101 @@ mod tests {
 
     #[test]
     #[serial]
+    fn workspace_deploy_all_libraries_error_test() {
+        // Deploying a workspace where every member is a library should error.
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_all_libraries(&temp_dir, "deploy_all_libs");
+
+        let deploy = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Deploy {
+                command: crate::cli::commands::LeoDeploy {
+                    fee_options: Default::default(),
+                    action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                        endpoint: Some("http://localhost:1".to_string()),
+                        consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
+                        ..Default::default()
+                    },
+                    extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
+                    skip: vec![],
+                    build_options: Default::default(),
+                    skip_deploy_certificate: true,
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            let result = run_with_args(deploy);
+            assert!(result.is_err(), "deploy of all-library workspace should fail");
+            let err = result.unwrap_err().to_string();
+            assert!(
+                err.contains("No deployable workspace members found"),
+                "expected 'No deployable workspace members found', got: {err}"
+            );
+        });
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_deploy_mixed_library_program_test() {
+        // Workspace with one library and one program member. Only the program
+        // member should be deployed (library is skipped).
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_mixed(&temp_dir, "deploy_mixed");
+
+        let deploy = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Deploy {
+                command: crate::cli::commands::LeoDeploy {
+                    fee_options: Default::default(),
+                    action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: Some(NetworkName::TestnetV0),
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                        endpoint: Some("http://localhost:1".to_string()),
+                        consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
+                        ..Default::default()
+                    },
+                    extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
+                    skip: vec![],
+                    build_options: Default::default(),
+                    skip_deploy_certificate: true,
+                },
+            },
+            path: Some(ws_root.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            // Deploy will fail at network, but build phase should succeed.
+            let _ = run_with_args(deploy);
+        });
+
+        // The app program should be built.
+        assert!(ws_root.join("app/build/main.aleo").exists(), "app should be built");
+        // utils is a library - no main.aleo output.
+        assert!(!ws_root.join("utils/build/main.aleo").exists(), "utils library should not produce main.aleo");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
     fn workspace_backward_compat_test() {
         let temp_dir = temp_dir();
         let pkg_name = "standalone_pkg";
@@ -1260,6 +1355,151 @@ program swap.aleo {
             ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
             serde_json::to_string_pretty(&serde_json::json!({
                 "members": ["token", "swap"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
+
+    /// Workspace where every member is a library (no `.aleo` programs).
+    pub(crate) fn sample_workspace_all_libraries(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let lib_a = ws_root.join("lib_a");
+        let lib_b = ws_root.join("lib_b");
+
+        // Create lib_a.
+        std::fs::create_dir_all(lib_a.join("src")).unwrap();
+        std::fs::write(lib_a.join("src/lib.leo"), "").unwrap();
+        std::fs::write(
+            lib_a.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "lib_a",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create lib_b.
+        std::fs::create_dir_all(lib_b.join("src")).unwrap();
+        std::fs::write(lib_b.join("src/lib.leo"), "").unwrap();
+        std::fs::write(
+            lib_b.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "lib_b",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json.
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["lib_a", "lib_b"]
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        ws_root
+    }
+
+    /// Workspace with one library member (`utils`) and one program member
+    /// (`app`) that imports it.
+    pub(crate) fn sample_workspace_mixed(temp_dir: &Path, name: &str) -> PathBuf {
+        let ws_root = temp_dir.join(format!("ws_{name}"));
+
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        let utils_dir = ws_root.join("utils");
+        let app_dir = ws_root.join("app");
+
+        // Create utils library.
+        std::fs::create_dir_all(utils_dir.join("src")).unwrap();
+        std::fs::write(
+            utils_dir.join("src/lib.leo"),
+            "\
+const FACTOR: u32 = 2u32;
+",
+        )
+        .unwrap();
+        std::fs::write(
+            utils_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "utils",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Create app program (depends on utils via workspace).
+        std::fs::create_dir_all(app_dir.join("src")).unwrap();
+        std::fs::write(
+            app_dir.join("src/main.leo"),
+            "\
+program app.aleo {
+    fn run(x: u32) -> u32 {
+        return x * utils::FACTOR;
+    }
+
+    @noupgrade
+    constructor() {}
+}
+",
+        )
+        .unwrap();
+        std::fs::write(
+            app_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": "app.aleo",
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": [{
+                    "name": "utils",
+                    "location": "workspace"
+                }],
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+
+        // Write workspace.json (utils first so it builds before app).
+        std::fs::write(
+            ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "members": ["utils", "app"]
             }))
             .unwrap(),
         )
