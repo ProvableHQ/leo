@@ -54,7 +54,11 @@ use snarkvm::{
 
 use colored::*;
 use itertools::Itertools;
-use std::{collections::HashSet, fs, path::PathBuf};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    path::PathBuf,
+};
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
@@ -676,13 +680,28 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
     // Prepare tasks for all members, deduplicating remote deps.
     let mut member_tasks: Vec<MemberTasks<N>> = Vec::new();
     let mut all_remote: Vec<Task<N>> = Vec::new();
-    let mut seen_remote_ids: HashSet<ProgramID<N>> = HashSet::new();
+    let mut seen_remote: HashMap<ProgramID<N>, Option<u16>> = HashMap::new();
 
     for (name, package) in &packages {
         let (local, remote, skipped) = prepare_package_tasks::<N>(command, &setup, package)?;
         for task in remote {
-            if seen_remote_ids.insert(task.id) {
-                all_remote.push(task);
+            match seen_remote.entry(task.id) {
+                std::collections::hash_map::Entry::Vacant(e) => {
+                    e.insert(task.edition);
+                    all_remote.push(task);
+                }
+                std::collections::hash_map::Entry::Occupied(e) => {
+                    if *e.get() != task.edition {
+                        return Err(crate::errors::custom(format!(
+                            "Workspace members disagree on edition for remote dependency '{}': \
+                             {:?} vs {:?}. Ensure all members specify the same edition.",
+                            task.id,
+                            e.get(),
+                            task.edition,
+                        ))
+                        .into());
+                    }
+                }
             }
         }
         member_tasks.push((name.clone(), local, skipped));
@@ -713,6 +732,8 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
     load_remote_deps(command, &setup, all_remote)?;
 
     // Deploy each member's programs in dependency order with shared VM.
+    // Edition mismatch is not a concern here: `already_deployed` only tracks
+    // local programs, which all have `edition: None`.
     let mut already_deployed: HashSet<ProgramID<N>> = HashSet::new();
     let mut all_transactions = Vec::new();
     let mut all_stats = Vec::new();
