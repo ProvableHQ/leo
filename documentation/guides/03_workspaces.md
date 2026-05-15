@@ -114,6 +114,21 @@ cd token/
 leo clean
 ```
 
+### Deploying
+
+From the workspace root, `leo deploy` deploys all members in dependency order using a shared VM for accurate fee estimation. Programs shared across members are deployed only once:
+
+```bash
+leo deploy --broadcast
+```
+
+From inside a member directory, it deploys only that member:
+
+```bash
+cd swap/
+leo deploy --broadcast
+```
+
 ## Targeting a Specific Member
 
 Use the `--package` (or `-p`) flag to target a specific member from anywhere within the workspace:
@@ -121,6 +136,7 @@ Use the `--package` (or `-p`) flag to target a specific member from anywhere wit
 ```bash
 leo build -p swap
 leo test --package token
+leo deploy --broadcast -p swap
 leo clean -p swap
 ```
 
