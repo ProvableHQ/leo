@@ -228,6 +228,7 @@ jobs:
           paths:
             - C:\Users\circleci\.cargo
             - C:\Users\circleci\.aleo\resources
+            - C:\Users\circleci\.cache\mtimes
             - target
 
   test-macos:
