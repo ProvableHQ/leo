@@ -213,10 +213,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-{{ .Branch }}-
-            - cargo-v2-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-master-
+            - cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-windows-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-windows-{{ arch }}-master-
       - install-rust-windows
       - run:
           name: Update Submodules
@@ -224,7 +224,7 @@ jobs:
       - build-and-test:
           is_windows: true
       - save_cache:
-          key: cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - C:\Users\circleci\.cargo
             - C:\Users\circleci\.aleo\resources
@@ -236,10 +236,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-{{ .Branch }}-
-            - cargo-v2-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-master-
+            - cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-macos-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-macos-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -248,7 +248,7 @@ jobs:
           command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources
@@ -261,10 +261,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-{{ .Branch }}-
-            - cargo-v2-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-master-
+            - cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-linux-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -273,7 +273,7 @@ jobs:
             command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources
@@ -308,10 +308,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-{{ .Branch }}-
-            - cargo-v2-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-master-
+            - cargo-v2-check-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-check-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-check-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-check-{{ arch }}-master-
       - install_rust_nightly
       - install-libclang
       - restore_cache:
@@ -366,7 +366,7 @@ jobs:
             RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
             RUSTC_BOOTSTRAP: "1"
       - save_cache:
-          key: cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v2-check-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.cache/mtimes
@@ -401,10 +401,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-{{ .Branch }}-
-            - cargo-v2-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v2-{{ arch }}-master-
+            - cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-leo-exec-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-leo-exec-{{ arch }}-master-
       - install-libclang
       - run:
           name: Update Submodules
@@ -421,7 +421,7 @@ jobs:
             - project/examples
             - project/documentation
       - save_cache:
-          key: cargo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.cache/mtimes
