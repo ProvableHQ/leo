@@ -1,32 +1,32 @@
-[ETYC0372108] Error: Cannot use operation `push` on external vectors.
+[ETYC0372108] Error: cannot use operation `push` on external vectors
     ╭─[ compiler-test:10:13 ]
     │
  10 │             provider.aleo::nums.push(3u32); // ❌ illegal external mutation
     │ 
     │ Help: The only valid operations on external vectors are `get` and `len`.
 ────╯
-[ETYC0372108] Error: Cannot use operation `pop` on external vectors.
+[ETYC0372108] Error: cannot use operation `pop` on external vectors
     ╭─[ compiler-test:11:13 ]
     │
  11 │             provider.aleo::nums.pop(); // ❌ illegal external mutation
     │ 
     │ Help: The only valid operations on external vectors are `get` and `len`.
 ────╯
-[ETYC0372108] Error: Cannot use operation `set` on external vectors.
+[ETYC0372108] Error: cannot use operation `set` on external vectors
     ╭─[ compiler-test:12:13 ]
     │
  12 │             provider.aleo::nums.set(0u32, 99u32); // ❌ illegal external mutation
     │ 
     │ Help: The only valid operations on external vectors are `get` and `len`.
 ────╯
-[ETYC0372108] Error: Cannot use operation `clear` on external vectors.
+[ETYC0372108] Error: cannot use operation `clear` on external vectors
     ╭─[ compiler-test:13:13 ]
     │
  13 │             provider.aleo::nums.clear(); // ❌ illegal external mutation
     │ 
     │ Help: The only valid operations on external vectors are `get` and `len`.
 ────╯
-[ETYC0372108] Error: Cannot use operation `swap_remove` on external vectors.
+[ETYC0372108] Error: cannot use operation `swap_remove` on external vectors
     ╭─[ compiler-test:14:13 ]
     │
  14 │             provider.aleo::nums.swap_remove(1u32); // ❌ illegal external mutation
@@ -38,28 +38,38 @@
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `provider.aleo::nums`
+[ETYC0372005] Error: unknown variable `provider.aleo::nums`
     ╭─[ compiler-test:10:13 ]
     │
  10 │             provider.aleo::nums.push(3u32); // ❌ illegal external mutation
+    │ 
+    │ Help: Check `provider.aleo::nums` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `provider.aleo::nums`
+[ETYC0372005] Error: unknown variable `provider.aleo::nums`
     ╭─[ compiler-test:11:13 ]
     │
  11 │             provider.aleo::nums.pop(); // ❌ illegal external mutation
+    │ 
+    │ Help: Check `provider.aleo::nums` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `provider.aleo::nums`
+[ETYC0372005] Error: unknown variable `provider.aleo::nums`
     ╭─[ compiler-test:12:13 ]
     │
  12 │             provider.aleo::nums.set(0u32, 99u32); // ❌ illegal external mutation
+    │ 
+    │ Help: Check `provider.aleo::nums` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `provider.aleo::nums`
+[ETYC0372005] Error: unknown variable `provider.aleo::nums`
     ╭─[ compiler-test:13:13 ]
     │
  13 │             provider.aleo::nums.clear(); // ❌ illegal external mutation
+    │ 
+    │ Help: Check `provider.aleo::nums` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `provider.aleo::nums`
+[ETYC0372005] Error: unknown variable `provider.aleo::nums`
     ╭─[ compiler-test:14:13 ]
     │
  14 │             provider.aleo::nums.swap_remove(1u32); // ❌ illegal external mutation
+    │ 
+    │ Help: Check `provider.aleo::nums` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

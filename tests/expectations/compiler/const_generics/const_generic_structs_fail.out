@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown struct or record `test.aleo::Foo`
+[ETYC0372005] Error: unknown struct or record `test.aleo::Foo`
    ╭─[ compiler-test:7:17 ]
    │
  7 │         let f = Foo::[x] { y: 0 };
+   │ 
+   │ Help: Check `test.aleo::Foo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

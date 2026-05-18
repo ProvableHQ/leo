@@ -1,7 +1,7 @@
-[ETYC0372004] Error: Could not determine the type of `1`
+[ETYC0372004] Error: could not determine the type of `1`
    ╭─[ compiler-test:6:55 ]
    │
  6 │         return _dynamic_call::[u64]('a', 'aleo', 'b', 1);
    │ 
-   │ Help: Consider using explicit type annotations.
+   │ Help: Add an explicit type annotation, e.g. `let x: u32 = …;`, so the type can be inferred.
 ───╯

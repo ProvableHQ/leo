@@ -1,4 +1,4 @@
-[ECHI03712003] Error: Program `test.aleo` implements interface `test.aleo/IToken` but is missing the required record `Token`.
+[ECHI03712003] Error: program `test.aleo` implements interface `test.aleo/IToken` but is missing the required record `Token`
     ╭─[ test:14:1 ]
     │
  14 │ ╭─▶ program test.aleo: IToken {
@@ -7,9 +7,9 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Add a record definition with the specified name.
+    │     Help: Add a `record Token` definition matching the shape declared by `test.aleo/IToken`.
 ────╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
     ╭─[ test:6:19 ]
     │
   6 │ ╭─▶ interface IToken {
@@ -17,4 +17,6 @@
  10 │ ├─▶     }
     │ │           
     │ ╰─────────── 
+    │     
+    │     Help: Simplify the declaration to `record Token;`.
 ────╯

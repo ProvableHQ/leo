@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `x` is defined multiple times.
+[EAST0372017] Error: the name `x` is defined multiple times
    ╭─[ compiler-test:3:13 ]
    │
  3 │         let x: u32 = 10u32;
@@ -11,4 +11,6 @@
  3 │         let x: u32 = 10u32;
    │             ┬  
    │             ╰── `x` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `x` definitions so the name is unique within its scope.
 ───╯

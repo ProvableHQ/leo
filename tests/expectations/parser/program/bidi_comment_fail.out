@@ -1,5 +1,9 @@
-[EPAR0370051] Error: Unicode bidi override code point encountered.
+[EPAR0370051] Error: unicode bidirectional override code point encountered
    ╭─[ test:3:5 ]
    │
  3 │     ‮<-here
+   │ 
+   │ Help: Remove the bidi override character from the source.
+   │ 
+   │ Note: Bidi override characters can disguise source code and are rejected to prevent "trojan source" attacks.
 ───╯

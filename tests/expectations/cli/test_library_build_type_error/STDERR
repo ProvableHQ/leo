@@ -1,22 +1,26 @@
 --- leo build (should fail: type error in library) ---
-[ETYC0372117] Error: Expected type `u32` but type `bool` was found.
+[ETYC0372117] Error: expected type `u32`, but type `bool` was found
    ╭─[ SOURCE_DIRECTORY/lib.leo:3:16 ]
    │
  3 │     return x + true;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
 
-[ETYC0372117] Error: Expected a field, group, scalar, or integer but type `bool` was found.
+[ETYC0372117] Error: expected a field, group, scalar, or integer, but type `bool` was found
    ╭─[ SOURCE_DIRECTORY/lib.leo:3:16 ]
    │
  3 │     return x + true;
+   │ 
+   │ Help: Change the expression to produce a field, group, scalar, or integer.
 ───╯
 
-[ETYC0372119] Error: Received different types `u32` and `bool` for the operation `+`.
+[ETYC0372119] Error: operands of `+` have different types: `u32` and `bool`
    ╭─[ SOURCE_DIRECTORY/lib.leo:3:12 ]
    │
  3 │     return x + true;
    │ 
-   │ Help: Make both operands the same type.
+   │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
 
 

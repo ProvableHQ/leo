@@ -1,89 +1,117 @@
 let x = expr
 
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_1:1:9 ]
    │
  1 │ let x = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ test_5:1:9 ]
    │
  1 │ const x = expr;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ test_6:1:9 ]
    │
  1 │ const x = ();
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_6:1:11 ]
    │
  1 │ const x = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ test_7:1:9 ]
    │
  1 │ const x = x+y;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ test_8:1:9 ]
    │
  1 │ const x = (x,y);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ test_9:1:9 ]
    │
  1 │ const x = x();
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_11:1:14 ]
    │
  1 │ let x: u32 = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_16:1:16 ]
    │
  1 │ const x: u32 = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_20:1:10 ]
    │
  1 │ let (x,y,,) = ();
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_20:1:15 ]
    │
  1 │ let (x,y,,) = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_21:1:6 ]
    │
  1 │ let (,x,y) = ();
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_21:1:14 ]
    │
  1 │ let (,x,y) = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_22:1:8 ]
    │
  1 │ let (x,,y) = ();
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_22:1:14 ]
    │
  1 │ let (x,,y) = ();
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ','
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `,`
    ╭─[ test_23:1:16 ]
    │
  1 │ let x: [u8; (2,,)] = [[0,0], [0,0]];
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_23:1:13 ]
    │
  1 │ let x: [u8; (2,,)] = [[0,0], [0,0]];
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
 [EPAR0370047] Error: expected type
    ╭─[ test_24:1:8 ]
@@ -95,106 +123,139 @@ let x = expr
    │
  1 │ const x: let = expr;
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_26:1:4 ]
    │
  1 │ let
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_27:1:6 ]
    │
  1 │ let x
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_28:1:7 ]
    │
  1 │ let x:
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370005] Error: expected ')' -- found ']'
+[EPAR0370005] Error: expected ')', found `]`
    ╭─[ test_29:1:14 ]
    │
  1 │ let x = (a, y]);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_30:1:5 ]
    │
  1 │ let = 1u8;
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_30:1:11 ]
    │
  1 │ let = 1u8;
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_31:1:4 ]
    │
  1 │ let;
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_31:1:5 ]
    │
  1 │ let;
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370005] Error: expected '=' -- found '1u8'
+[EPAR0370005] Error: expected '=', found `1u8`
    ╭─[ test_32:1:7 ]
    │
  1 │ let x 1u8;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '=' -- found ';'
+[EPAR0370005] Error: expected '=', found `;`
    ╭─[ test_33:1:10 ]
    │
  1 │ let x: u8;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_33:1:11 ]
    │
  1 │ let x: u8;
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_34:1:10 ]
    │
  1 │ let x: u8
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected type
    ╭─[ test_35:1:8 ]
    │
  1 │ let x: = 1;
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_37:1:12 ]
    │
  1 │ let x: [u8;
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_38:1:23 ]
    │
  1 │ let x: [u8; 1u8] = [1,
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found ']'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `]`
    ╭─[ test_39:1:15 ]
    │
  1 │ let dbg: u8 = ];
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370050] Error: Could not lex the following content: `🦀`.
-
+[EPAR0370050] Error: could not tokenize the following content: `🦀`
    ╭─[ test_40:1:5 ]
    │
  1 │ let 🦀: u8 = 0;
+   │ 
+   │ Help: Remove or replace the unrecognized characters. Only ASCII source is supported outside of string literals.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `..`
    ╭─[ test_41:1:11 ]
    │
  1 │ let (x) = ...;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `..`
    ╭─[ test_42:1:12 ]
    │
  1 │ let (x,) = ...;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '=' -- found '1'
+[EPAR0370005] Error: expected '=', found `1`
    ╭─[ test_43:1:6 ]
    │
  1 │ let _1: u8 = 1u8;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 [EPAR0370047] Error: expected pattern
    ╭─[ test_44:1:5 ]

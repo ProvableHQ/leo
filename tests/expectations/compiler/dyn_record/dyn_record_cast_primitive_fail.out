@@ -1,5 +1,7 @@
-[ETYC0372179] Error: Cannot cast `u64` to `dyn record`: only concrete record types can be cast to `dyn record`.
+[ETYC0372179] Error: cannot cast `u64` to `dyn record`
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return x as dyn record;
+   │ 
+   │ Help: Only concrete record types can be cast to `dyn record`. Construct or obtain a concrete record first.
 ───╯

@@ -27,53 +27,56 @@ pub(crate) fn no_path_runs_all_finals_exactly_once(num_total_paths: impl Display
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK,
-        format!("Finals must be run exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all Finals are run exactly once."),
+        format!("no path through this function runs every `Final` exactly once (checked {num_total_paths} path(s))"),
         span,
     )
-    .with_help("Ex: for `f: Final` call `f.run()` to run a Final. Remove duplicate Final run redundancies, and add Final runs for un-run Finals.")
+    .with_help("For a `Final` value `f`, call `f.run()` to run it. Remove duplicate `.run()` calls and add missing ones so every path consumes each `Final` exactly once.")
 }
 
 pub(crate) fn final_runs_missing(unawaited: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 1, format!("The following Finals were never run: {unawaited}"), span)
-        .with_help("Ex: for `f: Final` call `f.run()` to run a Final.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 1, format!("the following `Final`s were never run: {unawaited}"), span)
+        .with_help("For a `Final` value `f`, call `f.run()` to run it.")
 }
 
 pub(crate) fn invalid_run_call(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 2, "Not a valid run call.", span)
-        .with_help("Ex: for `f: Final` call `f.run()` to run a Final.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 2, "not a valid `.run()` call", span)
+        .with_help("For a `Final` value `f`, call `f.run()` with no arguments to run it.")
 }
 
 pub(crate) fn expected_final(type_: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 3, format!("Expected a Final, but found `{type_}`"), span)
-        .with_help("Only Finals can be run.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 3, format!("expected a `Final`, but found `{type_}`"), span)
+        .with_help("Only `Final` values can be run with `.run()`.")
 }
 
 pub(crate) fn entry_point_final_call_with_final_argument(function_name: impl Display, span: Span) -> Formatted {
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 4,
-        format!("The call to {function_name} will result in failed executions on-chain."),
+        format!("the call to `{function_name}` will result in failed executions on-chain"),
         span,
     )
-    .with_help("There is a subtle error that occurs if an entry point fn returning Final follows a non-Final entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.")
+    .with_note("There is a subtle error that occurs if an entry point fn returning `Final` follows a non-`Final` entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See https://github.com/AleoNet/snarkVM/issues/2570 for more context.")
+    .with_help("Reorder the calls so the dependency is satisfied.")
 }
 
 pub(crate) fn misplaced_final(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 5, "A Final may not be used in this way", span)
-        .with_help("Finals should be created, assigned to a variable, and consumed without being moved or reassigned.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 5, "a `Final` cannot be used in this way", span)
+        .with_help("`Final`s must be created, bound to a variable, and consumed exactly once. They cannot be moved, reassigned, or stored.")
 }
 
 pub(crate) fn compile_time_cast(value: impl Display, type_: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 8, format!("Compile time cast failure: `{value} as {type_}`."), span)
+    Formatted::error(CODE_PREFIX, CODE_MASK + 8, format!("compile-time cast `{value} as {type_}` would fail"), span)
+        .with_help(format!("The constant `{value}` does not fit into `{type_}`. Choose a value within the target type's range, or pick a wider target type."))
 }
 
 pub(crate) fn array_bounds(index: impl Display, len: impl Display, span: Span) -> Formatted {
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 10,
-        format!("Array index {index} out of bounds (array length is {len})."),
+        format!("array index {index} is out of bounds (array length is {len})"),
         span,
     )
+    .with_help(format!("Array indices are zero-based, so the valid range is `0` to `{len} - 1`."))
 }
 
 pub(crate) fn final_block_capturing_too_many_vars(size: impl Display, max: impl Display, span: Span) -> Formatted {
@@ -81,10 +84,11 @@ pub(crate) fn final_block_capturing_too_many_vars(size: impl Display, max: impl 
         CODE_PREFIX,
         CODE_MASK + 11,
         format!(
-            "A `final` block cannot capture more than {max} variables, found one attempting to capture {size} variables."
+            "a `final` block cannot capture more than {max} variables, but this block captures {size}"
         ),
         span,
     )
+    .with_help(format!("Reduce the number of values captured into the `final` block to at most {max}, e.g. by computing intermediates inside the block instead of capturing them."))
 }
 
 pub(crate) fn custom_error(msg: impl Display, help: Option<impl Display>, span: Span) -> Formatted {
@@ -102,10 +106,10 @@ pub(crate) fn some_paths_do_not_run_all_finals(
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK,
-        format!("Not all paths through the function run all Finals. {num_unawaited_paths}/{num_total_paths} paths contain at least one Final that is never run."),
+        format!("not all paths through the function run every `Final` ({num_unawaited_paths}/{num_total_paths} paths leave at least one `Final` un-run)"),
         span,
     )
-    .with_help("Ex: `f.run()` to run a Final. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.")
+    .with_help("Add `.run()` calls so every path consumes each `Final` exactly once, or pass `--disable-conditional-branch-type-checking` to silence the warning.")
 }
 
 pub(crate) fn some_paths_contain_duplicate_final_runs(
@@ -116,18 +120,18 @@ pub(crate) fn some_paths_contain_duplicate_final_runs(
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 1,
-        format!("Some paths through the function contain duplicate Final runs. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one Final that is run more than once."),
+        format!("some paths through the function contain duplicate `Final` runs ({num_duplicate_await_paths}/{num_total_paths} paths run at least one `Final` more than once)"),
         span,
     )
-    .with_help("Look at the times `.run()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.")
+    .with_help("Remove the redundant `.run()` calls, or pass `--disable-conditional-branch-type-checking` to silence the warning.")
 }
 
 pub(crate) fn final_not_awaited_in_order(future_name: impl Display, span: Span) -> Formatted {
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 3,
-        format!("The Final `{future_name}` is not run in the order in which they were passed in to the function."),
+        format!("the `Final` `{future_name}` is not run in the order it was passed to the function"),
         span,
     )
-    .with_help("While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.")
+    .with_help("Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.")
 }

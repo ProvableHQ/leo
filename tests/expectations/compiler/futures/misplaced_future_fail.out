@@ -1,14 +1,14 @@
-[ESAZ0374005] Error: A Final may not be used in this way
+[ESAZ0374005] Error: a `Final` cannot be used in this way
    ╭─[ compiler-test:8:9 ]
    │
  8 │         child.aleo::foo();
    │ 
-   │ Help: Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+   │ Help: `Final`s must be created, bound to a variable, and consumed exactly once. They cannot be moved, reassigned, or stored.
 ───╯
-[ESAZ0374005] Error: A Final may not be used in this way
+[ESAZ0374005] Error: a `Final` cannot be used in this way
     ╭─[ compiler-test:10:9 ]
     │
  10 │         child.aleo::boo();
     │ 
-    │ Help: Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+    │ Help: `Final`s must be created, bound to a variable, and consumed exactly once. They cannot be moved, reassigned, or stored.
 ────╯

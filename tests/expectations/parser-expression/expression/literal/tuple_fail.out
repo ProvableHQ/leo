@@ -1,15 +1,21 @@
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_0:1:1 ]
    │
  1 │ ()
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_1:1:1 ]
    │
  1 │ (1u32,)
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_2:1:1 ]
    │
  1 │ (1field,)
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯

@@ -1,122 +1,154 @@
-[ETYC0372117] Error: Expected type `u32` but type `i16` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i16` was found
    ╭─[ compiler-test:3:23 ]
    │
  3 │         let c1: u32 = 123i16 * 123i32;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i32` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i32` was found
    ╭─[ compiler-test:3:32 ]
    │
  3 │         let c1: u32 = 123i16 * 123i32;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372120] Error: Received types `i16` and `i32` for the operation `*`.
+[ETYC0372120] Error: operands of `*` have unsupported types: `i16` and `i32`
    ╭─[ compiler-test:3:23 ]
    │
  3 │         let c1: u32 = 123i16 * 123i32;
    │ 
-   │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+   │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `string` was found.
+[ETYC0372117] Error: expected type `u32`, but type `string` was found
    ╭─[ compiler-test:4:23 ]
    │
  4 │         let c2: u32 = "123i32" * 123i16 * "sss";
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i16` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i16` was found
    ╭─[ compiler-test:4:34 ]
    │
  4 │         let c2: u32 = "123i32" * 123i16 * "sss";
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372120] Error: Received types `string` and `i16` for the operation `*`.
+[ETYC0372120] Error: operands of `*` have unsupported types: `string` and `i16`
    ╭─[ compiler-test:4:23 ]
    │
  4 │         let c2: u32 = "123i32" * 123i16 * "sss";
    │ 
-   │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+   │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `string` was found.
+[ETYC0372117] Error: expected type `u32`, but type `string` was found
    ╭─[ compiler-test:4:43 ]
    │
  4 │         let c2: u32 = "123i32" * 123i16 * "sss";
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `string` was found.
+[ETYC0372117] Error: expected type `u32`, but type `string` was found
    ╭─[ compiler-test:5:23 ]
    │
  5 │         let c3: u32 = "123i32" * "sss";
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `string` was found.
+[ETYC0372117] Error: expected type `u32`, but type `string` was found
    ╭─[ compiler-test:5:34 ]
    │
  5 │         let c3: u32 = "123i32" * "sss";
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372120] Error: Received types `string` and `string` for the operation `*`.
+[ETYC0372120] Error: operands of `*` have unsupported types: `string` and `string`
    ╭─[ compiler-test:5:23 ]
    │
  5 │         let c3: u32 = "123i32" * "sss";
    │ 
-   │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+   │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i8` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i8` was found
    ╭─[ compiler-test:6:23 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i16` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i16` was found
    ╭─[ compiler-test:6:29 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372120] Error: Received types `i8` and `i16` for the operation `*`.
+[ETYC0372120] Error: operands of `*` have unsupported types: `i8` and `i16`
    ╭─[ compiler-test:6:23 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
    │ 
-   │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+   │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i32` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i32` was found
    ╭─[ compiler-test:6:36 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `i64` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i64` was found
    ╭─[ compiler-test:6:43 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `u8` was found.
+[ETYC0372117] Error: expected type `u32`, but type `u8` was found
    ╭─[ compiler-test:6:50 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `u16` was found.
+[ETYC0372117] Error: expected type `u32`, but type `u16` was found
    ╭─[ compiler-test:6:56 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u32` but type `u64` was found.
+[ETYC0372117] Error: expected type `u32`, but type `u64` was found
    ╭─[ compiler-test:6:70 ]
    │
  6 │         let c4: u32 = 1i8 * 2i16 * 3i32 * 4i64 * 5u8 * 6u16 * 7u32 * 9u64;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected a bool or integer but type `string` was found.
-   ╭─[ compiler-test:7:26 ]
-   │
- 7 │         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
-───╯
-[ETYC0372119] Error: Received different types `string` and `i16` for the operation `&`.
+[ETYC0372117] Error: expected a bool or integer, but type `string` was found
    ╭─[ compiler-test:7:26 ]
    │
  7 │         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
    │ 
-   │ Help: Make both operands the same type.
+   │ Help: Change the expression to produce a bool or integer.
 ───╯
-[ETYC0372117] Error: Expected a field or integer but type `string` was found.
-   ╭─[ compiler-test:7:49 ]
+[ETYC0372119] Error: operands of `&` have different types: `string` and `i16`
+   ╭─[ compiler-test:7:26 ]
    │
  7 │         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
+   │ 
+   │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
-[ETYC0372119] Error: Received different types `string` and `i8` for the operation `/`.
+[ETYC0372117] Error: expected a field or integer, but type `string` was found
    ╭─[ compiler-test:7:49 ]
    │
  7 │         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
    │ 
-   │ Help: Make both operands the same type.
+   │ Help: Change the expression to produce a field or integer.
+───╯
+[ETYC0372119] Error: operands of `/` have different types: `string` and `i8`
+   ╭─[ compiler-test:7:49 ]
+   │
+ 7 │         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
+   │ 
+   │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯

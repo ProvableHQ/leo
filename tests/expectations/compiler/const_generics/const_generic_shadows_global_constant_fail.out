@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `N` is defined multiple times.
+[EAST0372017] Error: the name `N` is defined multiple times
    ╭─[ compiler-test:9:10 ]
    │
  9 │ fn foo::[N: u32]() {}
@@ -12,4 +12,6 @@
  9 │ fn foo::[N: u32]() {}
    │          ┬  
    │          ╰── `N` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `N` definitions so the name is unique within its scope.
 ───╯

@@ -1,6 +1,7 @@
-[EPAR0370050] Error: Could not lex the following content: `$`.
-
+[EPAR0370050] Error: could not tokenize the following content: `$`
    ╭─[ test:6:5 ]
    │
  6 │     $
+   │ 
+   │ Help: Remove or replace the unrecognized characters. Only ASCII source is supported outside of string literals.
 ───╯

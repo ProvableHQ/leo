@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `x` is defined multiple times.
+[EAST0372017] Error: the name `x` is defined multiple times
    ╭─[ compiler-test:5:9 ]
    │
  5 │     let x: bool = true;
@@ -11,4 +11,6 @@
  5 │     let x: bool = true;
    │         ┬  
    │         ╰── `x` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `x` definitions so the name is unique within its scope.
 ───╯

@@ -1,76 +1,98 @@
-[ETYC0372163] Error: Constants cannot have an optional type or a type that contains an optional
+[ETYC0372163] Error: constants cannot have an optional type or a type that contains an optional
     ╭─[ compiler-test:19:1 ]
     │
  19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+    │ 
+    │ Help: Provide a concrete value at the declaration site, or move the optionality to a runtime variable.
 ────╯
-[ETYC0372117] Error: Expected type `u8?` but type `i8` was found.
+[ETYC0372117] Error: expected type `u8?`, but type `i8` was found
     ╭─[ compiler-test:19:41 ]
     │
  19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8?`.
 ────╯
-[ETYC0372117] Error: Expected type `u8?` but type `i8` was found.
+[ETYC0372117] Error: expected type `u8?`, but type `i8` was found
     ╭─[ compiler-test:19:41 ]
     │
  19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8?`.
 ────╯
-[ETYC0372117] Error: Expected type `u8` but type `u8?` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u8?` was found
     ╭─[ compiler-test:36:21 ]
     │
  36 │         let b: u8 = a; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8`.
 ────╯
-[ETYC0372158] Error: Found `none`, but the expected type `u8` is not an optional type.
+[ETYC0372158] Error: found `none`, but the expected type `u8` is not optional
     ╭─[ compiler-test:41:21 ]
     │
  41 │         let a: u8 = none; // ERROR
+    │ 
+    │ Help: Provide a value of type `u8`, or change the expected type to `u8?`.
 ────╯
-[ETYC0372119] Error: Received different types `u8?` and `i8?` for the operation `==`.
+[ETYC0372119] Error: operands of `==` have different types: `u8?` and `i8?`
     ╭─[ compiler-test:48:22 ]
     │
  48 │         let result = a == b; // ERROR
     │ 
-    │ Help: Make both operands the same type.
+    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ────╯
-[ETYC0372119] Error: Received different types `u8?` and `u8` for the operation `==`.
+[ETYC0372119] Error: operands of `==` have different types: `u8?` and `u8`
     ╭─[ compiler-test:55:22 ]
     │
  55 │         let result = a == b; // ERROR
     │ 
-    │ Help: Make both operands the same type.
+    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ────╯
-[ETYC0372117] Error: Expected type `u8?` but type `i8` was found.
+[ETYC0372117] Error: expected type `u8?`, but type `i8` was found
     ╭─[ compiler-test:60:41 ]
     │
  60 │         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8?`.
 ────╯
-[ETYC0372117] Error: Expected type `u8?` but type `i8` was found.
+[ETYC0372117] Error: expected type `u8?`, but type `i8` was found
     ╭─[ compiler-test:60:41 ]
     │
  60 │         let arr: [u8?; 3] = [1u8, none, 3i8]; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8?`.
 ────╯
-[ETYC0372119] Error: Received different types `bad_types.aleo::Foo` and `bad_types.aleo::Foo?` for the operation `==`.
+[ETYC0372119] Error: operands of `==` have different types: `bad_types.aleo::Foo` and `bad_types.aleo::Foo?`
     ╭─[ compiler-test:67:22 ]
     │
  67 │         let result = a == b; // ERROR
     │ 
-    │ Help: Make both operands the same type.
+    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ────╯
-[ETYC0372117] Error: Expected type `[u8; 2]` but type `[u8?; 2]` was found.
+[ETYC0372117] Error: expected type `[u8; 2]`, but type `[u8?; 2]` was found
     ╭─[ compiler-test:73:26 ]
     │
  73 │         let b: [u8; 2] = a; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `[u8; 2]`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `bool?` was found.
+[ETYC0372117] Error: expected type `bool`, but type `bool?` was found
     ╭─[ compiler-test:86:17 ]
     │
  86 │         let x = condition ? 1u8 : 2u8; // ERROR
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `u8` but type `u8?` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u8?` was found
     ╭─[ compiler-test:92:31 ]
     │
  92 │         let result = takes_u8(val); // ERROR
+    │ 
+    │ Help: Change the expression to produce type `u8`.
 ────╯
-[ETYC0372003] Error: Expected type `u8` but type `u8?` was found
+[ETYC0372003] Error: expected type `u8`, found type `u8?`
     ╭─[ compiler-test:96:26 ]
     │
  96 │         let result: u8 = returns_optional(); // ERROR
+    │ 
+    │ Help: Change the expression to produce a `u8`, or cast it with `as u8` if a conversion exists.
 ────╯

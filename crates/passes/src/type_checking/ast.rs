@@ -388,7 +388,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // Check the number of const arguments against the number of the composite's const parameters
             if composite.const_parameters.len() != input.const_arguments.len() {
                 self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
-                    "Composite type",
+                    "composite type",
                     composite.const_parameters.len(),
                     input.const_arguments.len(),
                     input.path.span,
@@ -1202,7 +1202,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check the number of const arguments against the number of the function's const parameters
         if func.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
-                "Call",
+                "call",
                 func.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),
@@ -1492,7 +1492,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check the number of const arguments against the number of the composite's const parameters
         if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
-                "Composite expression",
+                "composite expression",
                 composite.const_parameters.len(),
                 input.const_arguments.len(),
                 input.span(),

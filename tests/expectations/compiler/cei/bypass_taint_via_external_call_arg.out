@@ -1,23 +1,23 @@
-[WCEI03713005] Warning: Tainted value `price` (derived from external call `oracle.aleo/get_price`) is passed as an argument to `exchange.aleo::execute_trade`, whose finalize will use the potentially stale value.
+[WCEI03713005] Warning: tainted value `price` (derived from external call `oracle.aleo/get_price`) is passed as an argument to `exchange.aleo::execute_trade`, whose finalize will use the potentially stale value
     ╭─[ compiler-test:14:33 ]
     │
  14 │         let f_exchange: Final = exchange.aleo::execute_trade(id, price);
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
+    │ Help: The external program's finalize runs concurrently and may invalidate `price`. Pass the value on-chain inside the finalize block instead.
 ────╯
-[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `f_exchange` used in the finalize block was derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:20:13 ]
     │
  20 │             f_exchange.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `f_exchange`. Re-read the value on-chain inside the finalize block.
 ────╯
-[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `exchange.aleo/execute_trade`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `f_exchange` used in the finalize block was derived from external call `exchange.aleo/execute_trade`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:20:13 ]
     │
  20 │             f_exchange.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `f_exchange`. Re-read the value on-chain inside the finalize block.
 ────╯
 program oracle.aleo;
 

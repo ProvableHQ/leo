@@ -1,4 +1,4 @@
-[ECHI03712000] Error: Interface `test.aleo/interfaces::Counter` not found.
+[ECHI03712000] Error: interface `test.aleo/interfaces::Counter` not found
    ╭─[ compiler-test:1:20 ]
    │
  1 │ program test.aleo: interfaces::Counter {

@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected an assignable struct or record but type `dyn record` was found.
+[ETYC0372117] Error: expected an assignable struct or record, but type `dyn record` was found
    ╭─[ compiler-test:3:9 ]
    │
  3 │         r.balance = 100u64;
+   │ 
+   │ Help: Change the expression to produce an assignable struct or record.
 ───╯

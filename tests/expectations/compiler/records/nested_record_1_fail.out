@@ -1,12 +1,14 @@
-[ETYC0372030] Error: A struct or record cannot contain another record.
+[ETYC0372030] Error: a struct or record cannot contain another record
    ╭─[ compiler-test:9:9 ]
    │
  9 │         foo: Foo,
    │ 
-   │ Help: Remove the record `test.aleo::Foo` from `Token`.
+   │ Help: Remove the record field of type `test.aleo::Foo` from `Token`, or store its individual fields instead.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

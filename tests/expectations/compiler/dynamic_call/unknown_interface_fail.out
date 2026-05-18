@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown interface `test.aleo::Nonexistent`
+[ETYC0372005] Error: unknown interface `test.aleo::Nonexistent`
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return Nonexistent@(target)::foo(1u32);
+   │ 
+   │ Help: Check `test.aleo::Nonexistent` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

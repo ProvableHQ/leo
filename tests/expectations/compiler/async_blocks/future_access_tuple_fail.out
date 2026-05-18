@@ -1,21 +1,21 @@
-[ESAZ0374005] Error: A Final may not be used in this way
+[ESAZ0374005] Error: a `Final` cannot be used in this way
     ╭─[ compiler-test:12:30 ]
     │
  12 │         let start_2: Final = start.1;
     │ 
-    │ Help: Finals should be created, assigned to a variable, and consumed without being moved or reassigned.
+    │ Help: `Final`s must be created, bound to a variable, and consumed exactly once. They cannot be moved, reassigned, or stored.
 ────╯
-[WCEI03713004] Warning: Value `start` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `start` used in the finalize block was derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:16:17 ]
     │
  16 │                 start.1.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `start`. Re-read the value on-chain inside the finalize block.
 ────╯
-[WCEI03713004] Warning: Value `start_2` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `start_2` used in the finalize block was derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:17:17 ]
     │
  17 │                 start_2.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `start_2`. Re-read the value on-chain inside the finalize block.
 ────╯

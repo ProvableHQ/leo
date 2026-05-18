@@ -1,5 +1,7 @@
-[ETYC0372008] Error: The value 1 is not a valid `group`
+[ETYC0372008] Error: the value `1` is not a valid `group`
    ╭─[ compiler-test:4:16 ]
    │
  4 │         return 1group;
+   │ 
+   │ Help: Use a literal that fits within the range of `group`.
 ───╯

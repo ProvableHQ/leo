@@ -1,5 +1,7 @@
-[ETYC0372006] Error: Call expected `2` args, but got `1`
+[ETYC0372006] Error: this call expected 2 argument(s), but 1 were supplied
    ╭─[ compiler-test:5:16 ]
    │
  5 │         return math_lib::add(x); // missing second argument
+   │ 
+   │ Help: Pass exactly the number of arguments the function's signature declares.
 ───╯

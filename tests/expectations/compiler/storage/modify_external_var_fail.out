@@ -1,15 +1,19 @@
-[ETYC0372174] Error: Assignment to storage variables of another program is not allowed. You can only modify storage declared in the current program.
+[ETYC0372174] Error: cannot assign to a storage variable of another program
    ╭─[ compiler-test:7:13 ]
    │
  7 │             provider.aleo::x = 0; // ❌ illegal external mutation
+   │ 
+   │ Help: Storage can only be modified by the program that declares it. Call an entry point fn of that program instead.
 ───╯
 
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `provider.aleo::x`
+[ETYC0372005] Error: unknown variable `provider.aleo::x`
    ╭─[ compiler-test:7:13 ]
    │
  7 │             provider.aleo::x = 0; // ❌ illegal external mutation
+   │ 
+   │ Help: Check `provider.aleo::x` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

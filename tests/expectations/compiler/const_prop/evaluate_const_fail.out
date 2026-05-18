@@ -1,5 +1,7 @@
-[ECMP0376007] Error: The value of this const could not be determined at compile time.
+[ECMP0376007] Error: the value of this `const` could not be determined at compile time
    ╭─[ compiler-test:6:9 ]
    │
  6 │         const SOME: u32 = a + 1u32;
+   │ 
+   │ Help: Replace the initializer with an expression that only references literals and other `const` values.
 ───╯

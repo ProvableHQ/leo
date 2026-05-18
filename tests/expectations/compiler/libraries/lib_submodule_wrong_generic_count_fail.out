@@ -1,5 +1,7 @@
-[ETYC0372140] Error: Call expected `1` const args, but got `2`
+[ETYC0372140] Error: call expected 1 const argument(s), but got 2
    ╭─[ compiler-test:5:16 ]
    │
  5 │         return math_lib::ops::scale::[3u32, 4u32](5u32);  // 2 const args, expects 1
+   │ 
+   │ Help: Match the const argument count to the declared generic const parameters.
 ───╯

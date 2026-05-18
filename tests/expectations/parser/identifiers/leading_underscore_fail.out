@@ -1,28 +1,28 @@
-[EPAR0370053] Error: Identifiers cannot start with an underscore.
+[EPAR0370053] Error: identifiers cannot start with an underscore
    ╭─[ test:4:13 ]
    │
  4 │         let _c: u32 = a + b;
    │ 
-   │ Help: Identifiers must start with a letter.
+   │ Help: Rename the identifier so it begins with an ASCII letter.
 ───╯
-[EPAR0370053] Error: Identifiers cannot start with an underscore.
+[EPAR0370053] Error: identifiers cannot start with an underscore
    ╭─[ test:7:13 ]
    │
  7 │         let _temp = 10u32;
    │ 
-   │ Help: Identifiers must start with a letter.
+   │ Help: Rename the identifier so it begins with an ASCII letter.
 ───╯
-[EPAR0370053] Error: Identifiers cannot start with an underscore.
+[EPAR0370053] Error: identifiers cannot start with an underscore
     ╭─[ test:10:16 ]
     │
  10 │         return _c + _temp;
     │ 
-    │ Help: Identifiers must start with a letter.
+    │ Help: Rename the identifier so it begins with an ASCII letter.
 ────╯
-[EPAR0370053] Error: Identifiers cannot start with an underscore.
+[EPAR0370053] Error: identifiers cannot start with an underscore
     ╭─[ test:10:21 ]
     │
  10 │         return _c + _temp;
     │ 
-    │ Help: Identifiers must start with a letter.
+    │ Help: Rename the identifier so it begins with an ASCII letter.
 ────╯

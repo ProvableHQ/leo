@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `one` is defined multiple times.
+[EAST0372017] Error: the name `one` is defined multiple times
    ╭─[ compiler-test:9:13 ]
    │
  9 │         let one: u8 = 1u8;
@@ -12,4 +12,6 @@
  9 │         let one: u8 = 1u8;
    │             ─┬─  
    │              ╰─── `one` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `one` definitions so the name is unique within its scope.
 ───╯

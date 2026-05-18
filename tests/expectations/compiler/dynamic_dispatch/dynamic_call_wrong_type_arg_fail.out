@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected `field` or `identifier` but type `u64` was found.
+[ETYC0372117] Error: expected `field` or `identifier`, but type `u64` was found
    ╭─[ compiler-test:4:48 ]
    │
  4 │         let result: u64 = _dynamic_call::[u64](target, net, func);
+   │ 
+   │ Help: Change the expression to produce `field` or `identifier`.
 ───╯

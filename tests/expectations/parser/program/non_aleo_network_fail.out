@@ -1,5 +1,7 @@
-[EPAR0370028] Error: Invalid network identifier. The only supported identifier is `.aleo`.
+[EPAR0370028] Error: invalid network identifier
    ╭─[ test:1:14 ]
    │
  1 │ program test.eth {
+   │ 
+   │ Help: The only supported network identifier is `.aleo`. Replace the network suffix accordingly.
 ───╯

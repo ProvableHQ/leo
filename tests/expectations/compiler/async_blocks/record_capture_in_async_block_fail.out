@@ -1,4 +1,4 @@
-[ETYC0372176] Error: A `final` block cannot capture the record variable `t`. Records cannot be used in on-chain code.
+[ETYC0372176] Error: a `final` block cannot capture the record variable `t`
     ╭─[ compiler-test:9:17 ]
     │
   9 │ ╭─▶         let f = final {
@@ -7,5 +7,5 @@
     │ │                
     │ ╰──────────────── 
     │     
-    │     Help: Extract the needed fields before the `final` block. For example: `let val = t.field_name;`
+    │     Help: Records cannot be used in on-chain code. Extract the needed fields before the block, e.g. `let val = t.field_name;`.
 ────╯

@@ -1,10 +1,14 @@
-[ETYC0372079] Error: An array cannot have a record as an element type
+[ETYC0372079] Error: an array cannot have a record as its element type
    ╭─[ compiler-test:8:9 ]
    │
  8 │         data: [token; 2],
+   │ 
+   │ Help: Store the records' field values in parallel arrays, or reference them by id stored in a mapping.
 ───╯
-[ETYC0372079] Error: An array cannot have a record as an element type
+[ETYC0372079] Error: an array cannot have a record as its element type
     ╭─[ compiler-test:13:9 ]
     │
  13 │         let arr: [token; 2] = [t, t];
+    │ 
+    │ Help: Store the records' field values in parallel arrays, or reference them by id stored in a mapping.
 ────╯

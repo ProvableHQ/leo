@@ -1,4 +1,4 @@
-[EPAR0370055] Error: A Leo program can only have one `program` declaration.
+[EPAR0370055] Error: a Leo program can only have one `program` declaration
     ╭─[ test:7:1 ]
     │
   7 │ ╭─▶ program test2.aleo {

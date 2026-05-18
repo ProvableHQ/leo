@@ -1,10 +1,14 @@
-[ETYC0372155] Error: Cannot assign to `p` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `p` inside a `final` block because it was declared outside the block
    ╭─[ compiler-test:7:13 ]
    │
  7 │             p.0 = 1u32;
+   │ 
+   │ Help: Declare `p` inside the `final` block, or move the assignment outside of it.
 ───╯
-[ETYC0372117] Error: Expected a tuple but type `u32` was found.
+[ETYC0372117] Error: expected a tuple, but type `u32` was found
    ╭─[ compiler-test:7:13 ]
    │
  7 │             p.0 = 1u32;
+   │ 
+   │ Help: Change the expression to produce a tuple.
 ───╯

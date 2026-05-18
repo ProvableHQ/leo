@@ -1,4 +1,4 @@
-[ECHI03712002] Error: Program `test.aleo` implements interface `test.aleo/Resettable` but is missing the required function `reset`.
+[ECHI03712002] Error: program `test.aleo` implements interface `test.aleo/Resettable` but is missing the required function `reset`
     ╭─[ compiler-test:9:1 ]
     │
   9 │ ╭─▶ program test.aleo: Counter + Resettable {
@@ -7,5 +7,5 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Add the missing function with the exact signature specified in the interface.
+    │     Help: Add the missing function `reset` with the exact signature specified in `test.aleo/Resettable`.
 ────╯

@@ -3,38 +3,52 @@
    │
  2 │     mapping u8: u8 => u8;
 ───╯
-[EPAR0370005] Error: expected '=>' -- found '->'
+[EPAR0370005] Error: expected '=>', found `->`
    ╭─[ test:4:22 ]
    │
  4 │     mapping foo: bar -> baz;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ')' -- found '=>'
+[EPAR0370005] Error: expected ')', found `=>`
    ╭─[ test:6:23 ]
    │
  6 │     mapping foo: (bar => baz);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found ')'
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', found `)`
    ╭─[ test:6:29 ]
    │
  6 │     mapping foo: (bar => baz);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ']' -- found '->'
+[EPAR0370005] Error: expected ']', found `->`
    ╭─[ test:8:23 ]
    │
  8 │     mapping foo: [bar -> baz];
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ';' -- found ']'
+[EPAR0370005] Error: expected ';', found `]`
    ╭─[ test:8:29 ]
    │
  8 │     mapping foo: [bar -> baz];
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ':' -- found 'bar'
+[EPAR0370005] Error: expected ':', found `bar`
     ╭─[ test:10:17 ]
     │
  10 │     mapping foo bar => baz;
+    │ 
+    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ────╯
-[EPAR0370029] Error: A tuple type must have at least two elements.
+[EPAR0370029] Error: a tuple type must have at least two elements
    ╭─[ test:6:18 ]
    │
  6 │     mapping foo: (bar => baz);
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯

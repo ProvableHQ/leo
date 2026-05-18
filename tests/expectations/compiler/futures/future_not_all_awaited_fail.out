@@ -1,4 +1,4 @@
-[ESAZ0374001] Error: The following Finals were never run: f4
+[ESAZ0374001] Error: the following `Final`s were never run: f4
     ╭─[ compiler-test:17:1 ]
     │
  17 │ ╭─▶ final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
@@ -7,33 +7,33 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Ex: for `f: Final` call `f.run()` to run a Final.
+    │     Help: For a `Final` value `f`, call `f.run()` to run it.
 ────╯
-[WSAZ0374003] Warning: The Final `f1` is not run in the order in which they were passed in to the function.
+[WSAZ0374003] Warning: the `Final` `f1` is not run in the order it was passed to the function
     ╭─[ compiler-test:18:5 ]
     │
  18 │     f1.run();
     │ 
-    │ Help: While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+    │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
-[WSAZ0374003] Warning: The Final `f2` is not run in the order in which they were passed in to the function.
+[WSAZ0374003] Warning: the `Final` `f2` is not run in the order it was passed to the function
     ╭─[ compiler-test:19:5 ]
     │
  19 │     f2.run();
     │ 
-    │ Help: While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+    │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
-[WSAZ0374003] Warning: The Final `f3` is not run in the order in which they were passed in to the function.
+[WSAZ0374003] Warning: the `Final` `f3` is not run in the order it was passed to the function
     ╭─[ compiler-test:20:5 ]
     │
  20 │     f3.run();
     │ 
-    │ Help: While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+    │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
-[WSAZ0374003] Warning: The Final `f5` is not run in the order in which they were passed in to the function.
+[WSAZ0374003] Warning: the `Final` `f5` is not run in the order it was passed to the function
     ╭─[ compiler-test:22:5 ]
     │
  22 │     f5.run();
     │ 
-    │ Help: While it is not required for futures to be run in order, there is some specific behavior that arises, which may affect the semantics of your program. See `https://github.com/AleoNet/snarkVM/issues/2570` for more context.
+    │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯

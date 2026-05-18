@@ -1,30 +1,34 @@
-[WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
+[WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
     ╭─[ compiler-test:14:9 ]
     │
  14 │     for i: u32 in 0u32..2u32 {
     │ 
-    │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
+    │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
-[WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
+[WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
     ╭─[ compiler-test:16:13 ]
     │
  16 │         for j: u32 in 0u32..2u32 {
     │ 
-    │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
+    │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
-[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:18:13 ]
     │
  18 │             Mapping::set(counters, j, a);
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
-[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:21:9 ]
     │
  21 │         Mapping::set(counters, i, a);
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 program dep.aleo;
 

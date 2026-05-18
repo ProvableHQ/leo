@@ -1,6 +1,8 @@
-[ECMP0376004] Error: The program name `bar.aleo` must match `foo.aleo` (specified in `program.json`)
+[ECMP0376004] Error: the program name `bar.aleo` must match the file name `foo.aleo` (specified in `program.json`)
    ╭─[ SOURCE_DIRECTORY/main.leo:1:9 ]
    │
  1 │ program bar.aleo {
+   │ 
+   │ Help: Rename the program to match `foo.aleo` (specified in `program.json`), or rename the file to match `bar.aleo`.
 ───╯
 

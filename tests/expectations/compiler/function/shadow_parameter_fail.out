@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `hi` is defined multiple times.
+[EAST0372017] Error: the name `hi` is defined multiple times
    ╭─[ compiler-test:3:13 ]
    │
  3 │         let hi = 2u8;
@@ -11,4 +11,6 @@
  3 │         let hi = 2u8;
    │             ─┬  
    │              ╰── `hi` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `hi` definitions so the name is unique within its scope.
 ───╯

@@ -1,4 +1,4 @@
-[ESAZ0374011] Error: A `final` block cannot capture more than 16 variables, found one attempting to capture 20 variables.
+[ESAZ0374011] Error: a `final` block cannot capture more than 16 variables, but this block captures 20
     ╭─[ compiler-test:25:17 ]
     │
  25 │ ╭─▶         let f = final {
@@ -6,4 +6,6 @@
  46 │ ├─▶         };
     │ │                
     │ ╰──────────────── 
+    │     
+    │     Help: Reduce the number of values captured into the `final` block to at most 16, e.g. by computing intermediates inside the block instead of capturing them.
 ────╯

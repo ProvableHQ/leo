@@ -1,5 +1,7 @@
-[ECEV0378000] Error: Binary operation `-127i8 - 2i8` failed at compile time: sub overflow.
+[ECEV0378000] Error: binary operation `-127i8 - 2i8` failed at compile time: sub overflow
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return a - 2i8; // This line attempts to return -129i8 however, the smallest i8 value is -128i8.
+   │ 
+   │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ───╯

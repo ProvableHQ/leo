@@ -1,5 +1,7 @@
-[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+[ETYC0372043] Error: cannot call a local entry point fn from an entry point fn
    ╭─[ compiler-test:8:16 ]
    │
  8 │         return finish();
+   │ 
+   │ Help: Refactor the shared logic into a regular `fn` and call that from both entry points.
 ───╯

@@ -1,9 +1,11 @@
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:26:5 ]
     │
  26 │     assert(extra > 0u32);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 program test.aleo;
 

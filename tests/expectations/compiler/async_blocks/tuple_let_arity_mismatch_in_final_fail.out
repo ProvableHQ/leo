@@ -1,5 +1,7 @@
-[ETYC0372072] Error: Expected a tuple with 2 elements, found one with 3 elements
+[ETYC0372072] Error: expected a tuple with 2 elements, found one with 3 elements
     ╭─[ compiler-test:14:9 ]
     │
  14 │         let (a, b, c): (u32, u32) = (1u32, 2u32);
+    │ 
+    │ Help: Match the destructuring pattern to the tuple's arity exactly.
 ────╯

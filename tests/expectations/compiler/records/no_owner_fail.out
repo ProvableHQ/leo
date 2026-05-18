@@ -1,4 +1,4 @@
-[ETYC0372019] Error: The `record` type requires the variable `owner: address`.
+[ETYC0372019] Error: the `record` type requires the field `owner: address`
    ╭─[ compiler-test:3:5 ]
    │
  3 │ ╭─▶     record Token {
@@ -6,4 +6,6 @@
  6 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Add `owner: address` to the record definition.
 ───╯

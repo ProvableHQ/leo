@@ -302,9 +302,15 @@ fn filter_stderr(data: &str) -> String {
         (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
         // Match ariadne's `╭─[ path:line:col ]` header, normalize the path portion.
         (Regex::new(r"╭─\[\s*.*?/([^/]+\.leo:\d+:\d+)\s*\]").unwrap(), "╭─[ SOURCE_DIRECTORY/$1 ]"),
-        // Normalize temp directory paths so expectations are stable across machines and OSes.
-        // e.g. '/private/var/folders/.../contents/' or '/tmp/.tmpXXX/contents/' → 'TMPDIR/contents/'
-        (Regex::new(r"'[^']*?/contents/").unwrap(), "'TMPDIR/contents/"),
+        // Normalize tempdir prefixes written by `tempfile::TempDir::new()` so expectations
+        // are stable across machines and OSes, regardless of surrounding quoting:
+        //   /tmp/.tmpXXX/contents/                         (Linux)
+        //   /private/var/folders/XX/XXXX/T/.tmpXXX/contents/ (macOS)
+        // → TMPDIR/contents/
+        (
+            Regex::new(r"(?:/tmp|/private/var/folders/[^/]+/[^/]+/T)/\.tmp[A-Za-z0-9]+/contents/").unwrap(),
+            "TMPDIR/contents/",
+        ),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
         // snarkVM prints parameter download warnings to stderr on fresh runners.

@@ -1,4 +1,4 @@
-[ECHI03712008] Error: Mapping `counter` does not match the type required by interface `test.aleo/CounterInterface`.
+[ECHI03712008] Error: mapping `counter` does not match the type required by interface `test.aleo/CounterInterface`
 Expected: address => u64
 Found: u32 => u64
    ╭─[ compiler-test:6:5 ]

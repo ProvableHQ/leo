@@ -1,10 +1,14 @@
-[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u32` was found
    ╭─[ compiler-test:7:22 ]
    │
  7 │         for i: u8 in START..STOP {
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
 [ETYC0372134] Error: mismatched types in loop iterator range bounds
    ╭─[ compiler-test:7:22 ]
    │
  7 │         for i: u8 in START..STOP {
+   │ 
+   │ Help: Use bounds of the same integer type, e.g. `0u32..10u32`.
 ───╯

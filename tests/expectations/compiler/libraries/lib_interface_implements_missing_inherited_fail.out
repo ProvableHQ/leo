@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `process` does not match the signature required by interface `top_lib/Top`.
+[ECHI03712004] Error: function `process` does not match the signature required by interface `top_lib/Top`
 Expected:
 fn process(v: u32) -> u32
 Found:
@@ -13,7 +13,7 @@ fn process(v: u64) -> u32
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
-[ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`.
+[ECHI03712002] Error: program `main.aleo` implements interface `top_lib/Top` but is missing the required function `fetch`
     ╭─[ compiler-test:7:1 ]
     │
   7 │ ╭─▶ program main.aleo : top_lib::Top {
@@ -22,9 +22,9 @@ fn process(v: u64) -> u32
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Add the missing function with the exact signature specified in the interface.
+    │     Help: Add the missing function `fetch` with the exact signature specified in `top_lib/Top`.
 ────╯
-[ECHI03712002] Error: Program `main.aleo` implements interface `top_lib/Top` but is missing the required function `reset`.
+[ECHI03712002] Error: program `main.aleo` implements interface `top_lib/Top` but is missing the required function `reset`
     ╭─[ compiler-test:7:1 ]
     │
   7 │ ╭─▶ program main.aleo : top_lib::Top {
@@ -33,5 +33,5 @@ fn process(v: u64) -> u32
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Add the missing function with the exact signature specified in the interface.
+    │     Help: Add the missing function `reset` with the exact signature specified in `top_lib/Top`.
 ────╯

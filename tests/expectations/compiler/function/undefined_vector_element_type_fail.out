@@ -1,5 +1,7 @@
-[ETYC0372189] Error: Vector types can only be used in storage declarations.
+[ETYC0372189] Error: vector types can only be used in storage declarations
    ╭─[ compiler-test:3:12 ]
    │
  3 │     fn foo(a: [Nonexistent]) -> bool {
+   │ 
+   │ Help: Replace the vector with a fixed-size array, or move the value into a `storage` declaration.
 ───╯

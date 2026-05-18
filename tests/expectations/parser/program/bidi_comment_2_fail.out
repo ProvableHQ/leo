@@ -1,11 +1,16 @@
-[EPAR0370050] Error: Could not lex the following content: `/* next li`.
-
+[EPAR0370050] Error: could not tokenize the following content: `/* next li`
    ╭─[ test:1:1 ]
    │
  1 │ /* next line starts with 2069
+   │ 
+   │ Help: Remove or replace the unrecognized characters. Only ASCII source is supported outside of string literals.
 ───╯
-[EPAR0370051] Error: Unicode bidi override code point encountered.
+[EPAR0370051] Error: unicode bidirectional override code point encountered
    ╭─[ test:4:1 ]
    │
  4 │ ⁩*/
+   │ 
+   │ Help: Remove the bidi override character from the source.
+   │ 
+   │ Note: Bidi override characters can disguise source code and are rejected to prevent "trojan source" attacks.
 ───╯

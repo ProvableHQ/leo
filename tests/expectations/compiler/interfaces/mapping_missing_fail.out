@@ -1,4 +1,4 @@
-[ECHI03712006] Error: Program `test.aleo` implements interface `test.aleo/CounterInterface` but is missing the required mapping `counter`.
+[ECHI03712006] Error: program `test.aleo` implements interface `test.aleo/CounterInterface` but is missing the required mapping `counter`
    ╭─[ compiler-test:5:1 ]
    │
  5 │ ╭─▶ program test.aleo: CounterInterface {
@@ -7,5 +7,5 @@
    │ │       
    │ ╰─────── 
    │     
-   │     Help: Add a mapping definition with the specified name.
+   │     Help: Add a `mapping counter` definition with the key/value types declared by `test.aleo/CounterInterface`.
 ───╯

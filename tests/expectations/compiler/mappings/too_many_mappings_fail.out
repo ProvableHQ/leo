@@ -1,5 +1,7 @@
-[ETYC0372062] Error: The number of mappings exceeds the maximum. snarkVM allows up to 31 mappings within a single program.
+[ETYC0372062] Error: the number of mappings exceeds the maximum of 31 per program
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Reduce the program to at most 31 mappings, or split storage across multiple programs.
 ───╯

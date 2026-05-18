@@ -1,4 +1,4 @@
-[ETYC0372000] Error: Invalid assignment target: test.aleo::Counter@(target)::total.
+[ETYC0372000] Error: invalid assignment target: `test.aleo::Counter@(target)::total`
     ╭─[ compiler-test:14:5 ]
     │
  14 │     Counter@(target)::total = 5u64;

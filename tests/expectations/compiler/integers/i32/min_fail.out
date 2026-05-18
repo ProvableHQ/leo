@@ -1,5 +1,7 @@
-[ECEV0378000] Error: Binary operation `-2147483647i32 - 2i32` failed at compile time: sub overflow.
+[ECEV0378000] Error: binary operation `-2147483647i32 - 2i32` failed at compile time: sub overflow
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return a - 2i32; // This line attempts to return -2147483649i32 however, the smallest i32 value is -2147483648i32.
+   │ 
+   │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ───╯

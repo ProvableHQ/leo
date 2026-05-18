@@ -233,7 +233,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         for (_, prototype) in &input.functions {
             if !prototype.const_parameters.is_empty() {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
-                    "Entry point functions",
+                    "entry point functions",
                     prototype.identifier.span,
                 ));
             }

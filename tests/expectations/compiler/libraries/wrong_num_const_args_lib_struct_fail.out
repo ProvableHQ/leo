@@ -1,10 +1,14 @@
-[ETYC0372140] Error: Composite type expected `1` const args, but got `2`
+[ETYC0372140] Error: composite type expected 1 const argument(s), but got 2
    ╭─[ compiler-test:5:16 ]
    │
  5 │         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
+   │ 
+   │ Help: Match the const argument count to the declared generic const parameters.
 ───╯
-[ETYC0372140] Error: Composite expression expected `1` const args, but got `2`
+[ETYC0372140] Error: composite expression expected 1 const argument(s), but got 2
    ╭─[ compiler-test:5:45 ]
    │
  5 │         let f: foo_lib::Foo::[1u32, 2u32] = foo_lib::Foo::[1u32, 2u32] { x: 0u32 };
+   │ 
+   │ Help: Match the const argument count to the declared generic const parameters.
 ───╯

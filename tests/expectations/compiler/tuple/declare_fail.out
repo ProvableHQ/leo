@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected type `bool` but type `u64` was found.
+[ETYC0372117] Error: expected type `bool`, but type `u64` was found
    ╭─[ compiler-test:3:35 ]
    │
  3 │         let t: (bool, bool) = (a, 1u64); // We should be declaring to a bool, not a u64.
+   │ 
+   │ Help: Change the expression to produce type `bool`.
 ───╯

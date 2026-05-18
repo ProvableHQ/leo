@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `foo` is defined multiple times.
+[EAST0372017] Error: the name `foo` is defined multiple times
     ╭─[ compiler-test:11:4 ]
     │
  11 │ fn foo() -> u32 {
@@ -12,4 +12,6 @@
  11 │ fn foo() -> u32 {
     │    ─┬─  
     │     ╰─── `foo` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `foo` definitions so the name is unique within its scope.
 ────╯

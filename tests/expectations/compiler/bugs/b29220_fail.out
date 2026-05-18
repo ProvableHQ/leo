@@ -1,5 +1,7 @@
-[ETYC0372144] Error: An array length must be small enough to fit in a `u32`
+[ETYC0372144] Error: an array length must fit into a `u32`
    ╭─[ compiler-test:6:12 ]
    │
  6 │     return [val; COUNT * 9223372036854775807];
+   │ 
+   │ Help: Reduce the array length below 2^32, or split the data across multiple arrays.
 ───╯

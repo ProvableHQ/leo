@@ -1,14 +1,16 @@
-[EPAR0370009] Error: unexpected string: expected '[]', found 'element type'
+[EPAR0370009] Error: expected `[]`, found `element type`
    ╭─[ test:1:11 ]
    │
  1 │ fn f() -> [] {}
+   │ 
+   │ Help: Replace `element type` with `[]`.
 ───╯
-[EPAR0370027] Error: Missing a program scope in a Leo file.
+[EPAR0370027] Error: missing a program scope in a Leo file
    ╭─[ test:1:1 ]
    │
  1 │ fn f() -> [] {}
    │ ────────┬───────  
    │         ╰───────── 
    │ 
-   │ Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+   │ Help: Add a program scope of the form `program <name>.aleo { ... }` to the Leo file.
 ───╯

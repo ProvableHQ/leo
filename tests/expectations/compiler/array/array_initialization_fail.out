@@ -1,15 +1,21 @@
-[ETYC0372117] Error: Expected type `[bool; 8]` but type `[bool; 7]` was found.
+[ETYC0372117] Error: expected type `[bool; 8]`, but type `[bool; 7]` was found
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return [a, a, a, a, a, a, a];
+   │ 
+   │ Help: Change the expression to produce type `[bool; 8]`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u32` was found
    ╭─[ compiler-test:7:52 ]
    │
  7 │         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u32` was found
    ╭─[ compiler-test:7:52 ]
    │
  7 │         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯

@@ -2,29 +2,41 @@
    ╭─[ compiler-test:8:14 ]
    │
  8 │     for i in 1u8..2u16 {
+   │ 
+   │ Help: Use bounds of the same integer type, e.g. `0u32..10u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u32` was found
    ╭─[ compiler-test:9:22 ]
    │
  9 │         for j: u8 in 0u32..1u32 {}
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `u32` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u32` was found
    ╭─[ compiler-test:9:28 ]
    │
  9 │         for j: u8 in 0u32..1u32 {}
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372117] Error: Expected an integer but type `field` was found.
+[ETYC0372117] Error: expected an integer, but type `field` was found
     ╭─[ compiler-test:11:14 ]
     │
  11 │     for i in 1field..2scalar {}
+    │ 
+    │ Help: Change the expression to produce an integer.
 ────╯
-[ETYC0372117] Error: Expected an integer but type `scalar` was found.
+[ETYC0372117] Error: expected an integer, but type `scalar` was found
     ╭─[ compiler-test:11:22 ]
     │
  11 │     for i in 1field..2scalar {}
+    │ 
+    │ Help: Change the expression to produce an integer.
 ────╯
 [ETYC0372134] Error: mismatched types in loop iterator range bounds
     ╭─[ compiler-test:11:14 ]
     │
  11 │     for i in 1field..2scalar {}
+    │ 
+    │ Help: Use bounds of the same integer type, e.g. `0u32..10u32`.
 ────╯

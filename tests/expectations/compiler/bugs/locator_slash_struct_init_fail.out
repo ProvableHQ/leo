@@ -1,17 +1,21 @@
-[ETYC0372117] Error: Expected a field or integer but type `address` was found.
-    ╭─[ compiler-test:10:17 ]
-    │
- 10 │         let _ = credits.aleo / Token { addr };
-────╯
-[ETYC0372117] Error: Expected a field or integer but type `test.aleo::Token` was found.
-    ╭─[ compiler-test:10:32 ]
-    │
- 10 │         let _ = credits.aleo / Token { addr };
-────╯
-[ETYC0372119] Error: Received different types `address` and `test.aleo::Token` for the operation `/`.
+[ETYC0372117] Error: expected a field or integer, but type `address` was found
     ╭─[ compiler-test:10:17 ]
     │
  10 │         let _ = credits.aleo / Token { addr };
     │ 
-    │ Help: Make both operands the same type.
+    │ Help: Change the expression to produce a field or integer.
+────╯
+[ETYC0372117] Error: expected a field or integer, but type `test.aleo::Token` was found
+    ╭─[ compiler-test:10:32 ]
+    │
+ 10 │         let _ = credits.aleo / Token { addr };
+    │ 
+    │ Help: Change the expression to produce a field or integer.
+────╯
+[ETYC0372119] Error: operands of `/` have different types: `address` and `test.aleo::Token`
+    ╭─[ compiler-test:10:17 ]
+    │
+ 10 │         let _ = credits.aleo / Token { addr };
+    │ 
+    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ────╯

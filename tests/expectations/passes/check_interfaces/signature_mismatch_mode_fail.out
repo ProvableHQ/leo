@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `transfer` does not match the signature required by interface `test.aleo/Transferable`.
+[ECHI03712004] Error: function `transfer` does not match the signature required by interface `test.aleo/Transferable`
 Expected:
 fn transfer(public amount: u64) -> u64
 Found:

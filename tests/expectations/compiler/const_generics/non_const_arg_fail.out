@@ -1,5 +1,7 @@
-[ECMP0376012] Error: Unable to resolve call to generic function `test.aleo::bar`. A non-const expression was provided where a const generic parameter is required.
+[ECMP0376012] Error: unable to resolve call to generic function `test.aleo::bar`: a non-const expression was provided where a const generic parameter is required
    ╭─[ compiler-test:3:22 ]
    │
  3 │         return bar::[x]();
+   │ 
+   │ Help: Pass a literal or `const` value for the generic parameter so it can be resolved at compile time.
 ───╯

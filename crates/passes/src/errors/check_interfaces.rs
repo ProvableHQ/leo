@@ -22,7 +22,7 @@ const CODE_PREFIX: &str = "CHI";
 const CODE_MASK: i32 = 12000;
 
 pub(crate) fn interface_not_found(name: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK, format!("Interface `{name}` not found."), span)
+    Formatted::error(CODE_PREFIX, CODE_MASK, format!("interface `{name}` not found"), span)
         .with_help("Make sure the interface is defined in the current program or an imported program.")
 }
 
@@ -36,12 +36,11 @@ pub(crate) fn conflicting_interface_member(
         CODE_PREFIX,
         CODE_MASK + 1,
         format!(
-            "Interface `{interface_name}` has a conflicting definition for `{member_name}` inherited from `{parent_name}`. \
-             Members with the same name must have identical signatures."
+            "interface `{interface_name}` has a conflicting definition for `{member_name}` inherited from `{parent_name}`"
         ),
         span,
     )
-    .with_help("Ensure both interfaces define the same signature for this member, or rename one of them.")
+    .with_help("Members with the same name must have identical signatures. Align both definitions, or rename one of them.")
 }
 
 pub(crate) fn missing_interface_function(
@@ -54,11 +53,11 @@ pub(crate) fn missing_interface_function(
         CODE_PREFIX,
         CODE_MASK + 2,
         format!(
-            "Program `{program_name}` implements interface `{interface_name}` but is missing the required function `{func_name}`."
+            "program `{program_name}` implements interface `{interface_name}` but is missing the required function `{func_name}`"
         ),
         span,
     )
-    .with_help("Add the missing function with the exact signature specified in the interface.")
+    .with_help(format!("Add the missing function `{func_name}` with the exact signature specified in `{interface_name}`."))
 }
 
 pub(crate) fn missing_interface_record(
@@ -71,11 +70,11 @@ pub(crate) fn missing_interface_record(
         CODE_PREFIX,
         CODE_MASK + 3,
         format!(
-            "Program `{program_name}` implements interface `{interface_name}` but is missing the required record `{record_name}`."
+            "program `{program_name}` implements interface `{interface_name}` but is missing the required record `{record_name}`"
         ),
         span,
     )
-    .with_help("Add a record definition with the specified name.")
+    .with_help(format!("Add a `record {record_name}` definition matching the shape declared by `{interface_name}`."))
 }
 
 pub(crate) fn signature_mismatch(
@@ -89,7 +88,7 @@ pub(crate) fn signature_mismatch(
         CODE_PREFIX,
         CODE_MASK + 4,
         format!(
-            "Function `{func_name}` does not match the signature required by interface `{interface_name}`.\n\
+            "function `{func_name}` does not match the signature required by interface `{interface_name}`\n\
              Expected:\n\
              {expected}\n\
              Found:\n\
@@ -101,8 +100,8 @@ pub(crate) fn signature_mismatch(
 }
 
 pub(crate) fn not_an_interface(name: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 5, format!("`{name}` is not an interface."), span)
-        .with_help("Only interface declarations can be inherited from.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 5, format!("`{name}` is not an interface"), span)
+        .with_help("Only interface declarations can be inherited from. Check the name for typos.")
 }
 
 pub(crate) fn missing_interface_mapping(
@@ -115,11 +114,11 @@ pub(crate) fn missing_interface_mapping(
         CODE_PREFIX,
         CODE_MASK + 6,
         format!(
-            "Program `{program_name}` implements interface `{interface_name}` but is missing the required mapping `{mapping_name}`."
+            "program `{program_name}` implements interface `{interface_name}` but is missing the required mapping `{mapping_name}`"
         ),
         span,
     )
-    .with_help("Add a mapping definition with the specified name.")
+    .with_help(format!("Add a `mapping {mapping_name}` definition with the key/value types declared by `{interface_name}`."))
 }
 
 pub(crate) fn missing_interface_storage(
@@ -132,11 +131,11 @@ pub(crate) fn missing_interface_storage(
         CODE_PREFIX,
         CODE_MASK + 7,
         format!(
-            "Program `{program_name}` implements interface `{interface_name}` but is missing the required storage variable `{storage_name}`."
+            "program `{program_name}` implements interface `{interface_name}` but is missing the required storage variable `{storage_name}`"
         ),
         span,
     )
-    .with_help("Add a storage variable definition with the specified name.")
+    .with_help(format!("Add a `storage {storage_name}` definition with the type declared by `{interface_name}`."))
 }
 
 pub(crate) fn mapping_type_mismatch(
@@ -152,7 +151,7 @@ pub(crate) fn mapping_type_mismatch(
         CODE_PREFIX,
         CODE_MASK + 8,
         format!(
-            "Mapping `{mapping_name}` does not match the type required by interface `{interface_name}`.\n\
+            "mapping `{mapping_name}` does not match the type required by interface `{interface_name}`\n\
              Expected: {expected_key} => {expected_value}\n\
              Found: {found_key} => {found_value}"
         ),
@@ -172,7 +171,7 @@ pub(crate) fn storage_type_mismatch(
         CODE_PREFIX,
         CODE_MASK + 9,
         format!(
-            "Storage variable `{storage_name}` does not match the type required by interface `{interface_name}`.\n\
+            "storage variable `{storage_name}` does not match the type required by interface `{interface_name}`\n\
              Expected: {expected}\n\
              Found: {found}"
         ),
@@ -182,8 +181,9 @@ pub(crate) fn storage_type_mismatch(
 }
 
 pub(crate) fn cyclic_interface_inheritance(path: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 10, format!("Cyclic interface inheritance detected: {path}"))
-        .with_help("Interface inheritance must be acyclic. Remove the circular dependency.")
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 10, format!("cyclic interface inheritance detected: {path}")).with_help(
+        "Interface inheritance must be acyclic. Break the cycle by removing one of the parent relationships.",
+    )
 }
 
 pub(crate) fn conflicting_record_field(
@@ -197,12 +197,11 @@ pub(crate) fn conflicting_record_field(
         CODE_PREFIX,
         CODE_MASK + 11,
         format!(
-            "Record `{record_name}` has a conflicting definition for field `{field_name}` in interface `{interface_name}` \
-             inherited from `{parent_name}`. Fields with the same name must have identical types and modes."
+            "record `{record_name}` has a conflicting definition for field `{field_name}` in interface `{interface_name}` inherited from `{parent_name}`"
         ),
         span,
     )
-    .with_help("Ensure both interfaces define the same type and mode for this field, or rename one of them.")
+    .with_help("Fields with the same name must have identical types and modes. Align both definitions, or rename one of them.")
 }
 
 pub(crate) fn record_field_missing(
@@ -216,12 +215,11 @@ pub(crate) fn record_field_missing(
         CODE_PREFIX,
         CODE_MASK + 12,
         format!(
-            "Record `{record_name}` in program `{program_name}` is missing required field `{field_name}` \
-             specified by interface `{interface_name}`."
+            "record `{record_name}` in program `{program_name}` is missing field `{field_name}` required by interface `{interface_name}`"
         ),
         span,
     )
-    .with_help("Add the missing field with the exact type and mode specified in the interface.")
+    .with_help(format!("Add the missing field `{field_name}` with the exact type and mode specified in `{interface_name}`."))
 }
 
 pub(crate) fn record_field_type_mismatch(
@@ -236,7 +234,7 @@ pub(crate) fn record_field_type_mismatch(
         CODE_PREFIX,
         CODE_MASK + 13,
         format!(
-            "Field `{field_name}` in record `{record_name}` does not match the type required by interface `{interface_name}`.\n\
+            "field `{field_name}` in record `{record_name}` does not match the type required by interface `{interface_name}`\n\
              Expected: {expected}\n\
              Found: {found}"
         ),
@@ -253,10 +251,8 @@ pub(crate) fn record_prototype_owner_wrong_type(
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 14,
-        format!(
-            "Field `owner` in record prototype `{record_name}` must have type `address`, found `{found_type}`. \
-             The `owner` field of a record is always `address`."
-        ),
+        format!("field `owner` in record prototype `{record_name}` must have type `address`, found `{found_type}`"),
         span,
     )
+    .with_help("Change the field's type to `address`. The `owner` field of every record is always `address`.")
 }

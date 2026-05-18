@@ -1,5 +1,7 @@
-[ETYC0372180] Error: `_dynamic_call` requires at least 3 arguments (program, network, function), but found 1.
+[ETYC0372180] Error: `_dynamic_call` requires at least 3 arguments (program, network, function), but 1 were supplied
    ╭─[ compiler-test:4:16 ]
    │
  4 │         return _dynamic_call::[u64](target);
+   │ 
+   │ Help: Pass the program id, network id, and function name as the first three arguments.
 ───╯

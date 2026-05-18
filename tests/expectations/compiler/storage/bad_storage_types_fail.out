@@ -1,120 +1,168 @@
-[ETYC0372166] Error: A zero sized type is an invalid storage type
+[ETYC0372166] Error: `A zero sized type` is not a valid storage type
    ╭─[ compiler-test:3:5 ]
    │
  3 │     storage unit_storage: ();
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: unit is an invalid storage type
+[ETYC0372166] Error: `unit` is not a valid storage type
    ╭─[ compiler-test:3:5 ]
    │
  3 │     storage unit_storage: ();
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: string is an invalid storage type
+[ETYC0372166] Error: `string` is not a valid storage type
    ╭─[ compiler-test:4:5 ]
    │
  4 │     storage string_storage: string;
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: future is an invalid storage type
+[ETYC0372166] Error: `future` is not a valid storage type
    ╭─[ compiler-test:5:5 ]
    │
  5 │     storage future_storage: Final;
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: optional is an invalid storage type
+[ETYC0372166] Error: `optional` is not a valid storage type
    ╭─[ compiler-test:6:5 ]
    │
  6 │     storage optional_storage: u32?;
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: tuple is an invalid storage type
+[ETYC0372166] Error: `tuple` is not a valid storage type
    ╭─[ compiler-test:7:5 ]
    │
  7 │     storage tuple_storage: (u32, u32);
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: record is an invalid storage type
+[ETYC0372166] Error: `record` is not a valid storage type
     ╭─[ compiler-test:14:5 ]
     │
  14 │     storage record_storage: MyRecord;
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: A zero sized type is an invalid storage type
+[ETYC0372166] Error: `A zero sized type` is not a valid storage type
     ╭─[ compiler-test:17:5 ]
     │
  17 │     storage array_unit: [(); 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: unit is an invalid storage type
+[ETYC0372166] Error: `unit` is not a valid storage type
     ╭─[ compiler-test:17:5 ]
     │
  17 │     storage array_unit: [(); 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: string is an invalid storage type
+[ETYC0372166] Error: `string` is not a valid storage type
     ╭─[ compiler-test:18:5 ]
     │
  18 │     storage array_string: [string; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: future is an invalid storage type
+[ETYC0372166] Error: `future` is not a valid storage type
     ╭─[ compiler-test:19:5 ]
     │
  19 │     storage array_future: [Final; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: future is an invalid storage type
+[ETYC0372166] Error: `future` is not a valid storage type
     ╭─[ compiler-test:19:5 ]
     │
  19 │     storage array_future: [Final; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: optional is an invalid storage type
+[ETYC0372166] Error: `optional` is not a valid storage type
     ╭─[ compiler-test:20:5 ]
     │
  20 │     storage array_optional: [u32?; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: optional is an invalid storage type
+[ETYC0372166] Error: `optional` is not a valid storage type
     ╭─[ compiler-test:20:5 ]
     │
  20 │     storage array_optional: [u32?; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: tuple is an invalid storage type
+[ETYC0372166] Error: `tuple` is not a valid storage type
     ╭─[ compiler-test:21:5 ]
     │
  21 │     storage array_tuple: [(u32, u32); 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: tuple is an invalid storage type
+[ETYC0372166] Error: `tuple` is not a valid storage type
     ╭─[ compiler-test:21:5 ]
     │
  21 │     storage array_tuple: [(u32, u32); 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: record is an invalid storage type
+[ETYC0372166] Error: `record` is not a valid storage type
     ╭─[ compiler-test:22:5 ]
     │
  22 │     storage array_record: [MyRecord; 2];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: A zero sized type is an invalid storage type
+[ETYC0372166] Error: `A zero sized type` is not a valid storage type
     ╭─[ compiler-test:25:5 ]
     │
  25 │     storage vec_unit: [()];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: unit is an invalid storage type
+[ETYC0372166] Error: `unit` is not a valid storage type
     ╭─[ compiler-test:25:5 ]
     │
  25 │     storage vec_unit: [()];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: string is an invalid storage type
+[ETYC0372166] Error: `string` is not a valid storage type
     ╭─[ compiler-test:26:5 ]
     │
  26 │     storage vec_string: [string];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: future is an invalid storage type
+[ETYC0372166] Error: `future` is not a valid storage type
     ╭─[ compiler-test:27:5 ]
     │
  27 │     storage vec_future: [Final];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: optional is an invalid storage type
+[ETYC0372166] Error: `optional` is not a valid storage type
     ╭─[ compiler-test:28:5 ]
     │
  28 │     storage vec_optional: [u32?];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: tuple is an invalid storage type
+[ETYC0372166] Error: `tuple` is not a valid storage type
     ╭─[ compiler-test:29:5 ]
     │
  29 │     storage vec_tuple: [(u32, u32)];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯
-[ETYC0372166] Error: record is an invalid storage type
+[ETYC0372166] Error: `record` is not a valid storage type
     ╭─[ compiler-test:30:5 ]
     │
  30 │     storage vec_record: [MyRecord];
+    │ 
+    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ────╯

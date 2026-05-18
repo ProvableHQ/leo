@@ -1,5 +1,7 @@
-[ECMP0376013] Error: This array length could not be determined at compile time.
+[ECMP0376013] Error: this array length could not be determined at compile time
    ╭─[ compiler-test:8:63 ]
    │
  8 │         let result: [u32; 2] = Deserialize::from_bits::[[u32; n]](bits);
+   │ 
+   │ Help: Array lengths must be `const` expressions. Replace the length with a literal or a `const` value.
 ───╯

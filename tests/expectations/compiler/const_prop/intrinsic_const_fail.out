@@ -1,5 +1,7 @@
-[ECEV0378002] Error: Error during compile time evaluation of this intrinsic: failed to fill whole buffer.
+[ECEV0378002] Error: compile-time evaluation of this intrinsic failed: failed to fill whole buffer
    ╭─[ compiler-test:2:19 ]
    │
  2 │     let v: bool = ECDSA::verify_digest([0u8; 65], [0u8; 33], [0u8; 32]);
+   │ 
+   │ Note: Reaching this error indicates an internal inconsistency: the type checker should have rejected this call. Please file an issue.
 ───╯

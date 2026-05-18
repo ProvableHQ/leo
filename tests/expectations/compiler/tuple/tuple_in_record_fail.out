@@ -1,10 +1,14 @@
-[ETYC0372050] Error: A record cannot contain a tuple.
+[ETYC0372050] Error: a record cannot contain a tuple
    ╭─[ compiler-test:4:9 ]
    │
  4 │         amounts: (u64, u64),
+   │ 
+   │ Help: Flatten the tuple into separate fields, or wrap it in a `struct` before storing it in the record.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

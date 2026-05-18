@@ -1,19 +1,23 @@
-[EPAR0370009] Error: unexpected string: expected 'assert', found 'identifier'
+[EPAR0370009] Error: expected `assert`, found `identifier`
    ╭─[ test:1:12 ]
    │
  1 │ fn f() { x.assert(); }
+   │ 
+   │ Help: Replace `identifier` with `assert`.
 ───╯
-[EPAR0370021] Error: The type of `x` has no associated function `_error` that takes 0 argument(s).
+[EPAR0370021] Error: the type of `x` has no associated function `_error` that takes 0 argument(s)
    ╭─[ test:1:10 ]
    │
  1 │ fn f() { x.assert(); }
+   │ 
+   │ Help: Check the method name for typos and confirm the argument count matches the function's signature.
 ───╯
-[EPAR0370027] Error: Missing a program scope in a Leo file.
+[EPAR0370027] Error: missing a program scope in a Leo file
    ╭─[ test:1:1 ]
    │
  1 │ fn f() { x.assert(); }
    │ ───────────┬───────────  
    │            ╰───────────── 
    │ 
-   │ Help: Add a program scope of the form: `program <name>.aleo { ... }` to the Leo file.
+   │ Help: Add a program scope of the form `program <name>.aleo { ... }` to the Leo file.
 ───╯

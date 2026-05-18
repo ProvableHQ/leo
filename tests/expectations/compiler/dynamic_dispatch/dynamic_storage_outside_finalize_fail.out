@@ -1,15 +1,21 @@
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
    ╭─[ compiler-test:9:23 ]
    │
  9 │         let v: u64? = Counter@(target)::total;
+   │ 
+   │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ───╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:14:23 ]
     │
  14 │         let v: u64? = Counter@(target)::entries.get(i);
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:19:16 ]
     │
  19 │         return Counter@(target)::entries.len();
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯

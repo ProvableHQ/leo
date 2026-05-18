@@ -35,8 +35,12 @@ pub(crate) fn binary_op_failure(
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK,
-        format!("Binary operation `{lhs} {op} {rhs}` failed at compile time: {reason}."),
+        format!("binary operation `{lhs} {op} {rhs}` failed at compile time: {reason}"),
         span,
+    )
+    .with_help(
+        "The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. \
+         Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).",
     )
 }
 
@@ -44,8 +48,12 @@ pub(crate) fn unary_op_failure(value: &Value, op: UnaryOperation, reason: impl D
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 1,
-        format!("Unary operation `{value}.{op}()` failed at compile time: {reason}."),
+        format!("unary operation `{value}.{op}()` failed at compile time: {reason}"),
         span,
+    )
+    .with_help(
+        "The operand is constant, so this operation was evaluated at compile time and would also fail at runtime. \
+         Adjust the operand to avoid the failure (e.g. negating the minimum signed integer).",
     )
 }
 
@@ -53,7 +61,8 @@ pub(crate) fn intrinsic_failure(reason: impl Display, span: Span) -> Formatted {
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 2,
-        format!("Error during compile time evaluation of this intrinsic: {reason}."),
+        format!("compile-time evaluation of this intrinsic failed: {reason}"),
         span,
     )
+    .with_note("Reaching this error indicates an internal inconsistency: the type checker should have rejected this call. Please file an issue.")
 }

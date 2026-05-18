@@ -1,10 +1,14 @@
-[ETYC0372031] Error: A mapping's value cannot be a zero sized type
+[ETYC0372031] Error: a mapping's value cannot be a `zero sized type`
    ╭─[ compiler-test:2:5 ]
    │
  2 │     mapping foo: u64 => [u32; 0];
+   │ 
+   │ Help: Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.
 ───╯
-[ETYC0372031] Error: A mapping's key cannot be a zero sized type
+[ETYC0372031] Error: a mapping's key cannot be a `zero sized type`
    ╭─[ compiler-test:3:5 ]
    │
  3 │     mapping bar: [u32; 0] => u64;
+   │ 
+   │ Help: Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.
 ───╯

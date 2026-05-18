@@ -1,10 +1,14 @@
-[ETYC0372008] Error: The value 18446744073709551616 is not a valid `u64`
+[ETYC0372008] Error: the value `18446744073709551616` is not a valid `u64`
    ╭─[ compiler-test:4:18 ]
    │
  4 │     let a: u64 = 18446744073709551616u64;
+   │ 
+   │ Help: Use a literal that fits within the range of `u64`.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

@@ -1,60 +1,84 @@
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:17 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:20 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:23 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:26 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:29 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:32 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:35 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:38 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:41 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:44 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:47 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯
-[ETYC0372117] Error: Expected type `bool` but type `group` was found.
+[ETYC0372117] Error: expected type `bool`, but type `group` was found
     ╭─[ compiler-test:38:50 ]
     │
  38 │         return (a, b, c, d, e, f, g, i, j, k, m, n);
+    │ 
+    │ Help: Change the expression to produce type `bool`.
 ────╯

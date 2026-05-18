@@ -1,5 +1,7 @@
-[ECEV0378000] Error: Binary operation `-170141183460469231731687303715884105727i128 - 2i128` failed at compile time: sub overflow.
+[ECEV0378000] Error: binary operation `-170141183460469231731687303715884105727i128 - 2i128` failed at compile time: sub overflow
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return a - 2i128; // This line attempts to return --170141183460469231731687303715884105729i128 however, the smallest i128 value is -170141183460469231731687303715884105728i128.
+   │ 
+   │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ───╯

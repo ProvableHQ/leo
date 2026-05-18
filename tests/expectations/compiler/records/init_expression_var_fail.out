@@ -1,9 +1,11 @@
-[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+[ETYC0372057] Error: only entry point fns can have a record as input or output
     ╭─[ compiler-test:11:34 ]
     │
  11 │ fn mint(r0: address, r1: u64) -> Token {
+    │ 
+    │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯
-[ETYC0372013] Error: Composite initialization expression for `Token` is missing member `owner`.
+[ETYC0372013] Error: initializer for `Token` is missing member `owner`
     ╭─[ compiler-test:12:12 ]
     │
  12 │ ╭─▶     return Token {
@@ -11,9 +13,13 @@
  15 │ ├─▶     };
     │ │            
     │ ╰──────────── 
+    │     
+    │     Help: Add `owner: <value>` to the initializer.
 ────╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

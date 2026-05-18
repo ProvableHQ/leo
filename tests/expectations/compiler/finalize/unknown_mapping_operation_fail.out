@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown function `test.aleo::Mapping::has_key`
+[ETYC0372005] Error: unknown function `test.aleo::Mapping::has_key`
     ╭─[ compiler-test:10:25 ]
     │
  10 │     let has_key: bool = Mapping::has_key(account, receiver);
+    │ 
+    │ Help: Check `test.aleo::Mapping::has_key` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

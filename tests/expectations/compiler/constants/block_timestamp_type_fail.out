@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected type `u32` but type `i64` was found.
+[ETYC0372117] Error: expected type `u32`, but type `i64` was found
    ╭─[ compiler-test:2:18 ]
    │
  2 │     let x: u32 = block.timestamp;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯

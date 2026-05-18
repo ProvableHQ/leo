@@ -1,23 +1,29 @@
-[WCEI03713001] Warning: Effect operation `_mapping_set` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:22:5 ]
     │
  22 │     Mapping::set(balances, 0u32, a);
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
-[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a storage variable write runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:23:5 ]
     │
  23 │     counter = a;
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
-[WCEI03713001] Warning: Effect operation `_vector_push` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a call to `_vector_push` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:24:5 ]
     │
  24 │     items.push(a);
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 program dep.aleo;
 

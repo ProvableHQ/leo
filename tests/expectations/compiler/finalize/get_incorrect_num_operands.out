@@ -1,32 +1,42 @@
-[ETYC0372031] Error: A mapping's value cannot be a record
+[ETYC0372031] Error: a mapping's value cannot be a `record`
    ╭─[ compiler-test:8:5 ]
    │
  8 │     mapping tokens: address => Token;
+   │ 
+   │ Help: Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.
 ───╯
-[ETYC0372147] Error: Invalid expression in a final block. `self.caller` cannot be used directly here.
+[ETYC0372147] Error: `self.caller` cannot be used directly inside a `final` block
     ╭─[ compiler-test:11:47 ]
     │
  11 │         return final { finalize_decrease_self(self.caller, amount); };
     │ 
-    │ Help: Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`
+    │ Help: Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`.
 ────╯
-[ETYC0372006] Error: Call expected `2` args, but got `3`
+[ETYC0372006] Error: this call expected 2 argument(s), but 3 were supplied
     ╭─[ compiler-test:16:5 ]
     │
  16 │     Mapping::get(tokens, true, true);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
-[ETYC0372006] Error: Call expected `2` args, but got `3`
+[ETYC0372006] Error: this call expected 2 argument(s), but 3 were supplied
     ╭─[ compiler-test:17:5 ]
     │
  17 │     tokens.get(true, true);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
-[ETYC0372006] Error: Call expected `2` args, but got `1`
+[ETYC0372006] Error: this call expected 2 argument(s), but 1 were supplied
     ╭─[ compiler-test:18:5 ]
     │
  18 │     Mapping::get(amounts);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
-[ETYC0372006] Error: Call expected `2` args, but got `1`
+[ETYC0372006] Error: this call expected 2 argument(s), but 1 were supplied
     ╭─[ compiler-test:19:5 ]
     │
  19 │     amounts.get();
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

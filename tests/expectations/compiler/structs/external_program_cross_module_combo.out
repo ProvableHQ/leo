@@ -76,84 +76,84 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372017] Error: The type `child.aleo::shapes::Point` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Point` is not found in the current scope
    ╭─[ compiler-test:7:16 ]
    │
  7 │     fn combine(p: child.aleo::shapes::Point, s: child.aleo::transforms::Scaled) -> u32 {
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
    ╭─[ compiler-test:7:46 ]
    │
  7 │     fn combine(p: child.aleo::shapes::Point, s: child.aleo::transforms::Scaled) -> u32 {
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Point` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Point` is not found in the current scope
    ╭─[ compiler-test:8:16 ]
    │
  8 │         return p.x + p.y + s.origin + s.factor;
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Point` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Point` is not found in the current scope
    ╭─[ compiler-test:8:22 ]
    │
  8 │         return p.x + p.y + s.origin + s.factor;
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
    ╭─[ compiler-test:8:28 ]
    │
  8 │         return p.x + p.y + s.origin + s.factor;
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
    ╭─[ compiler-test:8:39 ]
    │
  8 │         return p.x + p.y + s.origin + s.factor;
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:12:23 ]
     │
  12 │     fn segment_length(seg: child.aleo::shapes::Segment) -> u32 {
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:13:17 ]
     │
  13 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:13:29 ]
     │
  13 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:13:45 ]
     │
  13 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:13:57 ]
     │
  13 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:18:9 ]
     │
  18 │ ╭─▶         let seg: child.aleo::shapes::Segment = child.aleo::shapes::Segment {
@@ -162,94 +162,96 @@ Note: Treating dependencies as Aleo produces different results:
     │ │                
     │ ╰──────────────── 
     │     
-    │     Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │     Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372005] Error: Unknown struct or record `child.aleo::shapes::Segment`
+[ETYC0372005] Error: unknown struct or record `child.aleo::shapes::Segment`
     ╭─[ compiler-test:18:48 ]
     │
  18 │         let seg: child.aleo::shapes::Segment = child.aleo::shapes::Segment {
+    │ 
+    │ Help: Check `child.aleo::shapes::Segment` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:22:17 ]
     │
  22 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:22:29 ]
     │
  22 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:22:45 ]
     │
  22 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:22:57 ]
     │
  22 │         return (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:26:19 ]
     │
  26 │     fn full_combo(seg: child.aleo::shapes::Segment, s: child.aleo::transforms::Scaled) -> u32 {
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
     ╭─[ compiler-test:26:53 ]
     │
  26 │     fn full_combo(seg: child.aleo::shapes::Segment, s: child.aleo::transforms::Scaled) -> u32 {
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:27:25 ]
     │
  27 │         let len: u32 = (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:27:37 ]
     │
  27 │         let len: u32 = (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:27:53 ]
     │
  27 │         let len: u32 = (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::shapes::Segment` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::shapes::Segment` is not found in the current scope
     ╭─[ compiler-test:27:65 ]
     │
  27 │         let len: u32 = (seg.end.x - seg.start.x) + (seg.end.y - seg.start.y);
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
     ╭─[ compiler-test:28:22 ]
     │
  28 │         return len * s.factor + s.origin;
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372017] Error: The type `child.aleo::transforms::Scaled` is not found in the current scope.
+[ETYC0372017] Error: the type `child.aleo::transforms::Scaled` is not found in the current scope
     ╭─[ compiler-test:28:33 ]
     │
  28 │         return len * s.factor + s.origin;
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯

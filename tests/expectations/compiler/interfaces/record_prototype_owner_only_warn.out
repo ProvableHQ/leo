@@ -1,4 +1,4 @@
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:1:27 ]
    │
  1 │ ╭─▶ interface TokenInterface {
@@ -6,8 +6,10 @@
  5 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:1:27 ]
    │
  1 │ ╭─▶ interface TokenInterface {
@@ -15,6 +17,8 @@
  5 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
 program test.aleo;
 

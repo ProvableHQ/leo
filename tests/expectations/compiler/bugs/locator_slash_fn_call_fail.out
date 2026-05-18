@@ -1,15 +1,21 @@
-[ETYC0372117] Error: Expected type `field` but type `address` was found.
+[ETYC0372117] Error: expected type `field`, but type `address` was found
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return credits.aleo / transfer(1field);
+   │ 
+   │ Help: Change the expression to produce type `field`.
 ───╯
-[ETYC0372005] Error: Unknown function `test.aleo::transfer`
+[ETYC0372005] Error: unknown function `test.aleo::transfer`
    ╭─[ compiler-test:6:31 ]
    │
  6 │         return credits.aleo / transfer(1field);
+   │ 
+   │ Help: Check `test.aleo::transfer` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372117] Error: Expected a field or integer but type `address` was found.
+[ETYC0372117] Error: expected a field or integer, but type `address` was found
    ╭─[ compiler-test:6:16 ]
    │
  6 │         return credits.aleo / transfer(1field);
+   │ 
+   │ Help: Change the expression to produce a field or integer.
 ───╯

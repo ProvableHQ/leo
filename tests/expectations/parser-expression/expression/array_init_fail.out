@@ -1,20 +1,28 @@
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `..`
    ╭─[ test_0:1:2 ]
    │
  1 │ [...0u8; 1]
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found '..'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `..`
    ╭─[ test_1:1:2 ]
    │
  1 │ [...0; 1]
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ test_2:1:5 ]
    │
  1 │ [0; ()]
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯
-[EPAR0370005] Error: expected ']' -- found ';'
+[EPAR0370005] Error: expected ']', found `;`
    ╭─[ test_4:1:6 ]
    │
  1 │ [0; 1;]
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

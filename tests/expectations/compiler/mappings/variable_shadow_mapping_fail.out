@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `m` is defined multiple times.
+[EAST0372017] Error: the name `m` is defined multiple times
    ╭─[ compiler-test:5:13 ]
    │
  5 │         let m: u8 = 1u8;
@@ -12,4 +12,6 @@
  5 │         let m: u8 = 1u8;
    │             ┬  
    │             ╰── `m` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `m` definitions so the name is unique within its scope.
 ───╯

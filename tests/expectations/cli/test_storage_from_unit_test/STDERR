@@ -1,496 +1,620 @@
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:28:20 ]
     │
  28 │             assert(storage_demo.aleo::flag.unwrap() == true);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:28:13 ]
     │
  28 │             assert(storage_demo.aleo::flag.unwrap() == true);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:37:20 ]
     │
  37 │             assert(storage_demo.aleo::counter.unwrap() == 42u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:37:13 ]
     │
  37 │             assert(storage_demo.aleo::counter.unwrap() == 42u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:38:20 ]
     │
  38 │             assert(storage_demo.aleo::counter.unwrap_or(0u64) == 42u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:38:13 ]
     │
  38 │             assert(storage_demo.aleo::counter.unwrap_or(0u64) == 42u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:48:20 ]
     │
  48 │             assert(storage_demo.aleo::counter.unwrap() == 1u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:48:13 ]
     │
  48 │             assert(storage_demo.aleo::counter.unwrap() == 1u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:59:20 ]
     │
  59 │             assert(storage_demo.aleo::counter.unwrap() == 2u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:59:13 ]
     │
  59 │             assert(storage_demo.aleo::counter.unwrap() == 2u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:70:20 ]
     │
  70 │             assert(storage_demo.aleo::counter.unwrap_or(0u64) == 0u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:70:13 ]
     │
  70 │             assert(storage_demo.aleo::counter.unwrap_or(0u64) == 0u64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:79:20 ]
     │
  79 │             assert(storage_demo.aleo::tiny.unwrap() == 255u8);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:79:13 ]
     │
  79 │             assert(storage_demo.aleo::tiny.unwrap() == 255u8);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:88:20 ]
     │
  88 │             assert(storage_demo.aleo::signed.unwrap() == -1234i64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:88:13 ]
     │
  88 │             assert(storage_demo.aleo::signed.unwrap() == -1234i64);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:98:20 ]
     │
  98 │             assert(storage_demo.aleo::tag.unwrap() == a);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:98:13 ]
     │
  98 │             assert(storage_demo.aleo::tag.unwrap() == a);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:107:20 ]
      │
  107 │             assert(storage_demo.aleo::marker.unwrap() == 7field);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:107:13 ]
      │
  107 │             assert(storage_demo.aleo::marker.unwrap() == 7field);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:117:20 ]
      │
  117 │             assert(storage_demo.aleo::pivot.unwrap() == g);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:117:13 ]
      │
  117 │             assert(storage_demo.aleo::pivot.unwrap() == g);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:127:54 ]
      │
  127 │             let observed: storage_demo.aleo::Point = storage_demo.aleo::point.unwrap();
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:128:13 ]
      │
  128 │             assert(observed.x == -5i64);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:129:13 ]
      │
  129 │             assert(observed.y == 9i64);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:138:38 ]
      │
  138 │             let observed: [u32; 4] = storage_demo.aleo::quad.unwrap();
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:139:13 ]
      │
  139 │             assert(observed[0u32] == 1u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:140:13 ]
      │
  140 │             assert(observed[1u32] == 2u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:141:13 ]
      │
  141 │             assert(observed[2u32] == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:142:13 ]
      │
  142 │             assert(observed[3u32] == 4u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_len` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_len` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:166:20 ]
      │
  166 │             assert(storage_demo.aleo::history.len() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:166:13 ]
      │
  166 │             assert(storage_demo.aleo::history.len() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:167:20 ]
      │
  167 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 10u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:167:13 ]
      │
  167 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 10u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:168:20 ]
      │
  168 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 20u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:168:13 ]
      │
  168 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 20u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:169:20 ]
      │
  169 │             assert(storage_demo.aleo::history.get(2u32).unwrap() == 30u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:169:13 ]
      │
  169 │             assert(storage_demo.aleo::history.get(2u32).unwrap() == 30u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:171:20 ]
      │
  171 │             assert(storage_demo.aleo::history.get(3u32).unwrap_or(0u32) == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:171:13 ]
      │
  171 │             assert(storage_demo.aleo::history.get(3u32).unwrap_or(0u32) == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_len` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_len` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:185:20 ]
      │
  185 │             assert(storage_demo.aleo::history.len() == 1u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:185:13 ]
      │
  185 │             assert(storage_demo.aleo::history.len() == 1u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:186:20 ]
      │
  186 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 7u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:186:13 ]
      │
  186 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 7u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_len` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_len` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:200:20 ]
      │
  200 │             assert(storage_demo.aleo::history.len() == 2u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:200:13 ]
      │
  200 │             assert(storage_demo.aleo::history.len() == 2u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:201:20 ]
      │
  201 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 100u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:201:13 ]
      │
  201 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 100u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:202:20 ]
      │
  202 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 999u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:202:13 ]
      │
  202 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 999u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_len` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_len` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:221:20 ]
      │
  221 │             assert(storage_demo.aleo::history.len() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:221:13 ]
      │
  221 │             assert(storage_demo.aleo::history.len() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:222:20 ]
      │
  222 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 1u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:222:13 ]
      │
  222 │             assert(storage_demo.aleo::history.get(0u32).unwrap() == 1u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:223:20 ]
      │
  223 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 4u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:223:13 ]
      │
  223 │             assert(storage_demo.aleo::history.get(1u32).unwrap() == 4u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:224:20 ]
      │
  224 │             assert(storage_demo.aleo::history.get(2u32).unwrap() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:224:13 ]
      │
  224 │             assert(storage_demo.aleo::history.get(2u32).unwrap() == 3u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_len` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_len` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:238:20 ]
      │
  238 │             assert(storage_demo.aleo::history.len() == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:238:13 ]
      │
  238 │             assert(storage_demo.aleo::history.len() == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `_vector_get` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_vector_get` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:239:20 ]
      │
  239 │             assert(storage_demo.aleo::history.get(0u32).unwrap_or(0u32) == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
      ╭─[ SOURCE_DIRECTORY/test_storage_demo.leo:239:13 ]
      │
  239 │             assert(storage_demo.aleo::history.get(0u32).unwrap_or(0u32) == 0u32);
      │ 
-     │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+     │ 
+     │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ─────╯
 

@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown variable `myGlobal`
+[ETYC0372005] Error: unknown variable `myGlobal`
    ╭─[ compiler-test:2:12 ]
    │
  2 │     return myGlobal;
+   │ 
+   │ Help: Check `myGlobal` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

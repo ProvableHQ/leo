@@ -2089,12 +2089,12 @@ impl TypeCheckingVisitor<'_> {
         if !function.const_parameters.is_empty() {
             if function.annotations.iter().any(|a| a.identifier.name == sym::no_inline) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
-                    "Functions annotated with `@no_inline`",
+                    "functions annotated with `@no_inline`",
                     function.identifier.span(),
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
-                    "Entry point functions",
+                    "entry point functions",
                     function.identifier.span(),
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {

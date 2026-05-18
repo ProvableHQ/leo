@@ -1,10 +1,14 @@
-[EPAR0370005] Error: expected '=' -- found 'x'
+[EPAR0370005] Error: expected '=', found `x`
    ╭─[ test:4:13 ]
    │
  4 │     let mut x = 0;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '=' -- found 'y'
+[EPAR0370005] Error: expected '=', found `y`
    ╭─[ test:5:13 ]
    │
  5 │     let mut y = 0; // recovery witness
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

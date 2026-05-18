@@ -1,5 +1,7 @@
-[ETYC0372157] Error: Constructors can only return unit, but found `true`.
+[ETYC0372157] Error: constructors can only return unit `()`, but found `true`
    ╭─[ compiler-test:5:9 ]
    │
  5 │         return true;
+   │ 
+   │ Help: Remove the return value, or omit the `return` statement entirely.
 ───╯

@@ -1,10 +1,14 @@
-[ETYC0372005] Error: Unknown variable `x`
+[ETYC0372005] Error: unknown variable `x`
    ╭─[ compiler-test:3:21 ]
    │
  3 │         let b: u8 = x * z;
+   │ 
+   │ Help: Check `x` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372005] Error: Unknown variable `z`
+[ETYC0372005] Error: unknown variable `z`
    ╭─[ compiler-test:3:25 ]
    │
  3 │         let b: u8 = x * z;
+   │ 
+   │ Help: Check `z` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

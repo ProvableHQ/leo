@@ -25,13 +25,17 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `child.aleo::MAIN_CONST`
+[ETYC0372005] Error: unknown variable `child.aleo::MAIN_CONST`
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return child.aleo::MAIN_CONST;
+   │ 
+   │ Help: Check `child.aleo::MAIN_CONST` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372005] Error: Unknown variable `child.aleo::MAIN_CONST`
+[ETYC0372005] Error: unknown variable `child.aleo::MAIN_CONST`
     ╭─[ compiler-test:15:16 ]
     │
  15 │         return child.aleo::MAIN_CONST + child.aleo::sub::SUB_CONST;
+    │ 
+    │ Help: Check `child.aleo::MAIN_CONST` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

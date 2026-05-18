@@ -1,4 +1,4 @@
-[ECHI03712013] Error: Field `amount` in record `Token` does not match the type required by interface `test.aleo/TokenInterface`.
+[ECHI03712013] Error: field `amount` in record `Token` does not match the type required by interface `test.aleo/TokenInterface`
 Expected:  u64
 Found:  u32
     ╭─[ compiler-test:12:9 ]

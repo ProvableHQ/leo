@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected type `u64` but type `address` was found.
+[ETYC0372117] Error: expected type `u64`, but type `address` was found
    ╭─[ compiler-test:3:22 ]
    │
  3 │         let x: u64 = r.owner;
+   │ 
+   │ Help: Change the expression to produce type `u64`.
 ───╯

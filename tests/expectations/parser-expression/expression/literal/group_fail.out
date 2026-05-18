@@ -1,5 +1,7 @@
-[EPAR0370005] Error: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as' -- found 'group'
+[EPAR0370005] Error: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as', found `group`
    ╭─[ test_0:1:5 ]
    │
  1 │ 123 group
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

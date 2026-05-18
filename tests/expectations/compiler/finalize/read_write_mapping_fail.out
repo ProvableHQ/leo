@@ -1,30 +1,42 @@
-[ETYC0372117] Error: Expected an array but type `(address => u128)` was found.
+[ETYC0372117] Error: expected an array, but type `(address => u128)` was found
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return balances[addr];
+   │ 
+   │ Help: Change the expression to produce an array.
 ───╯
-[ETYC0372117] Error: Expected an integer but type `address` was found.
+[ETYC0372117] Error: expected an integer, but type `address` was found
    ╭─[ compiler-test:7:25 ]
    │
  7 │         return balances[addr];
+   │ 
+   │ Help: Change the expression to produce an integer.
 ───╯
-[ETYC0372125] Error: Cannot assign to the mapping `test.aleo::balances`.
+[ETYC0372125] Error: cannot assign to the mapping `test.aleo::balances`
     ╭─[ compiler-test:11:9 ]
     │
  11 │         balances[addr] = amount;
+    │ 
+    │ Help: Modify the mapping with `test.aleo::balances.set(key, value)` or related operations instead of assigning to it.
 ────╯
-[ETYC0372117] Error: Expected an array but type `(address => u128)` was found.
+[ETYC0372117] Error: expected an array, but type `(address => u128)` was found
     ╭─[ compiler-test:11:9 ]
     │
  11 │         balances[addr] = amount;
+    │ 
+    │ Help: Change the expression to produce an array.
 ────╯
-[ETYC0372117] Error: Expected an integer but type `address` was found.
+[ETYC0372117] Error: expected an integer, but type `address` was found
     ╭─[ compiler-test:11:18 ]
     │
  11 │         balances[addr] = amount;
+    │ 
+    │ Help: Change the expression to produce an integer.
 ────╯
-[ETYC0372125] Error: Cannot assign to the mapping `test.aleo::balances`.
+[ETYC0372125] Error: cannot assign to the mapping `test.aleo::balances`
     ╭─[ compiler-test:15:9 ]
     │
  15 │         balances = misc;
+    │ 
+    │ Help: Modify the mapping with `test.aleo::balances.set(key, value)` or related operations instead of assigning to it.
 ────╯

@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `transfer` does not match the signature required by interface `test.aleo/interfaces::HasToken`.
+[ECHI03712004] Error: function `transfer` does not match the signature required by interface `test.aleo/interfaces::HasToken`
 Expected:
 fn transfer(t: test.aleo::Token) -> test.aleo::Token
 Found:
@@ -13,7 +13,7 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ interfaces.leo:2:21 ]
    │
  2 │ ╭─▶ interface HasToken {
@@ -21,8 +21,10 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
  6 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ interfaces.leo:2:21 ]
    │
  2 │ ╭─▶ interface HasToken {
@@ -30,4 +32,6 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
  6 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯

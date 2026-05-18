@@ -1,34 +1,40 @@
-[ETYC0372117] Error: Expected type `[u8; 31]` but type `[u8; 32]` was found.
+[ETYC0372117] Error: expected type `[u8; 31]`, but type `[u8; 32]` was found
    ╭─[ compiler-test:3:23 ]
    │
  3 │     let d: [u8; 31] = Program::checksum(credits.aleo);
+   │ 
+   │ Help: Change the expression to produce type `[u8; 31]`.
 ───╯
-[ETYC0372119] Error: Received different types `[u8; 32]` and `[u8; 31]` for the operation `assert_neq`.
+[ETYC0372119] Error: operands of `assert_neq` have different types: `[u8; 32]` and `[u8; 31]`
    ╭─[ compiler-test:4:5 ]
    │
  4 │     assert_neq(c, d);
    │ 
-   │ Help: Make both operands the same type.
+   │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
 [ETYC0372156] Error: `Program::edition` must be called on a program ID, e.g. `foo.aleo`
    ╭─[ compiler-test:6:35 ]
    │
  6 │     let e: u16 = Program::edition(d);
 ───╯
-[ETYC0372117] Error: Expected type `address` but type `[u8; 31]` was found.
+[ETYC0372117] Error: expected type `address`, but type `[u8; 31]` was found
    ╭─[ compiler-test:6:35 ]
    │
  6 │     let e: u16 = Program::edition(d);
+   │ 
+   │ Help: Change the expression to produce type `address`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `u16` was found.
+[ETYC0372117] Error: expected type `u8`, but type `u16` was found
    ╭─[ compiler-test:7:17 ]
    │
  7 │     let f: u8 = Program::edition(credits.aleo);
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372119] Error: Received different types `u16` and `u8` for the operation `assert_neq`.
+[ETYC0372119] Error: operands of `assert_neq` have different types: `u16` and `u8`
    ╭─[ compiler-test:8:5 ]
    │
  8 │     assert_neq(e, f);
    │ 
-   │ Help: Make both operands the same type.
+   │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯

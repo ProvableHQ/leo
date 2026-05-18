@@ -1,20 +1,28 @@
-[ETYC0372117] Error: Expected type `u32` but type `address` was found.
+[ETYC0372117] Error: expected type `u32`, but type `address` was found
    ╭─[ compiler-test:3:22 ]
    │
  3 │         let x: u32 = self.caller;
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `address` was found.
+[ETYC0372117] Error: expected type `u8`, but type `address` was found
    ╭─[ compiler-test:4:21 ]
    │
  4 │         let y: u8 = self.caller;
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372117] Error: Expected type `u8` but type `address` was found.
+[ETYC0372117] Error: expected type `u8`, but type `address` was found
    ╭─[ compiler-test:7:13 ]
    │
  7 │         z = self.caller;
+   │ 
+   │ Help: Change the expression to produce type `u8`.
 ───╯
-[ETYC0372117] Error: Expected type `field` but type `address` was found.
+[ETYC0372117] Error: expected type `field`, but type `address` was found
     ╭─[ compiler-test:10:13 ]
     │
  10 │         w = self.signer;
+    │ 
+    │ Help: Change the expression to produce type `field`.
 ────╯

@@ -1,5 +1,7 @@
-[ETYC0372002] Error: Cannot assign to const variable `test.aleo::HELLO`
+[ETYC0372002] Error: cannot assign to const variable `test.aleo::HELLO`
    ╭─[ compiler-test:1:7 ]
    │
  1 │ const HELLO: u8 = 0u8;
+   │ 
+   │ Help: Declare `test.aleo::HELLO` with `let` instead of `const` to make it mutable.
 ───╯

@@ -1,21 +1,25 @@
-[ETYC0372110] Error: Only entry point fns can return a Final.
+[ETYC0372110] Error: only entry point fns can return a `Final`
    ╭─[ compiler-test:5:25 ]
    │
  5 │ fn foo(a: u8, b: u8) -> Final {
    │ 
-   │ Help: Move this function inside the `program` block to make it an entry point fn.
+   │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ───╯
-[ETYC0372042] Error: Only regular fns can be called from a regular function or constructor.
+[ETYC0372042] Error: only regular `fn`s can be called from a regular function or constructor
    ╭─[ compiler-test:6:12 ]
    │
  6 │     return finalize_bar(a, b);
+   │ 
+   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
 ───╯
-[ETYC0372003] Error: Expected type `Final<Fn()>` but type `u8` was found
+[ETYC0372003] Error: expected type `Final<Fn()>`, found type `u8`
    ╭─[ compiler-test:6:12 ]
    │
  6 │     return finalize_bar(a, b);
+   │ 
+   │ Help: Change the expression to produce a `Final<Fn()>`, or cast it with `as Final<Fn()>` if a conversion exists.
 ───╯
-[ETYC0372106] Error: A final fn is not allowed to return a value.
+[ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:13:1 ]
     │
  13 │ ╭─▶ final fn finalize_bar(a: u8, b: u8) -> u8 {
@@ -24,24 +28,26 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
-[ETYC0372110] Error: Only entry point fns can return a Final.
+[ETYC0372110] Error: only entry point fns can return a `Final`
     ╭─[ compiler-test:17:51 ]
     │
  17 │ fn mint_public(receiver: address, amount: u64) -> Final {
     │ 
-    │ Help: Move this function inside the `program` block to make it an entry point fn.
+    │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ────╯
-[ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function.
+[ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function
     ╭─[ compiler-test:18:12 ]
     │
  18 │     return final { finalize_mint(receiver, amount); };
     │ 
-    │ Help: Try moving this `final` block into an entry point fn or a script function.
+    │ Help: Move this `final` block into an entry point fn or a script function.
 ────╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

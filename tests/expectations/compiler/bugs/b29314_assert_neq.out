@@ -1,9 +1,9 @@
-[WTYC0372006] Warning: Comparison `!=` between two operands of type `()` always evaluates to `false` at compile time.
+[WTYC0372006] Warning: comparison `!=` between two operands of type `()` always evaluates to `false` at compile time
    ╭─[ compiler-test:6:20 ]
    │
  6 │             assert(fin_foo(a) != fin_foo(a));
    │ 
-   │ Help: Both operands have type `()` (e.g. the return type of `Mapping::set` or other side-effecting calls), so the comparison has no runtime effect — the branch decision is baked in at compile time. If you intended to compare actual values, the operands likely need to be expressions that produce a value, not unit-returning calls.
+   │ Help: Both operands are unit values (e.g. the return of `Mapping::set` or other side-effecting calls), so the comparison has no runtime effect. If you meant to compare values, change the operands to expressions that produce non-unit values.
 ───╯
 program test.aleo;
 

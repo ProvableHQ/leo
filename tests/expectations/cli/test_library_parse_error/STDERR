@@ -1,21 +1,27 @@
 --- leo add --local bad_lib ---
 --- leo build (should fail: library has parse error) ---
-[EPAR0370005] Error: expected ':' -- found '='
+[EPAR0370005] Error: expected ':', found `=`
    ╭─[ SOURCE_DIRECTORY/lib.leo:2:14 ]
    │
  2 │ const BROKEN = ;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 
-[EPAR0370005] Error: expected '=' -- found ';'
+[EPAR0370005] Error: expected '=', found `;`
    ╭─[ SOURCE_DIRECTORY/lib.leo:2:16 ]
    │
  2 │ const BROKEN = ;
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ SOURCE_DIRECTORY/lib.leo:2:18 ]
    │
  2 │ const BROKEN = ;
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 
 

@@ -1,9 +1,9 @@
-[WCEI03713004] Warning: Value `result` used in finalize block is derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `result` used in the finalize block was derived from external call `credits.aleo/transfer_private_to_public`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:14:17 ]
     │
  14 │                 result.1.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `result`. Re-read the value on-chain inside the finalize block.
 ────╯
 program credits.aleo;
 

@@ -1,5 +1,7 @@
-[ETYC0372047] Error: The number of entry point fns exceeds the maximum. snarkVM allows up to 31 entry point fns within a single program.
+[ETYC0372047] Error: the number of entry point fns exceeds the maximum of 31 per program
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Reduce the program to at most 31 entry point fns, or split it across multiple programs.
 ───╯

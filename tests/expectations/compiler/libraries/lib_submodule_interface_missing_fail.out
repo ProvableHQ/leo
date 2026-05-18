@@ -1,4 +1,4 @@
-[ECHI03712002] Error: Program `main.aleo` implements interface `ifaces/traits::Worker` but is missing the required function `status`.
+[ECHI03712002] Error: program `main.aleo` implements interface `ifaces/traits::Worker` but is missing the required function `status`
     ╭─[ compiler-test:3:1 ]
     │
   3 │ ╭─▶ program main.aleo : ifaces::traits::Worker {
@@ -7,5 +7,5 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Add the missing function with the exact signature specified in the interface.
+    │     Help: Add the missing function `status` with the exact signature specified in `ifaces/traits::Worker`.
 ────╯

@@ -1,5 +1,7 @@
-[ETYC0372079] Error: An array cannot have a record as an element type
+[ETYC0372079] Error: an array cannot have a record as its element type
    ╭─[ compiler-test:7:12 ]
    │
  7 │     fn foo(a: [bar; 8]) -> u8 {
+   │ 
+   │ Help: Store the records' field values in parallel arrays, or reference them by id stored in a mapping.
 ───╯

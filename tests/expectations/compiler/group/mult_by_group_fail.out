@@ -1,12 +1,14 @@
-[ETYC0372120] Error: Received types `group` and `group` for the operation `*`.
+[ETYC0372120] Error: operands of `*` have unsupported types: `group` and `group`
    ╭─[ compiler-test:4:12 ]
    │
  4 │     return 0group * a;
    │ 
-   │ Help: Valid operands are two integers of the same type, two fields, or a scalar and a group.
+   │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

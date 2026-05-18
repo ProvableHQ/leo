@@ -94,6 +94,57 @@ use std::{
 
 `rust fmt` should automatically sort imports alphabetically after they are split into the appropriate sections.
 
+## Error message style
+
+Leo errors are rendered with [`ariadne`](https://docs.rs/ariadne/) and follow rustc's voice conventions. When adding or editing an error, match the existing style so output stays consistent.
+
+Error builder functions live next to the pass that emits them (e.g. `crates/passes/src/errors/type_checker.rs`, `crates/parser/src/errors.rs`) and return `Formatted` or `Backtraced` from `leo-errors`. The builder API is in `crates/errors/src/common/formatted.rs`.
+
+### Rules
+
+1. **Primary message** the string passed to `Formatted::error(...)` / `Formatted::warning(...)` (or the `Backtraced` equivalents):
+    - Start with a lowercase letter. Proper nouns and code identifiers in backticks keep their case.
+    - No trailing period.
+    - Describe what is wrong, not what to do. Use `cannot assign to const input \`x\`` rather than `Cannot assign to const input \`x\`.`.
+    - Quote identifiers and keywords with backticks: `` `let` ``, `` `foo` ``.
+
+2. **Help text** `.with_help(...)`:
+    - Full sentence(s). Capitalized first letter. Trailing period.
+    - Imperative voice: "Use `let` instead.", "Rename the field to avoid the clash."
+    - When you know a concrete fix, show it (in backticks or a short example), don't hedge with "Consider …".
+
+3. **Note text** `.with_note(...)`:
+    - Same shape as help (full sentences, capitalized, trailing period), but for *context* rather than fixes.
+    - Use this when explaining *why* a rule exists (e.g. "Bidi override characters can disguise source code and are rejected to prevent \"trojan source\" attacks.").
+
+4. **Labels** `.with_label(Label::new(span).with_message(...))`:
+    - Lowercase, no trailing period, same rules as the primary message.
+    - Describe the role of the span: "expected here", "previously defined here".
+
+5. **Avoid**:
+    - Vague help like "Consider using explicit type annotations.", be specific (`"Add a type annotation, e.g. \`let x: u32 = ...;\`, so the type can be inferred."`).
+    - Restating the primary message in the help.
+    - Trailing periods in primary messages or labels; missing periods in help/note.
+
+### Example
+
+```rust
+Formatted::error(CODE_PREFIX, CODE_MASK + 2, format!("cannot assign to const variable `{var}`"), span)
+    .with_help(format!("Declare `{var}` with `let` instead of `const` to make it mutable."))
+```
+
+Renders as:
+```
+[ETYC0372002] Error: cannot assign to const variable `x`
+   ╭─[ main.leo:5:5 ]
+   │
+ 5 │     x = 10;
+   │     ─
+   │ 
+   │ Help: Declare `x` with `let` instead of `const` to make it mutable.
+───╯
+```
+
 ## Coding conventions
 
 Leo is a big project, so (non-)adherence to best practices related to performance can have a considerable impact; below are the rules we try to follow at all times in order to ensure high quality of the code:

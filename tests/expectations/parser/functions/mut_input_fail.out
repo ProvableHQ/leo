@@ -1,7 +1,9 @@
-[EPAR0370005] Error: expected ':' -- found 'a'
+[EPAR0370005] Error: expected ':', found `a`
    ╭─[ test:3:10 ]
    │
  3 │ fn f(mut a: u8) {}
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 [EPAR0370047] Error: expected `import`, `program`, or module item at top level
    ╭─[ test:3:11 ]

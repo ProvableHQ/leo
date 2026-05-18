@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `hash` does not match the signature required by interface `test.aleo/Hasher`.
+[ECHI03712004] Error: function `hash` does not match the signature required by interface `test.aleo/Hasher`
 Expected:
 fn hash(input: [u8; 32]) -> [u8; 32]
 Found:

@@ -1,4 +1,4 @@
-[ECHI03712001] Error: Interface `Child` has a conflicting definition for `compute` inherited from `Parent`. Members with the same name must have identical signatures.
+[ECHI03712001] Error: interface `Child` has a conflicting definition for `compute` inherited from `Parent`
    ╭─[ compiler-test:6:1 ]
    │
  6 │ ╭─▶ interface Child : conflict_lib::Parent {
@@ -7,5 +7,5 @@
    │ │       
    │ ╰─────── 
    │     
-   │     Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+   │     Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ───╯

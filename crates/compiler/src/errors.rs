@@ -26,7 +26,8 @@ const CODE_PREFIX: &str = "CMP";
 const CODE_MASK: i32 = 6000;
 
 pub(crate) fn file_read_error(path: impl Debug, error: impl ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK, format!("Cannot read from the provided file path '{path:?}': {error}"))
+    Backtraced::error(CODE_PREFIX, CODE_MASK, format!("cannot read file `{path:?}`: {error}"))
+        .with_help("Verify that the file exists and that the current process has permission to read it.")
 }
 
 pub(crate) fn program_name_should_match_file_name(
@@ -37,9 +38,10 @@ pub(crate) fn program_name_should_match_file_name(
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 4,
-        format!("The program name `{program_name}` must match {file_name}"),
+        format!("the program name `{program_name}` must match the file name {file_name}"),
         span,
     )
+    .with_help(format!("Rename the program to match {file_name}, or rename the file to match `{program_name}`."))
 }
 
 pub(crate) fn imported_program_not_found(
@@ -51,17 +53,20 @@ pub(crate) fn imported_program_not_found(
         CODE_PREFIX,
         CODE_MASK + 6,
         format!(
-            "`{main_program_name}` imports `{dependency_name}`, but `{dependency_name}` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."
+            "`{main_program_name}` imports `{dependency_name}`, but `{dependency_name}` is not declared in the program manifest"
         ),
         span,
     )
+    .with_help(format!("Add `{dependency_name}` as a dependency in `program.json`. Run `leo add --help` for details."))
 }
 
 pub(crate) fn failed_ast_file(filename: impl Display, error: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 11, format!("Failed to write AST to file {filename}: {error}."))
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 11, format!("failed to write AST to file `{filename}`: {error}"))
+        .with_help("Verify the build output directory exists, is writable, and has enough free space.")
 }
 
 // Duplicated from package — same message, different code.
 pub(crate) fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("Cannot find path `{path}`: {err}."))
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("cannot find path `{path}`: {err}"))
+        .with_help("Verify the path exists and is accessible from the current working directory.")
 }

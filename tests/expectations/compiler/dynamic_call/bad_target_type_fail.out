@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected `field` or `identifier` but type `u32` was found.
+[ETYC0372117] Error: expected `field` or `identifier`, but type `u32` was found
     ╭─[ compiler-test:11:21 ]
     │
  11 │         return Foo@(target)::bar();
+    │ 
+    │ Help: Change the expression to produce `field` or `identifier`.
 ────╯

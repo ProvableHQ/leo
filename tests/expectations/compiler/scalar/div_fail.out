@@ -1,15 +1,21 @@
-[ETYC0372117] Error: Expected a field or integer but type `scalar` was found.
+[ETYC0372117] Error: expected a field or integer, but type `scalar` was found
    ╭─[ compiler-test:2:12 ]
    │
  2 │     return a / b; // division not supported for scalar types.
+   │ 
+   │ Help: Change the expression to produce a field or integer.
 ───╯
-[ETYC0372117] Error: Expected a field or integer but type `scalar` was found.
+[ETYC0372117] Error: expected a field or integer, but type `scalar` was found
    ╭─[ compiler-test:2:16 ]
    │
  2 │     return a / b; // division not supported for scalar types.
+   │ 
+   │ Help: Change the expression to produce a field or integer.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:5:9 ]
    │
  5 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

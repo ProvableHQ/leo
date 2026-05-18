@@ -24,14 +24,14 @@ function main:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ECHI03712000] Error: Interface `lib_a.aleo/InterfaceA` not found.
+[ECHI03712000] Error: interface `lib_a.aleo/InterfaceA` not found
    ╭─[ compiler-test:5:20 ]
    │
  5 │ program test.aleo: lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
    │ 
    │ Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
-[ECHI03712000] Error: Interface `lib_b.aleo/InterfaceB` not found.
+[ECHI03712000] Error: interface `lib_b.aleo/InterfaceB` not found
    ╭─[ compiler-test:5:45 ]
    │
  5 │ program test.aleo: lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {

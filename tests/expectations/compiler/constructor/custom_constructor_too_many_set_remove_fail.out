@@ -1,4 +1,4 @@
-[ECMP0376015] Error: This block contains 33 `set`/`remove` mapping commands, but the maximum allowed is 32.
+[ECMP0376015] Error: this block contains 33 `set`/`remove` mapping commands, but the maximum allowed is 32
     ╭─[ compiler-test:6:5 ]
     │
   6 │ ╭─▶     @custom
@@ -6,4 +6,6 @@
  41 │ ├─▶     }
     │ │           
     │ ╰─────────── 
+    │     
+    │     Help: Reduce the number of `set`/`remove` commands in this block to at most 32, e.g. by combining writes or moving some out of the block.
 ────╯
