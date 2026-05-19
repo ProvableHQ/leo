@@ -48,17 +48,6 @@ pub(crate) fn expected_final(type_: impl Display, span: Span) -> Formatted {
         .with_help("Only `Final` values can be run with `.run()`.")
 }
 
-pub(crate) fn entry_point_final_call_with_final_argument(function_name: impl Display, span: Span) -> Formatted {
-    Formatted::error(
-        CODE_PREFIX,
-        CODE_MASK + 4,
-        format!("the call to `{function_name}` will result in failed executions on-chain"),
-        span,
-    )
-    .with_note("There is a subtle error that occurs if an entry point fn returning `Final` follows a non-`Final` entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See https://github.com/AleoNet/snarkVM/issues/2570 for more context.")
-    .with_help("Reorder the calls so the dependency is satisfied.")
-}
-
 pub(crate) fn misplaced_final(span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 5, "a `Final` cannot be used in this way", span)
         .with_help("`Final`s must be created, bound to a variable, and consumed exactly once. They cannot be moved, reassigned, or stored.")
