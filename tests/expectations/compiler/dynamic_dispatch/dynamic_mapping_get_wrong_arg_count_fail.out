@@ -1,5 +1,7 @@
-[ETYC0372006] Error: Call expected `1` args, but got `2`
+[ETYC0372006] Error: this call expected 1 argument(s), but 2 were supplied
     ╭─[ compiler-test:13:20 ]
     │
  13 │     let val: u64 = Bank@(target)::balances.get(key, 0u64);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

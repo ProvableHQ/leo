@@ -1,5 +1,7 @@
-[ETYC0372024] Error: Tuple index `8` out of range for a tuple with length `3`
+[ETYC0372024] Error: tuple index `8` is out of range for a tuple of length 3
    ╭─[ compiler-test:7:32 ]
    │
  7 │         return final { let _ = y.8; };
+   │ 
+   │ Help: Tuple indices are zero-based, so the valid range is `0` to `3 - 1`.
 ───╯

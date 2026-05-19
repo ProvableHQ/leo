@@ -1,17 +1,21 @@
-[ETYC0372030] Error: A struct or record cannot contain another record.
+[ETYC0372030] Error: a struct or record cannot contain another record
    ╭─[ compiler-test:3:5 ]
    │
  3 │     token: Token,
    │ 
-   │ Help: Remove the record `test.aleo::Token` from `Foo`.
+   │ Help: Remove the record field of type `test.aleo::Token` from `Foo`, or store its individual fields instead.
 ───╯
-[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
+[ETYC0372058] Error: cyclic dependency between composites: `test.aleo/Token` --> `test.aleo/Foo` --> `test.aleo/Token`
    ╭─[ compiler-test:7:12 ]
    │
  7 │     record Token {
+   │ 
+   │ Help: Break the cycle by removing one of the references. Composite types cannot contain themselves transitively.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:6:9 ]
    │
  6 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

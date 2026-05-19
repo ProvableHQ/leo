@@ -1,30 +1,42 @@
-[ETYC0372117] Error: Expected type `signature` but type `address` was found.
+[ETYC0372117] Error: expected type `signature`, but type `address` was found
    ╭─[ compiler-test:8:45 ]
    │
  8 │         let first: bool = signature::verify(a, s, v);
+   │ 
+   │ Help: Change the expression to produce type `signature`.
 ───╯
-[ETYC0372117] Error: Expected type `address` but type `signature` was found.
+[ETYC0372117] Error: expected type `address`, but type `signature` was found
    ╭─[ compiler-test:8:48 ]
    │
  8 │         let first: bool = signature::verify(a, s, v);
+   │ 
+   │ Help: Change the expression to produce type `address`.
 ───╯
-[ETYC0372117] Error: Expected type `address` but type `u8` was found.
+[ETYC0372117] Error: expected type `address`, but type `u8` was found
    ╭─[ compiler-test:9:37 ]
    │
  9 │         let second: bool = s.verify(1u8, v);
+   │ 
+   │ Help: Change the expression to produce type `address`.
 ───╯
-[ETYC0372117] Error: Expected type `signature` but type `address` was found.
+[ETYC0372117] Error: expected type `signature`, but type `address` was found
     ╭─[ compiler-test:14:45 ]
     │
  14 │         let first: bool = signature::verify(a, v, s);
+    │ 
+    │ Help: Change the expression to produce type `signature`.
 ────╯
-[ETYC0372117] Error: Expected type `address` but type `test.aleo::foo` was found.
+[ETYC0372117] Error: expected type `address`, but type `test.aleo::foo` was found
     ╭─[ compiler-test:14:48 ]
     │
  14 │         let first: bool = signature::verify(a, v, s);
+    │ 
+    │ Help: Change the expression to produce type `address`.
 ────╯
-[ETYC0372117] Error: Expected type `address` but type `test.aleo::foo` was found.
+[ETYC0372117] Error: expected type `address`, but type `test.aleo::foo` was found
     ╭─[ compiler-test:15:37 ]
     │
  15 │         let second: bool = s.verify(v, a);
+    │ 
+    │ Help: Change the expression to produce type `address`.
 ────╯

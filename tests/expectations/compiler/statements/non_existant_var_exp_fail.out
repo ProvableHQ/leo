@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown variable `z`
+[ETYC0372005] Error: unknown variable `z`
    ╭─[ compiler-test:4:24 ]
    │
  4 │     let b: u8 = 1u8 ** z;
+   │ 
+   │ Help: Check `z` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

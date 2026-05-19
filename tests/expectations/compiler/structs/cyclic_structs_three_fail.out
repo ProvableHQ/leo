@@ -1,10 +1,14 @@
-[ETYC0372058] Error: Cyclic dependency between composites: `test.aleo/One` --> `test.aleo/Two` --> `test.aleo/Three` --> `test.aleo/One`
+[ETYC0372058] Error: cyclic dependency between composites: `test.aleo/One` --> `test.aleo/Two` --> `test.aleo/Three` --> `test.aleo/One`
    ╭─[ compiler-test:3:8 ]
    │
  3 │ struct One {
+   │ 
+   │ Help: Break the cycle by removing one of the references. Composite types cannot contain themselves transitively.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

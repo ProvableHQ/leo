@@ -1,4 +1,4 @@
-[ETYC0372016] Error: Record variable `owner` is already declared.
+[ETYC0372016] Error: record field `owner` is already declared
    ╭─[ compiler-test:5:9 ]
    │
  5 │         owner: address, // Cannot define two record variables with the same name.
@@ -11,8 +11,10 @@
  5 │         owner: address, // Cannot define two record variables with the same name.
    │         ───────┬──────  
    │                ╰──────── record variable already declared
+   │ 
+   │ Help: Remove or rename the duplicate `owner` field.
 ───╯
-[ETYC0372016] Error: Record variable `owner` is already declared.
+[ETYC0372016] Error: record field `owner` is already declared
     ╭─[ compiler-test:14:9 ]
     │
  14 │         owner: address,
@@ -26,8 +28,10 @@
  14 │         owner: address,
     │         ───────┬──────  
     │                ╰──────── record variable already declared
+    │ 
+    │ Help: Remove or rename the duplicate `owner` field.
 ────╯
-[ETYC0372016] Error: Record variable `owner` is already declared.
+[ETYC0372016] Error: record field `owner` is already declared
     ╭─[ compiler-test:21:9 ]
     │
  21 │         owner: address,
@@ -41,8 +45,10 @@
  21 │         owner: address,
     │         ───────┬──────  
     │                ╰──────── record variable already declared
+    │ 
+    │ Help: Remove or rename the duplicate `owner` field.
 ────╯
-[ETYC0372016] Error: Record variable `amount` is already declared.
+[ETYC0372016] Error: record field `amount` is already declared
     ╭─[ compiler-test:22:9 ]
     │
  22 │         amount: u64,
@@ -56,9 +62,13 @@
  22 │         amount: u64,
     │         ─────┬─────  
     │              ╰─────── record variable already declared
+    │ 
+    │ Help: Remove or rename the duplicate `amount` field.
 ────╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

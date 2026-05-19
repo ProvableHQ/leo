@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected type `u32` but type `bool` was found.
+[ETYC0372117] Error: expected type `u32`, but type `bool` was found
    ╭─[ compiler-test:5:33 ]
    │
  5 │         return math_lib::add(x, true); // bool where u32 expected
+   │ 
+   │ Help: Change the expression to produce type `u32`.
 ───╯

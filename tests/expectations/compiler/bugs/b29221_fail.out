@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown variable `N`
+[ETYC0372005] Error: unknown variable `N`
    ╭─[ compiler-test:6:63 ]
    │
  6 │         let result: [u32; 2] = Deserialize::from_bits::[[u32; N]](bits);
+   │ 
+   │ Help: Check `N` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

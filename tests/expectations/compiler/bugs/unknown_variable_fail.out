@@ -1,15 +1,21 @@
-[ETYC0372005] Error: Unknown variable `caller`
+[ETYC0372005] Error: unknown variable `caller`
     ╭─[ compiler-test:36:31 ]
     │
  36 │                 finalize_init(caller);
+    │ 
+    │ Help: Check `caller` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `account`
+[ETYC0372005] Error: unknown variable `account`
     ╭─[ compiler-test:56:49 ]
     │
  56 │     let owner_amount: u64 = Mapping::get_or_use(account, caller, 0u64);
+    │ 
+    │ Help: Check `account` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `account`
+[ETYC0372005] Error: unknown variable `account`
     ╭─[ compiler-test:58:18 ]
     │
  58 │     Mapping::set(account, caller, owner_amount + admin_token_amt);
+    │ 
+    │ Help: Check `account` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

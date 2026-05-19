@@ -60,6 +60,8 @@ pub struct Backtraced {
     pub message: String,
     /// The error help message if it exists.
     pub help: Option<String>,
+    /// An optional contextual note (background information rather than an actionable fix).
+    pub note: Option<String>,
     /// The error exit code.
     pub code: i32,
     /// The characters representing the type of error.
@@ -85,7 +87,7 @@ impl Backtraced {
     where
         S: ToString,
     {
-        Self { message: message.to_string(), help, code, type_, error, backtrace }
+        Self { message: message.to_string(), help, note: None, code, type_, error, backtrace }
     }
 
     /// Create a new error.
@@ -100,6 +102,11 @@ impl Backtraced {
 
     pub fn with_help(mut self, help: impl fmt::Display) -> Self {
         self.help = Some(help.to_string());
+        self
+    }
+
+    pub fn with_note(mut self, note: impl fmt::Display) -> Self {
+        self.note = Some(note.to_string());
         self
     }
 
@@ -143,12 +150,14 @@ impl fmt::Display for Backtraced {
             writeln!(f, "{message}")?;
         };
 
-        if let Some(help) = &self.help {
-            write!(
-                f,
-                "{INDENT     } |\n\
-            {INDENT     } = {help}",
-            )?;
+        if self.help.is_some() || self.note.is_some() {
+            write!(f, "{INDENT     } |")?;
+            if let Some(help) = &self.help {
+                write!(f, "\n{INDENT     } = {help}")?;
+            }
+            if let Some(note) = &self.note {
+                write!(f, "\n{INDENT     } = note: {note}")?;
+            }
         }
 
         #[cfg(not(target_arch = "wasm32"))]

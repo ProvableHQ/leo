@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown function `test.aleo::Foo::baz`
+[ETYC0372005] Error: unknown function `test.aleo::Foo::baz`
     ╭─[ compiler-test:11:30 ]
     │
  11 │         return Foo@(target)::baz(1u32);
+    │ 
+    │ Help: Check `test.aleo::Foo::baz` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

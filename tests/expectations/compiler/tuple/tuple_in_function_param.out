@@ -1,5 +1,7 @@
-[ETYC0372051] Error: A function cannot take in a tuple as input.
+[ETYC0372051] Error: a function cannot take a tuple as input
    ╭─[ compiler-test:2:12 ]
    │
  2 │     fn foo(a: (u8, u16)) -> (u8, u16) {
+   │ 
+   │ Help: Pass the tuple's elements as separate parameters, or wrap them in a `struct`.
 ───╯

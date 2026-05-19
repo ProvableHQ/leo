@@ -1,25 +1,35 @@
-[ETYC0372123] Error: The unit type () may appear only as the return type of a function.
+[ETYC0372123] Error: the unit type `()` may appear only as the return type of a function
    ╭─[ compiler-test:2:5 ]
    │
  2 │     x: (),
+   │ 
+   │ Help: Replace `()` with a concrete type, or remove the annotation where it is not allowed.
 ───╯
-[ETYC0372123] Error: The unit type () may appear only as the return type of a function.
+[ETYC0372123] Error: the unit type `()` may appear only as the return type of a function
    ╭─[ compiler-test:7:13 ]
    │
  7 │     fn main(x: ()) {}
+   │ 
+   │ Help: Replace `()` with a concrete type, or remove the annotation where it is not allowed.
 ───╯
-[ETYC0372123] Error: The unit type () may appear only as the return type of a function.
+[ETYC0372123] Error: the unit type `()` may appear only as the return type of a function
    ╭─[ compiler-test:9:14 ]
    │
  9 │     fn other(x: [(); 2]) {}
+   │ 
+   │ Help: Replace `()` with a concrete type, or remove the annotation where it is not allowed.
 ───╯
-[ETYC0372123] Error: The unit type () may appear only as the return type of a function.
+[ETYC0372123] Error: the unit type `()` may appear only as the return type of a function
     ╭─[ compiler-test:11:25 ]
     │
  11 │     fn yet_another() -> [(); 2] {}
+    │ 
+    │ Help: Replace `()` with a concrete type, or remove the annotation where it is not allowed.
 ────╯
-[ETYC0372036] Error: Function must return a value.
+[ETYC0372036] Error: function must return a value
     ╭─[ compiler-test:11:5 ]
     │
  11 │     fn yet_another() -> [(); 2] {}
+    │ 
+    │ Help: Ensure every path through the function ends in a `return` expression matching the declared output type.
 ────╯

@@ -1,19 +1,21 @@
-[ETYC0372160] Error: The type `dyn record` cannot be wrapped in an optional.
+[ETYC0372160] Error: the type `dyn record` cannot be wrapped in an optional
    ╭─[ compiler-test:2:13 ]
    │
  2 │     fn main(r: dyn record?) -> address {
    │ 
    │ Help: Optionals cannot wrap signatures, finals, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
 ───╯
-[ETYC0372164] Error: The input `r` has type `dyn record?`, which is or contains an optional type and is not allowed as an input to an entry point fn.
+[ETYC0372164] Error: the input `r` has type `dyn record?`, which is or contains an optional
    ╭─[ compiler-test:2:13 ]
    │
  2 │     fn main(r: dyn record?) -> address {
    │ 
-   │ Help: Inputs to entry point fn definitions cannot be optional or contain optionals. Consider moving the optionality outside the call site.
+   │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
 ───╯
-[ETYC0372117] Error: Expected a struct or record but type `dyn record?` was found.
+[ETYC0372117] Error: expected a struct or record, but type `dyn record?` was found
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return r.owner;
+   │ 
+   │ Help: Change the expression to produce a struct or record.
 ───╯

@@ -1,7 +1,7 @@
-[ETYC0372004] Error: Could not determine the type of `1`
+[ETYC0372004] Error: could not determine the type of `1`
     ╭─[ compiler-test:11:70 ]
     │
  11 │     let _: u64 = _dynamic_get_or_use::[u64](prog, net, mapping_name, 1, 0u64);
     │ 
-    │ Help: Consider using explicit type annotations.
+    │ Help: Add an explicit type annotation, e.g. `let x: u32 = …;`, so the type can be inferred.
 ────╯

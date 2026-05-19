@@ -1,8 +1,10 @@
 --- leo build (should fail: undefined name in library) ---
-[ETYC0372005] Error: Unknown function `missing_fn`
+[ETYC0372005] Error: unknown function `missing_fn`
    ╭─[ SOURCE_DIRECTORY/lib.leo:4:12 ]
    │
  4 │     return missing_fn();
+   │ 
+   │ Help: Check `missing_fn` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
 
 

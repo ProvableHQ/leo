@@ -1,10 +1,11 @@
-Error [EDIS03713000]: Failed to parse the source file for `.aleo` into a valid Aleo program.
-
+Error [EDIS03713000]: failed to parse the source file for `.aleo` into a valid Aleo program
+     |
+     = Verify that `.aleo` is valid Aleo bytecode. If it was produced by Leo, rebuild the dependency from source.
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ECHI03712000] Error: Interface `lib.aleo/contracts::Adder` not found.
+[ECHI03712000] Error: interface `lib.aleo/contracts::Adder` not found
    ╭─[ compiler-test:6:24 ]
    │
  6 │ program consumer.aleo: lib.aleo::contracts::Adder {

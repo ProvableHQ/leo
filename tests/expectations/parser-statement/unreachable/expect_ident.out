@@ -38,10 +38,12 @@
    │
  1 │ x::/
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_8:1:5 ]
    │
  1 │ x::[
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_9:1:4 ]
@@ -63,10 +65,12 @@
    │
  1 │ x::(
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_12:1:5 ]
    │
  1 │ x::(
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_13:1:4 ]
@@ -98,10 +102,12 @@
    │
  1 │ x::=
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_18:1:5 ]
    │
  1 │ x::=
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_19:1:4 ]
@@ -128,10 +134,12 @@
    │
  1 │ x::>=
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_24:1:5 ]
    │
  1 │ x::<
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_25:1:4 ]
@@ -243,10 +251,12 @@
    │
  1 │ x::self
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_47:1:8 ]
    │
  1 │ x::Self
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_48:1:4 ]

@@ -1,14 +1,14 @@
-[ECHI03712002] Error: Program `scratch.aleo` implements interface `scratch.aleo/AbstractFoo` but is missing the required function `foobar`.
+[ECHI03712002] Error: program `scratch.aleo` implements interface `scratch.aleo/AbstractFoo` but is missing the required function `foobar`
     ╭─[ compiler-test:13:1 ]
     │
  13 │ program scratch.aleo: AbstractFoo {}
     │ 
-    │ Help: Add the missing function with the exact signature specified in the interface.
+    │ Help: Add the missing function `foobar` with the exact signature specified in `scratch.aleo/AbstractFoo`.
 ────╯
-[ECHI03712003] Error: Program `scratch.aleo` implements interface `scratch.aleo/AbstractFoo` but is missing the required record `Foo`.
+[ECHI03712003] Error: program `scratch.aleo` implements interface `scratch.aleo/AbstractFoo` but is missing the required record `Foo`
     ╭─[ compiler-test:13:1 ]
     │
  13 │ program scratch.aleo: AbstractFoo {}
     │ 
-    │ Help: Add a record definition with the specified name.
+    │ Help: Add a `record Foo` definition matching the shape declared by `scratch.aleo/AbstractFoo`.
 ────╯

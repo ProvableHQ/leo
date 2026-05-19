@@ -1,5 +1,7 @@
-[ETYC0372173] Error: Cannot create external record `child1.aleo/R`. Records can only be created in the program that they are defined in
+[ETYC0372173] Error: cannot create external record `child1.aleo/R`
    ╭─[ compiler-test:6:17 ]
    │
  6 │         let r = child1.aleo::R { owner: addr };
+   │ 
+   │ Help: Records can only be created in the program that defines them. Call an entry point fn of that program to obtain one.
 ───╯

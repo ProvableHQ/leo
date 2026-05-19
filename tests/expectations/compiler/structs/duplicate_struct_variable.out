@@ -1,4 +1,4 @@
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
    ╭─[ compiler-test:6:5 ]
    │
  6 │     x: u32,
@@ -11,8 +11,10 @@
  6 │     x: u32,
    │     ───┬──  
    │        ╰──── struct field already declared
+   │ 
+   │ Help: Remove or rename the duplicate `x` field.
 ───╯
-[ETYC0372015] Error: Struct field `name` is already declared.
+[ETYC0372015] Error: struct field `name` is already declared
     ╭─[ compiler-test:14:5 ]
     │
  14 │     name: field,
@@ -26,8 +28,10 @@
  14 │     name: field,
     │     ─────┬─────  
     │          ╰─────── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `name` field.
 ────╯
-[ETYC0372015] Error: Struct field `id` is already declared.
+[ETYC0372015] Error: struct field `id` is already declared
     ╭─[ compiler-test:21:5 ]
     │
  21 │     id: u32,
@@ -41,8 +45,10 @@
  21 │     id: u32,
     │     ───┬───  
     │        ╰───── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `id` field.
 ────╯
-[ETYC0372015] Error: Struct field `val` is already declared.
+[ETYC0372015] Error: struct field `val` is already declared
     ╭─[ compiler-test:22:5 ]
     │
  22 │     val: u64,
@@ -56,8 +62,10 @@
  22 │     val: u64,
     │     ────┬───  
     │         ╰───── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `val` field.
 ────╯
-[ETYC0372015] Error: Struct field `host` is already declared.
+[ETYC0372015] Error: struct field `host` is already declared
     ╭─[ compiler-test:36:5 ]
     │
  36 │     host: field,
@@ -71,9 +79,13 @@
  36 │     host: field,
     │     ─────┬─────  
     │          ╰─────── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `host` field.
 ────╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

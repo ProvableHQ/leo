@@ -1,16 +1,18 @@
-[ETYC0372160] Error: The type `(u8, u8)` cannot be wrapped in an optional.
+[ETYC0372160] Error: the type `(u8, u8)` cannot be wrapped in an optional
    ╭─[ compiler-test:4:9 ]
    │
  4 │         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
    │ 
    │ Help: Optionals cannot wrap signatures, finals, mappings, tuples, vectors, records, arrays whose elements are optional-unsafe, or structures containing any such types.
 ───╯
-[ETYC0372117] Error: Expected (u8, u8)? but type `(u8, u8)` was found.
+[ETYC0372117] Error: expected (u8, u8)?, but type `(u8, u8)` was found
    ╭─[ compiler-test:4:28 ]
    │
  4 │         let a: (u8, u8)? = (1u8, 2u8); // ERROR: Tuples cannot be optional just yet
+   │ 
+   │ Help: Change the expression to produce (u8, u8)?.
 ───╯
-[ETYC0372160] Error: The type `Final<Fn()>` cannot be wrapped in an optional.
+[ETYC0372160] Error: the type `Final<Fn()>` cannot be wrapped in an optional
     ╭─[ compiler-test:14:9 ]
     │
  14 │         let fut: Final? = final { finalize(); }; // ERROR: Final? is not allowed

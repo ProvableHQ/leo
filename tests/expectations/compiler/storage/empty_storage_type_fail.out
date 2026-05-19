@@ -1,34 +1,42 @@
-[ETYC0372166] Error: A zero sized type is an invalid storage type
+[ETYC0372166] Error: `A zero sized type` is not a valid storage type
    ╭─[ compiler-test:2:5 ]
    │
  2 │     storage empty_array: [u8; 0];
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: array is an invalid storage type
+[ETYC0372166] Error: `array` is not a valid storage type
    ╭─[ compiler-test:2:5 ]
    │
  2 │     storage empty_array: [u8; 0];
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: A zero sized type is an invalid storage type
+[ETYC0372166] Error: `A zero sized type` is not a valid storage type
    ╭─[ compiler-test:3:5 ]
    │
  3 │     storage vector_of_empty_array: [[u8; 0]];
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372166] Error: array is an invalid storage type
+[ETYC0372166] Error: `array` is not a valid storage type
    ╭─[ compiler-test:3:5 ]
    │
  3 │     storage vector_of_empty_array: [[u8; 0]];
+   │ 
+   │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
-[ETYC0372000] Error: Invalid assignment target: empty_storage_type.aleo::vector_of_empty_array.
+[ETYC0372000] Error: invalid assignment target: `empty_storage_type.aleo::vector_of_empty_array`
     ╭─[ compiler-test:13:5 ]
     │
  13 │     vector_of_empty_array = [];
     │ 
     │ Help: Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 ────╯
-[ETYC0372004] Error: Could not determine the type of `[]`
+[ETYC0372004] Error: could not determine the type of `[]`
     ╭─[ compiler-test:13:29 ]
     │
  13 │     vector_of_empty_array = [];
     │ 
-    │ Help: Consider using explicit type annotations.
+    │ Help: Add an explicit type annotation, e.g. `let x: u32 = …;`, so the type can be inferred.
 ────╯

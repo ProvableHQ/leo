@@ -1,9 +1,9 @@
-[WCEI03713004] Warning: Value `adjusted_rate` used in finalize block is derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `adjusted_rate` used in the finalize block was derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:14:45 ]
     │
  14 │         return final { finalize_transfer(f, adjusted_rate, local_val, id); };
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `adjusted_rate`. Re-read the value on-chain inside the finalize block.
 ────╯
 program exchange.aleo;
 

@@ -1,7 +1,7 @@
-[ETYC0372030] Error: A struct or record cannot contain another record.
+[ETYC0372030] Error: a struct or record cannot contain another record
    ╭─[ compiler-test:4:9 ]
    │
  4 │         token: dyn record,
    │ 
-   │ Help: Remove the record `dyn record` from `Wrapper`.
+   │ Help: Remove the record field of type `dyn record` from `Wrapper`, or store its individual fields instead.
 ───╯

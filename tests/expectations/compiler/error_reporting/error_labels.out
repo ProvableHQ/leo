@@ -1,4 +1,4 @@
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
    ╭─[ compiler-test:7:5 ]
    │
  7 │     x: u32,
@@ -11,8 +11,10 @@
  7 │     x: u32,
    │     ───┬──  
    │        ╰──── struct field already declared
+   │ 
+   │ Help: Remove or rename the duplicate `x` field.
 ───╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:12:5 ]
     │
  12 │     x: u32,
@@ -25,8 +27,10 @@
  12 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:17:5 ]
     │
  17 │     x: u32,
@@ -39,8 +43,10 @@
  17 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:22:5 ]
     │
  22 │     x: u32,
@@ -53,8 +59,10 @@
  22 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:27:5 ]
     │
  27 │     x: u32,
@@ -67,8 +75,10 @@
  27 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:32:5 ]
     │
  32 │     x: u32,
@@ -81,8 +91,10 @@
  32 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:37:5 ]
     │
  37 │     x: u32,
@@ -95,8 +107,10 @@
  37 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯
-[ETYC0372015] Error: Struct field `x` is already declared.
+[ETYC0372015] Error: struct field `x` is already declared
     ╭─[ compiler-test:42:5 ]
     │
  42 │     x: u32,
@@ -109,4 +123,6 @@
  42 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
 ────╯

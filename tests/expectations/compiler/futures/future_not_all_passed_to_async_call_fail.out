@@ -1,7 +1,7 @@
-[ETYC0372104] Error: Not all Finals were consumed: f1
+[ETYC0372104] Error: not all `Final`s were consumed: f1
     ╭─[ compiler-test:14:22 ]
     │
  14 │         return final { finalize_foo(f0, f3, f2, f5, f4); };
     │ 
-    │ Help: Make sure all Finals are consumed exactly once. Consume by passing to a final fn call or final block.
+    │ Help: Each `Final` must be consumed exactly once. Pass it to a `final fn` call or use it inside a `final` block.
 ────╯

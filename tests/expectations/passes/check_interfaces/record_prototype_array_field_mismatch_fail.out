@@ -1,4 +1,4 @@
-[ECHI03712013] Error: Field `data` in record `Entry` does not match the type required by interface `test.aleo/Vault`.
+[ECHI03712013] Error: field `data` in record `Entry` does not match the type required by interface `test.aleo/Vault`
 Expected:  [u8; 32]
 Found:  [u8; 16]
     ╭─[ test:17:9 ]

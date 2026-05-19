@@ -1,5 +1,7 @@
-[ESAZ0374010] Error: Array index 8 out of bounds (array length is 8).
+[ESAZ0374010] Error: array index 8 is out of bounds (array length is 8)
    ╭─[ compiler-test:5:17 ]
    │
  5 │             x = a[i];
+   │ 
+   │ Help: Array indices are zero-based, so the valid range is `0` to `8 - 1`.
 ───╯

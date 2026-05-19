@@ -1,26 +1,28 @@
-[ETYC0372136] Error: Cannot assign to the external record type `test0.aleo::R` in this location.
+[ETYC0372136] Error: cannot assign to the external record `test0.aleo::R` in this conditional scope
     ╭─[ compiler-test:12:13 ]
     │
  12 │             r1 = test0.aleo::foo();
     │ 
-    │ Help: External record variables may not be assigned to in narrower conditional scopes than they were defined.
+    │ Help: External record variables cannot be assigned in conditional scopes narrower than where they were defined. Move the assignment to the same scope as the declaration.
 ────╯
-[ETYC0372137] Error: Cannot assign to the tuple type `(test0.aleo::R, test0.aleo::R)` containing an external record in this location.
+[ETYC0372137] Error: cannot assign to the tuple `(test0.aleo::R, test0.aleo::R)` containing an external record in this conditional scope
     ╭─[ compiler-test:21:13 ]
     │
  21 │             tupl.0 = test0.aleo::foo();
     │ 
-    │ Help: Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined.
+    │ Help: Tuples containing external records cannot be assigned in conditional scopes narrower than where they were defined. Move the assignment to the same scope as the declaration.
 ────╯
-[ETYC0372137] Error: Cannot assign to the tuple type `(test0.aleo::R, test0.aleo::R)` containing an external record in this location.
+[ETYC0372137] Error: cannot assign to the tuple `(test0.aleo::R, test0.aleo::R)` containing an external record in this conditional scope
     ╭─[ compiler-test:25:13 ]
     │
  25 │             tupl = (test0.aleo::foo(), test0.aleo::foo());
     │ 
-    │ Help: Tuples containing external records may not be assigned to in narrower conditional scopes than they were defined.
+    │ Help: Tuples containing external records cannot be assigned in conditional scopes narrower than where they were defined. Move the assignment to the same scope as the declaration.
 ────╯
-[ETYC0372135] Error: Cannot assign to a member of the external record `test0.aleo::R`.
+[ETYC0372135] Error: cannot assign to a member of the external record `test0.aleo::R`
     ╭─[ compiler-test:33:9 ]
     │
  33 │         r.x = x;
+    │ 
+    │ Help: External records are immutable from the consumer's side. Produce a new record value with the desired field instead.
 ────╯

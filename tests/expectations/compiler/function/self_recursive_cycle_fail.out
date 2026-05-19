@@ -1,11 +1,17 @@
-[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+[ETYC0372043] Error: cannot call a local entry point fn from an entry point fn
     ╭─[ compiler-test:15:20 ]
     │
  15 │             return foo(n - 1u8) + foo(n - 2u8);
+    │ 
+    │ Help: Refactor the shared logic into a regular `fn` and call that from both entry points.
 ────╯
-[ETYC0372043] Error: Cannot call a local entry point fn from an entry point fn.
+[ETYC0372043] Error: cannot call a local entry point fn from an entry point fn
     ╭─[ compiler-test:15:35 ]
     │
  15 │             return foo(n - 1u8) + foo(n - 2u8);
+    │ 
+    │ Help: Refactor the shared logic into a regular `fn` and call that from both entry points.
 ────╯
-Error [ETYC0372059]: Cyclic dependency between functions: `test.aleo/foo` --> `test.aleo/foo`
+Error [ETYC0372059]: cyclic dependency between functions: `test.aleo/foo` --> `test.aleo/foo`
+     |
+     = Break the cycle by removing one of the calls. Recursion is not supported in Leo.

@@ -1,18 +1,18 @@
-[ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+[ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
  17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+    │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
-[ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+[ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
  17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+    │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:22 ]
    │
  4 │ ╭─▶ interface IAbstract {
@@ -20,20 +20,22 @@
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
 
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ECHI03712001] Error: Interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`. Members with the same name must have identical signatures.
+[ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
  17 │ interface ICombined: IAbstract + IConcrete {}
     │ 
-    │ Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+    │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:22 ]
    │
  4 │ ╭─▶ interface IAbstract {
@@ -41,8 +43,10 @@ Note: Treating dependencies as Aleo produces different results:
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:22 ]
    │
  4 │ ╭─▶ interface IAbstract {
@@ -50,4 +54,6 @@ Note: Treating dependencies as Aleo produces different results:
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯

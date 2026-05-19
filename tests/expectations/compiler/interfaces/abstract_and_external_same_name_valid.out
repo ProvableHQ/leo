@@ -1,4 +1,4 @@
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:21 ]
    │
  4 │ ╭─▶ interface HasMixed {
@@ -6,6 +6,8 @@
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
 program other.aleo;
 
@@ -41,14 +43,14 @@ function main:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ECHI03712000] Error: Interface `lib.aleo/HasMixed` not found.
+[ECHI03712000] Error: interface `lib.aleo/HasMixed` not found
    ╭─[ compiler-test:5:20 ]
    │
  5 │ program test.aleo: lib.aleo::HasMixed {
    │ 
    │ Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:21 ]
    │
  4 │ ╭─▶ interface HasMixed {
@@ -56,8 +58,10 @@ Note: Treating dependencies as Aleo produces different results:
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯
-[WPAR0370002] Warning: Record prototype `Token` does not constrain any fields beyond the implicit `owner: address`. Consider simplifying to `record Token;`.
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
    ╭─[ compiler-test:4:21 ]
    │
  4 │ ╭─▶ interface HasMixed {
@@ -65,4 +69,6 @@ Note: Treating dependencies as Aleo produces different results:
  8 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Simplify the declaration to `record Token;`.
 ───╯

@@ -1,4 +1,4 @@
 --- leo build main (should fail: conflicting library name 'helper') ---
-Error [EPAK0375054]: Conflicting dependency. The existing dependency is 'TMPDIR/contents/helper_a)', while the new one is 'TMPDIR/contents/helper_b)'.
+Error [EPAK0375054]: conflicting dependency: existing is `helper (on Local) (at TMPDIR/contents/helper_a)`, new is `helper (on Local) (at TMPDIR/contents/helper_b)`
      |
-     = If your project has multiple dependencies on the same program, make sure that they are all network or all local dependencies, with the same editions.
+     = Multiple dependencies on the same program must all be network or all local, with the same edition. Align the entries in `program.json`.

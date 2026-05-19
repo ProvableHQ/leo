@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown function `math_lib::ops::nonexistent`
+[ETYC0372005] Error: unknown function `math_lib::ops::nonexistent`
    ╭─[ compiler-test:5:16 ]
    │
  5 │         return math_lib::ops::nonexistent(1u32, 2u32);
+   │ 
+   │ Help: Check `math_lib::ops::nonexistent` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

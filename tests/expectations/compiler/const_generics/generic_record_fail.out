@@ -1,4 +1,4 @@
-[ETYC0372145] Error: Records cannot be declared with generic const parameters.
+[ETYC0372145] Error: records cannot be declared with generic const parameters
    ╭─[ compiler-test:2:5 ]
    │
  2 │ ╭─▶     record Foo::[N: u32] {
@@ -6,8 +6,10 @@
  5 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Remove the const generic parameters from the record definition.
 ───╯
-[ETYC0372145] Error: Records cannot be declared with generic const parameters.
+[ETYC0372145] Error: records cannot be declared with generic const parameters
    ╭─[ compiler-test:7:5 ]
    │
  7 │ ╭─▶     record Bar::[N: field] {
@@ -15,4 +17,6 @@
  9 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Remove the const generic parameters from the record definition.
 ───╯

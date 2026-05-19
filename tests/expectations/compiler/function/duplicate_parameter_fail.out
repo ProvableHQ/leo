@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `a` is defined multiple times.
+[EAST0372017] Error: the name `a` is defined multiple times
    ╭─[ compiler-test:2:21 ]
    │
  2 │     fn main(a: u32, a: u32) -> u32 {
@@ -6,4 +6,6 @@
    │             ╰────────── previous definition of `a` here
    │                     │  
    │                     ╰── `a` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `a` definitions so the name is unique within its scope.
 ───╯

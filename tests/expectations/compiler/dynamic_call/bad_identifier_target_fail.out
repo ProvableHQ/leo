@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected `field` or `identifier` but type `u32` was found.
+[ETYC0372117] Error: expected `field` or `identifier`, but type `u32` was found
     ╭─[ compiler-test:11:23 ]
     │
  11 │         return Adder@(target)::sum(x, y);
+    │ 
+    │ Help: Change the expression to produce `field` or `identifier`.
 ────╯

@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `mint` does not match the signature required by interface `token_lib/itoken::TokenInterface`.
+[ECHI03712004] Error: function `mint` does not match the signature required by interface `token_lib/itoken::TokenInterface`
 Expected:
 fn mint(owner: address) -> Token
 Found:
@@ -13,7 +13,7 @@ fn mint(owner: address) -> test.aleo::Coin
    │     
    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ───╯
-[ECHI03712003] Error: Program `test.aleo` implements interface `token_lib/itoken::TokenInterface` but is missing the required record `Token`.
+[ECHI03712003] Error: program `test.aleo` implements interface `token_lib/itoken::TokenInterface` but is missing the required record `Token`
     ╭─[ test:1:1 ]
     │
   1 │ ╭─▶ program test.aleo: token_lib::itoken::TokenInterface {
@@ -22,5 +22,5 @@ fn mint(owner: address) -> test.aleo::Coin
     │ │      
     │ ╰────── 
     │     
-    │     Help: Add a record definition with the specified name.
+    │     Help: Add a `record Token` definition matching the shape declared by `token_lib/itoken::TokenInterface`.
 ────╯

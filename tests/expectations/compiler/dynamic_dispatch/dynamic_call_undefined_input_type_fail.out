@@ -1,12 +1,14 @@
-[ETYC0372117] Error: Expected type `test.aleo::Unknown` but type `u32` was found.
+[ETYC0372117] Error: expected type `test.aleo::Unknown`, but type `u32` was found
    ╭─[ compiler-test:6:72 ]
    │
  6 │         return _dynamic_call::[public Unknown, u32](target, net, func, x);
+   │ 
+   │ Help: Change the expression to produce type `test.aleo::Unknown`.
 ───╯
-[ETYC0372017] Error: The type `test.aleo::Unknown` is not found in the current scope.
+[ETYC0372017] Error: the type `test.aleo::Unknown` is not found in the current scope
    ╭─[ compiler-test:6:32 ]
    │
  6 │         return _dynamic_call::[public Unknown, u32](target, net, func, x);
    │ 
-   │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯

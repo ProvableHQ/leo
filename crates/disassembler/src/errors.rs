@@ -25,8 +25,9 @@ pub(crate) fn snarkvm_parsing_error(name: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK,
-        format!("Failed to parse the source file for `{name}.aleo` into a valid Aleo program."),
+        format!("failed to parse the source file for `{name}.aleo` into a valid Aleo program"),
     )
+    .with_help(format!("Verify that `{name}.aleo` is valid Aleo bytecode. If it was produced by Leo, rebuild the dependency from source."))
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -34,8 +35,9 @@ pub(crate) fn snarkvm_validation_error(name: impl Display, reason: impl Display)
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 1,
-        format!("Dependency `{name}.aleo` failed snarkVM validation: {reason}.")
-    ).with_help(
-        "This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but rejects semantically. Regenerate the dependency from Leo source if possible."
+        format!("dependency `{name}.aleo` failed snarkVM validation: {reason}"),
+    )
+    .with_help(
+        "This usually means the dependency is hand-crafted Aleo bytecode (or produced by a non-Leo toolchain) that uses a feature snarkVM accepts syntactically but rejects semantically. Regenerate the dependency from Leo source if possible.",
     )
 }

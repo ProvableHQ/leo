@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown struct or record `foo.aleo::Foo`
+[ETYC0372005] Error: unknown struct or record `foo.aleo::Foo`
     ╭─[ compiler-test:15:12 ]
     │
  15 │     return Foo::[2 * N * x] { x: 0 };
+    │ 
+    │ Help: Check `foo.aleo::Foo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

@@ -1,17 +1,21 @@
-[EPAR0370050] Error: Could not lex the following content: `'`.
-
+[EPAR0370050] Error: could not tokenize the following content: `'`
    ╭─[ test:4:19 ]
    │
  4 │     let d: char = '\u
+   │ 
+   │ Help: Remove or replace the unrecognized characters. Only ASCII source is supported outside of string literals.
 ───╯
-[EPAR0370050] Error: Could not lex the following content: `\`.
-
+[EPAR0370050] Error: could not tokenize the following content: `\`
    ╭─[ test:4:20 ]
    │
  4 │     let d: char = '\u
+   │ 
+   │ Help: Remove or replace the unrecognized characters. Only ASCII source is supported outside of string literals.
 ───╯
-[EPAR0370005] Error: expected ';' -- found '}'
+[EPAR0370005] Error: expected ';', found `}`
    ╭─[ test:5:1 ]
    │
  5 │ }
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

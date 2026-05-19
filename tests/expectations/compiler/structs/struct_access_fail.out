@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected type `i8` but type `u32` was found.
+[ETYC0372117] Error: expected type `i8`, but type `u32` was found
    ╭─[ compiler-test:8:21 ]
    │
  8 │         let x: i8 = s.f1;
+   │ 
+   │ Help: Change the expression to produce type `i8`.
 ───╯

@@ -1,10 +1,14 @@
-[ECMP0376012] Error: Unable to resolve composite expression `foo_lib::Foo`. A non-const expression was provided where a const generic parameter is required.
+[ECMP0376012] Error: unable to resolve composite expression `foo_lib::Foo`: a non-const expression was provided where a const generic parameter is required
    ╭─[ compiler-test:5:51 ]
    │
  5 │         let f: foo_lib::Foo::[n] = foo_lib::Foo::[n] { x: 0u32 };
+   │ 
+   │ Help: Pass a literal or `const` value for the generic parameter so it can be resolved at compile time.
 ───╯
-[ECMP0376012] Error: Unable to resolve composite type `foo_lib::Foo`. A non-const expression was provided where a const generic parameter is required.
+[ECMP0376012] Error: unable to resolve composite type `foo_lib::Foo`: a non-const expression was provided where a const generic parameter is required
    ╭─[ compiler-test:5:31 ]
    │
  5 │         let f: foo_lib::Foo::[n] = foo_lib::Foo::[n] { x: 0u32 };
+   │ 
+   │ Help: Pass a literal or `const` value for the generic parameter so it can be resolved at compile time.
 ───╯

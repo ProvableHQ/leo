@@ -1,60 +1,84 @@
-[ETYC0372155] Error: Cannot assign to `y` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `y` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:14:13 ]
     │
  14 │             y = (1u32, 2u8, 3u16);
+    │ 
+    │ Help: Declare `y` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `y` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `y` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:15:13 ]
     │
  15 │             y.0 = 1u32;
+    │ 
+    │ Help: Declare `y` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `a` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `a` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:16:13 ]
     │
  16 │             a = [1u32, 2u32];
+    │ 
+    │ Help: Declare `a` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `a` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `a` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:17:13 ]
     │
  17 │             a[0] = 3;
+    │ 
+    │ Help: Declare `a` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `x` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `x` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:18:13 ]
     │
  18 │             x = 2;
+    │ 
+    │ Help: Declare `x` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `s` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `s` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:19:13 ]
     │
  19 │             s.x = 99;
+    │ 
+    │ Help: Declare `s` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `y` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `y` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:22:21 ]
     │
  22 │                     y = (1u32, 2u8, 3u16);
+    │ 
+    │ Help: Declare `y` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `y` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `y` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:23:21 ]
     │
  23 │                     y.0 = 1u32;
+    │ 
+    │ Help: Declare `y` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `a` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `a` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:24:21 ]
     │
  24 │                     a = [1u32, 2u32];
+    │ 
+    │ Help: Declare `a` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `a` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `a` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:25:21 ]
     │
  25 │                     a[0] = 3;
+    │ 
+    │ Help: Declare `a` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `x` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `x` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:26:21 ]
     │
  26 │                     x = 2;
+    │ 
+    │ Help: Declare `x` inside the `final` block, or move the assignment outside of it.
 ────╯
-[ETYC0372155] Error: Cannot assign to `s` inside a `final` block because it was declared outside the block.
+[ETYC0372155] Error: cannot assign to `s` inside a `final` block because it was declared outside the block
     ╭─[ compiler-test:27:21 ]
     │
  27 │                     s.x = 99;
+    │ 
+    │ Help: Declare `s` inside the `final` block, or move the assignment outside of it.
 ────╯

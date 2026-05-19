@@ -1,10 +1,14 @@
-[ETYC0372142] Error: Cannot assign to const parameter `N`
+[ETYC0372142] Error: cannot assign to const parameter `N`
    ╭─[ compiler-test:8:5 ]
    │
  8 │     N = 5u32;
+   │ 
+   │ Help: Bind `N` to a new local with `let` and assign to that instead.
 ───╯
-[ETYC0372142] Error: Cannot assign to const parameter `M`
+[ETYC0372142] Error: cannot assign to const parameter `M`
    ╭─[ compiler-test:9:5 ]
    │
  9 │     M = 6u32;
+   │ 
+   │ Help: Bind `M` to a new local with `let` and assign to that instead.
 ───╯

@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `f1` is defined multiple times.
+[EAST0372017] Error: the name `f1` is defined multiple times
    ╭─[ compiler-test:6:4 ]
    │
  6 │ fn f1(a: u8) -> u8 {
@@ -12,4 +12,6 @@
  6 │ fn f1(a: u8) -> u8 {
    │    ─┬  
    │     ╰── `f1` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `f1` definitions so the name is unique within its scope.
 ───╯

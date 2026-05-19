@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `HELLO` is defined multiple times.
+[EAST0372017] Error: the name `HELLO` is defined multiple times
    ╭─[ compiler-test:2:7 ]
    │
  2 │ const HELLO: u8 = 1u8;
@@ -11,4 +11,6 @@
  2 │ const HELLO: u8 = 1u8;
    │       ──┬──  
    │         ╰──── `HELLO` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `HELLO` definitions so the name is unique within its scope.
 ───╯

@@ -1,20 +1,28 @@
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_0:1:8 ]
    │
  1 │ final {
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370003] Error: unexpected EOF
+[EPAR0370003] Error: unexpected end of file
    ╭─[ test_1:1:6 ]
    │
  1 │ final
+   │ 
+   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
-[EPAR0370005] Error: expected ';' -- found '}'
+[EPAR0370005] Error: expected ';', found `}`
    ╭─[ test_2:1:11 ]
    │
  1 │ final { 0 }
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ';' -- found 'y'
+[EPAR0370005] Error: expected ';', found `y`
    ╭─[ test_3:1:11 ]
    │
  1 │ final { x y }
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

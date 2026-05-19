@@ -1,9 +1,9 @@
-[WCEI03713004] Warning: Value `action` used in finalize block is derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `action` used in the finalize block was derived from external call `oracle.aleo/get_price`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:18:41 ]
     │
  18 │             Mapping::set(positions, id, action);
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `action`. Re-read the value on-chain inside the finalize block.
 ────╯
 program oracle.aleo;
 

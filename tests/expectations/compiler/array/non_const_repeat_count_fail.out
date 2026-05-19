@@ -1,5 +1,7 @@
-[ECMP0376014] Error: This repeat count could not be determined at compile time.
+[ECMP0376014] Error: this repeat count could not be determined at compile time
    ╭─[ compiler-test:3:24 ]
    │
  3 │         let a = [1u32; x];
+   │ 
+   │ Help: Repeat counts must be `const` expressions. Replace the count with a literal or a `const` value.
 ───╯

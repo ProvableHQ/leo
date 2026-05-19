@@ -66,13 +66,17 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `math_lib::OFFSET`
+[ETYC0372005] Error: unknown variable `math_lib::OFFSET`
    ╭─[ compiler-test:1:19 ]
    │
  1 │ const BASE: u32 = math_lib::OFFSET + 5u32;
+   │ 
+   │ Help: Check `math_lib::OFFSET` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372005] Error: Unknown variable `math_lib::SCALE`
+[ETYC0372005] Error: unknown variable `math_lib::SCALE`
    ╭─[ compiler-test:2:21 ]
    │
  2 │ const FACTOR: u32 = math_lib::SCALE + BASE;
+   │ 
+   │ Help: Check `math_lib::SCALE` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

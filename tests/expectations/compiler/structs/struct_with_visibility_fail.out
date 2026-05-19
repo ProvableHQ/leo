@@ -1,15 +1,21 @@
-[ETYC0372060] Error: A struct cannot have a member with mode `constant`, `private`, or `public`.
+[ETYC0372060] Error: a struct cannot have a member with mode `constant`, `private`, or `public`
    ╭─[ compiler-test:2:5 ]
    │
  2 │     constant a: u8,
+   │ 
+   │ Help: Remove the visibility modifier from the struct field. Visibility is only meaningful on function inputs and outputs.
 ───╯
-[ETYC0372060] Error: A struct cannot have a member with mode `constant`, `private`, or `public`.
+[ETYC0372060] Error: a struct cannot have a member with mode `constant`, `private`, or `public`
    ╭─[ compiler-test:3:5 ]
    │
  3 │     private bar: bool,
+   │ 
+   │ Help: Remove the visibility modifier from the struct field. Visibility is only meaningful on function inputs and outputs.
 ───╯
-[ETYC0372060] Error: A struct cannot have a member with mode `constant`, `private`, or `public`.
+[ETYC0372060] Error: a struct cannot have a member with mode `constant`, `private`, or `public`
    ╭─[ compiler-test:4:5 ]
    │
  4 │     public bax: u16,
+   │ 
+   │ Help: Remove the visibility modifier from the struct field. Visibility is only meaningful on function inputs and outputs.
 ───╯

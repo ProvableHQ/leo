@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown variable `registry.aleo::foo`
+[ETYC0372005] Error: unknown variable `registry.aleo::foo`
     ╭─[ compiler-test:11:32 ]
     │
  11 │     let a: bool = Mapping::get(registry.aleo::foo, addr);
+    │ 
+    │ Help: Check `registry.aleo::foo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

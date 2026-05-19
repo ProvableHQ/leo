@@ -222,13 +222,17 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `base.aleo::val_u32`
+[ETYC0372005] Error: unknown variable `base.aleo::val_u32`
     ╭─[ compiler-test:10:20 ]
     │
  10 │             assert(base.aleo::val_u32.unwrap() == 99u32);
+    │ 
+    │ Help: Check `base.aleo::val_u32` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `base.aleo::val_u32`
+[ETYC0372005] Error: unknown variable `base.aleo::val_u32`
     ╭─[ compiler-test:17:20 ]
     │
  17 │             assert(base.aleo::val_u32 == none);
+    │ 
+    │ Help: Check `base.aleo::val_u32` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

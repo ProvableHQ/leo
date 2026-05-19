@@ -1,4 +1,4 @@
-[ETYC0372160] Error: The type `optional_record_test.aleo::Foo` cannot be wrapped in an optional.
+[ETYC0372160] Error: the type `optional_record_test.aleo::Foo` cannot be wrapped in an optional
    ╭─[ compiler-test:9:9 ]
    │
  9 │         let f: Foo? = Foo { owner: self.signer, val: 5 };

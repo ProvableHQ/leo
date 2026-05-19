@@ -1,5 +1,7 @@
-[ETYC0372117] Error: Expected an array but type `u32` was found.
+[ETYC0372117] Error: expected an array, but type `u32` was found
    ╭─[ compiler-test:6:29 ]
    │
  6 │                 sum = sum + a[i][j];
+   │ 
+   │ Help: Change the expression to produce an array.
 ───╯

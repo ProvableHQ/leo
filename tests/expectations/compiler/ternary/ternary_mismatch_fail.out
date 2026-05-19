@@ -1,7 +1,7 @@
-[ETYC0372118] Error: Received different types `u8` and `u16` for the arms of a ternary conditional.
+[ETYC0372118] Error: ternary branches have different types: `u8` and `u16`
    ╭─[ compiler-test:3:17 ]
    │
  3 │         return (true ? 1u8 : 1u16) as u32;
    │ 
-   │ Help: Make both branches the same type.
+   │ Help: Make both branches produce the same type, e.g. by casting one of them.
 ───╯

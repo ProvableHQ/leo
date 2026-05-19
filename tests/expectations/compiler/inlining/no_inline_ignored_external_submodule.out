@@ -1,4 +1,4 @@
-[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because this is a module function.
+[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because this is a module function
    ╭─[ math.leo:2:1 ]
    │
  2 │ @no_inline
@@ -29,8 +29,10 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown function `child.aleo::math::helper`
+[ETYC0372005] Error: unknown function `child.aleo::math::helper`
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return child.aleo::math::helper(x);
+   │ 
+   │ Help: Check `child.aleo::math::helper` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

@@ -1,23 +1,23 @@
-[WCEI03713005] Warning: Tainted value `price` (derived from external call `__dynamic__/__dynamic__`) is passed as an argument to `<dynamic call>`, whose finalize will use the potentially stale value.
+[WCEI03713005] Warning: tainted value `price` (derived from external call `__dynamic__/__dynamic__`) is passed as an argument to `<dynamic call>`, whose finalize will use the potentially stale value
     ╭─[ compiler-test:11:33 ]
     │
  11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.
+    │ Help: The external program's finalize runs concurrently and may invalidate `price`. Pass the value on-chain inside the finalize block instead.
 ────╯
-[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `f_exchange` used in the finalize block was derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:15:13 ]
     │
  15 │             f_exchange.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `f_exchange`. Re-read the value on-chain inside the finalize block.
 ────╯
-[WCEI03713004] Warning: Value `f_exchange` used in finalize block is derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on.
+[WCEI03713004] Warning: value `f_exchange` used in the finalize block was derived from external call `__dynamic__/__dynamic__`, whose finalize may alter the state this value depends on
     ╭─[ compiler-test:15:13 ]
     │
  15 │             f_exchange.run();
     │ 
-    │ Help: The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.
+    │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `f_exchange`. Re-read the value on-chain inside the finalize block.
 ────╯
 program oracle.aleo;
 
@@ -78,13 +78,17 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown interface `oracle.aleo::Oracle`
+[ETYC0372005] Error: unknown interface `oracle.aleo::Oracle`
    ╭─[ compiler-test:8:47 ]
    │
  8 │         let (price, f_oracle): (u64, Final) = oracle.aleo::Oracle@(oracle_target)::get_price(id);
+   │ 
+   │ Help: Check `oracle.aleo::Oracle` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372005] Error: Unknown interface `exchange.aleo::Exchange`
+[ETYC0372005] Error: unknown interface `exchange.aleo::Exchange`
     ╭─[ compiler-test:11:33 ]
     │
  11 │         let f_exchange: Final = exchange.aleo::Exchange@(exchange_target)::execute_trade(id, price);
+    │ 
+    │ Help: Check `exchange.aleo::Exchange` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

@@ -1,5 +1,7 @@
-[ETYC0372181] Error: `_dynamic_contains` requires 4 arguments, but found 3.
+[ETYC0372181] Error: `_dynamic_contains` requires 4 argument(s), but 3 were supplied
     ╭─[ compiler-test:11:24 ]
     │
  11 │     let exists: bool = _dynamic_contains(prog, net, key);
+    │ 
+    │ Help: Pass exactly 4 argument(s) to `_dynamic_contains`.
 ────╯

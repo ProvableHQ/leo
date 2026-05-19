@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `MAX` is defined multiple times.
+[EAST0372017] Error: the name `MAX` is defined multiple times
    ╭─[ compiler-test:2:7 ]
    │
  2 │ const MAX: u32 = 200;
@@ -11,4 +11,6 @@
  2 │ const MAX: u32 = 200;
    │       ─┬─  
    │        ╰─── `MAX` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `MAX` definitions so the name is unique within its scope.
 ───╯

@@ -1,20 +1,28 @@
-[ETYC0372182] Error: `Deserialize::from_bits` requires exactly one type parameter, e.g. `Deserialize::from_bits::[u64](...)`
+[ETYC0372182] Error: `Deserialize::from_bits` requires exactly one type parameter
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return Deserialize::from_bits(bits);
+   │ 
+   │ Help: Provide the type parameter explicitly, e.g. `Deserialize::from_bits::[u64](…)`.
 ───╯
-[ETYC0372182] Error: `Deserialize::from_bits` requires exactly one type parameter, e.g. `Deserialize::from_bits::[u64](...)`
+[ETYC0372182] Error: `Deserialize::from_bits` requires exactly one type parameter
     ╭─[ compiler-test:11:16 ]
     │
  11 │         return Deserialize::from_bits::[[u8; 4], [u16; 2]](bits);
+    │ 
+    │ Help: Provide the type parameter explicitly, e.g. `Deserialize::from_bits::[u64](…)`.
 ────╯
-[ETYC0372182] Error: `Deserialize::from_bits_raw` requires exactly one type parameter, e.g. `Deserialize::from_bits_raw::[u64](...)`
+[ETYC0372182] Error: `Deserialize::from_bits_raw` requires exactly one type parameter
     ╭─[ compiler-test:15:16 ]
     │
  15 │         return Deserialize::from_bits_raw(bits);
+    │ 
+    │ Help: Provide the type parameter explicitly, e.g. `Deserialize::from_bits_raw::[u64](…)`.
 ────╯
-[ETYC0372182] Error: `Deserialize::from_bits_raw` requires exactly one type parameter, e.g. `Deserialize::from_bits_raw::[u64](...)`
+[ETYC0372182] Error: `Deserialize::from_bits_raw` requires exactly one type parameter
     ╭─[ compiler-test:19:16 ]
     │
  19 │         return Deserialize::from_bits_raw::[[u8; 4], [u16; 2]](bits);
+    │ 
+    │ Help: Provide the type parameter explicitly, e.g. `Deserialize::from_bits_raw::[u64](…)`.
 ────╯

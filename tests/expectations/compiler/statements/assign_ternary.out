@@ -1,17 +1,21 @@
-[ETYC0372117] Error: Expected type `bool` but type `u32` was found.
+[ETYC0372117] Error: expected type `bool`, but type `u32` was found
    ╭─[ compiler-test:4:26 ]
    │
  4 │     let x: bool = true ? y : true;
+   │ 
+   │ Help: Change the expression to produce type `bool`.
 ───╯
-[ETYC0372118] Error: Received different types `u32` and `bool` for the arms of a ternary conditional.
+[ETYC0372118] Error: ternary branches have different types: `u32` and `bool`
    ╭─[ compiler-test:4:19 ]
    │
  4 │     let x: bool = true ? y : true;
    │ 
-   │ Help: Make both branches the same type.
+   │ Help: Make both branches produce the same type, e.g. by casting one of them.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {}
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

@@ -1,4 +1,4 @@
-[ETYC0372178] Error: Accessing field `balance` on a `dyn record` requires a type annotation.
+[ETYC0372178] Error: accessing field `balance` on a `dyn record` requires a type annotation
    ╭─[ compiler-test:4:25 ]
    │
  4 │         let balance = r.balance;

@@ -1,70 +1,98 @@
-[ETYC0372034] Error: `storage write` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `storage write` must be inside a `final fn` or a `final` block
    ╭─[ compiler-test:7:9 ]
    │
  7 │         x = 1;
+   │ 
+   │ Help: Move the `storage write` call into a `final fn` or wrap it in a `final { … }` block.
 ───╯
-[ETYC0372034] Error: `storage access` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `storage access` must be inside a `final fn` or a `final` block
    ╭─[ compiler-test:8:17 ]
    │
  8 │         let y = x;
+   │ 
+   │ Help: Move the `storage access` call into a `final fn` or wrap it in a `final { … }` block.
 ───╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
    ╭─[ compiler-test:9:9 ]
    │
  9 │         vec.push(1);
+   │ 
+   │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ───╯
-[ETYC0372034] Error: `Vector::push` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::push` must be inside a `final fn` or a `final` block
    ╭─[ compiler-test:9:9 ]
    │
  9 │         vec.push(1);
+   │ 
+   │ Help: Move the `Vector::push` call into a `final fn` or wrap it in a `final { … }` block.
 ───╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:10:17 ]
     │
  10 │         let p = vec.pop();
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372034] Error: `Vector::pop` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::pop` must be inside a `final fn` or a `final` block
     ╭─[ compiler-test:10:17 ]
     │
  10 │         let p = vec.pop();
+    │ 
+    │ Help: Move the `Vector::pop` call into a `final fn` or wrap it in a `final { … }` block.
 ────╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:11:17 ]
     │
  11 │         let s = vec.swap_remove(0);
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372034] Error: `Vector::swap_remove` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::swap_remove` must be inside a `final fn` or a `final` block
     ╭─[ compiler-test:11:17 ]
     │
  11 │         let s = vec.swap_remove(0);
+    │ 
+    │ Help: Move the `Vector::swap_remove` call into a `final fn` or wrap it in a `final { … }` block.
 ────╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:12:17 ]
     │
  12 │         let l = vec.len();
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372034] Error: `Vector::len` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::len` must be inside a `final fn` or a `final` block
     ╭─[ compiler-test:12:17 ]
     │
  12 │         let l = vec.len();
+    │ 
+    │ Help: Move the `Vector::len` call into a `final fn` or wrap it in a `final { … }` block.
 ────╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:13:17 ]
     │
  13 │         let g = vec.get(0);
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372034] Error: `Vector::get` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::get` must be inside a `final fn` or a `final` block
     ╭─[ compiler-test:13:17 ]
     │
  13 │         let g = vec.get(0);
+    │ 
+    │ Help: Move the `Vector::get` call into a `final fn` or wrap it in a `final { … }` block.
 ────╯
-[ETYC0372067] Error: This operation can only be used in a final fn, a final block, or script.
+[ETYC0372067] Error: this operation can only be used in a `final fn`, a `final` block, or a script
     ╭─[ compiler-test:14:9 ]
     │
  14 │         vec.set(0, 0);
+    │ 
+    │ Help: Move the operation into a `final fn`, a `final { … }` block inside an entry point, or a script function.
 ────╯
-[ETYC0372034] Error: `Vector::set` must be inside a `final fn` or a `final` block.
+[ETYC0372034] Error: `Vector::set` must be inside a `final fn` or a `final` block
     ╭─[ compiler-test:14:9 ]
     │
  14 │         vec.set(0, 0);
+    │ 
+    │ Help: Move the `Vector::set` call into a `final fn` or wrap it in a `final { … }` block.
 ────╯

@@ -1,40 +1,56 @@
-[ETYC0372117] Error: Expected type `test.aleo::Token` but type `u128` was found.
+[ETYC0372117] Error: expected type `test.aleo::Token`, but type `u128` was found
     ╭─[ compiler-test:17:39 ]
     │
  17 │     Mapping::get_or_use(tokens, addr, amount);
+    │ 
+    │ Help: Change the expression to produce type `test.aleo::Token`.
 ────╯
-[ETYC0372117] Error: Expected type `test.aleo::Token` but type `u128` was found.
+[ETYC0372117] Error: expected type `test.aleo::Token`, but type `u128` was found
     ╭─[ compiler-test:18:29 ]
     │
  18 │     tokens.get_or_use(addr, amount);
+    │ 
+    │ Help: Change the expression to produce type `test.aleo::Token`.
 ────╯
-[ETYC0372117] Error: Expected type `address` but type `u8` was found.
+[ETYC0372117] Error: expected type `address`, but type `u8` was found
     ╭─[ compiler-test:19:34 ]
     │
  19 │     Mapping::get_or_use(amounts, 1u8, amount);
+    │ 
+    │ Help: Change the expression to produce type `address`.
 ────╯
-[ETYC0372117] Error: Expected type `address` but type `u8` was found.
+[ETYC0372117] Error: expected type `address`, but type `u8` was found
     ╭─[ compiler-test:20:24 ]
     │
  20 │     amounts.get_or_use(1u8, amount);
+    │ 
+    │ Help: Change the expression to produce type `address`.
 ────╯
-[ETYC0372117] Error: Expected type `u128` but type `u8` was found.
+[ETYC0372117] Error: expected type `u128`, but type `u8` was found
     ╭─[ compiler-test:21:40 ]
     │
  21 │     Mapping::get_or_use(amounts, addr, 1u8);
+    │ 
+    │ Help: Change the expression to produce type `u128`.
 ────╯
-[ETYC0372117] Error: Expected type `u128` but type `u8` was found.
+[ETYC0372117] Error: expected type `u128`, but type `u8` was found
     ╭─[ compiler-test:22:30 ]
     │
  22 │     amounts.get_or_use(addr, 1u8);
+    │ 
+    │ Help: Change the expression to produce type `u128`.
 ────╯
-[ETYC0372117] Error: Expected type `u128` but type `u8` was found.
+[ETYC0372117] Error: expected type `u128`, but type `u8` was found
     ╭─[ compiler-test:23:73 ]
     │
  23 │     Mapping::get_or_use(tokens, addr, Token { owner_addr: addr, amount: 1u8 });
+    │ 
+    │ Help: Change the expression to produce type `u128`.
 ────╯
-[ETYC0372117] Error: Expected type `u128` but type `u8` was found.
+[ETYC0372117] Error: expected type `u128`, but type `u8` was found
     ╭─[ compiler-test:24:63 ]
     │
  24 │     tokens.get_or_use(addr, Token { owner_addr: addr, amount: 1u8 });
+    │ 
+    │ Help: Change the expression to produce type `u128`.
 ────╯

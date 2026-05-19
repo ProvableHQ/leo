@@ -1,10 +1,14 @@
-[ETYC0372161] Error: The type `address?` is or contains an optional type which cannot be used as the key in a mapping
+[ETYC0372161] Error: the type `address?` contains an optional and cannot be used as the key in a mapping
    ╭─[ compiler-test:6:5 ]
    │
  6 │     mapping optional_balances: address? => Foo;
+   │ 
+   │ Help: Use a non-optional type for the mapping's key, or represent absence with a sentinel value.
 ───╯
-[ETYC0372161] Error: The type `st.aleo::Foo` is or contains an optional type which cannot be used as the value in a mapping
+[ETYC0372161] Error: the type `st.aleo::Foo` contains an optional and cannot be used as the value in a mapping
    ╭─[ compiler-test:6:5 ]
    │
  6 │     mapping optional_balances: address? => Foo;
+   │ 
+   │ Help: Use a non-optional type for the mapping's value, or represent absence with a sentinel value.
 ───╯

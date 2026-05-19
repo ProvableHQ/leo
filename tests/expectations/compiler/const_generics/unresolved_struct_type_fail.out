@@ -1,11 +1,11 @@
-[ETYC0372146] Error: unexpected generic const argment for b28668.aleo::Goo::[y].
+[ETYC0372146] Error: unexpected generic const argument for b28668.aleo::Goo::[y]
     ╭─[ compiler-test:11:16 ]
     │
  11 │         let g: Goo::[y] = Goo::[y] {
     │ 
-    │ Help: If this is an external struct, consider using a resolved non-generic version of it instead. External structs can't be instantiated with const arguments
+    │ Help: If this is an external struct, use a resolved non-generic version instead. External structs cannot be instantiated with const arguments.
 ────╯
-[ETYC0372017] Error: The type `b28668.aleo::Goo` is not found in the current scope.
+[ETYC0372017] Error: the type `b28668.aleo::Goo` is not found in the current scope
     ╭─[ compiler-test:11:9 ]
     │
  11 │ ╭─▶         let g: Goo::[y] = Goo::[y] {
@@ -14,17 +14,19 @@
     │ │                
     │ ╰──────────────── 
     │     
-    │     Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │     Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯
-[ETYC0372005] Error: Unknown struct or record `b28668.aleo::Goo`
+[ETYC0372005] Error: unknown struct or record `b28668.aleo::Goo`
     ╭─[ compiler-test:11:27 ]
     │
  11 │         let g: Goo::[y] = Goo::[y] {
+    │ 
+    │ Help: Check `b28668.aleo::Goo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372017] Error: The type `b28668.aleo::Goo::[y]` is not found in the current scope.
+[ETYC0372017] Error: the type `b28668.aleo::Goo::[y]` is not found in the current scope
     ╭─[ compiler-test:14:16 ]
     │
  14 │         return g.z.x;
     │ 
-    │ Help: If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo::credits` instead of `credits`
+    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯

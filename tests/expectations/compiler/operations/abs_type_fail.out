@@ -1,10 +1,14 @@
-[ETYC0372117] Error: Expected a signed integer but type `u16` was found.
+[ETYC0372117] Error: expected a signed integer, but type `u16` was found
    ╭─[ compiler-test:3:24 ]
    │
  3 │         return (true ? 1u16.abs() : 2u16.abs()) as u8;
+   │ 
+   │ Help: Change the expression to produce a signed integer.
 ───╯
-[ETYC0372117] Error: Expected a signed integer but type `u16` was found.
+[ETYC0372117] Error: expected a signed integer, but type `u16` was found
    ╭─[ compiler-test:3:37 ]
    │
  3 │         return (true ? 1u16.abs() : 2u16.abs()) as u8;
+   │ 
+   │ Help: Change the expression to produce a signed integer.
 ───╯

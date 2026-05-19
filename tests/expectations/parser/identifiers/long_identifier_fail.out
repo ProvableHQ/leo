@@ -1,25 +1,35 @@
-[EPAR0370044] Error: Identifier S012345678901234567890123456789q is too long (32 bytes; maximum is 31)
+[EPAR0370044] Error: identifier `S012345678901234567890123456789q` is too long (32 bytes; maximum is 31)
     ╭─[ test:18:8 ]
     │
  18 │ struct S012345678901234567890123456789q {
+    │ 
+    │ Help: Shorten the identifier to at most 31 bytes.
 ────╯
-[EPAR0370044] Error: Identifier m012345678901234567890123456789q is too long (32 bytes; maximum is 31)
+[EPAR0370044] Error: identifier `m012345678901234567890123456789q` is too long (32 bytes; maximum is 31)
     ╭─[ test:19:5 ]
     │
  19 │     m012345678901234567890123456789q: u8,
+    │ 
+    │ Help: Shorten the identifier to at most 31 bytes.
 ────╯
-[EPAR0370044] Error: Identifier x012345678901234567890123456789q is too long (32 bytes; maximum is 31)
+[EPAR0370044] Error: identifier `x012345678901234567890123456789q` is too long (32 bytes; maximum is 31)
     ╭─[ test:22:4 ]
     │
  22 │ fn x012345678901234567890123456789q(y012345678901234567890123456789q: u8) -> u8 {
+    │ 
+    │ Help: Shorten the identifier to at most 31 bytes.
 ────╯
-[EPAR0370044] Error: Identifier y012345678901234567890123456789q is too long (32 bytes; maximum is 31)
+[EPAR0370044] Error: identifier `y012345678901234567890123456789q` is too long (32 bytes; maximum is 31)
     ╭─[ test:22:37 ]
     │
  22 │ fn x012345678901234567890123456789q(y012345678901234567890123456789q: u8) -> u8 {
+    │ 
+    │ Help: Shorten the identifier to at most 31 bytes.
 ────╯
-[EPAR0370044] Error: Identifier z012345678901234567890123456789q is too long (32 bytes; maximum is 31)
+[EPAR0370044] Error: identifier `z012345678901234567890123456789q` is too long (32 bytes; maximum is 31)
     ╭─[ test:23:9 ]
     │
  23 │     let z012345678901234567890123456789q: u8 = 1u8;
+    │ 
+    │ Help: Shorten the identifier to at most 31 bytes.
 ────╯

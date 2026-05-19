@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `store` does not match the signature required by interface `test.aleo/Storer`.
+[ECHI03712004] Error: function `store` does not match the signature required by interface `test.aleo/Storer`
 Expected:
 fn store(s: test.aleo::Slot::[8u32]) -> u32
 Found:

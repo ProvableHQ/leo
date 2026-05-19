@@ -1,20 +1,28 @@
-[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '?'
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping', found `?`
    ╭─[ test:3:6 ]
    │
  3 │ @foo(?, bar, ?)
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '=' -- found ','
+[EPAR0370005] Error: expected '=', found `,`
    ╭─[ test:3:12 ]
    │
  3 │ @foo(?, bar, ?)
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '?'
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping', found `?`
    ╭─[ test:3:14 ]
    │
  3 │ @foo(?, bar, ?)
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping' -- found '123'
+[EPAR0370005] Error: expected an identifier, ')', 'address, 'mapping', found `123`
    ╭─[ test:8:6 ]
    │
  8 │ @bar(123)
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

@@ -1,30 +1,42 @@
-[ETYC0372003] Error: Expected type `u32` but type `Final<Fn()>` was found
+[ETYC0372003] Error: expected type `u32`, found type `Final<Fn()>`
    ╭─[ compiler-test:6:22 ]
    │
  6 │         let f: u32 = child.aleo::foo();
+   │ 
+   │ Help: Change the expression to produce a `u32`, or cast it with `as u32` if a conversion exists.
 ───╯
-[ETYC0372117] Error: Expected type `Final<Fn()>` but type `u32` was found.
+[ETYC0372117] Error: expected type `Final<Fn()>`, but type `u32` was found
    ╭─[ compiler-test:7:33 ]
    │
  7 │         let r: u8 = final { foo(f); };
+   │ 
+   │ Help: Change the expression to produce type `Final<Fn()>`.
 ───╯
-[ETYC0372117] Error: Expected type `Final<Fn()>` but type `u8` was found.
+[ETYC0372117] Error: expected type `Final<Fn()>`, but type `u8` was found
    ╭─[ compiler-test:8:24 ]
    │
  8 │         return (42u64, r);
+   │ 
+   │ Help: Change the expression to produce type `Final<Fn()>`.
 ───╯
-[ETYC0372003] Error: Expected type `(u8, u8)` but type `Final<Fn()>` was found
+[ETYC0372003] Error: expected type `(u8, u8)`, found type `Final<Fn()>`
     ╭─[ compiler-test:12:27 ]
     │
  12 │         let f: (u8, u8) = child.aleo::bar();
+    │ 
+    │ Help: Change the expression to produce a `(u8, u8)`, or cast it with `as (u8, u8)` if a conversion exists.
 ────╯
-[ETYC0372117] Error: Expected type `Final<Fn()>` but type `(u8, u8)` was found.
+[ETYC0372117] Error: expected type `Final<Fn()>`, but type `(u8, u8)` was found
     ╭─[ compiler-test:13:35 ]
     │
  13 │         let r: bool = final { foo(f); };
+    │ 
+    │ Help: Change the expression to produce type `Final<Fn()>`.
 ────╯
-[ETYC0372117] Error: Expected type `Final<Fn()>` but type `bool` was found.
+[ETYC0372117] Error: expected type `Final<Fn()>`, but type `bool` was found
     ╭─[ compiler-test:14:24 ]
     │
  14 │         return (99u64, r);
+    │ 
+    │ Help: Change the expression to produce type `Final<Fn()>`.
 ────╯

@@ -1,5 +1,7 @@
-[ETYC0372045] Error: Strings are not yet supported.
+[ETYC0372045] Error: strings are not yet supported
    ╭─[ compiler-test:4:9 ]
    │
  4 │         let str: string = "a a a";
+   │ 
+   │ Help: Represent text as a fixed-size array of integers (e.g. `[u8; 32]`) until first-class strings are added.
 ───╯

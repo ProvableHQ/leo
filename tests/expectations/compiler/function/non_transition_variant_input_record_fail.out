@@ -1,15 +1,21 @@
-[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+[ETYC0372057] Error: only entry point fns can have a record as input or output
    ╭─[ compiler-test:8:8 ]
    │
  8 │ fn foo(a: credits) -> u8 {
+   │ 
+   │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ───╯
-[ETYC0372057] Error: Only entry point fns can have a record as input or output.
+[ETYC0372057] Error: only entry point fns can have a record as input or output
     ╭─[ compiler-test:12:31 ]
     │
  12 │ fn boo(a: address, b: u64) -> credits {
+    │ 
+    │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯

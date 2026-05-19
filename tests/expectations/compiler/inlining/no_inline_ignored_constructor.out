@@ -1,4 +1,4 @@
-[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize).
+[WTYC0372005] Warning: `@no_inline` on `helper` will be ignored because the function is called from an on-chain context (constructor or finalize)
    ╭─[ compiler-test:1:1 ]
    │
  1 │ @no_inline

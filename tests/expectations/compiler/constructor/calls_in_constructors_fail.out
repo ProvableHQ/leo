@@ -1,5 +1,7 @@
-[ETYC0372042] Error: Only regular fns can be called from a regular function or constructor.
+[ETYC0372042] Error: only regular `fn`s can be called from a regular function or constructor
     ╭─[ compiler-test:12:9 ]
     │
  12 │         bar();
+    │ 
+    │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
 ────╯

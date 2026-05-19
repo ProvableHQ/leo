@@ -574,178 +574,248 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+[ETYC0372005] Error: unknown variable `child.aleo::flag`
     ╭─[ compiler-test:13:20 ]
     │
  13 │             assert(child.aleo::flag.unwrap() == true);
+    │ 
+    │ Help: Check `child.aleo::flag` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+[ETYC0372005] Error: unknown variable `child.aleo::scalar_val`
     ╭─[ compiler-test:14:20 ]
     │
  14 │             assert(child.aleo::scalar_val.unwrap() == 1);
+    │ 
+    │ Help: Check `child.aleo::scalar_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+[ETYC0372005] Error: unknown variable `child.aleo::field_val`
     ╭─[ compiler-test:15:20 ]
     │
  15 │             assert(child.aleo::field_val.unwrap() == 42field);
+    │ 
+    │ Help: Check `child.aleo::field_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+[ETYC0372005] Error: unknown variable `child.aleo::group_val`
     ╭─[ compiler-test:16:20 ]
     │
  16 │             assert(child.aleo::group_val.unwrap() == 0group);
+    │ 
+    │ Help: Check `child.aleo::group_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::point`
+[ETYC0372005] Error: unknown variable `child.aleo::point`
     ╭─[ compiler-test:19:21 ]
     │
  19 │             let p = child.aleo::point.unwrap();
+    │ 
+    │ Help: Check `child.aleo::point` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::points`
+[ETYC0372005] Error: unknown variable `child.aleo::points`
     ╭─[ compiler-test:24:22 ]
     │
  24 │             let ps = child.aleo::points.unwrap();
+    │ 
+    │ Help: Check `child.aleo::points` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+[ETYC0372005] Error: unknown variable `child.aleo::stats`
     ╭─[ compiler-test:29:21 ]
     │
  29 │             let s = child.aleo::stats.unwrap();
+    │ 
+    │ Help: Check `child.aleo::stats` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_u32`
     ╭─[ compiler-test:34:21 ]
     │
  34 │             let a = child.aleo::arr_u32.unwrap();
+    │ 
+    │ Help: Check `child.aleo::arr_u32` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_bool`
     ╭─[ compiler-test:37:21 ]
     │
  37 │             let b = child.aleo::arr_bool.unwrap();
+    │ 
+    │ Help: Check `child.aleo::arr_bool` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+[ETYC0372005] Error: unknown variable `child.aleo::nested`
     ╭─[ compiler-test:40:21 ]
     │
  40 │             let n = child.aleo::nested.unwrap();
+    │ 
+    │ Help: Check `child.aleo::nested` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::counter`
+[ETYC0372005] Error: unknown variable `child.aleo::counter`
     ╭─[ compiler-test:44:20 ]
     │
  44 │             assert(child.aleo::counter.unwrap() == 9u8);
+    │ 
+    │ Help: Check `child.aleo::counter` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::vec`
+[ETYC0372005] Error: unknown variable `child.aleo::vec`
     ╭─[ compiler-test:46:22 ]
     │
  46 │             let v2 = child.aleo::vec.get(2);
+    │ 
+    │ Help: Check `child.aleo::vec` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+[ETYC0372005] Error: unknown variable `child.aleo::flag`
     ╭─[ compiler-test:58:20 ]
     │
  58 │             assert(child.aleo::flag == none);
+    │ 
+    │ Help: Check `child.aleo::flag` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+[ETYC0372005] Error: unknown variable `child.aleo::scalar_val`
     ╭─[ compiler-test:59:20 ]
     │
  59 │             assert(child.aleo::scalar_val == none);
+    │ 
+    │ Help: Check `child.aleo::scalar_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+[ETYC0372005] Error: unknown variable `child.aleo::field_val`
     ╭─[ compiler-test:60:20 ]
     │
  60 │             assert(child.aleo::field_val == none);
+    │ 
+    │ Help: Check `child.aleo::field_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+[ETYC0372005] Error: unknown variable `child.aleo::group_val`
     ╭─[ compiler-test:61:20 ]
     │
  61 │             assert(child.aleo::group_val == none);
+    │ 
+    │ Help: Check `child.aleo::group_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::point`
+[ETYC0372005] Error: unknown variable `child.aleo::point`
     ╭─[ compiler-test:63:20 ]
     │
  63 │             assert(child.aleo::point == none);
+    │ 
+    │ Help: Check `child.aleo::point` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::points`
+[ETYC0372005] Error: unknown variable `child.aleo::points`
     ╭─[ compiler-test:64:20 ]
     │
  64 │             assert(child.aleo::points == none);
+    │ 
+    │ Help: Check `child.aleo::points` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+[ETYC0372005] Error: unknown variable `child.aleo::stats`
     ╭─[ compiler-test:65:20 ]
     │
  65 │             assert(child.aleo::stats == none);
+    │ 
+    │ Help: Check `child.aleo::stats` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_u32`
     ╭─[ compiler-test:67:20 ]
     │
  67 │             assert(child.aleo::arr_u32 == none);
+    │ 
+    │ Help: Check `child.aleo::arr_u32` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_bool`
     ╭─[ compiler-test:68:20 ]
     │
  68 │             assert(child.aleo::arr_bool == none);
+    │ 
+    │ Help: Check `child.aleo::arr_bool` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+[ETYC0372005] Error: unknown variable `child.aleo::nested`
     ╭─[ compiler-test:69:20 ]
     │
  69 │             assert(child.aleo::nested == none);
+    │ 
+    │ Help: Check `child.aleo::nested` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::counter`
+[ETYC0372005] Error: unknown variable `child.aleo::counter`
     ╭─[ compiler-test:71:20 ]
     │
  71 │             assert(child.aleo::counter == none);
+    │ 
+    │ Help: Check `child.aleo::counter` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::vec`
+[ETYC0372005] Error: unknown variable `child.aleo::vec`
     ╭─[ compiler-test:72:20 ]
     │
  72 │             assert(child.aleo::vec.len() == 0);
+    │ 
+    │ Help: Check `child.aleo::vec` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::flag`
+[ETYC0372005] Error: unknown variable `child.aleo::flag`
     ╭─[ compiler-test:83:20 ]
     │
  83 │             assert(child.aleo::flag.unwrap_or(false) == false);
+    │ 
+    │ Help: Check `child.aleo::flag` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::scalar_val`
+[ETYC0372005] Error: unknown variable `child.aleo::scalar_val`
     ╭─[ compiler-test:84:20 ]
     │
  84 │             assert(child.aleo::scalar_val.unwrap_or(0) == 0);
+    │ 
+    │ Help: Check `child.aleo::scalar_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::field_val`
+[ETYC0372005] Error: unknown variable `child.aleo::field_val`
     ╭─[ compiler-test:85:20 ]
     │
  85 │             assert(child.aleo::field_val.unwrap_or(0field) == 0field);
+    │ 
+    │ Help: Check `child.aleo::field_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::group_val`
+[ETYC0372005] Error: unknown variable `child.aleo::group_val`
     ╭─[ compiler-test:86:20 ]
     │
  86 │             assert(child.aleo::group_val.unwrap_or(0group) == 0group);
+    │ 
+    │ Help: Check `child.aleo::group_val` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::point`
+[ETYC0372005] Error: unknown variable `child.aleo::point`
     ╭─[ compiler-test:87:21 ]
     │
  87 │             let p = child.aleo::point.unwrap_or(child.aleo::Point { x: 0field, y: 0field });
+    │ 
+    │ Help: Check `child.aleo::point` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::points`
+[ETYC0372005] Error: unknown variable `child.aleo::points`
     ╭─[ compiler-test:89:22 ]
     │
  89 │             let ps = child.aleo::points
+    │ 
+    │ Help: Check `child.aleo::points` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::stats`
+[ETYC0372005] Error: unknown variable `child.aleo::stats`
     ╭─[ compiler-test:92:21 ]
     │
  92 │             let s = child.aleo::stats
+    │ 
+    │ Help: Check `child.aleo::stats` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_u32`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_u32`
     ╭─[ compiler-test:96:21 ]
     │
  96 │             let a = child.aleo::arr_u32.unwrap_or([0u32, 0u32, 0u32]);
+    │ 
+    │ Help: Check `child.aleo::arr_u32` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::arr_bool`
+[ETYC0372005] Error: unknown variable `child.aleo::arr_bool`
     ╭─[ compiler-test:99:21 ]
     │
  99 │             let b = child.aleo::arr_bool.unwrap_or([false, false]);
+    │ 
+    │ Help: Check `child.aleo::arr_bool` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::nested`
+[ETYC0372005] Error: unknown variable `child.aleo::nested`
      ╭─[ compiler-test:102:21 ]
      │
  102 │             let n = child.aleo::nested.unwrap_or([[0u8, 0u8], [0u8, 0u8]]);
+     │ 
+     │ Help: Check `child.aleo::nested` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ─────╯
-[ETYC0372005] Error: Unknown variable `child.aleo::counter`
+[ETYC0372005] Error: unknown variable `child.aleo::counter`
      ╭─[ compiler-test:105:20 ]
      │
  105 │             assert(child.aleo::counter.unwrap_or(123u8) == 123u8);
+     │ 
+     │ Help: Check `child.aleo::counter` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ─────╯

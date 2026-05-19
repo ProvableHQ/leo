@@ -1,5 +1,7 @@
-[EPAR0370029] Error: A tuple expression must have at least two elements.
+[EPAR0370029] Error: a tuple expression must have at least two elements
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return (b,);
+   │ 
+   │ Help: Add another element, or drop the tuple syntax entirely if only one value is needed.
 ───╯

@@ -30,9 +30,10 @@ pub(crate) fn illegal_name(
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK,
-        format!("`{item_name}` is an invalid {item_type} name. A {item_type} cannot be called \"{keyword}\"."),
+        format!("`{item_name}` is not a valid {item_type} name: `{keyword}` is a reserved keyword"),
         span,
     )
+    .with_help(format!("Rename the {item_type} to something other than `{keyword}`."))
 }
 
 pub(crate) fn illegal_name_content(
@@ -44,7 +45,8 @@ pub(crate) fn illegal_name_content(
     Formatted::error(
         CODE_PREFIX,
         CODE_MASK + 1,
-        format!("`{item_name}` is an invalid {item_type} name. A {item_type} cannot have \"{keyword}\" in its name."),
+        format!("`{item_name}` is not a valid {item_type} name: it contains the reserved keyword `{keyword}`"),
         span,
     )
+    .with_help(format!("Rename the {item_type} so it does not contain `{keyword}` as a substring."))
 }

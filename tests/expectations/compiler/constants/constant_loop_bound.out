@@ -1,5 +1,7 @@
-[ECEV0378000] Error: Binary operation `241u8 + 15u8` failed at compile time: add overflow.
+[ECEV0378000] Error: binary operation `241u8 + 15u8` failed at compile time: add overflow
     ╭─[ compiler-test:19:17 ]
     │
  19 │             c = c + i;
+    │ 
+    │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ────╯

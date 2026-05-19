@@ -22,6 +22,6 @@ const CODE_PREFIX: &str = "LUN";
 const CODE_MASK: i32 = 9000;
 
 pub(crate) fn value_out_of_i128_bounds(value: impl Display, span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 2, format!("The loop bound {value} does not fit into an i128."), span)
-        .with_help("All loop bounds must fit into `i128`.")
+    Formatted::error(CODE_PREFIX, CODE_MASK + 2, format!("the loop bound `{value}` does not fit into an `i128`"), span)
+        .with_help("All loop bounds must fit into `i128`. Reduce the bound to a value within `i128`'s range.")
 }

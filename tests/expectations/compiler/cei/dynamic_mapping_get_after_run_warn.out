@@ -1,9 +1,11 @@
-[WCEI03713000] Warning: Check operation `dynamic storage op `get`` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a `get` call on dynamic storage runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:24:20 ]
     │
  24 │     let val: u64 = Bank@(target)::balances.get(key);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 program dep.aleo;
 

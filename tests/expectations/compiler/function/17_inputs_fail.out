@@ -1,14 +1,14 @@
-[ETYC0372168] Error: The entry `bar` has 17 input parameters, which exceeds the allowed limit of 16.
+[ETYC0372168] Error: the entry `bar` has 17 input parameters, which exceeds the allowed limit of 16
    ╭─[ compiler-test:3:8 ]
    │
  3 │     fn bar(
    │ 
-   │ Help: Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the function to simplify its signature.
+   │ Help: Reduce the number of inputs by grouping related parameters into a `struct`, or splitting the function in two.
 ───╯
-[ETYC0372168] Error: The entry `baz` has 17 input parameters, which exceeds the allowed limit of 16.
+[ETYC0372168] Error: the entry `baz` has 17 input parameters, which exceeds the allowed limit of 16
     ╭─[ compiler-test:26:8 ]
     │
  26 │     fn baz(
     │ 
-    │ Help: Consider reducing the number of input parameters. You might combine some parameters into a struct or refactor the function to simplify its signature.
+    │ Help: Reduce the number of inputs by grouping related parameters into a `struct`, or splitting the function in two.
 ────╯

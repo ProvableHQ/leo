@@ -1,9 +1,9 @@
-[WCEI03713003] Warning: Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.
+[WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
     ╭─[ compiler-test:10:17 ]
     │
  10 │             for i: u32 in 0u32..3u32 {
     │ 
-    │ Help: Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.
+    │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
 program dep.aleo;
 

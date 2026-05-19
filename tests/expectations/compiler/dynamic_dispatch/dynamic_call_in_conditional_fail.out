@@ -1,7 +1,7 @@
-[ETYC0372184] Error: Dynamic calls cannot be used inside a conditional branch.
+[ETYC0372184] Error: dynamic calls cannot be used inside a conditional branch
    ╭─[ compiler-test:5:20 ]
    │
  5 │             return _dynamic_call::[u64](target, net, func);
    │ 
-   │ Help: Move the dynamic call outside the `if`/`else` block.
+   │ Help: Move the dynamic call outside the surrounding `if`/`else` block.
 ───╯

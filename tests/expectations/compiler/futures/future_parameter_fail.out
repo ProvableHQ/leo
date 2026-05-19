@@ -1,15 +1,21 @@
-[ETYC0372116] Error: Finals may only appear as parameters to final fn.
+[ETYC0372116] Error: `Final`s may only appear as parameters to a `final fn`
    ╭─[ compiler-test:2:14 ]
    │
  2 │     fn first(x: Final) -> Final {
+   │ 
+   │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
 ───╯
-[ETYC0372116] Error: Finals may only appear as parameters to final fn.
+[ETYC0372116] Error: `Final`s may only appear as parameters to a `final fn`
    ╭─[ compiler-test:6:15 ]
    │
  6 │     fn second(x: Final) -> u8 {
+   │ 
+   │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
 ───╯
-[ETYC0372116] Error: Finals may only appear as parameters to final fn.
+[ETYC0372116] Error: `Final`s may only appear as parameters to a `final fn`
     ╭─[ compiler-test:11:10 ]
     │
  11 │ fn third(x: Final) -> u8 {
+    │ 
+    │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
 ────╯

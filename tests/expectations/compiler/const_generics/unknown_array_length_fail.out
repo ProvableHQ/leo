@@ -1,10 +1,14 @@
-[ETYC0372005] Error: Unknown variable `N`
+[ETYC0372005] Error: unknown variable `N`
    ╭─[ compiler-test:2:24 ]
    │
  2 │     fn main(arr: [u32; N], arr2: [u32; N]) {}
+   │ 
+   │ Help: Check `N` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
-[ETYC0372005] Error: Unknown variable `N`
+[ETYC0372005] Error: unknown variable `N`
    ╭─[ compiler-test:2:40 ]
    │
  2 │     fn main(arr: [u32; N], arr2: [u32; N]) {}
+   │ 
+   │ Help: Check `N` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

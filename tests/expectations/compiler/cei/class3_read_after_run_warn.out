@@ -1,16 +1,20 @@
-[WCEI03713000] Warning: Check operation `_mapping_get_or_use` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a call to `_mapping_get_or_use` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:17:20 ]
     │
  17 │     let val: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
-[WCEI03713000] Warning: Check operation `assert` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:18:5 ]
     │
  18 │     assert(val >= 0u32);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
 program dep.aleo;
 

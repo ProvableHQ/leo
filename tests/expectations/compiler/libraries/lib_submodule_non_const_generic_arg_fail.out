@@ -1,5 +1,7 @@
-[ECMP0376012] Error: Unable to resolve call to generic function `math_lib::ops::scale`. A non-const expression was provided where a const generic parameter is required.
+[ECMP0376012] Error: unable to resolve call to generic function `math_lib::ops::scale`: a non-const expression was provided where a const generic parameter is required
    ╭─[ compiler-test:5:39 ]
    │
  5 │         return math_lib::ops::scale::[n](5u32);  // n is a runtime variable, not a const
+   │ 
+   │ Help: Pass a literal or `const` value for the generic parameter so it can be resolved at compile time.
 ───╯

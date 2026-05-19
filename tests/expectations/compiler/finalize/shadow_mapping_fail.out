@@ -1,4 +1,4 @@
-[EAST0372017] Error: The name `bar` is defined multiple times.
+[EAST0372017] Error: the name `bar` is defined multiple times
    ╭─[ compiler-test:8:12 ]
    │
  8 │     fn foo(bar: u8) -> u8 {
@@ -12,8 +12,10 @@
  8 │     fn foo(bar: u8) -> u8 {
    │            ─┬─  
    │             ╰─── `bar` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `bar` definitions so the name is unique within its scope.
 ───╯
-[EAST0372017] Error: The name `bar` is defined multiple times.
+[EAST0372017] Error: the name `bar` is defined multiple times
     ╭─[ compiler-test:13:13 ]
     │
  13 │         let bar: u8 = a + 1u8;
@@ -27,4 +29,6 @@
  13 │         let bar: u8 = a + 1u8;
     │             ─┬─  
     │              ╰─── `bar` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `bar` definitions so the name is unique within its scope.
 ────╯

@@ -24,53 +24,60 @@ const CODE_MASK: i32 = 13000;
 // Warnings
 
 pub(crate) fn check_after_interaction(operation: impl Display, span: Span) -> Formatted {
+    // `operation` is a noun phrase describing what the check is (e.g. "an `assert`",
+    // "a storage variable read"), so it slots directly into the sentence.
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK,
-        format!("Check operation `{operation}` occurs after an interaction (Final.run())."),
+        format!("{operation} runs after an interaction (`Final.run()`)"),
         span,
     )
-    .with_help("Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.")
+    .with_note("Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.")
+    .with_help("Move this check above the `.run()` call to avoid reentrancy issues.")
 }
 
 pub(crate) fn effect_after_interaction(operation: impl Display, span: Span) -> Formatted {
+    // `operation` is a noun phrase describing what the effect is (e.g. "a storage
+    // variable write", "a call to `Mapping::set`").
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 1,
-        format!("Effect operation `{operation}` occurs after an interaction (Final.run())."),
+        format!("{operation} runs after an interaction (`Final.run()`)"),
         span,
     )
-    .with_help("Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.")
+    .with_note("Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.")
+    .with_help("Move this effect above the `.run()` call to avoid reentrancy issues.")
 }
 
 pub(crate) fn callee_has_effects_after_interaction(callee: impl Display, span: Span) -> Formatted {
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 2,
-        format!("Call to `{callee}` (which contains checks or effects) occurs after an interaction (Final.run())."),
+        format!("the call to `{callee}` runs after an interaction (`Final.run()`), and `{callee}` itself performs checks or effects"),
         span,
     )
-    .with_help("Move this call before any calls to `.run()` to prevent reentrancy vulnerabilities.")
+    .with_note("Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.")
+    .with_help(format!("Move the call to `{callee}` above the `.run()` call to avoid reentrancy issues."))
 }
 
 pub(crate) fn cei_violation_in_loop(span: Span) -> Formatted {
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 3,
-        "Loop body contains both interactions (Final.run()) and state operations (checks or effects), which violates the CEI pattern.",
+        "loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern",
         span,
     )
-    .with_help("Restructure the loop so that interactions do not occur alongside checks or effects within the same iteration.")
+    .with_help("Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.")
 }
 
 pub(crate) fn tainted_value_in_finalize(variable: impl Display, external_call: impl Display, span: Span) -> Formatted {
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 4,
-        format!("Value `{variable}` used in finalize block is derived from external call `{external_call}`, whose finalize may alter the state this value depends on."),
+        format!("value `{variable}` used in the finalize block was derived from external call `{external_call}`, whose finalize may alter the state this value depends on"),
         span,
     )
-    .with_help("The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider re-reading the value on-chain inside the finalize block.")
+    .with_help(format!("The external program's finalize runs concurrently and may invalidate assumptions about `{variable}`. Re-read the value on-chain inside the finalize block."))
 }
 
 pub(crate) fn tainted_argument_to_external_call(
@@ -82,8 +89,8 @@ pub(crate) fn tainted_argument_to_external_call(
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 5,
-        format!("Tainted value `{variable}` (derived from external call `{external_call}`) is passed as an argument to `{callee}`, whose finalize will use the potentially stale value."),
+        format!("tainted value `{variable}` (derived from external call `{external_call}`) is passed as an argument to `{callee}`, whose finalize will use the potentially stale value"),
         span,
     )
-    .with_help("The external program's finalize runs concurrently and may invalidate assumptions based on this value. Consider passing the value on-chain inside the finalize block instead.")
+    .with_help(format!("The external program's finalize runs concurrently and may invalidate `{variable}`. Pass the value on-chain inside the finalize block instead."))
 }

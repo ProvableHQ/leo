@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown variable `test.aleo::group::GENERATOR`
+[ETYC0372005] Error: unknown variable `test.aleo::group::GENERATOR`
    ╭─[ compiler-test:3:24 ]
    │
  3 │         let a: group = group::GENERATOR;
+   │ 
+   │ Help: Check `test.aleo::group::GENERATOR` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

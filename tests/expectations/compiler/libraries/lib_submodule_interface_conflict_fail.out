@@ -1,4 +1,4 @@
-[ECHI03712001] Error: Interface `Derived` has a conflicting definition for `compute` inherited from `Base`. Members with the same name must have identical signatures.
+[ECHI03712001] Error: interface `Derived` has a conflicting definition for `compute` inherited from `Base`
    ╭─[ derived.leo:2:1 ]
    │
  2 │ ╭─▶ interface Derived : conflict_lib::base::Base {
@@ -7,5 +7,5 @@
    │ │       
    │ ╰─────── 
    │ │   
-   │ │   Help: Ensure both interfaces define the same signature for this member, or rename one of them.
+   │ │   Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ───╯

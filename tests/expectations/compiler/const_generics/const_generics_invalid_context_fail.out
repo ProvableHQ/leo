@@ -1,25 +1,35 @@
-[ETYC0372143] Error: Entry point functions cannot have generic const parameters.
+[ETYC0372143] Error: entry point functions cannot have generic const parameters
    ╭─[ compiler-test:2:8 ]
    │
  2 │     fn iface_fn::[N: u32](x: u32) -> u32;
+   │ 
+   │ Help: Remove the const generic parameters from this entry point functions.
 ───╯
-[ETYC0372143] Error: Entry point functions cannot have generic const parameters.
+[ETYC0372143] Error: entry point functions cannot have generic const parameters
     ╭─[ compiler-test:19:8 ]
     │
  19 │     fn bar1::[N: u32]() {}
+    │ 
+    │ Help: Remove the const generic parameters from this entry point functions.
 ────╯
-[ETYC0372143] Error: Entry point functions cannot have generic const parameters.
+[ETYC0372143] Error: entry point functions cannot have generic const parameters
     ╭─[ compiler-test:21:8 ]
     │
  21 │     fn bar2::[N: u32]() -> Final {
+    │ 
+    │ Help: Remove the const generic parameters from this entry point functions.
 ────╯
-[ETYC0372143] Error: Functions annotated with `@no_inline` cannot have generic const parameters.
+[ETYC0372143] Error: functions annotated with `@no_inline` cannot have generic const parameters
    ╭─[ compiler-test:6:4 ]
    │
  6 │ fn foo1::[N: u32](x: u32) -> u32 {
+   │ 
+   │ Help: Remove the const generic parameters from this functions annotated with `@no_inline`.
 ───╯
-[ETYC0372143] Error: `final fn` functions cannot have generic const parameters.
+[ETYC0372143] Error: `final fn` functions cannot have generic const parameters
     ╭─[ compiler-test:10:10 ]
     │
  10 │ final fn foo2::[N: u32](x: u32) {}
+    │ 
+    │ Help: Remove the const generic parameters from this `final fn` functions.
 ────╯

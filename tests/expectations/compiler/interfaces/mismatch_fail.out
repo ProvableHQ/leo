@@ -1,4 +1,4 @@
-[ECHI03712004] Error: Function `foo` does not match the signature required by interface `test.aleo/AbstractProgram`.
+[ECHI03712004] Error: function `foo` does not match the signature required by interface `test.aleo/AbstractProgram`
 Expected:
 fn foo() -> u64
 Found:
@@ -13,7 +13,7 @@ fn foo() -> u32
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
-[ECHI03712004] Error: Function `baz` does not match the signature required by interface `test.aleo/AbstractProgram`.
+[ECHI03712004] Error: function `baz` does not match the signature required by interface `test.aleo/AbstractProgram`
 Expected:
 fn baz(a: u64, b: u8, c: u32) -> Final<Fn()>
 Found:

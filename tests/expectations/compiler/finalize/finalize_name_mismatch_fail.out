@@ -1,5 +1,7 @@
-[ETYC0372005] Error: Unknown function `test.aleo::finalize_mint_public`
+[ETYC0372005] Error: unknown function `test.aleo::finalize_mint_public`
    ╭─[ compiler-test:6:24 ]
    │
  6 │         return final { finalize_mint_public(receiver, amount); };
+   │ 
+   │ Help: Check `test.aleo::finalize_mint_public` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

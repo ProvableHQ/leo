@@ -1,4 +1,4 @@
-[ECHI03712000] Error: Interface `lib.aleo/NonExistent` not found.
+[ECHI03712000] Error: interface `lib.aleo/NonExistent` not found
    ╭─[ compiler-test:4:20 ]
    │
  4 │ program test.aleo: lib.aleo::NonExistent {

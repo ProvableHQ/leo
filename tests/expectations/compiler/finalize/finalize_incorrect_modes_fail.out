@@ -1,4 +1,4 @@
-[ETYC0372106] Error: A final fn is not allowed to return a value.
+[ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:13:1 ]
     │
  13 │ ╭─▶ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
@@ -7,21 +7,23 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
-[ETYC0372032] Error: An input to an final fn must be public.
+[ETYC0372032] Error: an input to a `final fn` must be public
     ╭─[ compiler-test:13:57 ]
     │
  13 │ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
     │ 
-    │ Help: Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.
+    │ Help: Add the `public` modifier to the input variable, or remove the visibility modifier entirely.
 ────╯
-[ETYC0372038] Error: A returned value cannot be a constant.
+[ETYC0372038] Error: a returned value cannot have `constant` visibility
     ╭─[ compiler-test:13:82 ]
     │
  13 │ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+    │ 
+    │ Help: Remove the `constant` modifier from the output, or return a non-`constant` value.
 ────╯
-[ETYC0372036] Error: Function must return a value.
+[ETYC0372036] Error: function must return a value
     ╭─[ compiler-test:13:1 ]
     │
  13 │ ╭─▶ final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
@@ -29,8 +31,10 @@
  15 │ ├─▶ }
     │ │       
     │ ╰─────── 
+    │     
+    │     Help: Ensure every path through the function ends in a `return` expression matching the declared output type.
 ────╯
-[ETYC0372106] Error: A final fn is not allowed to return a value.
+[ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:17:1 ]
     │
  17 │ ╭─▶ final fn finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
@@ -39,5 +43,5 @@
     │ │       
     │ ╰─────── 
     │     
-    │     Help: Remove an output type in the function signature, and remove the return statement from the function. Note that the Final returned by final fn is automatically inferred, and must not be explicitly written.
+    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯

@@ -1,40 +1,52 @@
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self' -- found 'signature'
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `signature`
    ╭─[ test:3:23 ]
    │
  3 │         let a: bool = signature.verify(s, a, v);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ';' -- found ','
+[EPAR0370005] Error: expected ';', found `,`
    ╭─[ test:3:41 ]
    │
  3 │         let a: bool = signature.verify(s, a, v);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected ')' -- found ','
+[EPAR0370005] Error: expected ')', found `,`
    ╭─[ test:4:17 ]
    │
  4 │         assert(a, b);
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 [EPAR0370047] Error: expected parameter name
     ╭─[ test:12:12 ]
     │
  12 │     fn foo(signature: field) -> u8 {
 ────╯
-[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found ':'
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', found `:`
     ╭─[ test:12:21 ]
     │
  12 │     fn foo(signature: field) -> u8 {
+    │ 
+    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ────╯
 [EPAR0370047] Error: expected function name
     ╭─[ test:16:8 ]
     │
  16 │     fn signature(foo: field) -> u8 {
 ────╯
-[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface' -- found '('
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', found `(`
     ╭─[ test:16:17 ]
     │
  16 │     fn signature(foo: field) -> u8 {
+    │ 
+    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ────╯
-[EPAR0370021] Error: The type of `s` has no associated function `verify` that takes 3 argument(s).
+[EPAR0370021] Error: the type of `s` has no associated function `verify` that takes 3 argument(s)
    ╭─[ test:8:23 ]
    │
  8 │         let b: bool = s.verify(a, a, v);
+   │ 
+   │ Help: Check the method name for typos and confirm the argument count matches the function's signature.
 ───╯

@@ -1,25 +1,35 @@
-[ENV03711001] Error: `fooaleobar` is an invalid program name. A program cannot have "aleo" in its name.
+[ENV03711001] Error: `fooaleobar` is not a valid program name: it contains the reserved keyword `aleo`
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program fooaleobar.aleo {
+   │ 
+   │ Help: Rename the program so it does not contain `aleo` as a substring.
 ───╯
-[ENV03711001] Error: `FooaleoBar` is an invalid record name. A record cannot have "aleo" in its name.
+[ENV03711001] Error: `FooaleoBar` is not a valid record name: it contains the reserved keyword `aleo`
    ╭─[ compiler-test:3:12 ]
    │
  3 │     record FooaleoBar {
+   │ 
+   │ Help: Rename the record so it does not contain `aleo` as a substring.
 ───╯
-[ENV03711001] Error: `aaleob` is an invalid record member name. A record member cannot have "aleo" in its name.
+[ENV03711001] Error: `aaleob` is not a valid record member name: it contains the reserved keyword `aleo`
    ╭─[ compiler-test:5:9 ]
    │
  5 │         aaleob: u32,
+   │ 
+   │ Help: Rename the record member so it does not contain `aleo` as a substring.
 ───╯
-[ENV03711001] Error: `aleob` is an invalid record member name. A record member cannot have "aleo" in its name.
+[ENV03711001] Error: `aleob` is not a valid record member name: it contains the reserved keyword `aleo`
    ╭─[ compiler-test:6:9 ]
    │
  6 │         aleob: u32,
+   │ 
+   │ Help: Rename the record member so it does not contain `aleo` as a substring.
 ───╯
-[ENV03711001] Error: `daleo` is an invalid record member name. A record member cannot have "aleo" in its name.
+[ENV03711001] Error: `daleo` is not a valid record member name: it contains the reserved keyword `aleo`
    ╭─[ compiler-test:7:9 ]
    │
  7 │         daleo: u32,
+   │ 
+   │ Help: Rename the record member so it does not contain `aleo` as a substring.
 ───╯

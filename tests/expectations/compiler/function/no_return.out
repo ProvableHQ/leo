@@ -1,5 +1,7 @@
-[ETYC0372036] Error: Function must return a value.
+[ETYC0372036] Error: function must return a value
    ╭─[ compiler-test:2:5 ]
    │
  2 │     fn main() -> u8 {}
+   │ 
+   │ Help: Ensure every path through the function ends in a `return` expression matching the declared output type.
 ───╯

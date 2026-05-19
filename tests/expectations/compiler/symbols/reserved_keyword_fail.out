@@ -1,50 +1,70 @@
-[ENV03711000] Error: `finalize` is an invalid program name. A program cannot be called "finalize".
+[ENV03711000] Error: `finalize` is not a valid program name: `finalize` is a reserved keyword
    ╭─[ compiler-test:9:9 ]
    │
  9 │ program finalize.aleo {
+   │ 
+   │ Help: Rename the program to something other than `finalize`.
 ───╯
-[ENV03711000] Error: `value` is an invalid struct member name. A struct member cannot be called "value".
+[ENV03711000] Error: `value` is not a valid struct member name: `value` is a reserved keyword
    ╭─[ compiler-test:2:5 ]
    │
  2 │     value: u32,
+   │ 
+   │ Help: Rename the struct member to something other than `value`.
 ───╯
-[ENV03711000] Error: `value` is an invalid struct name. A struct cannot be called "value".
+[ENV03711000] Error: `value` is not a valid struct name: `value` is a reserved keyword
    ╭─[ compiler-test:5:8 ]
    │
  5 │ struct value {
+   │ 
+   │ Help: Rename the struct to something other than `value`.
 ───╯
-[ENV03711000] Error: `owner` is an invalid struct member name. A struct member cannot be called "owner".
+[ENV03711000] Error: `owner` is not a valid struct member name: `owner` is a reserved keyword
    ╭─[ compiler-test:6:5 ]
    │
  6 │     owner: u32,
+   │ 
+   │ Help: Rename the struct member to something other than `owner`.
 ───╯
-[ENV03711000] Error: `value` is an invalid record name. A record cannot be called "value".
+[ENV03711000] Error: `value` is not a valid record name: `value` is a reserved keyword
     ╭─[ compiler-test:10:12 ]
     │
  10 │     record value {
+    │ 
+    │ Help: Rename the record to something other than `value`.
 ────╯
-[ENV03711000] Error: `value` is an invalid record member name. A record member cannot be called "value".
+[ENV03711000] Error: `value` is not a valid record member name: `value` is a reserved keyword
     ╭─[ compiler-test:11:9 ]
     │
  11 │         value: u32,
+    │ 
+    │ Help: Rename the record member to something other than `value`.
 ────╯
-[ENV03711000] Error: `value` is an invalid entry point fn name. A entry point fn cannot be called "value".
+[ENV03711000] Error: `value` is not a valid entry point fn name: `value` is a reserved keyword
     ╭─[ compiler-test:15:8 ]
     │
  15 │     fn value() {}
+    │ 
+    │ Help: Rename the entry point fn to something other than `value`.
 ────╯
-[ENV03711000] Error: `output` is an invalid entry point fn name. A entry point fn cannot be called "output".
+[ENV03711000] Error: `output` is not a valid entry point fn name: `output` is a reserved keyword
     ╭─[ compiler-test:17:8 ]
     │
  17 │     fn output() -> Final {
+    │ 
+    │ Help: Rename the entry point fn to something other than `output`.
 ────╯
-[ENV03711000] Error: `key` is an invalid regular fn name. A regular fn cannot be called "key".
+[ENV03711000] Error: `key` is not a valid regular fn name: `key` is a reserved keyword
     ╭─[ compiler-test:29:4 ]
     │
  29 │ fn key() {}
+    │ 
+    │ Help: Rename the regular fn to something other than `key`.
 ────╯
-[ENV03711000] Error: `value` is an invalid regular fn name. A regular fn cannot be called "value".
+[ENV03711000] Error: `value` is not a valid regular fn name: `value` is a reserved keyword
     ╭─[ compiler-test:31:4 ]
     │
  31 │ fn value() {}
+    │ 
+    │ Help: Rename the regular fn to something other than `value`.
 ────╯

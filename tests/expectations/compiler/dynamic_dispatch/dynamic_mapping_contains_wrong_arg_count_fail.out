@@ -1,5 +1,7 @@
-[ETYC0372006] Error: Call expected `1` args, but got `2`
+[ETYC0372006] Error: this call expected 1 argument(s), but 2 were supplied
     ╭─[ compiler-test:13:24 ]
     │
  13 │     let exists: bool = Bank@(target)::balances.contains(key, true);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

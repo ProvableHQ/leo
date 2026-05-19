@@ -1,5 +1,7 @@
-[ETYC0372003] Error: Expected type `Final<Fn()>` but type `()` was found
+[ETYC0372003] Error: expected type `Final<Fn()>`, found type `()`
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return bar();
+   │ 
+   │ Help: Change the expression to produce a `Final<Fn()>`, or cast it with `as Final<Fn()>` if a conversion exists.
 ───╯

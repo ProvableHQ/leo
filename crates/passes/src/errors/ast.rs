@@ -23,10 +23,15 @@ const CODE_PREFIX: &str = "AST";
 const CODE_MASK: i32 = 2000;
 
 pub(crate) fn function_not_found(func: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("function `{func}` not found"))
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("function `{func}` not found")).with_help(format!(
+        "Check `{func}` for typos and confirm the function is declared in this program or a properly imported one."
+    ))
 }
 
 pub(crate) fn name_defined_multiple_times(name: impl Display, span: Span, labels: Vec<Label>) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 17, format!("The name `{name}` is defined multiple times."), span)
+    Formatted::error(CODE_PREFIX, CODE_MASK + 17, format!("the name `{name}` is defined multiple times"), span)
         .with_labels(labels)
+        .with_help(format!(
+            "Rename or remove all but one of the `{name}` definitions so the name is unique within its scope."
+        ))
 }

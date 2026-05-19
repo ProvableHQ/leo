@@ -58,6 +58,6 @@ mod tests {
     #[test]
     fn generate_abi_from_aleo_rejects_unknown_network() {
         let error = generate_abi_from_aleo_json("", "unknown").expect_err("expected unknown network to fail");
-        assert!(error.contains("Invalid network name"), "unexpected error: {error}");
+        assert!(error.contains("invalid network name"), "unexpected error: {error}");
     }
 }

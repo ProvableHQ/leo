@@ -112,7 +112,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
                     self.transition_to_after_interaction(input.span());
                 }
                 CeiCategory::Check | CeiCategory::Effect => {
-                    self.warn_if_after_interaction(category, &input.name.to_string(), input.span());
+                    self.warn_if_after_interaction(category, &format!("a call to `{}`", input.name), input.span());
                 }
             }
         }
@@ -160,7 +160,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
                 if self.in_finalize {
                     self.warn_if_after_interaction(
                         CeiCategory::Check,
-                        &format!("dynamic storage read `{storage}`"),
+                        &format!("a read of dynamic storage `{storage}`"),
                         input.span(),
                     );
                 }
@@ -173,7 +173,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
                 if self.in_finalize {
                     self.warn_if_after_interaction(
                         CeiCategory::Check,
-                        &format!("dynamic storage op `{op}`"),
+                        &format!("a `{op}` call on dynamic storage"),
                         input.span(),
                     );
                 }
@@ -193,7 +193,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
         }
 
         if self.in_finalize {
-            self.warn_if_after_interaction(CeiCategory::Check, "assert", input.span);
+            self.warn_if_after_interaction(CeiCategory::Check, "an `assert`", input.span);
         }
     }
 
@@ -206,7 +206,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
             if let Some(root) = peel_assign_root(&input.place)
                 && self.is_storage_variable(root)
             {
-                self.warn_if_after_interaction(CeiCategory::Effect, "storage variable write", input.span);
+                self.warn_if_after_interaction(CeiCategory::Effect, "a storage variable write", input.span);
             }
         }
     }
@@ -214,7 +214,7 @@ impl AstVisitor for FinalizeCeiVisitor<'_> {
     fn visit_path(&mut self, input: &Path, _additional: &Self::AdditionalInput) -> Self::Output {
         // If reading a storage variable after an interaction, warn.
         if self.in_finalize && self.is_storage_variable(input) {
-            self.warn_if_after_interaction(CeiCategory::Check, "storage variable read", input.span());
+            self.warn_if_after_interaction(CeiCategory::Check, "a storage variable read", input.span());
         }
     }
 

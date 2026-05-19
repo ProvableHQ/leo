@@ -1,16 +1,20 @@
-[WCEI03713000] Warning: Check operation `storage variable read` occurs after an interaction (Final.run()).
+[WCEI03713000] Warning: a storage variable read runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:20:24 ]
     │
  20 │     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
     │ 
-    │ Help: Move all checks (reads, asserts) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
 ────╯
-[WCEI03713001] Warning: Effect operation `storage variable write` occurs after an interaction (Final.run()).
+[WCEI03713001] Warning: a storage variable write runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:22:5 ]
     │
  22 │     my_counter = dep_val;
     │ 
-    │ Help: Move all effects (state writes) before any calls to `.run()` to prevent reentrancy vulnerabilities.
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 program dep.aleo;
 
@@ -71,8 +75,10 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: Unknown variable `dep.aleo::dep_counter`
+[ETYC0372005] Error: unknown variable `dep.aleo::dep_counter`
     ╭─[ compiler-test:20:24 ]
     │
  20 │     let dep_val: u32 = dep.aleo::dep_counter.unwrap_or(0u32);
+    │ 
+    │ Help: Check `dep.aleo::dep_counter` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

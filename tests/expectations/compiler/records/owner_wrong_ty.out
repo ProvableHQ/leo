@@ -1,4 +1,4 @@
-[ETYC0372020] Error: The field `owner` in a `record` must have type `address`.
+[ETYC0372020] Error: the field `owner` in a `record` must have type `address`
    ╭─[ compiler-test:3:5 ]
    │
  3 │ ╭─▶     record Token {
@@ -6,9 +6,13 @@
  5 │ ├─▶     }
    │ │           
    │ ╰─────────── 
+   │     
+   │     Help: Change the field's type to `address`.
 ───╯
-[ETYC0372083] Error: A program must have at least one entry point fn.
+[ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │ 
+   │ Help: Define at least one function inside the `program` block.
 ───╯
