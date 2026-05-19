@@ -1,0 +1,49 @@
+[ETYC0372191] Error: the receiver of `Vector::set` must be a storage vector
+    ╭─[ compiler-test:15:25 ]
+    │
+ 15 │         return final { (c ? h1 : h2).set(0u32, 1u64); }; // ❌ non-path receiver
+    │ 
+    │ Help: Call `set` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::push` must be a storage vector
+    ╭─[ compiler-test:19:25 ]
+    │
+ 19 │         return final { (c ? h1 : h2).push(1u64); }; // ❌ non-path receiver
+    │ 
+    │ Help: Call `push` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::pop` must be a storage vector
+    ╭─[ compiler-test:24:28 ]
+    │
+ 24 │             let x: u64? = (c ? h1 : h2).pop(); // ❌ non-path receiver
+    │ 
+    │ Help: Call `pop` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::swap_remove` must be a storage vector
+    ╭─[ compiler-test:31:27 ]
+    │
+ 31 │             let x: u64 = (c ? h1 : h2).swap_remove(0u32); // ❌ non-path receiver
+    │ 
+    │ Help: Call `swap_remove` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::clear` must be a storage vector
+    ╭─[ compiler-test:37:25 ]
+    │
+ 37 │         return final { (c ? h1 : h2).clear(); }; // ❌ non-path receiver
+    │ 
+    │ Help: Call `clear` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Mapping::set` must be a mapping
+    ╭─[ compiler-test:41:25 ]
+    │
+ 41 │         return final { (c ? m1 : m2).set(0u32, 1u32); }; // ❌ non-path receiver
+    │ 
+    │ Help: Call `set` directly on a declared mapping, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Mapping::remove` must be a mapping
+    ╭─[ compiler-test:45:25 ]
+    │
+ 45 │         return final { (c ? m1 : m2).remove(0u32); }; // ❌ non-path receiver
+    │ 
+    │ Help: Call `remove` directly on a declared mapping, not on a temporary expression.
+────╯

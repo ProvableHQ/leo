@@ -1063,6 +1063,21 @@ pub(crate) fn multi_identifier_definition_requires_tuple(type_: impl Display, sp
     .with_help("Use a tuple expression, e.g. `let (a, b) = (x, y);`.")
 }
 
+pub(crate) fn storage_op_requires_path_receiver(
+    module: impl Display,
+    operation: impl Display,
+    kind: impl Display,
+    span: Span,
+) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 191,
+        format!("the receiver of `{module}::{operation}` must be a {kind}"),
+        span,
+    )
+    .with_help(format!("Call `{operation}` directly on a declared {kind}, not on a temporary expression."))
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {
