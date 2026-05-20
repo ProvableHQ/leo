@@ -1,0 +1,30 @@
+program test.aleo {
+    fn main(x$$0: bool, y$$1: bool) -> bool {
+        let a$#2 = x$$0 && y$$1;
+        {
+        }
+        let c$#4 = x$$0 || y$$1;
+        {
+        }
+        let e$#6 = x$$0 ^ y$$1;
+        {
+        }
+        let g$#8 = x$$0.NAND(y$$1);
+        {
+        }
+        let i$#10 = x$$0.NOR(y$$1);
+        {
+        }
+        let $var$12 = a$#2 && a$#2;
+        let $var$13 = c$#4 && c$#4;
+        let $var$14 = $var$12 && $var$13;
+        let $var$15 = e$#6 && e$#6;
+        let $var$16 = $var$14 && $var$15;
+        let $var$17 = g$#8 && g$#8;
+        let $var$18 = $var$16 && $var$17;
+        let $var$19 = i$#10 && i$#10;
+        let $var$20 = $var$18 && $var$19;
+        return $var$20;
+    }
+}
+
