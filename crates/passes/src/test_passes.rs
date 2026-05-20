@@ -86,11 +86,11 @@ Each pass requires two directories in the Leo repository:
 2. **Expected outputs**: `leo/tests/expectations/passes/<pass_name>`
    - Contains expected output files for each source test file.
 
-Example for `common_subexpression_elimination`:
+Example for `common_subexpression_eliminating`:
 
 ```
-leo/tests/tests/passes/common_subexpression_elimination/
-leo/tests/expectations/passes/common_subexpression_elimination/
+leo/tests/tests/passes/common_subexpression_eliminating/
+leo/tests/expectations/passes/common_subexpression_eliminating/
 ```
 
 - The runner will compare the output AST (or errors/warnings) against these expectations.
@@ -121,12 +121,13 @@ use std::rc::Rc;
 macro_rules! compiler_passes {
     ($macro:ident) => {
         $macro! {
-            (common_subexpression_elimination_runner, [
+            (common_subexpression_eliminating_runner, [
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),
                 (GlobalItemsCollection, ()),
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
+                (SsaForming, (SsaFormingInput { rename_defs: true })),
                 (CommonSubexpressionEliminating, ())
             ]),
             (const_prop_unroll_and_morphing_runner, [

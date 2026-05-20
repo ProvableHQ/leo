@@ -164,6 +164,11 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                         | BinaryOperation::Eq
                         | BinaryOperation::Neq
                         | BinaryOperation::Mul
+                        | BinaryOperation::And
+                        | BinaryOperation::Or
+                        | BinaryOperation::Xor
+                        | BinaryOperation::Nand
+                        | BinaryOperation::Nor
                 ) && right < left
                 {
                     // If it's a commutative op, order the operands in a deterministic order.
