@@ -1,0 +1,417 @@
+program inner.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function inner:
+    input r0 as u32.private;
+    async inner r0 into r1;
+    output r1 as inner.aleo/inner.future;
+
+finalize inner:
+    input r0 as u32.public;
+    set r0 into foo[0u32];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import inner.aleo;
+program middle.aleo;
+
+function dummy:
+
+function mid:
+    input r0 as u32.private;
+    call inner.aleo/inner 0u32 into r1;
+    call inner.aleo/inner 1u32 into r2;
+    async mid r2 r1 into r3;
+    output r3 as middle.aleo/mid.future;
+
+finalize mid:
+    input r0 as inner.aleo/inner.future;
+    input r1 as inner.aleo/inner.future;
+    await r0;
+    await r1;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import inner.aleo;
+import middle.aleo;
+program outer.aleo;
+
+function outer_1:
+    input r0 as u32.private;
+    call middle.aleo/dummy;
+    call middle.aleo/mid 0u32 into r1;
+    call middle.aleo/mid 1u32 into r2;
+    async outer_1 r1 r2 into r3;
+    output r3 as outer.aleo/outer_1.future;
+
+finalize outer_1:
+    input r0 as middle.aleo/mid.future;
+    input r1 as middle.aleo/mid.future;
+    await r0;
+    await r1;
+
+function outer_2:
+    input r0 as u32.private;
+    call middle.aleo/mid 0u32 into r1;
+    call middle.aleo/dummy;
+    call middle.aleo/mid 1u32 into r2;
+    async outer_2 r1 r2 into r3;
+    output r3 as outer.aleo/outer_2.future;
+
+finalize outer_2:
+    input r0 as middle.aleo/mid.future;
+    input r1 as middle.aleo/mid.future;
+    await r0;
+    await r1;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1dlxfna52kwk3mruj5nyvhm3sh6yw8063qkjhhyuqfnhuksturvpsc7q4jm",
+      "program": "middle.aleo",
+      "function": "dummy",
+      "inputs": [],
+      "outputs": [],
+      "tpk": "5325843552586333639772383893552182957914818753344410044565464063750464515483group",
+      "tcm": "2219185854209674473881597224975145733804381060059828750495773211128556340128field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1qxq7ngceytwxgn7nd6uyr9yvdmzkk9stgrsmswqa4tdgskfp5y8sfrz2yf",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5629744833189072388999987767578248749327688250598068789243941726737801195082field",
+          "value": "ciphertext1qyqptr6aemma5et7dngmfutfssn7epd68yxwt7w5jxm6jgmlsezm5qsejsg4f"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3191248059464747853456078813580941825531617970488742745277178227566123538224field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    0u32\n  ]\n}"
+        }
+      ],
+      "tpk": "1962035629883110492835268746540797729827307009215256253229722488977834468919group",
+      "tcm": "4677669665021664332501674888426794874409902377954844861603588866965033210681field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1d2nus6mj27r3m9w39e8m3e5a40jed33v5v8ndr8xpvzn0djc7uxqrxp2wy",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6666878142094619119728919973014225769975193385649839548925953288064397156290field",
+          "value": "ciphertext1qyqdwz8nvenmsqej659ym7thjpt8fzw8wuj9fh2sq4c2vc50kgmdkrqw4tkdz"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5901313878627766770352334246056941586867476419413075644908924544663625559134field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    1u32\n  ]\n}"
+        }
+      ],
+      "tpk": "4435182414136183130262225239916202916754973933386625330210643288715243337617group",
+      "tcm": "850142209754567944166319722250339409916042600529796761178314418357457776240field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1xhfrjtvg30u7dse6xnzptldk4vxr4mfzsrtwq97va2mjnn3zevgqt6c08j",
+      "program": "middle.aleo",
+      "function": "mid",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4266505752412743322877246303727304893566390335373282316218677522885424732521field",
+          "value": "ciphertext1qyq0tqu23zhvg0vn2peqae7urdhwk2n6aajqgnq3wyalag7cd8jhjpckwlc4d"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7433780521437602432075502337754202981058005905441131474397875030408665365294field",
+          "value": "{\n  program_id: middle.aleo,\n  function_name: mid,\n  arguments: [\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        1u32\n      ]\n    },\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        0u32\n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "1653590290745421280276907936452469871383249339571746881685209644063269637010group",
+      "tcm": "3085232345272324635475283026803392861689922222957543442918988149733716188581field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1ee95sy2tuuljh7v8cvhhpknglqcrqqysu5ay4pya4t7azs224czq34ew0x",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "353908961161078591978056402169582697669143522383490062462482933942115233674field",
+          "value": "ciphertext1qyqpmjfsxhn2v3x524c8ra3sg40me8sjf099x9eqzr5enk6acr99yzghxs3qt"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7458636809751591285132240043494280001633930069368478095621529309200435995321field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    0u32\n  ]\n}"
+        }
+      ],
+      "tpk": "3763454567216771539030964333939296719133129056035879892340484472914795027201group",
+      "tcm": "8037284555495068957048720909070204557539282114441257022099460374602036841959field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1vs5l3shpt9utyzwcxtg6gfzpvx3l5w0ayzqcat5z88mxyjnn5sqsqw48xg",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6774110250538461796812139995855177408950488294925892514979435234311021114424field",
+          "value": "ciphertext1qyq2ljvguw4y2288wsy78uecpysy6zg5kprv3djnrpqmtua8dwxcgpgd5hehg"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "695326510527745014782308051461577030167704059801258457943111614910199778366field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    1u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5649271153927325576332758747324674288445266521105473934865197156743565389696group",
+      "tcm": "2109912498778933832507686600142736880824909505330514558868200164422589982461field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1ny4yk2p40365xfx4hhp7skfv2m20ue6c4dlukm3csk872u45aspqzf5rr2",
+      "program": "middle.aleo",
+      "function": "mid",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6533820697568118558200776853081289464099485974366959776283893686263026136781field",
+          "value": "ciphertext1qyq20mergckcez5v5mp7vrmjgu9hgj6vr4aazhm2khcx92qu67stwyg4kd0a3"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8295154462365580734894167923915748874040490533674752067142043902186819667826field",
+          "value": "{\n  program_id: middle.aleo,\n  function_name: mid,\n  arguments: [\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        1u32\n      ]\n    },\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        0u32\n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "6558503890840138850880121092372425406890823592034652481439625986456238841998group",
+      "tcm": "7422481647302964131762741423896869519668322964112443801971777646647850786860field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    },
+    {
+      "id": "au1d5kkadpxpfhmr7u6xl9x226a05srh8vy5xyv5v8cyyktsnpvnq8qdnx66w",
+      "program": "outer.aleo",
+      "function": "outer_1",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "4629477612603211398162049261410524879283622213857454424085077021192168340573field",
+          "value": "ciphertext1qyq8vqzxnd83css9ampfmwga79f7yle8yxy3vy5zultnk3qwjjeuyqc7req58"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "558847574745025817309828805104126102261133668562880814706128060642764001642field",
+          "value": "{\n  program_id: outer.aleo,\n  function_name: outer_1,\n  arguments: [\n    {\n      program_id: middle.aleo,\n      function_name: mid,\n      arguments: [\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            1u32\n          ]\n        },\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            0u32\n          ]\n        }\n      \n      ]\n    },\n    {\n      program_id: middle.aleo,\n      function_name: mid,\n      arguments: [\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            1u32\n          ]\n        },\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            0u32\n          ]\n        }\n      \n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
+      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1cdqevhjadx9zxdqzleyeuqpw6e4c02ujtvndyd7aduuynan6d5gs42cks9",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "7818987311844774086516967017701264173301624940695199961632249070962953965321field",
+          "value": "ciphertext1qyqz043y3lx4ay0pz4ltgtt908mfkcwpu6gyf746pc4lm2hfvk8vjrqv7m7vq"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3058273528214358490361095823539838255185776273249928524584139433790446041415field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    0u32\n  ]\n}"
+        }
+      ],
+      "tpk": "4221771638332559697634780439303383815384936845426141718117590523619972327796group",
+      "tcm": "7237857844235389273270250688603909019552901053996218324904476771372400842235field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au1xgg98nslrg068ste9f9sfgzn378me7pcfjldm2pefye47sxjtsfq3je0gx",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "198157985972504252666813898969155140294431848327294106687527909059478702402field",
+          "value": "ciphertext1qyqd8yg0vhv4nvvk0rh6tdaq2nkyudd6fmpvdx6aqns4mtxl5rtxcrqy3wk53"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2545667496224336025565934929818206429352540644466388432222472691956399994466field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    1u32\n  ]\n}"
+        }
+      ],
+      "tpk": "5843475120108749982399140254150683652570623235843437506179865944089777393029group",
+      "tcm": "7203261992344632437927955674527443032107550677388038341686236698926009356431field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au1hfqq68sm0jwrxwxweusv89qjynaz0r3033e93cwnvfuywu0fjqysexzay0",
+      "program": "middle.aleo",
+      "function": "mid",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5524592796146047259006467567073862507766111350066211246682533230225803388395field",
+          "value": "ciphertext1qyqg0n9chlkdck07p5ca07jsrmc8ehqs7ezx4cd5xshu0p2j2d8gvqq86gczm"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5954764597982843690565949789984016853561601325426808899487739633941732574111field",
+          "value": "{\n  program_id: middle.aleo,\n  function_name: mid,\n  arguments: [\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        1u32\n      ]\n    },\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        0u32\n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "1043506504306420611400457209952069321293385773421302378775266131975857017664group",
+      "tcm": "4419541118683892666504459250901893442265781661816314867237927705280230352961field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au1v7tx488ec978eyajgu97p324axtkmq7lap3sz6tg9an5n0x4hqrssh6pvv",
+      "program": "middle.aleo",
+      "function": "dummy",
+      "inputs": [],
+      "outputs": [],
+      "tpk": "6060197335674172363144850410502281312781694387277365216513387164100734934168group",
+      "tcm": "1584660705981876771993043374418972780034313834621129725205833195234558363129field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au1nkya5f76raq7e6wc4eyngy5ttu0ntcpr45w0u65s4gzc2clllqrqcckzgx",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5383960938224205850226734896063874907673975244643168074827300524027838268655field",
+          "value": "ciphertext1qyqru2mareh9dme7wvpmgdehcd5z0s4rhr0jc4k2yk549260f9z3szge7pdyk"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7294488413103208292008518195175004190533894269324568189489486461672320241320field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    0u32\n  ]\n}"
+        }
+      ],
+      "tpk": "1832300881891220569453675224116941050832232032471753639583359396852880711872group",
+      "tcm": "7816391739998701420004245450879888331090137470535105551801410479682670851377field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au13hzvxc0fn4enfujqu84f3jwxuxs9g6wlxygpk2nrtnnh7w8gmvyqrlel3k",
+      "program": "inner.aleo",
+      "function": "inner",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1298439991847873473663784458199502023128801117558190368109591284205220569603field",
+          "value": "ciphertext1qyq2chhs5e32ll0ykqsdsmqmprmpnpky4uchfkksrlg2seux3v656qgyrsuee"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "810160406370670864254934744069469274444792570412025259244082378786949645935field",
+          "value": "{\n  program_id: inner.aleo,\n  function_name: inner,\n  arguments: [\n    1u32\n  ]\n}"
+        }
+      ],
+      "tpk": "856620745745033191253488073612975748466573482876019849653702831795142861258group",
+      "tcm": "1531226440065314772394767640091739869332245316461343971993571336533245212245field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au19hj3zh7t46ca8x9hvjngyq0xelxr6yf7zjjwgvqw6t0v9hyr2g8s4l4yzc",
+      "program": "middle.aleo",
+      "function": "mid",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "6422718406067716783515928582981897701651149727070307601733658046044483440828field",
+          "value": "ciphertext1qyq0wkrq0cupzjxe7fnnrwad9u24n23czt0tqs2yr8destzlp5952ysx2pply"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1107449285733560862766213714874248779513195397988494632983308306524110393621field",
+          "value": "{\n  program_id: middle.aleo,\n  function_name: mid,\n  arguments: [\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        1u32\n      ]\n    },\n    {\n      program_id: inner.aleo,\n      function_name: inner,\n      arguments: [\n        0u32\n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "5629964006653966203812339931686895638133560769308030337994293253595384743558group",
+      "tcm": "7170242559413715566307074331872400050579938790708146932812682145907629039413field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    },
+    {
+      "id": "au1n8gut8rtfgwsxrn9t3t893ttz8hsqcpgwavnw5gljywf82hxfcgsmtwpzx",
+      "program": "outer.aleo",
+      "function": "outer_2",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "292759530836711120575146950614098948732093269058244665562115326446200097060field",
+          "value": "ciphertext1qyqpz0slrma3tahxzfstn7tuaeuyx7e8hdn466q2a0l65zhlvnu4jrqy6x4v8"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4218030832376548905515992817600999763064974775496404197865514293229580286909field",
+          "value": "{\n  program_id: outer.aleo,\n  function_name: outer_2,\n  arguments: [\n    {\n      program_id: middle.aleo,\n      function_name: mid,\n      arguments: [\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            1u32\n          ]\n        },\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            0u32\n          ]\n        }\n      \n      ]\n    },\n    {\n      program_id: middle.aleo,\n      function_name: mid,\n      arguments: [\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            1u32\n          ]\n        },\n        {\n          program_id: inner.aleo,\n          function_name: inner,\n          arguments: [\n            0u32\n          ]\n        }\n      \n      ]\n    }\n  \n  ]\n}"
+        }
+      ],
+      "tpk": "7746047146545543446742057904550202472611886872316036833009917201705905996431group",
+      "tcm": "4320592220324322526216308097494051446030852113282086804219760798619699368553field",
+      "scm": "3609000689911673644292249378334827587729796752984632500404758660628038874950field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

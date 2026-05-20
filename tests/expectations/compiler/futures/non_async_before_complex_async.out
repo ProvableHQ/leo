@@ -1,27 +1,133 @@
-[ESAZ0374004] Error: the call to `mid.aleo::mid` will result in failed executions on-chain
-   ╭─[ compiler-test:8:25 ]
-   │
- 8 │         let f1: Final = mid.aleo::mid(0u32);
-   │ 
-   │ Help: Reorder the calls so the dependency is satisfied.
-   │ 
-   │ Note: There is a subtle error that occurs if an entry point fn returning `Final` follows a non-`Final` entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See https://github.com/AleoNet/snarkVM/issues/2570 for more context.
-───╯
-[ESAZ0374004] Error: the call to `mid.aleo::mid` will result in failed executions on-chain
-   ╭─[ compiler-test:9:25 ]
-   │
- 9 │         let f2: Final = mid.aleo::mid(1u32);
-   │ 
-   │ Help: Reorder the calls so the dependency is satisfied.
-   │ 
-   │ Note: There is a subtle error that occurs if an entry point fn returning `Final` follows a non-`Final` entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See https://github.com/AleoNet/snarkVM/issues/2570 for more context.
-───╯
-[ESAZ0374004] Error: the call to `mid.aleo::mid` will result in failed executions on-chain
-    ╭─[ compiler-test:17:25 ]
-    │
- 17 │         let f2: Final = mid.aleo::mid(1u32);
-    │ 
-    │ Help: Reorder the calls so the dependency is satisfied.
-    │ 
-    │ Note: There is a subtle error that occurs if an entry point fn returning `Final` follows a non-`Final` entry point fn call, and the call returns a `Final` that itself takes a `Final` as an input. See https://github.com/AleoNet/snarkVM/issues/2570 for more context.
-────╯
+program inner.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function inner:
+    input r0 as u32.private;
+    async inner r0 into r1;
+    output r1 as inner.aleo/inner.future;
+
+finalize inner:
+    input r0 as u32.public;
+    set r0 into foo[0u32];
+// --- Next Program --- //
+import inner.aleo;
+program mid.aleo;
+
+function dummy:
+
+function mid:
+    input r0 as u32.private;
+    call inner.aleo/inner 0u32 into r1;
+    call inner.aleo/inner 1u32 into r2;
+    async mid r2 r1 into r3;
+    output r3 as mid.aleo/mid.future;
+
+finalize mid:
+    input r0 as inner.aleo/inner.future;
+    input r1 as inner.aleo/inner.future;
+    await r0;
+    await r1;
+// --- Next Program --- //
+import inner.aleo;
+import mid.aleo;
+program outer.aleo;
+
+function outer_1:
+    input r0 as u32.private;
+    call mid.aleo/dummy;
+    call mid.aleo/mid 0u32 into r1;
+    call mid.aleo/mid 1u32 into r2;
+    async outer_1 r1 r2 into r3;
+    output r3 as outer.aleo/outer_1.future;
+
+finalize outer_1:
+    input r0 as mid.aleo/mid.future;
+    input r1 as mid.aleo/mid.future;
+    await r0;
+    await r1;
+
+function outer_2:
+    input r0 as u32.private;
+    call mid.aleo/mid 0u32 into r1;
+    call mid.aleo/dummy;
+    call mid.aleo/mid 1u32 into r2;
+    async outer_2 r1 r2 into r3;
+    output r3 as outer.aleo/outer_2.future;
+
+finalize outer_2:
+    input r0 as mid.aleo/mid.future;
+    input r1 as mid.aleo/mid.future;
+    await r0;
+    await r1;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+program inner.aleo;
+
+mapping foo:
+    key as u32.public;
+    value as u32.public;
+
+function inner:
+    input r0 as u32.private;
+    async inner r0 into r1;
+    output r1 as inner.aleo/inner.future;
+
+finalize inner:
+    input r0 as u32.public;
+    set r0 into foo[0u32];
+// --- Next Program --- //
+import inner.aleo;
+program mid.aleo;
+
+function mid:
+    input r0 as u32.private;
+    call inner.aleo/inner 0u32 into r1;
+    call inner.aleo/inner 1u32 into r2;
+    async mid r2 r1 into r3;
+    output r3 as mid.aleo/mid.future;
+
+finalize mid:
+    input r0 as inner.aleo/inner.future;
+    input r1 as inner.aleo/inner.future;
+    await r0;
+    await r1;
+
+function dummy:
+// --- Next Program --- //
+import inner.aleo;
+import mid.aleo;
+program outer.aleo;
+
+function outer_1:
+    input r0 as u32.private;
+    call mid.aleo/dummy;
+    call mid.aleo/mid 0u32 into r1;
+    call mid.aleo/mid 1u32 into r2;
+    async outer_1 r1 r2 into r3;
+    output r3 as outer.aleo/outer_1.future;
+
+finalize outer_1:
+    input r0 as mid.aleo/mid.future;
+    input r1 as mid.aleo/mid.future;
+    await r0;
+    await r1;
+
+function outer_2:
+    input r0 as u32.private;
+    call mid.aleo/mid 0u32 into r1;
+    call mid.aleo/dummy;
+    call mid.aleo/mid 1u32 into r2;
+    async outer_2 r1 r2 into r3;
+    output r3 as outer.aleo/outer_2.future;
+
+finalize outer_2:
+    input r0 as mid.aleo/mid.future;
+    input r1 as mid.aleo/mid.future;
+    await r0;
+    await r1;
