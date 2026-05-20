@@ -2,72 +2,6 @@ program test.aleo;
 
 function address_cast:
     input r0 as address.private;
-    cast r0 into r1 as address;
-    cast r0 into r2 as boolean;
-    cast r0 into r3 as field;
-    cast r0 into r4 as group;
-    cast r0 into r5 as i8;
-    cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
-    output r1 as address.private;
-    output r2 as boolean.private;
-    output r3 as field.private;
-    output r4 as group.private;
-    output r5 as i8.private;
-    output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
-
-function bool_cast:
-    input r0 as boolean.private;
-    cast r0 into r1 as address;
-    cast r0 into r2 as boolean;
-    cast r0 into r3 as field;
-    cast r0 into r4 as group;
-    cast r0 into r5 as i8;
-    cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
-    output r1 as address.private;
-    output r2 as boolean.private;
-    output r3 as field.private;
-    output r4 as group.private;
-    output r5 as i8.private;
-    output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
-
-function field_casts:
-    input r0 as field.private;
     cast r0 into r1 as boolean;
     cast r0 into r2 as field;
     cast r0 into r3 as group;
@@ -81,6 +15,8 @@ function field_casts:
     cast r0 into r11 as u32;
     cast r0 into r12 as u64;
     cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
+    output r0 as address.private;
     output r1 as boolean.private;
     output r2 as field.private;
     output r3 as group.private;
@@ -94,37 +30,97 @@ function field_casts:
     output r11 as u32.private;
     output r12 as u64.private;
     output r13 as u128.private;
+    output r14 as scalar.private;
+
+function bool_cast:
+    input r0 as boolean.private;
+    cast r0 into r1 as address;
+    cast r0 into r2 as field;
+    cast r0 into r3 as group;
+    cast r0 into r4 as i8;
+    cast r0 into r5 as i16;
+    cast r0 into r6 as i32;
+    cast r0 into r7 as i64;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
+    output r1 as address.private;
+    output r0 as boolean.private;
+    output r2 as field.private;
+    output r3 as group.private;
+    output r4 as i8.private;
+    output r5 as i16.private;
+    output r6 as i32.private;
+    output r7 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
+
+function field_casts:
+    input r0 as field.private;
+    cast r0 into r1 as boolean;
+    cast r0 into r2 as group;
+    cast r0 into r3 as i8;
+    cast r0 into r4 as i16;
+    cast r0 into r5 as i32;
+    cast r0 into r6 as i64;
+    cast r0 into r7 as i128;
+    cast r0 into r8 as u8;
+    cast r0 into r9 as u16;
+    cast r0 into r10 as u32;
+    cast r0 into r11 as u64;
+    cast r0 into r12 as u128;
+    output r1 as boolean.private;
+    output r0 as field.private;
+    output r2 as group.private;
+    output r3 as i8.private;
+    output r4 as i16.private;
+    output r5 as i32.private;
+    output r6 as i64.private;
+    output r7 as i128.private;
+    output r8 as u8.private;
+    output r9 as u16.private;
+    output r10 as u32.private;
+    output r11 as u64.private;
+    output r12 as u128.private;
 
 function group_casts:
     input r0 as group.private;
     cast r0 into r1 as address;
     cast r0 into r2 as boolean;
     cast r0 into r3 as field;
-    cast r0 into r4 as group;
-    cast r0 into r5 as i8;
-    cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
+    cast r0 into r4 as i8;
+    cast r0 into r5 as i16;
+    cast r0 into r6 as i32;
+    cast r0 into r7 as i64;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
-    output r4 as group.private;
-    output r5 as i8.private;
-    output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
+    output r0 as group.private;
+    output r4 as i8.private;
+    output r5 as i16.private;
+    output r6 as i32.private;
+    output r7 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
 
 function i8_casts:
     input r0 as i8.private;
@@ -132,32 +128,31 @@ function i8_casts:
     cast r0 into r2 as boolean;
     cast r0 into r3 as field;
     cast r0 into r4 as group;
-    cast r0 into r5 as i8;
-    cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r5 as i16;
+    cast r0 into r6 as i32;
+    cast r0 into r7 as i64;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
     output r4 as group.private;
-    output r5 as i8.private;
-    output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as i8.private;
+    output r5 as i16.private;
+    output r6 as i32.private;
+    output r7 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function i16_casts:
     input r0 as i16.private;
@@ -166,31 +161,30 @@ function i16_casts:
     cast r0 into r3 as field;
     cast r0 into r4 as group;
     cast r0 into r5 as i8;
-    cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r6 as i32;
+    cast r0 into r7 as i64;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
     output r4 as group.private;
     output r5 as i8.private;
-    output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as i16.private;
+    output r6 as i32.private;
+    output r7 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function i32_casts:
     input r0 as i32.private;
@@ -200,30 +194,29 @@ function i32_casts:
     cast r0 into r4 as group;
     cast r0 into r5 as i8;
     cast r0 into r6 as i16;
-    cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r7 as i64;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
     output r4 as group.private;
     output r5 as i8.private;
     output r6 as i16.private;
-    output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as i32.private;
+    output r7 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function i64_casts:
     input r0 as i64.private;
@@ -234,14 +227,13 @@ function i64_casts:
     cast r0 into r5 as i8;
     cast r0 into r6 as i16;
     cast r0 into r7 as i32;
-    cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r8 as i128;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -249,14 +241,14 @@ function i64_casts:
     output r5 as i8.private;
     output r6 as i16.private;
     output r7 as i32.private;
-    output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as i64.private;
+    output r8 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function i128_casts:
     input r0 as i128.private;
@@ -268,13 +260,12 @@ function i128_casts:
     cast r0 into r6 as i16;
     cast r0 into r7 as i32;
     cast r0 into r8 as i64;
-    cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r9 as u8;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -283,13 +274,13 @@ function i128_casts:
     output r6 as i16.private;
     output r7 as i32.private;
     output r8 as i64.private;
-    output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as i128.private;
+    output r9 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function u8_casts:
     input r0 as u8.private;
@@ -302,12 +293,11 @@ function u8_casts:
     cast r0 into r7 as i32;
     cast r0 into r8 as i64;
     cast r0 into r9 as i128;
-    cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r10 as u16;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -317,12 +307,12 @@ function u8_casts:
     output r7 as i32.private;
     output r8 as i64.private;
     output r9 as i128.private;
-    output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as u8.private;
+    output r10 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function u16_casts:
     input r0 as u16.private;
@@ -336,11 +326,10 @@ function u16_casts:
     cast r0 into r8 as i64;
     cast r0 into r9 as i128;
     cast r0 into r10 as u8;
-    cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r11 as u32;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -351,11 +340,11 @@ function u16_casts:
     output r8 as i64.private;
     output r9 as i128.private;
     output r10 as u8.private;
-    output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as u16.private;
+    output r11 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function u32_casts:
     input r0 as u32.private;
@@ -370,10 +359,9 @@ function u32_casts:
     cast r0 into r9 as i128;
     cast r0 into r10 as u8;
     cast r0 into r11 as u16;
-    cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r12 as u64;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -385,10 +373,10 @@ function u32_casts:
     output r9 as i128.private;
     output r10 as u8.private;
     output r11 as u16.private;
-    output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as u32.private;
+    output r12 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function u64_casts:
     input r0 as u64.private;
@@ -404,9 +392,8 @@ function u64_casts:
     cast r0 into r10 as u8;
     cast r0 into r11 as u16;
     cast r0 into r12 as u32;
-    cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r13 as u128;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -419,9 +406,9 @@ function u64_casts:
     output r10 as u8.private;
     output r11 as u16.private;
     output r12 as u32.private;
-    output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as u64.private;
+    output r13 as u128.private;
+    output r14 as scalar.private;
 
 function u128_casts:
     input r0 as u128.private;
@@ -438,8 +425,7 @@ function u128_casts:
     cast r0 into r11 as u16;
     cast r0 into r12 as u32;
     cast r0 into r13 as u64;
-    cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
+    cast r0 into r14 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -453,8 +439,8 @@ function u128_casts:
     output r11 as u16.private;
     output r12 as u32.private;
     output r13 as u64.private;
-    output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as u128.private;
+    output r14 as scalar.private;
 
 function scalar_cast:
     input r0 as scalar.private;
@@ -472,7 +458,6 @@ function scalar_cast:
     cast r0 into r12 as u32;
     cast r0 into r13 as u64;
     cast r0 into r14 as u128;
-    cast r0 into r15 as scalar;
     output r1 as address.private;
     output r2 as boolean.private;
     output r3 as field.private;
@@ -487,11 +472,11 @@ function scalar_cast:
     output r12 as u32.private;
     output r13 as u64.private;
     output r14 as u128.private;
-    output r15 as scalar.private;
+    output r0 as scalar.private;
 
 constructor:
     assert.eq edition 0u16;
-status: failed: Stack evaluation failed: Instruction (cast r0 into r2 as boolean;) at index 1 failed: Failed to convert field to boolean: field element is not zero or one
+status: failed: Stack evaluation failed: Instruction (cast r0 into r1 as boolean;) at index 0 failed: Failed to convert field to boolean: field element is not zero or one
 output: ()
 status: success
 output: (aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar)

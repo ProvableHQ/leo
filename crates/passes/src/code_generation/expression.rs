@@ -262,6 +262,11 @@ impl CodeGeneratingVisitor<'_> {
         let (operand, mut instructions) = self.visit_expression(&input.expression);
         let operand = operand.expect("Trying to cast an empty expression");
 
+        // if the source already has the target type, reuse its operand directly instead of emitting a no-op cast.
+        if self.state.type_table.get(&input.expression.id()).as_ref() == Some(&input.type_) {
+            return (operand, instructions);
+        }
+
         // Construct the destination register.
         let dest_reg = self.next_register();
 
@@ -1129,8 +1134,8 @@ impl CodeGeneratingVisitor<'_> {
         let new_reg = self.next_register();
         match typ {
             Type::Address => {
-                let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Address);
-                ((AleoExpr::Reg(new_reg)), vec![ins])
+                let cast = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Address);
+                ((AleoExpr::Reg(new_reg)), vec![cast])
             }
             Type::Boolean => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Boolean);
