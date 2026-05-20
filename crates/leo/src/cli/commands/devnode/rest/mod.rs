@@ -186,8 +186,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .layer(middleware::map_request(log_middleware))
             // Enable CORS.
             .layer(cors)
-            // Cap the request body size at 512KiB.
-            .layer(DefaultBodyLimit::max(512 * 1024))
+            // Cap the request body size at 1.5MiB.
+            .layer(DefaultBodyLimit::max(2 * 768 * 1024))
             .layer(governor_layer)
     }
 
