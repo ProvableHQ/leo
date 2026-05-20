@@ -1196,12 +1196,17 @@ impl CodeGeneratingVisitor<'_> {
                     .lookup_record(current_program, composite_location)
                     .or_else(|| self.state.symbol_table.lookup_struct(current_program, composite_location))
                     .unwrap();
+                // Records are emitted with `owner` as the first field regardless of source
+                // order (see `visit_record` in `program.rs`), so reorder here too to keep
+                // the cast operand list aligned with the declared record schema.
                 // Empty-typed members (Type::Unit, zero-length arrays) are omitted by the
                 // record/struct declaration emitters in `program.rs`, so omit them here too
                 // to keep the cast operand list consistent with the declared schema.
-                let elems = comp
-                    .members
-                    .iter()
+                let is_record = comp.is_record;
+                let owner = is_record.then(|| comp.members.iter().find(|m| m.identifier.name == sym::owner)).flatten();
+                let elems = owner
+                    .into_iter()
+                    .chain(comp.members.iter().filter(|m| !is_record || m.identifier.name != sym::owner))
                     .filter(|member| !member.type_.is_empty())
                     .map(|member| {
                         AleoExpr::MemberAccess(Box::new(register.clone()), member.identifier.name.to_string())
