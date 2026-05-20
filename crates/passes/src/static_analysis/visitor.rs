@@ -72,37 +72,6 @@ impl StaticAnalyzingVisitor<'_> {
             }
         }
     }
-
-    /// Assert that an async call is a "simple" one.
-    /// Simple is defined as an async transition function which does not return a `Future` that itself takes a `Future` as an argument.
-    pub fn assert_simple_async_transition_call(&mut self, function_path: &Path, span: Span) {
-        let func_symbol = self
-            .state
-            .symbol_table
-            .lookup_function(self.current_unit, function_path.expect_global_location())
-            .expect("Type checking guarantees functions are present.");
-
-        // If it is not an async transition, return.
-        if func_symbol.function.variant != Variant::EntryPoint || !func_symbol.function.has_final_output() {
-            return;
-        }
-
-        let finalizer = func_symbol
-            .finalizer
-            .as_ref()
-            .expect("Typechecking guarantees that all async transitions have an associated `finalize` field.");
-
-        let async_function = self
-            .state
-            .symbol_table
-            .lookup_function(self.current_unit, &finalizer.location)
-            .expect("Type checking guarantees functions are present.");
-
-        // If the async function takes a future as an argument, emit an error.
-        if async_function.function.input.iter().any(|input| matches!(input.type_(), Type::Future(..))) {
-            self.emit_err(static_analyzer::entry_point_final_call_with_final_argument(function_path, span));
-        }
-    }
 }
 
 impl AstVisitor for StaticAnalyzingVisitor<'_> {
@@ -118,19 +87,6 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
     }
 
     fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
-        let function_location = input.function.expect_global_location();
-        let caller_program = self.current_unit;
-        let callee_program = function_location.program;
-
-        // If the function call is an external async transition, then for all async calls that follow a non-async call,
-        // we must check that the async call is not an async function that takes a future as an argument.
-        if self.non_async_external_call_seen
-            && self.variant == Some(Variant::EntryPoint)
-            && callee_program != caller_program
-        {
-            self.assert_simple_async_transition_call(&input.function, input.span());
-        }
-
         let func_symbol = self
             .state
             .symbol_table
