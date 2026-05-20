@@ -213,9 +213,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
+            - cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-windows-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-windows-{{ arch }}-master-
       - install-rust-windows
       - run:
           name: Update Submodules
@@ -223,10 +224,12 @@ jobs:
       - build-and-test:
           is_windows: true
       - save_cache:
-          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          key: cargo-v2-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - C:\Users\circleci\.cargo
             - C:\Users\circleci\.aleo\resources
+            - C:\Users\circleci\.cache\mtimes
+            - target
 
   test-macos:
     executor: macos-executor
@@ -234,9 +237,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
+            - cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-macos-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-macos-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -245,10 +249,12 @@ jobs:
           command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          key: cargo-v2-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources
+            - ~/.cache/mtimes
+            - target
 
   test-linux:
     executor: linux-executor
@@ -256,9 +262,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
+            - cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-test-linux-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -267,10 +274,12 @@ jobs:
             command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          key: cargo-v2-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources
+            - ~/.cache/mtimes
+            - target
 
 # TODO: Move code-coverage to CircleCI
 #  code-coverage:
@@ -292,18 +301,64 @@ jobs:
 #            - ~/.cargo
 #            - ~/.aleo/resources
 
-  check-style-clippy-docs:
+  code-style:
     docker:
       - image: "cimg/rust:1.95.0-node"  # Rust image with Node.js for tree-sitter CLI checks.
+    resource_class: small
+    steps:
+      - checkout
+      - install_rust_nightly
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Check style
+          command: cargo +nightly fmt --all -- --check
+      - run:
+          name: Validate tree-sitter corpus
+          command: |
+            cd tree-sitter
+            npx --yes tree-sitter-cli@0.25.10 test
+
+  clippy:
+    docker:
+      - image: "cimg/rust:1.95.0"
     resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
-      - install_rust_nightly
+            - cargo-v2-clippy-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-clippy-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-clippy-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-clippy-{{ arch }}-master-
+      - install-libclang
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Clippy
+          no_output_timeout: 35m
+          command: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - save_cache:
+          key: cargo-v2-clippy-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  fmt-validate:
+    docker:
+      - image: "cimg/rust:1.95.0"
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v2-fmt-validate-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-fmt-validate-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-fmt-validate-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-fmt-validate-{{ arch }}-master-
       - install-libclang
       - restore_cache:
           keys:
@@ -327,27 +382,34 @@ jobs:
           name: Update Submodules
           command: git submodule update --init --recursive
       - run:
-          name: Check style
-          no_output_timeout: 35m
-          command: cargo +nightly fmt --all -- --check
-      - run:
           name: Validate Leo formatter semantics
           no_output_timeout: 35m
           command: |
             cargo nextest run -p leo-fmt --locked --cargo-profile ci --features validate \
               -E 'test(/validate_/) - test(validate_ast_equivalence_repos)'
+      - save_cache:
+          key: cargo-v2-fmt-validate-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  cargo-doc:
+    docker:
+      - image: "cimg/rust:1.95.0"
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v2-cargo-doc-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-cargo-doc-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-cargo-doc-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-cargo-doc-{{ arch }}-master-
+      - install-libclang
       - run:
-          name: Validate tree-sitter corpus
-          no_output_timeout: 35m
-          command: |
-            cd tree-sitter
-            npx --yes tree-sitter-cli@0.25.10 test
-      - run:
-          name: Clippy
-          no_output_timeout: 35m
-          command: |
-            cargo clippy --workspace --all-targets -- -D warnings
-            cargo clippy --workspace --all-targets --all-features -- -D warnings
+          name: Update Submodules
+          command: git submodule update --init --recursive
       - run:
           name: Build Cargo Docs
           command: |
@@ -357,9 +419,11 @@ jobs:
             RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
             RUSTC_BOOTSTRAP: "1"
       - save_cache:
-          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          key: cargo-v2-cargo-doc-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
+            - ~/.cache/mtimes
+            - target
 
   docs-lint:
     docker:
@@ -390,9 +454,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
-            - cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
-            - cargo-v1-{{ arch }}
+            - cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-
+            - cargo-v2-leo-exec-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v2-leo-exec-{{ arch }}-master-
       - install-libclang
       - run:
           name: Update Submodules
@@ -404,16 +469,21 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/
+            - project/bin
+            - project/.circleci
+            - project/examples
+            - project/documentation
       - save_cache:
-          key: cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+          key: cargo-v2-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
+            - ~/.cache/mtimes
+            - target
 
   leo-new:
     docker:
       - image: cimg/rust:1.95.0
-    resource_class: xlarge
+    resource_class: small
     steps:
       - attach_workspace:
           at: /home/circleci/project/
@@ -426,7 +496,7 @@ jobs:
   leo-clean:
     docker:
       - image: cimg/rust:1.95.0
-    resource_class: xlarge
+    resource_class: small
     steps:
       - attach_workspace:
           at: /home/circleci/project/
@@ -439,7 +509,7 @@ jobs:
   test-examples:
     docker:
       - image: cimg/rust:1.95.0
-    resource_class: xlarge
+    resource_class: large
     steps:
       - attach_workspace:
           at: /home/circleci/project/
@@ -453,7 +523,7 @@ jobs:
   build-doc-code-snippets:
     docker:
       - image: cimg/rust:1.95.0
-    resource_class: large
+    resource_class: medium
     steps:
       - attach_workspace:
           at: /home/circleci/project/
@@ -491,7 +561,10 @@ workflows:
 
   code-quality:
     jobs:
-      - check-style-clippy-docs
+      - code-style
+      - clippy
+      - fmt-validate
+      - cargo-doc
       - docs-lint
 
   leo-executable:
