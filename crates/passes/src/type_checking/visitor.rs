@@ -84,6 +84,23 @@ impl TypeCheckingVisitor<'_> {
         self.state.handler.emit_err(err);
     }
 
+    /// Returns `true` if `expr` is a path receiver; otherwise emits a diagnostic and returns `false`.
+    /// Storage `Vector::*` and `Mapping::*` operations require a path receiver because downstream
+    /// passes look up the backing mappings by name (storage_lowering for vectors, codegen for
+    /// mappings).
+    fn check_path_receiver(&self, module: &str, operation: &str, kind: &str, expr: &Expression) -> bool {
+        if matches!(expr, Expression::Path(_)) {
+            return true;
+        }
+        self.emit_err(crate::errors::type_checker::storage_op_requires_path_receiver(
+            module,
+            operation,
+            kind,
+            expr.span(),
+        ));
+        false
+    }
+
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
@@ -966,6 +983,10 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Mapping::get", true, function_span);
 
+                if !self.check_path_receiver("Mapping", "get", "mapping", map_expr) {
+                    return Type::Err;
+                }
+
                 *value.clone()
             }
             Intrinsic::MappingSet => {
@@ -978,6 +999,10 @@ impl TypeCheckingVisitor<'_> {
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Mapping::set", true, function_span);
+
+                if !self.check_path_receiver("Mapping", "set", "mapping", map_expr) {
+                    return Type::Err;
+                }
 
                 // Argument 0 must be a local path (cannot modify external mappings).
                 if !is_local_path(map_expr) {
@@ -1005,6 +1030,10 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
+                if !self.check_path_receiver("Mapping", "get_or_use", "mapping", map_expr) {
+                    return Type::Err;
+                }
+
                 value.deref().clone()
             }
             Intrinsic::MappingRemove => {
@@ -1020,6 +1049,10 @@ impl TypeCheckingVisitor<'_> {
                     // We already handled the error in the assertion.
                     return Type::Err;
                 };
+
+                if !self.check_path_receiver("Mapping", "remove", "mapping", map_expr) {
+                    return Type::Err;
+                }
 
                 // Argument 0 must be a local path (cannot modify external mappings).
                 if !is_local_path(map_expr) {
@@ -1046,6 +1079,10 @@ impl TypeCheckingVisitor<'_> {
                     // We already handled the error in the assertion.
                     return Type::Err;
                 };
+
+                if !self.check_path_receiver("Mapping", "contains", "mapping", map_expr) {
+                    return Type::Err;
+                }
 
                 Type::Boolean
             }
@@ -1082,6 +1119,10 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::get", true, function_span);
 
+                if !self.check_path_receiver("Vector", "get", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
+
                 Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
             }
             Intrinsic::VectorSet => {
@@ -1094,6 +1135,10 @@ impl TypeCheckingVisitor<'_> {
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::set", true, function_span);
+
+                if !self.check_path_receiver("Vector", "set", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
                 if !is_local_path(vec_expr) {
@@ -1123,6 +1168,10 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::push", true, function_span);
 
+                if !self.check_path_receiver("Vector", "push", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
+
                 // Argument 0 must be a local path (cannot modify external vectors).
                 if !is_local_path(vec_expr) {
                     self.state.handler.emit_err(crate::errors::type_checker::cannot_modify_external_container(
@@ -1141,12 +1190,16 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::len", true, function_span);
 
-                if vec_ty.is_vector() {
-                    Type::Integer(IntegerType::U32)
-                } else {
+                if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    Type::Err
+                    return Type::Err;
                 }
+
+                if !self.check_path_receiver("Vector", "len", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
+
+                Type::Integer(IntegerType::U32)
             }
             Intrinsic::VectorPop => {
                 let (vec_ty, vec_expr) = &arguments[0];
@@ -1158,6 +1211,10 @@ impl TypeCheckingVisitor<'_> {
                     self.assert_vector_type(vec_ty, vec_expr.span());
                     return Type::Err;
                 };
+
+                if !self.check_path_receiver("Vector", "pop", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
                 if !is_local_path(vec_expr) {
@@ -1182,6 +1239,10 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 };
 
+                if !self.check_path_receiver("Vector", "swap_remove", "storage vector", vec_expr) {
+                    return Type::Err;
+                }
+
                 // Argument 0 must be a local path (cannot modify external vectors).
                 if !is_local_path(vec_expr) {
                     self.state.handler.emit_err(crate::errors::type_checker::cannot_modify_external_container(
@@ -1199,6 +1260,10 @@ impl TypeCheckingVisitor<'_> {
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
+                    return Type::Err;
+                }
+
+                if !self.check_path_receiver("Vector", "clear", "storage vector", vec_expr) {
                     return Type::Err;
                 }
 

@@ -1,0 +1,21 @@
+[ETYC0372191] Error: the receiver of `Vector::len` must be a storage vector
+    ╭─[ compiler-test:15:27 ]
+    │
+ 15 │             let n: u32 = (c ? h1 : h2).len(); // ❌ non-path receiver
+    │ 
+    │ Help: Call `len` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::get` must be a storage vector
+    ╭─[ compiler-test:22:28 ]
+    │
+ 22 │             let v: u64? = (c ? h1 : h2).get(0u32); // ❌ non-path receiver
+    │ 
+    │ Help: Call `get` directly on a declared storage vector, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Vector::len` must be a storage vector
+    ╭─[ compiler-test:29:39 ]
+    │
+ 29 │             let n: u32 = Vector::len((c ? h1 : h2)); // ❌ non-path receiver
+    │ 
+    │ Help: Call `len` directly on a declared storage vector, not on a temporary expression.
+────╯

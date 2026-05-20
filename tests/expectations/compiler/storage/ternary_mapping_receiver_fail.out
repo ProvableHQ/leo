@@ -1,0 +1,21 @@
+[ETYC0372191] Error: the receiver of `Mapping::get` must be a mapping
+    ╭─[ compiler-test:12:27 ]
+    │
+ 12 │             let v: u32 = (c ? m1 : m2).get(0u32); // ❌ non-path receiver
+    │ 
+    │ Help: Call `get` directly on a declared mapping, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Mapping::contains` must be a mapping
+    ╭─[ compiler-test:19:28 ]
+    │
+ 19 │             let b: bool = (c ? m1 : m2).contains(0u32); // ❌ non-path receiver
+    │ 
+    │ Help: Call `contains` directly on a declared mapping, not on a temporary expression.
+────╯
+[ETYC0372191] Error: the receiver of `Mapping::get_or_use` must be a mapping
+    ╭─[ compiler-test:26:27 ]
+    │
+ 26 │             let v: u32 = (c ? m1 : m2).get_or_use(0u32, 0u32); // ❌ non-path receiver
+    │ 
+    │ Help: Call `get_or_use` directly on a declared mapping, not on a temporary expression.
+────╯
