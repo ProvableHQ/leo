@@ -23,8 +23,6 @@ aleo-std           = { version = "1.0.3"}
 aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
 ariadne            = "0.6"
-axum               = "0.8"
-axum-extra         = { version = "0.12", features = [ "erased-json", "typed-header" ] }
 backtrace          = "0.3"
 base62             = "2.2"
 chrono             = "0.4"
@@ -75,8 +73,6 @@ thiserror          = "2.0"
 tree-sitter        = "0.25.10"
 tree-sitter-language = "0.1"
 tokio              = { version = "1", features = [ "full" ] }
-tower-http         = { version = "0.6.0", features = [ "cors", "trace" ] }
-tower_governor     = "0.8"
 tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter", "fmt" ] }
 ureq               = { version = "3.0", features = [ "json" ] }

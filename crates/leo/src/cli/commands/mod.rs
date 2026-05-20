@@ -39,9 +39,6 @@ use deploy::{Task, compute_deployment_stats, print_deployment_plan, print_deploy
 mod devnet;
 pub use devnet::LeoDevnet;
 
-mod devnode;
-pub use devnode::LeoDevnode;
-
 mod execute;
 pub use execute::LeoExecute;
 
