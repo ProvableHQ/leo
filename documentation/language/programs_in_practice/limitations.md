@@ -38,7 +38,7 @@ Consider the following Leo entry function.
 
 This is compiled into the following Aleo instructions:
 
-```aleo file=../../code_snippets/limitations/build/main.aleo showLineNumbers
+```aleo file=../../code_snippets/limitations/build/limitations_demo/limitations_demo.aleo showLineNumbers
 ```
 
 Observe that both branches of the conditional are executed in the entry function. The correct output is then selected using a ternary instruction. This compilation method is only possible because operations in transitions are purely functional. [^1].

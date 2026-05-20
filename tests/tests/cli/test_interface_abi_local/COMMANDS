@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tests that `leo build` on a program implementing local interfaces emits
-# per-interface ABI files in build/interfaces/ and populates `implements`
+# per-interface ABI files in build/foo/interfaces/ and populates `implements`
 # in the program ABI.
 
 LEO_BIN=${1}
@@ -11,12 +11,12 @@ ${LEO_BIN} --disable-update-check build
 echo "build exit code: $?"
 
 echo "--- program ABI ---" | tee /dev/stderr
-cat build/abi.json
+cat build/foo/abi.json
 echo
 
 echo "--- Adder interface ABI ---" | tee /dev/stderr
-cat build/interfaces/Adder.json
+cat build/foo/interfaces/Adder.json
 echo
 
 echo "--- Doubler interface ABI ---" | tee /dev/stderr
-cat build/interfaces/Doubler.json
+cat build/foo/interfaces/Doubler.json

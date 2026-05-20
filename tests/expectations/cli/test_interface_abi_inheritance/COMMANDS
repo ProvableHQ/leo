@@ -10,12 +10,12 @@ ${LEO_BIN} --disable-update-check build
 echo "build exit code: $?"
 
 echo "--- program ABI ---" | tee /dev/stderr
-cat build/abi.json
+cat build/bar/abi.json
 echo
 
 echo "--- Base interface ABI ---" | tee /dev/stderr
-cat build/interfaces/Base.json
+cat build/bar/interfaces/Base.json
 echo
 
 echo "--- Extended interface ABI ---" | tee /dev/stderr
-cat build/interfaces/Extended.json
+cat build/bar/interfaces/Extended.json
