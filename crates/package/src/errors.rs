@@ -195,7 +195,7 @@ pub(crate) fn workspace_member_outside_root(member: impl Display, workspace_root
         CODE_MASK + 70,
         format!("workspace member `{member}` resolves to a path outside the workspace root `{workspace_root}`"),
     )
-    .with_help("Workspace members must live inside the workspace root. Remove `..` components from the member entry.")
+    .with_help("Ensure the member entry resolves to a directory inside the workspace root; remove any `..` components.")
 }
 
 /// For when workspace.json cannot be read or parsed.

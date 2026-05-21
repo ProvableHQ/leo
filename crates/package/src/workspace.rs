@@ -50,8 +50,6 @@ impl WorkspaceManifest {
 pub struct Workspace {
     /// The canonicalized root directory containing `workspace.json`.
     pub root_directory: PathBuf,
-    /// The workspace manifest.
-    pub manifest: WorkspaceManifest,
     /// Member directories in dependency order, each an absolute path.
     pub member_paths: Vec<PathBuf>,
     /// Member program names (from each member's `program.json`), in the same order.
@@ -107,23 +105,17 @@ impl Workspace {
         let member_paths = ordered.iter().map(|(p, _)| p.clone()).collect();
         let member_names = ordered.into_iter().map(|(_, n)| n).collect();
 
-        Ok(Some(Workspace { root_directory, manifest, member_paths, member_names }))
+        Ok(Some(Workspace { root_directory, member_paths, member_names }))
     }
 
-    /// Walk up from `start_dir` looking for `workspace.json`.
+    /// Walk up from `start_dir` looking for `workspace.json`, returning the
+    /// fully resolved workspace.
     ///
     /// Returns `Ok(None)` if no workspace root is found.
     pub fn discover(start_dir: &Path) -> Result<Option<Self>> {
-        let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
-        let mut dir = start.as_path();
-        loop {
-            if let Some(ws) = Self::from_directory(dir)? {
-                return Ok(Some(ws));
-            }
-            match dir.parent() {
-                Some(parent) => dir = parent,
-                None => return Ok(None),
-            }
+        match discover_root(start_dir)? {
+            Some(root) => Self::from_directory(&root),
+            None => Ok(None),
         }
     }
 
@@ -165,17 +157,20 @@ impl Workspace {
         let Some(parent) = canonical_member.parent() else {
             return Ok(false);
         };
-        let Some(ws) = Self::discover(parent)? else {
+        // Only the workspace root is needed here, so locate it without resolving
+        // members; that keeps `leo new` from failing when an unrelated existing
+        // member is broken.
+        let Some(root_directory) = discover_root(parent)? else {
             return Ok(false);
         };
 
-        let relative = match canonical_member.strip_prefix(&ws.root_directory) {
+        let relative = match canonical_member.strip_prefix(&root_directory) {
             Ok(rel) => rel,
             Err(_) => {
                 tracing::warn!(
                     "new package at `{}` is not inside the discovered workspace root `{}`; skipping auto-add",
                     canonical_member.display(),
-                    ws.root_directory.display(),
+                    root_directory.display(),
                 );
                 return Ok(false);
             }
@@ -188,7 +183,7 @@ impl Workspace {
 
         // Re-read from disk in case the manifest was modified between discover and write,
         // and check coverage against those fresh entries rather than the stale snapshot.
-        let manifest_path = ws.root_directory.join(WORKSPACE_MANIFEST_FILENAME);
+        let manifest_path = root_directory.join(WORKSPACE_MANIFEST_FILENAME);
         let mut manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
 
         if pattern_matches_relative(&manifest.members, &entry) {
@@ -224,6 +219,24 @@ impl Workspace {
         manifest.write_to_file(full_path.join(WORKSPACE_MANIFEST_FILENAME))?;
 
         Ok(full_path)
+    }
+}
+
+/// Walk up from `start_dir` to find the directory containing `workspace.json`.
+///
+/// Returns the canonicalized workspace root, or `Ok(None)` if none is found.
+/// Unlike [`Workspace::discover`], this does not resolve or validate members.
+fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
+    let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
+    let mut dir = start.as_path();
+    loop {
+        if dir.join(WORKSPACE_MANIFEST_FILENAME).exists() {
+            return Ok(Some(dir.to_path_buf()));
+        }
+        match dir.parent() {
+            Some(parent) => dir = parent,
+            None => return Ok(None),
+        }
     }
 }
 
@@ -781,6 +794,30 @@ mod tests {
     }
 
     #[test]
+    fn auto_register_succeeds_despite_broken_member() {
+        // A new package must register even when a sibling member listed in
+        // `workspace.json` is broken: auto-registration only needs the workspace
+        // root, not a fully resolved member list.
+        let dir = temp_dir().join("ws_test_auto_register_broken_member");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        // `ghost` is listed but never created - resolving the workspace would fail.
+        create_workspace(&dir, &["alpha", "ghost"]);
+
+        create_member(&dir, "beta", &[]);
+        let beta_dir = dir.join("beta");
+        let registered = Workspace::auto_register_member(&beta_dir).unwrap();
+        assert!(registered, "a new package should register despite a broken sibling member");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["alpha".to_string(), "ghost".to_string(), "beta".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn auto_register_registers_glob_subdir() {
         let dir = temp_dir().join("ws_test_auto_register_glob_subdir");
         let _ = std::fs::remove_dir_all(&dir);
@@ -1020,6 +1057,8 @@ mod tests {
 
         let result = Workspace::from_directory(&ws_dir);
         assert!(result.is_err(), "a member resolving outside the workspace root should be rejected");
+        let err_msg = format!("{}", result.unwrap_err());
+        assert!(err_msg.contains("outside the workspace root"), "error should be the outside-root error: {err_msg}");
 
         std::fs::remove_dir_all(&parent).unwrap();
     }
