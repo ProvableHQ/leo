@@ -186,13 +186,15 @@ impl Workspace {
         };
         let entry = relative_str.replace('\\', "/");
 
-        if pattern_matches_relative(&ws.manifest.members, &entry) {
+        // Re-read from disk in case the manifest was modified between discover and write,
+        // and check coverage against those fresh entries rather than the stale snapshot.
+        let manifest_path = ws.root_directory.join(WORKSPACE_MANIFEST_FILENAME);
+        let mut manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
+
+        if pattern_matches_relative(&manifest.members, &entry) {
             return Ok(false);
         }
 
-        // Re-read from disk in case the manifest was modified between discover and write.
-        let manifest_path = ws.root_directory.join(WORKSPACE_MANIFEST_FILENAME);
-        let mut manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
         manifest.members.push(entry);
         manifest.write_to_file(&manifest_path)?;
         Ok(true)
@@ -274,9 +276,12 @@ fn expand_member_pattern(root: &Path, pattern: &str) -> Result<Vec<String>> {
 /// Check whether any of `patterns` matches `relative` either as a literal
 /// entry or as a glob pattern.
 fn pattern_matches_relative(patterns: &[String], relative: &str) -> bool {
+    // Match with `require_literal_separator` so `*`/`?`/`[]` stop at `/`, mirroring
+    // how `glob::glob` enumerates the filesystem (and leaving `**` free to cross).
+    let options = glob::MatchOptions { require_literal_separator: true, ..Default::default() };
     patterns.iter().any(|p| {
         if is_glob_pattern(p) {
-            glob::Pattern::new(p).map(|pat| pat.matches(relative)).unwrap_or(false)
+            glob::Pattern::new(p).map(|pat| pat.matches_with(relative, options)).unwrap_or(false)
         } else {
             p == relative
         }
@@ -296,6 +301,11 @@ fn load_member_record(root: &Path, entry: &str) -> Result<(PathBuf, String)> {
     }
     let member_manifest = Manifest::read_from_file(&member_manifest_path)?;
     let canonical = member_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
+    // `root` is the canonicalized workspace root; reject members (e.g. `../sibling`)
+    // that resolve outside it.
+    if canonical.strip_prefix(root).is_err() {
+        return Err(errors::workspace_member_outside_root(entry, root.display()).into());
+    }
     Ok((canonical, member_manifest.program.clone()))
 }
 
@@ -771,6 +781,44 @@ mod tests {
     }
 
     #[test]
+    fn auto_register_registers_glob_subdir() {
+        let dir = temp_dir().join("ws_test_auto_register_glob_subdir");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("packages/sub")).unwrap();
+
+        create_workspace(&dir, &["packages/*"]);
+        create_member(&dir.join("packages/sub"), "foo", &[]);
+        let foo_dir = dir.join("packages/sub/foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(registered, "`packages/*` does not cover a nested package, so it should be registered");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["packages/*".to_string(), "packages/sub/foo".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_skips_when_recursive_glob_matches() {
+        let dir = temp_dir().join("ws_test_auto_register_glob_recursive");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("packages/sub")).unwrap();
+
+        create_workspace(&dir, &["packages/**"]);
+        create_member(&dir.join("packages/sub"), "foo", &[]);
+        let foo_dir = dir.join("packages/sub/foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(!registered, "`packages/**` crosses `/` and covers nested packages, so it should be skipped");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["packages/**".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
     fn initialize_skeleton_creates_workspace_json() {
         let dir = temp_dir().join("ws_test_init_skeleton_basic");
         let _ = std::fs::remove_dir_all(&dir);
@@ -955,6 +1003,25 @@ mod tests {
         assert!(result.is_err(), "malformed glob pattern should produce a structured error");
 
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_member_outside_root_errors() {
+        let parent = temp_dir().join("ws_test_member_outside_root");
+        let _ = std::fs::remove_dir_all(&parent);
+        std::fs::create_dir_all(&parent).unwrap();
+
+        // A package that lives next to the workspace, not inside it.
+        create_member(&parent, "sibling", &[]);
+
+        let ws_dir = parent.join("ws");
+        std::fs::create_dir_all(&ws_dir).unwrap();
+        create_workspace(&ws_dir, &["../sibling"]);
+
+        let result = Workspace::from_directory(&ws_dir);
+        assert!(result.is_err(), "a member resolving outside the workspace root should be rejected");
+
+        std::fs::remove_dir_all(&parent).unwrap();
     }
 
     #[test]

@@ -188,6 +188,16 @@ pub(crate) fn workspace_member_not_found(member: impl Display, workspace_root: i
     .with_help("Ensure the member directory exists and contains a `program.json` manifest.")
 }
 
+/// For when a workspace member entry resolves to a path outside the workspace root.
+pub(crate) fn workspace_member_outside_root(member: impl Display, workspace_root: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 70,
+        format!("workspace member `{member}` resolves to a path outside the workspace root `{workspace_root}`"),
+    )
+    .with_help("Workspace members must live inside the workspace root. Remove `..` components from the member entry.")
+}
+
 /// For when workspace.json cannot be read or parsed.
 pub(crate) fn workspace_manifest_error(path: impl Display, error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 72, format!("failed to read workspace manifest at `{path}`: {error}"))
