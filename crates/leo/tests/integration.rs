@@ -201,7 +201,8 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     fs::write(&stdout_path, filter_stdout(stdout_utf8).as_bytes()).expect("Failed to write STDOUT");
     let stderr_path = test_context_directory.path().join("STDERR");
     let stderr_utf8 = std::str::from_utf8(&output.stderr).expect("stderr should be utf8");
-    fs::write(&stderr_path, filter_stderr(stderr_utf8).as_bytes()).expect("Failed to write STDERR");
+    fs::write(&stderr_path, filter_stderr(stderr_utf8, test_context_directory.path()).as_bytes())
+        .expect("Failed to write STDERR");
 
     let exitcode_path = test_context_directory.path().join("EXITCODE");
     if let Some(code) = output.status.code() {
@@ -291,9 +292,14 @@ fn filter_stdout(data: &str) -> String {
 }
 
 /// Replace strings in the stderr of a Leo execution that we don't need to match exactly.
-fn filter_stderr(data: &str) -> String {
+fn filter_stderr(data: &str, temp_dir: &Path) -> String {
     use regex::Regex;
     use std::borrow::Cow;
+
+    // Rewrite the test's temp directory to a stable `TMPDIR` placeholder. The
+    // harness created this directory, so substitute its exact path rather than
+    // guessing the shape with a regex - `$TMPDIR` varies by environment.
+    let data = redact_temp_dir(data, temp_dir);
 
     let regexes = [
         // Strip ANSI color codes so downstream regexes match cleanly.
@@ -302,15 +308,6 @@ fn filter_stderr(data: &str) -> String {
         (Regex::new(r"-->\s+.*?/([^/]+\.leo:\d+:\d+)").unwrap(), "--> SOURCE_DIRECTORY/$1"),
         // Match ariadne's `╭─[ path:line:col ]` header, normalize the path portion.
         (Regex::new(r"╭─\[\s*.*?/([^/]+\.leo:\d+:\d+)\s*\]").unwrap(), "╭─[ SOURCE_DIRECTORY/$1 ]"),
-        // Normalize tempdir prefixes written by `tempfile::TempDir::new()` so expectations
-        // are stable across machines and OSes, regardless of surrounding quoting:
-        //   /tmp/.tmpXXX/contents/                         (Linux)
-        //   /private/var/folders/XX/XXXX/T/.tmpXXX/contents/ (macOS)
-        // → TMPDIR/contents/
-        (
-            Regex::new(r"(?:/tmp|/private/var/folders/[^/]+/[^/]+/T)/\.tmp[A-Za-z0-9]+/contents/").unwrap(),
-            "TMPDIR/contents/",
-        ),
         // Normalize dynamic devnode ports back to 3030 for stable expectations.
         (Regex::new(r"http://localhost:\d+").unwrap(), "http://localhost:3030"),
         // snarkVM prints parameter download warnings to stderr on fresh runners.
@@ -323,7 +320,7 @@ fn filter_stderr(data: &str) -> String {
         (Regex::new(r"⚠️  Network request failed, retrying in \d+s \(attempt \d+/\d+\)\.\.\.\n").unwrap(), ""),
     ];
 
-    let mut cow = Cow::Borrowed(data);
+    let mut cow = Cow::Borrowed(data.as_str());
     for (regex, replacement) in regexes {
         if let Cow::Owned(s) = regex.replace_all(&cow, replacement) {
             cow = Cow::Owned(s);
@@ -331,6 +328,23 @@ fn filter_stderr(data: &str) -> String {
     }
 
     cow.into_owned()
+}
+
+/// Rewrite every occurrence of the test's temporary directory in `data` to a
+/// stable `TMPDIR` placeholder, so expectations don't depend on where `$TMPDIR`
+/// points (it varies by environment - e.g. nix-shell uses `/tmp/nix-shell.XXX`).
+///
+/// Both the directory as created and its canonicalized form are rewritten: Leo
+/// canonicalizes paths before printing them, and the canonical form differs from
+/// the created path under a symlinked root (e.g. macOS, where `/var/folders/...`
+/// resolves to `/private/var/folders/...`). The canonical form is rewritten
+/// first since it can contain the created path as a substring.
+fn redact_temp_dir(data: &str, temp_dir: &Path) -> String {
+    let mut out = data.to_owned();
+    if let Ok(canonical) = temp_dir.canonicalize() {
+        out = out.replace(&*canonical.to_string_lossy(), "TMPDIR");
+    }
+    out.replace(&*temp_dir.to_string_lossy(), "TMPDIR")
 }
 
 /// Filter dynamic values in JSON output files to allow comparison across runs.
