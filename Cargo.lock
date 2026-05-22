@@ -2454,6 +2454,7 @@ dependencies = [
 name = "leo-package"
 version = "4.0.2"
 dependencies = [
+ "glob",
  "indexmap",
  "leo-ast",
  "leo-errors",

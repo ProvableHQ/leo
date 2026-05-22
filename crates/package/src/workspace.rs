@@ -50,8 +50,6 @@ impl WorkspaceManifest {
 pub struct Workspace {
     /// The canonicalized root directory containing `workspace.json`.
     pub root_directory: PathBuf,
-    /// The workspace manifest.
-    pub manifest: WorkspaceManifest,
     /// Member directories in dependency order, each an absolute path.
     pub member_paths: Vec<PathBuf>,
     /// Member program names (from each member's `program.json`), in the same order.
@@ -74,21 +72,31 @@ impl Workspace {
 
         let manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
 
-        // Resolve and validate each member.
+        // Resolve and validate each member entry, expanding glob patterns relative to the root.
         let mut dir_to_name: Vec<(PathBuf, String)> = Vec::with_capacity(manifest.members.len());
+        let mut seen: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
         for member in &manifest.members {
-            let member_dir = root_directory.join(member);
-            if !member_dir.is_dir() {
-                return Err(errors::workspace_member_not_found(member, root_directory.display()).into());
+            if is_glob_pattern(member) {
+                let expanded = expand_member_pattern(&root_directory, member)?;
+                if expanded.is_empty() {
+                    tracing::warn!(
+                        "workspace member glob `{member}` in {} matched no packages",
+                        root_directory.display(),
+                    );
+                    continue;
+                }
+                for entry in expanded {
+                    let record = load_member_record(&root_directory, &entry)?;
+                    if seen.insert(record.0.clone()) {
+                        dir_to_name.push(record);
+                    }
+                }
+            } else {
+                let record = load_member_record(&root_directory, member)?;
+                if seen.insert(record.0.clone()) {
+                    dir_to_name.push(record);
+                }
             }
-            let member_manifest_path = member_dir.join(MANIFEST_FILENAME);
-            if !member_manifest_path.exists() {
-                return Err(errors::workspace_member_not_found(member, root_directory.display()).into());
-            }
-            let member_manifest = Manifest::read_from_file(&member_manifest_path)?;
-            let canonical =
-                member_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
-            dir_to_name.push((canonical, member_manifest.program.clone()));
         }
 
         // Build a dependency graph to determine the correct build order.
@@ -97,23 +105,17 @@ impl Workspace {
         let member_paths = ordered.iter().map(|(p, _)| p.clone()).collect();
         let member_names = ordered.into_iter().map(|(_, n)| n).collect();
 
-        Ok(Some(Workspace { root_directory, manifest, member_paths, member_names }))
+        Ok(Some(Workspace { root_directory, member_paths, member_names }))
     }
 
-    /// Walk up from `start_dir` looking for `workspace.json`.
+    /// Walk up from `start_dir` looking for `workspace.json`, returning the
+    /// fully resolved workspace.
     ///
     /// Returns `Ok(None)` if no workspace root is found.
     pub fn discover(start_dir: &Path) -> Result<Option<Self>> {
-        let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
-        let mut dir = start.as_path();
-        loop {
-            if let Some(ws) = Self::from_directory(dir)? {
-                return Ok(Some(ws));
-            }
-            match dir.parent() {
-                Some(parent) => dir = parent,
-                None => return Ok(None),
-            }
+        match discover_root(start_dir)? {
+            Some(root) => Self::from_directory(&root),
+            None => Ok(None),
         }
     }
 
@@ -142,6 +144,100 @@ impl Workspace {
         };
         self.member_paths.iter().any(|p| p == &canonical)
     }
+
+    /// If a workspace contains `member_dir`, append `member_dir` to its
+    /// `workspace.json` (unless already covered by a literal entry or a glob).
+    ///
+    /// Returns `Ok(true)` if the workspace manifest was modified. Returns
+    /// `Ok(false)` if there is no enclosing workspace, `member_dir` is outside
+    /// the workspace root, or the path is already covered.
+    pub fn auto_register_member(member_dir: &Path) -> Result<bool> {
+        let canonical_member = member_dir.canonicalize().map_err(|e| errors::failed_path(member_dir.display(), e))?;
+
+        let Some(parent) = canonical_member.parent() else {
+            return Ok(false);
+        };
+        // Only the workspace root is needed here, so locate it without resolving
+        // members; that keeps `leo new` from failing when an unrelated existing
+        // member is broken.
+        let Some(root_directory) = discover_root(parent)? else {
+            return Ok(false);
+        };
+
+        let relative = match canonical_member.strip_prefix(&root_directory) {
+            Ok(rel) => rel,
+            Err(_) => {
+                tracing::warn!(
+                    "new package at `{}` is not inside the discovered workspace root `{}`; skipping auto-add",
+                    canonical_member.display(),
+                    root_directory.display(),
+                );
+                return Ok(false);
+            }
+        };
+        let Some(relative_str) = relative.to_str() else {
+            tracing::warn!("new package path `{}` is not valid UTF-8; skipping auto-add", canonical_member.display(),);
+            return Ok(false);
+        };
+        let entry = relative_str.replace('\\', "/");
+
+        // Re-read from disk in case the manifest was modified between discover and write,
+        // and check coverage against those fresh entries rather than the stale snapshot.
+        let manifest_path = root_directory.join(WORKSPACE_MANIFEST_FILENAME);
+        let mut manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
+
+        if pattern_matches_relative(&manifest.members, &entry) {
+            return Ok(false);
+        }
+
+        manifest.members.push(entry);
+        manifest.write_to_file(&manifest_path)?;
+        Ok(true)
+    }
+
+    /// Create a fresh workspace skeleton named `name` inside `parent`.
+    ///
+    /// Writes a `workspace.json` with an empty `members` array. The caller is
+    /// responsible for ensuring `parent` exists.
+    ///
+    /// Returns the absolute path of the new workspace directory.
+    pub fn initialize_skeleton(name: &str, parent: &Path) -> Result<PathBuf> {
+        if !crate::is_valid_library_name(name) {
+            return Err(errors::cli_invalid_package_name("workspace", name).into());
+        }
+
+        let parent = parent.canonicalize().map_err(|e| errors::failed_path(parent.display(), e))?;
+        let full_path = parent.join(name);
+
+        if full_path.exists() {
+            return Err(errors::failed_to_initialize_package(name, &full_path, "Directory already exists").into());
+        }
+
+        std::fs::create_dir(&full_path).map_err(|e| errors::failed_to_initialize_package(name, &full_path, e))?;
+
+        let manifest = WorkspaceManifest { members: Vec::new() };
+        manifest.write_to_file(full_path.join(WORKSPACE_MANIFEST_FILENAME))?;
+
+        Ok(full_path)
+    }
+}
+
+/// Walk up from `start_dir` to find the directory containing `workspace.json`.
+///
+/// Returns the canonicalized workspace root, or `Ok(None)` if none is found.
+/// Unlike [`Workspace::discover`], this does not resolve or validate members.
+fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
+    let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
+    let mut dir = start.as_path();
+    loop {
+        if dir.join(WORKSPACE_MANIFEST_FILENAME).exists() {
+            return Ok(Some(dir.to_path_buf()));
+        }
+        match dir.parent() {
+            Some(parent) => dir = parent,
+            None => return Ok(None),
+        }
+    }
 }
 
 /// Resolve a `Location::Workspace` dependency by looking up its name in the
@@ -156,6 +252,74 @@ pub fn resolve_workspace_dependency(package_dir: &Path, dep: Dependency) -> Resu
         .find_member(&dep.name)
         .ok_or_else(|| errors::workspace_dep_member_not_found(&dep.name, workspace.root_directory.display()))?;
     Ok(Dependency { location: Location::Local, path: Some(member_path.clone()), ..dep })
+}
+
+/// Returns `true` if `s` contains any glob metacharacters (`*`, `?`, `[`).
+fn is_glob_pattern(s: &str) -> bool {
+    s.contains(['*', '?', '['])
+}
+
+/// Expand a glob pattern relative to `root` into a list of member directory
+/// entries, each a forward-slash path relative to `root`.
+///
+/// Only directories containing a `program.json` are returned. Other matches
+/// (files, directories without a manifest, non-UTF8 paths) are silently skipped.
+fn expand_member_pattern(root: &Path, pattern: &str) -> Result<Vec<String>> {
+    let absolute_pattern = root.join(pattern);
+    let pattern_str = absolute_pattern.to_string_lossy();
+    let entries = glob::glob(&pattern_str).map_err(|e| errors::workspace_manifest_error(pattern, e))?;
+
+    let mut out = Vec::new();
+    for entry in entries {
+        let Ok(path) = entry else { continue };
+        if !path.is_dir() {
+            continue;
+        }
+        if !path.join(MANIFEST_FILENAME).exists() {
+            continue;
+        }
+        let Ok(relative) = path.strip_prefix(root) else { continue };
+        let Some(relative_str) = relative.to_str() else { continue };
+        // Normalize to forward slashes so the entry round-trips cleanly on Windows.
+        out.push(relative_str.replace('\\', "/"));
+    }
+    Ok(out)
+}
+
+/// Check whether any of `patterns` matches `relative` either as a literal
+/// entry or as a glob pattern.
+fn pattern_matches_relative(patterns: &[String], relative: &str) -> bool {
+    // Match with `require_literal_separator` so `*`/`?`/`[]` stop at `/`, mirroring
+    // how `glob::glob` enumerates the filesystem (and leaving `**` free to cross).
+    let options = glob::MatchOptions { require_literal_separator: true, ..Default::default() };
+    patterns.iter().any(|p| {
+        if is_glob_pattern(p) {
+            glob::Pattern::new(p).map(|pat| pat.matches_with(relative, options)).unwrap_or(false)
+        } else {
+            p == relative
+        }
+    })
+}
+
+/// Load a single member's `(canonical_path, program_name)` pair, erroring if
+/// the directory or its `program.json` is missing.
+fn load_member_record(root: &Path, entry: &str) -> Result<(PathBuf, String)> {
+    let member_dir = root.join(entry);
+    if !member_dir.is_dir() {
+        return Err(errors::workspace_member_not_found(entry, root.display()).into());
+    }
+    let member_manifest_path = member_dir.join(MANIFEST_FILENAME);
+    if !member_manifest_path.exists() {
+        return Err(errors::workspace_member_not_found(entry, root.display()).into());
+    }
+    let member_manifest = Manifest::read_from_file(&member_manifest_path)?;
+    let canonical = member_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
+    // `root` is the canonicalized workspace root; reject members (e.g. `../sibling`)
+    // that resolve outside it.
+    if canonical.strip_prefix(root).is_err() {
+        return Err(errors::workspace_member_outside_root(entry, root.display()).into());
+    }
+    Ok((canonical, member_manifest.program.clone()))
 }
 
 /// Determine the build order for workspace members by analysing cross-member
@@ -532,6 +696,371 @@ mod tests {
         assert!(result.is_err());
 
         std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_appends_new_member() {
+        let dir = temp_dir().join("ws_test_auto_register_basic");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        create_workspace(&dir, &["alpha"]);
+
+        create_member(&dir, "beta", &[]);
+        let beta_dir = dir.join("beta");
+        let registered = Workspace::auto_register_member(&beta_dir).unwrap();
+        assert!(registered);
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["alpha".to_string(), "beta".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_skips_when_glob_matches() {
+        let dir = temp_dir().join("ws_test_auto_register_glob");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("packages")).unwrap();
+
+        create_workspace(&dir, &["packages/*"]);
+        create_member(&dir.join("packages"), "foo", &[]);
+        let foo_dir = dir.join("packages/foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(!registered, "should skip when a glob already covers the new member");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["packages/*".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_skips_when_already_listed() {
+        let dir = temp_dir().join("ws_test_auto_register_dup");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "foo", &[]);
+        create_workspace(&dir, &["foo"]);
+        let foo_dir = dir.join("foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(!registered);
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["foo".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_skips_outside_workspace() {
+        let dir = temp_dir().join("ws_test_auto_register_outside");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // No workspace.json - the member directory has no enclosing workspace.
+        create_member(&dir, "foo", &[]);
+        let foo_dir = dir.join("foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(!registered, "auto-register should be a no-op when no workspace exists");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_preserves_existing_order() {
+        let dir = temp_dir().join("ws_test_auto_register_order");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        create_member(&dir, "charlie", &[]);
+        create_workspace(&dir, &["alpha", "charlie"]);
+
+        create_member(&dir, "beta", &[]);
+        let beta_dir = dir.join("beta");
+        Workspace::auto_register_member(&beta_dir).unwrap();
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        // New entry appended at the end; existing order preserved.
+        assert_eq!(manifest.members, vec!["alpha".to_string(), "charlie".to_string(), "beta".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_succeeds_despite_broken_member() {
+        // A new package must register even when a sibling member listed in
+        // `workspace.json` is broken: auto-registration only needs the workspace
+        // root, not a fully resolved member list.
+        let dir = temp_dir().join("ws_test_auto_register_broken_member");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_member(&dir, "alpha", &[]);
+        // `ghost` is listed but never created - resolving the workspace would fail.
+        create_workspace(&dir, &["alpha", "ghost"]);
+
+        create_member(&dir, "beta", &[]);
+        let beta_dir = dir.join("beta");
+        let registered = Workspace::auto_register_member(&beta_dir).unwrap();
+        assert!(registered, "a new package should register despite a broken sibling member");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["alpha".to_string(), "ghost".to_string(), "beta".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_registers_glob_subdir() {
+        let dir = temp_dir().join("ws_test_auto_register_glob_subdir");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("packages/sub")).unwrap();
+
+        create_workspace(&dir, &["packages/*"]);
+        create_member(&dir.join("packages/sub"), "foo", &[]);
+        let foo_dir = dir.join("packages/sub/foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(registered, "`packages/*` does not cover a nested package, so it should be registered");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["packages/*".to_string(), "packages/sub/foo".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn auto_register_skips_when_recursive_glob_matches() {
+        let dir = temp_dir().join("ws_test_auto_register_glob_recursive");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("packages/sub")).unwrap();
+
+        create_workspace(&dir, &["packages/**"]);
+        create_member(&dir.join("packages/sub"), "foo", &[]);
+        let foo_dir = dir.join("packages/sub/foo");
+
+        let registered = Workspace::auto_register_member(&foo_dir).unwrap();
+        assert!(!registered, "`packages/**` crosses `/` and covers nested packages, so it should be skipped");
+
+        let manifest = WorkspaceManifest::read_from_file(dir.join(WORKSPACE_MANIFEST_FILENAME)).unwrap();
+        assert_eq!(manifest.members, vec!["packages/**".to_string()]);
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn initialize_skeleton_creates_workspace_json() {
+        let dir = temp_dir().join("ws_test_init_skeleton_basic");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        let full_path = Workspace::initialize_skeleton("my_workspace", &dir).unwrap();
+        assert!(full_path.is_dir());
+        assert_eq!(full_path.file_name().and_then(|n| n.to_str()), Some("my_workspace"));
+
+        let manifest_path = full_path.join(WORKSPACE_MANIFEST_FILENAME);
+        assert!(manifest_path.exists());
+        let manifest = WorkspaceManifest::read_from_file(&manifest_path).unwrap();
+        assert!(manifest.members.is_empty());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn initialize_skeleton_rejects_existing_dir() {
+        let dir = temp_dir().join("ws_test_init_skeleton_existing");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("my_workspace")).unwrap();
+
+        let result = Workspace::initialize_skeleton("my_workspace", &dir);
+        assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn initialize_skeleton_rejects_invalid_name() {
+        let dir = temp_dir().join("ws_test_init_skeleton_invalid_name");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // Underscore-prefixed names are rejected by `is_valid_package_name`.
+        let result = Workspace::initialize_skeleton("_oops", &dir);
+        assert!(result.is_err());
+        // Empty names are rejected.
+        let result = Workspace::initialize_skeleton("", &dir);
+        assert!(result.is_err());
+        // Names containing "aleo" are rejected.
+        let result = Workspace::initialize_skeleton("my_aleo_ws", &dir);
+        assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_member_basic() {
+        let dir = temp_dir().join("ws_test_glob_basic");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("programs")).unwrap();
+
+        let programs = dir.join("programs");
+        create_member(&programs, "alpha", &[]);
+        create_member(&programs, "beta", &[]);
+        create_workspace(&dir, &["programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        assert_eq!(ws.member_paths.len(), 2);
+        let names: Vec<&str> = ws.member_names.iter().map(|s| s.as_str()).collect();
+        assert!(names.contains(&"alpha.aleo"));
+        assert!(names.contains(&"beta.aleo"));
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_member_recursive() {
+        let dir = temp_dir().join("ws_test_glob_recursive");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("programs/sub")).unwrap();
+
+        create_member(&dir.join("programs"), "alpha", &[]);
+        create_member(&dir.join("programs/sub"), "beta", &[]);
+        create_workspace(&dir, &["programs/**"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        let names: Vec<&str> = ws.member_names.iter().map(|s| s.as_str()).collect();
+        assert!(names.contains(&"alpha.aleo"));
+        assert!(names.contains(&"beta.aleo"));
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_member_no_match() {
+        let dir = temp_dir().join("ws_test_glob_no_match");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_workspace(&dir, &["programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        assert!(ws.member_paths.is_empty());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_member_mixed() {
+        let dir = temp_dir().join("ws_test_glob_mixed");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("programs")).unwrap();
+
+        create_member(&dir, "literal_one", &[]);
+        create_member(&dir.join("programs"), "globbed", &[]);
+        create_workspace(&dir, &["literal_one", "programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        let names: Vec<&str> = ws.member_names.iter().map(|s| s.as_str()).collect();
+        assert!(names.contains(&"literal_one.aleo"));
+        assert!(names.contains(&"globbed.aleo"));
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_skips_non_packages() {
+        let dir = temp_dir().join("ws_test_glob_skip_non_pkg");
+        let _ = std::fs::remove_dir_all(&dir);
+        let programs = dir.join("programs");
+        std::fs::create_dir_all(programs.join("junk")).unwrap();
+
+        create_member(&programs, "real", &[]);
+        std::fs::write(programs.join("notes.txt"), "scratch").unwrap();
+
+        create_workspace(&dir, &["programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        assert_eq!(ws.member_paths.len(), 1);
+        assert_eq!(ws.member_names[0], "real.aleo");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_dep_ordering() {
+        let dir = temp_dir().join("ws_test_glob_dep_order");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("programs")).unwrap();
+
+        let programs = dir.join("programs");
+        create_member(&programs, "alpha", &[]);
+        create_member_with_workspace_deps(&programs, "beta", &["alpha"]);
+        create_workspace(&dir, &["programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        let names: Vec<&str> = ws.member_names.iter().map(|s| s.as_str()).collect();
+        let alpha_pos = names.iter().position(|n| *n == "alpha.aleo").unwrap();
+        let beta_pos = names.iter().position(|n| *n == "beta.aleo").unwrap();
+        assert!(alpha_pos < beta_pos, "alpha should be ordered before beta even when discovered via glob");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_dedup() {
+        let dir = temp_dir().join("ws_test_glob_dedup");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("programs")).unwrap();
+
+        create_member(&dir.join("programs"), "alpha", &[]);
+        create_workspace(&dir, &["programs/alpha", "programs/*"]);
+
+        let ws = Workspace::from_directory(&dir).unwrap().unwrap();
+        assert_eq!(ws.member_paths.len(), 1, "duplicate member from literal + glob should be deduplicated");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_glob_invalid_pattern() {
+        let dir = temp_dir().join("ws_test_glob_invalid");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        create_workspace(&dir, &["[invalid"]);
+
+        let result = Workspace::from_directory(&dir);
+        assert!(result.is_err(), "malformed glob pattern should produce a structured error");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_member_outside_root_errors() {
+        let parent = temp_dir().join("ws_test_member_outside_root");
+        let _ = std::fs::remove_dir_all(&parent);
+        std::fs::create_dir_all(&parent).unwrap();
+
+        // A package that lives next to the workspace, not inside it.
+        create_member(&parent, "sibling", &[]);
+
+        let ws_dir = parent.join("ws");
+        std::fs::create_dir_all(&ws_dir).unwrap();
+        create_workspace(&ws_dir, &["../sibling"]);
+
+        let result = Workspace::from_directory(&ws_dir);
+        assert!(result.is_err(), "a member resolving outside the workspace root should be rejected");
+        let err_msg = format!("{}", result.unwrap_err());
+        assert!(err_msg.contains("outside the workspace root"), "error should be the outside-root error: {err_msg}");
+
+        std::fs::remove_dir_all(&parent).unwrap();
     }
 
     #[test]

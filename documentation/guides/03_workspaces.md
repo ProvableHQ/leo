@@ -12,7 +12,15 @@ Workspaces are useful when your application is made up of several interacting pr
 
 ## Creating a Workspace
 
-Create a `workspace.json` file in your project root. It contains a `members` array listing the relative paths to each member package:
+The quickest way to start a workspace is to scaffold one with `leo new`:
+
+```bash
+leo new --workspace my_project
+```
+
+This creates `my_project/` containing a `workspace.json` with an empty `members` array. The `--workspace` flag is mutually exclusive with `--library` - a workspace is just a root that groups packages, not a package itself, so it has no `src/`, `program.json`, or `tests/` directory.
+
+Equivalently, you can create `workspace.json` by hand in any directory. It contains a `members` array listing the relative paths to each member package:
 
 ```json
 {
@@ -21,6 +29,42 @@ Create a `workspace.json` file in your project root. It contains a `members` arr
 ```
 
 Each entry is a path to a directory containing a standard Leo package with its own `program.json` and `src/main.leo`.
+
+### Glob Members
+
+Entries in `members` can also be glob patterns, resolved relative to the workspace root:
+
+```json
+{
+  "members": ["libraries/core", "programs/*"]
+}
+```
+
+Standard `glob` syntax is supported, including `*` (matches a single path segment), `**` (matches recursively across directories), `?`, and character classes like `[abc]`. A glob match is included only if the matched directory contains a `program.json`; other matches (files, directories without a manifest, non-UTF-8 paths) are silently skipped.
+
+A glob that matches zero packages logs a warning and continues - it is not an error:
+
+```text
+workspace member glob `programs/*` in <root> matched no packages
+```
+
+A literal entry pointing at a missing directory still errors, so explicit paths remain strictly validated. Literal entries are resolved before globs and members are deduplicated by canonical path, so a directory matched by both a literal entry and a glob is only included once.
+
+### Adding Members
+
+When `leo new <name>` is run anywhere inside a workspace, the new package's path is appended to the enclosing `workspace.json` automatically and Leo prints:
+
+```text
+Added <name> to the enclosing workspace.
+```
+
+The append is skipped silently if the new package is already covered by an existing entry - either a literal path equal to the new package's relative path, or a glob that matches it. If the new package ends up outside the discovered workspace root (for example, `leo new ../sibling`), Leo prints a warning and leaves `workspace.json` untouched:
+
+```text
+new package at `...` is not inside the discovered workspace root `...`; skipping auto-add
+```
+
+Existing `members` order is preserved; new entries are appended at the end. If you would rather not edit `members` by hand at all, use a glob entry such as `programs/*` (see [Glob Members](#glob-members)) - new packages created inside that directory are picked up without modifying `workspace.json`.
 
 ## Directory Structure
 
