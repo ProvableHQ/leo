@@ -96,7 +96,7 @@ See the full [`leo devnet` CLI documentation](./../cli/07_devnet.md).
 
 When you start the devnet, the CLI will actually spin up a new instance of the blockchain from genesis via the snarkOS binary. This means that the chain will start at block 0 and consensus version 1, and the only program deployed will be `credits.aleo`.
 
-The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, the devnet will fast forward to the highest `ConsensusVersion` on a Testnet ledger.
+The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, snarkOS built with `--features test_network` will fast forward to the highest `ConsensusVersion` on a Testnet ledger within a few blocks. You can get more insights by calling `curl localhost:3030/testnet/version`.
 
 If you want more customization, e.g. to test out behaviour on an older `ConsensusVersion`, you can pass a comma-separated list of consensus heights via the `--consensus-heights` flag (e.g. `0,1,2,3,4,5,6,7,8,9,20,$((2**32 - 1))` - note that the list must be of lenght equal to the number of consensus versions defined in the VM.
 
