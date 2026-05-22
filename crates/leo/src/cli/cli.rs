@@ -306,6 +306,7 @@ mod tests {
         cli::{Commands, test_helpers},
         run_with_args,
     };
+    use clap::Parser;
     use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
@@ -506,7 +507,7 @@ mod tests {
             json_output: None,
             disable_update_check: false,
             command: Commands::New {
-                command: crate::cli::commands::LeoNew { name: lib_name.to_string(), library: true },
+                command: crate::cli::commands::LeoNew { name: lib_name.to_string(), library: true, workspace: false },
             },
             path: Some(lib_directory.clone()),
             home: None,
@@ -533,6 +534,142 @@ mod tests {
         // Best-effort cleanup. On Windows the directory may still be held open briefly
         // by the OS, so we ignore errors here rather than failing an otherwise-passing test.
         let _ = std::fs::remove_dir_all(&lib_directory);
+    }
+
+    #[test]
+    #[serial]
+    fn new_workspace_test() {
+        let temp_dir = temp_dir();
+        let ws_name = "my_test_workspace";
+        let ws_directory = temp_dir.join(ws_name);
+
+        if ws_directory.exists() {
+            std::fs::remove_dir_all(&ws_directory).unwrap();
+        }
+
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: ws_name.to_string(), library: false, workspace: true },
+            },
+            path: Some(ws_directory.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("Failed to execute `leo new --workspace`");
+        });
+
+        assert!(ws_directory.is_dir(), "Workspace directory should exist");
+        let manifest_path = ws_directory.join(leo_package::WORKSPACE_MANIFEST_FILENAME);
+        assert!(manifest_path.exists(), "workspace.json should exist");
+        let manifest = leo_package::WorkspaceManifest::read_from_file(&manifest_path).unwrap();
+        assert!(manifest.members.is_empty(), "newly created workspace should have an empty members list");
+        assert!(!ws_directory.join("src").exists(), "workspace skeleton should not have a src directory");
+        assert!(
+            !ws_directory.join(leo_package::MANIFEST_FILENAME).exists(),
+            "workspace skeleton should not have a program.json"
+        );
+
+        let _ = std::fs::remove_dir_all(&ws_directory);
+    }
+
+    #[test]
+    #[serial]
+    fn new_workspace_with_library_flag_rejected() {
+        // The clap `conflicts_with` constraint between `--workspace` and `--library` should
+        // surface as a parse error rather than running either path.
+        let result = CLI::try_parse_from(["leo", "new", "--workspace", "--library", "anything"]);
+        assert!(result.is_err(), "leo new --workspace --library should fail parsing");
+    }
+
+    #[test]
+    #[serial]
+    fn new_inside_workspace_auto_registers() {
+        let temp_dir = temp_dir();
+        let ws_root = temp_dir.join("ws_new_inside_test");
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        // Seed the workspace with a single literal member that actually exists.
+        test_helpers::scaffold_minimal_member(&ws_root, "existing");
+        let manifest = leo_package::WorkspaceManifest { members: vec!["existing".to_string()] };
+        manifest.write_to_file(ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME)).unwrap();
+
+        let new_pkg = "my_pkg";
+        let pkg_dir = ws_root.join(new_pkg);
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("Failed to execute `leo new` inside a workspace");
+        });
+
+        assert!(pkg_dir.join(leo_package::MANIFEST_FILENAME).exists(), "package should be scaffolded");
+        let manifest =
+            leo_package::WorkspaceManifest::read_from_file(ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME))
+                .unwrap();
+        assert_eq!(manifest.members, vec!["existing".to_string(), new_pkg.to_string()]);
+
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn new_inside_workspace_with_glob_does_not_modify_manifest() {
+        let temp_dir = temp_dir();
+        let ws_root = temp_dir.join("ws_new_inside_glob_test");
+        if ws_root.exists() {
+            std::fs::remove_dir_all(&ws_root).unwrap();
+        }
+        std::fs::create_dir_all(&ws_root).unwrap();
+
+        // A `*` pattern in `members` covers anything created at the workspace root.
+        let manifest = leo_package::WorkspaceManifest { members: vec!["*".to_string()] };
+        manifest.write_to_file(ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME)).unwrap();
+
+        let new_pkg = "my_pkg";
+        let pkg_dir = ws_root.join(new_pkg);
+        let new_cmd = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
+            },
+            path: Some(pkg_dir.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new_cmd).expect("Failed to execute `leo new` inside a globbed workspace");
+        });
+
+        assert!(pkg_dir.join(leo_package::MANIFEST_FILENAME).exists(), "package should be scaffolded");
+        let manifest =
+            leo_package::WorkspaceManifest::read_from_file(ws_root.join(leo_package::WORKSPACE_MANIFEST_FILENAME))
+                .unwrap();
+        assert_eq!(manifest.members, vec!["*".to_string()], "glob-covered workspace manifest should be untouched");
+
+        let _ = std::fs::remove_dir_all(&ws_root);
     }
 
     #[test]
@@ -1038,7 +1175,7 @@ mod tests {
             json_output: None,
             disable_update_check: false,
             command: Commands::New {
-                command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false },
+                command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false, workspace: false },
             },
             path: Some(pkg_dir.clone()),
             home: None,
@@ -1083,6 +1220,35 @@ mod test_helpers {
     use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
     use std::path::{Path, PathBuf};
+
+    /// Scaffold a minimal program package named `name` at `<parent>/<name>`.
+    ///
+    /// Writes a no-deps `program.json` and a trivial `src/main.leo`. Useful as
+    /// a lightweight workspace member when a test only needs the directory to
+    /// pass validation.
+    pub(crate) fn scaffold_minimal_member(parent: &Path, name: &str) {
+        let member_dir = parent.join(name);
+        std::fs::create_dir_all(member_dir.join("src")).unwrap();
+        std::fs::write(
+            member_dir.join("src/main.leo"),
+            format!("program {name}.aleo {{\n    @noupgrade\n    constructor() {{}}\n}}\n"),
+        )
+        .unwrap();
+        std::fs::write(
+            member_dir.join(leo_package::MANIFEST_FILENAME),
+            serde_json::to_string_pretty(&serde_json::json!({
+                "program": format!("{name}.aleo"),
+                "version": "0.1.0",
+                "description": "",
+                "license": "MIT",
+                "leo": env!("CARGO_PKG_VERSION"),
+                "dependencies": null,
+                "dev_dependencies": null
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+    }
 
     /// Create a workspace with two members: `token` (no deps) and `swap` (depends on token).
     ///
@@ -1523,7 +1689,7 @@ program app.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: name.to_string(), library: false } },
+            command: Commands::New { command: LeoNew { name: name.to_string(), library: false, workspace: false } },
             path: Some(project_directory.clone()),
             home: None,
             package: None,
@@ -1642,7 +1808,9 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "grandparent".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "grandparent".to_string(), library: false, workspace: false },
+            },
             path: Some(grandparent_directory.clone()),
             home: None,
             package: None,
@@ -1653,7 +1821,7 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false } },
+            command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false, workspace: false } },
             path: Some(parent_directory.clone()),
             home: None,
             package: None,
@@ -1664,7 +1832,7 @@ function external_nested_function:
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "child".to_string(), library: false } },
+            command: Commands::New { command: LeoNew { name: "child".to_string(), library: false, workspace: false } },
             path: Some(child_directory.clone()),
             home: None,
             package: None,
@@ -1815,7 +1983,7 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false } },
+            command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false, workspace: false } },
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
@@ -1826,7 +1994,9 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
+            },
             path: Some(inner_1_directory.clone()),
             home: None,
             package: None,
@@ -1837,7 +2007,9 @@ program child.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
+            },
             path: Some(inner_2_directory.clone()),
             home: None,
             package: None,
@@ -1987,7 +2159,9 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "outer_2".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "outer_2".to_string(), library: false, workspace: false },
+            },
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
@@ -1998,7 +2172,9 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "inner_1".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
+            },
             path: Some(inner_1_directory.clone()),
             home: None,
             package: None,
@@ -2009,7 +2185,9 @@ program inner_2.aleo {
             quiet: false,
             json_output: None,
             disable_update_check: false,
-            command: Commands::New { command: LeoNew { name: "inner_2".to_string(), library: false } },
+            command: Commands::New {
+                command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
+            },
             path: Some(inner_2_directory.clone()),
             home: None,
             package: None,
