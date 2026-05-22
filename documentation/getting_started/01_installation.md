@@ -132,7 +132,7 @@ git --version
 git clone https://github.com/ProvableHQ/leo
 cd leo
 # Build and install Leo
-cargo install --path .
+cargo install --path crates/leo
 # Build and install the formatter plugin
 cargo install --path crates/fmt
 ```
