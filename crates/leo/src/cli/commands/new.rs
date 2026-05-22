@@ -16,15 +16,17 @@
 
 use super::*;
 
-use leo_package::Package;
+use leo_package::{Package, Workspace};
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
 pub struct LeoNew {
     #[clap(name = "NAME", help = "Set package name")]
     pub(crate) name: String,
-    #[clap(long, help = "Create the package as a library instead of a program")]
+    #[clap(long, help = "Create the package as a library instead of a program", conflicts_with = "workspace")]
     pub(crate) library: bool,
+    #[clap(long, help = "Create a workspace skeleton instead of a package", conflicts_with = "library")]
+    pub(crate) workspace: bool,
 }
 
 impl Command for LeoNew {
@@ -43,13 +45,21 @@ impl Command for LeoNew {
         // Derive the location of the parent directory to the project.
         let package_path = context.parent_dir()?;
 
-        // Change the cwd to the Leo package directory to initialize all files.
+        // Change the cwd to the parent directory so subsequent commands resolve sensibly.
         std::env::set_current_dir(&package_path)
             .map_err(|err| crate::errors::failed_to_set_cwd(package_path.display(), err))?;
 
-        let full_path = Package::initialize(&self.name, &package_path, self.library)?;
+        if self.workspace {
+            let full_path = Workspace::initialize_skeleton(&self.name, &package_path)?;
+            println!("Created workspace {} at `{}`.", self.name.bold(), full_path.display());
+        } else {
+            let full_path = Package::initialize(&self.name, &package_path, self.library)?;
+            println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
 
-        println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
+            if Workspace::auto_register_member(&full_path)? {
+                println!("Added {} to the enclosing workspace.", self.name.bold());
+            }
+        }
 
         Ok(())
     }
