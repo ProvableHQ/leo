@@ -1,0 +1,44 @@
+[package]
+name = "leo-wasm"
+version = "0.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "WASM bindings for the Leo compiler"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [ "aleo", "leo", "wasm", "compiler", "zero-knowledge" ]
+categories = [ "compilers", "wasm", "web-programming" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# leo dependencies
+leo-abi          = { workspace = true }
+leo-ast          = { workspace = true }
+leo-disassembler = { workspace = true }
+leo-errors       = { workspace = true }
+leo-fmt          = { workspace = true }
+leo-passes       = { workspace = true }
+leo-parser       = { workspace = true }
+leo-span         = { workspace = true }
+# third party
+console_error_panic_hook = "0.1"
+getrandom    = { version = "0.4", features = ["wasm_js"] }
+indexmap     = { workspace = true }
+rand         = { workspace = true }
+rand_chacha  = { workspace = true }
+serde_json   = { workspace = true }
+wasm-bindgen = "0.2"
+# snarkVM execution (wasm-compatible subset)
+aleo-std                    = { workspace = true }
+snarkvm-circuit             = { workspace = true }
+snarkvm-console             = { workspace = true }
+snarkvm-ledger-block        = { workspace = true }
+snarkvm-ledger-store        = { workspace = true }
+snarkvm-synthesizer-process = { workspace = true }
+snarkvm-synthesizer-program = { workspace = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

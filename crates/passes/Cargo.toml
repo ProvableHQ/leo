@@ -25,7 +25,6 @@ path = "src/lib.rs"
 leo-abi-types = { workspace = true }
 leo-ast       = { workspace = true }
 leo-errors    = { workspace = true }
-leo-package   = { workspace = true }
 leo-span      = { workspace = true }
 # third party dependencies
 anyhow        = { workspace = true }
@@ -37,7 +36,14 @@ regex         = { workspace = true }
 sha2          = { workspace = true }
 serde         = { workspace = true }
 serde_json    = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 snarkvm       = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom               = { version = "0.4", features = ["wasm_js"] }
+snarkvm-console         = { workspace = true }
+snarkvm-synthesizer-program = { workspace = true }
 
 [dev-dependencies]
 # leo dependencies

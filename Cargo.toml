@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*", "crates/compiler/benchmarks"]
+members = ["crates/*", "crates/compiler/benchmarks", "crates/leo-wasm"]
 resolver = "3"
 
 [workspace.dependencies]
@@ -19,7 +19,7 @@ leo-passes          = { path = "./crates/passes",           version = "=4.0.2" }
 leo-span            = { path = "./crates/span",             version = "=4.0.2" }
 leo-test-framework  = { path = "./crates/test-framework",   version = "=4.0.2" }
 # third party dependencies
-aleo-std           = { version = "1.0.3"}
+aleo-std           = { version = "1.0.3", features = ["storage"] }
 aleo-std-storage   = { version = "1.0.3", default-features = false }
 anyhow             = "1.0"
 ariadne            = "0.6"
@@ -75,8 +75,12 @@ snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = 
 # Wasm-friendly snarkVM subsets pinned at the same rev as the umbrella crate; used by
 # `leo-ast` and `leo-disassembler` on `wasm32-unknown-unknown` where the full `snarkvm`
 # crate pulls in native-only ledger/package code.
-snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", features = [ "wasm" ] }
+snarkvm-circuit              = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c" }
+snarkvm-console              = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-ledger-block         = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", default-features = false, features = ["wasm"] }
+snarkvm-ledger-store         = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", default-features = false, features = ["wasm"] }
+snarkvm-synthesizer-process  = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", default-features = false, features = ["rayon", "wasm", "dev_skip_checks", "test_consensus_heights"] }
+snarkvm-synthesizer-program  = { git = "https://github.com/ProvableHQ/snarkVM.git", rev = "d4c570003d86b6abf0c0ba4b5c025ee3d4e46b4c", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

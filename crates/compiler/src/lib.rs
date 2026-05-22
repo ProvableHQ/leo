@@ -19,7 +19,9 @@
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(not(target_arch = "wasm32"))]
 mod compiler;
+#[cfg(not(target_arch = "wasm32"))]
 pub use compiler::*;
 
 mod errors;
@@ -31,6 +33,7 @@ pub use options::*;
 pub use leo_passes::{Bytecode, CompiledPrograms};
 pub use leo_span::file_source::{DiskFileSource, FileSource, InMemoryFileSource};
 
+#[cfg(not(target_arch = "wasm32"))]
 pub mod run;
 
 #[cfg(test)]

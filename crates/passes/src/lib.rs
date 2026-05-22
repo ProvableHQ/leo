@@ -17,6 +17,15 @@
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
 
+#[cfg(target_arch = "wasm32")]
+extern crate self as snarkvm;
+
+#[cfg(target_arch = "wasm32")]
+mod snarkvm_wasm;
+#[cfg(target_arch = "wasm32")]
+#[doc(hidden)]
+pub use snarkvm_wasm::{console, prelude, synthesizer};
+
 mod errors;
 
 mod static_analysis;
