@@ -96,29 +96,9 @@ See the full [`leo devnet` CLI documentation](./../cli/07_devnet.md).
 
 When you start the devnet, the CLI will actually spin up a new instance of the blockchain from genesis via the snarkOS binary. This means that the chain will start at block 0 and consensus version 1, and the only program deployed will be `credits.aleo`.
 
-The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, the devnet will assume the predefined consensus heights from Testnet:
+The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, snarkOS built with `--features test_network` will fast forward to the highest `ConsensusVersion` on a Testnet ledger within a few blocks. You can get more insights by calling `curl localhost:3030/testnet/version`.
 
-```rust
-(ConsensusVersion::V1, 0),
-(ConsensusVersion::V2, 2_950_000),
-(ConsensusVersion::V3, 4_800_000),
-(ConsensusVersion::V4, 6_625_000),
-(ConsensusVersion::V5, 6_765_000),
-(ConsensusVersion::V6, 7_600_000),
-(ConsensusVersion::V7, 8_365_000),
-(ConsensusVersion::V8, 9_173_000),
-(ConsensusVersion::V9, 9_800_000),
-(ConsensusVersion::V10, 10_525_000),
-(ConsensusVersion::V11, 11_952_000),
-```
-
-Obviously you don't have time to wait for 10 million blocks to access a newer feature like program upgradability, so `leo devnet` provides a way to manually set the consensus heights via the `--consensus-heights` flag:
-
-```bash
-leo devnet --snarkos <SNARKOS> --snarkos-features test_network --consensus-heights 0,1,2,3,4,5,6,7,8,9,10
-```
-
-Note that if you want to access the latest features, the number of comma-separated arguments you pass to this flag must be exactly equal to the latest consensus version.
+If you want more customization, e.g. to test out behaviour on an older `ConsensusVersion`, you can pass a comma-separated list of consensus heights via the `--consensus-heights` flag (e.g. `0,1,2,3,4,5,6,7,8,9,20,$((2**32 - 1))` - note that the list must be of lenght equal to the number of consensus versions defined in the VM.
 
 Each time you stop and restart the chain, the prior state and history will be saved. You can clear any prior history by passing the `--clear-storage` flag:
 
