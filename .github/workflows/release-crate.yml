@@ -183,6 +183,9 @@ jobs:
                 --release --locked \
                 ${{ steps.flags.outputs.features }}
             "
+          # Container writes outputs as its own user; reclaim ownership so
+          # subsequent host steps (strip, zip) can write into target/.
+          sudo chown -R $(id -u):$(id -g) target
 
       - name: Collect Binaries
         id: bins
