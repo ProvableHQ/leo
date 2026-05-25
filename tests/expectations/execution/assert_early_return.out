@@ -3,8 +3,7 @@ program test.aleo;
 function main:
     input r0 as u32.private;
     lt r0 5u32 into r1;
-    or false r1 into r2;
-    assert.eq r2 true;
+    assert.eq r1 true;
     output true as boolean.private;
 
 constructor:
@@ -17,5 +16,5 @@ status: success
 output: true
 status: success
 output: true
-status: failed: Stack evaluation failed: Instruction (assert.eq r2 true;) at index 2 failed: 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
+status: failed: Stack evaluation failed: Instruction (assert.eq r1 true;) at index 1 failed: 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
 output: ()

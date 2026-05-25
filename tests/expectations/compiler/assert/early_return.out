@@ -2,7 +2,5 @@ program test.aleo;
 
 function main:
     input r0 as boolean.private;
-    or false r0 into r1;
-    assert.eq r1 true;
-    ternary r0 r0 r0 into r2;
-    output r2 as boolean.private;
+    assert.eq r0 true;
+    output r0 as boolean.private;

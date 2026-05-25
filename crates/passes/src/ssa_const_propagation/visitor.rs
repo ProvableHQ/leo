@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Expression, Location, Node, NodeID, const_eval::Value};
+use leo_ast::{Expression, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
 use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
@@ -44,6 +44,44 @@ pub struct SsaConstPropagationVisitor<'a> {
 /// and literals are the only expression shapes that round-trip freely.
 pub fn is_atom(expr: &Expression) -> bool {
     matches!(expr, Expression::Path(_) | Expression::Literal(_))
+}
+
+/// Check if a literal represents the zero/identity value for addition.
+pub fn is_zero_literal(lit: &Literal) -> bool {
+    match &lit.variant {
+        LiteralVariant::Integer(_, s)
+        | LiteralVariant::Field(s)
+        | LiteralVariant::Group(s)
+        | LiteralVariant::Scalar(s)
+        | LiteralVariant::Unsuffixed(s) => s == "0",
+        LiteralVariant::Boolean(b) => !b,
+        _ => false,
+    }
+}
+
+/// Check if a literal represents the one/identity value for multiplication.
+pub fn is_one_literal(lit: &Literal) -> bool {
+    match &lit.variant {
+        LiteralVariant::Integer(_, s)
+        | LiteralVariant::Field(s)
+        | LiteralVariant::Scalar(s)
+        | LiteralVariant::Unsuffixed(s) => s == "1",
+        LiteralVariant::Boolean(b) => *b,
+        _ => false,
+    }
+}
+
+/// Check if two expressions refer to the same SSA variable.
+/// In SSA form, each variable name is unique, so name equality implies value equality.
+pub fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
+    match (a, b) {
+        (Expression::Path(pa), Expression::Path(pb)) => {
+            let sa = pa.try_local_symbol();
+            let sb = pb.try_local_symbol();
+            sa == sb && sa.is_some()
+        }
+        _ => false,
+    }
 }
 
 impl SsaConstPropagationVisitor<'_> {

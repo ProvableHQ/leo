@@ -2,5 +2,4 @@ program test.aleo;
 
 function main:
     input r0 as boolean.private;
-    and true r0 into r1;
-    output r1 as boolean.private;
+    output r0 as boolean.private;
