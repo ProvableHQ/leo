@@ -213,6 +213,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
     fn visit_function_with(&mut self, function: &'a Function, futures: &[Location]) -> Option<AleoFunctional> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
+        self.next_label = 0;
+        self.conditional_depth = 0;
         self.variable_mapping = IndexMap::new();
         self.variant = Some(function.variant);
         // TODO: Figure out a better way to initialize.
@@ -347,6 +349,8 @@ impl<'a> CodeGeneratingVisitor<'a> {
     fn visit_constructor(&mut self, constructor: &'a Constructor) -> AleoConstructor {
         // Initialize the state of `self` with the appropriate values before visiting `constructor`.
         self.next_register = 0;
+        self.next_label = 0;
+        self.conditional_depth = 0;
         self.variable_mapping = IndexMap::new();
         self.variant = Some(Variant::Finalize);
         // TODO: Figure out a better way to initialize.

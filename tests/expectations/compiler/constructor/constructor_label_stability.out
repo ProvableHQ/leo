@@ -1,0 +1,33 @@
+program test.aleo;
+
+mapping admin:
+    key as boolean.public;
+    value as address.public;
+
+function do_something:
+    input r0 as u64.private;
+    async do_something r0 into r1;
+    output r1 as test.aleo/do_something.future;
+
+finalize do_something:
+    input r0 as u64.public;
+    gt r0 0u64 into r1;
+    branch.eq r1 false to end_then_0_0;
+    assert.eq true true;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r0 1u64 into r2;
+    branch.eq r2 false to end_then_0_2;
+    assert.eq true true;
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+
+constructor:
+    gt edition 0u16 into r0;
+    branch.eq r0 false to end_then_0_0;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    set program_owner into admin[true];
+    position end_otherwise_0_1;
