@@ -7,9 +7,26 @@ ${LEO_BIN} --disable-update-check abi simple.aleo
 
 echo ""
 echo "=== simple.aleo with --output ==="
-${LEO_BIN} --disable-update-check abi simple.aleo -o simple.abi.json
-cat simple.abi.json
+${LEO_BIN} --disable-update-check abi simple.aleo -o simple_out
+cat simple_out/simple.aleo.abi.json
 
 echo ""
 echo "=== comprehensive.aleo ==="
 ${LEO_BIN} --disable-update-check abi comprehensive.aleo
+
+echo ""
+echo "=== importer.aleo (auto-detected sibling imports/) ==="
+${LEO_BIN} --disable-update-check abi importer.aleo
+
+echo ""
+echo "=== importer.aleo with explicit --imports-dir ==="
+${LEO_BIN} --disable-update-check abi importer.aleo --imports-dir imports
+
+echo ""
+echo "=== importer.aleo with --output (bundle layout) ==="
+${LEO_BIN} --disable-update-check abi importer.aleo -o importer_out
+echo "--- importer_out/importer.aleo.abi.json ---"
+cat importer_out/importer.aleo.abi.json
+echo ""
+echo "--- importer_out/dep.aleo.abi.json ---"
+cat importer_out/dep.aleo.abi.json

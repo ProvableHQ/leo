@@ -304,3 +304,20 @@ pub(crate) fn failed_to_enable_ansi_support() -> Backtraced {
         "Update to a recent version of Windows 10/11, or run Leo from a terminal that supports ANSI escapes.",
     )
 }
+
+pub(crate) fn failed_to_load_process(reason: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 66, format!("failed to load snarkVM process: {reason}")).with_help(
+        "This is an internal snarkVM error; the process should always load on a supported network. Please file an issue if this persists.",
+    )
+}
+
+pub(crate) fn failed_to_read_import(path: impl Display, reason: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 67, format!("could not read import `{path}`: {reason}")).with_help(
+        "Place the missing file at the path above, or pass `--imports-dir <DIR>` to point at the directory containing it.",
+    )
+}
+
+pub(crate) fn circular_import(cycle: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 68, format!("circular import: {cycle}"))
+        .with_help("Break the cycle by removing one of the import declarations.")
+}
