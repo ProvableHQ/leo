@@ -177,7 +177,7 @@ mod tests {
 
     const SIMPLE_ALEO: &str = include_str!("../../../tests/tests/cli/test_abi_from_aleo/contents/simple.aleo");
     const SIMPLE_ABI: &str =
-        include_str!("../../../tests/expectations/cli/test_abi_from_aleo/contents/simple.abi.json");
+        include_str!("../../../tests/expectations/cli/test_abi_from_aleo/contents/simple_out/simple.aleo.abi.json");
 
     #[test]
     fn generate_from_bytecode_matches_existing_cli_fixture() {

@@ -180,7 +180,7 @@
 }
 
 === simple.aleo with --output ===
-       Leo ABI written to 'simple.abi.json'.
+       Leo ABI written to 'simple_out/simple.aleo.abi.json'.
 {
   "program": "simple.aleo",
   "implements": [],
@@ -1118,6 +1118,260 @@
         {
           "ty": "Final",
           "mode": "None"
+        }
+      ]
+    }
+  ]
+}
+
+=== importer.aleo (auto-detected sibling imports/) ===
+{
+  "program": "importer.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "call_id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ]
+}
+
+=== dep.aleo ===
+{
+  "program": "dep.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ]
+}
+
+=== importer.aleo with explicit --imports-dir ===
+{
+  "program": "importer.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "call_id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ]
+}
+
+=== dep.aleo ===
+{
+  "program": "dep.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ]
+}
+
+=== importer.aleo with --output (bundle layout) ===
+       Leo ABI written to 'importer_out/importer.aleo.abi.json'.
+       Leo ABI written to 'importer_out/dep.aleo.abi.json'.
+--- importer_out/importer.aleo.abi.json ---
+{
+  "program": "importer.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "call_id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ]
+}
+--- importer_out/dep.aleo.abi.json ---
+{
+  "program": "dep.aleo",
+  "implements": [],
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "id",
+      "is_final": false,
+      "const_parameters": [],
+      "inputs": [
+        {
+          "name": "arg1",
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
+        }
+      ],
+      "outputs": [
+        {
+          "ty": {
+            "Plaintext": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            }
+          },
+          "mode": "Private"
         }
       ]
     }

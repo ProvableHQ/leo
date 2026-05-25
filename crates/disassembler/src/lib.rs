@@ -125,8 +125,21 @@ pub fn disassemble_from_str<N: Network>(
     process: &mut snarkvm::prelude::Process<N>,
 ) -> Result<AleoProgram, LeoError> {
     let p = Program::<N>::from_str(program).map_err(|_| crate::errors::snarkvm_parsing_error(&name))?;
-    process.add_program(&p).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
-    Ok(disassemble(p))
+    validate_and_disassemble(name, p, process)
+}
+
+/// Validate `program` via `process.add_program` and disassemble. Same `add_program + disassemble` tail as
+/// `disassemble_from_str`, but accepts an already-parsed `Program` so callers that need to peek at imports first
+/// (to build a topological load order, say) don't pay for a re-parse. `process` must already have all of
+/// `program`'s declared imports loaded.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn validate_and_disassemble<N: Network>(
+    name: impl fmt::Display,
+    program: Program<N>,
+    process: &mut snarkvm::prelude::Process<N>,
+) -> Result<AleoProgram, LeoError> {
+    process.add_program(&program).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
+    Ok(disassemble(program))
 }
 
 /// Disassembles Aleo bytecode using the snarkVM network selected by `network`.
