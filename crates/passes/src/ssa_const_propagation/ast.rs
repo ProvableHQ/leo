@@ -181,11 +181,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 }
             }
             // x - 0 = x
-            BinaryOperation::Sub | BinaryOperation::SubWrapped => {
-                if right_is_zero {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
+            BinaryOperation::Sub | BinaryOperation::SubWrapped if right_is_zero => {
+                self.changed = true;
+                return (left, lhs_opt_value);
             }
 
             // x * 1 = x, x * 0 = 0
@@ -213,11 +211,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             }
 
             // x / 1 = x
-            BinaryOperation::Div | BinaryOperation::DivWrapped => {
-                if right_is_one {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
+            BinaryOperation::Div | BinaryOperation::DivWrapped if right_is_one => {
+                self.changed = true;
+                return (left, lhs_opt_value);
             }
 
             // x && true = x, x && false = false
@@ -354,23 +350,21 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         }
 
         // Double-not: !!x -> x
-        if input.op == UnaryOperation::Not {
-            if let Expression::Unary(ref inner) = receiver {
-                if inner.op == UnaryOperation::Not {
-                    self.changed = true;
-                    return (inner.receiver.clone(), None);
-                }
-            }
+        if input.op == UnaryOperation::Not
+            && let Expression::Unary(ref inner) = receiver
+            && inner.op == UnaryOperation::Not
+        {
+            self.changed = true;
+            return (inner.receiver.clone(), None);
         }
 
         // Double-negate: -(-x) -> x
-        if input.op == UnaryOperation::Negate {
-            if let Expression::Unary(ref inner) = receiver {
-                if inner.op == UnaryOperation::Negate {
-                    self.changed = true;
-                    return (inner.receiver.clone(), None);
-                }
-            }
+        if input.op == UnaryOperation::Negate
+            && let Expression::Unary(ref inner) = receiver
+            && inner.op == UnaryOperation::Negate
+        {
+            self.changed = true;
+            return (inner.receiver.clone(), None);
         }
 
         (UnaryExpression { receiver, ..input }.into(), None)
