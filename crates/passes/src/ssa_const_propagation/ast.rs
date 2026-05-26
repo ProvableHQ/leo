@@ -154,7 +154,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(err),
+                Err(err) => {
+                    self.emit_err(err);
+                    return (BinaryExpression { left, right, ..input }.into(), None);
+                }
             }
         }
 

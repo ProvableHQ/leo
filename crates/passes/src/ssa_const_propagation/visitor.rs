@@ -16,7 +16,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{Expression, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
+use leo_ast::{Expression, FromStrRadix, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
 use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
@@ -46,6 +46,12 @@ pub fn is_atom(expr: &Expression) -> bool {
     matches!(expr, Expression::Path(_) | Expression::Literal(_))
 }
 
+/// Parse a numeric literal string, handling underscores and radix prefixes (0x, 0o, 0b).
+fn parse_literal_value(s: &str) -> Option<i128> {
+    let clean = s.replace('_', "");
+    i128::from_str_by_radix(&clean).ok()
+}
+
 /// Check if a literal represents the zero/identity value for addition.
 pub fn is_zero_literal(lit: &Literal) -> bool {
     match &lit.variant {
@@ -53,7 +59,7 @@ pub fn is_zero_literal(lit: &Literal) -> bool {
         | LiteralVariant::Field(s)
         | LiteralVariant::Group(s)
         | LiteralVariant::Scalar(s)
-        | LiteralVariant::Unsuffixed(s) => s == "0",
+        | LiteralVariant::Unsuffixed(s) => parse_literal_value(s) == Some(0),
         LiteralVariant::Boolean(b) => !b,
         _ => false,
     }
@@ -65,7 +71,7 @@ pub fn is_one_literal(lit: &Literal) -> bool {
         LiteralVariant::Integer(_, s)
         | LiteralVariant::Field(s)
         | LiteralVariant::Scalar(s)
-        | LiteralVariant::Unsuffixed(s) => s == "1",
+        | LiteralVariant::Unsuffixed(s) => parse_literal_value(s) == Some(1),
         LiteralVariant::Boolean(b) => *b,
         _ => false,
     }
