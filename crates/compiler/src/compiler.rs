@@ -515,7 +515,9 @@ impl Compiler {
         // Run the intermediate compiler stages, which also generates ABIs.
         let (primary_abi, import_abis, interfaces) = self.intermediate_passes()?;
         // Run code generation.
-        let bytecodes = CodeGenerating::do_pass((), &mut self.state)?;
+        let generated = self.do_pass::<CodeGenerating>(())?;
+        // Run peephole optimization and serialize to bytecode.
+        let bytecodes = self.do_pass::<PeepholeOptimizing>(generated)?;
 
         // Build the primary compiled program.
         let primary = CompiledProgram {

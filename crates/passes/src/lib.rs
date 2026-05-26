@@ -76,6 +76,9 @@ pub use path_resolution::*;
 mod pass;
 pub use pass::*;
 
+mod peephole_optimization;
+pub use peephole_optimization::*;
+
 mod processing_async;
 pub use processing_async::*;
 

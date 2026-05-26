@@ -2,5 +2,4 @@ program test.aleo;
 
 function main:
     input r0 as u8.private;
-    mul 1u8 r0 into r1;
-    output r1 as u8.private;
+    output r0 as u8.private;

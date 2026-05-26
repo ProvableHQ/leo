@@ -8,8 +8,6 @@ function classify:
     ternary r3 110u32 110u32 into r4;
     ternary r2 35u32 r4 into r5;
     ternary r1 1u32 r5 into r6;
-    assert.eq true true;
-    assert.eq true true;
     output r6 as u32.private;
 
 constructor:

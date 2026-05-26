@@ -1,0 +1,5 @@
+program test.aleo;
+
+function main:
+    input r0 as field.private;
+    output r0 as field.private;

@@ -18,15 +18,14 @@ function main:
     cast r6 into r7 as Foo;
     cast r1 r3 r5 r7 into r8 as [Foo; 4u32];
     ternary r8[0u32].x.is_some r8[0u32].x.val 0u64 into r9;
-    add 0u64 r9 into r10;
-    ternary r8[1u32].x.is_some r8[1u32].x.val 1u64 into r11;
-    add r10 r11 into r12;
-    ternary r8[2u32].x.is_some r8[2u32].x.val 4u64 into r13;
-    add r12 r13 into r14;
-    ternary r8[3u32].x.is_some r8[3u32].x.val 9u64 into r15;
-    add r14 r15 into r16;
-    is.eq r16 50u64 into r17;
-    assert.eq r17 true;
+    ternary r8[1u32].x.is_some r8[1u32].x.val 1u64 into r10;
+    add r9 r10 into r11;
+    ternary r8[2u32].x.is_some r8[2u32].x.val 4u64 into r12;
+    add r11 r12 into r13;
+    ternary r8[3u32].x.is_some r8[3u32].x.val 9u64 into r14;
+    add r13 r14 into r15;
+    is.eq r15 50u64 into r16;
+    assert.eq r16 true;
 
 constructor:
     assert.eq edition 0u16;

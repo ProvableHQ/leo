@@ -18,4 +18,3 @@ function foo:
 finalize foo:
     set 0u32 into m[0u32];
     set 0u32 into m[0u32];
-    assert.eq true true;
