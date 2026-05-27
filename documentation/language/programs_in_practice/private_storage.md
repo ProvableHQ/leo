@@ -8,7 +8,7 @@ sidebar_label: Private State
 
 ## Records
 
-A [record](https://developer.aleo.org/concepts/fundamentals/records) data type is the method of encoding private state on Aleo. Records are declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.
+A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is the method of encoding private state on Aleo. Records are declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.
 
 Records contain component declarations `{visibility} {name}: {type},`. Names of record components must not contain the keyword `aleo`. The visibility qualifier may be specified as `constant`, `public`, or `private`. If no qualifier is provided, Leo defaults to `private`.
 
