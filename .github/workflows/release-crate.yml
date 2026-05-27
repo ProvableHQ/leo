@@ -246,11 +246,14 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       - name: Generate Metadata
         shell: bash
-        run: |
-          cargo metadata --locked --format-version 1 --no-deps >/dev/null
-          bash scripts/generate-release-metadata.sh "${{ needs.prepare.outputs.tag }}"
+        run: bash scripts/generate-release-metadata.sh "${{ needs.prepare.outputs.tag }}"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

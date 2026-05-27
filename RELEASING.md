@@ -86,7 +86,8 @@ Example: `leo-lang-v4.0.1-x86_64-unknown-linux-gnu.zip` contains `leo`.
 
 Each GitHub Release includes:
 
-- a `Changes` section with commit subjects since the previous same-crate tag
+- a `Changes` section with commit subjects affecting the crate since the
+  previous same-crate tag
 - a `Compatible Versions` table for `leo-lang`, `leo-fmt`, `leo-lsp`,
   `snarkvm`, and `snarkOS`
 - a `leo-release.toml` asset for downstream packagers
@@ -104,7 +105,7 @@ Each GitHub Release includes:
 To validate the metadata locally:
 
 ```bash
-cargo metadata --locked --format-version 1 --no-deps
+# Requires cargo and jq on PATH.
 bash scripts/generate-release-metadata.sh leo-lsp-v4.0.2 /tmp/leo-release
 ```
 

@@ -4,12 +4,11 @@ set -euo pipefail
 # Generates the Markdown body and leo-release.toml asset for a per-crate GitHub
 # release from a tag like `leo-lsp-v4.0.2`.
 #
-# The script reads crate versions from Cargo.toml files, the exact snarkVM
-# version from Cargo.lock, and the compatible snarkOS version from
-# .resources/snarkos-version. It avoids JSON/TOML helper dependencies so it can
-# run in GitHub Actions with the standard checkout plus Rust install.
+# The script reads workspace package metadata from `cargo metadata`, the exact
+# snarkVM version from Cargo.lock, and the compatible snarkOS version from
+# .resources/snarkos-version.
 #
-# Expected tools: bash 4+, awk, git, grep, tr.
+# Expected tools: bash 4+, cargo, git, jq, awk, and standard POSIX utilities.
 
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
   echo "Usage: $0 <tag> [output-dir]" >&2
@@ -29,85 +28,128 @@ REPO_URL="https://github.com/${GITHUB_REPOSITORY}"
 SNARKOS_REPO_URL="https://github.com/ProvableHQ/snarkOS"
 BODY_PATH="${OUTPUT_DIR}/release-body.md"
 TOML_PATH="${OUTPUT_DIR}/leo-release.toml"
+METADATA_PATH=""
+WORKSPACE_ROOT=""
 
 mkdir -p "$OUTPUT_DIR"
 
-toml_value() {
-  local file="$1"
-  local section="$2"
-  local field="$3"
-  awk -v section="$section" -v field="$field" '
-    /^[[:space:]]*#/ { next }
-    /^[[:space:]]*$/ { next }
-    /^\[[^]]+\][[:space:]]*$/ {
-      current = $0
-      sub(/^[[:space:]]*\[/, "", current)
-      sub(/\][[:space:]]*$/, "", current)
-      next
-    }
-    current == section {
-      line = $0
-      sub(/[[:space:]]*#.*/, "", line)
-      split(line, parts, "=")
-      key = parts[1]
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
-      if (key != field) {
-        next
-      }
-      value = substr(line, index(line, "=") + 1)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      gsub(/^"|"$/, "", value)
-      print value
-      found = 1
-      exit
-    }
-    END {
-      if (!found) {
-        exit 1
-      }
-    }
-  ' "$file"
+cleanup() {
+  if [ -n "$METADATA_PATH" ]; then
+    rm -f "$METADATA_PATH"
+  fi
+}
+trap cleanup EXIT
+
+require_tool() {
+  local tool="$1"
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "Error: required tool '$tool' not found" >&2
+    exit 1
+  fi
+}
+
+load_cargo_metadata() {
+  METADATA_PATH="$(mktemp "${TMPDIR:-/tmp}/leo-cargo-metadata.XXXXXX")"
+  cargo metadata --locked --format-version 1 --no-deps > "$METADATA_PATH"
+  WORKSPACE_ROOT="$(jq -er '.workspace_root' "$METADATA_PATH")"
+}
+
+workspace_relative_path() {
+  local path="$1"
+
+  if [ "$path" = "$WORKSPACE_ROOT" ]; then
+    printf '.\n'
+  elif [[ "$path" == "$WORKSPACE_ROOT/"* ]]; then
+    printf '%s\n' "${path#"$WORKSPACE_ROOT"/}"
+  else
+    printf '%s\n' "$path"
+  fi
 }
 
 package_manifest() {
   local package="$1"
-  local toml
-  for toml in crates/*/Cargo.toml; do
-    if [ "$(toml_value "$toml" package name 2>/dev/null || true)" = "$package" ]; then
-      printf '%s\n' "$toml"
-      return 0
-    fi
-  done
-  echo "Error: no Cargo.toml found for package '$package'" >&2
-  return 1
+  local manifest
+
+  if ! manifest="$(jq -er --arg package "$package" '
+    first(.packages[] | select(.name == $package) | .manifest_path) // empty
+  ' "$METADATA_PATH")"; then
+    echo "Error: no Cargo metadata found for package '$package'" >&2
+    return 1
+  fi
+
+  workspace_relative_path "$manifest"
+}
+
+package_version() {
+  local package="$1"
+
+  jq -er --arg package "$package" '
+    first(.packages[] | select(.name == $package) | .version) // empty
+  ' "$METADATA_PATH"
 }
 
 package_bins() {
-  local file="$1"
-  awk '
-    /^\[\[bin\]\][[:space:]]*$/ {
-      in_bin = 1
-      next
-    }
-    /^\[/ {
-      in_bin = 0
-      next
-    }
-    in_bin {
-      line = $0
-      sub(/[[:space:]]*#.*/, "", line)
-      split(line, parts, "=")
-      key = parts[1]
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
-      if (key != "name") {
-        next
-      }
-      value = substr(line, index(line, "=") + 1)
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-      gsub(/^"|"$/, "", value)
-      print value
-    }
-  ' "$file"
+  local package="$1"
+
+  jq -r --arg package "$package" '
+    first(.packages[] | select(.name == $package)) as $pkg
+    | $pkg.targets[]?
+    | select((.kind // []) | index("bin"))
+    | .name
+  ' "$METADATA_PATH" | sort -u
+}
+
+workspace_dependency_names() {
+  local package="$1"
+
+  jq -r --arg package "$package" '
+    [.packages[].name] as $workspace_names
+    | first(.packages[] | select(.name == $package)) as $pkg
+    | $pkg.dependencies[]?
+    | select(.kind == null or .kind == "normal" or .kind == "build")
+    | .name as $dependency
+    | select($workspace_names | index($dependency))
+    | $dependency
+  ' "$METADATA_PATH" | sort -u
+}
+
+relevant_paths() {
+  local root_package="$1"
+  local package
+  local manifest
+  local dependency
+  local -a queue
+  local -A seen_packages
+  local -A seen_paths
+
+  queue=("$root_package")
+
+  while [ "${#queue[@]}" -gt 0 ]; do
+    package="${queue[0]}"
+    queue=("${queue[@]:1}")
+
+    if [ -n "${seen_packages[$package]+x}" ]; then
+      continue
+    fi
+    seen_packages["$package"]=1
+
+    if ! manifest="$(package_manifest "$package")"; then
+      continue
+    fi
+
+    seen_paths["${manifest%/Cargo.toml}"]=1
+    while IFS= read -r dependency; do
+      if package_manifest "$dependency" >/dev/null; then
+        queue+=("$dependency")
+      fi
+    done < <(workspace_dependency_names "$package")
+  done
+
+  seen_paths["Cargo.toml"]=1
+  seen_paths["Cargo.lock"]=1
+  seen_paths[".resources/snarkos-version"]=1
+
+  printf '%s\n' "${!seen_paths[@]}" | sort
 }
 
 lock_version() {
@@ -200,6 +242,10 @@ write_component_toml() {
   } >> "$TOML_PATH"
 }
 
+for tool in awk cargo git jq mktemp sort tr; do
+  require_tool "$tool"
+done
+
 if [ ! -f Cargo.lock ]; then
   echo "Error: Cargo.lock missing" >&2
   exit 1
@@ -209,8 +255,9 @@ if [ ! -f .resources/snarkos-version ]; then
   exit 1
 fi
 
+load_cargo_metadata
 CRATE_MANIFEST="$(package_manifest "$CRATE_NAME")"
-TOML_VERSION="$(toml_value "$CRATE_MANIFEST" package version)"
+TOML_VERSION="$(package_version "$CRATE_NAME")"
 if [ "$TOML_VERSION" != "$VERSION" ]; then
   echo "Error: tag version ($VERSION) does not match $CRATE_MANIFEST version ($TOML_VERSION)" >&2
   exit 1
@@ -235,15 +282,20 @@ if [ "${#TARGETS[@]}" -eq 0 ]; then
   echo "Error: no release targets found in release-crate workflow" >&2
   exit 1
 fi
+mapfile -t RELEVANT_PATHS < <(relevant_paths "$CRATE_NAME")
+if [ "${#RELEVANT_PATHS[@]}" -eq 0 ]; then
+  echo "Error: no relevant paths found for package '$CRATE_NAME'" >&2
+  exit 1
+fi
 
 COMPONENTS=(leo-lang leo-fmt leo-lsp)
 declare -A COMPONENT_VERSIONS
 declare -A COMPONENT_BINS
 
 for component in "${COMPONENTS[@]}"; do
-  manifest="$(package_manifest "$component")"
-  COMPONENT_VERSIONS["$component"]="$(toml_value "$manifest" package version)"
-  mapfile -t bins < <(package_bins "$manifest")
+  package_manifest "$component" >/dev/null
+  COMPONENT_VERSIONS["$component"]="$(package_version "$component")"
+  mapfile -t bins < <(package_bins "$component")
   if [ "${#bins[@]}" -eq 0 ]; then
     echo "Error: package '$component' has no [[bin]] entries" >&2
     exit 1
@@ -257,14 +309,15 @@ done
 
   PREVIOUS_TAG="$(previous_same_crate_tag || true)"
   if [ -n "$PREVIOUS_TAG" ]; then
-    printf 'Commits since `%s`:\n\n' "$PREVIOUS_TAG"
-    if git log --format='%H%x09%h%x09%s' "${PREVIOUS_TAG}..${CURRENT_REF}" | grep -q .; then
-      git log --format='%H%x09%h%x09%s' "${PREVIOUS_TAG}..${CURRENT_REF}" \
-        | while IFS="$(printf '\t')" read -r full short subject; do
-            printf -- '- [%s](%s/commit/%s) %s\n' "$short" "$REPO_URL" "$full" "$subject"
-          done
+    printf 'Commits affecting `%s` since `%s`:\n\n' "$CRATE_NAME" "$PREVIOUS_TAG"
+    mapfile -t COMMITS < <(git log --format='%H%x09%h%x09%s' "${PREVIOUS_TAG}..${CURRENT_REF}" -- "${RELEVANT_PATHS[@]}")
+    if [ "${#COMMITS[@]}" -gt 0 ]; then
+      for commit in "${COMMITS[@]}"; do
+        IFS="$(printf '\t')" read -r full short subject <<< "$commit"
+        printf -- '- [%s](%s/commit/%s) %s\n' "$short" "$REPO_URL" "$full" "$subject"
+      done
     else
-      printf -- '- No commits found in this release range.\n'
+      printf -- '- No commits found affecting this crate in this release range.\n'
     fi
   else
     printf 'This is the first tagged release for `%s`.\n' "$CRATE_NAME"
