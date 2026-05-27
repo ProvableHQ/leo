@@ -43,12 +43,14 @@ Pushing a tag matching `*-v[0-9]*` triggers `.github/workflows/release-crate.yml
 
 1. **Prepare** - Parses the tag, locates the crate by matching its package name,
    verifies the tag version matches `Cargo.toml`, and creates the tag if it
-   doesn't already exist (for manual dispatch triggers).
+   doesn't already exist (for manual dispatch triggers). It also finds the
+   previous same-crate tag, if one exists.
 2. **Build** - Compiles all binaries from the crate for all supported targets.
-3. **Metadata** - Generates release notes and `leo-release.toml` in parallel
-   with the platform builds.
-4. **Release** - Creates a GitHub Release with release notes, uploads platform
-   ZIPs, and uploads `leo-release.toml`.
+3. **Metadata** - Generates the release body prefix and `leo-release.toml` in
+   parallel with the platform builds.
+4. **Release** - Creates a GitHub Release with the compatibility table, uploads
+   platform ZIPs, and uploads `leo-release.toml`. If a previous same-crate tag
+   exists, GitHub appends generated release notes for that tag range.
 
 The workflow is fully idempotent - every job is safe to re-run.
 
@@ -86,10 +88,11 @@ Example: `leo-lang-v4.0.1-x86_64-unknown-linux-gnu.zip` contains `leo`.
 
 Each GitHub Release includes:
 
-- a `Changes` section with commit subjects affecting the crate since the
-  previous same-crate tag
 - a `Compatible Versions` table for `leo-lang`, `leo-fmt`, `leo-lsp`,
   `snarkvm`, and `snarkOS`
+- GitHub-generated release notes since the previous same-crate tag, when a
+  previous same-crate tag exists
+- a first-release note when there is no previous same-crate tag
 - a `leo-release.toml` asset for downstream packagers
 
 `leo-release.toml` contains:

@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Generates the Markdown body and leo-release.toml asset for a per-crate GitHub
-# release from a tag like `leo-lsp-v4.0.2`.
+# Generates the Markdown release-body prefix and leo-release.toml asset for a
+# per-crate GitHub release from a tag like `leo-lsp-v4.0.2`.
 #
 # The script reads workspace package metadata from `cargo metadata`, the exact
 # snarkVM version from Cargo.lock, and the compatible snarkOS version from
 # .resources/snarkos-version.
 #
 # Expected tools: bash 4+, cargo, git, jq, awk, and standard POSIX utilities.
+# GitHub generates PR-based release notes separately; this script only writes
+# the compatibility table, first-release note, and machine-readable metadata.
 
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
   echo "Usage: $0 <tag> [output-dir]" >&2
@@ -97,59 +99,6 @@ package_bins() {
     | select((.kind // []) | index("bin"))
     | .name
   ' "$METADATA_PATH" | sort -u
-}
-
-workspace_dependency_names() {
-  local package="$1"
-
-  jq -r --arg package "$package" '
-    [.packages[].name] as $workspace_names
-    | first(.packages[] | select(.name == $package)) as $pkg
-    | $pkg.dependencies[]?
-    | select(.kind == null or .kind == "normal" or .kind == "build")
-    | .name as $dependency
-    | select($workspace_names | index($dependency))
-    | $dependency
-  ' "$METADATA_PATH" | sort -u
-}
-
-relevant_paths() {
-  local root_package="$1"
-  local package
-  local manifest
-  local dependency
-  local -a queue
-  local -A seen_packages
-  local -A seen_paths
-
-  queue=("$root_package")
-
-  while [ "${#queue[@]}" -gt 0 ]; do
-    package="${queue[0]}"
-    queue=("${queue[@]:1}")
-
-    if [ -n "${seen_packages[$package]+x}" ]; then
-      continue
-    fi
-    seen_packages["$package"]=1
-
-    if ! manifest="$(package_manifest "$package")"; then
-      continue
-    fi
-
-    seen_paths["${manifest%/Cargo.toml}"]=1
-    while IFS= read -r dependency; do
-      if package_manifest "$dependency" >/dev/null; then
-        queue+=("$dependency")
-      fi
-    done < <(workspace_dependency_names "$package")
-  done
-
-  seen_paths["Cargo.toml"]=1
-  seen_paths["Cargo.lock"]=1
-  seen_paths[".resources/snarkos-version"]=1
-
-  printf '%s\n' "${!seen_paths[@]}" | sort
 }
 
 lock_version() {
@@ -269,12 +218,10 @@ if ! [[ "$SNARKOS_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   exit 1
 fi
 SNARKVM_VERSION="$(lock_version snarkvm)"
-CURRENT_REF="$TAG"
 if COMMIT="$(git rev-parse --verify -q "${TAG}^{commit}")"; then
   :
 else
   COMMIT="$(git rev-parse HEAD)"
-  CURRENT_REF="HEAD"
 fi
 
 mapfile -t TARGETS < <(target_list)
@@ -282,11 +229,7 @@ if [ "${#TARGETS[@]}" -eq 0 ]; then
   echo "Error: no release targets found in release-crate workflow" >&2
   exit 1
 fi
-mapfile -t RELEVANT_PATHS < <(relevant_paths "$CRATE_NAME")
-if [ "${#RELEVANT_PATHS[@]}" -eq 0 ]; then
-  echo "Error: no relevant paths found for package '$CRATE_NAME'" >&2
-  exit 1
-fi
+PREVIOUS_TAG="${PREVIOUS_TAG:-$(previous_same_crate_tag || true)}"
 
 COMPONENTS=(leo-lang leo-fmt leo-lsp)
 declare -A COMPONENT_VERSIONS
@@ -304,26 +247,12 @@ for component in "${COMPONENTS[@]}"; do
 done
 
 {
-  printf '# %s v%s\n\n' "$CRATE_NAME" "$VERSION"
-  printf '## Changes\n\n'
-
-  PREVIOUS_TAG="$(previous_same_crate_tag || true)"
-  if [ -n "$PREVIOUS_TAG" ]; then
-    printf 'Commits affecting `%s` since `%s`:\n\n' "$CRATE_NAME" "$PREVIOUS_TAG"
-    mapfile -t COMMITS < <(git log --format='%H%x09%h%x09%s' "${PREVIOUS_TAG}..${CURRENT_REF}" -- "${RELEVANT_PATHS[@]}")
-    if [ "${#COMMITS[@]}" -gt 0 ]; then
-      for commit in "${COMMITS[@]}"; do
-        IFS="$(printf '\t')" read -r full short subject <<< "$commit"
-        printf -- '- [%s](%s/commit/%s) %s\n' "$short" "$REPO_URL" "$full" "$subject"
-      done
-    else
-      printf -- '- No commits found affecting this crate in this release range.\n'
-    fi
-  else
+  if [ -z "$PREVIOUS_TAG" ]; then
     printf 'This is the first tagged release for `%s`.\n' "$CRATE_NAME"
+    printf '\n'
   fi
 
-  printf '\n## Compatible Versions\n\n'
+  printf '## Compatible Versions\n\n'
   printf '| Component | Version | Downloads |\n'
   printf '|-----------|---------|-----------|\n'
   for component in "${COMPONENTS[@]}"; do

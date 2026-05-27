@@ -29,6 +29,7 @@ jobs:
       crate-name: ${{ steps.parse.outputs.crate-name }}
       version: ${{ steps.parse.outputs.version }}
       bins: ${{ steps.find.outputs.bins }}
+      previous-tag: ${{ steps.previous.outputs.previous-tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -96,6 +97,22 @@ jobs:
             echo "Creating tag $TAG"
             git tag "$TAG"
             git push origin "$TAG"
+          fi
+
+      - name: Find Previous Tag
+        id: previous
+        run: |
+          TAG="${{ steps.parse.outputs.tag }}"
+          CRATE_NAME="${{ steps.parse.outputs.crate-name }}"
+          PREVIOUS_TAG="$(
+            git tag --list "${CRATE_NAME}-v[0-9]*" --sort=-v:refname \
+              | awk -v current="$TAG" 'seen { print; exit } $0 == current { seen = 1 }'
+          )"
+          echo "previous-tag=$PREVIOUS_TAG" >> "$GITHUB_OUTPUT"
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Previous same-crate tag: $PREVIOUS_TAG"
+          else
+            echo "No previous same-crate tag found"
           fi
 
   build:
@@ -254,6 +271,8 @@ jobs:
       - name: Generate Metadata
         shell: bash
         run: bash scripts/generate-release-metadata.sh "${{ needs.prepare.outputs.tag }}"
+        env:
+          PREVIOUS_TAG: ${{ needs.prepare.outputs.previous-tag }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -277,6 +296,22 @@ jobs:
           merge-multiple: true
 
       - name: Create Release
+        if: needs.prepare.outputs.previous-tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.tag }}
+          name: "${{ needs.prepare.outputs.crate-name }} v${{ needs.prepare.outputs.version }}"
+          body_path: release-body.md
+          generate_release_notes: true
+          previous_tag: ${{ needs.prepare.outputs.previous-tag }}
+          files: |
+            *.zip
+            leo-release.toml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create First Release
+        if: needs.prepare.outputs.previous-tag == ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.tag }}
