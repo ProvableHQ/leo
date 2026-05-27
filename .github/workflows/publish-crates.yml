@@ -1,0 +1,118 @@
+name: Publish Crates
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - Cargo.lock
+      - Cargo.toml
+      - crates/**/Cargo.toml
+      - release-plz.toml
+      - .github/workflows/publish-crates.yml
+      - .github/workflows/release-crate.yml
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Check what release-plz would publish without publishing or tagging.
+        type: boolean
+        default: false
+
+concurrency:
+  group: publish-crates-master
+  cancel-in-progress: false
+
+env:
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+jobs:
+  dry-run:
+    name: Dry Run
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Dry Run release-plz
+        uses: release-plz/action@v0.5
+        with:
+          command: release
+          dry_run: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+    runs-on: ubuntu-latest
+    environment: crates-io
+    permissions:
+      actions: write
+      contents: write
+      id-token: write
+      pull-requests: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require Master For Manual Publish
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "::error::Manual crate publishing must run from master."
+            exit 1
+          fi
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Publish With release-plz
+        id: release-plz
+        uses: release-plz/action@v0.5
+        with:
+          command: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install jq
+        if: steps.release-plz.outputs.releases_created == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Dispatch Binary Release Workflows
+        if: steps.release-plz.outputs.releases_created == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASES: ${{ steps.release-plz.outputs.releases }}
+        run: |
+          set -euo pipefail
+          mapfile -t tags < <(jq -r '.[].tag // empty' <<< "$RELEASES")
+
+          if [ "${#tags[@]}" -eq 0 ]; then
+            echo "No release tags to dispatch."
+            exit 0
+          fi
+
+          for tag in "${tags[@]}"; do
+            echo "Dispatching release-crate.yml for $tag"
+            gh workflow run release-crate.yml --ref master -f tag="$tag"
+          done

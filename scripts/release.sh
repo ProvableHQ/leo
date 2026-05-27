@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Create and push a release tag for a binary crate.
+# Dispatch GitHub release artifact generation for a binary crate.
 #
-# Usage:
-#   ./scripts/release.sh <crate-name>
+# Normal releases are crates.io first:
+#   1. Bump crate versions.
+#   2. Merge to master.
+#   3. Let publish-crates.yml publish crates and create package tags.
 #
-# Examples:
-#   ./scripts/release.sh leo-lang   # Tags leo-lang-v4.0.1
-#   ./scripts/release.sh leo-fmt    # Tags leo-fmt-v4.0.1
+# Use this script for backfills or reruns after a binary crate version is
+# already published on crates.io.
 
 CRATE_NAME="${1:-}"
 if [ -z "$CRATE_NAME" ]; then
@@ -24,7 +25,6 @@ if [ -z "$CRATE_NAME" ]; then
   exit 1
 fi
 
-# Find the crate by its package name.
 FOUND=""
 for toml in crates/*/Cargo.toml; do
   if grep -q "^name = \"$CRATE_NAME\"" "$toml"; then
@@ -34,47 +34,41 @@ for toml in crates/*/Cargo.toml; do
 done
 
 if [ -z "$FOUND" ]; then
-  echo "Error: no crate found with name '$CRATE_NAME'"
+  echo "Error: no crate found with name '$CRATE_NAME'" >&2
   exit 1
 fi
 
 if ! grep -q '^\[\[bin\]\]' "$FOUND"; then
-  echo "Error: crate '$CRATE_NAME' has no [[bin]] entries"
+  echo "Error: crate '$CRATE_NAME' has no [[bin]] entries" >&2
   exit 1
 fi
 
 VERSION=$(grep '^version' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
-REPO_URL=$(grep '^repository' "$FOUND" | head -1 | sed 's/.*= *"\(.*\)"/\1/')
-
-if [ -z "$REPO_URL" ]; then
-  echo "Error: 'repository' field is missing in $FOUND"
-  exit 1
-fi
-
 TAG="${CRATE_NAME}-v${VERSION}"
 
 echo "Crate:   $(dirname "$FOUND")"
 echo "Version: $VERSION"
 echo "Tag:     $TAG"
-echo "Push to: $REPO_URL"
+echo ""
+echo "Normal releases publish crates from master:"
+echo "  gh workflow run publish-crates.yml --ref master"
+echo ""
+echo "Backfill or rerun GitHub release artifacts with:"
+echo "  gh workflow run release-crate.yml --ref master -f tag=$TAG"
+echo ""
+echo "release-crate.yml creates the tag if it is missing."
 echo ""
 
-if git rev-parse "$TAG" >/dev/null 2>&1; then
-  echo "Error: tag '$TAG' already exists locally"
-  exit 1
+if ! command -v gh >/dev/null 2>&1; then
+  echo "GitHub CLI 'gh' not found; run the command above from a configured shell."
+  exit 0
 fi
 
-if git ls-remote --tags "$REPO_URL" "$TAG" | grep -q .; then
-  echo "Error: tag '$TAG' already exists on remote"
-  exit 1
-fi
-
-read -rp "Create and push tag '$TAG'? [y/N] " confirm
+read -rp "Dispatch release-crate.yml for '$TAG'? [y/N] " confirm
 if [[ "$confirm" != [yY] ]]; then
   echo "Aborted."
   exit 0
 fi
 
-git tag "$TAG"
-git push "$REPO_URL" "$TAG"
-echo "Done. Release workflow will build and publish artifacts."
+gh workflow run release-crate.yml --ref master -f tag="$TAG"
+echo "Dispatched release-crate.yml for $TAG."
