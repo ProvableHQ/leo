@@ -97,7 +97,8 @@ commands:
       - run:
           name: Install snarkOS
           command: |
-            TAG="v4.5.2"
+            SNARKOS_VERSION="$(tr -d '[:space:]' < .resources/snarkos-version)"
+            TAG="v${SNARKOS_VERSION}"
 
             case "$(uname -s)-$(uname -m)" in
               Linux-x86_64)  TRIPLE="x86_64-unknown-linux-gnu" ;;

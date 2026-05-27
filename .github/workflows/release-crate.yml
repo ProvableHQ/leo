@@ -230,9 +230,39 @@ jobs:
           name: release-${{ matrix.target }}
           path: ${{ env.ARCHIVE }}
 
+  metadata:
+    name: Generate Release Metadata
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Generate Metadata
+        shell: bash
+        run: |
+          cargo metadata --locked --format-version 1 --no-deps >/dev/null
+          bash scripts/generate-release-metadata.sh "${{ needs.prepare.outputs.tag }}"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: |
+            release-body.md
+            leo-release.toml
+
   release:
     name: Publish Release
-    needs: [prepare, build]
+    needs: [prepare, build, metadata]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -248,6 +278,9 @@ jobs:
         with:
           tag_name: ${{ needs.prepare.outputs.tag }}
           name: "${{ needs.prepare.outputs.crate-name }} v${{ needs.prepare.outputs.version }}"
-          files: "*.zip"
+          body_path: release-body.md
+          files: |
+            *.zip
+            leo-release.toml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

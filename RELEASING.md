@@ -14,6 +14,16 @@ Tags use the **crate name** from `Cargo.toml` (e.g. `leo-lang`, not `leo`).
 
 ## How to Release
 
+Before cutting a release, confirm the compatible snarkOS version in
+`.resources/snarkos-version`:
+
+```text
+<compatible-snarkos-version>
+```
+
+This is the single checked-in source for snarkOS release compatibility. CI and
+release metadata derive the snarkOS release tag and download URLs from it.
+
 From the GitHub Actions UI or CLI:
 
 ```bash
@@ -35,7 +45,10 @@ Pushing a tag matching `*-v[0-9]*` triggers `.github/workflows/release-crate.yml
    verifies the tag version matches `Cargo.toml`, and creates the tag if it
    doesn't already exist (for manual dispatch triggers).
 2. **Build** - Compiles all binaries from the crate for all supported targets.
-3. **Release** - Creates a GitHub Release and uploads platform ZIPs.
+3. **Metadata** - Generates release notes and `leo-release.toml` in parallel
+   with the platform builds.
+4. **Release** - Creates a GitHub Release with release notes, uploads platform
+   ZIPs, and uploads `leo-release.toml`.
 
 The workflow is fully idempotent - every job is safe to re-run.
 
@@ -68,6 +81,32 @@ Each ZIP contains the crate's binaries at the archive root:
 ```
 
 Example: `leo-lang-v4.0.1-x86_64-unknown-linux-gnu.zip` contains `leo`.
+
+## Release Notes and Metadata
+
+Each GitHub Release includes:
+
+- a `Changes` section with commit subjects since the previous same-crate tag
+- a `Compatible Versions` table for `leo-lang`, `leo-fmt`, `leo-lsp`,
+  `snarkvm`, and `snarkOS`
+- a `leo-release.toml` asset for downstream packagers
+
+`leo-release.toml` contains:
+
+- `[release]` with the released crate, version, tag, commit, repository, and
+  supported targets
+- `[components.leo-lang]`, `[components.leo-fmt]`, and `[components.leo-lsp]`
+  with versions, tags, crates.io URLs, release URLs, archive URL templates, and
+  binary names
+- `[components.snarkvm]` with the exact version resolved in `Cargo.lock`
+- `[components.snarkos]` derived from `.resources/snarkos-version`
+
+To validate the metadata locally:
+
+```bash
+cargo metadata --locked --format-version 1 --no-deps
+bash scripts/generate-release-metadata.sh leo-lsp-v4.0.2 /tmp/leo-release
+```
 
 ## cargo-binstall
 
