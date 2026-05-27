@@ -131,7 +131,7 @@ Structs contain component declarations `{name}: {type},`.
 
 ### Record
 
-A [record](https://developer.aleo.org/concepts/fundamentals/records) data type is declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.
+A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.
 
 Records contain component declarations `{visibility} {name}: {type},`. Names of record components must not contain the keyword `aleo`.
 
