@@ -51,7 +51,7 @@ leo account verify -a {$ADDRESS} -m 5field -s sign1signaturehere
 ✅ The signature is valid
 
 # Error Output:
-Error [ECLI0377002]: cli error: ❌ The signature is invalid
+Error: ❌ The signature is invalid
 ```
 
 To verify signatures of signed plaintext values, run:
@@ -64,5 +64,5 @@ leo account verify -a {$ADDRESS} --raw -m "Hello, Aleo" -s sign1signaturehere
 ✅ The signature is valid
 
 # Error Output:
-Error [ECLI0377002]: cli error: ❌ The signature is invalid
+Error: ❌ The signature is invalid
 ```

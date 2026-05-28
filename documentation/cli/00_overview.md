@@ -14,15 +14,15 @@ You can print the list of commands by running `leo --help`
 
 ## Commands
 
+- [`abi`](./02b_abi.md) - Generate an ABI JSON file from a compiled `.aleo` bytecode file.
 - [`account`](./01_account.md) - Create a new Aleo account, sign and verify messages.
   - [`new`](./01_account.md#leo-account-new) - Generates a new Aleo account.
-  - [`import`](./01_account.md#leo-account-import) - Derive and Aleo account from a private key.
+  - [`import`](./01_account.md#leo-account-import) - Derive an Aleo account from a private key.
   - [`sign`](./01_account.md#leo-account-sign) - Sign a message using your Aleo private key.
   - [`verify`](./01_account.md#leo-account-verify) - Verify a message and signature from an Aleo address.
 - [`add`](./02_add.md) - Add a new onchain or local dependency to the current project.
 - [`build`](./03_build.md) - Compile the current project.
 - [`clean`](./04_clean.md) - Clean the build and output artifacts.
-- [`debug`](./05_debug.md) - Run the interactive debugger in the current package.
 - [`deploy`](./06_deploy.md) - Deploy a program to the Aleo network.
 - [`devnet`](./07_devnet.md) - Initialize a local devnet.
 - [`devnode`](./08_devnode.md) - Run a local lightweight devnode.

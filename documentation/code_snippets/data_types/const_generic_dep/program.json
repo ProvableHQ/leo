@@ -1,0 +1,6 @@
+{
+  "program": "pair_lib",
+  "version": "0.1.0",
+  "description": "Library exposing a const-generic struct and helper.",
+  "license": "MIT"
+}

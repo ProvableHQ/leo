@@ -12,7 +12,7 @@ program test_test_program.aleo {
     @test
     @should_fail
     fn test_overflow() {
-        let _result: u8 = test_program.aleo::sum_u8(255u8, 1u8);
+        let result: u8 = test_program.aleo::sum_u8(255u8, 1u8);
     }
 
     @noupgrade

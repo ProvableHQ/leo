@@ -1,0 +1,14 @@
+{
+  "program": "pair_user.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "pair_lib",
+      "location": "local",
+      "path": "../const_generic_dep",
+      "edition": null
+    }
+  ]
+}

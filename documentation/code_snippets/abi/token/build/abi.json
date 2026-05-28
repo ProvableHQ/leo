@@ -1,5 +1,6 @@
 {
   "program": "token.aleo",
+  "implements": [],
   "structs": [],
   "records": [
     {
@@ -44,6 +45,7 @@
     {
       "name": "mint_public",
       "is_final": true,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "receiver",
@@ -76,6 +78,7 @@
     {
       "name": "mint_private",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "receiver",
@@ -115,6 +118,7 @@
     {
       "name": "transfer_private",
       "is_final": false,
+      "const_parameters": [],
       "inputs": [
         {
           "name": "token",

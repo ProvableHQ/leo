@@ -104,14 +104,28 @@ Given the structure above, the following modules are defined:
 | `outer.leo`       | Module    | `outer`        | `main.leo` : `outer::<item>`                                                |
 | `outer/inner.leo` | Submodule | `outer::inner` | `main.leo` : `outer::inner::<item>` <br></br> `outer.leo` : `inner::<item>` |
 
-:::info
-Only relative paths are implemented so far. That means that items in `outer.leo` cannot be accessed from items in `inner.leo`, for example. This is limiting for now but will no longer be an issue when we add absolute paths.
-:::
+Within a package, paths between modules resolve **relative to the file you are writing in**. The compiler builds the target path by prepending the current module's path to whatever you write:
 
-A module file may only contain `struct`, `const`, and `fn` definitions:
+- From `main.leo` (current module: empty), `outer::inner::foo` resolves to the package-level path `outer::inner::foo`.
+- From `outer.leo` (current module: `outer`), `inner::foo` resolves to `outer::inner::foo`.
+- From `outer/inner.leo` (current module: `outer::inner`), a bare `foo` resolves to `outer::inner::foo`.
+
+This is also why a downward path always works (parent → child, e.g. `outer.leo` → `outer/inner.leo`) but **upward and sideways paths from a submodule do not**: writing `common::foo` from inside `outer/inner.leo` resolves to `outer::inner::common::foo`, which is not what you want. There is currently no syntax for referring to an item that lives outside the current module's subtree.
 
 ```leo file=../code_snippets/layout/module_demo/src/mymod.leo#snippet
 ```
+
+A module file may only contain `struct`, `const`, and `fn` definitions.
+
+### Visibility
+
+Leo has no `pub`/private keywords for module items. The visibility rules are:
+
+- Every `struct`, `const`, and `fn` declared in a module is accessible from anywhere in the **same package** via its fully qualified path.
+- The same items are reachable from **other packages** that depend on this one through the patterns described in [Accessing Submodules of Imported Programs](#accessing-submodules-of-imported-programs) and [Leo Libraries](./06_libraries.md).
+- The on-chain "interface" of a program is exactly the entry `fn`, `record`, `mapping`, and `storage` declarations inside its `program { … }` block. Helper `fn`s in modules can be reached by name from importers but are inlined into their bytecode rather than deployed as separate AVM functions.
+
+If you need an item to be private to a single module, place it in that module file and do not reference it from elsewhere — there is no compiler-enforced privacy boundary.
 
 ### Accessing Submodules of Imported Programs
 

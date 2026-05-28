@@ -22,6 +22,27 @@ There are four primary upgrade modes:
 | `@checksum`  | Upgrades are governed by an on-chain checksum, often managed by a separate program (e.g., a DAO). |
 | `@custom`    | You write the entire upgrade logic from scratch in the `constructor`.                             |
 
+### Annotation Syntax
+
+Every constructor must carry **exactly one** of the four upgrade annotations. Their argument grammar is:
+
+```text
+@noupgrade
+@custom
+@admin(address = "<aleo-address>")
+@checksum(mapping = "<locator>", key = "<literal>")
+```
+
+- **`@noupgrade`** and **`@custom`** take no arguments.
+- **`@admin`** takes a single `address` argument — a string literal containing a valid Aleo address (`aleo1…`).
+- **`@checksum`** takes two arguments:
+  - `mapping` — a string locator naming the mapping that holds the approved checksum. Both `prog.aleo::mapping_name` (Leo path syntax) and `prog.aleo/mapping_name` (AVM locator syntax) are accepted.
+  - `key` — a string containing a Leo plaintext literal of any primitive type (`field`, `group`, `address`, `scalar`, `bool`, integer types, `signature`, `identifier`). The compiler infers the key's type from the literal's suffix, so include the suffix when the literal needs one (e.g. `"5u32"`, `"1field"`).
+
+All argument values are written as string literals; the compiler parses the contained text against the expected sub-grammar (address, locator, plaintext literal). Whitespace around the `=` is optional — `@admin(address="aleo1…")` and `@admin(address = "aleo1…")` are equivalent.
+
+A constructor with **no annotation**, with **multiple annotations**, or with an unknown key (e.g. `@admin(owner = "…")`) is a compile error.
+
 ## Core Mechanics
 
 Upgradability revolves around a special `constructor` function and on-chain program metadata.

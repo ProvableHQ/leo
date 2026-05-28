@@ -68,6 +68,20 @@ program data_types_demo.aleo {
         let bc: u16 = ac as u16; // type casting
         // ANCHOR_END: int_cast
 
+        // ANCHOR: cast_examples
+        // Widening between integer types — always succeeds.
+        let small_u8: u8 = 200u8;
+        let widened: u64 = small_u8 as u64;
+
+        // Integer to field — always succeeds.
+        let n_u32: u32 = 5u32;
+        let n_field: field = n_u32 as field;
+
+        // Address to field — always succeeds.
+        let addr_a: address = aleo1ezamst4pjgj9zfxqq0fwfj8a4cjuqndmasgata3hggzqygggnyfq6kmyd4;
+        let addr_field: field = addr_a as field;
+        // ANCHOR_END: cast_examples
+
         // ANCHOR: field_literals
         let af: field = 0field;
         let bf = 8444461749428370424248824938781546531375899335154063827935233455917409239040field;
@@ -108,6 +122,15 @@ program data_types_demo.aleo {
         // Nested array
         let nested: [[bool; 2]; 2] = [[true, false], [true, false]];
         // ANCHOR_END: arrays_basic
+
+        // ANCHOR: array_repeat
+        // Repeat a single value to fill a fixed-size array.
+        let zeros: [u32; 8] = [0u32; 8];
+        let trues: [bool; 4] = [true; 4];
+
+        // The repeat syntax also nests:
+        let grid: [[u8; 4]; 3] = [[0u8; 4]; 3];
+        // ANCHOR_END: array_repeat
 
         // ANCHOR: array_of_structs
         // Array of structs

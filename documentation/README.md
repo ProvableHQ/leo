@@ -13,9 +13,14 @@ Run from the repo root:
 npx markdownlint-cli@0.47.0 --config .markdownlint.yaml --fix 'documentation/**/*.md'
 npx markdownlint-cli@0.47.0 --config .markdownlint.yaml 'documentation/**/*.md'
 
-# Every code snippet must still compile.
+# Every code snippet must still compile. Snippets with a tests/ subdirectory
+# additionally have their tests executed via `leo test`.
 for d in $(find documentation/code_snippets -name program.json -not -path '*/build/*' | xargs -n1 dirname); do
-  (cd "$d" && leo build) || break
+  if [ -d "$d/tests" ]; then
+    (cd "$d" && leo test) || break
+  else
+    (cd "$d" && leo build) || break
+  fi
 done
 ```
 

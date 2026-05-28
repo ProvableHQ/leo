@@ -36,7 +36,7 @@ The primitive types are: `address`, `bool`, `field`, `group`, `i8`, `i16`, `i32`
 
 We can cast between all of these types except `signature`.
 
-You can cast an `address` to a `field` but not vice versa.
+Casts between `address` and `field` are allowed in both directions; the `field` → `address` direction halts at runtime if the field does not encode a valid Aleo address. See [Type Casting](./03_data_types.md#type-casting) for the full runtime semantics.
 
 ### Option Types
 
@@ -86,7 +86,7 @@ A struct `ExternalStruct` defined in program `external_program.aleo` can be refe
 ```leo file=../code_snippets/cheatsheet/main/src/main.leo#const_generics_struct
 ```
 
-Note that generic structs cannot currently be imported outside a program, but can be declared and used in submodules. Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`.
+Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`. Generic structs can be declared in a program, in a submodule, or in a library, and can be referenced from any consumer via their fully qualified path.
 
 ### Option Types
 

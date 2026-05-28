@@ -23,17 +23,26 @@ When you run `leo build`, the compiler generates ABI files alongside the compile
 
 ```text
 build/
-├── main.aleo          # Compiled Aleo bytecode
-├── abi.json           # ABI for your program
-└── imports/
-    ├── foo.aleo       # Imported program bytecode
-    └── foo.abi.json   # ABI for imported program
+├── main.aleo                          # Compiled Aleo bytecode
+├── abi.json                           # ABI for your program
+├── imports/
+│   ├── foo.aleo                       # Imported program bytecode
+│   └── foo.abi.json                   # ABI for imported program
+└── interfaces/
+    ├── MyInterface.json               # Per-interface ABI (locally defined)
+    └── parent_program/
+        └── ParentInterface.json       # Per-interface ABI (transitive parent)
 ```
 
-- **`build/abi.json`** - ABI for your main program
-- **`build/imports/{program}.abi.json`** - ABIs for each imported dependency
+- **`build/abi.json`** - ABI for your main program.
+- **`build/imports/{program}.abi.json`** - ABIs for each imported dependency.
+- **`build/interfaces/`** - per-interface ABI JSON files, one per interface declared locally (top-level or in a module) and one per transitive parent interface implemented through `scope.parents`. External parent interfaces are nested under their owning program's directory. The `interfaces/` directory is cleared and regenerated on every build, so renamed or deleted interfaces never leave stale files behind.
 
 ABI generation is automatic on every build - no flags required.
+
+## Generating ABIs from Compiled Bytecode
+
+The standalone [`leo abi`](../cli/02b_abi.md) command generates an ABI JSON document from any `.aleo` file — useful when you have a deployed program's bytecode but not its source. The same code path is exposed as a WebAssembly binding through the `leo-aleo-abi-wasm` crate, so browser tooling (wallets, explorers, the [Leo Playground](../getting_started/02_ide.md#leo-playground)) can produce ABIs from bytecode without shelling out to the CLI.
 
 ## ABI Format
 
