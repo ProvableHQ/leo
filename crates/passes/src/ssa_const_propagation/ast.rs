@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::{SsaConstPropagationVisitor, visitor::is_atom};
+use super::{
+    SsaConstPropagationVisitor,
+    visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
+};
 
 use leo_ast::{
     const_eval::{self, Value},
@@ -123,7 +126,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         }
     }
 
-    /// Reconstruct a binary expression and fold it if both operands are constants.
+    /// Reconstruct a binary expression. First try full constant folding (both
+    /// operands known), then apply algebraic identity / absorbing-element rules
+    /// when only one operand is a known literal.
     fn reconstruct_binary(
         &mut self,
         input: BinaryExpression,
@@ -135,13 +140,13 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
 
-        if let (Some(lhs_value), Some(rhs_value)) = (lhs_opt_value, rhs_opt_value) {
-            // We were able to evaluate both operands, so we can evaluate this expression.
+        // Full constant folding: both operands are known constants.
+        if let (Some(lhs_value), Some(rhs_value)) = (&lhs_opt_value, &rhs_opt_value) {
             match const_eval::evaluate_binary(
                 span,
                 input.op,
-                &lhs_value,
-                &rhs_value,
+                lhs_value,
+                rhs_value,
                 &self.state.type_table.get(&input_id),
             ) {
                 Ok(new_value) => {
@@ -149,14 +154,187 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (new_expr, Some(new_value));
                 }
-                Err(err) => self.emit_err(err),
+                Err(err) => {
+                    self.emit_err(err);
+                    return (BinaryExpression { left, right, ..input }.into(), None);
+                }
             }
+        }
+
+        // Algebraic simplification: at least one operand is a literal.
+        let left_is_zero = matches!(&left, Expression::Literal(lit) if is_zero_literal(lit));
+        let right_is_zero = matches!(&right, Expression::Literal(lit) if is_zero_literal(lit));
+        let left_is_one = matches!(&left, Expression::Literal(lit) if is_one_literal(lit));
+        let right_is_one = matches!(&right, Expression::Literal(lit) if is_one_literal(lit));
+        let left_is_bool =
+            |val: bool| matches!(&left, Expression::Literal(lit) if lit.variant == LiteralVariant::Boolean(val));
+        let right_is_bool =
+            |val: bool| matches!(&right, Expression::Literal(lit) if lit.variant == LiteralVariant::Boolean(val));
+
+        match input.op {
+            // x + 0 = 0 + x = x
+            BinaryOperation::Add | BinaryOperation::AddWrapped => {
+                if right_is_zero {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_zero {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+            }
+            // x - 0 = x
+            BinaryOperation::Sub | BinaryOperation::SubWrapped if right_is_zero => {
+                self.changed = true;
+                return (left, lhs_opt_value);
+            }
+
+            // x * 1 = x, x * 0 = 0
+            BinaryOperation::Mul | BinaryOperation::MulWrapped => {
+                if right_is_one {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_one {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                // Absorbing element: x * 0 = 0 (only for integers and field, not group or scalar)
+                let result_ty = self.state.type_table.get(&input_id);
+                if matches!(&result_ty, Some(Type::Integer(_) | Type::Field)) {
+                    if right_is_zero {
+                        self.changed = true;
+                        return (right, rhs_opt_value);
+                    }
+                    if left_is_zero {
+                        self.changed = true;
+                        return (left, lhs_opt_value);
+                    }
+                }
+            }
+
+            // x / 1 = x
+            BinaryOperation::Div | BinaryOperation::DivWrapped if right_is_one => {
+                self.changed = true;
+                return (left, lhs_opt_value);
+            }
+
+            // x && true = x, x && false = false
+            BinaryOperation::And => {
+                if right_is_bool(true) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_bool(true) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if right_is_bool(false) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if left_is_bool(false) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+            }
+
+            // x || false = x, x || true = true
+            BinaryOperation::Or => {
+                if right_is_bool(false) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_bool(false) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if right_is_bool(true) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if left_is_bool(true) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+            }
+
+            BinaryOperation::BitwiseAnd => {
+                // x & false = false (boolean), x & 0 = 0 (integer)
+                if right_is_zero {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if left_is_zero {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                // x & true = x (boolean)
+                if right_is_bool(true) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_bool(true) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+            }
+            BinaryOperation::BitwiseOr => {
+                // x | 0 = x (integer), x | false = x (boolean)
+                if right_is_zero {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_zero {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                // x | true = true (boolean)
+                if right_is_bool(true) {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+                if left_is_bool(true) {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+            }
+            BinaryOperation::Xor => {
+                // x ^ 0 = x (integer), x ^ false = x (boolean)
+                if right_is_zero {
+                    self.changed = true;
+                    return (left, lhs_opt_value);
+                }
+                if left_is_zero {
+                    self.changed = true;
+                    return (right, rhs_opt_value);
+                }
+            }
+
+            // Self-comparison: x == x -> true, x != x -> false
+            BinaryOperation::Eq if same_ssa_atom(&left, &right) => {
+                self.changed = true;
+                let id = self.state.node_builder.next_id();
+                self.state.type_table.insert(id, Type::Boolean);
+                let lit = Literal::boolean(true, span, id);
+                return (lit.into(), Some(Value::from(true)));
+            }
+            BinaryOperation::Neq if same_ssa_atom(&left, &right) => {
+                self.changed = true;
+                let id = self.state.node_builder.next_id();
+                self.state.type_table.insert(id, Type::Boolean);
+                let lit = Literal::boolean(false, span, id);
+                return (lit.into(), Some(Value::from(false)));
+            }
+
+            _ => {}
         }
 
         (BinaryExpression { left, right, ..input }.into(), None)
     }
 
-    /// Reconstruct a unary expression and fold it if the operand is a constant.
+    /// Reconstruct a unary expression. First try constant folding, then apply
+    /// algebraic rules (double-not, double-negate).
     fn reconstruct_unary(&mut self, input: UnaryExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let input_id = input.id();
         let span = input.span;
@@ -173,6 +351,25 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 Err(err) => self.emit_err(err),
             }
         }
+
+        // Double-not: !!x -> x
+        if input.op == UnaryOperation::Not
+            && let Expression::Unary(ref inner) = receiver
+            && inner.op == UnaryOperation::Not
+        {
+            self.changed = true;
+            return (inner.receiver.clone(), None);
+        }
+
+        // Double-negate: -(-x) -> x
+        if input.op == UnaryOperation::Negate
+            && let Expression::Unary(ref inner) = receiver
+            && inner.op == UnaryOperation::Negate
+        {
+            self.changed = true;
+            return (inner.receiver.clone(), None);
+        }
+
         (UnaryExpression { receiver, ..input }.into(), None)
     }
 
@@ -226,6 +423,14 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                         return (if_true, if_true_value);
                     }
                     _ => {}
+                }
+
+                // Identical arms: cond ? x : x -> x (for any type, when both
+                // arms are the same SSA variable). Safe because the condition
+                // is side-effect-free in SSA form.
+                if same_ssa_atom(&if_true, &if_false) {
+                    self.changed = true;
+                    return (if_true, if_true_value);
                 }
 
                 (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None)

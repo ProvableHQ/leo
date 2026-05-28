@@ -14,6 +14,6 @@ While a deep dive through the Leo documentation is a useful exercise, we realize
 
 - If you're designing a dApp, we recommend checking out **Leo By Example** for a reference.
 
-- If you're interested in tutorials, check out [**Guides**](./guides/00_overview.md). Also be sure to check out the [**Core Aleo Concepts**](https://developer.aleo.org/guides/faqs).
+- If you're interested in tutorials, check out [**Guides**](./guides/00_overview.md). Also be sure to check out the [**Core Aleo Concepts**](https://docs.aleo.org/learn/core-concepts/public-and-private-state).
 
 - If you're deploying or running your programs, [**CLI**](./cli/00_overview.md) will be helpful.

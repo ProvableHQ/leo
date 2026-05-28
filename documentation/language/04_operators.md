@@ -17,7 +17,7 @@ For cases where wrapping semantics are needed for integer types, see the wrapped
 ```
 
 :::note
-The Leo operators compile down to [`Aleo Instructions`](https://developer.aleo.org/guides/aleo/opcodes) opcodes executable by the Aleo Virtual Machine (AVM).
+The Leo operators compile down to [`Aleo Instructions`](https://docs.aleo.org/build/aleo-instructions/overview) opcodes executable by the Aleo Virtual Machine (AVM).
 :::
 
 ### Operator Precedence

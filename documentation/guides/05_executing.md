@@ -74,4 +74,4 @@ Finally, an execution cost breakdown will be printed alongside any outputs from 
   ...
 ```
 
-Under the hood, `leo execute` produces a JSON object. This is a [`Transaction`](https://developer.aleo.org/concepts/fundamentals/transactions) that can be broadcast to the Aleo network. You can view this JSON by passing the `--print` flag to `leo execute`.
+Under the hood, `leo execute` produces a JSON object. This is a [`Transaction`](https://docs.aleo.org/learn/core-concepts/transactions/index.html) that can be broadcast to the Aleo network. You can view this JSON by passing the `--print` flag to `leo execute`.

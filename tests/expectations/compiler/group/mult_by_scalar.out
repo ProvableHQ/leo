@@ -2,5 +2,5 @@ program test.aleo;
 
 function main:
     input r0 as group.private;
-    mul 1scalar r0 into r1;
+    mul 2scalar r0 into r1;
     output r1 as group.private;
