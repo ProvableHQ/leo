@@ -94,7 +94,8 @@ and then skipped without building GitHub release artifacts.
 ## Backfills and Reruns
 
 If a binary crate is already published on crates.io but its GitHub release tag or
-artifacts are missing, dispatch `release-crate.yml` manually:
+artifacts are missing, dispatch `release-crate.yml` manually from the GitHub
+Actions UI or CLI:
 
 ```bash
 gh workflow run release-crate.yml --ref master -f tag=leo-fmt-v4.0.1
@@ -102,12 +103,6 @@ gh workflow run release-crate.yml --ref master -f tag=leo-fmt-v4.0.1
 
 `release-crate.yml` creates the tag if it is missing after validating that the
 tag version matches the crate manifest on the workflow ref.
-
-The convenience script prints and can dispatch the same workflow:
-
-```bash
-./scripts/release.sh leo-fmt
-```
 
 The compatibility script can also be run locally:
 
