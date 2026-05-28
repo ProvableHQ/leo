@@ -16,7 +16,7 @@
 
 use crate::{AleoConstructor, AleoExpr, AleoReg, CompilerState};
 
-use crate::{Bytecode, CompiledPrograms};
+use crate::GeneratedPrograms;
 use leo_ast::{Ast, Function, Location, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
@@ -70,8 +70,8 @@ pub(crate) fn check_snarkvm_constructor<N: Network>(actual: &AleoConstructor) ->
 }
 
 impl CodeGeneratingVisitor<'_> {
-    pub(crate) fn visit_package(&mut self) -> CompiledPrograms {
-        let mut import_bytecodes = Vec::new();
+    pub(crate) fn visit_package(&mut self) -> GeneratedPrograms {
+        let mut imports = Vec::new();
 
         match &self.state.ast {
             Ast::Program(program) => {
@@ -92,13 +92,10 @@ impl CodeGeneratingVisitor<'_> {
                                 .map(|sym| sym.to_string())
                                 .collect::<Vec<_>>();
 
-                            let mut bytecode = self.visit_program(program);
-                            bytecode.imports.extend(transitive_imports);
+                            let mut generated = self.visit_program(program);
+                            generated.imports.extend(transitive_imports);
 
-                            import_bytecodes.push(Bytecode {
-                                program_name: program_name.to_string(),
-                                bytecode: bytecode.to_string(),
-                            });
+                            imports.push((program_name.to_string(), generated));
                         }
                         leo_ast::Stub::FromAleo { program, .. } => {
                             for (name, _) in &program.mappings {
@@ -121,13 +118,13 @@ impl CodeGeneratingVisitor<'_> {
             }
         }
 
-        // Generate primary bytecode
-        let primary_bytecode = match &self.state.ast {
-            Ast::Program(program) => self.visit_program(program).to_string(),
-            Ast::Library(_) => String::new(),
+        // Generate primary program
+        let primary = match &self.state.ast {
+            Ast::Program(program) => Some(self.visit_program(program)),
+            Ast::Library(_) => None,
         };
 
-        CompiledPrograms { primary_bytecode, import_bytecodes }
+        GeneratedPrograms { primary, imports }
     }
 
     pub(crate) fn next_register(&mut self) -> AleoReg {

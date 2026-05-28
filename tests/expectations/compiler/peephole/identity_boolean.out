@@ -1,0 +1,5 @@
+program test.aleo;
+
+function main:
+    input r0 as boolean.private;
+    output r0 as boolean.private;

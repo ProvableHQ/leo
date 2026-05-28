@@ -20,4 +20,3 @@ finalize main:
     input r0 as u32.public;
     set r0 into values[r0];
     set r0 into values[r0];
-    assert.eq true true;
