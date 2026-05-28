@@ -38,6 +38,23 @@ use snarkvm::{
 };
 use std::ops::Deref;
 
+/// Where in the program text a snarkVM-bound access operation is permitted.
+///
+/// Each access intrinsic (e.g. mapping reads, mapping writes, `self.caller`) falls into one
+/// of these scopes. `check_access_allowed` enforces the corresponding context rules.
+#[derive(Copy, Clone, Debug)]
+pub enum AccessScope {
+    /// Read-only finalize op: permitted inside `final fn` / `final {}` blocks and inside
+    /// `view fn` bodies. Examples: `Mapping::get`, `Vector::len`, `block.height`.
+    FinalizeRead,
+    /// Mutating finalize op: permitted inside `final fn` / `final {}` blocks only. Examples:
+    /// `Mapping::set`, `Vector::push`, `Snark::verify`, storage writes.
+    FinalizeWrite,
+    /// Caller-context op: permitted inside regular `fn` and entry-point `fn` bodies only.
+    /// Examples: `self.caller`, `self.signer`.
+    OffchainCaller,
+}
+
 pub struct TypeCheckingVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// The state of the current scope being traversed.
@@ -778,7 +795,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::SnarkVerify => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify", true, false, function_span);
+                self.check_access_allowed("Snark::verify", AccessScope::FinalizeWrite, function_span);
 
                 // arg0: [u8; N] — verifying key (1D byte array)
                 let Type::Array(vk_arr) = &arguments[0].0 else {
@@ -844,7 +861,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::SnarkVerifyBatch => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify_batch", true, false, function_span);
+                self.check_access_allowed("Snark::verify_batch", AccessScope::FinalizeWrite, function_span);
 
                 // arg0: [[u8; N]; M] — verifying keys (2D byte array)
                 let Type::Array(vks_outer) = &arguments[0].0 else {
@@ -981,7 +998,7 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
-                self.check_access_allowed("Mapping::get", true, true, function_span);
+                self.check_access_allowed("Mapping::get", AccessScope::FinalizeRead, function_span);
 
                 if !self.check_path_receiver("Mapping", "get", "mapping", map_expr) {
                     return Type::Err;
@@ -998,7 +1015,7 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Mapping::set", true, false, function_span);
+                self.check_access_allowed("Mapping::set", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Mapping", "set", "mapping", map_expr) {
                     return Type::Err;
@@ -1018,7 +1035,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
-                self.check_access_allowed("Mapping::get_or_use", true, true, function_span);
+                self.check_access_allowed("Mapping::get_or_use", AccessScope::FinalizeRead, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1038,7 +1055,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
-                self.check_access_allowed("Mapping::remove", true, false, function_span);
+                self.check_access_allowed("Mapping::remove", AccessScope::FinalizeWrite, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1068,7 +1085,7 @@ impl TypeCheckingVisitor<'_> {
             }
             Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
-                self.check_access_allowed("Mapping::contains", true, true, function_span);
+                self.check_access_allowed("Mapping::contains", AccessScope::FinalizeRead, function_span);
 
                 let (map_ty, map_expr) = &arguments[0];
 
@@ -1117,7 +1134,7 @@ impl TypeCheckingVisitor<'_> {
                 };
 
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
-                self.check_access_allowed("Vector::get", true, true, function_span);
+                self.check_access_allowed("Vector::get", AccessScope::FinalizeRead, function_span);
 
                 if !self.check_path_receiver("Vector", "get", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1134,7 +1151,7 @@ impl TypeCheckingVisitor<'_> {
                 }
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::set", true, false, function_span);
+                self.check_access_allowed("Vector::set", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "set", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1166,7 +1183,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type(val_ty, element_type, val_expr.span());
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::push", true, false, function_span);
+                self.check_access_allowed("Vector::push", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "push", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1188,7 +1205,7 @@ impl TypeCheckingVisitor<'_> {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
-                self.check_access_allowed("Vector::len", true, true, function_span);
+                self.check_access_allowed("Vector::len", AccessScope::FinalizeRead, function_span);
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1205,7 +1222,7 @@ impl TypeCheckingVisitor<'_> {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::pop", true, false, function_span);
+                self.check_access_allowed("Vector::pop", AccessScope::FinalizeWrite, function_span);
 
                 let Type::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1232,7 +1249,7 @@ impl TypeCheckingVisitor<'_> {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Vector::swap_remove", true, false, function_span);
+                self.check_access_allowed("Vector::swap_remove", AccessScope::FinalizeWrite, function_span);
 
                 let Type::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
@@ -1263,7 +1280,7 @@ impl TypeCheckingVisitor<'_> {
                     return Type::Err;
                 }
 
-                self.check_access_allowed("Vector::clear", true, false, function_span);
+                self.check_access_allowed("Vector::clear", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "clear", "storage vector", vec_expr) {
                     return Type::Err;
@@ -1510,7 +1527,7 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfAddress => Type::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.caller", false, false, function_span);
+                self.check_access_allowed("self.caller", AccessScope::OffchainCaller, function_span);
                 Type::Address
             }
             Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
@@ -1526,30 +1543,30 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfId => Type::Address,
             Intrinsic::SelfProgramOwner => {
                 // Check that the operation is only invoked in a `finalize` block.
-                self.check_access_allowed("program_owner", true, false, function_span);
+                self.check_access_allowed("program_owner", AccessScope::FinalizeWrite, function_span);
                 Type::Address
             }
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.signer", false, false, function_span);
+                self.check_access_allowed("self.signer", AccessScope::OffchainCaller, function_span);
                 Type::Address
             }
             Intrinsic::BlockHeight => {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // Views see the latest block height via FinalizeGlobalState::for_view.
-                self.check_access_allowed("block.height", true, true, function_span);
+                self.check_access_allowed("block.height", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
                 // Check that the operation is invoked in a `finalize` block. Rejected in view fns:
                 // snarkVM fills `block_timestamp` with `None` for view evaluations because there
                 // is no transaction-time semantic for an off-consensus read.
-                self.check_access_allowed("block.timestamp", true, false, function_span);
+                self.check_access_allowed("block.timestamp", AccessScope::FinalizeWrite, function_span);
                 Type::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
                 // Check that the operation is not invoked outside a `finalize` block or a view.
-                self.check_access_allowed("network.id", true, true, function_span);
+                self.check_access_allowed("network.id", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U16)
             }
             // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
@@ -2284,15 +2301,15 @@ impl TypeCheckingVisitor<'_> {
                 // Helpers, finalize bodies, `final fn`s, and views all lower their input
                 // visibility from the variant alone (helpers are inlined; finalize/final fn/view
                 // inputs are always `.public`), so an explicit modifier is always redundant or
-                // contradictory. Reject any non-`None` mode with a single customizable error.
-                Variant::Fn if input.mode() != Mode::None => self.emit_err(
-                    crate::errors::type_checker::function_inputs_cannot_have_modes("regular `fn`", input.span()),
-                ),
+                // contradictory.
+                Variant::Fn if input.mode() != Mode::None => {
+                    self.emit_err(crate::errors::type_checker::regular_fn_inputs_cannot_have_modes(input.span()))
+                }
                 Variant::Finalize | Variant::FinalFn if input.mode() != Mode::None => self.emit_err(
-                    crate::errors::type_checker::function_inputs_cannot_have_modes("`final fn`", input.span()),
+                    crate::errors::type_checker::onchain_fn_inputs_cannot_have_modes("`final fn`", input.span()),
                 ),
                 Variant::View if input.mode() != Mode::None => self.emit_err(
-                    crate::errors::type_checker::function_inputs_cannot_have_modes("`view fn`", input.span()),
+                    crate::errors::type_checker::onchain_fn_inputs_cannot_have_modes("`view fn`", input.span()),
                 ),
                 _ => {} // Do nothing.
             }
@@ -2476,13 +2493,15 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Validates whether an access operation is allowed in the current function or block context.
-    /// `finalize_op` is true for ops that require a finalize context; `allowed_in_view` is true
-    /// for the read-only subset that view bodies also accept.
-    pub fn check_access_allowed(&mut self, name: &str, finalize_op: bool, allowed_in_view: bool, span: Span) {
+    /// See [`AccessScope`] for the meaning of each variant.
+    pub fn check_access_allowed(&mut self, name: &str, scope: AccessScope, span: Span) {
         let in_view = matches!(self.scope_state.variant, Some(Variant::View));
+        let in_finalize_ctx = self.scope_state.variant.is_some_and(|v| v.is_finalize_context());
+        let in_async_block = self.async_block_id.is_some();
 
+        // In a view: only finalize-read ops are allowed.
         if in_view {
-            if !allowed_in_view {
+            if !matches!(scope, AccessScope::FinalizeRead) {
                 self.state
                     .handler
                     .emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
@@ -2490,20 +2509,28 @@ impl TypeCheckingVisitor<'_> {
             return;
         }
 
-        // Case 1: Operation is not a finalize op, and we're inside an `async` function.
-        if self.scope_state.variant.is_some_and(|v| v.is_onchain()) && !finalize_op {
-            self.state.handler.emit_err(crate::errors::type_checker::invalid_operation_inside_finalize(name, span));
-        }
-        // Case 2: Operation is not a finalize op, and we're inside an `async` block.
-        else if self.async_block_id.is_some() && !finalize_op {
-            self.state.handler.emit_err(crate::errors::type_checker::invalid_operation_inside_final_block(name, span));
-        }
-        // Case 3: Operation *is* a finalize op, but we're *not* inside an async context.
-        else if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn))
-            && self.async_block_id.is_none()
-            && finalize_op
-        {
-            self.state.handler.emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
+        match scope {
+            // Finalize-only ops (read or write) must be inside a finalize context or async block.
+            AccessScope::FinalizeRead | AccessScope::FinalizeWrite => {
+                if !in_finalize_ctx && !in_async_block {
+                    self.state
+                        .handler
+                        .emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
+                }
+            }
+            // Caller-context ops (e.g. `self.caller`, `self.signer`) are rejected inside any
+            // finalize context.
+            AccessScope::OffchainCaller => {
+                if in_finalize_ctx {
+                    self.state
+                        .handler
+                        .emit_err(crate::errors::type_checker::invalid_operation_inside_finalize(name, span));
+                } else if in_async_block {
+                    self.state
+                        .handler
+                        .emit_err(crate::errors::type_checker::invalid_operation_inside_final_block(name, span));
+                }
+            }
         }
     }
 

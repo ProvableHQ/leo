@@ -7,6 +7,6 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_private(public receiver: address, public amount: u64) {
+final fn finalize_mint_private(receiver: address, amount: u64) {
     Mapping::set(account, receiver, amount);
 }

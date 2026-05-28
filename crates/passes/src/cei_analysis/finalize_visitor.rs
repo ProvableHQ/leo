@@ -310,7 +310,7 @@ impl UnitVisitor for FinalizeCeiVisitor<'_> {
     fn visit_function(&mut self, input: &Function) {
         self.current_variant = Some(input.variant);
 
-        if input.variant.is_onchain() {
+        if input.variant.is_finalize_context() {
             // Dedicated on-chain function (final fn / finalize).
             self.automaton_state = AutomatonState::BeforeInteraction;
             self.interaction_span = None;

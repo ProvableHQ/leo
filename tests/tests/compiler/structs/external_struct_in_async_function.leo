@@ -10,7 +10,7 @@ program parent.aleo {
     }
 }
 
-final fn finalize_init(public test_struct: TestStruct) {
+final fn finalize_init(test_struct: TestStruct) {
     assert_eq(0u32, 0u32);
 }
 

@@ -1,7 +1,7 @@
 [ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
+  9 │ ╭─▶ final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
     ┆ ┆   
  12 │ ├─▶ }
     │ │       
@@ -9,20 +9,6 @@
     │     
     │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
-[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-   ╭─[ compiler-test:9:31 ]
-   │
- 9 │ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
-   │ 
-   │ Help: Remove the `public`, `private`, or `constant` modifier.
-───╯
-[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-   ╭─[ compiler-test:9:57 ]
-   │
- 9 │ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
-   │ 
-   │ Help: Remove the `public`, `private`, or `constant` modifier.
-───╯
 [ETYC0372117] Error: expected type `u64`, but type `u8` was found
     ╭─[ compiler-test:11:12 ]
     │

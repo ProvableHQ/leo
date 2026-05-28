@@ -1,17 +1,3 @@
-[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-   ╭─[ compiler-test:9:31 ]
-   │
- 9 │ final fn finalize_mint_public(public receiver: address, public amount: u64) {
-   │ 
-   │ Help: Remove the `public`, `private`, or `constant` modifier.
-───╯
-[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-   ╭─[ compiler-test:9:57 ]
-   │
- 9 │ final fn finalize_mint_public(public receiver: address, public amount: u64) {
-   │ 
-   │ Help: Remove the `public`, `private`, or `constant` modifier.
-───╯
 [ETYC0372005] Error: unknown function `test.aleo::Mapping::has_key`
     ╭─[ compiler-test:10:25 ]
     │

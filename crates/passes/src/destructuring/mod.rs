@@ -45,7 +45,7 @@ impl Pass for Destructuring {
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
 
-        let mut visitor = DestructuringVisitor { state, tuples: Default::default(), is_onchain: false };
+        let mut visitor = DestructuringVisitor { state, tuples: Default::default() };
 
         let ast = ast.map(
             |program| visitor.reconstruct_program(program),

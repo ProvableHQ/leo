@@ -27,7 +27,7 @@ final fn finalize_tr_private_to_public(receiver: address, amount: u64) {
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-final fn finalize_tr_public_to_private(public sender: address, public amount: u64) {
+final fn finalize_tr_public_to_private(sender: address, amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.

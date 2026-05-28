@@ -133,7 +133,7 @@ impl UnitReconstructor for TransformVisitor<'_> {
             output_type: input.output_type,
             block: {
                 // Set the `is_onchain` flag before reconstructing the block.
-                self.is_onchain = input.variant.is_onchain();
+                self.is_onchain = input.variant.is_finalize_context();
                 // Reconstruct the block.
                 let block = self.reconstruct_block(input.block).0;
                 // Reset the `is_onchain` flag.

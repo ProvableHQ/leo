@@ -2320,19 +2320,23 @@ impl<'a> ConversionContext<'a> {
 
         let annotations = self.collect_annotations(node)?;
 
-        // Determine variant. `view fn` is a top-level read-only entry point and is only
-        // valid inside a `program { ... }` block; outside a program block we fall back to
-        // `Fn` and let the library/module diagnostic in `collect_library_item` reject it
-        // with a clear error.
+        // A `view fn` outside a program block is grammatically allowed but rejected later by
+        // `collect_library_item`; we map it to `Variant::Fn` here so downstream passes stay
+        // well-formed until that diagnostic fires. `final fn` inside a program block can only
+        // appear via parser error recovery for inputs like `final view fn` and likewise
+        // produces a diagnostic, so we map it to `Variant::FinalFn` for the same reason.
         let variant = if is_in_program_block {
             match node.kind() {
                 VIEW_FN_DEF => leo_ast::Variant::View,
-                _ => leo_ast::Variant::EntryPoint,
+                FINAL_FN_DEF => leo_ast::Variant::FinalFn,
+                FUNCTION_DEF | CONSTRUCTOR_DEF => leo_ast::Variant::EntryPoint,
+                kind => unreachable!("unexpected function node kind in program block: {kind:?}"),
             }
         } else {
             match node.kind() {
                 FINAL_FN_DEF => leo_ast::Variant::FinalFn,
-                _ => leo_ast::Variant::Fn,
+                FUNCTION_DEF | VIEW_FN_DEF => leo_ast::Variant::Fn,
+                kind => unreachable!("unexpected function node kind outside program block: {kind:?}"),
             }
         };
 
@@ -2745,9 +2749,12 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), FN_PROTOTYPE_DEF);
         let span = self.to_span(node);
 
-        // `view fn` prototypes at interface position carry a leading `KW_VIEW` token.
+        // Prototypes only describe externally callable functions: `view fn` (read-only)
+        // or a transition entry point (plain `fn`). Both correspond to the implementation
+        // variants the type checker accepts; in particular, a plain `fn` prototype is
+        // implemented by a `Variant::EntryPoint`, not a helper `Variant::Fn`.
         let is_view = tokens(node).any(|t| t.kind() == KW_VIEW);
-        let variant = if is_view { leo_ast::Variant::View } else { leo_ast::Variant::Fn };
+        let variant = if is_view { leo_ast::Variant::View } else { leo_ast::Variant::EntryPoint };
         let identifier = self.require_ident(node, "function name");
 
         // Collect const generic parameters

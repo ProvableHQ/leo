@@ -69,7 +69,7 @@ A `view fn` body sees the same on-chain context as a `final {}` block — it can
 ```leo file=../../code_snippets/functions/view_in_finalize/src/main.leo#file showLineNumbers
 ```
 
-The view is not inlined into its caller; codegen emits a real `call` instruction inside the on-chain body, and snarkVM accepts it because the call target resolves to a view.
+Unlike a helper `fn` (which is inlined at its call site), a `view fn` remains a separate callable entity, and each invocation from the `final {}` block re-runs the view's body.
 
 The same rule applies across programs — a `final {}` block can call a `view fn` exposed by an imported program:
 

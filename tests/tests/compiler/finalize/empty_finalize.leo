@@ -4,4 +4,4 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint(public receiver: address, public amount: u64) {}
+final fn finalize_mint(receiver: address, amount: u64) {}

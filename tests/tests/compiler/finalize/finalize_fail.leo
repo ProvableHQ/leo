@@ -15,7 +15,7 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_public(public receiver: address, public amount: u64) {
+final fn finalize_mint_public(receiver: address, amount: u64) {
     increment(account, receiver, amount);
 }
 

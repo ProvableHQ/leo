@@ -6,7 +6,7 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_public(public receiver: address, public amount: u64) {
+final fn finalize_mint_public(receiver: address, amount: u64) {
     let has_key: bool = Mapping::has_key(account, receiver);
     Mapping::set(account, receiver, amount);
 }

@@ -2316,6 +2316,7 @@ name = "leo-abi"
 version = "4.0.2"
 dependencies = [
  "indexmap",
+ "itertools 0.14.0",
  "leo-abi-types",
  "leo-ast",
  "leo-disassembler",

@@ -41,6 +41,7 @@ use leo_ast::{self as ast};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use itertools::{Either, Itertools as _};
 use std::collections::HashSet;
 
 // ------------------------------------------------------------------------- //
@@ -384,18 +385,11 @@ fn build_interface(
 
     // Split prototypes by variant so view fns appear in their own ABI bucket,
     // parallel to how `Program.functions` and `Program.views` are split.
-    let functions: Vec<abi::Function> = iface
-        .functions
-        .iter()
-        .filter(|(_, proto)| !proto.variant.is_view())
-        .map(|(_, proto)| convert_function_prototype(proto, iface, cs))
-        .collect();
-    let views: Vec<abi::Function> = iface
-        .functions
-        .iter()
-        .filter(|(_, proto)| proto.variant.is_view())
-        .map(|(_, proto)| convert_function_prototype(proto, iface, cs))
-        .collect();
+    let (functions, views): (Vec<abi::Function>, Vec<abi::Function>) =
+        iface.functions.iter().partition_map(|(_, proto)| {
+            let converted = convert_function_prototype(proto, iface, cs);
+            if proto.variant.is_view() { Either::Right(converted) } else { Either::Left(converted) }
+        });
 
     let records: Vec<abi::Record> = iface.records.iter().map(|(_, proto)| convert_record_prototype(proto)).collect();
 

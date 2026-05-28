@@ -311,7 +311,8 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Ensure assignment is allowed in async function conditional scopes
-        if self.scope_state.variant.unwrap().is_onchain() && !self.symbol_in_conditional_scope(input.identifier().name)
+        if self.scope_state.variant.unwrap().is_finalize_context()
+            && !self.symbol_in_conditional_scope(input.identifier().name)
         {
             self.emit_err(crate::errors::type_checker::final_cannot_assign_outside_conditional(input, "fn", var.span));
         }
@@ -572,8 +573,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             _ => {}
         }
 
-        // Check that operation is not restricted to finalize blocks (views permit the read-only
-        // subset; the per-intrinsic split happens in `check_intrinsic`).
+        // Check that operation is not restricted to finalize blocks. Views are admitted here so
+        // their read-only subset can pass; finer-grained per-intrinsic checks happen later.
         if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn | Variant::View))
             && self.async_block_id.is_none()
             && intrinsic.is_finalize_command()
@@ -1125,21 +1126,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
-            // `Variant::Finalize` covers both the constructor body and the hoisted `final {}` body; only the latter
-            // is allowed to call a `View`.
+            // `Variant::Finalize` covers both the constructor body and the hoisted `final {}` body.
+            // A constructor may only call inlined helpers (`Fn` / `FinalFn`); views and other
+            // entry points are rejected.
             Variant::Finalize
-                if {
-                    let callee_is_inlined = matches!(func.variant, Variant::FinalFn | Variant::Fn);
-                    let callee_is_allowed_view =
-                        matches!(func.variant, Variant::View) && !self.scope_state.is_constructor;
-                    !callee_is_inlined && !callee_is_allowed_view
-                } =>
+                if self.scope_state.is_constructor && !matches!(func.variant, Variant::Fn | Variant::FinalFn) =>
             {
-                self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
-                    // FIXME: better error
-                    if self.scope_state.is_constructor { "a constructor" } else { "a final block" },
-                    input.span,
-                ))
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a constructor", input.span))
+            }
+            // A `final {}` body can call inlined helpers (`Fn` / `FinalFn`) and views; anything else
+            // (e.g. another `EntryPoint` or `Finalize`) is rejected.
+            Variant::Finalize
+                if !self.scope_state.is_constructor
+                    && !matches!(func.variant, Variant::Fn | Variant::FinalFn | Variant::View) =>
+            {
+                self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span))
             }
             Variant::Fn if !matches!(func.variant, Variant::Fn) => {
                 self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
@@ -1162,8 +1163,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 {
                     self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
                 } else if matches!(func.variant, Variant::View) && self.async_block_id.is_none() {
-                    // Views are only callable from inside a `final {}` block; reject here so the user sees a
-                    // Leo-level message instead of a cryptic snarkVM error.
+                    // Views are only callable from inside a `final {}` block.
                     self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                         "a transition body outside a `final {}` block",
                         input.span,
@@ -1565,7 +1565,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         if let Some(var) = var {
                             let ty = var.type_.expect("must be known by now");
                             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                                self.check_access_allowed("storage access", true, true, input.span());
+                                self.check_access_allowed("storage access", AccessScope::FinalizeRead, input.span());
                             }
 
                             self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
@@ -1650,7 +1650,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 return Type::Err;
             };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
-                self.check_access_allowed("storage access", true, true, input.span());
+                self.check_access_allowed("storage access", AccessScope::FinalizeRead, input.span());
             }
 
             self.maybe_assert_type(&ty, expected, input.span());
@@ -2085,7 +2085,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             && !assign_target_info.ty.is_vector()
             && !assign_target_info.ty.is_mapping()
         {
-            self.check_access_allowed("storage write", true, false, input.place.span())
+            self.check_access_allowed("storage write", AccessScope::FinalizeWrite, input.place.span())
         }
 
         if assign_target_info.kind == AssignTargetKind::ExternalStorage {

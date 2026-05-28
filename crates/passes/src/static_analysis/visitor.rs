@@ -114,18 +114,21 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         self.visit_expression(&input.condition, &Default::default());
 
         // Create scope for checking awaits in `then` branch of conditional.
-        let current_bst_nodes: Vec<ConditionalTreeNode> =
-            match self.await_checker.create_then_scope(self.variant.is_some_and(|v| v.is_onchain()), input.span) {
-                Ok(nodes) => nodes,
-                Err(warn) => return self.emit_warning(warn),
-            };
+        let current_bst_nodes: Vec<ConditionalTreeNode> = match self
+            .await_checker
+            .create_then_scope(self.variant.is_some_and(|v| v.is_finalize_context()), input.span)
+        {
+            Ok(nodes) => nodes,
+            Err(warn) => return self.emit_warning(warn),
+        };
 
         // Visit block.
         self.visit_block(&input.then);
 
         // Exit scope for checking awaits in `then` branch of conditional.
-        let saved_paths =
-            self.await_checker.exit_then_scope(self.variant.is_some_and(|v| v.is_onchain()), current_bst_nodes);
+        let saved_paths = self
+            .await_checker
+            .exit_then_scope(self.variant.is_some_and(|v| v.is_finalize_context()), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             match &**otherwise {
@@ -139,6 +142,6 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         // Update the set of all possible BST paths.
-        self.await_checker.exit_statement_scope(self.variant.is_some_and(|v| v.is_onchain()), saved_paths);
+        self.await_checker.exit_statement_scope(self.variant.is_some_and(|v| v.is_finalize_context()), saved_paths);
     }
 }

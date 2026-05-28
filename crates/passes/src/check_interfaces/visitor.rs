@@ -591,14 +591,10 @@ impl<'a> CheckInterfacesVisitor<'a> {
         proto: &FunctionPrototype,
         prototype_record_locations: &IndexSet<Location>,
     ) -> bool {
-        // Variant must match. A `view fn` prototype must be implemented by a `view fn`
-        // (and conversely, a plain `fn` prototype must be implemented by a plain `fn`
-        // entry point — entry-point functions are `Variant::EntryPoint` in source, so
-        // we treat `Fn` (interface side) and `EntryPoint` (impl side) as compatible.)
-        match (proto.variant, func.variant) {
-            (Variant::View, Variant::View) => {}
-            (Variant::Fn, Variant::EntryPoint | Variant::Fn) => {}
-            _ => return false,
+        // Variant must match exactly. Prototypes are only constructed with `EntryPoint`
+        // or `View`, and the implementing function must use the same variant.
+        if proto.variant != func.variant {
+            return false;
         }
 
         // Input parameters must match exactly.

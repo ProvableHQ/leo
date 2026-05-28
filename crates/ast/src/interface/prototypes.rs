@@ -98,8 +98,9 @@ crate::simple_node_impl!(StorageVariablePrototype);
 pub struct FunctionPrototype {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
-    /// `Variant::Fn` for a plain `fn name(...)` prototype, `Variant::View` for `view fn name(...)`.
-    /// Other variants are not allowed in interface position.
+    /// `Variant::EntryPoint` for a plain `fn name(...)` prototype, `Variant::View` for
+    /// `view fn name(...)`. These are the only externally-callable variants and the only
+    /// variants permitted in interface position.
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
@@ -160,7 +161,10 @@ impl fmt::Display for FunctionPrototype {
         }
         match self.variant {
             Variant::View => write!(f, "view fn {}", self.identifier)?,
-            _ => write!(f, "fn {}", self.identifier)?,
+            Variant::EntryPoint => write!(f, "fn {}", self.identifier)?,
+            v => panic!(
+                "FunctionPrototype constructed with invalid variant `{v:?}`; only `EntryPoint` or `View` are allowed"
+            ),
         }
         if !self.const_parameters.is_empty() {
             write!(f, "::[{}]", self.const_parameters.iter().format(", "))?;

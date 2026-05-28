@@ -49,7 +49,23 @@ impl Variant {
         matches!(self, Variant::Finalize)
     }
 
+    /// Returns true if the function accesses on-chain finalize-store state.
+    ///
+    /// This includes `final fn` and synthesized `finalize` (which write state) as well as
+    /// `view fn` (which read state). It is the right predicate for analyses that care about
+    /// on-chain state effects, regardless of whether the function runs as part of consensus.
     pub fn is_onchain(self) -> bool {
+        matches!(self, Variant::Finalize | Variant::FinalFn | Variant::View)
+    }
+
+    /// Returns true if the function compiles to a `finalize` bytecode block (i.e. it runs
+    /// in the on-chain finalize runtime, not off-consensus).
+    ///
+    /// Use this predicate for analyses tied to finalize-runtime semantics: keeping
+    /// conditionals in bytecode, future-typed inputs, await tracking, and the
+    /// async-function assignment rules. Views are excluded because they compile to a
+    /// flat `function` block like transitions.
+    pub fn is_finalize_context(self) -> bool {
         matches!(self, Variant::Finalize | Variant::FinalFn)
     }
 

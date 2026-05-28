@@ -138,9 +138,6 @@ impl CodeGeneratingVisitor<'_> {
         }
 
         for (operand, output) in operands.iter() {
-            // Transition outputs with no mode are private; view outputs lower to `.public`
-            // (view fns return plaintext to external callers and snarkVM enforces that
-            // outputs are plaintext-typed).
             let visibility = match (self.variant.unwrap(), output.mode) {
                 (Variant::EntryPoint, Mode::None) => Some(AleoVisibility::Private),
                 (Variant::View, Mode::None) => Some(AleoVisibility::Public),
