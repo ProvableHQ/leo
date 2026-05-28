@@ -11,5 +11,5 @@
 📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,14906000,15370000,16886000
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
-Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and do not produce a transaction, so they cannot be executed. Query a live node — `leo query view` is the planned entry point once the corresponding snarkOS REST endpoint is exposed.
+Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and do not produce a transaction, so they cannot be executed.
 

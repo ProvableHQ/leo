@@ -136,6 +136,9 @@ impl AleoProgram {
                 AleoFunctional::Finalize(fin) => {
                     f(&mut fin.statements, fin.inputs.len());
                 }
+                AleoFunctional::View(v) => {
+                    f(&mut v.statements, v.inputs.len());
+                }
             }
         }
         if let Some(constructor) = &mut self.constructor {

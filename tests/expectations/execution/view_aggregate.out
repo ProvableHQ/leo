@@ -27,22 +27,21 @@ view sum_first_three:
     ternary r1 r2 0u64 into r3;
     cast r1 r3 into r4 as Optional__DmN5CQ9hzeK;
     ternary r4.is_some r4.val 0u64 into r5;
-    add 0u64 r5 into r6;
-    get.or_use entries__len__[false] 0u32 into r7;
-    lt 1u32 r7 into r8;
-    get.or_use entries__[1u32] 0u64 into r9;
-    ternary r8 r9 0u64 into r10;
-    cast r8 r10 into r11 as Optional__DmN5CQ9hzeK;
-    ternary r11.is_some r11.val 0u64 into r12;
-    add r6 r12 into r13;
-    get.or_use entries__len__[false] 0u32 into r14;
-    lt 2u32 r14 into r15;
-    get.or_use entries__[2u32] 0u64 into r16;
-    ternary r15 r16 0u64 into r17;
-    cast r15 r17 into r18 as Optional__DmN5CQ9hzeK;
-    ternary r18.is_some r18.val 0u64 into r19;
-    add r13 r19 into r20;
-    output r20 as u64.public;
+    get.or_use entries__len__[false] 0u32 into r6;
+    lt 1u32 r6 into r7;
+    get.or_use entries__[1u32] 0u64 into r8;
+    ternary r7 r8 0u64 into r9;
+    cast r7 r9 into r10 as Optional__DmN5CQ9hzeK;
+    ternary r10.is_some r10.val 0u64 into r11;
+    add r5 r11 into r12;
+    get.or_use entries__len__[false] 0u32 into r13;
+    lt 2u32 r13 into r14;
+    get.or_use entries__[2u32] 0u64 into r15;
+    ternary r14 r15 0u64 into r16;
+    cast r14 r16 into r17 as Optional__DmN5CQ9hzeK;
+    ternary r17.is_some r17.val 0u64 into r18;
+    add r12 r18 into r19;
+    output r19 as u64.public;
 
 view weighted_balance:
     input r0 as address.public;

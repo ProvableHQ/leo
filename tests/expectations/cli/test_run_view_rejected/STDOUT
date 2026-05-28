@@ -11,7 +11,7 @@
        Leo ✅ Generated ABI at 'build/abi.json'.
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
-Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and cannot be simulated by `leo run` (which evaluates against an empty in-memory finalize store). Query a live node — `leo query view` is the planned entry point once the corresponding snarkOS REST endpoint is exposed.
+Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and cannot be simulated by `leo run` (which evaluates against an empty in-memory finalize store).
 
 --- run on a regular fn should still work ---
   - test_run_view_rejected.aleo (local)
