@@ -45,20 +45,18 @@ not use `rust-lang/crates-io-auth-action` and should not set a
 `CARGO_REGISTRY_TOKEN` secret. release-plz requests a short-lived crates.io token
 through GitHub OIDC when it needs to publish.
 
-Ask IT or the crate owners to configure each already-published crate on crates.io
-with a Trusted Publisher:
+Ask the crate owners to configure each already-published crate on crates.io with
+a Trusted Publisher:
 
 - provider: GitHub Actions
 - owner: `ProvableHQ`
 - repository: `leo`
 - workflow: `publish-crates.yml`
-- environment: `crates-io`
 
-The GitHub repository also needs:
-
-- a `crates-io` environment
-- workflow permissions that allow `contents: write`, `actions: write`,
-  `pull-requests: read`, and `id-token: write`
+The publish workflow requests `contents: write`, `actions: write`,
+`pull-requests: read`, and `id-token: write`. The `id-token: write` permission
+allows release-plz to request a GitHub OIDC token for crates.io Trusted
+Publishing.
 
 Trusted Publishing cannot publish a brand-new crate name for the first time.
 New crates need the bootstrap steps in
@@ -200,7 +198,6 @@ the crate on crates.io:
    - owner: `ProvableHQ`
    - repository: `leo`
    - workflow: `publish-crates.yml`
-   - environment: `crates-io`
 4. Confirm the crate owner set includes the maintainers who can adjust crates.io
    owner and Trusted Publishing settings.
 

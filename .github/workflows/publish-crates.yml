@@ -56,7 +56,6 @@ jobs:
     name: Publish
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
     runs-on: ubuntu-latest
-    environment: crates-io
     permissions:
       actions: write
       contents: write
