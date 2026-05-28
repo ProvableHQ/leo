@@ -60,8 +60,9 @@ The GitHub repository also needs:
 - workflow permissions that allow `contents: write`, `actions: write`,
   `pull-requests: read`, and `id-token: write`
 
-Trusted Publishing cannot publish a brand-new crate name for the first time. New
-crates need a first manual publish or a temporary scoped token path before this
+Trusted Publishing cannot publish a brand-new crate name for the first time.
+New crates need the bootstrap steps in
+[Adding a New Publishable Crate](#adding-a-new-publishable-crate) before this
 workflow can publish later versions.
 
 ## Why release-plz
@@ -187,9 +188,29 @@ cargo binstall leo-fmt
 cargo binstall leo-lsp
 ```
 
+## Adding a New Publishable Crate
+
+Before relying on the automated publishing workflow for a new crate, bootstrap
+the crate on crates.io:
+
+1. Add the crate to the workspace with the intended package name and metadata.
+2. Publish the first version manually with `cargo publish -p <crate-name>`.
+3. Configure crates.io Trusted Publishing for the crate:
+   - provider: GitHub Actions
+   - owner: `ProvableHQ`
+   - repository: `leo`
+   - workflow: `publish-crates.yml`
+   - environment: `crates-io`
+4. Confirm the crate owner set includes the maintainers who can adjust crates.io
+   owner and Trusted Publishing settings.
+
+After the first version exists on crates.io and Trusted Publishing is
+configured, future version bumps merged to `master` are handled by
+`publish-crates.yml`.
+
 ## Adding a New Binary Crate
 
-No workflow changes are needed. Ensure the new crate has a `[[bin]]` section in
-its `Cargo.toml` and add a `[package.metadata.binstall]` section. After the first
-crate version exists on crates.io and Trusted Publishing is configured, future
-version bumps merged to `master` are handled by `publish-crates.yml`.
+For crates that should also produce GitHub release artifacts, ensure the crate
+has a `[[bin]]` section in its `Cargo.toml` and add a
+`[package.metadata.binstall]` section. No workflow changes are needed once the
+crate has completed the publishable-crate bootstrap steps above.
