@@ -1,6 +1,7 @@
 (block) @local.scope
 (function_definition) @local.scope
 (final_function_definition) @local.scope
+(view_function_definition) @local.scope
 (constructor_definition) @local.scope
 (for_statement) @local.scope
 

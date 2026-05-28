@@ -1,5 +1,5 @@
 [
-  "let" "const" "constant" "fn" "final" "struct" "record"
+  "let" "const" "constant" "fn" "final" "view" "struct" "record"
   "program" "import" "mapping" "storage" "interface" "constructor"
   "if" "else" "for" "in" "return"
   "public" "private" "as" "self" "block" "network"
@@ -17,6 +17,7 @@
 
 (function_definition name: (identifier) @function)
 (final_function_definition name: (identifier) @function)
+(view_function_definition name: (identifier) @function)
 (constructor_definition "constructor" @function)
 
 (call_expression function: (_) @function.call)

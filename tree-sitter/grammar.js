@@ -47,6 +47,7 @@ const ALL_KEYWORDS = [
   'const',
   'constant',
   'final',
+  'view',
   'fn',
   'struct',
   'constructor',
@@ -129,6 +130,7 @@ module.exports = grammar({
       $.const_declaration,
       $.function_definition,
       $.final_function_definition,
+      $.view_function_definition,
       $.constructor_definition,
     ),
 
@@ -150,6 +152,7 @@ module.exports = grammar({
       $.const_declaration,
       $.function_definition,
       $.final_function_definition,
+      $.view_function_definition,
       $.constructor_definition,
       $.interface_declaration,
     ),
@@ -197,6 +200,7 @@ module.exports = grammar({
     ),
 
     function_prototype: $ => seq(
+      optional('view'),
       'fn',
       field('name', $.identifier),
       optional(field('const_parameters', $.const_param_list)),
@@ -285,6 +289,17 @@ module.exports = grammar({
     final_function_definition: $ => seq(
       repeat($.annotation),
       'final',
+      'fn',
+      field('name', $.identifier),
+      optional(field('const_parameters', $.const_param_list)),
+      field('parameters', $.parameter_list),
+      optional(seq(token(prec(1, '->')), field('return_type', $.return_type))),
+      field('body', $.block),
+    ),
+
+    view_function_definition: $ => seq(
+      repeat($.annotation),
+      'view',
       'fn',
       field('name', $.identifier),
       optional(field('const_parameters', $.const_param_list)),

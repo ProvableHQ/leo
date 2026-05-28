@@ -71,3 +71,53 @@ program token.aleo {
         (identifier))
       (parameter_list)
       (block))))
+
+================
+View functions
+================
+
+program vault.aleo {
+    mapping balances: address => u64;
+
+    view fn get_balance(account: address) -> u64 {
+        return balances.get_or_use(account, 0u64);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+---
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (mapping_definition
+      (identifier)
+      (primitive_type)
+      (primitive_type))
+    (view_function_definition
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (return_type
+        (return_type_item
+          (primitive_type)))
+      (block
+        (return_statement
+          (method_call_expression
+            (path_expression
+              (identifier))
+            (identifier)
+            (argument_list
+              (path_expression
+                (identifier))
+              (integer_literal))))))
+    (constructor_definition
+      (annotation
+        (identifier))
+      (parameter_list)
+      (block))))

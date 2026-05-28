@@ -464,6 +464,10 @@
           {
             "type": "u8",
             "named": false
+          },
+          {
+            "type": "view",
+            "named": false
           }
         ]
       }
@@ -1340,6 +1344,10 @@
           },
           {
             "type": "u8",
+            "named": false
+          },
+          {
+            "type": "view",
             "named": false
           }
         ]
@@ -2392,6 +2400,10 @@
           {
             "type": "u8",
             "named": false
+          },
+          {
+            "type": "view",
+            "named": false
           }
         ]
       },
@@ -2660,6 +2672,10 @@
         },
         {
           "type": "struct_definition",
+          "named": true
+        },
+        {
+          "type": "view_function_definition",
           "named": true
         }
       ]
@@ -3229,6 +3245,72 @@
     }
   },
   {
+    "type": "view_function_definition",
+    "named": true,
+    "fields": {
+      "body": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      },
+      "const_parameters": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "const_param_list",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "parameters": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "parameter_list",
+            "named": true
+          }
+        ]
+      },
+      "return_type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "return_type",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "annotation",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "visibility",
     "named": true,
     "fields": {}
@@ -3547,11 +3629,11 @@
   },
   {
     "type": "identifier",
-    "named": true
+    "named": false
   },
   {
     "type": "identifier",
-    "named": false
+    "named": true
   },
   {
     "type": "if",
@@ -3681,6 +3763,10 @@
   {
     "type": "underscore",
     "named": true
+  },
+  {
+    "type": "view",
+    "named": false
   },
   {
     "type": "{",
