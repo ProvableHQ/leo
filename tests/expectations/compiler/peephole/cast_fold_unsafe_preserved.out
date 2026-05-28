@@ -1,0 +1,7 @@
+program test.aleo;
+
+function main:
+    input r0 as u64.private;
+    cast r0 into r1 as u16;
+    cast r1 into r2 as u64;
+    output r2 as u64.private;

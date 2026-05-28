@@ -26,7 +26,7 @@
 //! - **Consecutive cast folding**: merges adjacent casts through the same intermediate register.
 //! - **Register renumbering**: compacts register indices after instruction removal.
 
-use crate::{AleoExpr, AleoReg, AleoStmt, CompiledPrograms, GeneratedPrograms, Pass};
+use crate::{AleoExpr, AleoReg, AleoStmt, AleoType, CompiledPrograms, GeneratedPrograms, Pass};
 
 use leo_errors::Result;
 
@@ -83,7 +83,7 @@ fn is_one(expr: &AleoExpr) -> bool {
             | AleoExpr::I32(1)
             | AleoExpr::I64(1)
             | AleoExpr::I128(1)
-    ) || matches!(expr, AleoExpr::Field(s) if s == "1")
+    ) || matches!(expr, AleoExpr::Field(s) | AleoExpr::Scalar(s) if s == "1")
 }
 
 fn is_false(expr: &AleoExpr) -> bool {
@@ -108,15 +108,15 @@ fn is_literal(expr: &AleoExpr) -> bool {
 
 // Identity operation folding
 
-/// If `stmt` is an identity operation, returns (dest_register, aliased_expr).
-fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
+/// If `stmt` is an identity operation, returns references to (dest_register, aliased_expr).
+fn try_identity(stmt: &AleoStmt) -> Option<(&AleoReg, &AleoExpr)> {
     match stmt {
         // add x 0 / add 0 x
         AleoStmt::Add(a, b, dst) | AleoStmt::AddWrapped(a, b, dst) => {
             if is_zero(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else if is_zero(a) {
-                Some((dst.clone(), b.clone()))
+                Some((dst, b))
             } else {
                 None
             }
@@ -124,7 +124,7 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
         // sub x 0 (NOT sub 0 x, that's negation)
         AleoStmt::Sub(a, b, dst) | AleoStmt::SubWrapped(a, b, dst) => {
             if is_zero(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else {
                 None
             }
@@ -132,9 +132,9 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
         // mul x 1 / mul 1 x
         AleoStmt::Mul(a, b, dst) | AleoStmt::MulWrapped(a, b, dst) => {
             if is_one(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else if is_one(a) {
-                Some((dst.clone(), b.clone()))
+                Some((dst, b))
             } else {
                 None
             }
@@ -142,9 +142,9 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
         // or x false / or false x
         AleoStmt::Or(a, b, dst) => {
             if is_false(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else if is_false(a) {
-                Some((dst.clone(), b.clone()))
+                Some((dst, b))
             } else {
                 None
             }
@@ -152,9 +152,9 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
         // and x true / and true x
         AleoStmt::And(a, b, dst) => {
             if is_true(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else if is_true(a) {
-                Some((dst.clone(), b.clone()))
+                Some((dst, b))
             } else {
                 None
             }
@@ -162,9 +162,36 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
         // xor x false / xor false x
         AleoStmt::Xor(a, b, dst) => {
             if is_false(b) {
-                Some((dst.clone(), a.clone()))
+                Some((dst, a))
             } else if is_false(a) {
-                Some((dst.clone(), b.clone()))
+                Some((dst, b))
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
+}
+
+/// Strength-reduce a statement if possible, returning a simpler equivalent statement.
+/// - `nand(x, true)` / `nand(true, x)` → `not(x)`
+/// - `nor(x, false)` / `nor(false, x)` → `not(x)`
+fn try_strength_reduce(stmt: &AleoStmt) -> Option<AleoStmt> {
+    match stmt {
+        AleoStmt::Nand(a, b, dst) => {
+            if is_true(b) {
+                Some(AleoStmt::Not(a.clone(), dst.clone()))
+            } else if is_true(a) {
+                Some(AleoStmt::Not(b.clone(), dst.clone()))
+            } else {
+                None
+            }
+        }
+        AleoStmt::Nor(a, b, dst) => {
+            if is_false(b) {
+                Some(AleoStmt::Not(a.clone(), dst.clone()))
+            } else if is_false(a) {
+                Some(AleoStmt::Not(b.clone(), dst.clone()))
             } else {
                 None
             }
@@ -174,17 +201,27 @@ fn try_identity(stmt: &AleoStmt) -> Option<(AleoReg, AleoExpr)> {
 }
 
 /// Resolve an expression through the alias map, following chains transitively.
+/// Also recurses into composite expressions (Tuple, ArrayAccess, MemberAccess)
+/// to resolve any nested register references.
 fn resolve_alias(expr: &AleoExpr, aliases: &HashMap<AleoReg, AleoExpr>) -> AleoExpr {
-    let mut current = expr.clone();
-    // Follow alias chains: if current is a register that's aliased, resolve it.
-    while let AleoExpr::Reg(ref reg) = current {
-        if let Some(target) = aliases.get(reg) {
-            current = target.clone();
-        } else {
-            break;
+    match expr {
+        AleoExpr::Reg(reg) => {
+            if let Some(target) = aliases.get(reg) {
+                // Follow alias chains transitively.
+                resolve_alias(target, aliases)
+            } else {
+                expr.clone()
+            }
         }
+        AleoExpr::Tuple(exprs) => AleoExpr::Tuple(exprs.iter().map(|e| resolve_alias(e, aliases)).collect()),
+        AleoExpr::ArrayAccess(a, b) => {
+            AleoExpr::ArrayAccess(Box::new(resolve_alias(a, aliases)), Box::new(resolve_alias(b, aliases)))
+        }
+        AleoExpr::MemberAccess(a, member) => {
+            AleoExpr::MemberAccess(Box::new(resolve_alias(a, aliases)), member.clone())
+        }
+        _ => expr.clone(), // literals and names
     }
-    current
 }
 
 /// Apply alias substitution to every register operand in a statement.
@@ -328,14 +365,21 @@ fn substitute_aliases_in_stmt(stmt: &mut AleoStmt, aliases: &HashMap<AleoReg, Al
 }
 
 fn fold_identity_operations(stmts: &mut Vec<AleoStmt>) {
+    // Apply strength reductions first (e.g. nand(x, true) → not(x)).
+    for stmt in stmts.iter_mut() {
+        if let Some(reduced) = try_strength_reduce(stmt) {
+            *stmt = reduced;
+        }
+    }
+
     let mut aliases: HashMap<AleoReg, AleoExpr> = HashMap::new();
     let mut to_remove = Vec::new();
 
     for (i, stmt) in stmts.iter().enumerate() {
         if let Some((dst, value)) = try_identity(stmt) {
-            // Resolve the alias target transitively.
-            let resolved = resolve_alias(&value, &aliases);
-            aliases.insert(dst, resolved);
+            // Resolve the alias target transitively — clone only here.
+            let resolved = resolve_alias(value, &aliases);
+            aliases.insert(dst.clone(), resolved);
             to_remove.push(i);
         }
     }
@@ -360,22 +404,31 @@ fn fold_identity_operations(stmts: &mut Vec<AleoStmt>) {
 // Trivial assert elimination
 
 fn eliminate_trivial_asserts(stmts: &mut Vec<AleoStmt>) {
-    // The Aleo VM requires closures/finalizes to have at least one non-output
-    // instruction. Codegen inserts a dummy `assert.eq true true` to satisfy this.
-    // Only remove trivial asserts if at least one non-output instruction would remain.
-    let non_output_non_trivial = stmts
-        .iter()
-        .filter(|s| {
-            !matches!(s, AleoStmt::Output(..))
-                && !matches!(s, AleoStmt::AssertEq(a, b) if is_literal(a) && is_literal(b) && a == b)
-        })
-        .count();
-
-    if non_output_non_trivial == 0 {
-        return;
+    fn is_trivial_assert(s: &AleoStmt) -> bool {
+        matches!(s, AleoStmt::AssertEq(a, b) if is_literal(a) && is_literal(b) && a == b)
     }
 
-    stmts.retain(|stmt| !matches!(stmt, AleoStmt::AssertEq(a, b) if is_literal(a) && is_literal(b) && a == b));
+    // The Aleo VM requires closures/finalizes to have at least one non-output
+    // instruction. Codegen inserts a dummy `assert.eq true true` to satisfy this.
+    let non_output_non_trivial =
+        stmts.iter().filter(|s| !matches!(s, AleoStmt::Output(..)) && !is_trivial_assert(s)).count();
+
+    if non_output_non_trivial == 0 {
+        // No real instructions — keep exactly one trivial assert as a dummy.
+        let mut kept_one = false;
+        stmts.retain(|stmt| {
+            if is_trivial_assert(stmt) {
+                if kept_one {
+                    return false;
+                }
+                kept_one = true;
+            }
+            true
+        });
+    } else {
+        // Real instructions exist — remove all trivial asserts.
+        stmts.retain(|stmt| !is_trivial_assert(stmt));
+    }
 }
 
 // Dead register elimination
@@ -668,17 +721,38 @@ fn fold_consecutive_casts(stmts: &mut Vec<AleoStmt>) {
         }
     }
 
+    let num_bit_width = |ty: &AleoType| -> Option<u32> {
+        match ty {
+            AleoType::Boolean => Some(1),
+            AleoType::U8 | AleoType::I8 => Some(8),
+            AleoType::U16 | AleoType::I16 => Some(16),
+            AleoType::U32 | AleoType::I32 => Some(32),
+            AleoType::U64 | AleoType::I64 => Some(64),
+            AleoType::U128 | AleoType::I128 => Some(128),
+            _ => None,
+        }
+    };
+
     let mut i = 0;
     while i + 1 < stmts.len() {
         let can_fold = {
-            if let (AleoStmt::Cast(src, r0, _), AleoStmt::Cast(operand, _, _)) = (&stmts[i], &stmts[i + 1])
+            if let (AleoStmt::Cast(src, r0, t1), AleoStmt::Cast(operand, _, t2)) = (&stmts[i], &stmts[i + 1])
             // Only fold single-operand casts (type coercions), not multi-operand
             // struct/record constructions like `cast r0 r1 r2 into r3 as Foo.record`.
             && !matches!(src, AleoExpr::Tuple(_))
             // The second cast reads from the first cast's destination.
             && let AleoExpr::Reg(inner_reg) = operand
             {
-                inner_reg == r0 && reg_use_count.get(r0).copied().unwrap_or(0) == 1
+                inner_reg == r0
+                    && reg_use_count.get(r0).copied().unwrap_or(0) == 1
+                    // Only fold when the first cast widens (or preserves width).
+                    // Removing it is safe because the second (narrower) cast
+                    // still catches overflows. For non-numeric types where we
+                    // can't determine failure conditions, skip folding.
+                    && match (num_bit_width(t1), num_bit_width(t2)) {
+                        (Some(w1), Some(w2)) => w1 >= w2,
+                        _ => false,
+                    }
             } else {
                 false
             }
