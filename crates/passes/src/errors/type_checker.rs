@@ -168,14 +168,9 @@ pub(crate) fn unknown_annotation(annotation: impl Display, span: Span) -> Format
     )
 }
 
-pub(crate) fn regular_fn_inputs_cannot_have_modes(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 28, "regular `fn` inputs cannot have visibility modes", span)
-        .with_help("Remove the mode, or move this function inside the `program` block to make it an entry point fn.")
-}
-
-pub(crate) fn onchain_fn_inputs_cannot_have_modes(kind: impl Display, span: Span) -> Formatted {
+pub(crate) fn function_inputs_cannot_have_modes(kind: impl Display, span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 28, format!("{kind} inputs cannot have visibility modes"), span)
-        .with_help(format!("Remove the `public`, `private`, or `constant` modifier; {kind} inputs are always public."))
+        .with_help("Remove the `public`, `private`, or `constant` modifier.")
 }
 
 pub(crate) fn struct_or_record_cannot_contain_record(

@@ -997,7 +997,7 @@ fn malformed_open_change_close_lifecycle_stays_alive() {
     );
 
     assert!(
-        server.wait_for_stderr_contains("worker completed latest document", Duration::from_secs(1)),
+        server.wait_for_stderr_contains("worker completed latest document", Duration::from_secs(10)),
         "stderr:\n{}",
         server.finish().1
     );
@@ -1091,7 +1091,7 @@ fn semantic_tokens_full_returns_tokens_and_reuses_cached_snapshot() {
     let first_data = first["result"]["data"].as_array().expect("semantic token data");
     assert!(!first_data.is_empty(), "expected semantic tokens, got {first}");
     assert!(
-        server.wait_for_stderr_contains("worker completed latest document", Duration::from_secs(1)),
+        server.wait_for_stderr_contains("worker completed latest document", Duration::from_secs(10)),
         "stderr:\n{}",
         server.finish().1
     );

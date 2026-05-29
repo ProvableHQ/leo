@@ -2302,14 +2302,14 @@ impl TypeCheckingVisitor<'_> {
                 // visibility from the variant alone (helpers are inlined; finalize/final fn/view
                 // inputs are always `.public`), so an explicit modifier is always redundant or
                 // contradictory.
-                Variant::Fn if input.mode() != Mode::None => {
-                    self.emit_err(crate::errors::type_checker::regular_fn_inputs_cannot_have_modes(input.span()))
-                }
+                Variant::Fn if input.mode() != Mode::None => self.emit_err(
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("regular `fn`", input.span()),
+                ),
                 Variant::Finalize | Variant::FinalFn if input.mode() != Mode::None => self.emit_err(
-                    crate::errors::type_checker::onchain_fn_inputs_cannot_have_modes("`final fn`", input.span()),
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("`final fn`", input.span()),
                 ),
                 Variant::View if input.mode() != Mode::None => self.emit_err(
-                    crate::errors::type_checker::onchain_fn_inputs_cannot_have_modes("`view fn`", input.span()),
+                    crate::errors::type_checker::function_inputs_cannot_have_modes("`view fn`", input.span()),
                 ),
                 _ => {} // Do nothing.
             }
