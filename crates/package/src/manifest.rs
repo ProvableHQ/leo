@@ -17,6 +17,7 @@
 use crate::*;
 
 use leo_errors::Backtraced;
+use leo_span::file_source::FileSource;
 
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -38,6 +39,7 @@ pub struct Manifest {
 
 impl Manifest {
     /// Write the manifest to the given `path` as a JSON string.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), Backtraced> {
         // Serialize the manifest to a JSON string.
         let mut contents = serde_json::to_string_pretty(&self)
@@ -50,12 +52,20 @@ impl Manifest {
         std::fs::write(path, contents).map_err(crate::errors::failed_to_write_manifest)
     }
 
-    /// Read a Manifest from the given file as a JSON string.
+    /// Read a Manifest from the real filesystem (native-only convenience).
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, Backtraced> {
-        // Read the manifest file.
-        let contents = std::fs::read_to_string(&path)
+        Self::read_from_file_source(path, &leo_span::file_source::DiskFileSource)
+    }
+
+    /// Read a Manifest via an explicit [`FileSource`].
+    ///
+    /// Works on every target — including `wasm32-unknown-unknown` — as long as
+    /// the caller supplies a `FileSource` that can resolve `path`.
+    pub fn read_from_file_source<P: AsRef<Path>>(path: P, file_source: &impl FileSource) -> Result<Self, Backtraced> {
+        let contents = file_source
+            .read_file(path.as_ref())
             .map_err(|_| crate::errors::failed_to_load_package(path.as_ref().display()))?;
-        // Deserialize the manifest.
         serde_json::from_str(&contents)
             .map_err(|err| crate::errors::failed_to_deserialize_manifest_file(path.as_ref().display(), err))
     }
