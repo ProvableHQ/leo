@@ -1,2 +1,15 @@
 [workspace]
 git_release_enable = false
+
+# `leo-lsp` and `leo-aleo-abi-wasm` are not yet on crates.io. crates.io Trusted
+# Publishing cannot perform the first-ever publish of a new crate name, so they
+# are skipped here for this release and bootstrapped manually at 4.1.0 once their
+# dependencies are published. Remove these entries afterwards so future releases
+# publish them automatically.
+[[package]]
+name = "leo-lsp"
+release = false
+
+[[package]]
+name = "leo-aleo-abi-wasm"
+release = false
