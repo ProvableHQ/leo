@@ -19,6 +19,7 @@ use crate::{MAX_PROGRAM_SIZE, *};
 use leo_errors::Result;
 use leo_span::Symbol;
 
+#[cfg(not(target_arch = "wasm32"))]
 use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
 
 use indexmap::{IndexMap, IndexSet};
@@ -368,6 +369,12 @@ pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependen
 }
 
 /// Parse the `.aleo` file's imports and construct `Dependency`s.
+///
+/// On native, we still validate the bytecode by parsing it through snarkVM's
+/// full umbrella (`Program::parse`). On `wasm32` the full umbrella isn't in
+/// the dep graph, so we extract `import X;` lines with the inline parser only.
+/// Both paths share the same shape, so downstream `Package::graph_build`
+/// behaves identically across targets.
 fn parse_dependencies_from_aleo(
     name: Symbol,
     bytecode: &str,
@@ -384,22 +391,106 @@ fn parse_dependencies_from_aleo(
         )));
     }
 
-    // Parse the bytecode into an SVM program.
-    let svm_program: SvmProgram<TestnetV0> =
-        bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
-    let dependencies = svm_program
-        .imports()
-        .keys()
-        .map(|program_id| {
-            // If the dependency already exists, use it.
-            // Otherwise, assume it's a network dependency.
-            if let Some(dependency) = existing.get(&Symbol::intern(&program_id.to_string())) {
+    // Native: validate the full bytecode through snarkVM. Errors at this stage
+    // surface as `snarkvm_parsing_error` so the user knows the `.aleo` file is
+    // malformed (not just missing imports).
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        bytecode.parse::<SvmProgram<TestnetV0>>().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+    }
+
+    // Extract the import lines. The `.aleo` grammar declares all imports at the
+    // top of the file as `import <name>;` (whitespace-flexible) before the
+    // `program` block, so a small line scanner is sufficient on both targets.
+    let imports = extract_aleo_import_names(bytecode);
+    let dependencies = imports
+        .into_iter()
+        .map(|import_name| {
+            let sym = Symbol::intern(&import_name);
+            if let Some(dependency) = existing.get(&sym) {
                 dependency.clone()
             } else {
-                let name = program_id.to_string();
-                Dependency { name, location: Location::Network, path: None, edition: None }
+                Dependency { name: import_name, location: Location::Network, path: None, edition: None }
             }
         })
         .collect();
     Ok(dependencies)
+}
+
+/// Extract the program names referenced by `import <name>;` statements at the
+/// top of an `.aleo` source file.
+///
+/// Stops at the first `program ` line — Aleo imports are only legal at the top.
+/// Whitespace-tolerant, accepts both `import foo.aleo;` and `import foo;` (the
+/// latter without a network suffix), and ignores comments / blank lines.
+fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for line in bytecode.lines() {
+        let line = line.trim_start();
+        if line.is_empty() || line.starts_with("//") {
+            continue;
+        }
+        if let Some(rest) = line.strip_prefix("import ") {
+            let name = rest.trim_end_matches(';').trim();
+            if !name.is_empty() {
+                out.push(name.to_string());
+            }
+            continue;
+        }
+        // First non-import, non-blank, non-comment line ends the import block.
+        break;
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::extract_aleo_import_names;
+
+    #[test]
+    fn extract_imports_basic() {
+        let src = "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_with_blank_lines_and_comments() {
+        let src = "\
+            // top-level comment\n\
+            \n\
+            import foo.aleo;\n\
+            // another comment\n\
+            import bar.aleo;\n\
+            \n\
+            program baz.aleo;\n\
+            // imports below `program` are illegal in .aleo and not extracted\n\
+        ";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_no_imports() {
+        let src = "program baz.aleo;\nfunction main:\n    input r0 as u32.public;\n";
+        assert!(extract_aleo_import_names(src).is_empty());
+    }
+
+    #[test]
+    fn extract_imports_stops_at_program_block() {
+        // Anything after a non-import, non-blank, non-comment line is ignored
+        // — matches snarkVM's parser, which rejects imports below `program`.
+        let src = "import foo.aleo;\nprogram baz.aleo;\nimport sneaky.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo"]);
+    }
+
+    #[test]
+    #[cfg(not(target_arch = "wasm32"))]
+    fn extract_imports_matches_snarkvm() {
+        // Parity check: the inline parser produces the same set of import
+        // names snarkVM's full bytecode parser would, for a realistic shape.
+        use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
+        let src = "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n";
+        let svm: SvmProgram<TestnetV0> = src.parse().expect("valid .aleo source");
+        let svm_imports: Vec<String> = svm.imports().keys().map(|id| id.to_string()).collect();
+        assert_eq!(extract_aleo_import_names(src), svm_imports);
+    }
 }
