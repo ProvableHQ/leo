@@ -53,10 +53,9 @@ a Trusted Publisher:
 - repository: `leo`
 - workflow: `publish-crates.yml`
 
-The publish workflow requests `contents: write`, `actions: write`,
-`pull-requests: read`, and `id-token: write`. The `id-token: write` permission
-allows release-plz to request a GitHub OIDC token for crates.io Trusted
-Publishing.
+The publish workflow requests `contents: write`, `actions: write`, and
+`id-token: write`. The `id-token: write` permission allows release-plz to
+request a GitHub OIDC token for crates.io Trusted Publishing.
 
 Trusted Publishing cannot publish a brand-new crate name for the first time.
 New crates need the bootstrap steps in
