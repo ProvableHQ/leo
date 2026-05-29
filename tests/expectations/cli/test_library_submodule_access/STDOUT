@@ -10,7 +10,7 @@
        Leo     The program checksum is: '[24u8, 44u8, 204u8, 243u8, 73u8, 18u8, 55u8, 114u8, 139u8, 108u8, 57u8, 162u8, 92u8, 228u8, 93u8, 111u8, 120u8, 13u8, 185u8, 3u8, 174u8, 223u8, 8u8, 225u8, 195u8, 48u8, 47u8, 173u8, 184u8, 83u8, 34u8, 126u8]'.
        Leo     Program size: 1.05 KB / 500.00 KB
        Leo ✅ Compiled 'my_app.aleo' into Aleo instructions.
-       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated ABI for program 'my_app.aleo'.
 
        Leo 🔨 Compiling 'test_my_app.aleo'
        Leo     74 statements before dead code elimination.

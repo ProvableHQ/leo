@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Tests that a program implementing a library interface emits the external
-# interface ABI under build/interfaces/<lib>/.
+# interface ABI under build/my_program/interfaces/<lib>/.
 
 LEO_BIN=${1}
 
@@ -14,8 +14,8 @@ ${LEO_BIN} --disable-update-check build
 echo "build exit code: $?"
 
 echo "--- program ABI ---" | tee /dev/stderr
-cat build/abi.json
+cat build/my_program/abi.json
 echo
 
 echo "--- library interface ABI ---" | tee /dev/stderr
-cat build/interfaces/my_lib/Greeter.json
+cat build/my_program/interfaces/my_lib/Greeter.json

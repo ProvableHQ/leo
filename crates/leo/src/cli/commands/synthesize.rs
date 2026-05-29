@@ -134,10 +134,6 @@ fn handle_synthesize<A: Aleo>(
     // Get all the dependencies in the package if it exists.
     // Get the programs and optional manifests for all programs.
     let programs = if let Some(package) = &package {
-        // Get the package directories.
-        let build_directory = package.build_directory();
-        let imports_directory = package.imports_directory();
-        let source_directory = package.source_directory();
         // Get the program names and their bytecode.
         package
             .compilation_units
@@ -149,13 +145,9 @@ fn handle_synthesize<A: Aleo>(
                     .map_err(|e| crate::errors::custom(format!("Failed to parse program ID: {e}")))?;
                 match &unit.data {
                     ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
-                    ProgramData::SourcePath { source, .. } => {
+                    ProgramData::SourcePath { .. } => {
                         // Get the path to the built bytecode.
-                        let bytecode_path = if source.as_path() == source_directory.join("main.leo") {
-                            build_directory.join("main.aleo")
-                        } else {
-                            imports_directory.join(format!("{}", unit.name))
-                        };
+                        let bytecode_path = package.unit_bytecode_path(&unit.name.to_string());
                         // Fetch the bytecode.
                         let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
                             crate::errors::custom(format!(

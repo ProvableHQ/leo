@@ -23,20 +23,24 @@ When you run `leo build`, the compiler generates ABI files alongside the compile
 
 ```text
 build/
-├── main.aleo                          # Compiled Aleo bytecode
-├── abi.json                           # ABI for your program
-├── imports/
-│   ├── foo.aleo                       # Imported program bytecode
-│   └── foo.abi.json                   # ABI for imported program
-└── interfaces/
-    ├── MyInterface.json               # Per-interface ABI (locally defined)
-    └── parent_program/
-        └── ParentInterface.json       # Per-interface ABI (transitive parent)
+├── my_program/                        # your program's own build directory
+│   ├── my_program.aleo                # compiled Aleo bytecode
+│   ├── abi.json                       # ABI for your program
+│   └── interfaces/
+│       ├── MyInterface.json           # Per-interface ABI (locally defined)
+│       └── parent_program/
+│           └── ParentInterface.json   # Per-interface ABI (transitive parent)
+└── foo/                               # an imported dependency
+    ├── foo.aleo                       # imported program bytecode
+    └── abi.json                       # ABI for the imported program
 ```
 
-- **`build/abi.json`** - ABI for your main program.
-- **`build/imports/{program}.abi.json`** - ABIs for each imported dependency.
-- **`build/interfaces/`** - per-interface ABI JSON files, one per interface declared locally (top-level or in a module) and one per transitive parent interface implemented through `scope.parents`. External parent interfaces are nested under their owning program's directory. The `interfaces/` directory is cleared and regenerated on every build, so renamed or deleted interfaces never leave stale files behind.
+Every program - your own and each dependency - gets its own `build/{program}/`
+directory with the same shape.
+
+- **`build/{program}/{program}.aleo`** - compiled bytecode for each program.
+- **`build/{program}/abi.json`** - ABI for each program.
+- **`build/{program}/interfaces/`** - per-interface ABI JSON files, one per interface declared locally (top-level or in a module) and one per transitive parent interface implemented through `scope.parents`. External parent interfaces are nested under their owning program's directory. The `interfaces/` directory is cleared and regenerated on every build, so renamed or deleted interfaces never leave stale files behind.
 
 ABI generation is automatic on every build - no flags required.
 
@@ -428,9 +432,9 @@ Here's a complete example showing a Leo program and its generated ABI.
 ```leo file=../code_snippets/abi/token/src/main.leo showLineNumbers
 ```
 
-**Generated ABI (`build/abi.json`):**
+**Generated ABI (`build/token/abi.json`):**
 
-```json file=../code_snippets/abi/token/build/abi.json title="abi.json"
+```json file=../code_snippets/abi/token/build/token/abi.json title="abi.json"
 ```
 
 **Key observations:**

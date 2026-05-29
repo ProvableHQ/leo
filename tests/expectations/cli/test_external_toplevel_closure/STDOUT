@@ -9,4 +9,4 @@
        Leo     Program size: 0.13 KB / 500.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
        Leo     Import 'child.aleo': checksum = '[13u8, 159u8, 189u8, 165u8, 153u8, 228u8, 68u8, 149u8, 32u8, 212u8, 198u8, 89u8, 84u8, 99u8, 168u8, 177u8, 75u8, 40u8, 177u8, 103u8, 64u8, 157u8, 149u8, 3u8, 244u8, 170u8, 16u8, 188u8, 1u8, 23u8, 203u8, 193u8]'
-       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated ABI for program 'parent.aleo'.

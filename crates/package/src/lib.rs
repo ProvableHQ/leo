@@ -21,16 +21,20 @@
 //! .
 //! ├── program.json
 //! ├── build
-//! │   ├── imports
-//! │   │   └── credits.aleo
-//! │   └── main.aleo
-//! ├── outputs
-//! │   ├── program.TypeChecking.ast
-//! │   └── program.TypeChecking.json
+//! │   ├── my_program
+//! │   │   ├── my_program.aleo
+//! │   │   └── abi.json
+//! │   └── credits
+//! │       └── credits.aleo
 //! ├── src
 //! │   └── main.leo
 //! └── tests
 //!     └── test_something.leo
+//!
+//! Inside `build`, every compilation unit - the package's own program or
+//! library, its local dependencies, and fetched network imports - gets its own
+//! `build/<name>/` directory with the same shape. When compiler-debug AST
+//! snapshots are requested they appear under `build/<name>/snapshots/`.
 //!
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
@@ -50,7 +54,7 @@
 //! ```no_run
 //! # use leo_ast::NetworkName;
 //! use leo_package::Package;
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030")).unwrap();
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030"), 3).unwrap();
 //! ```
 //! This will read the manifest and keep their data in `package.manifest`.
 //! It will also process dependencies and store them in topological order in `package.compilation_units`. This processing
@@ -99,15 +103,16 @@ pub const MAIN_FILENAME: &str = "main.leo";
 
 pub const LIB_FILENAME: &str = "lib.leo";
 
-pub const IMPORTS_DIRECTORY: &str = "build/imports";
-
-pub const OUTPUTS_DIRECTORY: &str = "outputs";
-
 pub const BUILD_DIRECTORY: &str = "build";
 
 pub const ABI_FILENAME: &str = "abi.json";
 
-pub const INTERFACES_DIRECTORY: &str = "build/interfaces";
+/// Name of the per-unit subdirectory holding interface ABI JSON files.
+pub const INTERFACES_DIRNAME: &str = "interfaces";
+
+/// Name of the per-unit subdirectory holding compiler-debug AST snapshots.
+/// Created lazily on first write; absent on builds that don't request snapshots.
+pub const SNAPSHOTS_DIRNAME: &str = "snapshots";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
@@ -118,6 +123,15 @@ pub const MAX_PROGRAM_SIZE: usize =
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.
 pub type Edition = u16;
+
+/// Strips a trailing `.aleo` (the Aleo program-ID suffix) from a compilation
+/// unit name, yielding the bare name.
+///
+/// `CompilationUnit` names are bare for local packages but `.aleo`-suffixed for
+/// network programs; build paths key on the bare name so the two are unified.
+pub fn bare_unit_name(name: &str) -> &str {
+    name.strip_suffix(".aleo").unwrap_or(name)
+}
 
 /// Converts a valid program or library name into a `Symbol`.
 ///

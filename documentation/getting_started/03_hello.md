@@ -100,7 +100,7 @@ To compile the program, run:
 leo build
 ```
 
-On invoking the build command, Leo automatically creates a `build/⁠` and `output/`⁠ folder in the project directory. The compiled code is contained in the `build` directory. The `output` directory is used to store intermediate artifacts from compilation.
+On invoking the build command, Leo automatically creates a `build/⁠` folder in the project directory. Inside it, every program - your own program and each dependency - gets its own `build/{program}/` directory containing its compiled `.aleo` bytecode and ABI.
 
 The `leo run` command will both compile and run the specified program.
 In your terminal, run:
@@ -134,14 +134,13 @@ We have dedicated guides for both [Deploying](./../guides/04_deploying.md) and [
 
 ## Clean
 
-Finally, you can remove all build files and outputs with:
+Finally, you can remove all build artifacts with:
 
 ```bash
 leo clean
 ```
 
 ```bash title="console output:"
-Leo 🧹 Cleaned the outputs directory ./hello/outputs
 Leo 🧹 Cleaned the build directory ./hello/build
 ```
 

@@ -59,16 +59,51 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn outputs_directory(&self) -> PathBuf {
-        self.base_directory.join(OUTPUTS_DIRECTORY)
-    }
-
-    pub fn imports_directory(&self) -> PathBuf {
-        self.base_directory.join(IMPORTS_DIRECTORY)
-    }
-
+    /// The root of the build directory.
+    ///
+    /// This is the single place that knows where build artifacts are rooted;
+    /// every per-unit path below is composed from it.
     pub fn build_directory(&self) -> PathBuf {
         self.base_directory.join(BUILD_DIRECTORY)
+    }
+
+    /// The package's own compilation unit, identified via the manifest.
+    /// Robust under `--build-tests` (unlike `compilation_units.last()`).
+    pub fn primary_unit(&self) -> Option<&CompilationUnit> {
+        let primary = bare_unit_name(&self.manifest.program);
+        self.compilation_units.iter().find(|u| !u.kind.is_test() && bare_unit_name(&u.name.to_string()) == primary)
+    }
+
+    /// The `build/<name>/` directory for a single compilation unit - a program,
+    /// library, or test - whether it is this package's own unit, a local
+    /// dependency, or a fetched network import.
+    pub fn unit_build_directory(&self, name: &str) -> PathBuf {
+        self.build_directory().join(bare_unit_name(name))
+    }
+
+    /// Path to a unit's compiled Aleo bytecode: `build/<name>/<name>.aleo`.
+    /// Only programs and tests produce bytecode; libraries do not.
+    pub fn unit_bytecode_path(&self, name: &str) -> PathBuf {
+        let bare = bare_unit_name(name);
+        self.unit_build_directory(name).join(format!("{bare}.aleo"))
+    }
+
+    /// Path to a unit's Leo ABI: `build/<name>/abi.json`.
+    pub fn unit_abi_path(&self, name: &str) -> PathBuf {
+        self.unit_build_directory(name).join(ABI_FILENAME)
+    }
+
+    /// Path to a unit's interface ABI directory: `build/<name>/interfaces/`.
+    /// Both programs and libraries can declare interfaces.
+    pub fn unit_interfaces_directory(&self, name: &str) -> PathBuf {
+        self.unit_build_directory(name).join(INTERFACES_DIRNAME)
+    }
+
+    /// Path to a unit's AST-snapshot directory: `build/<name>/snapshots/`.
+    /// Populated only when a snapshot CLI flag is set; created lazily by the
+    /// compiler on the first write, so absent on builds that don't request snapshots.
+    pub fn unit_snapshots_directory(&self, name: &str) -> PathBuf {
+        self.unit_build_directory(name).join(SNAPSHOTS_DIRNAME)
     }
 
     pub fn source_directory(&self) -> PathBuf {
@@ -121,7 +156,7 @@ impl Package {
             .map_err(|e| crate::errors::failed_to_initialize_package(&package_name, &full_path, e))?;
 
         // Create .gitignore
-        const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n";
+        const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\nbuild/\n";
         const GITIGNORE_FILENAME: &str = ".gitignore";
 
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);
@@ -268,14 +303,6 @@ impl Package {
         // This allocation isn't ideal but it's not performance critical and
         // easily resolves lifetime issues.
         let data: Vec<PathBuf> = Self::files_with_extension(&path, "leo").collect();
-        data.into_iter()
-    }
-
-    pub fn import_files(&self) -> impl Iterator<Item = PathBuf> {
-        let path = self.imports_directory();
-        // This allocation isn't ideal but it's not performance critical and
-        // easily resolves lifetime issues.
-        let data: Vec<PathBuf> = Self::files_with_extension(&path, "aleo").collect();
         data.into_iter()
     }
 
@@ -603,4 +630,64 @@ fn collect_declared_deps_recursive(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn dummy_package(base: &str) -> Package {
+        Package {
+            base_directory: PathBuf::from(base),
+            compilation_units: Vec::new(),
+            manifest: Manifest {
+                program: "demo.aleo".to_string(),
+                version: "0.1.0".to_string(),
+                description: String::new(),
+                license: "MIT".to_string(),
+                leo: "0.0.0".to_string(),
+                dependencies: None,
+                dev_dependencies: None,
+            },
+            dep_graph: DiGraph::default(),
+        }
+    }
+
+    #[test]
+    fn bare_unit_name_strips_aleo_suffix() {
+        assert_eq!(crate::bare_unit_name("token.aleo"), "token");
+        assert_eq!(crate::bare_unit_name("token"), "token");
+        assert_eq!(crate::bare_unit_name("credits.aleo"), "credits");
+    }
+
+    #[test]
+    fn unit_paths_are_keyed_by_bare_name() {
+        let pkg = dummy_package("/tmp/demo");
+        // The directory key is the bare compilation unit name, accepting input
+        // with or without the `.aleo` suffix.
+        assert_eq!(pkg.unit_build_directory("token.aleo"), PathBuf::from("/tmp/demo/build/token"));
+        assert_eq!(pkg.unit_build_directory("token"), PathBuf::from("/tmp/demo/build/token"));
+        assert_eq!(pkg.unit_bytecode_path("token.aleo"), PathBuf::from("/tmp/demo/build/token/token.aleo"));
+        assert_eq!(pkg.unit_abi_path("token"), PathBuf::from("/tmp/demo/build/token/abi.json"));
+        assert_eq!(pkg.unit_interfaces_directory("token"), PathBuf::from("/tmp/demo/build/token/interfaces"));
+        assert_eq!(pkg.unit_snapshots_directory("token"), PathBuf::from("/tmp/demo/build/token/snapshots"));
+    }
+
+    #[test]
+    fn libraries_are_keyed_like_programs() {
+        // A library is keyed by its name exactly like a program: a library
+        // `my_lib` declaring interfaces gets `build/my_lib/interfaces/`.
+        let pkg = dummy_package("/tmp/demo");
+        assert_eq!(pkg.unit_build_directory("my_lib"), PathBuf::from("/tmp/demo/build/my_lib"));
+        assert_eq!(pkg.unit_interfaces_directory("my_lib"), PathBuf::from("/tmp/demo/build/my_lib/interfaces"));
+    }
+
+    #[test]
+    fn build_directory_is_the_single_root() {
+        let pkg = dummy_package("/tmp/demo");
+        assert_eq!(pkg.build_directory(), PathBuf::from("/tmp/demo/build"));
+        // Every per-unit path is rooted at `build_directory()`, the single layout seam.
+        assert!(pkg.unit_bytecode_path("x").starts_with(pkg.build_directory()));
+        assert!(pkg.unit_interfaces_directory("credits.aleo").starts_with(pkg.build_directory()));
+    }
 }

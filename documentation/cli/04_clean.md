@@ -15,7 +15,6 @@ leo clean
 ```
 
 ```bash title="console output:"
-  Leo 🧹 Cleaned the outputs directory (in "...")
   Leo 🧹 Cleaned the build directory (in "...")
 ```
 

@@ -208,9 +208,6 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
     let network = command.env_override.network.unwrap_or(NetworkName::TestnetV0);
     let test_functions = discover_test_functions(&package, &command.test_name, network)?;
 
-    let program_name_symbol = Symbol::intern(&package.manifest.program);
-    let build_directory = package.build_directory();
-
     let credits = Symbol::intern("credits.aleo");
 
     // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
@@ -229,12 +226,8 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
             let bytecode = match &unit.data {
                 ProgramData::Bytecode(c) => c.clone(),
                 ProgramData::SourcePath { .. } => {
-                    // This was not a network dependency, so get its bytecode from the filesystem.
-                    let aleo_path = if unit.name == program_name_symbol {
-                        build_directory.join("main.aleo")
-                    } else {
-                        package.imports_directory().join(format!("{}", unit.name))
-                    };
+                    // This was not a network dependency, so get its bytecode from its build directory.
+                    let aleo_path = package.unit_bytecode_path(&unit.name.to_string());
                     fs::read_to_string(&aleo_path)
                         .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
                 }

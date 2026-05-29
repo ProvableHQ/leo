@@ -13,4 +13,4 @@ ${LEO_BIN} --disable-update-check build
 
 echo "--- bytecode (should NOT contain 'import my_lib') ---" | tee /dev/stderr
 
-cat build/main.aleo
+cat build/my_program/my_program.aleo

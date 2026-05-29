@@ -675,22 +675,18 @@ impl Compiler {
         }
     }
 
-    /// Writes the AST to a JSON file.
-    fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
+    /// Writes the AST to a JSON file under the unit's snapshots directory.
+    fn write_ast_to_json(&self, filename: &str) -> Result<()> {
         match &self.state.ast {
             Ast::Program(program) => {
+                // Snapshots are opt-in; create the directory lazily on first write.
+                fs::create_dir_all(&self.output_directory)
+                    .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
                 // Remove `Span`s if they are not enabled.
                 if self.compiler_options.ast_spans_enabled {
-                    program.to_json_file(
-                        self.output_directory.clone(),
-                        &format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap()),
-                    )?;
+                    program.to_json_file(self.output_directory.clone(), filename)?;
                 } else {
-                    program.to_json_file_without_keys(
-                        self.output_directory.clone(),
-                        &format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap()),
-                        &["_span", "span"],
-                    )?;
+                    program.to_json_file_without_keys(self.output_directory.clone(), filename, &["_span", "span"])?;
                 }
             }
             Ast::Library(_) => {
@@ -700,10 +696,12 @@ impl Compiler {
         Ok(())
     }
 
-    /// Writes the AST to a file (Leo syntax, not JSON).
-    fn write_ast(&self, file_suffix: &str) -> Result<()> {
-        let filename = format!("{}.{file_suffix}", self.unit_name.as_ref().unwrap());
-        let full_filename = self.output_directory.join(&filename);
+    /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
+    fn write_ast(&self, filename: &str) -> Result<()> {
+        // Snapshots are opt-in; create the directory lazily on first write.
+        fs::create_dir_all(&self.output_directory)
+            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
+        let full_filename = self.output_directory.join(filename);
 
         let contents = match &self.state.ast {
             Ast::Program(program) => program.to_string(),

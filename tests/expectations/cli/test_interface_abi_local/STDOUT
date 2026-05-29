@@ -8,8 +8,8 @@
        Leo     The program checksum is: '[19u8, 92u8, 200u8, 0u8, 59u8, 132u8, 136u8, 114u8, 118u8, 24u8, 197u8, 212u8, 163u8, 107u8, 30u8, 114u8, 154u8, 45u8, 217u8, 136u8, 90u8, 134u8, 43u8, 162u8, 243u8, 207u8, 241u8, 28u8, 81u8, 119u8, 140u8, 57u8]'.
        Leo     Program size: 0.29 KB / 500.00 KB
        Leo ✅ Compiled 'foo.aleo' into Aleo instructions.
-       Leo ✅ Generated ABI at 'build/abi.json'.
-       Leo ✅ Generated 2 interface ABI(s) at 'build/interfaces/'.
+       Leo ✅ Generated ABI for program 'foo.aleo'.
+       Leo ✅ Generated 2 interface ABI(s).
 build exit code: 0
 --- program ABI ---
 {

@@ -163,16 +163,8 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
             let bytecode = match &program.data {
                 ProgramData::Bytecode(s) => s.clone(),
                 ProgramData::SourcePath { .. } => {
-                    // We need to read the bytecode from the filesystem.
-                    let aleo_name = format!("{}", program.name);
-                    let aleo_path = if package.manifest.program == aleo_name {
-                        // The main program in the package, so its .aleo file
-                        // will be in the build directory.
-                        package.build_directory().join("main.aleo")
-                    } else {
-                        // Some other dependency, so look in `imports`.
-                        package.imports_directory().join(aleo_name)
-                    };
+                    // We need to read the bytecode from its own build directory.
+                    let aleo_path = package.unit_bytecode_path(&program.name.to_string());
                     fs::read_to_string(aleo_path.clone()).map_err(|e| {
                         crate::errors::custom(format!("Failed to read file {}: {e}", aleo_path.display()))
                     })?

@@ -16,17 +16,17 @@ To compile your program into Aleo instructions and verify that it builds properl
 leo build
 ```
 
-On invoking the build command, Leo automatically creates a `build/⁠` and `output/`⁠ folder in the project directory. The compiled `.aleo` file is contained in the `build` directory. The `output` directory is used to store intermediate artifacts from compilation.
+On invoking the build command, Leo automatically creates a `build/`⁠ folder in the project directory. Inside it, every program - your own program and each dependency - gets its own `build/{program}/` directory containing its compiled `.aleo` bytecode and ABI.
 
 ```bash title="console output:"
   Leo     2 statements before dead code elimination.
   Leo     2 statements after dead code elimination.
   Leo     The program checksum is: '[...]'.
   Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
-  Leo ✅ Generated ABI at 'build/abi.json'.
+  Leo ✅ Generated ABI for program '{PROGRAM_NAME}.aleo'.
 ```
 
-The build also generates an **ABI file** at `build/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/11_abi.md) for details on the format and type lowering specification.
+The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/11_abi.md) for details on the format and type lowering specification.
 
 ## Flags
 

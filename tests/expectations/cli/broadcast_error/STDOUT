@@ -5,7 +5,7 @@
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
        Leo     Program size: 0.26 KB / 500.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
-       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -82,7 +82,7 @@ Transaction accepted.
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
        Leo     Program size: 0.26 KB / 500.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
-       Leo ✅ Generated ABI at 'build/abi.json'.
+       Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.

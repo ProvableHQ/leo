@@ -64,10 +64,13 @@ fn clean_package(context: Context) -> Result<()> {
         .into());
     }
 
-    // Removes the outputs/ directory.
-    let outputs_path = path.join(leo_package::OUTPUTS_DIRECTORY);
-    if std::fs::remove_dir_all(&outputs_path).is_ok() {
-        tracing::info!("🧹 Cleaned the outputs directory {}", outputs_path.display().to_string().dimmed());
+    // Best-effort legacy cleanup: pre-flat-layout builds created a top-level
+    // `outputs/` directory for AST snapshots. Snapshots now live under
+    // `build/<unit>/snapshots/`, so this entry only fires when wiping an
+    // upgraded checkout that still has the stale directory on disk.
+    let legacy_outputs = path.join("outputs");
+    if std::fs::remove_dir_all(&legacy_outputs).is_ok() {
+        tracing::info!("🧹 Cleaned the legacy outputs directory {}", legacy_outputs.display().to_string().dimmed());
     }
 
     // Removes the build/ directory.
