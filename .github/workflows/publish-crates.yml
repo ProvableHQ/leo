@@ -4,7 +4,6 @@ on:
   push:
     branches: [master]
     paths:
-      - Cargo.lock
       - Cargo.toml
       - crates/**/Cargo.toml
       - release-plz.toml
