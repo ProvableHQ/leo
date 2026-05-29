@@ -140,7 +140,7 @@ impl Pass for FunctionInlining {
             reconstructed_functions: IndexMap::new(),
             program: Symbol::intern(""),
             function_map: IndexMap::new(),
-            is_onchain: false,
+            is_finalize_context: false,
             always_inline: analyzer.functions_to_inline,
         };
 

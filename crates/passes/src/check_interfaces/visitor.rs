@@ -591,11 +591,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
         proto: &FunctionPrototype,
         prototype_record_locations: &IndexSet<Location>,
     ) -> bool {
-        // Variant must match exactly. Prototypes are only constructed with `EntryPoint`
-        // or `View`, and the implementing function must use the same variant.
-        if proto.variant != func.variant {
-            return false;
-        }
+        // Variant must match exactly.
+        proto.variant == func.variant &&
 
         // Input parameters must match exactly.
         func.input.len() == proto.input.len() &&

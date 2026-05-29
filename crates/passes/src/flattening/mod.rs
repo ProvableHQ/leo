@@ -80,7 +80,7 @@ impl Pass for Flattening {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             program: Symbol::intern(""),
-            is_onchain: false,
+            is_finalize_context: false,
         };
 
         let ast = ast.map(

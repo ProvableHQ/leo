@@ -37,7 +37,7 @@ pub struct TransformVisitor<'a> {
     /// A map to provide faster lookup of functions.
     pub function_map: IndexMap<Location, Function>,
     /// Whether or not we are currently traversing a block that's executed onchain (either final block or final fn block).
-    pub is_onchain: bool,
+    pub is_finalize_context: bool,
 }
 
 impl<'a> TransformVisitor<'a> {
@@ -132,12 +132,12 @@ impl UnitReconstructor for TransformVisitor<'_> {
             output: input.output,
             output_type: input.output_type,
             block: {
-                // Set the `is_onchain` flag before reconstructing the block.
-                self.is_onchain = input.variant.is_finalize_context();
+                // Set the `is_finalize_context` flag before reconstructing the block.
+                self.is_finalize_context = input.variant.is_finalize_context();
                 // Reconstruct the block.
                 let block = self.reconstruct_block(input.block).0;
-                // Reset the `is_onchain` flag.
-                self.is_onchain = false;
+                // Reset the `is_finalize_context` flag.
+                self.is_finalize_context = false;
                 block
             },
             span: input.span,
@@ -149,12 +149,12 @@ impl UnitReconstructor for TransformVisitor<'_> {
         Constructor {
             annotations: input.annotations,
             block: {
-                // Set the `is_onchain` flag before reconstructing the block.
-                self.is_onchain = true;
+                // Set the `is_finalize_context` flag before reconstructing the block.
+                self.is_finalize_context = true;
                 // Reconstruct the block.
                 let block = self.reconstruct_block(input.block).0;
-                // Reset the `is_onchain` flag.
-                self.is_onchain = false;
+                // Reset the `is_finalize_context` flag.
+                self.is_finalize_context = false;
                 block
             },
             span: input.span,
@@ -249,7 +249,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                 Variant::FinalFn => mandatory_cond(true, "this is a final fn"),
                 Variant::Fn => {
                     mandatory_cond(
-                    self.is_onchain,
+                    self.is_finalize_context,
                     "the function is called from an on-chain context (constructor or finalize)",
                 ) ||
                 mandatory_cond(callee.input.len() > 16, "this function has more than 16 arguments") ||
@@ -348,7 +348,7 @@ impl AstReconstructor for TransformVisitor<'_> {
 
     /// Flattening removes conditional statements from the program.
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        if !self.is_onchain {
+        if !self.is_finalize_context {
             panic!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (

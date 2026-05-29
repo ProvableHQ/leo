@@ -1558,9 +1558,7 @@ impl TypeCheckingVisitor<'_> {
                 Type::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
-                // Check that the operation is invoked in a `finalize` block. Rejected in view fns:
-                // snarkVM fills `block_timestamp` with `None` for view evaluations because there
-                // is no transaction-time semantic for an off-consensus read.
+                // Check that the operation is invoked in a `finalize` block. Rejected in view fns.
                 self.check_access_allowed("block.timestamp", AccessScope::FinalizeWrite, function_span);
                 Type::Integer(IntegerType::I64)
             }
@@ -2235,8 +2233,7 @@ impl TypeCheckingVisitor<'_> {
             self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
         }
 
-        // Ensure there aren't too many inputs (entry points, finalize blocks, and view fns are
-        // externally-callable and bound by snarkVM's MAX_INPUTS).
+        // Ensure there aren't too many inputs
         if (function.variant.is_entry() || function.variant.is_finalize() || function.variant.is_view())
             && function.input.len() > self.limits.max_inputs
         {

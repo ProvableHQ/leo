@@ -310,7 +310,7 @@ impl TypeCheckingVisitor<'_> {
             VariableType::Mut | VariableType::Input(_) => {}
         }
 
-        // Ensure assignment is allowed in async function conditional scopes
+        // Ensure assignment is allowed in finalize context conditional scopes
         if self.scope_state.variant.unwrap().is_finalize_context()
             && !self.symbol_in_conditional_scope(input.identifier().name)
         {

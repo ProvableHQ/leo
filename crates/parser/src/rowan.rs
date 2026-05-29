@@ -2749,10 +2749,6 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), FN_PROTOTYPE_DEF);
         let span = self.to_span(node);
 
-        // Prototypes only describe externally callable functions: `view fn` (read-only)
-        // or a transition entry point (plain `fn`). Both correspond to the implementation
-        // variants the type checker accepts; in particular, a plain `fn` prototype is
-        // implemented by a `Variant::EntryPoint`, not a helper `Variant::Fn`.
         let is_view = tokens(node).any(|t| t.kind() == KW_VIEW);
         let variant = if is_view { leo_ast::Variant::View } else { leo_ast::Variant::EntryPoint };
         let identifier = self.require_ident(node, "function name");
