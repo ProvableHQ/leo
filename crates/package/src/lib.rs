@@ -27,9 +27,6 @@
 //! │   │   └── program.json
 //! │   └── credits
 //! │       └── credits.aleo
-//! ├── outputs
-//! │   ├── program.TypeChecking.ast
-//! │   └── program.TypeChecking.json
 //! ├── src
 //! │   └── main.leo
 //! └── tests
@@ -37,7 +34,8 @@
 //!
 //! Inside `build`, every compilation unit - the package's own program or
 //! library, its local dependencies, and fetched network imports - gets its own
-//! `build/<name>/` directory with the same shape.
+//! `build/<name>/` directory with the same shape. When compiler-debug AST
+//! snapshots are requested they appear under `build/<name>/snapshots/`.
 //!
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
@@ -106,14 +104,16 @@ pub const MAIN_FILENAME: &str = "main.leo";
 
 pub const LIB_FILENAME: &str = "lib.leo";
 
-pub const OUTPUTS_DIRECTORY: &str = "outputs";
-
 pub const BUILD_DIRECTORY: &str = "build";
 
 pub const ABI_FILENAME: &str = "abi.json";
 
-/// Name of the per-program subdirectory holding interface ABI JSON files.
+/// Name of the per-unit subdirectory holding interface ABI JSON files.
 pub const INTERFACES_DIRNAME: &str = "interfaces";
+
+/// Name of the per-unit subdirectory holding compiler-debug AST snapshots.
+/// Created lazily on first write; absent on builds that don't request snapshots.
+pub const SNAPSHOTS_DIRNAME: &str = "snapshots";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 

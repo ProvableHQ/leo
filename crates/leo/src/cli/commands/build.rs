@@ -162,7 +162,6 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
         );
     }
 
-    let outputs_directory = package.outputs_directory();
     let build_directory = package.build_directory();
     let source_directory = package.source_directory();
     let main_source_path = source_directory.join("main.leo");
@@ -172,11 +171,12 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     let primary_name = package.compilation_units.last().map(|p| p.name);
     let is_library = package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false);
     if !is_library {
-        for dir in [&outputs_directory, &build_directory] {
-            std::fs::create_dir_all(dir).map_err(|err| {
-                crate::errors::util_file_io_error(format_args!("Couldn't create directory {}", dir.display()), err)
-            })?;
-        }
+        std::fs::create_dir_all(&build_directory).map_err(|err| {
+            crate::errors::util_file_io_error(
+                format_args!("Couldn't create directory {}", build_directory.display()),
+                err,
+            )
+        })?;
         // Clear artifacts from the pre-flat-layout build directory so they don't
         // linger beside the new per-program directories after an upgrade.
         remove_legacy_build_artifacts(&build_directory);
@@ -270,13 +270,15 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                 let is_main = source == &main_source_path;
                 if is_main || unit.kind.is_test() {
-                    // Compile the program (main or test).
+                    // Compile the program (main or test). AST snapshots, if enabled, land
+                    // under this unit's own `build/<name>/snapshots/` directory.
+                    let snapshots_directory = package.unit_snapshots_directory(&unit_name);
                     let compiled = compile_leo_source_directory(
                         source, // entry file
                         &source_dir,
                         unit.name,
                         unit.kind.is_test(),
-                        &outputs_directory,
+                        &snapshots_directory,
                         &handler,
                         &node_builder,
                         command.options.clone(),
