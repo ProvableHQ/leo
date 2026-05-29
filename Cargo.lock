@@ -2529,6 +2529,7 @@ dependencies = [
 name = "leo-package"
 version = "4.1.0"
 dependencies = [
+ "getrandom 0.4.2",
  "glob",
  "indexmap",
  "leo-ast",

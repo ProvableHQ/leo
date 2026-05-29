@@ -25,18 +25,6 @@ use snarkvm::prelude::anyhow;
 use std::path::{Path, PathBuf};
 
 /// Either the bytecode of an Aleo program (if it was a network dependency) or
-/// a path to its source (if it was local).
-#[derive(Clone, Debug)]
-pub enum ProgramData {
-    Bytecode(String),
-    /// For a local dependency, `directory` is the directory of the package
-    /// For a test dependency, `directory` is the directory of the test file.
-    SourcePath {
-        directory: PathBuf,
-        source: PathBuf,
-    },
-}
-
 /// A Leo package.
 #[derive(Clone, Debug)]
 pub struct Package {

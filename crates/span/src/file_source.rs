@@ -48,6 +48,29 @@ pub trait FileSource {
 
     /// List all `.leo` files under `dir`, excluding `exclude`.
     fn list_leo_files(&self, dir: &Path, exclude: &Path) -> io::Result<Vec<PathBuf>>;
+
+    /// Whether `path` resolves to a regular file in this source.
+    ///
+    /// Default implementation probes with [`Self::read_file`] and treats a
+    /// successful read as a file. Concrete sources should override when they
+    /// can answer more cheaply.
+    fn is_file(&self, path: &Path) -> bool {
+        self.read_file(path).is_ok()
+    }
+
+    /// Whether `path` resolves to a directory in this source.
+    ///
+    /// Default implementation: a path is a directory if `list_leo_files` on
+    /// it returns at least one entry. Real-disk and in-memory sources should
+    /// override with cheaper checks.
+    fn is_dir(&self, path: &Path) -> bool {
+        self.list_leo_files(path, Path::new("")).map(|files| !files.is_empty()).unwrap_or(false)
+    }
+
+    /// Whether `path` exists (as a file or directory) in this source.
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
+    }
 }
 
 /// Reads source files from the real filesystem.
@@ -63,6 +86,18 @@ impl FileSource for DiskFileSource {
         walk_dir_recursive(dir, exclude, &mut files)?;
         files.sort();
         Ok(files)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        path.is_file()
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        path.is_dir()
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        path.exists()
     }
 }
 
@@ -115,6 +150,19 @@ impl FileSource for InMemoryFileSource {
 
         files.sort();
         Ok(files)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        self.files.contains_key(path)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        // A virtual "directory" exists when at least one stored file lies strictly below it.
+        self.files.keys().any(|p| p != path && p.starts_with(path))
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
     }
 }
 
