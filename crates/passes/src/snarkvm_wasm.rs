@@ -14,24 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The Leo parser.
+//! Minimal `snarkvm::...` facade for WASM targets.
 //!
-//! This crate provides parsing functionality for Leo source code, converting
-//! it into the Leo AST. Uses `leo-parser-rowan` for IDE-grade error recovery
-//! and lossless syntax trees.
+//! Replaces the full `snarkvm` crate (which pulls in native-only deps like
+//! `ring` via `ureq`) with the console and program-parsing surface only.
 
-#[cfg(target_arch = "wasm32")]
-extern crate self as snarkvm;
+pub use snarkvm_console as console;
 
-#[cfg(target_arch = "wasm32")]
-mod snarkvm_wasm;
-#[cfg(target_arch = "wasm32")]
-#[doc(hidden)]
-pub use snarkvm_wasm::{console, prelude, synthesizer};
+pub mod prelude {
+    pub use snarkvm_console::{network::prelude::*, program::*, types::prelude::*};
+    pub use snarkvm_synthesizer_program::{Mapping, Program};
+}
 
-mod errors;
-mod rowan;
-pub use rowan::{parse_expression, parse_library, parse_module, parse_program, parse_statement};
-
-#[cfg(test)]
-mod test;
+pub mod synthesizer {
+    pub mod program {
+        pub use snarkvm_synthesizer_program::*;
+    }
+}

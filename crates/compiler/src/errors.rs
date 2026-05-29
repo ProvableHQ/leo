@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// These helpers are only called from compiler.rs, which is excluded on wasm32.
+#![cfg_attr(target_arch = "wasm32", allow(dead_code))]
+
 use leo_errors::{Backtraced, Formatted};
 use leo_span::Span;
 

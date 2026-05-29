@@ -1,0 +1,54 @@
+[package]
+name = "leo-wasm"
+version = "4.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "WASM bindings for the Leo compiler"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [ "aleo", "leo", "wasm", "compiler", "zero-knowledge" ]
+categories = [ "compilers", "wasm", "web-programming" ]
+include = [ "Cargo.toml", "src", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+# leo dependencies — needed by the target-neutral impls (compile / format /
+# compile_project) so they can also be exercised from native unit tests.
+leo-ast      = { workspace = true }
+leo-compiler = { workspace = true }
+leo-errors   = { workspace = true }
+leo-fmt      = { workspace = true }
+leo-parser   = { workspace = true }
+leo-span     = { workspace = true }
+# third party
+indexmap   = { workspace = true }
+serde      = { workspace = true, features = [ "derive" ] }
+serde_json = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# wasm-bindgen exports + the panic-to-JS hook only matter on wasm32.
+console_error_panic_hook = "0.1"
+wasm-bindgen             = "0.2"
+# Enable the `wasm_js` backend on `getrandom 0.4`. snarkVM's `rand 0.10` chain
+# pulls `getrandom 0.4` in transitively, and on `wasm32-unknown-unknown` that
+# crate refuses to compile unless this feature is opted in.
+getrandom    = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
+rand         = { workspace = true }
+rand_chacha  = { workspace = true }
+# snarkVM execution glue — `Process::load_web` + `FinalizeMemory` only build
+# under the wasm-compatible subset crates, so the whole `evaluate` module is
+# wasm32-only.
+aleo-std                    = { workspace = true }
+snarkvm-circuit             = { workspace = true }
+snarkvm-console             = { workspace = true }
+snarkvm-ledger-block        = { workspace = true }
+snarkvm-ledger-store        = { workspace = true }
+snarkvm-synthesizer-process = { workspace = true }
+snarkvm-synthesizer-program = { workspace = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

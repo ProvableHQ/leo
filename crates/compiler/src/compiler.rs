@@ -18,11 +18,27 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::{AstSnapshots, CompilerOptions, errors};
+use crate::{AstSnapshots, CompilerOptions};
 
-use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
+use leo_ast::{Library, NetworkName, NodeBuilder, Stub};
 use leo_errors::{Handler, Result};
+use leo_passes::*;
+use leo_span::{Span, Symbol, file_source::FileSource, source_map::FileName, with_session_globals};
+
+use std::{
+    path::{Path, PathBuf},
+    rc::Rc,
+};
+
+use indexmap::IndexMap;
+
+// Native-only deps: real-disk file IO + leo-package's filesystem-driven import resolver.
+#[cfg(not(target_arch = "wasm32"))]
+use indexmap::map::Entry;
+#[cfg(not(target_arch = "wasm32"))]
+use leo_ast::{AleoProgram, FunctionStub, Identifier, ProgramId};
+#[cfg(not(target_arch = "wasm32"))]
 use leo_package::{
     CompilationUnit,
     Dependency,
@@ -33,23 +49,10 @@ use leo_package::{
     ProgramData,
     resolve_workspace_dependency,
 };
-use leo_passes::*;
-use leo_span::{
-    Span,
-    Symbol,
-    create_session_if_not_set_then,
-    file_source::{DiskFileSource, FileSource},
-    source_map::FileName,
-    with_session_globals,
-};
-
-use std::{
-    fs,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
-
-use indexmap::{IndexMap, map::Entry};
+#[cfg(not(target_arch = "wasm32"))]
+use leo_span::{create_session_if_not_set_then, file_source::DiskFileSource};
+#[cfg(not(target_arch = "wasm32"))]
+use std::fs;
 
 /// Borrowed frontend state after parsing and semantic frontend passes complete.
 pub struct FrontendAnalysis<'a> {
@@ -62,6 +65,7 @@ pub struct FrontendAnalysis<'a> {
 }
 
 /// Import stubs together with the filesystem inputs that invalidate them.
+#[cfg(not(target_arch = "wasm32"))]
 pub struct LoadedImportStubs {
     /// Import stubs available for compiler or LSP frontend analysis.
     pub stubs: IndexMap<Symbol, Stub>,
@@ -92,6 +96,7 @@ pub struct Compiled {
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
     /// The path to where the compiler outputs all generated files.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
@@ -583,6 +588,7 @@ impl Compiler {
     }
 
     /// Compiles a program from a source file and its associated module files in the same directory tree.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn compile_from_directory(
         &mut self,
         entry_file_path: impl AsRef<Path>,
@@ -609,6 +615,7 @@ impl Compiler {
     }
 
     /// Parses a program from a source file and its associated module files in the same directory tree.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn parse_program_from_directory(
         &mut self,
         entry_file_path: impl AsRef<Path>,
@@ -640,6 +647,7 @@ impl Compiler {
     }
 
     /// Parses a program from a source file and its associated module files in the same directory tree.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn parse_library_from_directory(
         &mut self,
         library_name: Symbol,
@@ -676,6 +684,7 @@ impl Compiler {
     }
 
     /// Writes the AST to a JSON file under the unit's snapshots directory.
+    #[cfg(not(target_arch = "wasm32"))]
     fn write_ast_to_json(&self, filename: &str) -> Result<()> {
         match &self.state.ast {
             Ast::Program(program) => {
@@ -696,7 +705,14 @@ impl Compiler {
         Ok(())
     }
 
+    // On wasm we never write artifacts to disk; provide a no-op so call sites can stay shared.
+    #[cfg(target_arch = "wasm32")]
+    fn write_ast_to_json(&self, _filename: &str) -> Result<()> {
+        Ok(())
+    }
+
     /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
+    #[cfg(not(target_arch = "wasm32"))]
     fn write_ast(&self, filename: &str) -> Result<()> {
         // Snapshots are opt-in; create the directory lazily on first write.
         fs::create_dir_all(&self.output_directory)
@@ -710,6 +726,12 @@ impl Compiler {
 
         fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
 
+        Ok(())
+    }
+
+    // On wasm we never write artifacts to disk; provide a no-op so call sites can stay shared.
+    #[cfg(target_arch = "wasm32")]
+    fn write_ast(&self, _filename: &str) -> Result<()> {
         Ok(())
     }
 
@@ -854,6 +876,7 @@ impl Compiler {
     }
 
     /// Builds a library from a source file and its associated module files in the same directory tree.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn build_library_from_directory(
         &mut self,
         library_name: Symbol,
@@ -885,6 +908,12 @@ impl Compiler {
     }
 }
 
+// -----------------------------------------------------------------------------
+// Native-only helpers: package/manifest-driven import stub loading.
+// These all read from the filesystem and pull in the full `snarkvm` umbrella
+// crate via `disassemble_dependency_bytecode`, so they are excluded on wasm.
+// -----------------------------------------------------------------------------
+
 /// Loads only locally resolvable dependency stubs for a package.
 ///
 /// The LSP should not fetch or install dependencies while the user is typing, so
@@ -894,6 +923,7 @@ impl Compiler {
 /// The returned `watch_paths` cover the manifests and source files that can
 /// change the stub set. Editor caches can hash or stat those paths to know when
 /// dependency-backed semantic state must be rebuilt.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) -> Result<LoadedImportStubs> {
     load_import_stubs_for_package_with_file_source(package_root, network, &DiskFileSource)
 }
@@ -904,6 +934,7 @@ pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) 
 /// exact disk bytes used for dependency source stubs. Manifest discovery still
 /// reads the real filesystem because dependencies are package-level metadata,
 /// but every parsed Leo source file flows through `file_source`.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load_import_stubs_for_package_with_file_source(
     package_root: &Path,
     network: NetworkName,
@@ -951,6 +982,7 @@ pub fn load_import_stubs_for_package_with_file_source(
 }
 
 /// Return the directory root the parser should scan for sibling Leo modules.
+#[cfg(not(target_arch = "wasm32"))]
 fn dependency_source_directory(directory: &Path, source: &Path) -> PathBuf {
     let source_root = directory.join("src");
     if source.starts_with(&source_root) { source_root } else { directory.to_path_buf() }
@@ -960,6 +992,7 @@ fn dependency_source_directory(directory: &Path, source: &Path) -> PathBuf {
 ///
 /// Network dependencies are intentionally excluded here because editor semantic
 /// analysis must stay local-only.
+#[cfg(not(target_arch = "wasm32"))]
 fn collect_local_declared_dependencies(package_root: &Path) -> Result<IndexMap<Symbol, Dependency>> {
     let manifest = Manifest::read_from_file(package_root.join(MANIFEST_FILENAME))?;
     let mut declared = IndexMap::new();
@@ -968,6 +1001,7 @@ fn collect_local_declared_dependencies(package_root: &Path) -> Result<IndexMap<S
 }
 
 /// Walk local manifests recursively and record each dependency once.
+#[cfg(not(target_arch = "wasm32"))]
 fn collect_local_declared_dependencies_recursive(
     base_path: &Path,
     manifest: &Manifest,
@@ -1007,6 +1041,7 @@ fn collect_local_declared_dependencies_recursive(
 }
 
 /// Canonicalize a local dependency path relative to the manifest that declared it.
+#[cfg(not(target_arch = "wasm32"))]
 fn normalize_local_dependency(base_path: &Path, mut dependency: Dependency) -> Result<Dependency> {
     if let Some(path) = dependency.path.as_mut()
         && !path.is_absolute()
@@ -1019,6 +1054,7 @@ fn normalize_local_dependency(base_path: &Path, mut dependency: Dependency) -> R
 }
 
 /// Return the manifest and source files whose metadata should invalidate one stubbed unit.
+#[cfg(not(target_arch = "wasm32"))]
 fn unit_watch_paths(unit: &CompilationUnit, file_source: &impl FileSource) -> Result<Vec<PathBuf>> {
     let ProgramData::SourcePath { directory, source } = &unit.data else {
         return Ok(Vec::new());
@@ -1038,9 +1074,10 @@ fn unit_watch_paths(unit: &CompilationUnit, file_source: &impl FileSource) -> Re
 }
 
 /// Collect source directories whose mtimes signal nested module creation/removal.
+#[cfg(not(target_arch = "wasm32"))]
 fn collect_source_directories(dir: &Path, watch_paths: &mut Vec<PathBuf>) -> Result<()> {
-    for entry in fs::read_dir(dir).map_err(|error| errors::file_read_error(dir.display().to_string(), error))? {
-        let entry = entry.map_err(|error| errors::file_read_error(dir.display().to_string(), error))?;
+    for entry in fs::read_dir(dir).map_err(|error| crate::errors::file_read_error(dir.display().to_string(), error))? {
+        let entry = entry.map_err(|error| crate::errors::file_read_error(dir.display().to_string(), error))?;
         let path = entry.path();
         if path.is_dir() {
             // Watching only existing `.leo` files misses the first file added to
@@ -1055,6 +1092,7 @@ fn collect_source_directories(dir: &Path, watch_paths: &mut Vec<PathBuf>) -> Res
 
 /// Parse a local dependency just far enough to recover the public interface
 /// stub consumed by downstream import resolution.
+#[cfg(not(target_arch = "wasm32"))]
 fn load_source_dependency_stub(
     unit: &CompilationUnit,
     source: &Path,
@@ -1095,6 +1133,7 @@ fn load_source_dependency_stub(
 }
 
 /// Build the public interface stub for a source dependency program.
+#[cfg(not(target_arch = "wasm32"))]
 fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> Stub {
     let scope = program.program_scopes.values().next().expect("program AST should contain one program scope");
 
@@ -1147,23 +1186,14 @@ fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> S
     .into()
 }
 
-/// Convert checked-in dependency bytecode into the same stub shape used for
-/// source dependencies so import consumers can stay agnostic to how a
+/// Convert checked-in dependency bytecode into the same `Stub::FromAleo` shape
+/// used for source dependencies so import consumers can stay agnostic to how a
 /// dependency was declared.
-fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
-    let disassembled = match network {
-        NetworkName::MainnetV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
-        }
-        NetworkName::TestnetV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
-        }
-        NetworkName::CanaryV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
-        }
-    };
-
-    disassembled
+///
+/// Public so wasm callers (with no `leo-package` access) can build import stubs
+/// from raw bytecode the same way the native build does.
+pub fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
+    leo_disassembler::disassemble_from_str_for_network(program_name, bytecode, network)
         .map(Into::into)
         .map_err(|err| crate::errors::file_read_error(format!("dependency bytecode for `{program_name}`"), err).into())
 }
