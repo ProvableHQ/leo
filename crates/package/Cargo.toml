@@ -38,3 +38,9 @@ snarkvm     = { workspace = true }
 # HTTP client for `fetch_*_from_network`. wasm targets stage bytecode in the
 # virtual FS instead of going through HTTP.
 ureq        = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# snarkVM's transitive deps pull in `getrandom 0.4` on wasm32, which refuses
+# to compile unless the `wasm_js` backend is opted in. leo-package doesn't
+# call getrandom directly; the dependency just exists to flip that feature.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }

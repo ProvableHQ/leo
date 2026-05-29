@@ -51,23 +51,23 @@ pub trait FileSource {
 
     /// Whether `path` resolves to a regular file in this source.
     ///
-    /// Default implementation: probe with `read_file` and treat a successful
-    /// read as a file. Concrete sources should override when they can answer
-    /// more cheaply.
+    /// Default implementation probes with [`Self::read_file`] and treats a
+    /// successful read as a file. Concrete sources should override when they
+    /// can answer more cheaply.
     fn is_file(&self, path: &Path) -> bool {
         self.read_file(path).is_ok()
     }
 
     /// Whether `path` resolves to a directory in this source.
     ///
-    /// Default implementation: a path is a directory if at least one file in
-    /// this source lives strictly below it (or `list_leo_files` succeeds on
-    /// it without erroring).
+    /// Default implementation: a path is a directory if `list_leo_files` on
+    /// it returns at least one entry. Real-disk and in-memory sources should
+    /// override with cheaper checks.
     fn is_dir(&self, path: &Path) -> bool {
-        self.list_leo_files(path, Path::new("")).is_ok()
+        self.list_leo_files(path, Path::new("")).map(|files| !files.is_empty()).unwrap_or(false)
     }
 
-    /// Whether `path` exists (either as a file or directory) in this source.
+    /// Whether `path` exists (as a file or directory) in this source.
     fn exists(&self, path: &Path) -> bool {
         self.is_file(path) || self.is_dir(path)
     }

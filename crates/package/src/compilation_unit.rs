@@ -17,16 +17,30 @@
 use crate::{MAX_PROGRAM_SIZE, *};
 
 use leo_errors::Result;
-use leo_span::Symbol;
+use leo_span::{Symbol, file_source::FileSource};
 
 #[cfg(not(target_arch = "wasm32"))]
 use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
 
 use indexmap::{IndexMap, IndexSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Where the bytecode or source of a compilation unit lives.
+///
+/// - `Bytecode` is an already-compiled `.aleo` program: typically a network
+///   dependency we fetched, or a local file dropped into the dep tree.
+/// - `SourcePath` is a Leo package or test source — `directory` is the
+///   package root (for `from_package_path`) or the test directory (for
+///   `from_test_path`); `source` is the entry file the parser starts at.
+#[derive(Clone, Debug)]
+pub enum ProgramData {
+    Bytecode(String),
+    SourcePath { directory: PathBuf, source: PathBuf },
+}
 
 /// Find the latest cached edition for a program in the local registry.
 /// Returns None if no cached version exists.
+#[cfg(not(target_arch = "wasm32"))]
 fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
     let program_cache = cache_directory.join(name);
     if !program_cache.exists() {
@@ -87,17 +101,26 @@ pub struct CompilationUnit {
 impl CompilationUnit {
     /// Given the location `path` of a `.aleo` file, read the filesystem
     /// to obtain a `CompilationUnit`.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        Self::from_aleo_path_impl(name, path.as_ref(), map)
+        Self::from_aleo_path_with_file_source(name, path, map, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        let bytecode = std::fs::read_to_string(path).map_err(|e| {
+    /// Read an `.aleo` file via an explicit [`FileSource`].
+    ///
+    /// Resolves paths against `file_source` instead of the real filesystem so
+    /// the same code path serves wasm callers using `InMemoryFileSource`.
+    pub fn from_aleo_path_with_file_source<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        map: &IndexMap<Symbol, Dependency>,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let path = path.as_ref();
+        let bytecode = file_source.read_file(path).map_err(|e| {
             crate::errors::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
-
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
-
         Ok(CompilationUnit {
             name,
             data: ProgramData::Bytecode(bytecode),
@@ -110,12 +133,19 @@ impl CompilationUnit {
 
     /// Given the location `path` of a local Leo package, read the filesystem
     /// to obtain a `CompilationUnit`.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
-        Self::from_package_path_impl(name, path.as_ref())
+        Self::from_package_path_with_file_source(name, path, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_package_path_impl(name: Symbol, path: &Path) -> Result<Self> {
-        let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
+    /// Read a Leo package at `path` via an explicit [`FileSource`].
+    pub fn from_package_path_with_file_source<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let path = path.as_ref();
+        let manifest = Manifest::read_from_file_source(path.join(MANIFEST_FILENAME), file_source)?;
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
             return Err(
@@ -123,17 +153,20 @@ impl CompilationUnit {
             );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
-        source_directory.read_dir().map_err(|e| {
-            crate::errors::util_file_io_error(
+        if !file_source.is_dir(&source_directory) {
+            return Err(crate::errors::util_file_io_error(
                 format_args!("Failed to read directory {}", source_directory.display()),
-                e,
+                std::io::Error::new(std::io::ErrorKind::NotFound, source_directory.display().to_string()),
             )
-        })?;
+            .into());
+        }
 
         let main_path = source_directory.join(MAIN_FILENAME);
         let lib_path = source_directory.join(LIB_FILENAME);
+        let main_present = file_source.is_file(&main_path);
+        let lib_present = file_source.is_file(&lib_path);
 
-        let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
+        let (source_path, kind) = match (main_present, lib_present) {
             (true, true) => {
                 return Err(crate::errors::ambiguous_entry_file(
                     source_directory.display(),
@@ -160,8 +193,12 @@ impl CompilationUnit {
                 .unwrap_or_default()
                 .into_iter()
                 .map(|dependency| {
-                    let dep = canonicalize_dependency_path_relative_to(path, dependency)?;
-                    if dep.location == Location::Workspace { resolve_workspace_dependency(path, dep) } else { Ok(dep) }
+                    let dep = resolve_dependency_path_relative_to(path, dependency, file_source)?;
+                    if dep.location == Location::Workspace {
+                        resolve_workspace_dependency_with_file_source(path, dep, file_source)
+                    } else {
+                        Ok(dep)
+                    }
                 })
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
@@ -175,11 +212,18 @@ impl CompilationUnit {
     /// and the name of the program is determined from the filename.
     ///
     /// `main_program` must be provided since every test is dependent on it.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_test_path<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
-        Self::from_path_test_impl(source_path.as_ref(), main_program)
+        Self::from_test_path_with_file_source(source_path, main_program, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+    /// Read a test source via an explicit [`FileSource`].
+    pub fn from_test_path_with_file_source<P: AsRef<Path>>(
+        source_path: P,
+        main_program: Dependency,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let source_path = source_path.as_ref();
         let name = filename_no_leo_extension(source_path)
             .ok_or_else(|| crate::errors::failed_path(source_path.display(), ""))?;
         let test_directory = source_path.parent().ok_or_else(|| {
@@ -194,15 +238,15 @@ impl CompilationUnit {
                 source_path.display()
             ))
         })?;
-        let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        let manifest = Manifest::read_from_file_source(package_directory.join(MANIFEST_FILENAME), file_source)?;
         let mut dependencies = manifest
             .dev_dependencies
             .unwrap_or_default()
             .into_iter()
             .map(|dependency| {
-                let dep = canonicalize_dependency_path_relative_to(package_directory, dependency)?;
+                let dep = resolve_dependency_path_relative_to(package_directory, dependency, file_source)?;
                 if dep.location == Location::Workspace {
-                    resolve_workspace_dependency(package_directory, dep)
+                    resolve_workspace_dependency_with_file_source(package_directory, dep, file_source)
                 } else {
                     Ok(dep)
                 }
@@ -225,6 +269,10 @@ impl CompilationUnit {
 
     /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
     /// If no edition is found, the latest edition is pulled from the network.
+    ///
+    /// Native-only — wasm callers can't reach the network; stage the bytecode
+    /// in the file map and pass it as a local `.aleo` dep instead.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
         edition: Option<u16>,
@@ -237,6 +285,7 @@ impl CompilationUnit {
         Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries)
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn fetch_impl(
         name: Symbol,
         edition: Option<u16>,
@@ -354,10 +403,32 @@ impl CompilationUnit {
     }
 }
 
-/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
+/// If `dependency` has a relative path, assume it's relative to `base` and resolve it.
 ///
-/// This needs to be done when collecting local dependencies from manifests which
-/// may be located at different places on the file system.
+/// On the real disk we canonicalize (resolves `..`, symlinks, etc.). When a
+/// `FileSource` is supplied that isn't backed by the real disk (e.g. wasm's
+/// virtual FS), we fall back to syntactic normalization — `..` is collapsed,
+/// `.` is dropped, and the resulting path is verified to be addressable in
+/// the source.
+pub(crate) fn resolve_dependency_path_relative_to(
+    base: &Path,
+    mut dependency: Dependency,
+    file_source: &impl FileSource,
+) -> Result<Dependency> {
+    if let Some(path) = &mut dependency.path
+        && !path.is_absolute()
+    {
+        let joined = base.join(&path);
+        *path = normalize_path_via_file_source(&joined, file_source)?;
+    }
+    Ok(dependency)
+}
+
+/// Native-only helper preserved for call sites that haven't been threaded
+/// through a `FileSource` yet. Equivalent to
+/// `resolve_dependency_path_relative_to(base, dep, &DiskFileSource)` and uses
+/// real-disk `canonicalize` so error messages match the historical output.
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
     if let Some(path) = &mut dependency.path
         && !path.is_absolute()
@@ -366,6 +437,76 @@ pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependen
         *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
+}
+
+/// Resolve a path against a [`FileSource`].
+///
+/// On `DiskFileSource` this still calls `canonicalize` (so symlinks resolve
+/// the same way `leo build` has always done). On in-memory sources it falls
+/// back to component normalization since there's no real disk to consult.
+fn normalize_path_via_file_source(path: &Path, file_source: &impl FileSource) -> Result<PathBuf> {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        // Heuristic: real-disk sources should use the original `canonicalize` for
+        // backward-compatible error messages. We detect that by trying the
+        // canonical path; if it succeeds we return it.
+        if let Ok(canonical) = path.canonicalize() {
+            let _ = file_source; // silence unused-warning when the read below isn't reached
+            return Ok(canonical);
+        }
+    }
+    let normalized = normalize_path_components(path);
+    if !file_source.exists(&normalized) {
+        return Err(crate::errors::failed_path(
+            normalized.display(),
+            std::io::Error::new(std::io::ErrorKind::NotFound, normalized.display().to_string()),
+        )
+        .into());
+    }
+    Ok(normalized)
+}
+
+/// Collapse `.` and `..` components without consulting any filesystem.
+fn normalize_path_components(p: &Path) -> PathBuf {
+    use std::path::Component;
+    let mut out = PathBuf::new();
+    for comp in p.components() {
+        match comp {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                out.pop();
+            }
+            other => out.push(other.as_os_str()),
+        }
+    }
+    out
+}
+
+/// Workspace dependency resolution via [`FileSource`] (wasm-safe wrapper
+/// around the native [`resolve_workspace_dependency`]).
+pub(crate) fn resolve_workspace_dependency_with_file_source(
+    base: &Path,
+    dep: Dependency,
+    _file_source: &impl FileSource,
+) -> Result<Dependency> {
+    // TODO: Once `Workspace::discover` has a `_with_file_source` variant, wire
+    // it through here. For now this delegates to the native resolver, which
+    // means `Location::Workspace` deps still require disk access in any wasm
+    // caller — the typical wasm setup won't use workspace deps anyway since
+    // the caller stages the file map directly.
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        resolve_workspace_dependency(base, dep)
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        let _ = base;
+        Err(crate::errors::failed_to_open_file(format_args!(
+            "workspace dependency `{}` is not supported in wasm builds yet; declare the dep with an explicit `path` instead",
+            dep.name
+        ))
+        .into())
+    }
 }
 
 /// Parse the `.aleo` file's imports and construct `Dependency`s.

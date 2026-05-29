@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// Most builders below are only called from native-only code paths
+// (`package`, `workspace`, network helpers in `lib.rs`). Silence the
+// dead-code warnings instead of cfg-gating every individual builder.
+#![cfg_attr(target_arch = "wasm32", allow(dead_code))]
+
 use leo_errors::Backtraced;
 
 use std::{
