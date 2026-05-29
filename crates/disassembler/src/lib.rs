@@ -89,6 +89,11 @@ pub fn disassemble<N: Network>(program: ProgramCore<N>) -> AleoProgram {
                     None => None,
                 })
                 .collect_vec(),
+            program
+                .views()
+                .iter()
+                .map(|(id, view)| (Identifier::from(id).name, FunctionStub::from_view(view, program_id)))
+                .collect_vec(),
         ]
         .concat(),
         span: Default::default(),
@@ -138,7 +143,7 @@ pub fn validate_and_disassemble<N: Network>(
     program: Program<N>,
     process: &mut snarkvm::prelude::Process<N>,
 ) -> Result<AleoProgram, LeoError> {
-    process.add_program(&program).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
+    process.lock().add_program(&program).map_err(|e| crate::errors::snarkvm_validation_error(&name, e))?;
     Ok(disassemble(program))
 }
 
@@ -232,6 +237,29 @@ mod tests {
             let mut process = snarkvm::prelude::Process::<CurrentNetwork>::load().unwrap();
             let result = disassemble_from_str::<CurrentNetwork>("victim", src, &mut process);
             assert!(result.is_err(), "expected disassembler to reject malformed bytecode, got Ok");
+        });
+    }
+
+    /// Guards the snarkVM uniqueness check that `disassemble` relies on to flatten closures,
+    /// functions, and views into a single `(Symbol, FunctionStub)` list without collisions.
+    #[test]
+    fn snarkvm_rejects_view_name_colliding_with_function() {
+        create_session_if_not_set_then(|_| {
+            // A program that declares both `function foo:` and `view foo:` — snarkVM must reject.
+            let src = "\
+program collide.aleo;
+function foo:
+    input r0 as u32.public;
+    output r0 as u32.public;
+view foo:
+    input r0 as u32.public;
+    output r0 as u32.public;
+";
+            let result = disassemble_from_str_unchecked::<CurrentNetwork>("collide", src);
+            assert!(
+                result.is_err(),
+                "expected snarkVM to reject a program with `function foo` and `view foo` sharing a name, got Ok"
+            );
         });
     }
 }

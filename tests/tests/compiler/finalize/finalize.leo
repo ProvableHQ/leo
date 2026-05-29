@@ -12,7 +12,7 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint(public receiver: address, public amount: u64) {
+final fn finalize_mint(receiver: address, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
     Mapping::set(account, receiver, current_amount + amount);
 }

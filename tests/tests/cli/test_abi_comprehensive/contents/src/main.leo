@@ -140,6 +140,32 @@ program abi_test.aleo {
         return final { Mapping::set(balances, user, amount); };
     }
 
+    // === Views ===
+    // V15 read-only entry points. The ABI exposes them under a separate `views` key.
+
+    // Primitive in / primitive out.
+    view fn get_balance(user: address) -> u64 {
+        return balances.get_or_use(user, 0u64);
+    }
+
+    // Struct in / struct out — exercises view I/O carrying a composite type.
+    view fn echo_point(p: Point) -> Point {
+        return p;
+    }
+
+    // No inputs, single output — exercises an empty input section. Storage reads return an
+    // optional; `unwrap_or` collapses it to the plain primitive that views must produce.
+    view fn current_counter() -> u32 {
+        return counter.unwrap_or(0u32);
+    }
+
+    // Tuple output — lowers to multiple `output` lines in the Aleo `view <name>:` block.
+    // snarkVM accepts up to `MAX_OUTPUTS` outputs per view (parsed as `many0(Output::parse)`).
+    view fn counters() -> (u32, u32) {
+        let c: u32 = counter.unwrap_or(0u32);
+        return (c, c + 1u32);
+    }
+
     @noupgrade
     constructor() {}
 }

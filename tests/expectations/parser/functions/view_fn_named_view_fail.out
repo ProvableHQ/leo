@@ -1,0 +1,5 @@
+[EPAR0370047] Error: expected function name
+   ╭─[ test:2:13 ]
+   │
+ 2 │     view fn view() -> u32 {
+───╯

@@ -30,6 +30,10 @@ struct Rectangle:
     top_left as Point;
     bottom_right as Point;
 
+struct Optional__JzunLORyB8U:
+    is_some as boolean;
+    val as u32;
+
 struct Vector3__8EklNlXs5Ds:
     x as i32;
     y as i32;
@@ -147,6 +151,33 @@ finalize update_balance:
     input r0 as address.public;
     input r1 as u64.public;
     set r1 into balances[r0];
+
+view get_balance:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    output r1 as u64.public;
+
+view echo_point:
+    input r0 as Point.public;
+    output r0 as Point.public;
+
+view current_counter:
+    contains counter__[false] into r0;
+    get.or_use counter__[false] 0u32 into r1;
+    ternary r0 r1 0u32 into r2;
+    cast r0 r2 into r3 as Optional__JzunLORyB8U;
+    ternary r3.is_some r3.val 0u32 into r4;
+    output r4 as u32.public;
+
+view counters:
+    contains counter__[false] into r0;
+    get.or_use counter__[false] 0u32 into r1;
+    ternary r0 r1 0u32 into r2;
+    cast r0 r2 into r3 as Optional__JzunLORyB8U;
+    ternary r3.is_some r3.val 0u32 into r4;
+    add r4 1u32 into r5;
+    output r4 as u32.public;
+    output r5 as u32.public;
 
 constructor:
     assert.eq edition 0u16;

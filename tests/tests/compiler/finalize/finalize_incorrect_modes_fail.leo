@@ -10,11 +10,11 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_public(public receiver: address, constant amount: u64) -> constant u64 {
+final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
     Mapping::set(account, receiver, amount);
 }
 
-final fn finalize_mint_public2(public receiver: address, amount: u64) -> u64 {
+final fn finalize_mint_public2(receiver: address, amount: u64) -> u64 {
     Mapping::set(account, receiver, amount);
     return amount + amount;
 }

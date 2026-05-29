@@ -80,10 +80,14 @@ pub fn generate(ast: &ast::Program) -> abi::Program {
     let functions =
         scope.functions.iter().filter(|(_, f)| f.variant.is_entry()).map(|(_, f)| convert_function(f, &ctx)).collect();
 
+    let views =
+        scope.functions.iter().filter(|(_, f)| f.variant.is_view()).map(|(_, f)| convert_function(f, &ctx)).collect();
+
     let implements: Vec<abi::InterfaceRef> =
         scope.parents.iter().filter_map(|(_, ty)| interface_ref_from_type(ty, &program)).collect();
 
-    let mut program = abi::Program { program, implements, structs, records, mappings, storage_variables, functions };
+    let mut program =
+        abi::Program { program, implements, structs, records, mappings, storage_variables, functions, views };
 
     // Prune types not used in the public interface.
     prune_non_interface_types(&mut program);
@@ -310,7 +314,7 @@ pub fn prune_non_interface_types(program: &mut abi::Program) {
     let program_name = &program.program;
 
     // Phase 1: Collect from interface items
-    for function in &program.functions {
+    for function in program.functions.iter().chain(program.views.iter()) {
         for input in &function.inputs {
             collect_from_function_input(&input.ty, program_name, &mut used_types);
         }

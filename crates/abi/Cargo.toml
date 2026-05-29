@@ -39,5 +39,8 @@ workspace = true
 [dependencies.indexmap]
 workspace = true
 
+[dependencies.itertools]
+workspace = true
+
 [dev-dependencies.serde_json]
 workspace = true

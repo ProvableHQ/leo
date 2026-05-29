@@ -1,0 +1,8 @@
+[EPAR0370047] Error: expected function or record prototype
+   ╭─[ compiler-test:3:17 ]
+   │
+ 3 │ ╭─▶ interface IBad {
+ 4 │ ├─▶     final fn step();
+   │ │                          
+   │ ╰────────────────────────── 
+───╯

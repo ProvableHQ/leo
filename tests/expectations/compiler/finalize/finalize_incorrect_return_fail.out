@@ -1,7 +1,7 @@
 [ETYC0372106] Error: a `final fn` is not allowed to return a value
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ final fn finalize_mint_public(public receiver: address, public amount: u64) -> u64 {
+  9 │ ╭─▶ final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
     ┆ ┆   
  12 │ ├─▶ }
     │ │       

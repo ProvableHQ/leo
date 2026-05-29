@@ -1,0 +1,28 @@
+program test.aleo;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+mapping totals:
+    key as address.public;
+    value as u64.public;
+
+view get_balance:
+    input r0 as address.public;
+    get.or_use balances[r0] 0u64 into r1;
+    output r1 as u64.public;
+
+function cache_total:
+    input r0 as address.private;
+    async cache_total r0 into r1;
+    output r1 as test.aleo/cache_total.future;
+
+finalize cache_total:
+    input r0 as address.public;
+    call get_balance r0 into r1;
+    add r1 100u64 into r2;
+    set r2 into totals[r0];
+
+constructor:
+    assert.eq edition 0u16;

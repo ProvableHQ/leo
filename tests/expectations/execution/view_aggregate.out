@@ -1,0 +1,71 @@
+program test.aleo;
+
+struct Optional__DmN5CQ9hzeK:
+    is_some as boolean;
+    val as u64;
+
+mapping balances:
+    key as address.public;
+    value as u64.public;
+
+mapping entries__:
+    key as u32.public;
+    value as u64.public;
+
+mapping entries__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function dummy:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+view sum_first_three:
+    get.or_use entries__len__[false] 0u32 into r0;
+    lt 0u32 r0 into r1;
+    get.or_use entries__[0u32] 0u64 into r2;
+    ternary r1 r2 0u64 into r3;
+    cast r1 r3 into r4 as Optional__DmN5CQ9hzeK;
+    ternary r4.is_some r4.val 0u64 into r5;
+    get.or_use entries__len__[false] 0u32 into r6;
+    lt 1u32 r6 into r7;
+    get.or_use entries__[1u32] 0u64 into r8;
+    ternary r7 r8 0u64 into r9;
+    cast r7 r9 into r10 as Optional__DmN5CQ9hzeK;
+    ternary r10.is_some r10.val 0u64 into r11;
+    add r5 r11 into r12;
+    get.or_use entries__len__[false] 0u32 into r13;
+    lt 2u32 r13 into r14;
+    get.or_use entries__[2u32] 0u64 into r15;
+    ternary r14 r15 0u64 into r16;
+    cast r14 r16 into r17 as Optional__DmN5CQ9hzeK;
+    ternary r17.is_some r17.val 0u64 into r18;
+    add r12 r18 into r19;
+    output r19 as u64.public;
+
+view weighted_balance:
+    input r0 as address.public;
+    input r1 as u32.public;
+    get.or_use balances[r0] 0u64 into r2;
+    cast r1 into r3 as u64;
+    mul r2 r3 into r4;
+    output r4 as u64.public;
+
+view capped_balance:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use balances[r0] 0u64 into r2;
+    gt r2 r1 into r3;
+    ternary r3 r1 r2 into r4;
+    output r4 as u64.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 60u64
+status: success
+output: 500u64
+status: success
+output: 50u64
+status: success
+output: 100u64

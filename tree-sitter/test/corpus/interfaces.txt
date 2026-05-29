@@ -85,3 +85,72 @@ program test.aleo: B {
         (struct_field
           (identifier)
           (primitive_type))))))
+
+================
+View fn prototypes
+================
+
+interface IReader {
+    view fn balance_of(account: address) -> u64;
+}
+
+program reader.aleo: IReader {
+    mapping balances: address => u64;
+
+    view fn balance_of(account: address) -> u64 {
+        return balances.get_or_use(account, 0u64);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+
+---
+
+(source_file
+  (interface_declaration
+    (identifier)
+    (interface_item
+      (function_prototype
+        (identifier)
+        (parameter_list
+          (parameter
+            (identifier)
+            (primitive_type)))
+        (return_type
+          (return_type_item
+            (primitive_type))))))
+  (program_declaration
+    (program_id
+      (identifier))
+    (parent_list
+      (path_type
+        (identifier)))
+    (mapping_definition
+      (identifier)
+      (primitive_type)
+      (primitive_type))
+    (view_function_definition
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (primitive_type)))
+      (return_type
+        (return_type_item
+          (primitive_type)))
+      (block
+        (return_statement
+          (method_call_expression
+            (path_expression
+              (identifier))
+            (identifier)
+            (argument_list
+              (path_expression
+                (identifier))
+              (integer_literal))))))
+    (constructor_definition
+      (annotation
+        (identifier))
+      (parameter_list)
+      (block))))

@@ -41,6 +41,7 @@ use leo_ast::{self as ast};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
+use itertools::{Either, Itertools as _};
 use std::collections::HashSet;
 
 // ------------------------------------------------------------------------- //
@@ -382,8 +383,13 @@ fn build_interface(
     let parents: Vec<abi::InterfaceRef> =
         iface.parents.iter().filter_map(|(_, ty)| interface_ref_from_type(ty, &program)).collect();
 
-    let functions: Vec<abi::Function> =
-        iface.functions.iter().map(|(_, proto)| convert_function_prototype(proto, iface, cs)).collect();
+    // Split prototypes by variant so view fns appear in their own ABI bucket,
+    // parallel to how `Program.functions` and `Program.views` are split.
+    let (functions, views): (Vec<abi::Function>, Vec<abi::Function>) =
+        iface.functions.iter().partition_map(|(_, proto)| {
+            let converted = convert_function_prototype(proto, iface, cs);
+            if proto.variant.is_view() { Either::Right(converted) } else { Either::Left(converted) }
+        });
 
     let records: Vec<abi::Record> = iface.records.iter().map(|(_, proto)| convert_record_prototype(proto)).collect();
 
@@ -393,9 +399,18 @@ fn build_interface(
         iface.storages.iter().map(convert_storage_variable_prototype).collect();
 
     // Collect transitively referenced structs from the composite source.
-    let structs = collect_interface_structs(&program, &functions, &records, &mappings, &storage_variables, cs);
+    // Pass both `functions` and `views` so that types referenced only by view
+    // fn signatures are still pulled into the interface's struct set.
+    let structs = collect_interface_structs(
+        &program,
+        functions.iter().chain(views.iter()),
+        &records,
+        &mappings,
+        &storage_variables,
+        cs,
+    );
 
-    abi::Interface { name, program, path, parents, functions, records, mappings, storage_variables, structs }
+    abi::Interface { name, program, path, parents, functions, views, records, mappings, storage_variables, structs }
 }
 
 // ------------------------------------------------------------------------- //
@@ -501,9 +516,9 @@ fn convert_function_output(ty: &ast::Type, iface: &ast::Interface, cs: &Composit
 ///
 /// Only includes structs defined in the same program as the interface; external
 /// struct references remain as `StructRef` with a program field.
-fn collect_interface_structs(
+fn collect_interface_structs<'a>(
     program_name: &str,
-    functions: &[abi::Function],
+    functions: impl IntoIterator<Item = &'a abi::Function>,
     records: &[abi::Record],
     mappings: &[abi::Mapping],
     storage_variables: &[abi::StorageVariable],
@@ -511,7 +526,7 @@ fn collect_interface_structs(
 ) -> Vec<abi::Struct> {
     let mut used_types: HashSet<abi::Path> = HashSet::new();
 
-    // Seed from functions.
+    // Seed from functions (and views — caller chains them in).
     for function in functions {
         for cp in &function.const_parameters {
             collect_from_plaintext(&cp.ty, program_name, &mut used_types);

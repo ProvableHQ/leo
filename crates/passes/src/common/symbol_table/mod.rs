@@ -283,18 +283,16 @@ impl SymbolTable {
         if self.is_visible(current_unit, &location.program) { self.functions.get(location) } else { None }
     }
 
-    /// Returns true if `location` refers to an entry point in a different compilation unit than
-    /// `current_unit`. Cross-unit entry-point calls must be emitted as direct Aleo `call`
-    /// instructions — inlining an entry-point body into a different compilation unit would lose
-    /// its transition semantics (record creation, signing, finalize scheduling).
-    pub fn is_cross_program_entry(&self, current_unit: Symbol, location: &Location) -> bool {
+    /// Returns true if `location` refers to an externally-callable function in a different
+    /// compilation unit than `current_unit` (i.e. must remain a direct Aleo `call`).
+    pub fn is_cross_program_call_target(&self, current_unit: Symbol, location: &Location) -> bool {
         location.program != current_unit
             && self
                 .lookup_function(current_unit, location)
                 .expect("the symbol table must know about every callee at this stage")
                 .function
                 .variant
-                .is_entry()
+                .is_externally_callable()
     }
 
     /// Access an interface by this name if it exists and is accessible from the compilation unit `current_unit`.

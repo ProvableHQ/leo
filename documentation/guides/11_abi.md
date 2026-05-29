@@ -51,22 +51,26 @@ The ABI is a JSON object with the following top-level structure:
 ```json title="abi.json"
 {
   "program": "token.aleo",
+  "implements": [...],
   "structs": [...],
   "records": [...],
   "mappings": [...],
   "storage_variables": [...],
-  "functions": [...]
+  "functions": [...],
+  "views": [...]
 }
 ```
 
-| Field               | Description                                                         |
-| ------------------- | ------------------------------------------------------------------- |
-| `program`           | Program identifier (e.g., `"token.aleo"`)                           |
-| `structs`           | Struct type definitions used in the public interface                |
-| `records`           | Record type definitions                                             |
-| `mappings`          | On-chain key-value storage declarations                             |
-| `storage_variables` | Storage variable declarations                                       |
-| `functions`         | Public entry points (entry `fn` declarations, not helper functions) |
+| Field               | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| `program`           | Program identifier (e.g., `"token.aleo"`)                                |
+| `implements`        | Fully qualified interfaces the program implements                        |
+| `structs`           | Struct type definitions used in the public interface                     |
+| `records`           | Record type definitions                                                  |
+| `mappings`          | On-chain key-value storage declarations                                  |
+| `storage_variables` | Storage variable declarations                                            |
+| `functions`         | Public entry points (entry `fn` declarations, not helper functions)      |
+| `views`             | Read-only `view fn` entry points; same shape as `functions`              |
 
 :::info
 The ABI only includes types that are referenced by the public interface. Internal helper structs not used in entry functions, mappings, or storage are automatically pruned.

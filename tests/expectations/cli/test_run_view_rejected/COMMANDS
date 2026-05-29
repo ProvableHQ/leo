@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# `leo run` on a `view fn` must reject with a clear message rather than the misleading
+# "Function does not exist" error (which used to fire because `Program::contains_function`
+# only checks the functions IndexMap, not views).
+
+LEO_BIN=${1}
+COMMON_OPTS="--disable-update-check"
+
+echo "--- run on a view fn should fail with a clear message ---"
+${LEO_BIN} ${COMMON_OPTS} run get_balance aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px 2>&1 || true
+
+echo "--- run on a regular fn should still work ---"
+${LEO_BIN} ${COMMON_OPTS} run noop 1u32 2>&1 | tail -n 5
+
+exit 0

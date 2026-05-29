@@ -18,12 +18,17 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt;
 
-/// Functions are always one of six variants.
-/// A transition function is permitted the ability to manipulate records.
-/// An asynchronous transition function is a transition function that calls an asynchronous function.
-/// A regular function is not permitted to manipulate records.
-/// An asynchronous function contains on-chain operations.
-/// An inline function is directly copied at the call site.
+/// The kind of a function definition.
+///
+/// - `Fn`: a regular function, callable from other Leo code.
+/// - `FinalFn`: a `final fn`, runs in the on-chain finalize context.
+/// - `EntryPoint`: a top-level program function — compiles to an Aleo
+///   `transition`. May or may not have a `final {}` block.
+/// - `Finalize`: the synthesized `final {}` block of an `EntryPoint`. Created
+///   during compilation, not written by the user.
+/// - `View`: a read-only `view fn` (V15). Top-level program component that
+///   reads finalize-store state and returns plaintext to external callers.
+///   Off-consensus, no transitions, no proofs, no state writes.
 #[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Variant {
     #[default]
@@ -31,6 +36,7 @@ pub enum Variant {
     FinalFn,
     EntryPoint,
     Finalize,
+    View,
 }
 
 impl Variant {
@@ -43,8 +49,35 @@ impl Variant {
         matches!(self, Variant::Finalize)
     }
 
+    /// Returns true if the function accesses on-chain finalize-store state.
+    ///
+    /// This includes `final fn` and synthesized `finalize` (which write state) as well as
+    /// `view fn` (which read state). It is the right predicate for analyses that care about
+    /// on-chain state effects, regardless of whether the function runs as part of consensus.
     pub fn is_onchain(self) -> bool {
+        matches!(self, Variant::Finalize | Variant::FinalFn | Variant::View)
+    }
+
+    /// Returns true if the function compiles to a `finalize` bytecode block (i.e. it runs
+    /// in the on-chain finalize runtime, not off-consensus).
+    ///
+    /// Use this predicate for analyses tied to finalize-runtime semantics: keeping
+    /// conditionals in bytecode, future-typed inputs, await tracking, and the
+    /// async-function assignment rules. Views are excluded because they compile to a
+    /// flat `function` block like transitions.
+    pub fn is_finalize_context(self) -> bool {
         matches!(self, Variant::Finalize | Variant::FinalFn)
+    }
+
+    /// Returns true if the variant is a view function.
+    pub fn is_view(self) -> bool {
+        matches!(self, Variant::View)
+    }
+
+    /// Returns true if the variant is callable from outside the program
+    /// (transition entry point or view).
+    pub fn is_externally_callable(self) -> bool {
+        matches!(self, Variant::EntryPoint | Variant::View)
     }
 }
 
@@ -55,6 +88,7 @@ impl fmt::Display for Variant {
             Self::Fn => write!(f, "fn"),
             Self::EntryPoint => write!(f, "entry"),
             Self::Finalize => write!(f, "finalize"),
+            Self::View => write!(f, "view fn"),
         }
     }
 }

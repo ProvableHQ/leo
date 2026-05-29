@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# `leo execute` on a `view fn` must reject with a clear message rather than the misleading
+# "Function does not exist" error (which used to fire because `Program::contains_function`
+# only checks the functions IndexMap, not views). Views produce no transaction so they cannot
+# be the target of `execute`.
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+# Endpoint is required by the option parser but never hit, because the program is local
+# (the view check fires before any network call).
+ENDPOINT="http://127.0.0.1:1"
+
+echo "--- execute on a view fn should fail with a clear message ---"
+${LEO_BIN} --disable-update-check execute --network testnet --endpoint $ENDPOINT --private-key $PRIVATE_KEY get_balance aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px 2>&1 || true
+
+exit 0

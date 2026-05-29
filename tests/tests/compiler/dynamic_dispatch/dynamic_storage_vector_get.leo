@@ -4,7 +4,7 @@ interface Logs {
 }
 
 program test.aleo {
-    fn query(target: field, i: u32) -> Final {
+    fn lookup(target: field, i: u32) -> Final {
         return final { finalize_query(target, i); };
     }
 }

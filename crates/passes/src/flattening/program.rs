@@ -75,8 +75,8 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
 
     /// Flattens a function's body
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        // Set when the function is an on-chain function (Finalize or FinalFn).
-        self.is_onchain = function.variant.is_onchain();
+        // Set when the function is a finalize-context function (Finalize or FinalFn).
+        self.is_finalize_context = function.variant.is_finalize_context();
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;
@@ -112,7 +112,7 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
     /// Flattens a constructor's body.
     fn reconstruct_constructor(&mut self, constructor: Constructor) -> Constructor {
         // A constructor is always run onchain.
-        self.is_onchain = true;
+        self.is_finalize_context = true;
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(constructor.block).0;

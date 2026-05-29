@@ -1,0 +1,7 @@
+[ETYC0372034] Error: `block.timestamp` must be inside a `final fn` or a `final` block
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return block.timestamp;
+   │ 
+   │ Help: Move the `block.timestamp` call into a `final fn` or wrap it in a `final { … }` block.
+───╯

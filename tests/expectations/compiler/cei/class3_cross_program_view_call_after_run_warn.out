@@ -1,0 +1,110 @@
+[WCEI03713002] Warning: the call to `dep.aleo::shared_value` runs after an interaction (`Final.run()`), and `dep.aleo::shared_value` itself performs checks or effects
+    ╭─[ compiler-test:17:20 ]
+    │
+ 17 │     let val: u32 = dep.aleo::shared_value(0u32);
+    │ 
+    │ Help: Move the call to `dep.aleo::shared_value` above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.
+────╯
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
+    ╭─[ compiler-test:18:5 ]
+    │
+ 18 │     assert(val >= 0u32);
+    │ 
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
+────╯
+program dep.aleo;
+
+mapping shared:
+    key as u32.public;
+    value as u32.public;
+
+function modify:
+    input r0 as u32.private;
+    async modify r0 into r1;
+    output r1 as dep.aleo/modify.future;
+
+finalize modify:
+    input r0 as u32.public;
+    set r0 into shared[0u32];
+
+view shared_value:
+    input r0 as u32.public;
+    get.or_use shared[r0] 0u32 into r1;
+    output r1 as u32.public;
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/modify r0 into r1;
+    async do_work r1 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/modify.future;
+    await r0;
+    call dep.aleo/shared_value 0u32 into r1;
+    gte r1 0u32 into r2;
+    assert.eq r2 true;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
+    ╭─[ compiler-test:18:5 ]
+    │
+ 18 │     assert(val >= 0u32);
+    │ 
+    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
+────╯
+program dep.aleo;
+
+mapping shared:
+    key as u32.public;
+    value as u32.public;
+
+function modify:
+    input r0 as u32.private;
+    async modify r0 into r1;
+    output r1 as dep.aleo/modify.future;
+
+finalize modify:
+    input r0 as u32.public;
+    set r0 into shared[0u32];
+
+view shared_value:
+    input r0 as u32.public;
+    get.or_use shared[r0] 0u32 into r1;
+    output r1 as u32.public;
+// --- Next Program --- //
+import dep.aleo;
+program caller.aleo;
+
+mapping balances:
+    key as u32.public;
+    value as u32.public;
+
+function do_work:
+    input r0 as u32.private;
+    call dep.aleo/modify r0 into r1;
+    async do_work r1 into r2;
+    output r2 as caller.aleo/do_work.future;
+
+finalize do_work:
+    input r0 as dep.aleo/modify.future;
+    await r0;
+    call dep.aleo/shared_value 0u32 into r1;
+    gte r1 0u32 into r2;
+    assert.eq r2 true;

@@ -1,0 +1,7 @@
+[ETYC0372042] Error: only regular `fn`s can be called from a transition body outside a `final {}` block
+    ╭─[ compiler-test:14:24 ]
+    │
+ 14 │         let bal: u64 = get_balance(addr);
+    │ 
+    │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
+────╯

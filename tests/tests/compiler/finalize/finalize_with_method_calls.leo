@@ -12,7 +12,7 @@ program test.aleo {
     }
 }
 
-final fn finalize_mint_public(public receiver: address, public amount: u64) {
+final fn finalize_mint_public(receiver: address, amount: u64) {
     let current_amount: u64 = account.get_or_use(receiver, 0u64);
     account.set(receiver, current_amount + amount);
 }
