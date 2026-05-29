@@ -104,10 +104,27 @@ jobs:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
         run: |
           set -euo pipefail
-          mapfile -t tags < <(jq -r '.[].tag // empty' <<< "$RELEASES")
+
+          # Workspace packages that produce [[bin]] targets. Non-binary
+          # crates need no GitHub release artifacts and are skipped here
+          # rather than spinning up a runner just to early-exit.
+          bin_packages="$(
+            cargo metadata --no-deps --format-version=1 \
+              | jq -c '[.packages[] | select(any(.targets[]; .kind | index("bin"))) | .name]'
+          )"
+
+          mapfile -t tags < <(
+            jq -r --argjson bins "$bin_packages" \
+              '.[] | select(.package_name as $p | $bins | index($p)) | .tag // empty' \
+              <<< "$RELEASES"
+          )
+
+          jq -r --argjson bins "$bin_packages" \
+            '.[] | select(.package_name as $p | ($bins | index($p) | not)) | "Skipping \(.tag) (\(.package_name) has no binary targets)"' \
+            <<< "$RELEASES"
 
           if [ "${#tags[@]}" -eq 0 ]; then
-            echo "No release tags to dispatch."
+            echo "No binary release tags to dispatch."
             exit 0
           fi
 
