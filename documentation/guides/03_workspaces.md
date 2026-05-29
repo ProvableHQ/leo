@@ -83,7 +83,7 @@ my_project/
         └── main.leo
 ```
 
-Each member is a self-contained Leo package. It has its own `build/` and `output/` directories when compiled.
+Each member is a self-contained Leo package. It has its own `build/` directory when compiled.
 
 ## Member Dependencies
 
