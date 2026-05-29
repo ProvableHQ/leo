@@ -100,8 +100,13 @@ jobs:
             exit 1
           fi
 
-          # Collect all [[bin]] names from this crate.
-          BINS="$(grep -A5 '^\[\[bin\]\]' "$FOUND" | grep '^name' | sed 's/.*= *"\(.*\)"/\1/' | tr '\n' ' ' | xargs)"
+          # Collect all [[bin]] names from this crate. Section-aware so
+          # neighbouring tables like [[test]] do not leak into the result.
+          BINS="$(awk -F'"' '
+            /^\[\[bin\]\]/ { in_bin = 1; next }
+            /^\[/          { in_bin = 0; next }
+            in_bin && /^name[[:space:]]*=/ { print $2 }
+          ' "$FOUND" | tr '\n' ' ' | xargs)"
           if [ -z "$BINS" ]; then
             {
               echo "bins="
