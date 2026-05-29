@@ -89,7 +89,14 @@ Signatures can be verified in Leo using the [`signature::verify`](./operators/cr
 ```leo file=../code_snippets/data_types/signatures/src/main.leo#file
 ```
 
-Signature literals can be also be used. For example:
+Signature literals can also be used directly in source. They follow a fixed Bech32m grammar:
+
+- The literal begins with the prefix `sign` followed by the Bech32m separator `1` — the first five characters of every signature literal are `sign1`.
+- After the separator, exactly **211 characters** drawn from the Bech32m alphabet (`qpzry9x8gf2tvdw0s3jn54khce6mua7l` — lowercase letters and digits, excluding `b`, `i`, `o`, and `1`).
+- The total length is therefore **216 characters**. No surrounding quotes, no internal whitespace.
+- The trailing six characters of the body form a Bech32m checksum. The compiler validates the encoding and checksum at parse time and rejects any malformed literal.
+
+Most users do not type signature literals by hand: the value is produced by signing a message with an Aleo private key (for example, with [`leo account sign`](../cli/01_account.md) or any external tool that produces Aleo signatures) and then pasted into source. Example:
 
 ```leo file=../code_snippets/data_types/demo/src/main.leo#signature_literal
 ```
@@ -103,6 +110,19 @@ An `identifier` literal uses single-quote syntax:
 ```leo file=../code_snippets/data_types/demo/src/main.leo#identifier_literal
 ```
 
+#### Literal grammar
+
+The contents between the single quotes must satisfy snarkVM's identifier rules:
+
+- **Character set:** ASCII letters (`A`–`Z`, `a`–`z`), ASCII digits (`0`–`9`), and underscore (`_`). No other characters are accepted. The Leo lexer rejects anything else at parse time.
+- **Leading character:** must be an ASCII letter; identifiers cannot start with a digit or an underscore.
+- **Length:** 1 to 31 characters, inclusive. The 31-byte limit comes from how snarkVM packs identifier strings into a single field element and is enforced when the bytecode is generated.
+- **Reserved names:** the following type-name strings cannot be used as identifier literals — `address`, `boolean`, `field`, `group`, `scalar`, `signature`, `string`, `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`. (Leo keywords such as `program`, `fn`, or `let` *are* legal inside an identifier literal — only snarkVM literal-type names are reserved at this layer.)
+
+For example, `'aleo'`, `'my_program'`, `'foo_v2'`, and `'X'` are valid; `'1foo'`, `'a-b'`, `'_x'`, `'field'`, and an identifier longer than 31 characters are not.
+
+The same grammar applies to identifier literals used in dynamic-call syntax (`Interface@(target, 'aleo')::method(...)`) and intrinsic arguments (e.g. `_dynamic_call::[...](prog, 'aleo', 'foo', ...)`).
+
 ## Composite Types
 
 ### Arrays
@@ -110,6 +130,11 @@ An `identifier` literal uses single-quote syntax:
 Leo supports static arrays. Array types are declared as `[type; length]`. Elements can only be primitive data types, structs, or nested arrays.
 
 ```leo file=../code_snippets/data_types/demo/src/main.leo#arrays_basic
+```
+
+To initialize every slot of a fixed-size array with the same value, use the **repeat** syntax `[expression; count]`. Both the expression and the count must be evaluatable at compile time, and the resulting type is `[T; count]` where `T` is the type of the expression.
+
+```leo file=../code_snippets/data_types/demo/src/main.leo#array_repeat
 ```
 
 Structs and records can also contain arrays as fields.
@@ -162,7 +187,17 @@ Leo supports **const generics** for struct types:
 ```leo file=../code_snippets/data_types/matrix/src/main.leo#file
 ```
 
-Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`. Const generic structs may be declared and used within a program and its submodules, but they cannot currently be imported from external programs.
+Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`. Const generic structs may be declared and used within a program and its submodules, and can also be imported from external programs and libraries via fully qualified paths. The same applies to const-generic helper functions: a generic helper declared in a library or in another program's submodule can be invoked across packages with a fully qualified call. The compiler monomorphizes each instantiation at the call site. See [Generic Library Functions](./06_libraries.md#generic-library-functions) for the library case.
+
+For example, a library declaring a const-generic struct and helper:
+
+```leo file=../code_snippets/data_types/const_generic_dep/src/lib.leo
+```
+
+can be consumed from another package by qualifying the path with the library name:
+
+```leo file=../code_snippets/data_types/const_generic_consumer/src/main.leo#file
+```
 
 ### Records
 
@@ -191,6 +226,53 @@ Option types can also be stored in arrays and structs:
 
 ```leo file=../code_snippets/data_types/options/src/main.leo#file
 ```
+
+## Type Casting
+
+Leo provides an `as` operator that converts a value of one primitive type into another:
+
+```text
+expression as TargetType
+```
+
+```leo file=../code_snippets/data_types/demo/src/main.leo#cast_examples
+```
+
+### Castable types
+
+The compiler accepts casts whose **source and target are both** drawn from this set:
+
+- `address`
+- `bool`
+- `field`
+- `group`
+- `scalar`
+- All integer types (`i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`)
+- `identifier` (used in dynamic dispatch — see [Interfaces](./programs_in_practice/interfaces.md#the-identifier-type))
+
+The following are **never castable**:
+
+- `signature`
+- `struct`, `record`, `tuple`, `mapping`, and array types
+- `Optional` (`T?`) — unwrap first via `.unwrap()` or `.unwrap_or(...)`
+
+For converting a static record into `dyn record` and back, see [Dynamic Records](./programs_in_practice/interfaces.md#dynamic-records) — that is a separate cast form with its own rules.
+
+### Runtime semantics
+
+Leo's `as` operator lowers to the AVM `cast` instruction, which is **checked**: the cast halts at runtime if the source value cannot be represented in the destination type. Common cases that may halt:
+
+- Narrowing integer casts (`u64 as u8`, `i32 as u8`, etc.): halt if the value does not fit in the destination type, including signed-to-unsigned conversions of negative values.
+- `field` → `address`: halts unless the field encodes a valid Aleo address (a curve point).
+- `field` → `group`: halts unless the field is the x-coordinate of a valid curve point.
+- `field` → integer types: halts if the field value does not fit.
+- `field` → `scalar`: halts unless the field value is below the scalar field order.
+- `group` → integer, `group` → `scalar`, `address` → integer, `address` → `scalar`, `scalar` → integer: take the underlying field/x-coordinate and halt if it does not fit the destination type.
+- `integer` → `group`, `scalar` → `group`, `integer` → `address`, `scalar` → `address`: try to interpret the source as the x-coordinate of a curve point; halt if no valid point exists.
+
+Widening integer casts (`u8 as u64`, `i32 as i128`, etc.), `integer` → `field`, `scalar` → `field`, `group` ↔ `address` (bijective), `group` → `field`, `address` → `field`, `bool` → anything, and casts between primitive types where the destination strictly contains the source value range never halt.
+
+The exact runtime rules are defined by the AVM `cast` instruction (see the [Aleo Instructions reference](https://docs.aleo.org/build/aleo-instructions/overview)). Leo does not currently expose AVM's `cast.lossy` (truncating) variant; when in doubt, prefer routing through `field` (the universally-receiving type) before narrowing.
 
 ## Type Inference
 

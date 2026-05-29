@@ -122,48 +122,7 @@ The goal is to only have the interface of the program in `main.leo`. Every funct
 
 ## Layout
 
-### Indentation
-
-4 spaces per indentation level.
-
-### Blank lines
-
-A single blank line should separate the top-level declarations in a `program` scope,
-namely `fn`, `record`, and `mapping` declarations, as well as module-level `struct` and helper `fn` declarations.
-Multiple imports can be optionally separated by a single blank line;
-the last import at the top of the file should be followed by a blank line.
-
-```leo title="Yes:"
-import std.io.Write;
-import std.math.Add;
-
-struct A {
-    // ...
-}
-
-fn foo() {
-    // ...
-}
-
-program prog.aleo {
-    // ...
-}
-```
-
-```leo title="No:"
-import std.io.Write;
-
-
-import std.math.Add;
-program prog.aleo {
-    struct A {
-        // ...
-    }
-    fn foo() {
-        // ...
-    }
-}
-```
+For whitespace, blank lines, brace placement, semicolons, and trailing commas, run [`leo fmt`](../cli/18_fmt.md) — it produces the canonical Leo formatting and will keep your code consistent across collaborators.
 
 ### Naming Conventions
 
@@ -177,7 +136,7 @@ program prog.aleo {
 | Variables                 | snake_case                          |
 | Inputs                    | snake_case                          |
 
-### Layout
+### File element order
 
 Leo file elements should be ordered:
 
@@ -187,27 +146,6 @@ Leo file elements should be ordered:
 4. Program declaration
 5. Mappings + Records
 6. Entry point `fn` declarations
-
-### Braces
-
-Opening braces always go on the same line.
-
-```leo file=../code_snippets/style/formatting/src/main.leo#braces
-```
-
-### Semicolons
-
-Every statement including the `return` statement should end in a semicolon.
-
-```leo file=../code_snippets/style/formatting/src/main.leo#semicolons
-```
-
-### Commas
-
-Trailing commas should be included whenever the closing delimiter appears on a separate line.
-
-```leo file=../code_snippets/style/formatting/src/main.leo#commas
-```
 
 ## Contributing
 
@@ -237,37 +175,17 @@ Start by forking off of the `mainnet` branch to make your changes. Commit messag
 If you need to pull in any changes from the `mainnet` branch after making your fork (for example, to resolve potential merge conflicts),
 please avoid using git merge and instead, git rebase your branch. Rebasing will help us review your changes easily.
 
-#### Tools Required
+For build, formatting, test, and grammar conventions, see [`CONTRIBUTING.md`](https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTING.md) in the repository root. The canonical commands for validation are:
 
-To build Leo from source you will need the following tools:
+```bash
+cargo check
+cargo clippy -- -D warnings
+cargo +nightly fmt --check
+cargo test
+```
 
-- The latest Rust stable version and nightly version.
-  - Recommend that you install multiple versions using `rustup`.
-- Cargo
-  - Rusty Hook install via `cargo install rusty-hook`.
-- Clippy
-  - Via rustup, if you didn't do the default rustup install `rustup component add clippy`.
+To update parser expectation files after intentional grammar changes, run `UPDATE_EXPECT=1 cargo test -p leo-parser`.
 
-#### Formatting
-
-Please do the following before opening a PR.
-
-- `cargo +nightly fmt --all` will format all your code.
-- `cargo clippy --all-features --examples --all --benches`
-
-#### Tests
-
-If your code adds new functionality, please write tests to confirm the new features function as expected. Refer to existing tests for examples of how tests are expected to be written. Please refer to the [parser tests section](#parser-tests). To run the tests please use the following command `cargo test --all --features ci_skip --no-fail-fast`.
-
-##### **Parser Tests**
-
-In the root directory of the repository, there is a "tests" directory.
-To add a parser test, look at the Example Leo files in the parser sub-directory.
-Then when running the test command, make sure you have the environment variable `CLEAR_LEO_TEST_EXPECTATIONS` set to true. For example, on a UNIX environment, you could run the following command `CLEAR_LEO_TEST_EXPECTATIONS=true cargo test --all --features ci_skip --no-fail-fast`.
-
-#### Grammar
-
-[The `grammars` repository](https://github.com/ProvableHQ/grammars) contains a file [`leo.abnf`](https://github.com/ProvableHQ/grammars/blob/master/leo.abnf) that has the Leo grammar rules in the ABNF format.
-If your changes affect a grammar rule, we may ask you to modify it in that `.abnf` file.
+The Leo grammar is maintained in the [`grammars` repository](https://github.com/ProvableHQ/grammars) (`leo.abnf`).
 
 We appreciate your hard work!

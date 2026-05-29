@@ -86,6 +86,8 @@ Library functions support const generic parameters, just like regular helper fun
 ```leo file=../code_snippets/libraries/my_app_normalize/src/main.leo title="src/main.leo"
 ```
 
+Const-generic library functions work the same way as their in-program counterparts: each call site `library::fn::[const_args](runtime_args)` is monomorphized for the supplied const arguments and then inlined into the caller. There is no cross-package boundary to worry about — library code is always inlined regardless of generics. Const-generic structs declared in a library can also be referenced and instantiated from a consuming program through their fully qualified path (e.g. `math_utils::Vec::[10]`).
+
 ## Submodules
 
 A library can span multiple source files. Place additional `.leo` files alongside `lib.leo` in `src/` to create submodules. Each file becomes a submodule named after the file, and its items are accessed with an extra path segment.

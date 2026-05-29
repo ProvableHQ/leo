@@ -72,12 +72,32 @@ Const generic parameters are only valid on inlinable helper `fn` functions. They
 
 ### The `@no_inline` Annotation
 
-By default the compiler inlines helper functions that are called only once, which reduces call overhead. To prevent this, annotate the function with `@no_inline`:
+By default the compiler inlines a helper `fn` whenever inlining is safe and beneficial — most commonly when the function is called only once, takes no arguments, or all of its arguments have empty types. Inlining reduces call overhead and shrinks the compiled program.
+
+To opt out of this default and force a separate AVM function for a helper, annotate it with `@no_inline`:
 
 ```leo file=../../code_snippets/functions/no_inline/src/main.leo#snippet
 ```
 
 Use `@no_inline` when the function is intentionally shared across multiple call sites but the compiler would otherwise duplicate it, or when you want to preserve the function boundary for readability in the compiled output.
+
+#### When `@no_inline` is ignored
+
+Some helpers cannot exist as standalone AVM functions and **must** be inlined regardless of the annotation. In these cases the compiler ignores `@no_inline` and emits a warning at the annotation site:
+
+- helper functions defined in a submodule (`path::nested::fn`) — Aleo identifiers are flat, so there is no bytecode form for a nested name,
+- helper functions defined in a [library](../06_libraries.md) — libraries have no on-chain footprint,
+- a `final fn`,
+- a helper reached from an on-chain context (a `constructor` or finalize block),
+- a helper with more than 16 arguments,
+- a helper whose argument or return type names an `Optional` type,
+- helpers transitively reachable from another helper that itself must be inlined.
+
+The annotation has no effect on entry `fn` declarations either — the entry-point boundary is part of the program's public interface and is never inlined away.
+
+### The `@inline` Annotation
+
+The compiler accepts `@inline` as a recognized annotation name, but **no compiler pass acts on it** — it is a silent no-op carried over from earlier Leo versions, where `inline` was a function-modifier keyword rather than an annotation (see [Migrating from Leo 3.5 to 4.0](../../guides/13_migration_3_5_to_4_0.md#inline-becomes-fn)). The default inlining behaviour described above is the same whether or not `@inline` is present, so prefer to leave it out of new code.
 
 ## Function Call Rules
 

@@ -48,10 +48,14 @@ toc_max_heading_level: 3
 | [pow_wrapped](#pow_wrapped)                                | Wrapping exponentiation                                   |
 | [rem](#rem)                                                | Remainder                                                 |
 | [rem_wrapped](#rem_wrapped)                                | Wrapping remainder                                        |
+| [Program::checksum](#programchecksum)                      | Checksum of another (imported) program                    |
+| [Program::edition](#programedition)                        | Edition (version) of another (imported) program           |
+| [Program::program_owner](#programprogram_owner)            | Deployer address of another (imported) program            |
 | [self.address](#selfaddress)                               | Address of the current program                            |
 | [self.caller](#selfcaller)                                 | Address of the calling user/program                       |
-| [self.checksum](#selfcaller)                               | Checksum of a program                                     |
+| [self.checksum](#selfchecksum)                             | Checksum of a program                                     |
 | [self.edition](#selfedition)                               | Version number of a program                               |
+| [self.id](#selfid)                                         | Address of the current program (alias of `self.address`)  |
 | [self.program_owner](#selfprogram_owner)                   | Address that submitted a program's deployment transaction |
 | [self.signer](#selfsigner)                                 | Address of the top-level calling user                     |
 | [Serialize::to_bits](#serializeto_bits)                    | Serialize data to bits                                    |
@@ -979,7 +983,7 @@ height in a program.
 
 :::info
 
-- The `block.height` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
+- The `block.height` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. It is rejected in entry `fn` bodies, helper `fn`s, and constant initialisers, since chain state is only observable in the finalization context.
 - The `block.height` operator doesn't take any parameters.
 
   :::
@@ -997,7 +1001,7 @@ The `block.timestamp` operator is used to fetch the UNIX timestamp of the latest
 
 :::info
 
-- The `block.timestamp` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
+- The `block.timestamp` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. It is rejected in entry `fn` bodies, helper `fn`s, and constant initialisers, since chain state is only observable in the finalization context.
 - The `block.timestamp` operator doesn't take any parameters.
 
   :::
@@ -1015,6 +1019,7 @@ The `self.address` operator returns the address of the program that calls it. Wh
 
 :::info
 
+- The `self.address` operator may be used in any function context (entry `fn`, helper `fn`, `final fn`, `final { }` block, or `constructor`).
 - The `self.address` operator doesn't take any parameters.
 
   :::
@@ -1032,6 +1037,7 @@ The `self.caller` operator returns the address of the account/program that invok
 
 :::info
 
+- The `self.caller` operator can only be used in **proof context** — inside an entry `fn` body or a helper `fn` body, but **not** inside a `final { }` block, a `final fn`, or a `constructor`. The notion of "the function's immediate caller" only exists in the proof context; finalization runs after the call has been validated. The compiler emits an error if `self.caller` is used in an on-chain context.
 - The `self.caller` operator doesn't take any parameters.
 
   :::
@@ -1045,17 +1051,36 @@ The `self.caller` operator returns the address of the account/program that invok
 ```leo file=../../code_snippets/operators/standard/src/main.leo#self_checksum
 ```
 
-The `self.checksum` operator returns a program's checksum, which is a unique identifier for the program's code.
+The `self.checksum` operator returns the current program's checksum, which is a unique identifier for the program's code. To reference another program's checksum, see [`Program::checksum`](#programchecksum).
 
-You may also refer to another program's checksum with the following syntax:
+:::info
+
+- The `self.checksum` operator may be used in any function context (entry `fn`, helper `fn`, `final fn`, `final { }` block, or `constructor`).
+- The `self.checksum` operator doesn't take any parameters.
+
+  :::
+
+[Back to Top](#table-of-contents)
+
+---
+
+### `Program::checksum`
 
 ```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_checksum
 ```
 
+The `Program::checksum` operator returns the on-chain checksum of an **imported** program — the same value that program would observe with [`self.checksum`](#selfchecksum). The argument must be a program-ID literal of the form `name.aleo`, not a runtime address.
+
+#### Supported Types
+
+| Argument             | Destination |
+| -------------------- | ----------- |
+| program ID literal   | `[u8; 32]`  |
+
 :::info
 
-- The `self.checksum` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
-- The `self.checksum` operator doesn't take any parameters.
+- The `Program::checksum(other.aleo)` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. Using it elsewhere will result in a compilation error.
+- The argument must be a program-ID literal (e.g. `credits.aleo`), not a variable typed as `address`.
 - To reference another program's checksum, you will need to import that program first.
 
   :::
@@ -1069,18 +1094,55 @@ You may also refer to another program's checksum with the following syntax:
 ```leo file=../../code_snippets/operators/standard/src/main.leo#self_edition
 ```
 
-The `self.edition` operator returns a program's edition, which is the program's version number. A program's edition starts at zero and is incremented by one for each upgrade. The edition is tracked automatically on the network.
+The `self.edition` operator returns the current program's edition, which is the program's version number. A program's edition starts at zero and is incremented by one for each upgrade. The edition is tracked automatically on the network. To reference another program's edition, see [`Program::edition`](#programedition).
 
-You may also refer to another program's edition with the following syntax:
+:::info
+
+- The `self.edition` operator may be used in any function context (entry `fn`, helper `fn`, `final fn`, `final { }` block, or `constructor`).
+- The `self.edition` operator doesn't take any parameters.
+
+  :::
+
+[Back to Top](#table-of-contents)
+
+---
+
+### `Program::edition`
 
 ```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_edition
 ```
 
+The `Program::edition` operator returns the on-chain edition of an **imported** program — the same value that program would observe with [`self.edition`](#selfedition). Useful for guarding logic against specific upgrade versions of a dependency. The argument must be a program-ID literal.
+
+#### Supported Types
+
+| Argument             | Destination |
+| -------------------- | ----------- |
+| program ID literal   | `u16`       |
+
 :::info
 
-- The `self.edition` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
-- The `self.edition` operator doesn't take any parameters.
+- The `Program::edition(other.aleo)` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. Using it elsewhere will result in a compilation error.
+- The argument must be a program-ID literal (e.g. `credits.aleo`), not a variable typed as `address`.
 - To reference another program's edition, you will need to import that program first.
+
+  :::
+
+[Back to Top](#table-of-contents)
+
+---
+
+### `self.id`
+
+```leo file=../../code_snippets/operators/standard/src/main.leo#self_id
+```
+
+The `self.id` operator returns the on-chain `address` of the program containing the call site. It is an alias of [`self.address`](#selfaddress) and lowers to the same Aleo instruction; the alternate spelling reads more naturally when comparing program identifiers.
+
+:::info
+
+- The `self.id` operator may be used in any function context (entry `fn`, helper `fn`, `final fn`, `final { }` block, or `constructor`).
+- The `self.id` operator doesn't take any parameters.
 
   :::
 
@@ -1093,17 +1155,39 @@ You may also refer to another program's edition with the following syntax:
 ```leo file=../../code_snippets/operators/standard/src/main.leo#self_program_owner
 ```
 
-The `self.program_owner` operator returns the address that submitted the deployment transaction for a program.
-You may also refer to another program's owner with the following syntax:
+The `self.program_owner` operator returns the address that submitted the deployment transaction for the current program. To reference another program's owner, see [`Program::program_owner`](#programprogram_owner).
+
+:::info
+
+- The `self.program_owner` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. Using it elsewhere will result in a compilation error.
+- The `self.program_owner` operator doesn't take any parameters.
+- Programs deployed before the upgradability feature shipped (Leo `< v3.1.0`) do not have a `program_owner`. Reading `self.program_owner` on such a program halts at runtime.
+
+  :::
+
+[Back to Top](#table-of-contents)
+
+---
+
+### `Program::program_owner`
 
 ```leo file=../../code_snippets/operators/external_program_info/src/main.leo#external_program_owner
 ```
 
+The `Program::program_owner` operator returns the address that submitted the deployment transaction for an **imported** program — the same value that program would observe with [`self.program_owner`](#selfprogram_owner). The argument must be a program-ID literal.
+
+#### Supported Types
+
+| Argument             | Destination |
+| -------------------- | ----------- |
+| program ID literal   | `address`   |
+
 :::info
 
-- The `self.program_owner` operator can only be used inside a `final { }` block or inside a `final fn`. Using it outside will result in a compilation error.
-- The `self.program_owner` operator doesn't take any parameters.
+- The `Program::program_owner(other.aleo)` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. Using it elsewhere will result in a compilation error.
+- The argument must be a program-ID literal (e.g. `credits.aleo`), not a variable typed as `address`.
 - To reference another program's owner, you will need to import that program first.
+- If the target program was deployed before the upgradability feature shipped, this call halts at runtime.
 
   :::
 
@@ -1120,6 +1204,7 @@ The `self.signer` operator returns the address of the account that invoked the t
 
 :::info
 
+- The `self.signer` operator can only be used in **proof context** — inside an entry `fn` body or a helper `fn` body, but **not** inside a `final { }` block, a `final fn`, or a `constructor`. Finalization values must be derived in proof context and passed forward as inputs. If you need the signer's address inside a `final { }` block, capture it in proof context first and pass it as an argument to the finalize call.
 - The `self.signer` operator doesn't take any parameters.
 
   :::
@@ -1159,7 +1244,15 @@ It is an associated constant, whose name is `GEN` and whose associated type is `
 ```leo file=../../code_snippets/operators/standard/src/main.leo#aleo_generator
 ```
 
-Returns the generator point of the Aleo group. This is equivalent to `group::GEN` but expressed through the `Aleo` namespace for consistency with other `Aleo::*` intrinsics.
+Returns the generator point of the Aleo group. This is equivalent to [`group::GEN`](#groupgen) but expressed through the `Aleo` namespace for consistency with the other `Aleo::*` operators. Like `group::GEN`, it is a constant that takes no inputs.
+
+#### Supported Types
+
+| Destination |
+| ----------- |
+| `group`     |
+
+[Back to Top](#table-of-contents)
 
 ---
 
@@ -1169,6 +1262,16 @@ Returns the generator point of the Aleo group. This is equivalent to `group::GEN
 ```
 
 Returns a precomputed array of the first 251 consecutive powers of the Aleo group generator: `[G^0, G^1, G^2, ..., G^250]`. Useful for efficient scalar multiplication without recomputing the powers at runtime.
+
+The array always has exactly 251 elements. Indexing beyond `250u32` is rejected at compile time by Leo's array bounds check — there is no runtime halt specific to this operator.
+
+#### Supported Types
+
+| Destination    |
+| -------------- |
+| `[group; 251]` |
+
+[Back to Top](#table-of-contents)
 
 ---
 

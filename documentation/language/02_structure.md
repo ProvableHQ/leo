@@ -15,45 +15,11 @@ If you need a declaration from another Leo file, you must import it.
 
 ### Program
 
-A program is a collection of code (its functions) and data (its types) that resides at a
-[program ID](#program-id) on the Aleo blockchain. A program is declared as `program {name}.{network} { ... }`.
-The body of the program is delimited by curly braces `{}`.
+A program is a collection of code (its functions) and data (its types) that resides at a program ID on the Aleo blockchain. A program is declared as `program {name}.{network} { ... }`, with the body delimited by curly braces.
+
+For the canonical list of which declarations belong inside vs. outside the `program { ... }` block, the program-ID naming rules, and import semantics, see [Project Layout](./01_layout.md#programs).
 
 ```leo file=../code_snippets/layout/main_example/src/main.leo#file
-```
-
-The following must be declared inside the scope of a program in a Leo file:
-
-- mappings
-- storage variables
-- record types
-- entry point `fn` declarations
-
-The following must be declared outside the scope of a program in a Leo file:
-
-- imports
-- struct types
-- helper `fn` definitions
-- `final fn` definitions
-- `interface` definitions
-
-#### Program ID
-
-A program ID is declared as `{name}.{network}`.
-
-The first character of a `name` must be a lowercase letter.
-`name` can only contain lowercase letters, numbers, and underscores, and must not contain a double underscore (`__`) or the keyword `aleo` in it.
-
-Currently, `aleo` is the only supported `network` domain.
-
-```leo showLineNumbers
-program hello.aleo; // valid
-
-program Foo.aleo;   // invalid
-program baR.aleo;   // invalid
-program 0foo.aleo;  // invalid
-program 0_foo.aleo; // invalid
-program _foo.aleo;  // invalid
 ```
 
 ### Constant
@@ -63,19 +29,14 @@ Constants are immutable, and the right-hand side must be an expression evaluatab
 
 Constants can be declared in four scopes:
 
-- **Global scope** (outside all program blocks in a program file): accessible anywhere in the same file.
+- **Global scope** (outside the `program` block in `main.leo`): accessible anywhere in the same file.
 - **Program scope** (inside a `program` block, outside any function): accessible within that program.
 - **Local scope** (inside a function body): accessible only within that function.
-- **Module scope** (in a module file within the same package, i.e. a `.leo` file with no `program` block): accessible within the same package via `path::to::module::CONST_NAME`. See [Modules](./01_layout.md#modules) for details.
+- **Module scope** (any non-`main.leo` source file in the package; module files do not contain a `program` block and may only declare `const`, `struct`, `fn`, and `interface`): accessible within the same package via `path::to::module::CONST_NAME`. See [Modules](./01_layout.md#modules) for details.
 
 Constants are also supported in [libraries](./06_libraries.md), which are separate packages containing reusable code. A library's root file and its submodules may declare constants, accessible from any dependent package as `library::CONST_NAME` or `library::path::to::submodule::CONST_NAME`.
 
-**Accessibility across packages:** Global and program-scope constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. The following are not yet supported:
-
-1. Accessing a constant from a submodule of an imported program
-2. Accessing an imported program's constant from within a submodule of the current program
-
-See [ProvableHQ/leo#29274](https://github.com/ProvableHQ/leo/issues/29274).
+**Accessibility across packages:** Global and program-scope constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. Constants declared in a submodule of an imported program are reachable through their full module path — `program_name.aleo::path::to::submodule::CONST_NAME` — provided the dependency is compiled from Leo source (pre-compiled `.aleo` stubs do not carry the submodule type information needed for resolution).
 
 ```leo file=../code_snippets/structure/constants/src/main.leo#scopes
 ```
@@ -94,9 +55,7 @@ See [ProvableHQ/leo#29274](https://github.com/ProvableHQ/leo/issues/29274).
 
 ### Import
 
-You can import dependencies that are downloaded to the `imports` directory.
-An import is declared as `import {filename}.aleo;`
-The dependency resolver will pull the imported program from the network or the local filesystem.
+An import is declared as `import {filename}.aleo;`. The dependency resolver pulls the imported program from the network or the local `imports/` directory. See [Imports](./01_layout.md#imports) for the declaration syntax and the [Dependencies guide](../guides/02_dependencies.md) for resolution rules.
 
 ```leo file=../code_snippets/layout/import_only/src/main.leo#snippet showLineNumbers
 ```
@@ -131,7 +90,7 @@ Structs contain component declarations `{name}: {type},`.
 
 ### Record
 
-A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.
+A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name **declared in the same program** (the check does not extend across imported programs). This is a snarkVM requirement.
 
 Records contain component declarations `{visibility} {name}: {type},`. Names of record components must not contain the keyword `aleo`.
 

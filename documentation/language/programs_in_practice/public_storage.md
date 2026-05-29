@@ -65,6 +65,21 @@ Storage variables behave similar to option types. There are several functions av
 ```leo file=../../code_snippets/public_storage/demo/src/main.leo#storage_var_decl
 ```
 
+### Initial State
+
+Singleton storage variables are **uninitialized** when a program is first deployed — declaring `storage counter: u32;` does not give `counter` a value. The variable becomes defined the first time something writes to it (`counter = 1u32;` inside a `final { }` block) and stays defined thereafter unless explicitly unset (`counter = none;`).
+
+Reading an uninitialized singleton with `.unwrap()` halts at runtime; reading with `.unwrap_or(default)` returns the supplied default. The two common patterns are:
+
+- **Initialize in the `constructor`.** The `constructor` runs once at deploy time and may set storage variables, so every read after deployment sees a defined starting value:
+
+  ```leo file=../../code_snippets/public_storage/storage_init/src/main.leo#file
+  ```
+
+- **Use `unwrap_or` everywhere.** Treat absence as a normal case and pass an explicit default at every read site.
+
+There is no implicit zero — Leo never substitutes a default value for an absent singleton. Choose one of the patterns above before deployment.
+
 ### Querying
 
 To query the value currently stored at `counter`:
@@ -130,6 +145,10 @@ Storage vectors behave like dynamic arrays of values of a given type. Several fu
 
 ```leo file=../../code_snippets/public_storage/demo/src/main.leo#storage_vec_decl
 ```
+
+### Initial State
+
+Unlike singleton storage variables, storage vectors **do not** require initialization. A freshly deployed vector is empty: `vec.len()` returns `0u32`, every `vec.get(i)` returns `none`, and the first `vec.push(x)` makes the vector observable starting at index `0`. No `constructor` setup is needed for vector storage.
 
 ### Querying
 

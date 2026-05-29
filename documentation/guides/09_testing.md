@@ -60,6 +60,26 @@ The `@should_fail` annotation should be added after the `@test` annotation for t
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_simple_addition_fail
 ```
 
+### Testing as a Specific Account
+
+By default, every `@test` function runs as the same fixed test account. The corresponding address is what [`self.caller`](../language/operators/standard_operators.md#selfcaller) and [`self.signer`](../language/operators/standard_operators.md#selfsigner) resolve to inside the test. The default key is:
+
+```text
+APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+```
+
+To run a single test as a different account, pass a `private_key` argument to the annotation:
+
+```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_with_private_key
+```
+
+This is the standard way to exercise access-controlled entry points: pair a privileged-account test that runs to success with a `@should_fail` counterpart that runs under the default (or any other non-privileged) account. The privileged test uses `@test(private_key = "...")` to override the caller; the failing counterpart uses bare `@test` so the default test account is the caller:
+
+```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_admin_pair
+```
+
+`private_key` is the only recognized argument to `@test`; passing any other key (e.g. `@test(seed = ...)`) is a compile error. The value must be a string literal containing a valid Leo private key.
+
 ### Testing Leo Types
 
 Developers can test that record and struct fields match their expected values. In `example_program.leo`, a record is minted by an entry function shown here:

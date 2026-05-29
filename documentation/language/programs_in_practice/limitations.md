@@ -8,25 +8,26 @@ toc_max_heading_level: 3
 
 snarkVM imposes the following limits on Aleo programs:
 
-- the maximum size of the program is 100 KB, by the number of characters.
-- the maximum number of mappings is 31.
-- the maximum number of imports is 64.
-- the maximum length of a program name is 30 characters (excluding the `.aleo` suffix).
-- the maximum import depth is 64.
-- the maximum call depth is 31.
-- the maximum number of functions is 31.
-- the maximum number of structs is 310.
-- the maximum number of records is 310.
-- the maximum number of closures is 62.
+- the maximum size of the compiled program is **512 KB** by character count (was 100 KB before consensus version V14).
+- the maximum number of mappings is **31**. Each `storage` singleton consumes one mapping slot, and each `storage` vector consumes two (one for values, one for length), so storage declarations share this budget with explicit `mapping` declarations.
+- the maximum number of imports is **64**.
+- the maximum length of a program name is **30 characters** (excluding the `.aleo` suffix). Identifiers (including struct, record, mapping, and function names) are limited to **31 ASCII alphanumeric or underscore characters** by the Aleo identifier rules.
+- the maximum import depth is **64**.
+- the maximum call depth is **31**.
+- the maximum number of entry functions is **31** per program; a `constructor` counts separately. Helper `fn`s are inlined at their call sites and do not consume slots in this budget. (`final { }` blocks compile into a `finalize` section attached to their parent entry function — they do not produce additional functions.)
+- the maximum number of structs is **310** (`10 × MAX_FUNCTIONS`).
+- the maximum number of records is **310**.
+- the maximum number of closures is **62** (`2 × MAX_FUNCTIONS`).
+- the maximum number of inputs and outputs **per entry point** is **16** each.
 
 **If your _compiled_ Leo program exceeds these limits, then consider modularizing or rearchitecting your program.** The only way these limits can be increased is through a formal protocol upgrade via the governance process defined by the Aleo Network Foundation.
 
 Some other protocol-level limits to be aware of are:
 
-- **the maximum transaction size is 128 KB.** If your program exceeds this, perhaps by requiring large inputs or producing large outputs, consider optimizing the data types in your Leo code.
-- **the maximum number of micro-credits your transaction can consume for on-chain execution is `100_000_000`.**. If your program exceeds this, consider optimizing on-chain components of your Leo code.
+- **the maximum transaction size is 768 KB** (was 128 KB before consensus version V14). If your program exceeds this — for example by requiring large inputs or producing large outputs — consider optimizing the data types in your Leo code.
+- **the maximum number of micro-credits your transaction can consume for on-chain execution is `100_000_000`.** If your program exceeds this, consider optimizing on-chain components of your Leo code.
 
-As with the above restrictions, these limits can only be increased via the governance process.
+As with the above restrictions, these limits can only be increased via the governance process. Authoritative values live in `snarkvm-console-network` (`MAX_PROGRAM_SIZE`, `MAX_MAPPINGS`, `MAX_FUNCTIONS`, etc.).
 
 ## Compiling Conditional On-Chain Code
 

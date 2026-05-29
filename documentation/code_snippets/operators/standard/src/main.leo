@@ -327,6 +327,12 @@ program standard_ops_demo.aleo {
     }
     // ANCHOR_END: self_address
 
+    // ANCHOR: self_id
+    fn get_program_id() -> address {
+        return self.id;
+    }
+    // ANCHOR_END: self_id
+
     // ANCHOR: self_caller
     fn matches_caller(addr: address) -> bool {
         return self.caller == addr;
