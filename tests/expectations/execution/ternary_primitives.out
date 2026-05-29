@@ -1,0 +1,27 @@
+program test.aleo;
+
+function select:
+    input r0 as boolean.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as boolean.private;
+    input r4 as boolean.private;
+    input r5 as field.private;
+    input r6 as field.private;
+    input r7 as address.private;
+    input r8 as address.private;
+    ternary r0 r1 r2 into r9;
+    ternary r0 r3 r4 into r10;
+    ternary r0 r5 r6 into r11;
+    ternary r0 r7 r8 into r12;
+    output r9 as u32.private;
+    output r10 as boolean.private;
+    output r11 as field.private;
+    output r12 as address.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: failed: Process authorization failed: Stack authorization failed: 'test.aleo/select' expects 9 inputs, but 0 were provided.
+output: ()
+status: failed: Process authorization failed: Stack authorization failed: 'test.aleo/select' expects 9 inputs, but 0 were provided.
+output: ()

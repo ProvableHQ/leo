@@ -1,0 +1,36 @@
+program test.aleo;
+
+function select:
+    input r0 as boolean.private;
+    input r1 as [u32; 4u32].private;
+    input r2 as [u32; 4u32].private;
+    ternary r0 r1 r2 into r3;
+    output r3 as [u32; 4u32].private;
+
+function select_element:
+    input r0 as boolean.private;
+    input r1 as [u32; 4u32].private;
+    input r2 as [u32; 4u32].private;
+    ternary r0 r1[0u32] r2[3u32] into r3;
+    output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: [
+  1u32,
+  2u32,
+  3u32,
+  4u32
+]
+status: success
+output: [
+  10u32,
+  20u32,
+  30u32,
+  40u32
+]
+status: success
+output: 1u32
+status: success
+output: 40u32

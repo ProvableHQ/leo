@@ -18,11 +18,12 @@ finalize increment:
     input r0 as u32.public;
     contains count__[false] into r1;
     get.or_use count__[false] 0u32 into r2;
-    ternary r1 r2 0u32 into r3;
-    cast r1 r3 into r4 as Optional__JzunLORyB8U;
-    ternary r4.is_some r4.val 0u32 into r5;
-    add r5 r0 into r6;
-    set r6 into count__[false];
+    cast true r2 into r3 as Optional__JzunLORyB8U;
+    cast false 0u32 into r4 as Optional__JzunLORyB8U;
+    ternary r1 r3 r4 into r5;
+    ternary r5.is_some r5.val 0u32 into r6;
+    add r6 r0 into r7;
+    set r7 into count__[false];
 
 constructor:
     assert.eq edition 0u16;

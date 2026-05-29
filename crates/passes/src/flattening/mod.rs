@@ -15,10 +15,22 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! The flattening pass traverses the AST after the SSA pass and converts into a sequential code.
-//! The pass flattens `ConditionalStatement`s into a sequence of `AssignStatement`s.
-//! The pass rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values as a single `ReturnStatement` at the end of the function.
-//! The pass rewrites ternary expressions over composite data types, into ternary expressions over the individual fields of the composite data type, followed by an expression constructing the composite data type.
-//! Note that this transformation is not applied to async functions.
+//!
+//! In transition (offchain) functions the pass:
+//!   - Flattens `ConditionalStatement`s into a sequence of `AssignStatement`s guarded by ternaries.
+//!   - Rewrites `ReturnStatement`s into `AssignStatement`s and consolidates the returned values into
+//!     a single `ReturnStatement` at the end of the function.
+//!   - Guards asserts with the active path condition and any early-return guard.
+//!
+//! In finalize (onchain) functions the pass preserves `ConditionalStatement`s, `ReturnStatement`s,
+//! and `AssertStatement`s verbatim, since finalize code can use Aleo branch instructions directly.
+//!
+//! In both contexts the pass rewrites ternary expressions whose branches are tuples into
+//! per-element ternary expressions and ternaries over records into per-field ternaries followed
+//! by a composite init, since the Aleo `ternary` instruction only accepts plaintext operands.
+//! Ternaries over literal, array, and plaintext struct types are left intact;
+//! `ConsensusVersion::V15` accepts these as direct operands of the `ternary` instruction
+//! (snarkVM PR #3222).
 //!
 //! Consider the following Leo code, output by the SSA pass.
 //! ```leo

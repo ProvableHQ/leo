@@ -69,14 +69,15 @@ serial_test        = "3.1"
 sha2               = "0.11"
 similar            = "3.1"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-# Uses the published `4.7.1` release, which ships V15 `view fn` support (snarkVM PRs #3238, #3257, #3253).
+# Pinned to the `mohammadfawaz/complex_ternary` branch (snarkVM PR #3222), rebased on staging so it
+# ships V15 `view fn` support (snarkVM PRs #3238, #3257, #3253) alongside the aggregate `ternary` opcodes.
 # `history` is required to compile `Process::evaluate_view_with_history`, the public-facing view entry point.
-snarkvm            = { version = "4.7.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
-# Wasm-friendly snarkVM subsets pinned at the same version as the umbrella crate; used by
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM", branch = "mohammadfawaz/complex_ternary", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+# Wasm-friendly snarkVM subsets pinned at the same branch as the umbrella crate; used by
 # `leo-ast` and `leo-disassembler` on `wasm32-unknown-unknown` where the full `snarkvm`
 # crate pulls in native-only ledger/package code.
-snarkvm-console = { version = "4.7.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { version = "4.7.1", features = [ "wasm" ] }
+snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM", branch = "mohammadfawaz/complex_ternary", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM", branch = "mohammadfawaz/complex_ternary", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"
