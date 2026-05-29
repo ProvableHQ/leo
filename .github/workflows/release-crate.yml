@@ -146,6 +146,7 @@ jobs:
 
       - name: Find Previous Tag
         id: previous
+        if: steps.find.outputs.has-bins == 'true'
         run: |
           TAG="${{ steps.parse.outputs.tag }}"
           CRATE_NAME="${{ steps.parse.outputs.crate-name }}"
