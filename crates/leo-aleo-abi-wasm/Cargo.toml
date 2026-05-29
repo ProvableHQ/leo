@@ -1,6 +1,6 @@
 [package]
 name = "leo-aleo-abi-wasm"
-version = "4.0.2"
+version = "4.1.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "WASM bindings for ABI generation from Aleo bytecode"
 homepage = "https://leo-lang.org"
