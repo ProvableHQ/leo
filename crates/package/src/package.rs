@@ -67,6 +67,13 @@ impl Package {
         self.base_directory.join(BUILD_DIRECTORY)
     }
 
+    /// The package's own compilation unit, identified via the manifest.
+    /// Robust under `--build-tests` (unlike `compilation_units.last()`).
+    pub fn primary_unit(&self) -> Option<&CompilationUnit> {
+        let primary = bare_unit_name(&self.manifest.program);
+        self.compilation_units.iter().find(|u| !u.kind.is_test() && bare_unit_name(&u.name.to_string()) == primary)
+    }
+
     /// The `build/<name>/` directory for a single compilation unit - a program,
     /// library, or test - whether it is this package's own unit, a local
     /// dependency, or a fetched network import.
@@ -149,7 +156,7 @@ impl Package {
             .map_err(|e| crate::errors::failed_to_initialize_package(&package_name, &full_path, e))?;
 
         // Create .gitignore
-        const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n";
+        const GITIGNORE_TEMPLATE: &str = ".env\n*.avm\n*.prover\n*.verifier\nbuild/\n";
         const GITIGNORE_FILENAME: &str = ".gitignore";
 
         let gitignore_path = full_path.join(GITIGNORE_FILENAME);

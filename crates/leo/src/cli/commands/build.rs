@@ -166,21 +166,14 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     let source_directory = package.source_directory();
     let main_source_path = source_directory.join("main.leo");
 
-    // Use the flag already computed by Package during dependency resolution rather than
-    // re-checking the filesystem. The main program is always last in topological order.
-    let primary_name = package.compilation_units.last().map(|p| p.name);
-    let is_library = package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false);
-    if !is_library {
-        std::fs::create_dir_all(&build_directory).map_err(|err| {
-            crate::errors::util_file_io_error(
-                format_args!("Couldn't create directory {}", build_directory.display()),
-                err,
-            )
-        })?;
-        // Clear artifacts from the pre-flat-layout build directory so they don't
-        // linger beside the new per-program directories after an upgrade.
-        remove_legacy_build_artifacts(&build_directory);
-    }
+    // Resolve via the manifest so this isn't a test unit under `--build-tests`.
+    let primary_name = package.primary_unit().map(|p| p.name);
+    std::fs::create_dir_all(&build_directory).map_err(|err| {
+        crate::errors::util_file_io_error(format_args!("Couldn't create directory {}", build_directory.display()), err)
+    })?;
+    // Clear artifacts from the pre-flat-layout build directory so they don't
+    // linger beside the new per-program directories after an upgrade.
+    remove_legacy_build_artifacts(&build_directory);
 
     // Initialize error handler.
     let handler = Handler::default();
@@ -218,13 +211,15 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     for unit in &package.compilation_units {
         let unit_name = unit.name.to_string();
+        // Normalize key so `"foo.aleo"` and `"foo"` don't collide on the same dir.
+        let unit_key = leo_package::bare_unit_name(&unit_name).to_string();
         match &unit.data {
             leo_package::ProgramData::Bytecode(bytecode) => {
                 // This was a network dependency or local .aleo dependency, and we have its bytecode.
                 let build_path = package.unit_bytecode_path(&unit_name);
 
                 // Write the .aleo file into the program's own build directory.
-                if written.insert(unit_name.clone()) {
+                if written.insert(unit_key.clone()) {
                     ensure_parent_dir(&build_path)?;
                     std::fs::write(&build_path, bytecode).map_err(crate::errors::failed_to_load_instructions)?;
                 }
@@ -245,7 +240,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                 stubs.insert(unit.name, stub.into());
 
-                compiled_programs.entry(unit_name.clone()).or_insert(ProgramForValidation {
+                compiled_programs.entry(unit_key.clone()).or_insert(ProgramForValidation {
                     bytecode: bytecode.clone(),
                     path: build_path,
                     is_leo_compiled: false,
@@ -286,18 +281,28 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         network,
                     )?;
 
-                    // Write this unit's compiled bytecode into its own build directory.
+                    // Write this unit's compiled bytecode, ABI, and interface ABIs.
                     let primary_path = package.unit_bytecode_path(&unit_name);
-                    if written.insert(unit_name.clone()) {
+                    if written.insert(unit_key.clone()) {
                         ensure_parent_dir(&primary_path)?;
                         std::fs::write(&primary_path, &compiled.primary.bytecode)
                             .map_err(crate::errors::failed_to_load_instructions)?;
+                        let abi_path = package.unit_abi_path(&unit_name);
+                        let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
+                            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+                        std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
+                        if is_main {
+                            tracing::info!("✅ Generated ABI for program '{unit_name}'.");
+                        }
+                        let interfaces_directory = package.unit_interfaces_directory(&unit_name);
+                        write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
                     }
 
                     // Write each import's bytecode and ABI into its own build directory.
                     for import in &compiled.imports {
                         let import_path = package.unit_bytecode_path(&import.name);
-                        if written.insert(import.name.clone()) {
+                        let import_key = leo_package::bare_unit_name(&import.name).to_string();
+                        if written.insert(import_key.clone()) {
                             ensure_parent_dir(&import_path)?;
                             std::fs::write(&import_path, &import.bytecode)
                                 .map_err(crate::errors::failed_to_load_instructions)?;
@@ -310,31 +315,18 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         }
 
                         // Queue import for validation.
-                        compiled_programs.entry(import.name.clone()).or_insert(ProgramForValidation {
+                        compiled_programs.entry(import_key).or_insert(ProgramForValidation {
                             bytecode: import.bytecode.clone(),
                             path: import_path,
                             is_leo_compiled: true,
                         });
                     }
                     // Queue the primary program.
-                    compiled_programs.entry(unit_name.clone()).or_insert(ProgramForValidation {
+                    compiled_programs.entry(unit_key.clone()).or_insert(ProgramForValidation {
                         bytecode: compiled.primary.bytecode.clone(),
                         path: primary_path,
                         is_leo_compiled: true,
                     });
-
-                    // Write the ABI file and interface ABIs for the main program.
-                    if is_main {
-                        let abi_path = package.unit_abi_path(&unit_name);
-                        let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
-                            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
-                        std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
-                        tracing::info!("✅ Generated ABI for program '{unit_name}'.");
-
-                        // Write interface ABIs.
-                        let interfaces_directory = package.unit_interfaces_directory(&unit_name);
-                        write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
-                    }
                 }
 
                 if unit.kind.is_library() {
@@ -344,10 +336,12 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     // dependencies are parsed only; their semantics are validated when their own
                     // `leo build` is run.
                     let library = if primary_name == Some(unit.name) {
+                        let snapshots_directory = package.unit_snapshots_directory(&unit_name);
                         let (lib, interfaces) = build_leo_source_directory_library(
                             source,
                             &source_dir,
                             unit.name,
+                            &snapshots_directory,
                             &handler,
                             &node_builder,
                             command.options.clone(),
@@ -398,6 +392,49 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                 }
             }
         }
+    }
+
+    // Ensure every program unit has on-disk bytecode for downstream commands; the
+    // parse-only path above skips manifest deps the main source doesn't `import`.
+    for unit in &package.compilation_units {
+        if !unit.kind.is_program() || unit.kind.is_test() {
+            continue;
+        }
+        let leo_package::ProgramData::SourcePath { directory, source } = &unit.data else { continue };
+        let unit_name = unit.name.to_string();
+        let unit_key = leo_package::bare_unit_name(&unit_name).to_string();
+        if !written.insert(unit_key.clone()) {
+            continue;
+        }
+        let source_dir = directory.join("src");
+        let snapshots_directory = package.unit_snapshots_directory(&unit_name);
+        let compiled = compile_leo_source_directory(
+            source,
+            &source_dir,
+            unit.name,
+            false,
+            &snapshots_directory,
+            &handler,
+            &node_builder,
+            command.options.clone(),
+            stubs.clone(),
+            network,
+        )?;
+        let primary_path = package.unit_bytecode_path(&unit_name);
+        ensure_parent_dir(&primary_path)?;
+        std::fs::write(&primary_path, &compiled.primary.bytecode)
+            .map_err(crate::errors::failed_to_load_instructions)?;
+        let abi_path = package.unit_abi_path(&unit_name);
+        let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
+            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+        std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
+        let interfaces_directory = package.unit_interfaces_directory(&unit_name);
+        write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
+        compiled_programs.entry(unit_key).or_insert(ProgramForValidation {
+            bytecode: compiled.primary.bytecode.clone(),
+            path: primary_path,
+            is_leo_compiled: true,
+        });
     }
 
     // Validate generated bytecode through snarkVM's type checker.
@@ -584,6 +621,7 @@ fn build_leo_source_directory_library(
     entry_file_path: &Path,
     source_directory: &Path,
     library_name: Symbol,
+    snapshots_directory: &Path,
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
     options: BuildOptions,
@@ -599,7 +637,7 @@ fn build_leo_source_directory_library(
         false,
         handler.clone(),
         Rc::clone(node_builder),
-        std::path::PathBuf::default(),
+        snapshots_directory.to_path_buf(),
         Some(options.into()),
         stubs,
         network,
@@ -654,7 +692,15 @@ fn ensure_parent_dir(path: &Path) -> Result<()> {
 /// Remove artifacts left by the pre-flat-layout build directory (`build/main.aleo`,
 /// `build/imports/`, etc.) so they don't linger beside the new per-program
 /// directories after an upgrade. Best-effort: missing entries are ignored.
+///
+/// Gated on a top-level legacy artifact so we don't wipe a perfectly valid new-layout
+/// per-unit directory for a user program literally named `imports` or `interfaces`.
 fn remove_legacy_build_artifacts(build_directory: &Path) {
+    let is_legacy =
+        build_directory.join("main.aleo").exists() || build_directory.join(leo_package::MANIFEST_FILENAME).exists();
+    if !is_legacy {
+        return;
+    }
     for file in ["main.aleo", ABI_FILENAME, leo_package::MANIFEST_FILENAME] {
         let _ = std::fs::remove_file(build_directory.join(file));
     }

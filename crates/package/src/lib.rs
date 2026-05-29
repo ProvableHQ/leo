@@ -129,7 +129,7 @@ pub type Edition = u16;
 ///
 /// `CompilationUnit` names are bare for local packages but `.aleo`-suffixed for
 /// network programs; build paths key on the bare name so the two are unified.
-pub(crate) fn bare_unit_name(name: &str) -> &str {
+pub fn bare_unit_name(name: &str) -> &str {
     name.strip_suffix(".aleo").unwrap_or(name)
 }
 
