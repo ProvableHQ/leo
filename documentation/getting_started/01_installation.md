@@ -13,8 +13,6 @@ import TabItem from '@theme/TabItem';
 
 There are a number of ways to install Leo, depending on your platform and preferences. Take your pick!
 
-If you'd like to try Leo without installing it locally on your machine, check out the [Leo Playground](./02_ide.md#leo-playground).
-
 <Tabs defaultValue="cargo"
 values={[
 { label: 'Cargo', value: 'cargo' },

@@ -4,19 +4,9 @@ title: Your Development Environment
 sidebar_label: Dev Env
 ---
 
-[general tags]: # "playground, ide, plugin"
+[general tags]: # "ide, plugin"
 
 Developers can choose from a wide variety of development environments.
-
-## Leo Playground
-
-[Leo Playground](https://play.leo-lang.org) is a web-based IDE that is designed to allow developers to develop, deploy, and execute programs all in the browser! It comes with an editor, Github integrations, and a number of utilities to manage programs and interface with the network.
-
-![Leo Playground](./../img/leo-playground.png)
-
-:::note
-Developers may find that generating transactions is slower in the browser. This is because the underlying algorithms for generating proofs are computationally expensive. We're actively working on making this better!
-:::
 
 ## Language Server
 
