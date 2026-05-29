@@ -187,22 +187,25 @@ cargo binstall leo-lsp
 
 ## Adding a New Publishable Crate
 
-Before relying on the automated publishing workflow for a new crate, bootstrap
-the crate on crates.io:
+Trusted Publishing cannot publish a brand-new crate name, so a new publishable
+crate needs a manual first publish before the automated workflow can take over.
+Complete these steps from a topic branch before merging the crate to `master`,
+otherwise `publish-crates.yml` will try and fail to publish the unpublished
+version on the first run.
 
 1. Add the crate to the workspace with the intended package name and metadata.
 2. Publish the first version manually with `cargo publish -p <crate-name>`.
-3. Configure crates.io Trusted Publishing for the crate:
+   This uses a local crates.io token, not Trusted Publishing.
+3. Configure crates.io Trusted Publishing for the new crate:
    - provider: GitHub Actions
    - owner: `ProvableHQ`
    - repository: `leo`
    - workflow: `publish-crates.yml`
-4. Confirm the crate owner set includes the maintainers who can adjust crates.io
-   owner and Trusted Publishing settings.
-
-After the first version exists on crates.io and Trusted Publishing is
-configured, future version bumps merged to `master` are handled by
-`publish-crates.yml`.
+4. Confirm the crate owner set on crates.io includes the maintainers who can
+   adjust ownership and Trusted Publishing settings.
+5. Merge the crate addition to `master`. `publish-crates.yml` sees the first
+   version already on crates.io and skips it; future version bumps are then
+   handled automatically.
 
 ## Adding a New Binary Crate
 
