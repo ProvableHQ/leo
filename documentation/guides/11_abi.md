@@ -42,7 +42,7 @@ ABI generation is automatic on every build - no flags required.
 
 ## Generating ABIs from Compiled Bytecode
 
-The standalone [`leo abi`](../cli/02b_abi.md) command generates an ABI JSON document from any `.aleo` file — useful when you have a deployed program's bytecode but not its source. The same code path is exposed as a WebAssembly binding through the `leo-aleo-abi-wasm` crate, so browser tooling (wallets, explorers, the [Leo Playground](../getting_started/02_ide.md#leo-playground)) can produce ABIs from bytecode without shelling out to the CLI.
+The standalone [`leo abi`](../cli/02b_abi.md) command generates an ABI JSON document from any `.aleo` file — useful when you have a deployed program's bytecode but not its source. The same code path is exposed as a WebAssembly binding through the `leo-aleo-abi-wasm` crate, so browser tooling (wallets, explorers) can produce ABIs from bytecode without shelling out to the CLI.
 
 ## ABI Format
 
