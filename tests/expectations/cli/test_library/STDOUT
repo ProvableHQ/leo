@@ -39,7 +39,7 @@ test exit code: 213
        Leo ✅ Validated 'top_lib'.
 upgrade exit code: 213
 --- leo clean on library (should succeed) ---
-clean exit code: 0
+       Leo clean exit code: 0
 --- leo run with library dep (should succeed) ---
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.

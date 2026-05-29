@@ -2,6 +2,9 @@
 ⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
+       Leo 🔨 Building library 'my_lib'
+       Leo ✅ Validated 'my_lib'.
+
        Leo 🔨 Compiling 'test_my_lib.aleo'
        Leo     16 statements before dead code elimination.
        Leo     13 statements after dead code elimination.

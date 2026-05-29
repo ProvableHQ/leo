@@ -5,5 +5,5 @@ LEO_BIN=${1}
 ${LEO_BIN} --disable-update-check build
 
 echo ""
-echo "=== build/abi.json ==="
-cat build/abi.json
+echo "=== build/abi_test/abi.json ==="
+cat build/abi_test/abi.json

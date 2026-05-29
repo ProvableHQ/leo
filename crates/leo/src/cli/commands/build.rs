@@ -281,21 +281,22 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         network,
                     )?;
 
-                    // Write this unit's compiled bytecode, ABI, and interface ABIs.
+                    // Write this unit's compiled bytecode. ABI and interface ABIs are
+                    // emitted only for the main program; tests deliberately skip them.
                     let primary_path = package.unit_bytecode_path(&unit_name);
                     if written.insert(unit_key.clone()) {
                         ensure_parent_dir(&primary_path)?;
                         std::fs::write(&primary_path, &compiled.primary.bytecode)
                             .map_err(crate::errors::failed_to_load_instructions)?;
-                        let abi_path = package.unit_abi_path(&unit_name);
-                        let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
-                            .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
-                        std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
                         if is_main {
+                            let abi_path = package.unit_abi_path(&unit_name);
+                            let abi_json = serde_json::to_string_pretty(&compiled.primary.abi)
+                                .map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+                            std::fs::write(&abi_path, abi_json).map_err(crate::errors::failed_to_write_abi)?;
                             tracing::info!("✅ Generated ABI for program '{unit_name}'.");
+                            let interfaces_directory = package.unit_interfaces_directory(&unit_name);
+                            write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
                         }
-                        let interfaces_directory = package.unit_interfaces_directory(&unit_name);
-                        write_interface_abis(&interfaces_directory, &compiled.interfaces)?;
                     }
 
                     // Write each import's bytecode and ABI into its own build directory.
