@@ -86,11 +86,6 @@ impl Package {
         self.unit_build_directory(name).join(ABI_FILENAME)
     }
 
-    /// Path to a unit's manifest: `build/<name>/program.json`.
-    pub fn unit_manifest_path(&self, name: &str) -> PathBuf {
-        self.unit_build_directory(name).join(MANIFEST_FILENAME)
-    }
-
     /// Path to a unit's interface ABI directory: `build/<name>/interfaces/`.
     /// Both programs and libraries can declare interfaces.
     pub fn unit_interfaces_directory(&self, name: &str) -> PathBuf {
@@ -667,7 +662,6 @@ mod tests {
         assert_eq!(pkg.unit_build_directory("token"), PathBuf::from("/tmp/demo/build/token"));
         assert_eq!(pkg.unit_bytecode_path("token.aleo"), PathBuf::from("/tmp/demo/build/token/token.aleo"));
         assert_eq!(pkg.unit_abi_path("token"), PathBuf::from("/tmp/demo/build/token/abi.json"));
-        assert_eq!(pkg.unit_manifest_path("token"), PathBuf::from("/tmp/demo/build/token/program.json"));
         assert_eq!(pkg.unit_interfaces_directory("token"), PathBuf::from("/tmp/demo/build/token/interfaces"));
         assert_eq!(pkg.unit_snapshots_directory("token"), PathBuf::from("/tmp/demo/build/token/snapshots"));
     }

@@ -26,7 +26,6 @@ build/
 ├── my_program/                        # your program's own build directory
 │   ├── my_program.aleo                # compiled Aleo bytecode
 │   ├── abi.json                       # ABI for your program
-│   ├── program.json                   # manifest
 │   └── interfaces/
 │       ├── MyInterface.json           # Per-interface ABI (locally defined)
 │       └── parent_program/

@@ -23,8 +23,7 @@
 //! ├── build
 //! │   ├── my_program
 //! │   │   ├── my_program.aleo
-//! │   │   ├── abi.json
-//! │   │   └── program.json
+//! │   │   └── abi.json
 //! │   └── credits
 //! │       └── credits.aleo
 //! ├── src
