@@ -14,49 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! `leo build` — compile Leo source to Aleo bytecode + ABI.
+//! `leo build` — compile a Leo project to Aleo bytecode + ABI.
 //!
-//! Two flavours:
-//! - [`compile_impl`] — single Leo source string, no virtual FS. The simplest
-//!   shape; matches what the playground passes from a Monaco editor.
-//! - [`compile_project_impl`] — full project laid out as a `{path: contents}`
-//!   map. Supports multiple modules + transitive dependencies. Mirrors what
-//!   `leo build` does on a real package directory.
+//! Takes a project laid out as a `{ "<path>": "<contents>" }` virtual file
+//! map and a `root` pointing at the directory that contains the main
+//! package's `program.json`. The shape mirrors what `leo build` reads from
+//! a real directory; single-source callers stage a 2-entry map
+//! (`program.json` + `src/main.leo`).
 
 use crate::{
     project,
-    wire::{compile_session, error_json, import_summaries, network_from_manifest, parse_program_json},
+    wire::{error_json, import_summaries, network_from_manifest},
 };
 
-use indexmap::IndexMap;
 use leo_span::create_session_if_not_set_then;
 use serde_json::json;
 
-/// Compile a single Leo source file to Aleo bytecode + ABI.
-///
-/// Returns JSON: `{ success, output, abi, diagnostics }`.
-pub fn compile_impl(source: &str, program_json: &str) -> String {
-    let (expected_name, network) = parse_program_json(program_json);
-    create_session_if_not_set_then(|_| match compile_session(source, expected_name, network, false, IndexMap::new()) {
-        Ok(c) => json!({
-            "success": true,
-            "output": c.primary.bytecode,
-            "abi": serde_json::to_string_pretty(&c.primary.abi).unwrap_or_default(),
-            "diagnostics": "",
-        })
-        .to_string(),
-        Err(diag) => json!({"success": false, "output": "", "abi": "", "diagnostics": diag}).to_string(),
-    })
-}
-
-/// Compile a multi-file project laid out as a virtual filesystem.
-///
-/// `files_json` is `{ "<path>": "<contents>" }`; `root` is the directory that
-/// contains the main package's `program.json`.
+/// Compile a Leo project.
 ///
 /// Returns JSON:
 /// `{ success, output, abi, imports: [{name, bytecode, abi}], diagnostics }`.
-pub fn compile_project_impl(files_json: &str, root: &str) -> String {
+pub fn build_impl(files_json: &str, root: &str) -> String {
     create_session_if_not_set_then(|_| {
         let proj = match project::Project::from_files_json(files_json, root) {
             Ok(p) => p,

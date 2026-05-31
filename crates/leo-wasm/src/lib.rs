@@ -21,26 +21,30 @@
 //!
 //! # `leo` CLI ↔ wasm entry points
 //!
-//! Each `commands::*` module mirrors one [`leo` CLI command]. Pick the entry
-//! point matching the CLI command you'd run:
+//! Every entry point mirrors one [`leo` CLI command] and takes the same
+//! shape: a `{ "<path>": "<contents>" }` virtual file map plus a `root`
+//! pointing at the project's `program.json` directory. JS callers stage the
+//! same on-disk layout `leo build` would consume — no special "single
+//! source" shortcut.
 //!
-//! | `leo` command  | wasm module                | impls                                                       |
-//! |----------------|----------------------------|-------------------------------------------------------------|
-//! | `leo build`    | [`commands::build`]        | [`compile_impl`][b1] (single source) · [`compile_project_impl`][b2] (project) |
-//! | `leo run`      | [`commands::run`] (wasm32) | [`run_impl`][r1] (single source) · [`run_project_impl`][r2] (project) |
-//! | `leo test`     | [`commands::test`] (wasm32)| [`run_tests_impl`][t1] (main + tests src) · [`test_project_impl`][t2] (project) |
-//! | `leo fmt`      | [`commands::format`]       | [`format_impl`][f1]                                         |
+//! | `leo` command | wasm module          | impl                              | JS export  |
+//! |---------------|----------------------|-----------------------------------|------------|
+//! | `leo build`   | [`commands::build`]  | [`build_impl`][b]                 | `build`    |
+//! | `leo run`     | [`commands::run`]    | [`run_impl`][r]   (wasm32)        | `run`      |
+//! | `leo test`    | [`commands::test`]   | [`test_impl`][t]  (wasm32)        | `test`     |
+//! | `leo fmt`     | [`commands::format`] | [`format_impl`][f] (single source) | `format`  |
 //!
-//! [b1]: commands::build::compile_impl
-//! [b2]: commands::build::compile_project_impl
-//! [r1]: commands::run::run_impl
-//! [r2]: commands::run::run_project_impl
-//! [t1]: commands::test::run_tests_impl
-//! [t2]: commands::test::test_project_impl
-//! [f1]: commands::format::format_impl
+//! [b]: commands::build::build_impl
+//! [r]: commands::run::run_impl
+//! [t]: commands::test::test_impl
+//! [f]: commands::format::format_impl
 //! [`leo` CLI command]: https://github.com/ProvableHQ/leo/tree/master/crates/leo/src/cli/commands
 //!
-//! Every `*_impl` returns a JSON string the JS side can parse directly. The
+//! `format_impl` is the one outlier — it mirrors `leo_fmt::format_source`,
+//! the same per-source primitive `leo fmt` invokes per file. Every other
+//! command is project-shaped.
+//!
+//! Each `*_impl` returns a JSON string the JS side can parse directly. The
 //! `#[wasm_bindgen]` shims in the wasm-only [`wasm_bindings`] module are
 //! one-line wrappers around those `*_impl`s.
 //!
@@ -50,8 +54,9 @@
 //!   `Project` (manifest parsing + transitive dep resolution).
 //! - [`evaluate`] is the wasm32-only snarkVM execution glue
 //!   (`Process::load_web` + `FinalizeMemory`).
-//! - [`wire`] is the JSON/manifest plumbing shared across commands
-//!   (`parse_program_json`, `error_json`, `import_summaries`, …).
+//! - [`wire`] is the JSON / manifest plumbing shared across commands
+//!   (`network_from_manifest`, `error_json`, `import_summaries`,
+//!   `clone_file_source`).
 //!
 //! Build with:
 //!   `wasm-pack build crates/leo-wasm --target web --out-dir ../../leo-playground/wasm`
@@ -83,44 +88,26 @@ mod wasm_bindings {
         console_error_panic_hook::set_once();
     }
 
-    // `leo build` ----------------------------------------------------------
-
+    /// `leo build` — compile a project.
     #[wasm_bindgen]
-    pub fn compile(source: &str, program_json: &str) -> String {
-        crate::commands::build::compile_impl(source, program_json)
+    pub fn build(files_json: &str, root: &str) -> String {
+        crate::commands::build::build_impl(files_json, root)
     }
 
+    /// `leo run` — compile and execute one function.
     #[wasm_bindgen]
-    pub fn compile_project(files_json: &str, root: &str) -> String {
-        crate::commands::build::compile_project_impl(files_json, root)
+    pub fn run(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
+        crate::commands::run::run_impl(files_json, root, function_name, inputs_json)
     }
 
-    // `leo run` ------------------------------------------------------------
-
+    /// `leo test` — compile project + test package, run every `@test` fn.
     #[wasm_bindgen]
-    pub fn run(source: &str, function_name: &str, inputs_json: &str, program_json: &str) -> String {
-        crate::commands::run::run_impl(source, function_name, inputs_json, program_json)
+    pub fn test(files_json: &str, root: &str, test_root: &str) -> String {
+        crate::commands::test::test_impl(files_json, root, test_root)
     }
 
-    #[wasm_bindgen]
-    pub fn run_project(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
-        crate::commands::run::run_project_impl(files_json, root, function_name, inputs_json)
-    }
-
-    // `leo test` -----------------------------------------------------------
-
-    #[wasm_bindgen]
-    pub fn run_tests(main_source: &str, test_source: &str, program_json: &str) -> String {
-        crate::commands::test::run_tests_impl(main_source, test_source, program_json)
-    }
-
-    #[wasm_bindgen]
-    pub fn test_project(files_json: &str, root: &str, test_root: &str) -> String {
-        crate::commands::test::test_project_impl(files_json, root, test_root)
-    }
-
-    // `leo fmt` ------------------------------------------------------------
-
+    /// `leo fmt` — format a Leo source string. Mirrors `leo_fmt::format_source`,
+    /// the per-file primitive the CLI invokes.
     #[wasm_bindgen]
     pub fn format(source: &str) -> String {
         crate::commands::format::format_impl(source)
@@ -128,4 +115,4 @@ mod wasm_bindings {
 }
 
 #[cfg(target_arch = "wasm32")]
-pub use wasm_bindings::{compile, compile_project, format, init, run, run_project, run_tests, test_project};
+pub use wasm_bindings::{build, format, init, run, test};

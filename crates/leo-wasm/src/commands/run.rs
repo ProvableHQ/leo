@@ -14,39 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! `leo run` — compile and execute one function.
+//! `leo run` — compile a project and execute one function.
 //!
 //! Wasm-only: uses [`crate::evaluate::run_function`] (`Process::load_web` +
 //! `FinalizeMemory`) which is only available in wasm builds of snarkVM.
-//!
-//! Like `build`, exposes two flavours: single-source ([`run_impl`]) and
-//! project-based ([`run_project_impl`]).
 
 use crate::{
     evaluate,
     project,
-    wire::{compile_session, error_json, network_from_manifest, parse_program_json},
+    wire::{error_json, network_from_manifest},
 };
 
-use indexmap::IndexMap;
 use leo_span::create_session_if_not_set_then;
-use serde_json::json;
-
-/// Compile and run one function.
-///
-/// Returns JSON: `{ success, output, finalize, diagnostics }`.
-pub fn run_impl(source: &str, function_name: &str, inputs_json: &str, program_json: &str) -> String {
-    let (expected_name, network) = parse_program_json(program_json);
-    let inputs: Vec<String> = serde_json::from_str(inputs_json).unwrap_or_default();
-
-    create_session_if_not_set_then(|_| match compile_session(source, expected_name, network, false, IndexMap::new()) {
-        Ok(c) => evaluate::run_function(&c.primary.bytecode, function_name, &inputs, &[]),
-        Err(diag) => json!({"success": false, "output": "", "diagnostics": diag}).to_string(),
-    })
-}
 
 /// Compile a project and run one function.
-pub fn run_project_impl(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
+///
+/// `inputs_json` is a JSON array of Leo-typed input strings, e.g. `["1u32", "2u32"]`.
+///
+/// Returns JSON: `{ success, output, finalize, diagnostics }`.
+pub fn run_impl(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
     let inputs: Vec<String> = serde_json::from_str(inputs_json).unwrap_or_default();
     create_session_if_not_set_then(|_| {
         let proj = match project::Project::from_files_json(files_json, root) {
