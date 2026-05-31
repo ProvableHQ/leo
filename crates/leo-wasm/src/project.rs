@@ -91,27 +91,6 @@ impl Project {
     }
 }
 
-/// Minimal manifest shape needed to walk dependencies.
-///
-/// Inlined rather than depending on `leo-package`: that crate pulls in the full
-/// `snarkvm` umbrella and is native-only.
-#[derive(Debug, serde::Deserialize)]
-struct ManifestLite {
-    #[allow(dead_code)] // captured for symmetry with `leo-package::Manifest`; not used directly.
-    program: String,
-    #[serde(default)]
-    dependencies: Option<Vec<DependencyLite>>,
-}
-
-#[derive(Debug, serde::Deserialize)]
-struct DependencyLite {
-    name: String,
-    /// Path relative to the manifest's directory. Only path-based deps are
-    /// resolvable from a virtual FS; network deps require the JS side to bake
-    /// the bytecode into the file map and point `path` at it.
-    path: Option<PathBuf>,
-}
-
 /// Resolve a package's entry file (`main.leo` or `lib.leo`) inside `root`.
 fn entry_file_in(file_source: &InMemoryFileSource, root: &Path) -> Result<PathBuf, String> {
     let src = root.join(SOURCE_DIRECTORY);
@@ -234,9 +213,11 @@ fn normalize_path(p: &Path) -> PathBuf {
     out
 }
 
-fn read_manifest(file_source: &InMemoryFileSource, path: &Path) -> Result<ManifestLite, String> {
-    let raw = file_source.read_file(path).map_err(|e| format!("read manifest `{}`: {e}", path.display()))?;
-    serde_json::from_str(&raw).map_err(|e| format!("parse manifest `{}`: {e}", path.display()))
+/// Read a `program.json` manifest through the virtual FS, delegating to the
+/// canonical reader in `leo-package` so the same code path serves CLI and wasm.
+fn read_manifest(file_source: &InMemoryFileSource, path: &Path) -> Result<leo_package::Manifest, String> {
+    leo_package::Manifest::read_from_file_source(path, file_source)
+        .map_err(|e| format!("read manifest `{}`: {e}", path.display()))
 }
 
 /// Compile a project to bytecode + ABI.

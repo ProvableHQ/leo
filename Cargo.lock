@@ -2639,6 +2639,7 @@ dependencies = [
  "leo-compiler",
  "leo-errors",
  "leo-fmt",
+ "leo-package",
  "leo-parser",
  "leo-span",
  "rand 0.10.1",
