@@ -48,9 +48,18 @@ noconfig = [ ]
 only_testnet = [ ]
 
 [dependencies]
+# Wasm-buildable surface: just enough to compile the `pub mod options`
+# module the wasm bindings (`leo-wasm`) re-use. Everything the native CLI
+# binary needs (snarkVM umbrella, HTTP, terminal UI, async runtime, …) is
+# gated behind the `cfg(not(target_arch = "wasm32"))` block below.
+leo-ast    = { workspace = true }
+clap       = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # leo dependencies
 leo-abi           = { workspace = true, features = [ "aleo-bytecode" ] }
-leo-ast           = { workspace = true }
 leo-compiler      = { workspace = true }
 leo-disassembler  = { workspace = true }
 leo-errors        = { workspace = true }
@@ -64,7 +73,6 @@ axum               = { workspace = true }
 axum-extra         = { workspace = true }
 backtrace          = { workspace = true }
 chrono             = { workspace = true }
-clap               = { workspace = true }
 colored            = { workspace = true }
 crossbeam-channel  = { workspace = true }
 crossterm          = { workspace = true }
@@ -85,8 +93,6 @@ regex              = { workspace = true }
 reqwest            = { workspace = true }
 rpassword          = { workspace = true }
 self_update        = { workspace = true }
-serde              = { workspace = true }
-serde_json         = { workspace = true }
 serial_test        = { workspace = true }
 similar            = { workspace = true }
 sha2               = { workspace = true }
@@ -108,6 +114,11 @@ which = { workspace = true }
 
 [build-dependencies]
 walkdir = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# `clap` (and friends) pull `getrandom 0.4` in transitively on wasm32; that
+# crate refuses to compile unless the `wasm_js` backend is opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
 
 [target."cfg(unix)".dependencies]
 libc        = "0.2"

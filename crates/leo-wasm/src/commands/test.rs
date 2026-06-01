@@ -59,7 +59,7 @@ pub fn test_impl(files_json: &str, root: &str, test_root: &str, env_json: &str) 
             Err(e) => return test_error(&e),
         };
 
-        let network = env.network();
+        let network = env.resolved_network();
         if network != NetworkName::TestnetV0 {
             return test_error(&format!("leo-wasm `test` only supports `network: \"testnet\"` (got {network})"));
         }

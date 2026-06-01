@@ -18,10 +18,14 @@ crate-type = [ "cdylib", "rlib" ]
 [dependencies]
 # leo dependencies — needed by the target-neutral impls (compile / format /
 # compile_project) so they can also be exercised from native unit tests.
+# `leo-lang` is pulled in for its wasm-buildable `options` module so the
+# wasm bindings share `EnvOptions` / `BuildOptions` with the native CLI
+# instead of carrying a parallel definition.
 leo-ast      = { workspace = true }
 leo-compiler = { workspace = true }
 leo-errors   = { workspace = true }
 leo-fmt      = { workspace = true }
+leo-lang     = { workspace = true }
 leo-package  = { workspace = true }
 leo-parser   = { workspace = true }
 leo-span     = { workspace = true }

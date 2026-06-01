@@ -51,7 +51,7 @@ pub fn run_impl(files_json: &str, root: &str, function_name: &str, inputs_json: 
             Ok(p) => p,
             Err(e) => return error_json(&e, &["output"]),
         };
-        let network = env.network();
+        let network = env.resolved_network();
         if network != NetworkName::TestnetV0 {
             return error_json(&format!("leo-wasm `run` only supports `network: \"testnet\"` (got {network})"), &[
                 "output",

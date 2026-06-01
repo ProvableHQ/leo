@@ -14,65 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Shared plumbing for every `commands::*` entry point.
+//! JSON-shaping helpers shared across every `commands::*` entry point.
 //!
-//! - **Env options** — [`EnvOptions`] parses the per-call JSON blob the JS
-//!   side passes (network, endpoint, private key, etc.), mirroring the
-//!   native CLI's `--network`/`--endpoint`/`--private-key` flags.
-//! - **JSON shape** — `error_json` / `import_summaries` produce the
-//!   `{ success, output, abi, diagnostics }`-style strings the
-//!   `wasm_bindings` shim returns verbatim.
+//! The `EnvOptions` / `BuildOptions` structs are re-exported here from
+//! [`leo_lang::options`] so callers can stay in `crate::wire::*` while the
+//! actual definitions stay co-located with the native CLI's `clap` parser.
 
-use leo_ast::NetworkName;
-use serde::Deserialize;
 use serde_json::json;
 
-// ---------------------------------------------------------------------------
-// Env options
-// ---------------------------------------------------------------------------
-
-/// Per-call environment overrides — mirrors the native CLI's [`EnvOptions`]
-/// (`crates/leo/src/cli/commands/common/options.rs`). Passed as a JSON blob
-/// at the wasm boundary so the JS side can populate the same fields the CLI
-/// reads from flags or `.env`.
-///
-/// Every field is optional; an empty `""` / `"{}"` blob yields all defaults.
-#[derive(Default, Debug, Clone, Deserialize)]
-#[serde(default)]
-pub struct EnvOptions {
-    pub network: Option<NetworkName>,
-    pub endpoint: Option<String>,
-    pub private_key: Option<String>,
-    pub devnet: bool,
-    pub consensus_heights: Option<Vec<u32>>,
-    #[serde(default = "default_network_retries")]
-    pub network_retries: u32,
-}
-
-fn default_network_retries() -> u32 {
-    2
-}
-
-impl EnvOptions {
-    /// Parse from the JSON blob the JS caller passes. An empty / whitespace
-    /// blob yields `Self::default()` so callers can pass `""` when they have
-    /// no overrides.
-    pub fn from_json(env_json: &str) -> Result<Self, String> {
-        if env_json.trim().is_empty() {
-            return Ok(Self::default());
-        }
-        serde_json::from_str(env_json).map_err(|e| format!("invalid env JSON: {e}"))
-    }
-
-    /// Resolved network, defaulting to `TestnetV0` (matches the CLI default).
-    pub fn network(&self) -> NetworkName {
-        self.network.unwrap_or(NetworkName::TestnetV0)
-    }
-}
-
-// ---------------------------------------------------------------------------
-// JSON shape
-// ---------------------------------------------------------------------------
+// Re-export the shared option structs that came from the CLI. Both targets
+// see the same struct shape — the CLI parses them from `clap` flags, the
+// wasm bindings parse them from a JSON blob via `EnvOptions::from_json`.
+pub use leo_lang::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
 
 /// Build a JSON error response with `success: false`, `diagnostics: <msg>`, and
 /// empty placeholders for the named result fields.

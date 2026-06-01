@@ -48,7 +48,7 @@ pub fn build_impl(files_json: &str, root: &str, env_json: &str) -> String {
             Ok(p) => p,
             Err(e) => return error_json(&e, &["output", "abi", "imports"]),
         };
-        match project::compile(&proj, /* is_test */ false, env.network()) {
+        match project::compile(&proj, /* is_test */ false, env.resolved_network()) {
             Ok(c) => json!({
                 "success": true,
                 "output": c.primary.bytecode,
