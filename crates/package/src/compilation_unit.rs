@@ -424,17 +424,20 @@ pub(crate) fn resolve_dependency_path_relative_to(
     Ok(dependency)
 }
 
-/// Native-only helper preserved for call sites that haven't been threaded
-/// through a `FileSource` yet. Equivalent to
-/// `resolve_dependency_path_relative_to(base, dep, &DiskFileSource)` and uses
-/// real-disk `canonicalize` so error messages match the historical output.
-#[cfg(not(target_arch = "wasm32"))]
-pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+/// Joins a relative dep path to `base` and resolves it via the supplied
+/// `FileSource::canonicalize`. On `DiskFileSource` this matches the historical
+/// behaviour (real `Path::canonicalize`); on in-memory sources it falls back
+/// to component normalization.
+pub(crate) fn canonicalize_dependency_path_relative_to_with_file_source(
+    base: &Path,
+    mut dependency: Dependency,
+    file_source: &impl FileSource,
+) -> Result<Dependency> {
     if let Some(path) = &mut dependency.path
         && !path.is_absolute()
     {
         let joined = base.join(&path);
-        *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
+        *path = file_source.canonicalize(&joined).map_err(|e| crate::errors::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
 }

@@ -51,10 +51,11 @@
 //! # Internals
 //!
 //! - [`project`] turns a `{path: contents}` virtual file map into a loaded
-//!   `Project` (manifest parsing + transitive dep resolution).
-//! - [`wire`] is the JSON / manifest plumbing shared across commands
-//!   (`network_from_manifest`, `error_json`, `import_summaries`,
-//!   `clone_file_source`).
+//!   [`leo_package::Package`] (manifest parsing + transitive dep resolution)
+//!   plus the [`leo_span::file_source::InMemoryFileSource`] the Compiler
+//!   runs against.
+//! - [`wire`] is the JSON plumbing shared across commands ([`wire::EnvOptions`],
+//!   `error_json`, `import_summaries`).
 //!
 //! `leo run` and `leo test` reuse [`leo_compiler::run::run_without_ledger`]
 //! for execution — the same in-memory `Process` + `FinalizeStore` path the

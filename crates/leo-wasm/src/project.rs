@@ -14,20 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Multi-file / multi-dependency project support for `leo-wasm`.
+//! Wasm project loader.
 //!
-//! The browser passes a virtual file system (path → contents) plus a project
-//! root path. This module:
-//!
-//! - Materialises the file map as an [`InMemoryFileSource`].
-//! - Walks each project's `program.json` to collect dependencies, including
-//!   transitive ones, distinguishing source packages from `.aleo` bytecode
-//!   stubs.
-//! - Delegates the actual compilation to
-//!   [`leo_compiler::Compiler::compile_from_directory_with_file_source`], so
-//!   module discovery and the pass pipeline are not duplicated.
+//! Layers an [`InMemoryFileSource`] over a wasm-side virtual file map and
+//! defers all manifest reading, transitive dep walking, and topological
+//! sorting to [`leo_package::Package`] via its
+//! `from_directory_*_with_file_source` entry points. The Compiler then runs
+//! against the same `FileSource`, so leo-wasm holds no parallel project
+//! model — every command operates on a single shared `Package`.
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use leo_ast::{NetworkName, NodeBuilder, Stub};
 use leo_compiler::{
     Compiled,
@@ -36,6 +32,7 @@ use leo_compiler::{
     run::{Case, Config as RunConfig, EvaluationOutcome, Program as RunProgram, run_without_ledger},
 };
 use leo_errors::{BufferEmitter, Handler};
+use leo_package::{Package, ProgramData};
 use leo_span::{
     Symbol,
     file_source::{FileSource, InMemoryFileSource},
@@ -43,257 +40,115 @@ use leo_span::{
     sym,
     with_session_globals,
 };
-use std::{
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::{path::PathBuf, rc::Rc};
 
-/// Source-directory name inside a Leo package (mirrors `leo_package::SOURCE_DIRECTORY`).
-const SOURCE_DIRECTORY: &str = "src";
-/// Entry-point name for a program package (mirrors `leo_package::MAIN_FILENAME`).
-const MAIN_FILENAME: &str = "main.leo";
-/// Entry-point name for a library package (mirrors `leo_package::LIB_FILENAME`).
-const LIB_FILENAME: &str = "lib.leo";
-/// Manifest filename (mirrors `leo_package::MANIFEST_FILENAME`).
-const MANIFEST_FILENAME: &str = "program.json";
-
-/// A virtual project rooted at `root`, with all files preloaded into a shared
-/// [`InMemoryFileSource`]. The root must be the directory that contains
-/// `program.json`.
+/// A wasm project: a fully resolved [`Package`] plus the in-memory file map
+/// that fed it. Holding both lets the Compiler run against the same source
+/// the package walker consulted.
 pub struct Project {
-    pub root: PathBuf,
+    pub package: Package,
     pub file_source: InMemoryFileSource,
 }
 
 impl Project {
-    /// Build a project from a `{ path: contents }` JSON blob.
-    ///
-    /// Paths are stored verbatim; callers choose the prefix convention. Every
-    /// entry passed in becomes addressable through the returned
-    /// [`InMemoryFileSource`].
+    /// Build a project from a `{ path: contents }` JSON blob and a `root`
+    /// pointing at the package's `program.json` directory.
     pub fn from_files_json(files_json: &str, root: &str) -> Result<Self, String> {
-        let map: IndexMap<String, String> =
-            serde_json::from_str(files_json).map_err(|e| format!("invalid files JSON: {e}"))?;
-        let mut file_source = InMemoryFileSource::new();
-        for (path, contents) in map {
-            file_source.set(PathBuf::from(path), contents);
-        }
-        Ok(Self { root: PathBuf::from(root), file_source })
-    }
-
-    /// Path to the project's `program.json`.
-    pub fn manifest_path(&self) -> PathBuf {
-        self.root.join(MANIFEST_FILENAME)
-    }
-
-    /// Path to the project's source directory.
-    pub fn source_dir(&self) -> PathBuf {
-        self.root.join(SOURCE_DIRECTORY)
-    }
-
-    /// Resolve the entry file (`src/main.leo` or `src/lib.leo`).
-    pub fn entry_file(&self) -> Result<PathBuf, String> {
-        entry_file_in(&self.file_source, &self.root)
+        let file_source = build_file_source(files_json)?;
+        let package = Package::from_directory_with_file_source(root, &file_source)
+            .map_err(|e| format!("load package `{root}`: {e}"))?;
+        Ok(Self { package, file_source })
     }
 }
 
-/// Resolve a package's entry file (`main.leo` or `lib.leo`) inside `root`.
-fn entry_file_in(file_source: &InMemoryFileSource, root: &Path) -> Result<PathBuf, String> {
-    let src = root.join(SOURCE_DIRECTORY);
-    let main = src.join(MAIN_FILENAME);
-    let lib = src.join(LIB_FILENAME);
-    match (file_source.is_file(&main), file_source.is_file(&lib)) {
-        (true, true) => Err(format!("ambiguous entry in `{}`: both `main.leo` and `lib.leo` present", root.display())),
-        (true, false) => Ok(main),
-        (false, true) => Ok(lib),
-        (false, false) => Err(format!("missing entry in `{}`: neither `main.leo` nor `lib.leo` found", root.display())),
+/// Materialise a `{path: contents}` JSON blob into an [`InMemoryFileSource`].
+fn build_file_source(files_json: &str) -> Result<InMemoryFileSource, String> {
+    let map: IndexMap<String, String> =
+        serde_json::from_str(files_json).map_err(|e| format!("invalid files JSON: {e}"))?;
+    let mut fs = InMemoryFileSource::new();
+    for (path, contents) in map {
+        fs.set(PathBuf::from(path), contents);
     }
+    Ok(fs)
 }
 
-/// Walk `project`'s dependency graph and build the import-stub map that
-/// `Compiler::new` expects.
+/// Iterate `package.compilation_units` (topologically sorted) and build a
+/// stub map for every non-primary unit. Bytecode deps disassemble through
+/// `disassemble_dependency_bytecode`; source deps go through the Leo parser
+/// against the same `FileSource` the main compile sees.
 ///
-/// Path-based deps are loaded one of two ways:
-///
-/// * Path ends in `.aleo` and points to a file → disassemble that bytecode
-///   (`Stub::FromAleo`).
-/// * Path points at a directory containing `program.json` → parse the package's
-///   entry file with the *same* node builder as the parent so NodeIDs line up
-///   (`Stub::FromLeo`), then recurse for its own deps.
-pub fn collect_import_stubs(
+/// `handler`/`node_builder` must be the same instances the Compiler will run
+/// with so NodeIDs line up across stubs and the primary program.
+fn build_import_stubs(
     project: &Project,
+    primary_name: Symbol,
     handler: &Handler,
     buf: &BufferEmitter,
     node_builder: &Rc<NodeBuilder>,
     network: NetworkName,
 ) -> Result<IndexMap<Symbol, Stub>, String> {
-    let mut stubs = IndexMap::new();
-    let mut sources = IndexMap::<Symbol, PathBuf>::new();
-    let mut visited = IndexSet::<PathBuf>::new();
-    walk_deps(
-        &project.file_source,
-        &project.root,
-        handler,
-        buf,
-        node_builder,
-        network,
-        &mut stubs,
-        &mut sources,
-        &mut visited,
-    )?;
+    let mut stubs = IndexMap::with_capacity(project.package.compilation_units.len());
+    for unit in &project.package.compilation_units {
+        if unit.name == primary_name {
+            continue;
+        }
+        let stub = match &unit.data {
+            ProgramData::Bytecode(bytecode) => disassemble_dependency_bytecode(unit.name, bytecode, network)
+                .map_err(|e| format!("disassemble `{}`: {e}", unit.name))?,
+            ProgramData::SourcePath { source, .. } => {
+                let src =
+                    project.file_source.read_file(source).map_err(|e| format!("read `{}`: {e}", source.display()))?;
+                let source_file =
+                    with_session_globals(|s| s.source_map.new_source(&src, FileName::Real(source.clone())));
+                let program = leo_parser::parse_program(handler.clone(), node_builder, &source_file, &[], network)
+                    .map_err(|_| diag_or(buf, &format!("parse dependency `{}`", source.display())))?;
+                if handler.had_errors() {
+                    return Err(diag_or(buf, &format!("parse dependency `{}` had errors", source.display())));
+                }
+                Stub::from(program)
+            }
+        };
+        stubs.insert(unit.name, stub);
+    }
     Ok(stubs)
 }
 
-#[allow(clippy::too_many_arguments)]
-fn walk_deps(
-    file_source: &InMemoryFileSource,
-    manifest_dir: &Path,
-    handler: &Handler,
-    buf: &BufferEmitter,
-    node_builder: &Rc<NodeBuilder>,
-    network: NetworkName,
-    stubs: &mut IndexMap<Symbol, Stub>,
-    sources: &mut IndexMap<Symbol, PathBuf>,
-    visited: &mut IndexSet<PathBuf>,
-) -> Result<(), String> {
-    let manifest_path = manifest_dir.join(MANIFEST_FILENAME);
-    if !visited.insert(manifest_path.clone()) {
-        return Ok(());
-    }
-    let manifest = read_manifest(file_source, &manifest_path)?;
-
-    for dep in manifest.dependencies.unwrap_or_default() {
-        let Some(rel_path) = dep.path else {
-            // Network-only deps are unsupported in the virtual FS: callers should
-            // bake the bytecode into the file map and point `path` at it.
-            continue;
-        };
-        let abs_path = normalize_path(&if rel_path.is_absolute() { rel_path } else { manifest_dir.join(&rel_path) });
-
-        if abs_path.extension().and_then(|s| s.to_str()) == Some("aleo") {
-            // `.aleo` bytecode dep — disassemble in place. The disassembler
-            // emits the stub's `program_id` (with `.aleo` suffix), which is
-            // also the symbol the parser puts in `program.imports`, so the
-            // lookup in `add_import_stubs` matches.
-            let key = Symbol::intern(&dep.name);
-            if let Some(existing) = sources.get(&key) {
-                if existing != &abs_path {
-                    return Err(format!(
-                        "duplicate dependency `{}`: already staged from `{}`, now also from `{}`",
-                        dep.name,
-                        existing.display(),
-                        abs_path.display()
-                    ));
-                }
-                continue;
-            }
-            let bytecode =
-                file_source.read_file(&abs_path).map_err(|e| format!("read `{}`: {e}", abs_path.display()))?;
-            let stub = disassemble_dependency_bytecode(key, &bytecode, network)
-                .map_err(|e| format!("disassemble `{}`: {e}", abs_path.display()))?;
-            stubs.insert(key, stub);
-            sources.insert(key, abs_path);
-        } else {
-            // Source-package dep — parse the entry file and recurse.
-            let entry = entry_file_in(file_source, &abs_path)?;
-            let source = file_source.read_file(&entry).map_err(|e| format!("read `{}`: {e}", entry.display()))?;
-            let source_file = with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(entry.clone())));
-            let program = leo_parser::parse_program(handler.clone(), node_builder, &source_file, &[], network)
-                .map_err(|_| diag_or(buf, &format!("parse dependency `{}`", entry.display())))?;
-            if handler.had_errors() {
-                return Err(diag_or(buf, &format!("parse dependency `{}` had errors", entry.display())));
-            }
-            // `add_import_stubs` looks the stub up by the same Symbol the parser
-            // installs as the program's scope key — use that, not the manifest's
-            // `name` field, so cross-program references resolve regardless of
-            // whether the manifest dropped the `.aleo` suffix.
-            let scope_key = program
-                .program_scopes
-                .first()
-                .map(|(k, _)| *k)
-                .ok_or_else(|| format!("dependency `{}` has no program scope", entry.display()))?;
-            if let Some(existing) = sources.get(&scope_key) {
-                if existing != &entry {
-                    return Err(format!(
-                        "duplicate dependency `{}`: already staged from `{}`, now also from `{}`",
-                        scope_key,
-                        existing.display(),
-                        entry.display()
-                    ));
-                }
-                continue;
-            }
-            stubs.insert(scope_key, Stub::from(program));
-            sources.insert(scope_key, entry);
-
-            walk_deps(file_source, &abs_path, handler, buf, node_builder, network, stubs, sources, visited)?;
-        }
-    }
-    Ok(())
+/// Pull `(name, src_dir, entry_file)` for the package's primary source unit.
+fn primary_source(project: &Project) -> Result<(Symbol, PathBuf, PathBuf), String> {
+    let primary = project.package.primary_unit().ok_or_else(|| "no primary unit in package".to_string())?;
+    let ProgramData::SourcePath { directory, source } = &primary.data else {
+        return Err(format!("primary unit `{}` is not a source package", primary.name));
+    };
+    Ok((primary.name, directory.join(leo_package::SOURCE_DIRECTORY), source.clone()))
 }
 
-/// Collapse `.` and `..` components without touching the filesystem.
-///
-/// `Path::canonicalize` would consult the real disk; the virtual file source
-/// has no real disk to consult, so we resolve manifest-relative paths like
-/// `../leaf` to `/top/leaf` here.
-fn normalize_path(p: &Path) -> PathBuf {
-    let mut out = PathBuf::new();
-    for comp in p.components() {
-        use std::path::Component::*;
-        match comp {
-            CurDir => {}
-            ParentDir => {
-                out.pop();
-            }
-            other => out.push(other.as_os_str()),
-        }
-    }
-    out
-}
-
-/// Read a `program.json` manifest through the virtual FS, delegating to the
-/// canonical reader in `leo-package` so the same code path serves CLI and wasm.
-fn read_manifest(file_source: &InMemoryFileSource, path: &Path) -> Result<leo_package::Manifest, String> {
-    leo_package::Manifest::read_from_file_source(path, file_source)
-        .map_err(|e| format!("read manifest `{}`: {e}", path.display()))
-}
-
-/// Compile a project to bytecode + ABI.
-///
-/// Returns the [`Compiled`] result including the primary program and every
-/// import bytecode emitted by codegen.
+/// Compile the project's primary unit to Aleo bytecode + ABI.
 pub fn compile(project: &Project, is_test: bool, network: NetworkName) -> Result<Compiled, String> {
     let (handler, buf) = Handler::new_with_buf();
     let node_builder = Rc::new(NodeBuilder::default());
 
-    // Get the program name up front so the compiler's name-mismatch check fires
-    // with a meaningful "expected vs got" message.
-    let manifest = read_manifest(&project.file_source, &project.manifest_path())?;
-    let expected_unit_name = Some(manifest.program);
+    let (primary_name, source_dir, entry) = primary_source(project)?;
+    let import_stubs = build_import_stubs(project, primary_name, &handler, &buf, &node_builder, network)?;
 
-    let import_stubs = collect_import_stubs(project, &handler, &buf, &node_builder, network)?;
-
-    let entry = project.entry_file()?;
-    let src_dir = project.source_dir();
     let mut compiler = Compiler::new(
-        expected_unit_name,
+        Some(primary_name.to_string()),
         is_test,
         handler,
         node_builder,
-        PathBuf::new(), // unused: `write_ast` is a no-op on wasm32
+        PathBuf::new(), // unused on wasm: `write_ast` is a no-op
         None,
         import_stubs,
         network,
     );
     compiler
-        .compile_from_directory_with_file_source(&entry, &src_dir, &project.file_source)
+        .compile_from_directory_with_file_source(&entry, &source_dir, &project.file_source)
         .map_err(|e| diag_or(&buf, &e))
 }
 
-/// Compile `project` as a test: same as [`compile`] but with `is_test = true`
-/// and additional import stubs populated by `extra_stubs` (typically the main
-/// program's `Stub::FromLeo` so cross-program references resolve).
+/// Compile the project as a test package: same as [`compile`] with
+/// `is_test = true` and an optional `extra_stubs` merged into the stub map
+/// (typically the main program's `Stub::FromLeo` so cross-program references
+/// resolve).
 pub fn compile_test(
     project: &Project,
     network: NetworkName,
@@ -302,13 +157,12 @@ pub fn compile_test(
     let (handler, buf) = Handler::new_with_buf();
     let node_builder = Rc::new(NodeBuilder::default());
 
-    let mut import_stubs = collect_import_stubs(project, &handler, &buf, &node_builder, network)?;
+    let (primary_name, source_dir, entry) = primary_source(project)?;
+    let mut import_stubs = build_import_stubs(project, primary_name, &handler, &buf, &node_builder, network)?;
     for (k, v) in extra_stubs {
         import_stubs.entry(k).or_insert(v);
     }
 
-    let entry = project.entry_file()?;
-    let src_dir = project.source_dir();
     let mut compiler = Compiler::new(
         None,
         /* is_test */ true,
@@ -320,7 +174,7 @@ pub fn compile_test(
         network,
     );
     compiler
-        .compile_from_directory_with_file_source(&entry, &src_dir, &project.file_source)
+        .compile_from_directory_with_file_source(&entry, &source_dir, &project.file_source)
         .map_err(|e| diag_or(&buf, &e))
 }
 
@@ -362,8 +216,7 @@ pub fn stage_programs(compiled: &Compiled) -> Vec<RunProgram> {
 }
 
 /// Evaluate a single function against the staged `programs` and return its
-/// [`EvaluationOutcome`]. Wraps the `run_without_ledger` boilerplate so the
-/// command modules don't have to assemble `Case` / `Config` themselves.
+/// [`EvaluationOutcome`].
 pub fn run_function(
     programs: Vec<RunProgram>,
     program_name: &str,
@@ -383,15 +236,18 @@ pub fn run_function(
     Ok(outcomes.pop().expect("one case in, one outcome out"))
 }
 
-/// Parse a project's entry source (without running the full pipeline) and list
-/// every `@test` entry function. Returns an empty vector when the source fails
-/// to parse — the caller treats that the same as "no tests."
+/// Parse the project's primary source (without running the full pipeline) and
+/// list every `@test` entry function. Returns an empty vector when the source
+/// fails to parse — the caller treats that the same as "no tests."
 pub fn find_test_functions(project: &Project, network: NetworkName) -> Result<Vec<TestFn>, String> {
-    let entry = project.entry_file()?;
-    let source = project.file_source.read_file(&entry).map_err(|e| format!("read `{}`: {e}", entry.display()))?;
+    let primary = project.package.primary_unit().ok_or_else(|| "no primary unit in package".to_string())?;
+    let ProgramData::SourcePath { source, .. } = &primary.data else {
+        return Err(format!("test package's primary unit `{}` is not a source package", primary.name));
+    };
+    let src = project.file_source.read_file(source).map_err(|e| format!("read `{}`: {e}", source.display()))?;
     let (handler, _) = Handler::new_with_buf();
     let node_builder = Rc::new(NodeBuilder::default());
-    let source_file = with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(entry.clone())));
+    let source_file = with_session_globals(|s| s.source_map.new_source(&src, FileName::Real(source.clone())));
     let Ok(program) = leo_parser::parse_program(handler, &node_builder, &source_file, &[], network) else {
         return Ok(Vec::new());
     };

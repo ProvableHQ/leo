@@ -22,10 +22,7 @@
 //! helpers live in [`crate::project`]; this file just shapes the
 //! `{ success, results, diagnostics }` JSON the playground expects.
 
-use crate::{
-    project,
-    wire::{EnvOptions, clone_file_source},
-};
+use crate::{project, wire::EnvOptions};
 
 use indexmap::IndexMap;
 use leo_ast::NetworkName;
@@ -45,16 +42,22 @@ pub fn test_impl(files_json: &str, root: &str, test_root: &str, env_json: &str) 
         Err(e) => return test_error(&e),
     };
     create_session_if_not_set_then(|_| {
-        // Validate `root` resolves to a real project in the supplied file map.
-        // The main project itself isn't compiled here — `compile_test` resolves
-        // it through the test package's manifest dependency — but we want a
-        // clear error before any test work if the file map is wrong.
+        // Sanity-check that `root` resolves to a real project in the supplied
+        // file map. The main project itself isn't compiled here — `compile_test`
+        // resolves it through the test package's manifest dependency — but we
+        // want a clear error before any test work if the file map is wrong.
         if let Err(e) = project::Project::from_files_json(files_json, root) {
             return test_error(&e);
         }
 
-        let test_proj =
-            project::Project { root: std::path::PathBuf::from(test_root), file_source: clone_file_source(files_json) };
+        // The test package is loaded as its own `Project`; its manifest must
+        // declare the main project (at `root`) as a path dependency, which the
+        // shared `Package` loader resolves transitively against the same file
+        // map.
+        let test_proj = match project::Project::from_files_json(files_json, test_root) {
+            Ok(p) => p,
+            Err(e) => return test_error(&e),
+        };
 
         let network = env.network();
         if network != NetworkName::TestnetV0 {

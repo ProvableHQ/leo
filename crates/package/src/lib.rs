@@ -91,14 +91,14 @@ pub use location::*;
 mod manifest;
 pub use manifest::*;
 
-// `Package` and `Workspace` are native-only until their `_with_file_source`
-// variants are landed — both use `path.canonicalize()`, `fs::read_dir`, and
-// disk-walking helpers that don't trivially translate to a virtual FS. The
-// lower-level wasm-buildable APIs (`Manifest::read_from_file_source`,
+// `Package` is available on every target now — disk-bound entry points
+// (`Package::from_directory*`, `Package::test_files`, `Package::initialize`)
+// stay native-only behind `#[cfg(not(target_arch = "wasm32"))]`, while the
+// `_with_file_source` variants of `Package::from_directory_*` and the
+// existing wasm-buildable helpers (`Manifest::read_from_file_source`,
 // `CompilationUnit::*_with_file_source`) are available on every target.
-#[cfg(not(target_arch = "wasm32"))]
+// `Workspace` is still native-only.
 mod package;
-#[cfg(not(target_arch = "wasm32"))]
 pub use package::*;
 
 mod compilation_unit;

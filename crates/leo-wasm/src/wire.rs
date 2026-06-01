@@ -22,15 +22,10 @@
 //! - **JSON shape** — `error_json` / `import_summaries` produce the
 //!   `{ success, output, abi, diagnostics }`-style strings the
 //!   `wasm_bindings` shim returns verbatim.
-//! - **File-map plumbing** — `clone_file_source` rebuilds an
-//!   `InMemoryFileSource` from the original JSON blob (wasm-only).
 
 use leo_ast::NetworkName;
 use serde::Deserialize;
 use serde_json::json;
-
-#[cfg(target_arch = "wasm32")]
-use indexmap::IndexMap;
 
 // ---------------------------------------------------------------------------
 // Env options
@@ -104,23 +99,4 @@ pub fn import_summaries(imports: &[leo_compiler::CompiledProgram]) -> Vec<serde_
             })
         })
         .collect()
-}
-
-// ---------------------------------------------------------------------------
-// File-map plumbing
-// ---------------------------------------------------------------------------
-
-/// Reconstruct a fresh `InMemoryFileSource` from `files_json`. `InMemoryFileSource`
-/// doesn't expose `Clone`; the cheapest way to share the same file map between
-/// the main project and the test project is to deserialize twice.
-#[cfg(target_arch = "wasm32")]
-pub fn clone_file_source(files_json: &str) -> leo_span::file_source::InMemoryFileSource {
-    use leo_span::file_source::InMemoryFileSource;
-    let mut out = InMemoryFileSource::new();
-    if let Ok(map) = serde_json::from_str::<IndexMap<String, String>>(files_json) {
-        for (path, contents) in map {
-            out.set(std::path::PathBuf::from(path), contents);
-        }
-    }
-    out
 }
