@@ -46,4 +46,5 @@ pub mod project;
 // of `crates/leo-package` so that crate stays purely wasm-buildable. Each
 // module is `#[cfg(not(target_arch = "wasm32"))]`-gated internally.
 pub mod network;
+pub mod package_init;
 pub mod validation;

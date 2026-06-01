@@ -71,7 +71,8 @@
 
 #![forbid(unsafe_code)]
 
-mod errors;
+pub mod errors;
+pub use errors::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 use leo_ast::NetworkName;

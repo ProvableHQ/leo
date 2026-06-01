@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::{Package, Workspace};
+use leo_package::Workspace;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
@@ -53,7 +53,7 @@ impl Command for LeoNew {
             let full_path = Workspace::initialize_skeleton(&self.name, &package_path)?;
             println!("Created workspace {} at `{}`.", self.name.bold(), full_path.display());
         } else {
-            let full_path = Package::initialize(&self.name, &package_path, self.library)?;
+            let full_path = leo_cli_core::package_init::initialize_package(&self.name, &package_path, self.library)?;
             println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
 
             if Workspace::auto_register_member(&full_path)? {
