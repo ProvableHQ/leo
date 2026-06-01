@@ -2,9 +2,14 @@
 id: devnet
 title: Running a Devnet
 sidebar_label: Devnet
+mdx:
+  format: mdx
 ---
 
 [general tags]: # "guides, devnet local_devnet, snarkos"
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 A local devnet can be a heavyweight but reliable way to test your application on Aleo.
 
