@@ -34,12 +34,21 @@ aleo-std          = { workspace = true }
 anyhow            = { workspace = true }
 indexmap          = { workspace = true }
 leo-disassembler  = { workspace = true }
+rand_chacha       = { workspace = true }
 serde_json        = { workspace = true }
+# snarkVM execution surface used by `run::run_without_ledger`. The wasm-
+# compatible subset crates work on both targets — `run_with_ledger` adds
+# the full umbrella on top below for deploy / proof generation.
+snarkvm-circuit             = { workspace = true }
+snarkvm-console             = { workspace = true }
+snarkvm-ledger-block        = { workspace = true }
+snarkvm-ledger-store        = { workspace = true }
+snarkvm-synthesizer-process = { workspace = true }
+snarkvm-synthesizer-program = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 aleo-std-storage  = { workspace = true }
 leo-package       = { workspace = true }
-rand_chacha       = { workspace = true }
 snarkvm           = { workspace = true }
 
 [dev-dependencies]

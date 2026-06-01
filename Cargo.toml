@@ -79,7 +79,7 @@ snarkvm-circuit             = { version = "4.7.1" }
 snarkvm-console             = { version = "4.7.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
 snarkvm-ledger-block        = { version = "4.7.1", default-features = false, features = ["wasm"] }
 snarkvm-ledger-store        = { version = "4.7.1", default-features = false, features = ["wasm"] }
-snarkvm-synthesizer-process = { version = "4.7.1", default-features = false, features = ["rayon", "wasm", "dev_skip_checks", "test_consensus_heights"] }
+snarkvm-synthesizer-process = { version = "4.7.1", default-features = false, features = ["history", "rayon", "wasm", "dev_skip_checks", "test_consensus_heights"] }
 snarkvm-synthesizer-program = { version = "4.7.1", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"

@@ -117,22 +117,37 @@ fn entry_file_in(file_source: &InMemoryFileSource, root: &Path) -> Result<PathBu
 pub fn collect_import_stubs(
     project: &Project,
     handler: &Handler,
+    buf: &BufferEmitter,
     node_builder: &Rc<NodeBuilder>,
     network: NetworkName,
 ) -> Result<IndexMap<Symbol, Stub>, String> {
     let mut stubs = IndexMap::new();
+    let mut sources = IndexMap::<Symbol, PathBuf>::new();
     let mut visited = IndexSet::<PathBuf>::new();
-    walk_deps(&project.file_source, &project.root, handler, node_builder, network, &mut stubs, &mut visited)?;
+    walk_deps(
+        &project.file_source,
+        &project.root,
+        handler,
+        buf,
+        node_builder,
+        network,
+        &mut stubs,
+        &mut sources,
+        &mut visited,
+    )?;
     Ok(stubs)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn walk_deps(
     file_source: &InMemoryFileSource,
     manifest_dir: &Path,
     handler: &Handler,
+    buf: &BufferEmitter,
     node_builder: &Rc<NodeBuilder>,
     network: NetworkName,
     stubs: &mut IndexMap<Symbol, Stub>,
+    sources: &mut IndexMap<Symbol, PathBuf>,
     visited: &mut IndexSet<PathBuf>,
 ) -> Result<(), String> {
     let manifest_path = manifest_dir.join(MANIFEST_FILENAME);
@@ -155,7 +170,15 @@ fn walk_deps(
             // also the symbol the parser puts in `program.imports`, so the
             // lookup in `add_import_stubs` matches.
             let key = Symbol::intern(&dep.name);
-            if stubs.contains_key(&key) {
+            if let Some(existing) = sources.get(&key) {
+                if existing != &abs_path {
+                    return Err(format!(
+                        "duplicate dependency `{}`: already staged from `{}`, now also from `{}`",
+                        dep.name,
+                        existing.display(),
+                        abs_path.display()
+                    ));
+                }
                 continue;
             }
             let bytecode =
@@ -163,15 +186,16 @@ fn walk_deps(
             let stub = disassemble_dependency_bytecode(key, &bytecode, network)
                 .map_err(|e| format!("disassemble `{}`: {e}", abs_path.display()))?;
             stubs.insert(key, stub);
+            sources.insert(key, abs_path);
         } else {
             // Source-package dep — parse the entry file and recurse.
             let entry = entry_file_in(file_source, &abs_path)?;
             let source = file_source.read_file(&entry).map_err(|e| format!("read `{}`: {e}", entry.display()))?;
             let source_file = with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(entry.clone())));
             let program = leo_parser::parse_program(handler.clone(), node_builder, &source_file, &[], network)
-                .map_err(|_| format!("parse dependency `{}`", entry.display()))?;
+                .map_err(|_| diag_or(buf, &format!("parse dependency `{}`", entry.display())))?;
             if handler.had_errors() {
-                return Err(format!("parse dependency `{}` had errors", entry.display()));
+                return Err(diag_or(buf, &format!("parse dependency `{}` had errors", entry.display())));
             }
             // `add_import_stubs` looks the stub up by the same Symbol the parser
             // installs as the program's scope key — use that, not the manifest's
@@ -182,12 +206,21 @@ fn walk_deps(
                 .first()
                 .map(|(k, _)| *k)
                 .ok_or_else(|| format!("dependency `{}` has no program scope", entry.display()))?;
-            if stubs.contains_key(&scope_key) {
+            if let Some(existing) = sources.get(&scope_key) {
+                if existing != &entry {
+                    return Err(format!(
+                        "duplicate dependency `{}`: already staged from `{}`, now also from `{}`",
+                        scope_key,
+                        existing.display(),
+                        entry.display()
+                    ));
+                }
                 continue;
             }
             stubs.insert(scope_key, Stub::from(program));
+            sources.insert(scope_key, entry);
 
-            walk_deps(file_source, &abs_path, handler, node_builder, network, stubs, visited)?;
+            walk_deps(file_source, &abs_path, handler, buf, node_builder, network, stubs, sources, visited)?;
         }
     }
     Ok(())
@@ -233,7 +266,7 @@ pub fn compile(project: &Project, is_test: bool, network: NetworkName) -> Result
     let manifest = read_manifest(&project.file_source, &project.manifest_path())?;
     let expected_unit_name = Some(manifest.program);
 
-    let import_stubs = collect_import_stubs(project, &handler, &node_builder, network)?;
+    let import_stubs = collect_import_stubs(project, &handler, &buf, &node_builder, network)?;
 
     let entry = project.entry_file()?;
     let src_dir = project.source_dir();
@@ -263,7 +296,7 @@ pub fn compile_test(
     let (handler, buf) = Handler::new_with_buf();
     let node_builder = Rc::new(NodeBuilder::default());
 
-    let mut import_stubs = collect_import_stubs(project, &handler, &node_builder, network)?;
+    let mut import_stubs = collect_import_stubs(project, &handler, &buf, &node_builder, network)?;
     for (k, v) in extra_stubs {
         import_stubs.entry(k).or_insert(v);
     }

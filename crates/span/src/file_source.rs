@@ -71,6 +71,32 @@ pub trait FileSource {
     fn exists(&self, path: &Path) -> bool {
         self.is_file(path) || self.is_dir(path)
     }
+
+    /// Resolve `path` to a canonical form within this file source.
+    ///
+    /// Default implementation collapses `.` / `..` components without consulting
+    /// any real filesystem — safe for any in-memory source. [`DiskFileSource`]
+    /// overrides this with [`Path::canonicalize`] so symlinks resolve the way
+    /// they always have for on-disk builds.
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        Ok(normalize_path_components(path))
+    }
+}
+
+/// Collapse `.` and `..` components without consulting any filesystem.
+fn normalize_path_components(p: &Path) -> PathBuf {
+    use std::path::Component;
+    let mut out = PathBuf::new();
+    for comp in p.components() {
+        match comp {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                out.pop();
+            }
+            other => out.push(other.as_os_str()),
+        }
+    }
+    out
 }
 
 /// Reads source files from the real filesystem.
@@ -98,6 +124,10 @@ impl FileSource for DiskFileSource {
 
     fn exists(&self, path: &Path) -> bool {
         path.exists()
+    }
+
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        path.canonicalize()
     }
 }
 

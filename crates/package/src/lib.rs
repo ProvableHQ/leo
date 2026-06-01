@@ -130,16 +130,17 @@ pub const TESTS_DIRECTORY: &str = "tests";
 
 /// Maximum allowed program size in bytes.
 ///
-/// On native we read this directly from snarkVM's network parameters so the
-/// limit tracks any upstream change. On wasm — where the full snarkVM
-/// umbrella isn't in the dep graph — we mirror the same constant (last entry
-/// of `TestnetV0::MAX_PROGRAM_SIZE`); a wasm-only integration test asserts
-/// the two values match in CI.
+/// Both targets use the same literal — wasm builds can't pull in the full
+/// snarkVM umbrella, but the value must agree with the last entry of
+/// snarkVM's `TestnetV0::MAX_PROGRAM_SIZE`. A native compile-time assertion
+/// (below) catches drift if snarkVM ever changes the limit.
+pub const MAX_PROGRAM_SIZE: usize = 512_000;
+
 #[cfg(not(target_arch = "wasm32"))]
-pub const MAX_PROGRAM_SIZE: usize =
-    <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE.last().unwrap().1;
-#[cfg(target_arch = "wasm32")]
-pub const MAX_PROGRAM_SIZE: usize = 512 * 1024;
+const _: () = assert!(
+    MAX_PROGRAM_SIZE == <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE.last().unwrap().1,
+    "MAX_PROGRAM_SIZE drift: update the literal in crates/package/src/lib.rs to match snarkVM `TestnetV0::MAX_PROGRAM_SIZE`",
+);
 
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.

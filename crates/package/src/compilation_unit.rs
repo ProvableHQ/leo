@@ -441,45 +441,20 @@ pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependen
 
 /// Resolve a path against a [`FileSource`].
 ///
-/// On `DiskFileSource` this still calls `canonicalize` (so symlinks resolve
-/// the same way `leo build` has always done). On in-memory sources it falls
-/// back to component normalization since there's no real disk to consult.
+/// Delegates to `FileSource::canonicalize` so each source decides whether to
+/// consult a real filesystem: `DiskFileSource` calls `Path::canonicalize` (so
+/// symlinks resolve the way `leo build` has always done), and in-memory
+/// sources fall back to component-only normalization.
 fn normalize_path_via_file_source(path: &Path, file_source: &impl FileSource) -> Result<PathBuf> {
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        // Heuristic: real-disk sources should use the original `canonicalize` for
-        // backward-compatible error messages. We detect that by trying the
-        // canonical path; if it succeeds we return it.
-        if let Ok(canonical) = path.canonicalize() {
-            let _ = file_source; // silence unused-warning when the read below isn't reached
-            return Ok(canonical);
-        }
-    }
-    let normalized = normalize_path_components(path);
-    if !file_source.exists(&normalized) {
+    let resolved = file_source.canonicalize(path).map_err(|e| crate::errors::failed_path(path.display(), e))?;
+    if !file_source.exists(&resolved) {
         return Err(crate::errors::failed_path(
-            normalized.display(),
-            std::io::Error::new(std::io::ErrorKind::NotFound, normalized.display().to_string()),
+            resolved.display(),
+            std::io::Error::new(std::io::ErrorKind::NotFound, resolved.display().to_string()),
         )
         .into());
     }
-    Ok(normalized)
-}
-
-/// Collapse `.` and `..` components without consulting any filesystem.
-fn normalize_path_components(p: &Path) -> PathBuf {
-    use std::path::Component;
-    let mut out = PathBuf::new();
-    for comp in p.components() {
-        match comp {
-            Component::CurDir => {}
-            Component::ParentDir => {
-                out.pop();
-            }
-            other => out.push(other.as_os_str()),
-        }
-    }
-    out
+    Ok(resolved)
 }
 
 /// Workspace dependency resolution via [`FileSource`] (wasm-safe wrapper
@@ -511,10 +486,12 @@ pub(crate) fn resolve_workspace_dependency_with_file_source(
 
 /// Parse the `.aleo` file's imports and construct `Dependency`s.
 ///
-/// On native, we still validate the bytecode by parsing it through snarkVM's
-/// full umbrella (`Program::parse`). On `wasm32` the full umbrella isn't in
-/// the dep graph, so we extract `import X;` lines with the inline parser only.
-/// Both paths share the same shape, so downstream `Package::graph_build`
+/// On native, the bytecode is parsed through snarkVM's full umbrella
+/// (`Program::parse`) and the resulting `imports()` map is the source of
+/// truth — this catches the same grammar edge cases the deployer would
+/// (tab whitespace, block comments, etc.). On `wasm32` the full umbrella
+/// isn't in the dep graph, so a hardened inline scanner takes over.
+/// Both paths produce the same shape, so downstream `Package::graph_build`
 /// behaves identically across targets.
 fn parse_dependencies_from_aleo(
     name: Symbol,
@@ -532,18 +509,19 @@ fn parse_dependencies_from_aleo(
         )));
     }
 
-    // Native: validate the full bytecode through snarkVM. Errors at this stage
-    // surface as `snarkvm_parsing_error` so the user knows the `.aleo` file is
-    // malformed (not just missing imports).
     #[cfg(not(target_arch = "wasm32"))]
-    {
-        bytecode.parse::<SvmProgram<TestnetV0>>().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
-    }
+    let imports: Vec<String> = {
+        // Native: validate the full bytecode through snarkVM and use the parsed
+        // `imports()` map directly. Errors here surface as `snarkvm_parsing_error`
+        // so the user knows the `.aleo` file is malformed.
+        let program =
+            bytecode.parse::<SvmProgram<TestnetV0>>().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+        program.imports().keys().map(|id| id.to_string()).collect()
+    };
 
-    // Extract the import lines. The `.aleo` grammar declares all imports at the
-    // top of the file as `import <name>;` (whitespace-flexible) before the
-    // `program` block, so a small line scanner is sufficient on both targets.
-    let imports = extract_aleo_import_names(bytecode);
+    #[cfg(target_arch = "wasm32")]
+    let imports: Vec<String> = extract_aleo_import_names(bytecode);
+
     let dependencies = imports
         .into_iter()
         .map(|import_name| {
@@ -561,26 +539,63 @@ fn parse_dependencies_from_aleo(
 /// Extract the program names referenced by `import <name>;` statements at the
 /// top of an `.aleo` source file.
 ///
-/// Stops at the first `program ` line — Aleo imports are only legal at the top.
-/// Whitespace-tolerant, accepts both `import foo.aleo;` and `import foo;` (the
-/// latter without a network suffix), and ignores comments / blank lines.
+/// Stops at the first non-import, non-blank, non-comment token — Aleo imports
+/// are only legal at the top. Tolerates arbitrary whitespace (including tabs)
+/// between `import`, the program name, and the trailing `;`. Ignores line
+/// (`// …`) and block (`/* … */`) comments anywhere before the program block.
+///
+/// Wasm builds use this in place of snarkVM's full bytecode parser. Compiled
+/// on native too so the test below can assert parity with snarkVM's parser.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
 fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
+    // Strip every block comment first — they can straddle lines and would
+    // otherwise hide an `import`-prefixed line from the per-line walk below.
+    let stripped = strip_block_comments(bytecode);
     let mut out = Vec::new();
-    for line in bytecode.lines() {
-        let line = line.trim_start();
-        if line.is_empty() || line.starts_with("//") {
+    for line in stripped.lines() {
+        // Drop any trailing `// …` comment.
+        let line = match line.find("//") {
+            Some(idx) => &line[..idx],
+            None => line,
+        };
+        let line = line.trim();
+        if line.is_empty() {
             continue;
         }
-        if let Some(rest) = line.strip_prefix("import ") {
-            let name = rest.trim_end_matches(';').trim();
-            if !name.is_empty() {
-                out.push(name.to_string());
-            }
-            continue;
+        // Split off the `import` keyword (any whitespace, including tabs).
+        let mut tokens = line.splitn(2, char::is_whitespace);
+        let head = tokens.next().unwrap_or("");
+        if head != "import" {
+            // First non-import token ends the import block.
+            break;
         }
-        // First non-import, non-blank, non-comment line ends the import block.
-        break;
+        let Some(rest) = tokens.next() else { break };
+        let name = rest.trim_end_matches(';').trim();
+        if !name.is_empty() {
+            out.push(name.to_string());
+        }
     }
+    out
+}
+
+/// Drop `/* … */` block comments from `src`. Nesting is not supported (Aleo
+/// bytecode emitted by snarkVM never nests block comments).
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+fn strip_block_comments(src: &str) -> String {
+    let mut out = String::with_capacity(src.len());
+    let mut rest = src;
+    while let Some(start) = rest.find("/*") {
+        out.push_str(&rest[..start]);
+        match rest[start + 2..].find("*/") {
+            Some(end) => rest = &rest[start + 2 + end + 2..],
+            None => {
+                // Unterminated block comment — consume the rest.
+                rest = "";
+                break;
+            }
+        }
+    }
+    out.push_str(rest);
     out
 }
 
@@ -624,14 +639,41 @@ mod tests {
     }
 
     #[test]
+    fn extract_imports_tab_whitespace() {
+        // Tabs between `import` and the name; trailing line comment.
+        let src = "import\tfoo.aleo;\nimport \tbar.aleo; // trailing\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_strips_block_comments() {
+        // Block comment between two imports — snarkVM accepts this.
+        let src = "import foo.aleo;\n/* block\n comment */ import bar.aleo;\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
     #[cfg(not(target_arch = "wasm32"))]
     fn extract_imports_matches_snarkvm() {
-        // Parity check: the inline parser produces the same set of import
-        // names snarkVM's full bytecode parser would, for a realistic shape.
+        // Parity check: the inline scanner produces the same set of import
+        // names snarkVM's full bytecode parser would, across the corner cases
+        // wasm callers can hit (tab whitespace, inline trailing comments,
+        // straddling block comments).
         use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
-        let src = "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n";
-        let svm: SvmProgram<TestnetV0> = src.parse().expect("valid .aleo source");
-        let svm_imports: Vec<String> = svm.imports().keys().map(|id| id.to_string()).collect();
-        assert_eq!(extract_aleo_import_names(src), svm_imports);
+        let corpora: [&str; 4] = [
+            // Happy path.
+            "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
+            // Tab whitespace and inline `// …` after a statement.
+            "import\tfoo.aleo;\nimport bar.aleo; // tail\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
+            // Block comment between imports.
+            "import foo.aleo;\n/* between */ import bar.aleo;\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
+            // No imports.
+            "program baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
+        ];
+        for src in corpora {
+            let svm: SvmProgram<TestnetV0> = src.parse().unwrap_or_else(|e| panic!("invalid .aleo source: {e}\n{src}"));
+            let svm_imports: Vec<String> = svm.imports().keys().map(|id| id.to_string()).collect();
+            assert_eq!(extract_aleo_import_names(src), svm_imports, "scanner / snarkVM divergence on:\n{src}");
+        }
     }
 }

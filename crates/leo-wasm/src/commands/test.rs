@@ -21,16 +21,20 @@
 //! The test package's manifest must list the main project as a dependency,
 //! the same way `leo test` requires it on disk.
 //!
-//! Wasm-only: uses [`crate::evaluate::run_function`] for execution.
+//! Execution goes through [`leo_compiler::run::run_without_ledger`], the same
+//! in-memory path the native test framework takes for non-async cases. The
+//! native CLI's `leo test` additionally goes through `run_with_ledger` to
+//! resolve async/finalize semantics; that path requires the full snarkVM
+//! ledger and is unavailable in wasm.
 
 use crate::{
-    evaluate,
     project,
     wire::{clone_file_source, network_from_manifest},
 };
 
 use indexmap::IndexMap;
 use leo_ast::{NetworkName, NodeBuilder};
+use leo_compiler::run::{Case, Config as RunConfig, EvaluationStatus, Program as RunProgram, run_without_ledger};
 use leo_errors::Handler;
 use leo_span::{create_session_if_not_set_then, source_map::FileName, with_session_globals};
 use serde_json::json;
@@ -41,16 +45,35 @@ use std::rc::Rc;
 /// Returns JSON: `{ success, results: [ { name, passed, error } ], diagnostics }`.
 pub fn test_impl(files_json: &str, root: &str, test_root: &str) -> String {
     create_session_if_not_set_then(|_| {
-        let proj = match project::Project::from_files_json(files_json, root) {
-            Ok(p) => p,
-            Err(e) => return json!({"success": false, "results": [], "diagnostics": e}).to_string(),
-        };
-        let network = network_from_manifest(&proj);
+        // Validate `root` resolves to a real project in the supplied file map.
+        // The main project itself isn't compiled here — `compile_test` resolves
+        // it through the test package's manifest dependency — but we want a
+        // clear error before any test work if the file map is wrong.
+        if let Err(e) = project::Project::from_files_json(files_json, root) {
+            return json!({"success": false, "results": [], "diagnostics": e}).to_string();
+        }
 
         // The same FileSource serves the test package — both root paths live in
         // the same virtual FS the caller supplied.
         let test_proj =
             project::Project { root: std::path::PathBuf::from(test_root), file_source: clone_file_source(files_json) };
+
+        // The test package is the unit being compiled here; read its manifest's
+        // `network` field so e.g. a `mainnet` test package isn't silently run
+        // under the main project's `testnet` semantics.
+        let network = network_from_manifest(&test_proj);
+        if network != NetworkName::TestnetV0 {
+            // `run_without_ledger` is hardcoded to `TestnetV0`. Reject other
+            // manifests up front so compile-vs-run don't silently disagree.
+            return json!({
+                "success": false,
+                "results": [],
+                "diagnostics": format!(
+                    "leo-wasm `test` only supports `network: \"testnet\"` (manifest says {network})"
+                ),
+            })
+            .to_string();
+        }
 
         // Discover @test functions from the test entry source before passes mutate the AST.
         let test_entry = match test_proj.entry_file() {
@@ -81,10 +104,17 @@ pub fn test_impl(files_json: &str, root: &str, test_root: &str) -> String {
             Err(diag) => return json!({"success": false, "results": [], "diagnostics": diag}).to_string(),
         };
 
-        let test_bytecode = compiled.primary.bytecode;
-        let dep_bytecodes: Vec<String> = compiled.imports.iter().map(|p| p.bytecode.clone()).collect();
+        // Stage every emitted program (deps + the test program itself) into
+        // `Config::programs`. `run_without_ledger` loads them all into one
+        // Process so cross-program calls inside tests resolve.
+        let mut programs: Vec<RunProgram> = compiled
+            .imports
+            .iter()
+            .map(|p| RunProgram { bytecode: p.bytecode.clone(), name: p.name.clone() })
+            .collect();
+        programs.push(RunProgram { bytecode: compiled.primary.bytecode, name: compiled.primary.name.clone() });
 
-        let results = collect_test_results(&test_fns, &test_bytecode, &dep_bytecodes);
+        let results = collect_test_results(&test_fns, &programs);
         let all_passed = results.iter().all(|r| r["passed"].as_bool().unwrap_or(false));
         json!({"success": all_passed, "results": results, "diagnostics": ""}).to_string()
     })
@@ -120,27 +150,48 @@ fn find_test_functions(test_source: &str, network: NetworkName) -> Vec<(String, 
     out
 }
 
-/// Execute each `@test` function against the compiled test bytecode and turn
-/// the result into the `[{name, passed, error}, …]` JSON shape.
-fn collect_test_results(
-    test_fns: &[(String, String, bool)],
-    test_bytecode: &str,
-    dep_bytecodes: &[String],
-) -> Vec<serde_json::Value> {
+/// Execute each `@test` function via `run_without_ledger` and shape the result
+/// into the `[{name, passed, error}, …]` JSON the playground expects.
+fn collect_test_results(test_fns: &[(String, String, bool)], programs: &[RunProgram]) -> Vec<serde_json::Value> {
     test_fns
         .iter()
         .map(|(prog, fn_name, should_fail)| {
             let qualified = format!("{prog}/{fn_name}");
-            let exec = evaluate::run_function(test_bytecode, fn_name, &[], dep_bytecodes);
-            let v: serde_json::Value = serde_json::from_str(&exec).unwrap_or_default();
-            let success = v["success"].as_bool().unwrap_or(false);
+            let case = Case {
+                // `prog` already includes the `.aleo` suffix — it's the
+                // symbol form of the `program <name>.aleo` declaration.
+                program_name: prog.clone(),
+                function: fn_name.clone(),
+                private_key: None,
+                input: Vec::new(),
+                seed_mapping: Vec::new(),
+            };
 
+            let outcome = match run_without_ledger(
+                &RunConfig {
+                    seed: 0,
+                    start_height: None,
+                    programs: programs.to_vec(),
+                    skip_proving: true,
+                },
+                &[case],
+            ) {
+                Ok(mut o) => o.pop().expect("one case in, one outcome out"),
+                Err(e) => {
+                    let error = format!("{e}");
+                    return json!({ "name": qualified, "passed": *should_fail, "error": if *should_fail { String::new() } else { error.clone() } });
+                }
+            };
+
+            let success = matches!(outcome.status, EvaluationStatus::Success);
             let passed = if *should_fail { !success } else { success };
             let error = if !passed {
                 if *should_fail {
                     "Test was expected to fail but succeeded.".to_string()
+                } else if let EvaluationStatus::Failed(msg) = &outcome.status {
+                    msg.clone()
                 } else {
-                    v["diagnostics"].as_str().unwrap_or("evaluation failed").to_string()
+                    "evaluation failed".to_string()
                 }
             } else {
                 String::new()

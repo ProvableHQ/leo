@@ -35,21 +35,10 @@ serde_json = { workspace = true }
 console_error_panic_hook = "0.1"
 wasm-bindgen             = "0.2"
 # Enable the `wasm_js` backend on `getrandom 0.4`. snarkVM's `rand 0.10` chain
-# pulls `getrandom 0.4` in transitively, and on `wasm32-unknown-unknown` that
-# crate refuses to compile unless this feature is opted in.
-getrandom    = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
-rand         = { workspace = true }
-rand_chacha  = { workspace = true }
-# snarkVM execution glue — `Process::load_web` + `FinalizeMemory` only build
-# under the wasm-compatible subset crates, so the whole `evaluate` module is
-# wasm32-only.
-aleo-std                    = { workspace = true }
-snarkvm-circuit             = { workspace = true }
-snarkvm-console             = { workspace = true }
-snarkvm-ledger-block        = { workspace = true }
-snarkvm-ledger-store        = { workspace = true }
-snarkvm-synthesizer-process = { workspace = true }
-snarkvm-synthesizer-program = { workspace = true }
+# pulls `getrandom 0.4` in transitively (via `leo-compiler::run`'s execution
+# path), and on `wasm32-unknown-unknown` that crate refuses to compile unless
+# this feature is opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

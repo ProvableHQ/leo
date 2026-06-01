@@ -52,11 +52,14 @@
 //!
 //! - [`project`] turns a `{path: contents}` virtual file map into a loaded
 //!   `Project` (manifest parsing + transitive dep resolution).
-//! - [`evaluate`] is the wasm32-only snarkVM execution glue
-//!   (`Process::load_web` + `FinalizeMemory`).
 //! - [`wire`] is the JSON / manifest plumbing shared across commands
 //!   (`network_from_manifest`, `error_json`, `import_summaries`,
 //!   `clone_file_source`).
+//!
+//! `leo run` and `leo test` reuse [`leo_compiler::run::run_without_ledger`]
+//! for execution — the same in-memory `Process` + `FinalizeStore` path the
+//! native test framework uses for non-async cases — so no wasm-only execution
+//! glue lives in this crate.
 //!
 //! Build with:
 //!   `wasm-pack build crates/leo-wasm --target web --out-dir ../../leo-playground/wasm`
@@ -64,11 +67,6 @@
 pub mod commands;
 pub mod project;
 pub mod wire;
-
-// snarkVM execution glue (`Process::load_web`, `FinalizeMemory`, …) — only
-// builds under the wasm-compatible snarkVM subset crates.
-#[cfg(target_arch = "wasm32")]
-pub mod evaluate;
 
 // ---------------------------------------------------------------------------
 // WASM bindings

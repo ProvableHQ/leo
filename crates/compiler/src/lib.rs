@@ -31,7 +31,6 @@ pub use options::*;
 pub use leo_passes::{Bytecode, CompiledPrograms};
 pub use leo_span::file_source::{DiskFileSource, FileSource, InMemoryFileSource};
 
-#[cfg(not(target_arch = "wasm32"))]
 pub mod run;
 
 #[cfg(test)]
