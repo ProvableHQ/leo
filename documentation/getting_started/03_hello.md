@@ -21,7 +21,6 @@ This creates a directory with the following structure:
 ```bash
 hello/
 ├── .gitignore # A default `.gitignore` file for Leo projects
-├── .env # The environment, containing the `NETWORK` and `PRIVATE_KEY` variables.
 ├── program.json # The manifest for the Leo project
 ├── tests/
   └── test_hello.leo # The Leo source code for unit tests
