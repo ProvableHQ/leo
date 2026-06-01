@@ -39,21 +39,19 @@ pub struct Manifest {
 
 impl Manifest {
     /// Write the manifest to the given `path` as a JSON string.
-    #[cfg(not(target_arch = "wasm32"))]
+    ///
+    /// Uses `std::fs::write`; compiles on every target. Wasm callers should
+    /// stage the manifest through a [`FileSource`] (and the higher-level
+    /// `leo-cli-core` writers) rather than calling this directly.
     pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), Backtraced> {
-        // Serialize the manifest to a JSON string.
         let mut contents = serde_json::to_string_pretty(&self)
             .map_err(|err| crate::errors::failed_to_serialize_manifest_file(path.as_ref().display(), err))?;
-
-        // The seralized string doesn't end in a newline.
         contents.push('\n');
-
-        // Write the manifest to the file.
         std::fs::write(path, contents).map_err(crate::errors::failed_to_write_manifest)
     }
 
-    /// Read a Manifest from the given file as a JSON string (real filesystem).
-    #[cfg(not(target_arch = "wasm32"))]
+    /// Read a Manifest from the given file via [`DiskFileSource`].
+    /// Equivalent to [`Manifest::read_from_file_source`] with the disk source.
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, Backtraced> {
         Self::read_from_file_source(path, &leo_span::file_source::DiskFileSource)
     }

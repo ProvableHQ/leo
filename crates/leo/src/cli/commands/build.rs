@@ -125,6 +125,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             Some(network),
             Some(&endpoint),
             command.env_override.network_retries,
+            leo_cli_core::package_fetch::fetch_compilation_unit,
         )?
     } else {
         Package::from_directory(
@@ -135,6 +136,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             Some(network),
             Some(&endpoint),
             command.env_override.network_retries,
+            leo_cli_core::package_fetch::fetch_compilation_unit,
         )?
     };
 

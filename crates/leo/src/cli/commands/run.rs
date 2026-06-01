@@ -84,6 +84,7 @@ impl Command for LeoRun {
             self.env_override.network,
             self.env_override.endpoint.as_deref(),
             self.env_override.network_retries,
+            leo_cli_core::package_fetch::fetch_compilation_unit,
         )
         .is_ok()
         {

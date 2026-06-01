@@ -117,6 +117,7 @@ impl Command for LeoExecute {
             Some(network),
             Some(&endpoint),
             self.env_override.network_retries,
+            leo_cli_core::package_fetch::fetch_compilation_unit,
         )
         .is_ok()
         {

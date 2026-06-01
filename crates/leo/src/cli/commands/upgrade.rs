@@ -265,10 +265,10 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let mut programs_and_editions = Vec::with_capacity(program_ids.len());
     for id in &program_ids {
         // Load the program from the network.
-        let Ok(program) = leo_package::CompilationUnit::fetch(
+        let Ok(program) = leo_cli_core::package_fetch::fetch_compilation_unit(
             Symbol::intern(&id.name().to_string()),
             None,
-            context.home()?,
+            &context.home()?,
             network,
             &endpoint,
             true,

@@ -174,7 +174,7 @@ pub fn load_latest_programs_from_network<N: Network>(
                 continue;
             }
             // Fetch the program source from the network.
-            let program = leo_package::CompilationUnit::fetch(
+            let program = leo_cli_core::package_fetch::fetch_compilation_unit(
                 Symbol::intern(&current_id.name().to_string()),
                 None,
                 &context.home()?,

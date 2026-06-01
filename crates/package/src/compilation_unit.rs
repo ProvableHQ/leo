@@ -40,8 +40,8 @@ pub enum ProgramData {
 
 /// Find the latest cached edition for a program in the local registry.
 /// Returns None if no cached version exists.
-#[cfg(not(target_arch = "wasm32"))]
-fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
+/// Find the latest cached edition for a program in the local registry.
+pub fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
     let program_cache = cache_directory.join(name);
     if !program_cache.exists() {
         return None;
@@ -101,7 +101,6 @@ pub struct CompilationUnit {
 impl CompilationUnit {
     /// Given the location `path` of a `.aleo` file, read the filesystem
     /// to obtain a `CompilationUnit`.
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
         Self::from_aleo_path_with_file_source(name, path, map, &leo_span::file_source::DiskFileSource)
     }
@@ -133,7 +132,6 @@ impl CompilationUnit {
 
     /// Given the location `path` of a local Leo package, read the filesystem
     /// to obtain a `CompilationUnit`.
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
         Self::from_package_path_with_file_source(name, path, &leo_span::file_source::DiskFileSource)
     }
@@ -212,7 +210,6 @@ impl CompilationUnit {
     /// and the name of the program is determined from the filename.
     ///
     /// `main_program` must be provided since every test is dependent on it.
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_test_path<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
         Self::from_test_path_with_file_source(source_path, main_program, &leo_span::file_source::DiskFileSource)
     }
@@ -264,141 +261,6 @@ impl CompilationUnit {
             dependencies,
             is_local: true,
             kind: PackageKind::Test,
-        })
-    }
-
-    /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
-    /// If no edition is found, the latest edition is pulled from the network.
-    ///
-    /// Native-only — wasm callers can't reach the network; stage the bytecode
-    /// in the file map and pass it as a local `.aleo` dep instead.
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn fetch<P: AsRef<Path>>(
-        name: Symbol,
-        edition: Option<u16>,
-        home_path: P,
-        network: NetworkName,
-        endpoint: &str,
-        no_cache: bool,
-        network_retries: u32,
-    ) -> Result<Self> {
-        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries)
-    }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    fn fetch_impl(
-        name: Symbol,
-        edition: Option<u16>,
-        home_path: &Path,
-        network: NetworkName,
-        endpoint: &str,
-        no_cache: bool,
-        network_retries: u32,
-    ) -> Result<Self> {
-        // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
-        // here so cache paths and network URLs are constructed consistently.
-        let name = Symbol::intern(name.to_string().strip_suffix(".aleo").unwrap_or(&name.to_string()));
-
-        // It's not a local program; let's check the cache.
-        let cache_directory = home_path.join(format!("registry/{network}"));
-
-        // If the edition is not specified, try to find a cached version first,
-        // then fall back to querying the network for the latest edition.
-        let edition = match edition {
-            // Credits program always has edition 0.
-            _ if name == Symbol::intern("credits") => 0,
-            Some(edition) => edition,
-            None if !no_cache => {
-                // Check if we have a cached version - avoid network call if possible.
-                match find_cached_edition(&cache_directory, &name.to_string()) {
-                    Some(cached_edition) => cached_edition,
-                    None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
-                }
-            }
-            // no_cache is set - user wants fresh data from network.
-            None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
-        };
-
-        // Define the full cache path for the program.
-
-        // Build cache paths.
-        let cache_directory = cache_directory.join(format!("{name}/{edition}"));
-        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
-        if !cache_directory.exists() {
-            // Create directory if it doesn't exist.
-            std::fs::create_dir_all(&cache_directory).map_err(|err| {
-                crate::errors::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
-            })?;
-        }
-
-        // Get the existing bytecode if the file exists.
-        let existing_bytecode = match full_cache_path.exists() {
-            false => None,
-            true => {
-                let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
-                    crate::errors::util_file_io_error(
-                        format_args!("Trying to read cached file at {}", full_cache_path.display()),
-                        e,
-                    )
-                })?;
-                Some(existing_contents)
-            }
-        };
-
-        let bytecode = match (existing_bytecode, no_cache) {
-            // If we are using the cache, we can just return the bytecode.
-            (Some(bytecode), false) => bytecode,
-            // Otherwise, we need to fetch it from the network.
-            (existing, _) => {
-                // Define the primary URL to fetch the program from.
-                let primary_url = if name == Symbol::intern("credits") {
-                    format!("{endpoint}/{network}/program/credits.aleo")
-                } else {
-                    format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
-                };
-                let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&primary_url, network_retries)
-                    .or_else(|_| fetch_from_network(&secondary_url, network_retries))
-                    .map_err(|err| {
-                        crate::errors::failed_to_retrieve_from_endpoint(
-                            primary_url,
-                            format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
-                        )
-                    })?;
-
-                // If the file already exists, compare it to the new contents.
-                if let Some(existing_contents) = existing
-                    && existing_contents != contents
-                {
-                    println!(
-                        "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
-                        full_cache_path.display()
-                    );
-                }
-
-                // Write the bytecode to the cache.
-                std::fs::write(&full_cache_path, &contents).map_err(|err| {
-                    crate::errors::util_file_io_error(
-                        format_args!("Could not open file `{}`", full_cache_path.display()),
-                        err,
-                    )
-                })?;
-
-                contents
-            }
-        };
-
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
-
-        Ok(CompilationUnit {
-            // Network programs store the name with the ".aleo" suffix (unlike local packages).
-            // TODO: unify the invariant so the suffix is always absent.
-            name: Symbol::intern(&(name.to_string() + ".aleo")),
-            data: ProgramData::Bytecode(bytecode),
-            edition: Some(edition),
-            dependencies,
-            is_local: false,
-            kind: PackageKind::Program,
         })
     }
 }
@@ -496,7 +358,7 @@ pub(crate) fn resolve_workspace_dependency_with_file_source(
 /// isn't in the dep graph, so a hardened inline scanner takes over.
 /// Both paths produce the same shape, so downstream `Package::graph_build`
 /// behaves identically across targets.
-fn parse_dependencies_from_aleo(
+pub fn parse_dependencies_from_aleo(
     name: Symbol,
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,

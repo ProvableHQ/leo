@@ -24,9 +24,39 @@ use leo_span::{
 };
 
 use indexmap::{IndexMap, map::Entry};
-#[cfg(not(target_arch = "wasm32"))]
-use snarkvm::prelude::anyhow;
 use std::path::{Path, PathBuf};
+
+/// Signature of the fetcher that resolves a `Location::Network` dep to a
+/// `CompilationUnit`. Lives behind a function pointer so `crates/leo-package`
+/// doesn't need to depend on `leo-cli-core` (where the real HTTP-bound
+/// implementation lives).
+pub type CompilationUnitFetcher = fn(
+    name: Symbol,
+    edition: Option<u16>,
+    home_path: &Path,
+    network: leo_ast::NetworkName,
+    endpoint: &str,
+    no_cache: bool,
+    network_retries: u32,
+) -> Result<CompilationUnit>;
+
+/// Fetcher that unconditionally errors. Use this when the caller knows the
+/// project shouldn't reference network deps (e.g. workspace-internal builds)
+/// or hasn't wired up a real fetcher yet.
+pub fn reject_network_fetcher(
+    name: Symbol,
+    _edition: Option<u16>,
+    _home_path: &Path,
+    _network: leo_ast::NetworkName,
+    _endpoint: &str,
+    _no_cache: bool,
+    _network_retries: u32,
+) -> Result<CompilationUnit> {
+    Err(crate::errors::failed_to_open_file(format_args!(
+        "Network dependency `{name}` is not supported in this build (no fetcher supplied)."
+    ))
+    .into())
+}
 
 /// Network-dependent configuration for `Package::from_directory_*`.
 ///
@@ -35,9 +65,6 @@ use std::path::{Path, PathBuf};
 /// to be fetched) and with `None` from the wasm path (where any encountered
 /// network dep is a hard error — the caller must stage `.aleo` bytecode in
 /// the virtual file map up front).
-///
-/// The struct compiles on every target; only the actual network-fetch glue
-/// inside `graph_build` is `#[cfg(not(target_arch = "wasm32"))]`-gated.
 pub struct NetworkConfig<'a> {
     pub home_path: PathBuf,
     pub network: Option<leo_ast::NetworkName>,
@@ -45,6 +72,9 @@ pub struct NetworkConfig<'a> {
     pub no_cache: bool,
     pub no_local: bool,
     pub network_retries: u32,
+    /// Native callers populate this with `leo_cli_core::package_fetch::fetch_compilation_unit`;
+    /// wasm callers pass `network_config = None` and never reach the fetch path.
+    pub fetcher: CompilationUnitFetcher,
 }
 
 /// Either the bytecode of an Aleo program (if it was a network dependency) or
@@ -127,14 +157,15 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, but don't find dependencies.
     ///
-    /// This may be useful if you just need other information like the manifest file.
-    #[cfg(not(target_arch = "wasm32"))]
+    /// `fetcher` resolves any `Location::Network` dep encountered. Callers
+    /// that don't expect network deps can pass [`reject_network_fetcher`].
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
+        fetcher: CompilationUnitFetcher,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -147,6 +178,7 @@ impl Package {
                 no_cache: false,
                 no_local: false,
                 network_retries,
+                fetcher,
             }),
             &DiskFileSource,
         )
@@ -154,7 +186,7 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
-    #[cfg(not(target_arch = "wasm32"))]
+    #[allow(clippy::too_many_arguments)]
     pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
@@ -163,6 +195,7 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
+        fetcher: CompilationUnitFetcher,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -175,6 +208,7 @@ impl Package {
                 no_cache,
                 no_local,
                 network_retries,
+                fetcher,
             }),
             &DiskFileSource,
         )
@@ -182,7 +216,7 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies
     /// and its tests, obtaining dependencies from the file system or network and topologically sorting them.
-    #[cfg(not(target_arch = "wasm32"))]
+    #[allow(clippy::too_many_arguments)]
     pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
@@ -191,6 +225,7 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
+        fetcher: CompilationUnitFetcher,
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
@@ -203,6 +238,7 @@ impl Package {
                 no_cache,
                 no_local,
                 network_retries,
+                fetcher,
             }),
             &DiskFileSource,
         )
@@ -283,9 +319,7 @@ impl Package {
         let (compilation_units, digraph) = if build_graph {
             // Real-disk canonicalize the home path only when a network config
             // is present; wasm callers pass `None` and the home dir is unused.
-            #[cfg(not(target_arch = "wasm32"))]
             let mut network_config = network_config;
-            #[cfg(not(target_arch = "wasm32"))]
             if let Some(nc) = network_config.as_mut() {
                 nc.home_path = nc.home_path.canonicalize().map_err(|err| map_err(&nc.home_path, err))?;
             }
@@ -439,63 +473,46 @@ impl Package {
     }
 }
 
-/// Fetch a network dependency. Native-only: uses `CompilationUnit::fetch`
-/// which does HTTP + cache I/O against `home_path`. On wasm this is a hard
-/// error — the caller must stage the dep's bytecode in the file map.
-#[cfg(not(target_arch = "wasm32"))]
+/// Resolve a `Location::Network` dep through the `NetworkConfig`'s fetcher.
+///
+/// Returns an error if no `NetworkConfig` was supplied (wasm callers always
+/// pass `None`; the CLI passes `Some(NetworkConfig { fetcher, … })` populated
+/// with `leo_cli_core::package_fetch::fetch_compilation_unit`).
 fn fetch_network_dependency(
     network_config: Option<&NetworkConfig<'_>>,
     new: &Dependency,
     name_symbol: Symbol,
 ) -> Result<CompilationUnit> {
     let Some(nc) = network_config else {
-        return Err(anyhow!(
+        return Err(crate::errors::failed_to_open_file(format_args!(
             "Network dependency `{}` is not supported in this build (no network config supplied).",
             new.name
-        )
+        ))
         .into());
     };
     let Some(endpoint) = nc.endpoint else {
-        return Err(anyhow!("An endpoint must be provided to fetch network dependencies.").into());
+        return Err(crate::errors::failed_to_open_file(format_args!(
+            "An endpoint must be provided to fetch network dependencies."
+        ))
+        .into());
     };
     let Some(network) = nc.network else {
-        return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
+        return Err(crate::errors::failed_to_open_file(format_args!(
+            "A network must be provided to fetch network dependencies."
+        ))
+        .into());
     };
-    CompilationUnit::fetch(name_symbol, new.edition, &nc.home_path, network, endpoint, nc.no_cache, nc.network_retries)
+    (nc.fetcher)(name_symbol, new.edition, &nc.home_path, network, endpoint, nc.no_cache, nc.network_retries)
 }
 
-#[cfg(target_arch = "wasm32")]
-fn fetch_network_dependency(
-    _network_config: Option<&NetworkConfig<'_>>,
-    new: &Dependency,
-    _name_symbol: Symbol,
-) -> Result<CompilationUnit> {
-    Err(crate::errors::failed_to_open_file(format_args!(
-        "Network dependency `{}` is not supported in wasm builds; stage the `.aleo` bytecode in the file map and reference it with `Location::Local`.",
-        new.name
-    ))
-    .into())
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn workspace_unresolved_error(name: &str) -> leo_errors::LeoError {
-    anyhow!("Workspace dependency `{name}` was not resolved before graph building. This is a compiler bug.").into()
-}
-
-#[cfg(target_arch = "wasm32")]
 fn workspace_unresolved_error(name: &str) -> leo_errors::LeoError {
     crate::errors::failed_to_open_file(format_args!(
-        "Workspace dependency `{name}` is not supported in wasm builds; declare the dep with an explicit `path` instead."
+        "Workspace dependency `{name}` was not resolved before graph building. \
+         Either pre-resolve workspace deps to `Location::Local` or build through the CLI."
     ))
     .into()
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn invalid_dependency_error(name: &str) -> leo_errors::LeoError {
-    anyhow!("Invalid dependency data for {name} (path must be given).").into()
-}
-
-#[cfg(target_arch = "wasm32")]
 fn invalid_dependency_error(name: &str) -> leo_errors::LeoError {
     crate::errors::failed_to_open_file(format_args!("Invalid dependency data for {name} (path must be given).")).into()
 }
