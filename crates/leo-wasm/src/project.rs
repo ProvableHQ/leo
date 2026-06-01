@@ -29,12 +29,18 @@
 
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::{NetworkName, NodeBuilder, Stub};
-use leo_compiler::{Compiled, Compiler, disassemble_dependency_bytecode};
+use leo_compiler::{
+    Compiled,
+    Compiler,
+    disassemble_dependency_bytecode,
+    run::{Case, Config as RunConfig, EvaluationOutcome, Program as RunProgram, run_without_ledger},
+};
 use leo_errors::{BufferEmitter, Handler};
 use leo_span::{
     Symbol,
     file_source::{FileSource, InMemoryFileSource},
     source_map::FileName,
+    sym,
     with_session_globals,
 };
 use std::{
@@ -328,6 +334,80 @@ fn diag(buf: &BufferEmitter) -> String {
 fn diag_or(buf: &BufferEmitter, fallback: &impl std::fmt::Display) -> String {
     let d = diag(buf);
     if d.is_empty() { fallback.to_string() } else { d }
+}
+
+// ---------------------------------------------------------------------------
+// Execution
+// ---------------------------------------------------------------------------
+
+/// A `@test`-annotated entry function discovered in a test package's source.
+#[derive(Debug, Clone)]
+pub struct TestFn {
+    /// Bare program name from the `program <name>.aleo` declaration.
+    pub program: String,
+    /// Function identifier.
+    pub function: String,
+    /// `@test(should_fail)` flips the pass criterion.
+    pub should_fail: bool,
+}
+
+/// Build the `Vec<Program>` that `run_without_ledger` wants from a `Compiled`
+/// project: every emitted dep bytecode first, then the primary program last,
+/// so cross-program calls resolve in either direction.
+pub fn stage_programs(compiled: &Compiled) -> Vec<RunProgram> {
+    let mut programs: Vec<RunProgram> =
+        compiled.imports.iter().map(|p| RunProgram { bytecode: p.bytecode.clone(), name: p.name.clone() }).collect();
+    programs.push(RunProgram { bytecode: compiled.primary.bytecode.clone(), name: compiled.primary.name.clone() });
+    programs
+}
+
+/// Evaluate a single function against the staged `programs` and return its
+/// [`EvaluationOutcome`]. Wraps the `run_without_ledger` boilerplate so the
+/// command modules don't have to assemble `Case` / `Config` themselves.
+pub fn run_function(
+    programs: Vec<RunProgram>,
+    program_name: &str,
+    function: &str,
+    inputs: Vec<String>,
+) -> Result<EvaluationOutcome, String> {
+    let case = Case {
+        program_name: program_name.to_string(),
+        function: function.to_string(),
+        private_key: None,
+        input: inputs,
+        seed_mapping: Vec::new(),
+    };
+    let mut outcomes =
+        run_without_ledger(&RunConfig { seed: 0, start_height: None, programs, skip_proving: true }, &[case])
+            .map_err(|e| format!("{e}"))?;
+    Ok(outcomes.pop().expect("one case in, one outcome out"))
+}
+
+/// Parse a project's entry source (without running the full pipeline) and list
+/// every `@test` entry function. Returns an empty vector when the source fails
+/// to parse — the caller treats that the same as "no tests."
+pub fn find_test_functions(project: &Project, network: NetworkName) -> Result<Vec<TestFn>, String> {
+    let entry = project.entry_file()?;
+    let source = project.file_source.read_file(&entry).map_err(|e| format!("read `{}`: {e}", entry.display()))?;
+    let (handler, _) = Handler::new_with_buf();
+    let node_builder = Rc::new(NodeBuilder::default());
+    let source_file = with_session_globals(|s| s.source_map.new_source(&source, FileName::Real(entry.clone())));
+    let Ok(program) = leo_parser::parse_program(handler, &node_builder, &source_file, &[], network) else {
+        return Ok(Vec::new());
+    };
+
+    let mut out = Vec::new();
+    for (prog_sym, scope) in &program.program_scopes {
+        let prog_name = prog_sym.to_string();
+        for (fn_sym, function) in &scope.functions {
+            if !function.annotations.iter().any(|a| a.identifier.name == sym::test) {
+                continue;
+            }
+            let should_fail = function.annotations.iter().any(|a| a.identifier.name == sym::should_fail);
+            out.push(TestFn { program: prog_name.clone(), function: fn_sym.to_string(), should_fail });
+        }
+    }
+    Ok(out)
 }
 
 #[cfg(test)]
