@@ -22,7 +22,7 @@
 
 use crate::{
     project,
-    wire::{error_json, network_from_manifest},
+    wire::{EnvOptions, error_json},
 };
 
 use leo_ast::NetworkName;
@@ -33,9 +33,15 @@ use serde_json::json;
 /// Compile a project and run one function.
 ///
 /// `inputs_json` is a JSON array of Leo-typed input strings, e.g. `["1u32", "2u32"]`.
+/// `env_json` is the JSON shape of [`EnvOptions`] (network, endpoint, private
+/// key, …); mirror's the CLI's flags.
 ///
 /// Returns JSON: `{ success, output, finalize, diagnostics }`.
-pub fn run_impl(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
+pub fn run_impl(files_json: &str, root: &str, function_name: &str, inputs_json: &str, env_json: &str) -> String {
+    let env = match EnvOptions::from_json(env_json) {
+        Ok(e) => e,
+        Err(e) => return error_json(&e, &["output"]),
+    };
     let inputs: Vec<String> = match serde_json::from_str(inputs_json) {
         Ok(v) => v,
         Err(e) => return error_json(&format!("invalid inputs JSON: {e}"), &["output"]),
@@ -45,12 +51,11 @@ pub fn run_impl(files_json: &str, root: &str, function_name: &str, inputs_json: 
             Ok(p) => p,
             Err(e) => return error_json(&e, &["output"]),
         };
-        let network = network_from_manifest(&proj);
+        let network = env.network();
         if network != NetworkName::TestnetV0 {
-            return error_json(
-                &format!("leo-wasm `run` only supports `network: \"testnet\"` (manifest says {network})"),
-                &["output"],
-            );
+            return error_json(&format!("leo-wasm `run` only supports `network: \"testnet\"` (got {network})"), &[
+                "output",
+            ]);
         }
         let compiled = match project::compile(&proj, /* is_test */ false, network) {
             Ok(c) => c,

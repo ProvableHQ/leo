@@ -24,7 +24,7 @@
 
 use crate::{
     project,
-    wire::{error_json, import_summaries, network_from_manifest},
+    wire::{EnvOptions, error_json, import_summaries},
 };
 
 use leo_span::create_session_if_not_set_then;
@@ -32,16 +32,23 @@ use serde_json::json;
 
 /// Compile a Leo project.
 ///
+/// `env_json` is the JSON shape of [`EnvOptions`] — passed through from JS
+/// the same way the native CLI's `--network` / `--endpoint` flags would be.
+/// An empty blob (`""` / `"{}"`) defaults the network to testnet.
+///
 /// Returns JSON:
 /// `{ success, output, abi, imports: [{name, bytecode, abi}], diagnostics }`.
-pub fn build_impl(files_json: &str, root: &str) -> String {
+pub fn build_impl(files_json: &str, root: &str, env_json: &str) -> String {
+    let env = match EnvOptions::from_json(env_json) {
+        Ok(e) => e,
+        Err(e) => return error_json(&e, &["output", "abi", "imports"]),
+    };
     create_session_if_not_set_then(|_| {
         let proj = match project::Project::from_files_json(files_json, root) {
             Ok(p) => p,
             Err(e) => return error_json(&e, &["output", "abi", "imports"]),
         };
-        let network = network_from_manifest(&proj);
-        match project::compile(&proj, /* is_test */ false, network) {
+        match project::compile(&proj, /* is_test */ false, env.network()) {
             Ok(c) => json!({
                 "success": true,
                 "output": c.primary.bytecode,

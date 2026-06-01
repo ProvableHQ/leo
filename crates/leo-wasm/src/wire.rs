@@ -16,40 +16,62 @@
 
 //! Shared plumbing for every `commands::*` entry point.
 //!
-//! - **Manifest plumbing** — `network_from_manifest` pulls the network out
-//!   of a project's `program.json`.
+//! - **Env options** — [`EnvOptions`] parses the per-call JSON blob the JS
+//!   side passes (network, endpoint, private key, etc.), mirroring the
+//!   native CLI's `--network`/`--endpoint`/`--private-key` flags.
 //! - **JSON shape** — `error_json` / `import_summaries` produce the
 //!   `{ success, output, abi, diagnostics }`-style strings the
 //!   `wasm_bindings` shim returns verbatim.
 //! - **File-map plumbing** — `clone_file_source` rebuilds an
 //!   `InMemoryFileSource` from the original JSON blob (wasm-only).
 
-use crate::project;
-
 use leo_ast::NetworkName;
+use serde::Deserialize;
 use serde_json::json;
 
 #[cfg(target_arch = "wasm32")]
 use indexmap::IndexMap;
 
 // ---------------------------------------------------------------------------
-// Manifest plumbing
+// Env options
 // ---------------------------------------------------------------------------
 
-/// Extract `network` from the project's `program.json`. Defaults to
-/// `TestnetV0` when the manifest is missing or doesn't specify a network.
-pub fn network_from_manifest(project: &project::Project) -> NetworkName {
-    use leo_span::file_source::FileSource;
-    let Ok(raw) = project.file_source.read_file(&project.manifest_path()) else {
-        return NetworkName::TestnetV0;
-    };
-    let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) else {
-        return NetworkName::TestnetV0;
-    };
-    match v.get("network").and_then(|n| n.as_str()) {
-        Some("mainnet") => NetworkName::MainnetV0,
-        Some("canary") => NetworkName::CanaryV0,
-        _ => NetworkName::TestnetV0,
+/// Per-call environment overrides — mirrors the native CLI's [`EnvOptions`]
+/// (`crates/leo/src/cli/commands/common/options.rs`). Passed as a JSON blob
+/// at the wasm boundary so the JS side can populate the same fields the CLI
+/// reads from flags or `.env`.
+///
+/// Every field is optional; an empty `""` / `"{}"` blob yields all defaults.
+#[derive(Default, Debug, Clone, Deserialize)]
+#[serde(default)]
+pub struct EnvOptions {
+    pub network: Option<NetworkName>,
+    pub endpoint: Option<String>,
+    pub private_key: Option<String>,
+    pub devnet: bool,
+    pub consensus_heights: Option<Vec<u32>>,
+    #[serde(default = "default_network_retries")]
+    pub network_retries: u32,
+}
+
+fn default_network_retries() -> u32 {
+    2
+}
+
+impl EnvOptions {
+    /// Parse from the JSON blob the JS caller passes. An empty / whitespace
+    /// blob yields `Self::default()` so callers can pass `""` when they have
+    /// no overrides.
+    pub fn from_json(env_json: &str) -> Result<Self, String> {
+        if env_json.trim().is_empty() {
+            return Ok(Self::default());
+        }
+        serde_json::from_str(env_json).map_err(|e| format!("invalid env JSON: {e}"))
+    }
+
+    /// Resolved network, defaulting to `TestnetV0` (matches the CLI default).
+    pub fn network(&self) -> NetworkName {
+        self.network.unwrap_or(NetworkName::TestnetV0)
     }
 }
 

@@ -24,7 +24,7 @@
 
 use crate::{
     project,
-    wire::{clone_file_source, network_from_manifest},
+    wire::{EnvOptions, clone_file_source},
 };
 
 use indexmap::IndexMap;
@@ -35,8 +35,15 @@ use serde_json::json;
 
 /// Compile a project + its test package and run every `@test` function.
 ///
+/// `env_json` is the JSON shape of [`EnvOptions`] (network, endpoint, …);
+/// mirrors the CLI's flags.
+///
 /// Returns JSON: `{ success, results: [ { name, passed, error } ], diagnostics }`.
-pub fn test_impl(files_json: &str, root: &str, test_root: &str) -> String {
+pub fn test_impl(files_json: &str, root: &str, test_root: &str, env_json: &str) -> String {
+    let env = match EnvOptions::from_json(env_json) {
+        Ok(e) => e,
+        Err(e) => return test_error(&e),
+    };
     create_session_if_not_set_then(|_| {
         // Validate `root` resolves to a real project in the supplied file map.
         // The main project itself isn't compiled here — `compile_test` resolves
@@ -49,14 +56,9 @@ pub fn test_impl(files_json: &str, root: &str, test_root: &str) -> String {
         let test_proj =
             project::Project { root: std::path::PathBuf::from(test_root), file_source: clone_file_source(files_json) };
 
-        // The test package is the unit being compiled here; read its manifest
-        // network so e.g. a `mainnet` test isn't silently run under the main
-        // project's `testnet` semantics.
-        let network = network_from_manifest(&test_proj);
+        let network = env.network();
         if network != NetworkName::TestnetV0 {
-            return test_error(&format!(
-                "leo-wasm `test` only supports `network: \"testnet\"` (manifest says {network})"
-            ));
+            return test_error(&format!("leo-wasm `test` only supports `network: \"testnet\"` (got {network})"));
         }
 
         let test_fns = match project::find_test_functions(&test_proj, network) {

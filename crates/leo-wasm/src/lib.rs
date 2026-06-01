@@ -86,22 +86,25 @@ mod wasm_bindings {
         console_error_panic_hook::set_once();
     }
 
-    /// `leo build` — compile a project.
+    /// `leo build` — compile a project. `env_json` is the JSON shape of
+    /// `crate::wire::EnvOptions` (network, endpoint, …); pass `""` to default.
     #[wasm_bindgen]
-    pub fn build(files_json: &str, root: &str) -> String {
-        crate::commands::build::build_impl(files_json, root)
+    pub fn build(files_json: &str, root: &str, env_json: &str) -> String {
+        crate::commands::build::build_impl(files_json, root, env_json)
     }
 
-    /// `leo run` — compile and execute one function.
+    /// `leo run` — compile and execute one function. `env_json` mirrors the
+    /// CLI's `--network` / `--private-key` / `--endpoint` flags.
     #[wasm_bindgen]
-    pub fn run(files_json: &str, root: &str, function_name: &str, inputs_json: &str) -> String {
-        crate::commands::run::run_impl(files_json, root, function_name, inputs_json)
+    pub fn run(files_json: &str, root: &str, function_name: &str, inputs_json: &str, env_json: &str) -> String {
+        crate::commands::run::run_impl(files_json, root, function_name, inputs_json, env_json)
     }
 
     /// `leo test` — compile project + test package, run every `@test` fn.
+    /// `env_json` mirrors the CLI's env flags.
     #[wasm_bindgen]
-    pub fn test(files_json: &str, root: &str, test_root: &str) -> String {
-        crate::commands::test::test_impl(files_json, root, test_root)
+    pub fn test(files_json: &str, root: &str, test_root: &str, env_json: &str) -> String {
+        crate::commands::test::test_impl(files_json, root, test_root, env_json)
     }
 
     /// `leo fmt` — format a Leo source string. Mirrors `leo_fmt::format_source`,
