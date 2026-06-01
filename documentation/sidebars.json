@@ -1,0 +1,203 @@
+{
+  "developer": [
+    {
+      "type": "category",
+      "label": "Leo",
+      "link": {
+        "type": "doc",
+        "id": "leo"
+      },
+      "items": [
+        "new",
+        "where"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsible": true,
+      "collapsed": true,
+      "items": [
+        "getting_started/installation",
+        "getting_started/ide",
+        "getting_started/hello"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Language",
+      "collapsible": true,
+      "collapsed": true,
+      "link": {
+        "type": "doc",
+        "id": "language/overview"
+      },
+      "items": [
+        "language/layout",
+        "language/structure",
+        "language/data_types",
+        {
+          "type": "category",
+          "label": "Programs In Practice",
+          "collapsible": true,
+          "collapsed": true,
+          "items": [
+            "language/programs_in_practice/private_state",
+            "language/programs_in_practice/public_state",
+            "language/programs_in_practice/functions",
+            "language/programs_in_practice/interfaces",
+            "language/programs_in_practice/intrinsics",
+            "language/programs_in_practice/control_flow",
+            "language/programs_in_practice/limitations"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Operators & Expressions",
+          "link": {
+            "type": "doc",
+            "id": "language/operators"
+          },
+          "collapsible": true,
+          "collapsed": true,
+          "items": [
+            "language/operators/standard_operators",
+            "language/operators/cryptographic_operators"
+          ]
+        },
+        "language/libraries",
+        "language/style",
+        "language/cheatsheet"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "CLI",
+      "collapsible": true,
+      "collapsed": true,
+      "link": {
+        "type": "doc",
+        "id": "cli/cli_overview"
+      },
+      "items": [
+        "cli/cli_abi",
+        "cli/cli_account",
+        "cli/cli_add",
+        "cli/cli_build",
+        "cli/cli_clean",
+        "cli/cli_deploy",
+        "cli/cli_devnet",
+        "cli/cli_devnode",
+        "cli/cli_execute",
+        "cli/cli_new",
+        "cli/cli_query",
+        "cli/cli_remove",
+        "cli/cli_run",
+        "cli/cli_synthesize",
+        "cli/cli_test",
+        "cli/cli_update",
+        "cli/cli_upgrade",
+        "cli/cli_fmt",
+        "cli/cli_plugins"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "collapsible": true,
+      "collapsed": true,
+      "link": {
+        "type": "doc",
+        "id": "guides/overview"
+      },
+      "items": [
+        "guides/finalization",
+        "guides/dependencies",
+        "guides/workspaces",
+        "guides/deploy",
+        "guides/execute",
+        "guides/sign",
+        "guides/query",
+        "guides/devnet",
+        "guides/test",
+        "guides/upgradability",
+        "guides/abi",
+        "guides/migration-3-5-to-4-0",
+        "guides/binary-distribution",
+        {
+          "type": "link",
+          "label": "Aleo Fundamentals",
+          "href": "https://developer.aleo.org/concepts/fundamentals/accounts/"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Leo By Example",
+      "collapsible": true,
+      "collapsed": true,
+      "items": [
+        {
+          "type": "doc",
+          "label": "🏛️Auction",
+          "id": "leo_by_example/auction"
+        },
+        {
+          "type": "doc",
+          "label": "🏦Basic Bank",
+          "id": "leo_by_example/basic_bank"
+        },
+        {
+          "type": "doc",
+          "label": "🗳Vote",
+          "id": "leo_by_example/vote"
+        },
+        {
+          "type": "doc",
+          "label": "🪙Token",
+          "id": "leo_by_example/token"
+        },
+        {
+          "type": "doc",
+          "label": "⭕TicTacToe",
+          "id": "leo_by_example/tictactoe"
+        },
+        {
+          "type": "doc",
+          "label": "🛳Battleship",
+          "id": "leo_by_example/battleship"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Resources",
+      "collapsible": true,
+      "collapsed": true,
+      "items": [
+        "resources/curated",
+        "resources/projects",
+        {
+          "type": "link",
+          "label": "Grammars",
+          "href": "https://github.com/ProvableHQ/grammars"
+        },
+        {
+          "type": "link",
+          "label": "Aleo FAQs",
+          "href": "https://developer.aleo.org/guides/faqs"
+        },
+        {
+          "type": "link",
+          "label": "SDK",
+          "href": "https://developer.aleo.org/sdk/overview"
+        },
+        {
+          "type": "link",
+          "label": "Provable API",
+          "href": "https://docs.explorer.provable.com/"
+        }
+      ]
+    }
+  ]
+}
