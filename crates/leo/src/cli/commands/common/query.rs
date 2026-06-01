@@ -18,7 +18,8 @@ use super::*;
 use crate::cli::query::{LeoBlock, LeoProgram};
 
 use leo_ast::NetworkName;
-use leo_package::{ProgramData, create_http_agent};
+use leo_cli_core::network::create_http_agent;
+use leo_package::ProgramData;
 use leo_span::Symbol;
 use snarkvm::prelude::{Program, ProgramID};
 

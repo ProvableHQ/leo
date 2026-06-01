@@ -2391,6 +2391,9 @@ dependencies = [
  "leo-span",
  "serde",
  "serde_json",
+ "snarkvm",
+ "tracing",
+ "ureq",
 ]
 
 [[package]]

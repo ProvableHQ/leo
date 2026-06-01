@@ -50,6 +50,9 @@ impl Command for LeoNew {
             .map_err(|err| crate::errors::failed_to_set_cwd(package_path.display(), err))?;
 
         if self.workspace {
+            if !leo_cli_core::validation::is_valid_library_name(&self.name) {
+                return Err(crate::errors::custom(format!("Invalid workspace name `{}`.", self.name)).into());
+            }
             let full_path = Workspace::initialize_skeleton(&self.name, &package_path)?;
             println!("Created workspace {} at `{}`.", self.name.bold(), full_path.display());
         } else {

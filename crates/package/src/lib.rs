@@ -75,8 +75,6 @@ pub mod errors;
 pub use errors::*;
 
 use leo_ast::NetworkName;
-#[cfg(not(target_arch = "wasm32"))]
-use leo_errors::Backtraced;
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -91,22 +89,17 @@ pub use location::*;
 mod manifest;
 pub use manifest::*;
 
-// `Package` is available on every target now — disk-bound entry points
-// (`Package::from_directory*`, `Package::test_files`, `Package::initialize`)
-// stay native-only behind `#[cfg(not(target_arch = "wasm32"))]`, while the
-// `_with_file_source` variants of `Package::from_directory_*` and the
-// existing wasm-buildable helpers (`Manifest::read_from_file_source`,
-// `CompilationUnit::*_with_file_source`) are available on every target.
-// `Workspace` is still native-only.
+// `Package` is available on every target. Disk-bound entry points use
+// `std::fs` (which compiles on wasm32 even though it fails at runtime); the
+// callers that need to fetch network deps wire that in via the
+// `NetworkConfig::fetcher` fn-pointer.
 mod package;
 pub use package::*;
 
 mod compilation_unit;
 pub use compilation_unit::*;
 
-#[cfg(not(target_arch = "wasm32"))]
 mod workspace;
-#[cfg(not(target_arch = "wasm32"))]
 pub use workspace::*;
 
 pub const SOURCE_DIRECTORY: &str = "src";
@@ -132,15 +125,10 @@ pub const TESTS_DIRECTORY: &str = "tests";
 ///
 /// Both targets use the same literal — wasm builds can't pull in the full
 /// snarkVM umbrella, but the value must agree with the last entry of
-/// snarkVM's `TestnetV0::MAX_PROGRAM_SIZE`. A native compile-time assertion
-/// (below) catches drift if snarkVM ever changes the limit.
+/// snarkVM's `TestnetV0::MAX_PROGRAM_SIZE`.
+/// `leo_cli_core` carries a native-only compile-time assertion against
+/// the snarkVM constant to catch drift.
 pub const MAX_PROGRAM_SIZE: usize = 512_000;
-
-#[cfg(not(target_arch = "wasm32"))]
-const _: () = assert!(
-    MAX_PROGRAM_SIZE == <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE.last().unwrap().1,
-    "MAX_PROGRAM_SIZE drift: update the literal in crates/package/src/lib.rs to match snarkVM `TestnetV0::MAX_PROGRAM_SIZE`",
-);
 
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.
@@ -166,224 +154,11 @@ fn symbol(name: &str) -> Result<Symbol> {
     }
 }
 
-/// Checks whether a string is a valid Aleo program name.
-///
-/// A valid program name must end with `.aleo` and the base name (without the
-/// suffix) must satisfy Aleo package naming rules.
-///
-/// Native-only: the reserved-keyword check pulls in snarkVM's keyword tables
-/// via [`reserved_keywords`]. Wasm callers typically validate identifiers in
-/// the type-checking pass (`leo-passes::name_validation`) before reaching
-/// this layer.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn is_valid_program_name(name: &str) -> bool {
-    let Some(rest) = name.strip_suffix(".aleo") else {
-        tracing::error!("Program names must end with `.aleo`.");
-        return false;
-    };
-
-    is_valid_package_name(rest)
-}
-
-/// Checks whether a string is a valid Aleo library name.
-///
-/// Library names must satisfy Aleo package naming rules but do not require
-/// a `.aleo` suffix.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn is_valid_library_name(name: &str) -> bool {
-    is_valid_package_name(name)
-}
-
-/// Checks whether a string satisfies general Aleo package naming rules.
-///
-/// Names must be nonempty, start with a letter, contain only ASCII alphanumeric
-/// characters or underscores, avoid reserved keywords, and not contain "aleo".
-#[cfg(not(target_arch = "wasm32"))]
-fn is_valid_package_name(name: &str) -> bool {
-    // Check that the name is nonempty.
-    if name.is_empty() {
-        tracing::error!("Aleo names must be nonempty");
-        return false;
-    }
-
-    let first = name.chars().next().unwrap();
-
-    // Check that the first character is not an underscore.
-    if first == '_' {
-        tracing::error!("Aleo names cannot begin with an underscore");
-        return false;
-    }
-
-    // Check that the first character is not a number.
-    if first.is_numeric() {
-        tracing::error!("Aleo names cannot begin with a number");
-        return false;
-    }
-
-    // Check valid characters.
-    if name.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
-        tracing::error!("Aleo names can only contain ASCII alphanumeric characters and underscores.");
-        return false;
-    }
-
-    // Check reserved keywords.
-    if reserved_keywords().any(|kw| kw == name) {
-        tracing::error!(
-            "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
-            reserved_keywords().collect::<Vec<_>>().join(", ")
-        );
-        return false;
-    }
-
-    // Disallow "aleo"
-    if name.contains("aleo") {
-        tracing::error!("Aleo names cannot contain the keyword `aleo`.");
-        return false;
-    }
-
-    true
-}
-
-/// Get the list of all reserved and restricted keywords from snarkVM.
-/// These keywords cannot be used as program names.
-/// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
-///
-/// Native-only — relies on the full snarkVM `Program` keyword tables. On
-/// wasm, callers usually validate identifiers earlier in the pipeline via
-/// `leo-passes::name_validation` and don't reach this list.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
-    use snarkvm::prelude::{Program, TestnetV0};
-
-    // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
-    let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
-
-    Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
-}
-
-// =============================================================================
-// Native-only network helpers
-// =============================================================================
-//
-// Every helper below this point reaches the network (via `ureq`) or relies on
-// snarkVM's full `Program` validator. Wasm callers don't have either — they
-// stage `.aleo` bytecode in the virtual FS and let
-// `CompilationUnit::from_aleo_path_with_file_source` pick it up locally.
-
-/// Creates a configured ureq agent for Leo network requests.
-///
-/// Disables `http_status_as_error` so 4xx/5xx responses return `Ok(Response)`
-/// instead of `Err(StatusCode)`. This preserves response bodies which often
-/// contain useful error details from the server.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn create_http_agent() -> ureq::Agent {
-    ureq::Agent::config_builder().max_redirects(0).http_status_as_error(false).build().new_agent()
-}
-
-/// Retries a fallible network operation with exponential backoff.
-///
-/// Attempts the operation `retries + 1` times. Delays between attempts are
-/// 1 s, 2 s, 4 s, …, capped at 64 s. Returns the result of the last attempt.
-///
-/// Only use this for idempotent, read-only network calls (GET requests);
-/// never use it for state-mutating calls such as transaction broadcasts.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn retry_network_call<T, E: std::fmt::Display>(
-    network_retries: u32,
-    mut f: impl FnMut() -> std::result::Result<T, E>,
-) -> std::result::Result<T, E> {
-    let mut result = f();
-    for attempt in 1..=network_retries {
-        if result.is_ok() {
-            break;
-        }
-        let delay_secs = 2u64.pow(attempt - 1).min(64);
-        eprintln!("⚠️  Network request failed, retrying in {delay_secs}s (attempt {attempt}/{network_retries})...");
-        std::thread::sleep(std::time::Duration::from_secs(delay_secs));
-        result = f();
-    }
-    result
-}
-
-// Fetch the given endpoint url and return the sanitized response.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn fetch_from_network(url: &str, network_retries: u32) -> Result<String, Backtraced> {
-    fetch_from_network_plain(url, network_retries).map(|s| s.replace("\\n", "\n").replace('\"', ""))
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-pub fn fetch_from_network_plain(url: &str, network_retries: u32) -> Result<String, Backtraced> {
-    // Retry only on transport-level failures (connection errors, timeouts, etc.).
-    // HTTP 3xx/4xx/5xx responses are not retried since they reflect persistent conditions.
-    let agent = create_http_agent();
-    let mut response = retry_network_call(network_retries, || {
-        agent
-            .get(url)
-            .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
-            .call()
-            .map_err(|e| crate::errors::failed_to_retrieve_from_endpoint(url, e))
-    })?;
-    match response.status().as_u16() {
-        200..=299 => Ok(response.body_mut().read_to_string().unwrap()),
-        301 => Err(crate::errors::endpoint_moved_error(url)),
-        _ => Err(crate::errors::network_error(url, response.status())),
-    }
-}
-
-/// Fetch the given program from the network and return the program as a string.
-// TODO (@d0cd) Unify with `leo_package::CompilationUnit::fetch`.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn fetch_program_from_network(
-    name: &str,
-    endpoint: &str,
-    network: NetworkName,
-    network_retries: u32,
-) -> Result<String, Backtraced> {
-    let url = format!("{endpoint}/{network}/program/{name}");
-    let program = fetch_from_network(&url, network_retries)?;
-    Ok(program)
-}
-
-/// Fetch the latest edition of a program from the network.
-///
-/// Returns the actual latest edition number for the given program.
-/// This should be used instead of defaulting to arbitrary edition numbers.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn fetch_latest_edition(
-    name: &str,
-    endpoint: &str,
-    network: NetworkName,
-    network_retries: u32,
-) -> Result<Edition, Backtraced> {
-    // Strip the .aleo suffix if present for the URL.
-    let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
-
-    let url = format!("{endpoint}/{network}/program/{name_without_suffix}.aleo/latest_edition");
-    let contents = fetch_from_network(&url, network_retries)?;
-    contents.parse::<u16>().map_err(|e| {
-        crate::errors::failed_to_retrieve_from_endpoint(url, format!("Failed to parse edition as u16: {e}"))
-    })
-}
-
-// Verify that a fetched program is valid aleo instructions.
-#[cfg(not(target_arch = "wasm32"))]
-pub fn verify_valid_program(name: &str, program: &str) -> Result<(), Backtraced> {
-    use snarkvm::prelude::{Program, TestnetV0};
-    use std::str::FromStr as _;
-
-    // Check if the program size exceeds the maximum allowed limit.
-    let program_size = program.len();
-
-    if program_size > MAX_PROGRAM_SIZE {
-        return Err(crate::errors::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
-    }
-
-    // Parse the program to verify it's valid Aleo instructions.
-    match Program::<TestnetV0>::from_str(program) {
-        Ok(_) => Ok(()),
-        Err(_) => Err(crate::errors::snarkvm_parsing_error(name)),
-    }
-}
+// Name validation (`is_valid_program_name`, `reserved_keywords`, …) and
+// network helpers (`fetch_from_network`, `fetch_latest_edition`, …) live in
+// `leo_cli_core::{validation,network}`. They depend on snarkVM's keyword
+// tables and the `ureq` HTTP client respectively — neither belongs in a
+// wasm-buildable `crates/leo-package`.
 
 pub fn filename_no_leo_extension(path: &Path) -> Option<&str> {
     filename_no_extension(path, ".leo")

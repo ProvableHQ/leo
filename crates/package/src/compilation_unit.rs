@@ -19,9 +19,6 @@ use crate::{MAX_PROGRAM_SIZE, *};
 use leo_errors::Result;
 use leo_span::{Symbol, file_source::FileSource};
 
-#[cfg(not(target_arch = "wasm32"))]
-use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
-
 use indexmap::{IndexMap, IndexSet};
 use std::path::{Path, PathBuf};
 
@@ -322,31 +319,18 @@ fn normalize_path_via_file_source(path: &Path, file_source: &impl FileSource) ->
     Ok(resolved)
 }
 
-/// Workspace dependency resolution via [`FileSource`] (wasm-safe wrapper
-/// around the native [`resolve_workspace_dependency`]).
+/// Workspace dependency resolution via [`FileSource`] (wraps the native
+/// [`resolve_workspace_dependency`]).
+///
+/// `Workspace::discover` itself still consults `std::fs`, so wasm callers
+/// will see a runtime error when actually resolving workspace deps —
+/// stage the dep with an explicit `path` instead.
 pub(crate) fn resolve_workspace_dependency_with_file_source(
     base: &Path,
     dep: Dependency,
     _file_source: &impl FileSource,
 ) -> Result<Dependency> {
-    // TODO: Once `Workspace::discover` has a `_with_file_source` variant, wire
-    // it through here. For now this delegates to the native resolver, which
-    // means `Location::Workspace` deps still require disk access in any wasm
-    // caller — the typical wasm setup won't use workspace deps anyway since
-    // the caller stages the file map directly.
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        resolve_workspace_dependency(base, dep)
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        let _ = base;
-        Err(crate::errors::failed_to_open_file(format_args!(
-            "workspace dependency `{}` is not supported in wasm builds yet; declare the dep with an explicit `path` instead",
-            dep.name
-        ))
-        .into())
-    }
+    resolve_workspace_dependency(base, dep)
 }
 
 /// Parse the `.aleo` file's imports and construct `Dependency`s.
@@ -374,17 +358,10 @@ pub fn parse_dependencies_from_aleo(
         )));
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
-    let imports: Vec<String> = {
-        // Native: validate the full bytecode through snarkVM and use the parsed
-        // `imports()` map directly. Errors here surface as `snarkvm_parsing_error`
-        // so the user knows the `.aleo` file is malformed.
-        let program =
-            bytecode.parse::<SvmProgram<TestnetV0>>().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
-        program.imports().keys().map(|id| id.to_string()).collect()
-    };
-
-    #[cfg(target_arch = "wasm32")]
+    // Extract import names with the inline scanner on every target. Callers
+    // that want strict bytecode validation should run
+    // `leo_cli_core::validation::verify_valid_program` separately — it pulls
+    // in snarkVM's full parser, which isn't available on wasm.
     let imports: Vec<String> = extract_aleo_import_names(bytecode);
 
     let dependencies = imports
@@ -409,10 +386,10 @@ pub fn parse_dependencies_from_aleo(
 /// between `import`, the program name, and the trailing `;`. Ignores line
 /// (`// …`) and block (`/* … */`) comments anywhere before the program block.
 ///
-/// Wasm builds use this in place of snarkVM's full bytecode parser. Compiled
-/// on native too so the test below can assert parity with snarkVM's parser.
-#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
-fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
+/// Used on every target as the canonical import-name extractor for `.aleo`
+/// bytecode. `leo_cli_core` carries a native-only parity test that confirms
+/// it matches what `Program::<TestnetV0>::imports()` would produce.
+pub fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
     // Strip every block comment first — they can straddle lines and would
     // otherwise hide an `import`-prefixed line from the per-line walk below.
     let stripped = strip_block_comments(bytecode);
@@ -445,7 +422,6 @@ fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
 
 /// Drop `/* … */` block comments from `src`. Nesting is not supported (Aleo
 /// bytecode emitted by snarkVM never nests block comments).
-#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
 fn strip_block_comments(src: &str) -> String {
     let mut out = String::with_capacity(src.len());
     let mut rest = src;
@@ -517,28 +493,6 @@ mod tests {
         assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
     }
 
-    #[test]
-    #[cfg(not(target_arch = "wasm32"))]
-    fn extract_imports_matches_snarkvm() {
-        // Parity check: the inline scanner produces the same set of import
-        // names snarkVM's full bytecode parser would, across the corner cases
-        // wasm callers can hit (tab whitespace, inline trailing comments,
-        // straddling block comments).
-        use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
-        let corpora: [&str; 4] = [
-            // Happy path.
-            "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
-            // Tab whitespace and inline `// …` after a statement.
-            "import\tfoo.aleo;\nimport bar.aleo; // tail\n\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
-            // Block comment between imports.
-            "import foo.aleo;\n/* between */ import bar.aleo;\nprogram baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
-            // No imports.
-            "program baz.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.private;\n",
-        ];
-        for src in corpora {
-            let svm: SvmProgram<TestnetV0> = src.parse().unwrap_or_else(|e| panic!("invalid .aleo source: {e}\n{src}"));
-            let svm_imports: Vec<String> = svm.imports().keys().map(|id| id.to_string()).collect();
-            assert_eq!(extract_aleo_import_names(src), svm_imports, "scanner / snarkVM divergence on:\n{src}");
-        }
-    }
+    // The snarkVM parity test lives in `leo-cli-core::validation::tests`
+    // (the only place snarkVM is available on the dep graph).
 }
