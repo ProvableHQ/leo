@@ -19,10 +19,11 @@
 //!
 //! Thin wrapper: project load + `project::find_test_functions` +
 //! `project::compile_test` + `project::run_function`. The shared execution
-//! helpers live in [`crate::project`]; this file just shapes the
+//! helpers live in [`leo_cli_core::project`]; this file just shapes the
 //! `{ success, results, diagnostics }` JSON the playground expects.
 
-use crate::{project, wire::EnvOptions};
+use crate::wire::EnvOptions;
+use leo_cli_core::project;
 
 use indexmap::IndexMap;
 use leo_ast::NetworkName;

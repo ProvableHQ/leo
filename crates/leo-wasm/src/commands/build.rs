@@ -22,10 +22,8 @@
 //! a real directory; single-source callers stage a 2-entry map
 //! (`program.json` + `src/main.leo`).
 
-use crate::{
-    project,
-    wire::{EnvOptions, error_json, import_summaries},
-};
+use crate::wire::{EnvOptions, error_json, import_summaries};
+use leo_cli_core::project;
 
 use leo_span::create_session_if_not_set_then;
 use serde_json::json;

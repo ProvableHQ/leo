@@ -27,11 +27,11 @@ use snarkvm::prelude::{
     TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
-// `EnvOptions` and `BuildOptions` live in `crate::options` so they can be
+// `EnvOptions` and `BuildOptions` live in `leo-cli-core` so they can be
 // reused by `leo-wasm` (which runs on `wasm32-unknown-unknown` and so cannot
-// pull in the rest of this module's snarkVM-bound helpers). Re-exported here
-// for backward compatibility with every existing `cli::commands::*` import.
-pub use crate::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
+// pull in this module's snarkVM-bound helpers). Re-exported here for
+// backward compatibility with every existing `cli::commands::*` import.
+pub use leo_cli_core::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
 
 /// The fee options for the transactions.
 #[derive(Parser, Clone, Debug, Default)]

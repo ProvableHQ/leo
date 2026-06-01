@@ -16,19 +16,20 @@ path = "src/lib.rs"
 crate-type = [ "cdylib", "rlib" ]
 
 [dependencies]
-# leo dependencies — needed by the target-neutral impls (compile / format /
-# compile_project) so they can also be exercised from native unit tests.
-# `leo-lang` is pulled in for its wasm-buildable `options` module so the
-# wasm bindings share `EnvOptions` / `BuildOptions` with the native CLI
-# instead of carrying a parallel definition.
-leo-ast      = { workspace = true }
-leo-compiler = { workspace = true }
-leo-errors   = { workspace = true }
-leo-fmt      = { workspace = true }
-leo-lang     = { workspace = true }
-leo-package  = { workspace = true }
-leo-parser   = { workspace = true }
-leo-span     = { workspace = true }
+# leo dependencies. `leo-cli-core` is the shared wasm-buildable crate
+# holding the option structs (`EnvOptions`, `BuildOptions`) and command
+# core logic (`project::compile`/`run_function`/`find_test_functions`)
+# both the native CLI and these wasm bindings call into. The rest of the
+# leo deps below cover the format / wasm-bindings glue that doesn't go
+# through `leo-cli-core` (e.g. `leo-fmt::format_source`).
+leo-ast         = { workspace = true }
+leo-cli-core    = { workspace = true }
+leo-compiler    = { workspace = true }
+leo-errors      = { workspace = true }
+leo-fmt         = { workspace = true }
+leo-package     = { workspace = true }
+leo-parser      = { workspace = true }
+leo-span        = { workspace = true }
 # third party
 indexmap   = { workspace = true }
 serde      = { workspace = true, features = [ "derive" ] }

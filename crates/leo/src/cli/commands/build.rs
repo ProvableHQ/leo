@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
-use leo_compiler::{AstSnapshots, Compiled, Compiler, CompilerOptions};
+use leo_compiler::{Compiled, Compiler};
 use leo_package::{ABI_FILENAME, Package};
 use leo_span::Symbol;
 
@@ -50,20 +50,6 @@ struct ProgramForValidation {
     path: PathBuf,
     /// Whether the program was compiled from Leo source (`true`) or loaded as external bytecode (`false`).
     is_leo_compiled: bool,
-}
-
-impl From<BuildOptions> for CompilerOptions {
-    fn from(options: BuildOptions) -> Self {
-        Self {
-            ast_spans_enabled: options.enable_ast_spans,
-            ast_snapshots: if options.enable_all_ast_snapshots {
-                AstSnapshots::All
-            } else {
-                AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
-            },
-            initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
-        }
-    }
 }
 
 /// Compile and build program command.

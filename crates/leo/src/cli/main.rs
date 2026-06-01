@@ -14,15 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#[cfg(not(target_arch = "wasm32"))]
 use leo_lang::cli::*;
-#[cfg(not(target_arch = "wasm32"))]
 use leo_span::create_session_if_not_set_then;
 
-#[cfg(not(target_arch = "wasm32"))]
 use clap::Parser;
 
-#[cfg(not(target_arch = "wasm32"))]
 fn set_panic_hook() {
     std::panic::set_hook({
         Box::new(move |e| {
@@ -45,15 +41,7 @@ fn set_panic_hook() {
     });
 }
 
-#[cfg(not(target_arch = "wasm32"))]
 fn main() {
     set_panic_hook();
     create_session_if_not_set_then(|_| handle_error(run_with_args(CLI::parse())));
 }
-
-// The `leo` binary is native-only — all command implementations rely on
-// snarkVM's umbrella, HTTP clients, the real filesystem, and so on. The
-// `leo-lang` *library* (containing the wasm-buildable `options` module) is
-// what `leo-wasm` consumes from `wasm32-unknown-unknown`.
-#[cfg(target_arch = "wasm32")]
-fn main() {}

@@ -1,0 +1,44 @@
+[package]
+name = "leo-cli-core"
+version = "4.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "Wasm-buildable command core shared between the Leo CLI and the leo-wasm bindings"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+# Single home for the data structures and command-core implementations both
+# `crates/leo` (the CLI binary) and `crates/leo-wasm` (the wasm-bindgen
+# layer) reuse. Everything in this crate compiles on `wasm32-unknown-unknown`.
+# Anything that needs the native toolbelt (snarkVM umbrella, HTTP, terminal
+# UI, disk writes) stays in `crates/leo`.
+
+[dependencies]
+# leo dependencies
+leo-ast          = { workspace = true }
+leo-compiler     = { workspace = true }
+leo-disassembler = { workspace = true }
+leo-errors       = { workspace = true }
+leo-package      = { workspace = true }
+leo-parser       = { workspace = true }
+leo-span         = { workspace = true }
+# third party
+clap       = { workspace = true }
+indexmap   = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# `clap` (and friends) pull `getrandom 0.4` in transitively on wasm32; that
+# crate refuses to compile unless the `wasm_js` backend is opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }

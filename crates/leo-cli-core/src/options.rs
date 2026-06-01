@@ -14,19 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Wasm-buildable command options shared between the native CLI and the
-//! `leo-wasm` bindings.
-//!
-//! The structs live here (rather than in `cli/commands/common/options.rs`)
-//! so they remain available when the rest of the `cli` module is gated out
-//! on `wasm32-unknown-unknown`. The CLI re-exports them via
-//! [`crate::cli::commands::common::options`] for backward compatibility.
+//! Command option structs shared between the native CLI and the `leo-wasm`
+//! bindings.
 //!
 //! Every field is `pub` so the wasm side can populate the same struct shape
-//! the CLI parses from `clap` flags.
+//! the CLI parses from `clap` flags. The structs live in this wasm-buildable
+//! crate so the CLI re-exports them via
+//! `crates/leo/src/cli/commands/common/options.rs`.
 
 use clap::Parser;
 use leo_ast::NetworkName;
+use leo_compiler::{AstSnapshots, CompilerOptions};
 use serde::Deserialize;
 
 /// Default network endpoint used by the CLI when neither `--endpoint` nor the
@@ -76,6 +74,20 @@ impl Default for BuildOptions {
             build_tests: false,
             no_cache: false,
             no_local: false,
+        }
+    }
+}
+
+impl From<BuildOptions> for CompilerOptions {
+    fn from(options: BuildOptions) -> Self {
+        Self {
+            ast_spans_enabled: options.enable_ast_spans,
+            ast_snapshots: if options.enable_all_ast_snapshots {
+                AstSnapshots::All
+            } else {
+                AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
+            },
+            initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
         }
     }
 }

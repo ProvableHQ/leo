@@ -17,7 +17,7 @@
 //! JSON-shaping helpers shared across every `commands::*` entry point.
 //!
 //! The `EnvOptions` / `BuildOptions` structs are re-exported here from
-//! [`leo_lang::options`] so callers can stay in `crate::wire::*` while the
+//! [`leo_cli_core::options`] so callers can stay in `crate::wire::*` while the
 //! actual definitions stay co-located with the native CLI's `clap` parser.
 
 use serde_json::json;
@@ -25,7 +25,7 @@ use serde_json::json;
 // Re-export the shared option structs that came from the CLI. Both targets
 // see the same struct shape — the CLI parses them from `clap` flags, the
 // wasm bindings parse them from a JSON blob via `EnvOptions::from_json`.
-pub use leo_lang::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
+pub use leo_cli_core::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
 
 /// Build a JSON error response with `success: false`, `diagnostics: <msg>`, and
 /// empty placeholders for the named result fields.

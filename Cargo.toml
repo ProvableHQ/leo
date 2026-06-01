@@ -10,6 +10,7 @@ leo-ast             = { path = "./crates/ast",              version = "=4.1.0" }
 leo-compiler        = { path = "./crates/compiler",         version = "=4.1.0" }
 leo-disassembler    = { path = "./crates/disassembler",     version = "=4.1.0" }
 leo-errors          = { path = "./crates/errors",           version = "=4.1.0" }
+leo-cli-core        = { path = "./crates/leo-cli-core",     version = "=4.1.0" }
 leo-fmt             = { path = "./crates/fmt",              version = "=4.1.0" }
 leo-lang            = { path = "./crates/leo",              version = "=4.1.0" }
 leo-lsp             = { path = "./crates/lsp",              version = "=4.1.0" }

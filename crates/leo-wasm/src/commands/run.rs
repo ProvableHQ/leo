@@ -17,13 +17,11 @@
 //! `leo run` — compile a project and execute one function.
 //!
 //! Thin wrapper: project load + compile + `project::run_function`. The shared
-//! execution helpers live in [`crate::project`]; this file just shapes the
+//! execution helpers live in [`leo_cli_core::project`]; this file just shapes the
 //! `{ success, output, finalize, diagnostics }` JSON the playground expects.
 
-use crate::{
-    project,
-    wire::{EnvOptions, error_json},
-};
+use crate::wire::{EnvOptions, error_json};
+use leo_cli_core::project;
 
 use leo_ast::NetworkName;
 use leo_compiler::run::EvaluationStatus;

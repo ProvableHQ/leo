@@ -2376,6 +2376,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-cli-core"
+version = "4.1.0"
+dependencies = [
+ "clap",
+ "getrandom 0.4.2",
+ "indexmap",
+ "leo-ast",
+ "leo-compiler",
+ "leo-disassembler",
+ "leo-errors",
+ "leo-package",
+ "leo-parser",
+ "leo-span",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "leo-compiler"
 version = "4.1.0"
 dependencies = [
@@ -2473,12 +2491,12 @@ dependencies = [
  "dialoguer",
  "dotenvy",
  "dunce",
- "getrandom 0.4.2",
  "indexmap",
  "is-terminal",
  "itertools 0.14.0",
  "leo-abi",
  "leo-ast",
+ "leo-cli-core",
  "leo-compiler",
  "leo-disassembler",
  "leo-errors",
@@ -2642,10 +2660,10 @@ dependencies = [
  "getrandom 0.4.2",
  "indexmap",
  "leo-ast",
+ "leo-cli-core",
  "leo-compiler",
  "leo-errors",
  "leo-fmt",
- "leo-lang",
  "leo-package",
  "leo-parser",
  "leo-span",

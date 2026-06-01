@@ -17,17 +17,5 @@
 #![deny(unsafe_code)]
 #![allow(clippy::module_inception)]
 
-// `cli` is the native binary's command surface — uses snarkVM's umbrella,
-// HTTP clients, on-disk artefact writes, and the rest of the native toolbelt.
-// Gated out of wasm so consumers (e.g. `leo-wasm`) can depend on `leo-lang`
-// for shared, wasm-safe surfaces (`options`, …) without dragging the whole
-// native command tree into the wasm dep graph.
-#[cfg(not(target_arch = "wasm32"))]
 pub mod cli;
-#[cfg(not(target_arch = "wasm32"))]
 pub(crate) mod errors;
-
-/// Wasm-buildable command options (`EnvOptions`, `BuildOptions`, …).
-/// Shared between the native CLI (which `clap`-parses them) and `leo-wasm`
-/// (which `serde`-parses them from a JSON blob).
-pub mod options;

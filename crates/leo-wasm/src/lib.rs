@@ -66,7 +66,6 @@
 //!   `wasm-pack build crates/leo-wasm --target web --out-dir ../../leo-playground/wasm`
 
 pub mod commands;
-pub mod project;
 pub mod wire;
 
 // ---------------------------------------------------------------------------
