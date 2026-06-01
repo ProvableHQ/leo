@@ -4,6 +4,8 @@ title: Installation
 sidebar: Installation
 toc_min_heading_level: 5
 toc_max_heading_level: 5
+mdx:
+  format: mdx
 ---
 
 [general tags]: # "installation, install_leo"
