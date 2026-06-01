@@ -24,7 +24,7 @@ edition = "2024"
 # UI, disk writes) stays in `crates/leo`.
 
 [dependencies]
-# leo dependencies
+# leo dependencies (wasm-buildable layer)
 leo-ast          = { workspace = true }
 leo-compiler     = { workspace = true }
 leo-disassembler = { workspace = true }
@@ -32,7 +32,7 @@ leo-errors       = { workspace = true }
 leo-package      = { workspace = true }
 leo-parser       = { workspace = true }
 leo-span         = { workspace = true }
-# third party
+# third party (wasm-buildable layer)
 clap       = { workspace = true }
 indexmap   = { workspace = true }
 serde      = { workspace = true }

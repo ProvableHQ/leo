@@ -18,7 +18,8 @@ use super::*;
 use std::{collections::HashSet, fs};
 
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network};
+use leo_cli_core::network::fetch_program_from_network;
+use leo_package::{Package, ProgramData};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};

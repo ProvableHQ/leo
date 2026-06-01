@@ -90,7 +90,7 @@ impl Command for LeoAdd {
         // Normalize a program dep name to always carry the `.aleo` suffix, and validate it.
         let normalize_program_name = |raw: &str| -> Result<String> {
             let name = if raw.ends_with(".aleo") { raw.to_string() } else { format!("{raw}.aleo") };
-            if !leo_package::is_valid_program_name(&name) {
+            if !leo_cli_core::validation::is_valid_program_name(&name) {
                 return Err(crate::errors::invalid_package_name("program", name).into());
             }
             Ok(name)
@@ -125,7 +125,7 @@ impl Command for LeoAdd {
                     ))
                     .into());
                 }
-                if !leo_package::is_valid_library_name(&self.name) {
+                if !leo_cli_core::validation::is_valid_library_name(&self.name) {
                     return Err(crate::errors::invalid_package_name("library", &self.name).into());
                 }
                 // Confirm that src/lib.leo exists — the manifest says it's a library,

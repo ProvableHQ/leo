@@ -18,7 +18,7 @@ use super::*;
 use anyhow::{bail, ensure};
 use itertools::Itertools;
 use leo_ast::NetworkName;
-use leo_package::fetch_from_network;
+use leo_cli_core::network::fetch_from_network;
 use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
     ConsensusVersion,

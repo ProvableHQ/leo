@@ -60,7 +60,7 @@ impl Command for LeoProgram {
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that the program name is valid.
         let program = if self.name.ends_with(".aleo") { self.name.clone() } else { format!("{}.aleo", self.name) };
-        if !leo_package::is_valid_program_name(&program) {
+        if !leo_cli_core::validation::is_valid_program_name(&program) {
             return Err(crate::errors::invalid_package_name("program", program).into());
         }
         // Build custom url to fetch from based on the flags and user's input.

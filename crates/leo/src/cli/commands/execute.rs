@@ -19,7 +19,8 @@ use super::*;
 use super::common::load_extra_programs_into_vm;
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network, retry_network_call};
+use leo_cli_core::network::{fetch_program_from_network, retry_network_call};
+use leo_package::{Package, ProgramData};
 
 use aleo_std::StorageMode;
 use rand::{CryptoRng, Rng};

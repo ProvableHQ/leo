@@ -126,7 +126,7 @@ fn wait_for_devnode(port: u16) {
     let timeout = std::time::Duration::from_secs(300);
 
     loop {
-        match leo_package::fetch_from_network_plain(&height_url, 2) {
+        match leo_cli_core::network::fetch_from_network_plain(&height_url, 2) {
             Ok(_) => break,
             Err(_) if start.elapsed() < timeout => {
                 std::thread::sleep(std::time::Duration::from_secs(1));
@@ -497,7 +497,7 @@ fn run_leo_devnode(port: u16) -> io::Result<Child> {
 
 fn current_height(port: u16) -> Result<usize, anyhow::Error> {
     let height_url = format!("http://127.0.0.1:{port}/testnet/block/height/latest");
-    let height_str = leo_package::fetch_from_network_plain(&height_url, 2)?;
+    let height_str = leo_cli_core::network::fetch_from_network_plain(&height_url, 2)?;
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
 

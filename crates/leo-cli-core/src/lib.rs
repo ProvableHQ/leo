@@ -41,3 +41,9 @@
 
 pub mod options;
 pub mod project;
+
+// Native-only modules — disk + HTTP + snarkVM-umbrella helpers lifted out
+// of `crates/leo-package` so that crate stays purely wasm-buildable. Each
+// module is `#[cfg(not(target_arch = "wasm32"))]`-gated internally.
+pub mod network;
+pub mod validation;
