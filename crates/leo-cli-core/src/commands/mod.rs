@@ -21,6 +21,10 @@
 #![cfg(not(target_arch = "wasm32"))]
 
 pub mod build;
+pub mod query;
+pub mod run;
+pub mod test;
+pub mod util;
 
 /// Default `edition` value used by the CLI when a local program doesn't
 /// declare one in its manifest. Lifted out of

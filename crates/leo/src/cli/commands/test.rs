@@ -14,17 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! `leo test` clap surface. The actual test logic lives in
+//! [`leo_cli_core::commands::test::handle_test`]; this file just collects
+//! flags, drives `LeoBuild` per workspace member, and forwards.
+
 use super::*;
 
-use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
-use leo_compiler::run;
-use leo_package::{Package, ProgramData};
-use leo_span::{Symbol, sym};
-
-use snarkvm::prelude::TestnetV0;
-
-use colored::Colorize as _;
-use std::fs;
+use leo_ast::NetworkName;
+use leo_cli_core::commands::test::handle_test;
 
 /// Test a leo program.
 #[derive(Parser, Debug)]
@@ -60,7 +57,8 @@ impl Command for LeoTest {
     }
 
     fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
-        handle_test(self, input)
+        let network = self.env_override.network.unwrap_or(NetworkName::TestnetV0);
+        handle_test(input, &self.test_name, network, self.prove)
     }
 
     fn execute(self, context: Context) -> Result<Self::Output> {
@@ -76,20 +74,13 @@ impl Command for LeoTest {
 
                     let member_ctx = context.with_path(target.clone());
 
-                    // Build with tests.
                     let mut opts = self.compiler_options.clone();
                     opts.build_tests = true;
                     let package =
                         (LeoBuild { env_override: self.env_override.clone(), options: opts }).execute(member_ctx)?;
 
-                    // Run tests for this member.
-                    let member_test = LeoTest {
-                        test_name: self.test_name.clone(),
-                        prove: self.prove,
-                        compiler_options: self.compiler_options.clone(),
-                        env_override: self.env_override.clone(),
-                    };
-                    let result = handle_test(member_test, package)?;
+                    let network = self.env_override.network.unwrap_or(NetworkName::TestnetV0);
+                    let result = handle_test(package, &self.test_name, network, self.prove)?;
                     aggregate.passed += result.passed;
                     aggregate.failed += result.failed;
                     aggregate.tests.extend(result.tests);
@@ -97,7 +88,6 @@ impl Command for LeoTest {
                 Ok(aggregate)
             }
             _ => {
-                // Single target or no workspace - use the normal flow.
                 let input = self.prelude(context.clone())?;
                 let span = self.log_span();
                 let span = span.enter();
@@ -107,198 +97,4 @@ impl Command for LeoTest {
             }
         }
     }
-}
-
-struct TestFunction {
-    program: String,
-    function: String,
-    should_fail: bool,
-    private_key: Option<String>,
-}
-
-/// Discover `@test`-annotated entry point functions from the compiled package.
-///
-/// Walks the Leo source files, parses them, and extracts functions with the
-/// `@test` annotation that are entry points (transitions).
-fn discover_test_functions(package: &Package, match_str: &str, network: NetworkName) -> Result<Vec<TestFunction>> {
-    use indexmap::IndexMap;
-    use leo_ast::NodeBuilder;
-    use leo_compiler::Compiler;
-    use leo_errors::Handler;
-    use std::rc::Rc;
-
-    let private_key_symbol = Symbol::intern("private_key");
-    let mut test_functions = Vec::new();
-
-    for unit in &package.compilation_units {
-        let ProgramData::SourcePath { directory, source } = &unit.data else {
-            continue;
-        };
-
-        let source_dir =
-            if unit.kind.is_test() { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
-
-        let handler = Handler::default();
-        let node_builder = Rc::new(NodeBuilder::default());
-
-        let mut compiler = Compiler::new(
-            None,
-            unit.kind.is_test(),
-            handler,
-            node_builder,
-            "/unused".into(),
-            None,
-            IndexMap::new(),
-            network,
-        );
-
-        let ast = compiler.parse_program_from_directory(source, &source_dir);
-        let ast = match ast {
-            Ok(ast) => ast,
-            Err(_) => continue,
-        };
-
-        for scope in ast.program_scopes.values() {
-            let program_name = scope.program_id.name.to_string();
-
-            for (_, function) in &scope.functions {
-                let has_test = function.annotations.iter().any(|a| a.identifier.name == sym::test);
-                if !has_test {
-                    continue;
-                }
-
-                if !function.variant.is_entry() {
-                    continue;
-                }
-
-                let qualified = format!("{program_name}/{}", function.identifier);
-                if !match_str.is_empty() && !qualified.contains(match_str) {
-                    continue;
-                }
-
-                let should_fail = function.annotations.iter().any(|a| a.identifier.name == sym::should_fail);
-
-                let private_key = function
-                    .annotations
-                    .iter()
-                    .find(|a| a.identifier.name == sym::test)
-                    .and_then(|a| a.map.get(&private_key_symbol).cloned());
-
-                test_functions.push(TestFunction {
-                    program: program_name.clone(),
-                    function: function.identifier.to_string(),
-                    should_fail,
-                    private_key,
-                });
-            }
-        }
-    }
-
-    Ok(test_functions)
-}
-
-fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
-    if package.compilation_units.last().map(|p| p.kind.is_library()).unwrap_or(false) {
-        return Err(crate::errors::custom("`leo test` is not supported for library packages.").into());
-    }
-
-    // Get the private key.
-    let _private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
-
-    let network = command.env_override.network.unwrap_or(NetworkName::TestnetV0);
-    let test_functions = discover_test_functions(&package, &command.test_name, network)?;
-
-    let credits = Symbol::intern("credits.aleo");
-
-    // Get bytecode and name for all programs, either directly or from the filesystem if they were compiled.
-    let programs: Vec<run::Program> = package
-        .compilation_units
-        .iter()
-        .filter_map(|unit| {
-            // Skip credits.aleo so we don't try to deploy it again.
-            if unit.name == credits {
-                return None;
-            }
-            // Libraries have no bytecode - their consts are inlined into the main program.
-            if unit.kind.is_library() {
-                return None;
-            }
-            let bytecode = match &unit.data {
-                ProgramData::Bytecode(c) => c.clone(),
-                ProgramData::SourcePath { .. } => {
-                    // This was not a network dependency, so get its bytecode from its build directory.
-                    let aleo_path = package.unit_bytecode_path(&unit.name.to_string());
-                    fs::read_to_string(&aleo_path)
-                        .unwrap_or_else(|e| panic!("Failed to read Aleo file at {}: {}", aleo_path.display(), e))
-                }
-            };
-            Some(run::Program { bytecode, name: unit.name.to_string() })
-        })
-        .collect();
-
-    let should_fails: Vec<bool> = test_functions.iter().map(|tf| tf.should_fail).collect();
-    let cases: Vec<Vec<run::Case>> = test_functions
-        .into_iter()
-        .map(|tf| {
-            vec![run::Case {
-                program_name: format!("{}.aleo", tf.program),
-                function: tf.function,
-                private_key: tf.private_key,
-                input: Vec::new(),
-                seed_mapping: Vec::new(),
-            }]
-        })
-        .collect();
-
-    let outcomes = run::run_with_ledger(
-        &run::Config { seed: 0, start_height: None, programs, skip_proving: !command.prove },
-        &cases,
-    )?
-    .into_iter()
-    .flatten()
-    .collect::<Vec<_>>();
-
-    let results: Vec<_> = outcomes
-        .into_iter()
-        .zip(should_fails)
-        .map(|(outcome, should_fail)| {
-            let run::ExecutionOutcome { outcome: inner, status, .. } = outcome;
-
-            let message = match (&status, should_fail) {
-                (run::ExecutionStatus::Accepted, false) => None,
-                (run::ExecutionStatus::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
-                (_, true) => None,
-                (_, false) => Some(format!("{} -- {}", status, inner.output)),
-            };
-
-            (inner.program_name, inner.function, message)
-        })
-        .collect::<Vec<_>>();
-
-    // Report results.
-    let total = results.len();
-    let total_passed = results.iter().filter(|(_, _, x)| x.is_none()).count();
-
-    let mut tests = Vec::new();
-
-    if total == 0 {
-        println!("No tests run.");
-    } else {
-        println!("{total_passed} / {total} tests passed.");
-        let failed = "FAILED".bold().red();
-        let passed = "PASSED".bold().green();
-
-        for (program, function, case_result) in &results {
-            let str_id = format!("{program}/{function}");
-            if let Some(err_str) = case_result {
-                println!("{failed}: {str_id:<30} | {err_str}");
-                tests.push(TestResult { name: str_id, passed: false, error: Some(err_str.clone()) });
-            } else {
-                println!("{passed}: {str_id}");
-                tests.push(TestResult { name: str_id, passed: true, error: None });
-            }
-        }
-    }
-
-    Ok(TestOutput { passed: total_passed, failed: total - total_passed, tests })
 }

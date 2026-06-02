@@ -2379,7 +2379,9 @@ dependencies = [
 name = "leo-cli-core"
 version = "4.1.0"
 dependencies = [
+ "aleo-std-storage",
  "clap",
+ "colored 3.1.1",
  "getrandom 0.4.2",
  "indexmap",
  "itertools 0.14.0",
@@ -2391,6 +2393,7 @@ dependencies = [
  "leo-package",
  "leo-parser",
  "leo-span",
+ "rand 0.10.1",
  "serde",
  "serde_json",
  "snarkvm",

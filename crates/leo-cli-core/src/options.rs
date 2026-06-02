@@ -168,3 +168,63 @@ impl EnvOptions {
         serde_json::from_str(env_json).map_err(|e| format!("invalid env JSON: {e}"))
     }
 }
+
+// ---------------------------------------------------------------------------
+// Native-only env-variable resolution helpers
+// ---------------------------------------------------------------------------
+//
+// `--endpoint` / `--network` / `--private-key` can be supplied as CLI flags
+// or read from `.env`. These helpers consolidate the lookup so every
+// `handle_*` core sees the same value.
+
+#[cfg(not(target_arch = "wasm32"))]
+use leo_errors::Result;
+
+/// Returns the endpoint to interact with the network.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_endpoint(endpoint: &Option<String>) -> Result<String> {
+    match endpoint {
+        Some(endpoint) => Ok(endpoint.clone()),
+        None => std::env::var("ENDPOINT").map_err(|_| {
+            crate::errors::custom("Please provide the `--endpoint` or set the `ENDPOINT` environment variable.").into()
+        }),
+    }
+}
+
+/// Returns the network name.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_network(network: &Option<NetworkName>) -> Result<NetworkName> {
+    use std::str::FromStr as _;
+    match network {
+        Some(network) => Ok(*network),
+        None => {
+            let network = std::env::var("NETWORK").map_err(|_| {
+                crate::errors::custom("Please provide the `--network` or set the `NETWORK` environment variable.")
+            })?;
+            Ok(NetworkName::from_str(&network)?)
+        }
+    }
+}
+
+/// Returns the private key.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_private_key<N: snarkvm::prelude::Network>(
+    private_key: &Option<String>,
+) -> Result<snarkvm::prelude::PrivateKey<N>> {
+    use std::str::FromStr as _;
+    match private_key {
+        Some(private_key) => Ok(snarkvm::prelude::PrivateKey::<N>::from_str(private_key)?),
+        None => {
+            let private_key = std::env::var("PRIVATE_KEY").map_err(|e| {
+                crate::errors::custom(format!("Failed to load `PRIVATE_KEY` from the environment: {e}"))
+            })?;
+            Ok(snarkvm::prelude::PrivateKey::<N>::from_str(&private_key)?)
+        }
+    }
+}
+
+/// Returns whether the devnet flag is set.
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_is_devnet(devnet: bool) -> bool {
+    if devnet { true } else { std::env::var("DEVNET").is_ok() }
+}

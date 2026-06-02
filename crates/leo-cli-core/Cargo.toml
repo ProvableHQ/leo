@@ -35,16 +35,20 @@ leo-parser       = { workspace = true }
 leo-span         = { workspace = true }
 # third party (wasm-buildable layer)
 clap       = { workspace = true }
+colored    = { workspace = true }
 indexmap   = { workspace = true }
 itertools  = { workspace = true }
 serde      = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-# `network`, `validation`, `package_fetch`, `package_init` modules use these.
-snarkvm = { workspace = true }
-tracing = { workspace = true }
-ureq    = { workspace = true }
+# `network`, `validation`, `package_fetch`, `package_init`, `commands::*`
+# modules use these.
+aleo-std-storage = { workspace = true }
+rand             = { workspace = true }
+snarkvm          = { workspace = true }
+tracing          = { workspace = true }
+ureq             = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 # `clap` (and friends) pull `getrandom 0.4` in transitively on wasm32; that
