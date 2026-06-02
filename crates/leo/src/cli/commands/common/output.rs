@@ -230,13 +230,10 @@ pub struct DeployedProgram {
     pub broadcast: Option<BroadcastStats>,
 }
 
-/// Output for `leo run`.
-#[derive(Serialize)]
-pub struct RunOutput {
-    pub program: String,
-    pub function: String,
-    pub outputs: Vec<String>,
-}
+// `RunOutput` is now `leo_cli_core::commands::run::RunOutput`. Re-exported
+// here so existing `LeoRun: Command<Output = RunOutput>` consumers compile
+// unchanged.
+pub use leo_cli_core::commands::run::RunOutput;
 
 /// Output for `leo execute`.
 #[derive(Serialize, Default)]
@@ -253,20 +250,15 @@ pub struct ExecuteOutput {
     pub broadcast: Option<BroadcastStats>,
 }
 
-/// Output for `leo test`.
-#[derive(Serialize, Default)]
-pub struct TestOutput {
-    pub passed: usize,
-    pub failed: usize,
-    pub tests: Vec<TestResult>,
-}
+// `TestOutput` and `TestResult` live in
+// `leo_cli_core::commands::test`. Re-exported here so existing
+// `LeoTest: Command<Output = TestOutput>` consumers compile unchanged.
+pub use leo_cli_core::commands::test::{TestOutput, TestResult};
 
-/// A single test result.
-#[derive(Serialize)]
-pub struct TestResult {
+#[cfg(any())]
+struct _LegacyTestResult {
     pub name: String,
     pub passed: bool,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
 }
 

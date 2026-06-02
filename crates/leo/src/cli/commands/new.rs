@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_package::{Package, Workspace};
+use leo_package::Workspace;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
@@ -50,10 +50,13 @@ impl Command for LeoNew {
             .map_err(|err| crate::errors::failed_to_set_cwd(package_path.display(), err))?;
 
         if self.workspace {
+            if !leo_cli_core::validation::is_valid_library_name(&self.name) {
+                return Err(crate::errors::custom(format!("Invalid workspace name `{}`.", self.name)).into());
+            }
             let full_path = Workspace::initialize_skeleton(&self.name, &package_path)?;
             println!("Created workspace {} at `{}`.", self.name.bold(), full_path.display());
         } else {
-            let full_path = Package::initialize(&self.name, &package_path, self.library)?;
+            let full_path = leo_cli_core::package_init::initialize_package(&self.name, &package_path, self.library)?;
             println!("Created program {} at `{}`.", self.name.bold(), full_path.display());
 
             if Workspace::auto_register_member(&full_path)? {

@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// Most builders below are only called from native-only code paths
+// (`package`, `workspace`, network helpers in `lib.rs`). Silence the
+// dead-code warnings instead of cfg-gating every individual builder.
+#![cfg_attr(target_arch = "wasm32", allow(dead_code))]
+
 use leo_errors::Backtraced;
 
 use std::{
@@ -24,17 +29,17 @@ use std::{
 const CODE_PREFIX: &str = "PAK";
 const CODE_MASK: i32 = 5000;
 
-pub(crate) fn io_error_gitignore_file(error: impl ErrorArg) -> Backtraced {
+pub fn io_error_gitignore_file(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("failed to write `.gitignore`: {error}"))
         .with_help("Verify the package directory is writable.")
 }
 
-pub(crate) fn failed_to_create_source_directory(path: impl Display, error: impl ErrorArg) -> Backtraced {
+pub fn failed_to_create_source_directory(path: impl Display, error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 17, format!("failed to create source directory at `{path}`: {error}"))
         .with_help("Verify the parent directory exists and is writable.")
 }
 
-pub(crate) fn failed_to_initialize_package(package: impl Display, path: impl Debug, error: impl Display) -> Backtraced {
+pub fn failed_to_initialize_package(package: impl Display, path: impl Debug, error: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 21,
@@ -43,29 +48,29 @@ pub(crate) fn failed_to_initialize_package(package: impl Display, path: impl Deb
     .with_help("Verify the target directory is empty (or does not exist) and is writable.")
 }
 
-pub(crate) fn failed_to_write_manifest(error: impl Display) -> Backtraced {
+pub fn failed_to_write_manifest(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 31, format!("failed to write manifest file: {error}"))
         .with_help("Run `leo new` to scaffold a new package, or verify the package directory is writable.")
 }
 
-pub(crate) fn failed_to_deserialize_manifest_file(path: impl Display, error: impl ErrorArg) -> Backtraced {
+pub fn failed_to_deserialize_manifest_file(path: impl Display, error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 40, format!("failed to deserialize `program.json` at `{path}`: {error}"))
         .with_help(
             "Open `program.json` and fix the JSON syntax. Run `leo new` for a working example of the expected schema.",
         )
 }
 
-pub(crate) fn failed_to_serialize_manifest_file(path: impl Display, error: impl ErrorArg) -> Backtraced {
+pub fn failed_to_serialize_manifest_file(path: impl Display, error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 41, format!("failed to update `program.json` at `{path}`: {error}"))
         .with_help("Verify the file is writable and that no other process holds it open.")
 }
 
-pub(crate) fn failed_to_load_package(path: impl Display) -> Backtraced {
+pub fn failed_to_load_package(path: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 53, format!("failed to load Leo project at `{path}`"))
         .with_help("Verify the path points to a directory containing a `program.json` manifest.")
 }
 
-pub(crate) fn conflicting_dependency(existing: impl Display, new: impl Display) -> Backtraced {
+pub fn conflicting_dependency(existing: impl Display, new: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 54,
@@ -74,7 +79,7 @@ pub(crate) fn conflicting_dependency(existing: impl Display, new: impl Display) 
     .with_help("Multiple dependencies on the same program must all be network or all local, with the same edition. Align the entries in `program.json`.")
 }
 
-pub(crate) fn conflicting_manifest(expected_name: impl Display, manifest_name: impl Display) -> Backtraced {
+pub fn conflicting_manifest(expected_name: impl Display, manifest_name: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 55,
@@ -85,21 +90,17 @@ pub(crate) fn conflicting_manifest(expected_name: impl Display, manifest_name: i
     ))
 }
 
-pub(crate) fn invalid_network_name(name: impl Display) -> Backtraced {
+pub fn invalid_network_name(name: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 56, format!("invalid network name `{name}` in `program.json`"))
         .with_help("Valid network names are `testnet`, `mainnet`, and `canary`.")
 }
 
-pub(crate) fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
+pub fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 57, format!("cannot find path `{path}`: {err}"))
         .with_help("Verify the path exists and is accessible from the current working directory.")
 }
 
-pub(crate) fn invalid_entry_file(
-    path: impl Display,
-    main_filename: impl Display,
-    lib_filename: impl Display,
-) -> Backtraced {
+pub fn invalid_entry_file(path: impl Display, main_filename: impl Display, lib_filename: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 58,
@@ -110,11 +111,7 @@ pub(crate) fn invalid_entry_file(
     ))
 }
 
-pub(crate) fn ambiguous_entry_file(
-    path: impl Display,
-    main_filename: impl Display,
-    lib_filename: impl Display,
-) -> Backtraced {
+pub fn ambiguous_entry_file(path: impl Display, main_filename: impl Display, lib_filename: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 59,
@@ -123,14 +120,14 @@ pub(crate) fn ambiguous_entry_file(
     .with_help("A package must be either a program or a library, not both. Remove one of the entry files.")
 }
 
-pub(crate) fn cli_invalid_package_name(kind: impl Display, name: impl Display) -> Backtraced {
+pub fn cli_invalid_package_name(kind: impl Display, name: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 60, format!("invalid {kind} name `{name}`"))
         .with_help(format!(
             "A {kind} name must be a valid Leo identifier: start with a letter, and use only letters, digits, and single underscores."
         ))
 }
 
-pub(crate) fn snarkvm_parsing_error(name: impl Display) -> Backtraced {
+pub fn snarkvm_parsing_error(name: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 61,
@@ -139,17 +136,17 @@ pub(crate) fn snarkvm_parsing_error(name: impl Display) -> Backtraced {
     .with_help(format!("Verify that `{name}.aleo` is valid Aleo bytecode. If it was produced by Leo, rebuild the dependency from source."))
 }
 
-pub(crate) fn util_file_io_error(msg: impl Display, err: impl ErrorArg) -> Backtraced {
+pub fn util_file_io_error(msg: impl Display, err: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 62, format!("filesystem I/O error: {msg}: {err}"))
         .with_help("Check the target path and the current process's permissions.")
 }
 
-pub(crate) fn failed_to_open_file(error: impl Display) -> Backtraced {
+pub fn failed_to_open_file(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 63, format!("failed to open file: {error}"))
         .with_help("Verify the file exists and that the current process has permission to read it.")
 }
 
-pub(crate) fn program_size_limit_exceeded(name: impl Display, size: usize, limit: usize) -> Backtraced {
+pub fn program_size_limit_exceeded(name: impl Display, size: usize, limit: usize) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 64,
@@ -158,28 +155,28 @@ pub(crate) fn program_size_limit_exceeded(name: impl Display, size: usize, limit
     .with_help("Reduce the program size by removing unused code, simplifying functions, or splitting the program into smaller programs.")
 }
 
-pub(crate) fn failed_to_retrieve_from_endpoint(url: impl Display, error: impl Display) -> Backtraced {
+pub fn failed_to_retrieve_from_endpoint(url: impl Display, error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 65, format!("failed to retrieve from endpoint `{url}`: {error}"))
         .with_help("Verify the endpoint is reachable, check `--network`/`--endpoint`, and ensure the resource exists on that network.")
 }
 
-pub(crate) fn endpoint_moved_error(endpoint: impl Display) -> Backtraced {
+pub fn endpoint_moved_error(endpoint: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 66, format!("the endpoint `{endpoint}` has been permanently moved"))
         .with_help("Use `https://api.explorer.provable.com/v1` in your `.env` file or via the `--endpoint` flag.")
 }
 
-pub(crate) fn network_error(url: impl Display, status: impl Display) -> Backtraced {
+pub fn network_error(url: impl Display, status: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 67, format!("network request to `{url}` failed with status `{status}`"))
         .with_help("Verify that `--network` and `--endpoint` point to a running node and that you have connectivity.")
 }
 
-pub(crate) fn circular_dependency_error() -> Backtraced {
+pub fn circular_dependency_error() -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 68, "circular dependency detected")
         .with_help("Break the cycle by removing one of the dependency edges in `program.json`. Programs cannot depend on themselves transitively.")
 }
 
 /// For when a workspace member directory is missing or lacks a manifest.
-pub(crate) fn workspace_member_not_found(member: impl Display, workspace_root: impl Display) -> Backtraced {
+pub fn workspace_member_not_found(member: impl Display, workspace_root: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 69,
@@ -189,7 +186,7 @@ pub(crate) fn workspace_member_not_found(member: impl Display, workspace_root: i
 }
 
 /// For when a workspace member entry resolves to a path outside the workspace root.
-pub(crate) fn workspace_member_outside_root(member: impl Display, workspace_root: impl Display) -> Backtraced {
+pub fn workspace_member_outside_root(member: impl Display, workspace_root: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 70,
@@ -199,13 +196,13 @@ pub(crate) fn workspace_member_outside_root(member: impl Display, workspace_root
 }
 
 /// For when workspace.json cannot be read or parsed.
-pub(crate) fn workspace_manifest_error(path: impl Display, error: impl Display) -> Backtraced {
+pub fn workspace_manifest_error(path: impl Display, error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 72, format!("failed to read workspace manifest at `{path}`: {error}"))
         .with_help("Verify `workspace.json` exists and contains valid JSON.")
 }
 
 /// A dependency uses `"location": "workspace"` but no enclosing workspace exists.
-pub(crate) fn workspace_dep_outside_workspace(dep_name: impl Display) -> Backtraced {
+pub fn workspace_dep_outside_workspace(dep_name: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 73,
@@ -215,7 +212,7 @@ pub(crate) fn workspace_dep_outside_workspace(dep_name: impl Display) -> Backtra
 }
 
 /// A workspace dependency names a member that does not exist in the workspace.
-pub(crate) fn workspace_dep_member_not_found(dep_name: impl Display, workspace_root: impl Display) -> Backtraced {
+pub fn workspace_dep_member_not_found(dep_name: impl Display, workspace_root: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 74,

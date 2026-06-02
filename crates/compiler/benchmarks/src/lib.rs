@@ -202,6 +202,7 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
         Some(BENCH_NETWORK),
         None, // no endpoint needed for local-only fixtures
         2,
+        leo_package::reject_network_fetcher, // local-only; no network deps expected
     ) {
         Ok(package) => package,
         Err(err) => {

@@ -18,12 +18,8 @@ use super::*;
 use crate::cli::query::{LeoBlock, LeoProgram};
 
 use leo_ast::NetworkName;
-use leo_package::{ProgramData, create_http_agent};
-use leo_span::Symbol;
+use leo_cli_core::network::create_http_agent;
 use snarkvm::prelude::{Program, ProgramID};
-
-use indexmap::IndexSet;
-use std::collections::HashMap;
 
 /// A helper function to query the public balance of an address.
 pub fn get_public_balance<N: Network>(
@@ -142,7 +138,10 @@ pub fn handle_broadcast<N: Network>(
     }
 }
 
-/// Loads the latest edition of a program and all its imports from the network, using an iterative DFS.
+/// Backward-compat wrapper: the implementation now lives in
+/// `leo_cli_core::commands::query::load_latest_programs_from_network`.
+/// We adapt the CLI-typed `&Context` to the cli-core-typed `&Path` (home
+/// directory) and forward.
 pub fn load_latest_programs_from_network<N: Network>(
     context: &Context,
     program_id: ProgramID<N>,
@@ -150,67 +149,11 @@ pub fn load_latest_programs_from_network<N: Network>(
     endpoint: &str,
     network_retries: u32,
 ) -> Result<Vec<(Program<N>, Option<u16>)>> {
-    use snarkvm::prelude::Program;
-    use std::collections::HashSet;
-
-    // A cache for loaded programs, mapping a program ID to its bytecode and edition.
-    let mut programs = HashMap::new();
-    // The ordered set of programs.
-    let mut ordered_programs = IndexSet::new();
-    // Stack of program IDs to process (DFS traversal).
-    let mut stack = vec![(program_id, false)];
-
-    // Loop until all programs and their dependencies are visited.
-    while let Some((current_id, seen)) = stack.pop() {
-        // If the program has already been seen, then all its imports have been processed.
-        // Add it to the ordered set and continue.
-        if seen {
-            ordered_programs.insert(current_id);
-        }
-        // Otherwise, fetch it and schedule its imports for processing.
-        else {
-            // If the program is already in the cache, skip it.
-            if programs.contains_key(&current_id) {
-                continue;
-            }
-            // Fetch the program source from the network.
-            let program = leo_package::CompilationUnit::fetch(
-                Symbol::intern(&current_id.name().to_string()),
-                None,
-                &context.home()?,
-                network,
-                endpoint,
-                true,
-                network_retries,
-            )
-            .map_err(|_| crate::errors::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
-            let ProgramData::Bytecode(program_src) = program.data else {
-                panic!("Expected bytecode when fetching a remote program");
-            };
-
-            // Parse the program source into a Program object.
-            let bytecode = Program::<N>::from_str(&program_src)
-                .map_err(|_| crate::errors::custom(format!("Failed to parse program source for ID: {current_id}")))?;
-
-            // Get the imports of the program.
-            let imports = bytecode.imports().keys().cloned().collect::<HashSet<_>>();
-
-            // Add the program to the cache.
-            programs.insert(current_id, (bytecode, program.edition));
-
-            // Mark the program as seen.
-            stack.push((current_id, true));
-
-            // Queue all imported programs for processing.
-            for import_id in imports {
-                stack.push((import_id, false));
-            }
-        }
-    }
-
-    // Return all loaded programs in insertion order.
-    Ok(ordered_programs
-        .iter()
-        .map(|program_id| programs.remove(program_id).expect("Program not found in cache"))
-        .collect())
+    leo_cli_core::commands::query::load_latest_programs_from_network::<N>(
+        &context.home()?,
+        program_id,
+        network,
+        endpoint,
+        network_retries,
+    )
 }

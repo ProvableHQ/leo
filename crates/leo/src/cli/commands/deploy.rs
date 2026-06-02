@@ -18,7 +18,8 @@ use super::*;
 
 use check_transaction::TransactionStatus;
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network, retry_network_call};
+use leo_cli_core::network::{fetch_program_from_network, retry_network_call};
+use leo_package::{Package, ProgramData};
 
 use aleo_std::StorageMode;
 use rand::CryptoRng;
@@ -318,7 +319,7 @@ fn load_remote_deps<N: Network>(command: &LeoDeploy, setup: &DeploySetup<N>, rem
             // Get the actual edition from the network if not specified.
             let edition = match task.edition {
                 Some(e) => e,
-                None => leo_package::fetch_latest_edition(
+                None => leo_cli_core::network::fetch_latest_edition(
                     &task.id.to_string(),
                     &setup.endpoint,
                     setup.network,

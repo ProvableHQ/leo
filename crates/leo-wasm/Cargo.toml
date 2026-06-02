@@ -1,0 +1,49 @@
+[package]
+name = "leo-wasm"
+version = "4.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "WASM bindings for the Leo compiler"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [ "aleo", "leo", "wasm", "compiler", "zero-knowledge" ]
+categories = [ "compilers", "wasm", "web-programming" ]
+include = [ "Cargo.toml", "src", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+# leo dependencies. `leo-cli-core` is the shared wasm-buildable crate
+# holding the option structs (`EnvOptions`, `BuildOptions`) and command
+# core logic (`project::compile`/`run_function`/`find_test_functions`)
+# both the native CLI and these wasm bindings call into. The rest of the
+# leo deps below cover the format / wasm-bindings glue that doesn't go
+# through `leo-cli-core` (e.g. `leo-fmt::format_source`).
+leo-ast         = { workspace = true }
+leo-cli-core    = { workspace = true }
+leo-compiler    = { workspace = true }
+leo-errors      = { workspace = true }
+leo-fmt         = { workspace = true }
+leo-package     = { workspace = true }
+leo-parser      = { workspace = true }
+leo-span        = { workspace = true }
+# third party
+indexmap   = { workspace = true }
+serde      = { workspace = true, features = [ "derive" ] }
+serde_json = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# wasm-bindgen exports + the panic-to-JS hook only matter on wasm32.
+console_error_panic_hook = "0.1"
+wasm-bindgen             = "0.2"
+# Enable the `wasm_js` backend on `getrandom 0.4`. snarkVM's `rand 0.10` chain
+# pulls `getrandom 0.4` in transitively (via `leo-compiler::run`'s execution
+# path), and on `wasm32-unknown-unknown` that crate refuses to compile unless
+# this feature is opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

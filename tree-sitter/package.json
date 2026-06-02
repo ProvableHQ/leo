@@ -28,7 +28,9 @@
   "tree-sitter": [
     {
       "scope": "source.leo",
-      "file-types": ["leo"],
+      "file-types": [
+        "leo"
+      ],
       "highlights": "queries/highlights.scm",
       "locals": "queries/locals.scm",
       "folds": "queries/folds.scm",
@@ -37,7 +39,8 @@
   ],
   "dependencies": {
     "node-addon-api": "^8.5.0",
-    "node-gyp-build": "^4.8.4"
+    "node-gyp-build": "^4.8.4",
+    "web-tree-sitter": "^0.26.9"
   },
   "devDependencies": {
     "prebuildify": "^6.0.1",

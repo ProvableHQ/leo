@@ -20,6 +20,15 @@
 //! it into the Leo AST. Uses `leo-parser-rowan` for IDE-grade error recovery
 //! and lossless syntax trees.
 
+#[cfg(target_arch = "wasm32")]
+extern crate self as snarkvm;
+
+#[cfg(target_arch = "wasm32")]
+mod snarkvm_wasm;
+#[cfg(target_arch = "wasm32")]
+#[doc(hidden)]
+pub use snarkvm_wasm::{console, prelude, synthesizer};
+
 mod errors;
 mod rowan;
 pub use rowan::{parse_expression, parse_library, parse_module, parse_program, parse_statement};

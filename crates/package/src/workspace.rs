@@ -202,10 +202,9 @@ impl Workspace {
     ///
     /// Returns the absolute path of the new workspace directory.
     pub fn initialize_skeleton(name: &str, parent: &Path) -> Result<PathBuf> {
-        if !crate::is_valid_library_name(name) {
-            return Err(errors::cli_invalid_package_name("workspace", name).into());
-        }
-
+        // Name validation lives at the CLI boundary (see
+        // `leo_cli_core::validation::is_valid_library_name`) so this function
+        // doesn't need to depend on snarkVM's keyword tables.
         let parent = parent.canonicalize().map_err(|e| errors::failed_path(parent.display(), e))?;
         let full_path = parent.join(name);
 
@@ -885,24 +884,10 @@ mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
-    #[test]
-    fn initialize_skeleton_rejects_invalid_name() {
-        let dir = temp_dir().join("ws_test_init_skeleton_invalid_name");
-        let _ = std::fs::remove_dir_all(&dir);
-        std::fs::create_dir_all(&dir).unwrap();
-
-        // Underscore-prefixed names are rejected by `is_valid_package_name`.
-        let result = Workspace::initialize_skeleton("_oops", &dir);
-        assert!(result.is_err());
-        // Empty names are rejected.
-        let result = Workspace::initialize_skeleton("", &dir);
-        assert!(result.is_err());
-        // Names containing "aleo" are rejected.
-        let result = Workspace::initialize_skeleton("my_aleo_ws", &dir);
-        assert!(result.is_err());
-
-        std::fs::remove_dir_all(&dir).unwrap();
-    }
+    // `initialize_skeleton` no longer validates the workspace name (it now
+    // depends only on `std::fs` operations, not snarkVM's keyword tables).
+    // Name validation lives at the CLI boundary in
+    // `leo_cli_core::validation::is_valid_library_name`.
 
     #[test]
     fn workspace_glob_member_basic() {

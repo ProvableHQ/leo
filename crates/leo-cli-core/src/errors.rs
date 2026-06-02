@@ -21,37 +21,37 @@ use leo_errors::Backtraced;
 const CODE_PREFIX: &str = "CLI";
 const CODE_MASK: i32 = 7000;
 
-pub(crate) fn cli_io_error(error: impl ErrorArg) -> Backtraced {
+pub fn cli_io_error(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK, format!("CLI I/O error: {error}"))
         .with_help("Verify file permissions and that the working directory is accessible.")
 }
 
-pub(crate) fn cli_invalid_input(error: impl Display) -> Backtraced {
+pub fn cli_invalid_input(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 1, format!("invalid CLI input: {error}"))
         .with_help("Run `leo <command> --help` to review the expected arguments.")
 }
 
-pub(crate) fn cli_runtime_error(error: impl Display) -> Backtraced {
+pub fn cli_runtime_error(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 2, format!("CLI runtime error: {error}"))
 }
 
-pub(crate) fn could_not_fetch_versions(error: impl ErrorArg) -> Backtraced {
+pub fn could_not_fetch_versions(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 3, format!("could not fetch Leo release versions: {error}"))
         .with_help("Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.")
 }
 
-pub(crate) fn self_update_error(error: impl ErrorArg) -> Backtraced {
+pub fn self_update_error(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 5, format!("self-update failed: {error}")).with_help(
         "Retry the update, or download the latest release manually from https://github.com/ProvableHQ/leo/releases.",
     )
 }
 
-pub(crate) fn self_update_build_error(error: impl ErrorArg) -> Backtraced {
+pub fn self_update_build_error(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 6, format!("self-update failed to build the updater: {error}"))
         .with_help("Retry the update, or download the latest release manually from https://github.com/ProvableHQ/leo/releases.")
 }
 
-pub(crate) fn old_release_version(current: impl Display, latest: impl Display) -> Backtraced {
+pub fn old_release_version(current: impl Display, latest: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 7,
@@ -60,7 +60,7 @@ pub(crate) fn old_release_version(current: impl Display, latest: impl Display) -
     .with_help("Run `leo update` to upgrade to the latest version.")
 }
 
-pub(crate) fn failed_to_load_instructions(error: impl Display) -> Backtraced {
+pub fn failed_to_load_instructions(error: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 8,
@@ -71,46 +71,41 @@ pub(crate) fn failed_to_load_instructions(error: impl Display) -> Backtraced {
     )
 }
 
-pub(crate) fn failed_to_serialize_abi(error: impl Display) -> Backtraced {
+pub fn failed_to_serialize_abi(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 9, format!("failed to serialize ABI to JSON: {error}"))
         .with_help("This is an internal serialization failure. Re-run the build; if it persists, please file an issue.")
 }
 
-pub(crate) fn failed_to_write_abi(error: impl Display) -> Backtraced {
+pub fn failed_to_write_abi(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 10, format!("failed to write ABI file: {error}"))
         .with_help("Verify the build output directory exists, is writable, and has enough free space.")
 }
 
-pub(crate) fn failed_to_parse_seed(error: impl Display) -> Backtraced {
+pub fn failed_to_parse_seed(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 23, format!("failed to parse the account seed: {error}"))
         .with_help("Provide a hex-encoded seed of the expected length, or omit the flag to use a fresh seed.")
 }
 
-pub(crate) fn failed_to_parse_private_key(error: impl Display) -> Backtraced {
+pub fn failed_to_parse_private_key(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 25, format!("failed to parse private key: {error}"))
         .with_help("Private keys must be bech32-encoded and start with `APrivateKey1`.")
 }
 
-pub(crate) fn failed_to_execute_account(error: impl Display) -> Backtraced {
+pub fn failed_to_execute_account(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 26, format!("failed to execute the `account` command: {error}"))
         .with_help("Run `leo account --help` to review the expected arguments.")
 }
 
-pub(crate) fn string_parse_error(error: impl Display) -> Backtraced {
+pub fn string_parse_error(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 33, format!("{error}"))
 }
 
-pub(crate) fn broadcast_error(error: impl Display) -> Backtraced {
+pub fn broadcast_error(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 34, format!("failed to broadcast transaction:\n{error}"))
         .with_help("Verify `--network` and `--endpoint` point to a reachable node, and that the transaction is valid for that network.")
 }
 
-pub(crate) fn constraint_limit_exceeded(
-    program: impl Display,
-    actual: u64,
-    limit: u64,
-    network: impl Display,
-) -> Backtraced {
+pub fn constraint_limit_exceeded(program: impl Display, actual: u64, limit: u64, network: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 38,
@@ -119,12 +114,7 @@ pub(crate) fn constraint_limit_exceeded(
     .with_help("Reduce the number of constraints by simplifying entry point functions. Fewer instructions, less branching, smaller loops.")
 }
 
-pub(crate) fn variable_limit_exceeded(
-    program: impl Display,
-    actual: u64,
-    limit: u64,
-    network: impl Display,
-) -> Backtraced {
+pub fn variable_limit_exceeded(program: impl Display, actual: u64, limit: u64, network: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 39,
@@ -133,33 +123,33 @@ pub(crate) fn variable_limit_exceeded(
     .with_help("Reduce the number of variables by simplifying entry point functions. Fewer intermediate bindings, less branching, smaller loops.")
 }
 
-pub(crate) fn invalid_balance(account: impl Display) -> Backtraced {
+pub fn invalid_balance(account: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 41, format!("invalid public balance for account `{account}`"))
         .with_help("Make sure the account has enough public balance to cover the deployment fee.")
 }
 
-pub(crate) fn invalid_package_name(kind: impl Display, name: impl Display) -> Backtraced {
+pub fn invalid_package_name(kind: impl Display, name: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 43, format!("invalid {kind} name `{name}`"))
         .with_help(format!(
             "A {kind} name must be a valid Leo identifier: start with a letter, and use only letters, digits, and single underscores."
         ))
 }
 
-pub(crate) fn failed_to_parse_aleo_file(name: impl Display, error: impl Display) -> Backtraced {
+pub fn failed_to_parse_aleo_file(name: impl Display, error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 44, format!("failed to parse Aleo program `{name}`: {error}"))
         .with_help("Verify the file contains valid Aleo bytecode. If it was produced by Leo, rebuild from source.")
 }
 
-pub(crate) fn custom(msg: impl Display) -> Backtraced {
+pub fn custom(msg: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 45, format!("{msg}"))
 }
 
-pub(crate) fn tests_failed(failed: impl Display, total: impl Display) -> Backtraced {
+pub fn tests_failed(failed: impl Display, total: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 46, format!("{failed} out of {total} tests failed"))
         .with_help("Re-run with `leo test -- --nocapture` to see per-test output.")
 }
 
-pub(crate) fn generated_invalid_bytecode(
+pub fn generated_invalid_bytecode(
     name: impl Display,
     path: impl Display,
     checksum: impl Display,
@@ -181,7 +171,7 @@ pub(crate) fn generated_invalid_bytecode(
 
 // --- Duplicated from PAK (used by leo CLI) ---
 
-pub(crate) fn failed_to_set_cwd(dir: impl Display, error: impl ErrorArg) -> Backtraced {
+pub fn failed_to_set_cwd(dir: impl Display, error: impl ErrorArg) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 48,
@@ -190,12 +180,12 @@ pub(crate) fn failed_to_set_cwd(dir: impl Display, error: impl ErrorArg) -> Back
     .with_help("Verify the directory exists and the current process has permission to enter it.")
 }
 
-pub(crate) fn io_error_env_file(error: impl ErrorArg) -> Backtraced {
+pub fn io_error_env_file(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 49, format!("failed to read `.env` file: {error}"))
         .with_help("Verify `.env` exists in the package root and is readable.")
 }
 
-pub(crate) fn dependency_not_found(name: impl Display) -> Backtraced {
+pub fn dependency_not_found(name: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 50,
@@ -204,7 +194,7 @@ pub(crate) fn dependency_not_found(name: impl Display) -> Backtraced {
     .with_help(format!("Add `{name}` to `program.json` (e.g. with `leo add {name}`), then retry."))
 }
 
-pub(crate) fn insufficient_balance(address: impl Display, balance: impl Display, fee: impl Display) -> Backtraced {
+pub fn insufficient_balance(address: impl Display, balance: impl Display, fee: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 51,
@@ -215,22 +205,22 @@ pub(crate) fn insufficient_balance(address: impl Display, balance: impl Display,
 
 // --- Duplicated from UTL ---
 
-pub(crate) fn failed_to_read_file(error: impl Display) -> Backtraced {
+pub fn failed_to_read_file(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 52, format!("failed to read file: {error}"))
         .with_help("Verify the file exists and that the current process has permission to read it.")
 }
 
-pub(crate) fn util_file_io_error(msg: impl Display, err: impl ErrorArg) -> Backtraced {
+pub fn util_file_io_error(msg: impl Display, err: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 53, format!("filesystem I/O error: {msg}: {err}"))
         .with_help("Check the target path and the current process's permissions.")
 }
 
-pub(crate) fn failed_to_open_file(error: impl Display) -> Backtraced {
+pub fn failed_to_open_file(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 54, format!("failed to open file: {error}"))
         .with_help("Verify the file exists and that the current process has permission to read it.")
 }
 
-pub(crate) fn program_size_limit_exceeded(name: impl Display, size: usize, limit: usize) -> Backtraced {
+pub fn program_size_limit_exceeded(name: impl Display, size: usize, limit: usize) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 55,
@@ -239,12 +229,12 @@ pub(crate) fn program_size_limit_exceeded(name: impl Display, size: usize, limit
     .with_help("Reduce the program size by removing unused code, simplifying functions, or splitting the program into smaller programs.")
 }
 
-pub(crate) fn invalid_input_id_len(input: impl Display, expected_type: impl Display) -> Backtraced {
+pub fn invalid_input_id_len(input: impl Display, expected_type: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 56, format!("invalid input `{input}`"))
         .with_help(format!("`{expected_type}` values must contain exactly 61 lowercase letters or digits."))
 }
 
-pub(crate) fn invalid_input_id(
+pub fn invalid_input_id(
     input: impl Display,
     expected_type: impl Display,
     expected_preface: impl Display,
@@ -253,33 +243,33 @@ pub(crate) fn invalid_input_id(
         .with_help(format!("`{expected_type}` values must start with `{expected_preface}`."))
 }
 
-pub(crate) fn invalid_numerical_input(input: impl Display) -> Backtraced {
+pub fn invalid_numerical_input(input: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 58, format!("invalid numerical input `{input}`"))
         .with_help("Provide a valid `u32` value.")
 }
 
-pub(crate) fn invalid_height_or_hash(input: impl Display) -> Backtraced {
+pub fn invalid_height_or_hash(input: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 59, format!("invalid input `{input}`"))
         .with_help("Provide a valid block height (a `u32`) or hash. Valid hashes are 61 characters long, contain only lowercase letters and digits, and start with `ab1`.")
 }
 
-pub(crate) fn invalid_field(field: impl Display) -> Backtraced {
+pub fn invalid_field(field: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 60, format!("invalid field `{field}`"))
         .with_help("Field elements must be numeric strings with an optional `field` suffix, e.g. `42field`.")
 }
 
-pub(crate) fn invalid_bound(bound: impl Display) -> Backtraced {
+pub fn invalid_bound(bound: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 61, format!("invalid bound `{bound}`"))
         .with_help("Provide a valid `u32` value.")
 }
 
-pub(crate) fn invalid_range() -> Backtraced {
+pub fn invalid_range() -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 62, "block range must span at most 50 blocks")
         .with_help("Reduce the difference between `--start` and `--end` to 50 or fewer.")
 }
 
 /// For when --package names a member not listed in workspace.json.
-pub(crate) fn workspace_package_not_found(name: impl Display, workspace_root: impl Display) -> Backtraced {
+pub fn workspace_package_not_found(name: impl Display, workspace_root: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 63,
@@ -289,7 +279,7 @@ pub(crate) fn workspace_package_not_found(name: impl Display, workspace_root: im
 }
 
 /// For when --package is used outside a workspace.
-pub(crate) fn workspace_no_workspace() -> Backtraced {
+pub fn workspace_no_workspace() -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
         CODE_MASK + 64,
@@ -299,25 +289,25 @@ pub(crate) fn workspace_no_workspace() -> Backtraced {
 }
 
 #[cfg(target_family = "windows")]
-pub(crate) fn failed_to_enable_ansi_support() -> Backtraced {
+pub fn failed_to_enable_ansi_support() -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 65, "failed to enable ANSI support").with_help(
         "Update to a recent version of Windows 10/11, or run Leo from a terminal that supports ANSI escapes.",
     )
 }
 
-pub(crate) fn failed_to_load_process(reason: impl Display) -> Backtraced {
+pub fn failed_to_load_process(reason: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 66, format!("failed to load snarkVM process: {reason}")).with_help(
         "This is an internal snarkVM error; the process should always load on a supported network. Please file an issue if this persists.",
     )
 }
 
-pub(crate) fn failed_to_read_import(path: impl Display, reason: impl Display) -> Backtraced {
+pub fn failed_to_read_import(path: impl Display, reason: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 67, format!("could not read import `{path}`: {reason}")).with_help(
         "Place the missing file at the path above, or pass `--imports-dir <DIR>` to point at the directory containing it.",
     )
 }
 
-pub(crate) fn circular_import(cycle: impl Display) -> Backtraced {
+pub fn circular_import(cycle: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 68, format!("circular import: {cycle}"))
         .with_help("Break the cycle by removing one of the import declarations.")
 }

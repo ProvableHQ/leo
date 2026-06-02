@@ -65,7 +65,7 @@ struct RejectedTransaction {
 
 pub fn current_height(endpoint: &str, network: NetworkName, network_retries: u32) -> Result<usize> {
     let height_url = format!("{endpoint}/{network}/block/height/latest");
-    let height_str = leo_package::fetch_from_network_plain(&height_url, network_retries)?;
+    let height_str = leo_cli_core::network::fetch_from_network_plain(&height_url, network_retries)?;
     let height: usize = height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))?;
     Ok(height)
 }
@@ -95,7 +95,7 @@ fn status_at_height(
     }
 
     let block_url = format!("{endpoint}/{network}/block/{height}");
-    let block_str = leo_package::fetch_from_network_plain(&block_url, network_retries)?;
+    let block_str = leo_cli_core::network::fetch_from_network_plain(&block_url, network_retries)?;
     let block: Block = serde_json::from_str(&block_str).map_err(|e| anyhow!("Deserialization failure X: {e}."))?;
     let maybe_this_transaction =
         block.transactions.iter().find(|transaction_result| transaction_result.transaction.id == id);
@@ -116,7 +116,7 @@ fn status_at_height(
         }
 
         let url = format!("{endpoint}/{network}/transaction/unconfirmed/{}", rejected.transaction.id);
-        let transaction_str = leo_package::fetch_from_network_plain(&url, network_retries)?;
+        let transaction_str = leo_cli_core::network::fetch_from_network_plain(&url, network_retries)?;
         let transaction: RejectedTransaction =
             serde_json::from_str(&transaction_str).map_err(|e| anyhow!("Deserialization failure: {e}"))?;
         // It's actually the fee that will show up as rejected.

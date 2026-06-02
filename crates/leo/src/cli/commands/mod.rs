@@ -72,10 +72,10 @@ pub use upgrade::LeoUpgrade;
 use super::*;
 use crate::cli::{helpers::context::*, query::QueryCommands};
 
-use leo_errors::{Handler, Result};
+use leo_errors::Result;
 use snarkvm::{
     console::network::Network,
-    prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction},
+    prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, ViewKey, block::Transaction},
 };
 
 use clap::{Args, Parser};
@@ -147,222 +147,13 @@ pub trait Command {
     }
 }
 
-/// A helper function to parse an input string into a `Value`, handling record ciphertexts as well.
-pub fn parse_input<N: Network>(input: &str, private_key: &PrivateKey<N>) -> Result<Value<N>> {
-    // Trim whitespace from the input.
-    let input = input.trim();
-    // Check if the input is a record ciphertext.
-    if input.starts_with("record1") {
-        // Get the view key from the private key.
-        let view_key = ViewKey::<N>::try_from(private_key)
-            .map_err(|e| crate::errors::custom(format!("Failed to view key from the private key: {e}")))?;
-        // Parse the input as a record.
-        Record::<N, Ciphertext<N>>::from_str(input)
-            .and_then(|ciphertext| ciphertext.decrypt(&view_key))
-            .map(Value::Record)
-            .map_err(|e| crate::errors::custom(format!("Failed to parse input as record: {e}")).into())
-    } else {
-        // Pre-validate numeric literals to reject malformed inputs that snarkvm would silently coerce to zero.
-        validate_cli_literal(input)?;
-        Value::from_str(input).map_err(|e| crate::errors::custom(format!("Failed to parse input: {e}")).into())
-    }
-}
+// `parse_input` and its internal validators live in
+// `leo_cli_core::commands::util`. `common/util.rs` re-exports them so
+// `cli/commands/*.rs` callsites using `super::*` continue to find the
+// symbol unchanged.
 
-/// Pre-validates a CLI input literal to reject malformed numeric literals
-/// that snarkvm would silently coerce to zero (e.g. `truefield`, `""field`).
-fn validate_cli_literal(input: &str) -> Result<()> {
-    // Skip pre-validation for Aleo bech32 values; they are validated downstream.
-    const ALEO_BECH32_PREFIXES: &[&str] = &["aleo1", "sign1", "APrivateKey1", "AViewKey1"];
-    if ALEO_BECH32_PREFIXES.iter().any(|prefix| input.starts_with(prefix)) {
-        return Ok(());
-    }
+// `validate_cli_literal` and friends moved to
+// `leo_cli_core::commands::util`. The unit tests below exercise the
+// re-exported `parse_input` for regression coverage.
 
-    // Suffixes ordered longest-first to avoid ambiguous matches (e.g. u128 before u8).
-    const UNSIGNED_SUFFIXES: &[&str] = &["u128", "u64", "u32", "u16", "u8"];
-    const SIGNED_SUFFIXES: &[&str] = &["i128", "i64", "i32", "i16", "i8"];
-    const FIELD_LIKE_SUFFIXES: &[&str] = &["field", "scalar", "group"];
-
-    for suffix in UNSIGNED_SUFFIXES {
-        if let Some(prefix) = input.strip_suffix(suffix) {
-            return validate_numeric_prefix(prefix, suffix, false, false);
-        }
-    }
-    for suffix in SIGNED_SUFFIXES {
-        if let Some(prefix) = input.strip_suffix(suffix) {
-            return validate_numeric_prefix(prefix, suffix, true, false);
-        }
-    }
-    for suffix in FIELD_LIKE_SUFFIXES {
-        if let Some(prefix) = input.strip_suffix(suffix) {
-            // Group supports coordinate pair syntax like (x, y)group — defer to snarkvm.
-            if *suffix == "group" && prefix.starts_with('(') {
-                return Ok(());
-            }
-            return validate_numeric_prefix(prefix, suffix, true, true);
-        }
-    }
-
-    // For all other inputs (bool, address, struct, record, etc.), skip pre-validation.
-    Ok(())
-}
-
-/// Validates that `prefix` is a well-formed numeric string for the given type `suffix`.
-fn validate_numeric_prefix(prefix: &str, suffix: &str, allow_negative: bool, decimal_only: bool) -> Result<()> {
-    if prefix.is_empty() {
-        return Err(crate::errors::custom(format!(
-            "Invalid {suffix} literal: missing numeric value before '{suffix}'"
-        ))
-        .into());
-    }
-    let valid = if decimal_only {
-        is_valid_decimal(prefix, allow_negative)
-    } else {
-        is_valid_decimal(prefix, allow_negative) || is_valid_radix_prefixed(prefix, allow_negative)
-    };
-    if !valid {
-        return Err(crate::errors::custom(format!(
-            "Invalid {suffix} literal: '{prefix}' is not a valid numeric value"
-        ))
-        .into());
-    }
-    Ok(())
-}
-
-/// Checks if `s` is a valid decimal integer string (e.g. `123`, `-42`, `1_000`).
-fn is_valid_decimal(s: &str, allow_negative: bool) -> bool {
-    let s = if allow_negative { s.strip_prefix('-').unwrap_or(s) } else { s };
-    if s.is_empty() {
-        return false;
-    }
-    let mut chars = s.chars();
-    // Must start with a digit.
-    if !chars.next().unwrap().is_ascii_digit() {
-        return false;
-    }
-    chars.all(|c| c.is_ascii_digit() || c == '_')
-}
-
-/// Checks if `s` is a valid radix-prefixed integer string (e.g. `0xFF`, `0b1010`, `0o77`).
-fn is_valid_radix_prefixed(s: &str, allow_negative: bool) -> bool {
-    let s = if allow_negative { s.strip_prefix('-').unwrap_or(s) } else { s };
-    if s.len() < 3 || !s.starts_with('0') {
-        return false;
-    }
-    let radix_char = s.as_bytes()[1];
-    let rest = &s[2..];
-    if rest.is_empty() || rest.starts_with('_') {
-        return false;
-    }
-    match radix_char {
-        b'x' | b'X' => rest.chars().all(|c| c.is_ascii_hexdigit() || c == '_'),
-        b'o' => rest.chars().all(|c| matches!(c, '0'..='7' | '_')),
-        b'b' => rest.chars().all(|c| matches!(c, '0' | '1' | '_')),
-        _ => false,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_valid_literals() {
-        let valid = [
-            "42field",
-            "-7field",
-            "0field",
-            "1_000_000field",
-            "100u64",
-            "0x1Fu8",
-            "0b1010u32",
-            "0o77u16",
-            "-128i8",
-            "-0x80i16",
-            "0scalar",
-            "42group",
-            "(1, 2)group",
-            // Non-numeric types: no suffix match, so validation is skipped.
-            "true",
-            "false",
-            "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
-            // Addresses whose bech32 tail collides with a Leo numeric type suffix
-            // (regression coverage for issue #29372).
-            "aleo1vnx8f43f7yjvs2ehlqsl78j2qh4409s8e4g7gx40u3v884gqgqxqscutu8",
-            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
-            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu64",
-            "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqscalar",
-            // Signatures: same bech32 alphabet collisions as addresses.
-            "sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj",
-            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu8",
-            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
-            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu64",
-            "sign1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqscalar",
-            // Private keys and view keys: not valid program inputs, but skipping
-            // pre-validation lets snarkvm produce the correct parse error.
-            "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH",
-            "APrivateKey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu8",
-            "AViewKey1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqu32",
-        ];
-        for input in &valid {
-            assert!(validate_cli_literal(input).is_ok(), "expected '{input}' to be valid");
-        }
-    }
-
-    #[test]
-    fn test_invalid_literals() {
-        let invalid = [
-            "truefield",
-            "falsefield",
-            "field",
-            "scalar",
-            "u8",
-            "abcu64",
-            "-u8",
-            "hello_worldscalar",
-            "truegroup",
-            "xxxi128",
-        ];
-        for input in &invalid {
-            assert!(validate_cli_literal(input).is_err(), "expected '{input}' to be invalid");
-        }
-    }
-
-    // Smoke test for `parse_input` across the value types accepted as Leo program inputs.
-    #[test]
-    fn test_parse_input_value_types() {
-        use snarkvm::prelude::TestnetV0;
-        let private_key =
-            PrivateKey::<TestnetV0>::from_str("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH").unwrap();
-        let inputs = [
-            // Integers across signed and unsigned widths.
-            "42u8",
-            "0u8",
-            "255u8",
-            "-7i32",
-            "-128i8",
-            "100u64",
-            "1_000_000u128",
-            // Field and scalar.
-            "1_000_000field",
-            "-7field",
-            "0scalar",
-            // Booleans.
-            "true",
-            "false",
-            // Addresses (regular tail, and bech32 tails matching numeric suffixes).
-            "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9",
-            "aleo1vnx8f43f7yjvs2ehlqsl78j2qh4409s8e4g7gx40u3v884gqgqxqscutu8",
-            // Signature.
-            "sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq",
-            // Composite plaintexts.
-            "[1u8, 2u8, 3u8]",
-            "{a: 1u8, b: 2u8}",
-            "{nested: {x: 1field, y: 2field}, count: 3u32}",
-            // Whitespace is trimmed.
-            "  42u8  ",
-        ];
-        for input in &inputs {
-            assert!(parse_input::<TestnetV0>(input, &private_key).is_ok(), "expected '{input}' to parse");
-        }
-    }
-}
+// Tests moved to leo-cli-core::commands::util (along with parse_input).

@@ -14,27 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! `leo run` clap surface. The actual run logic lives in
+//! [`leo_cli_core::commands::run::handle_run`]; this file just collects
+//! flags, builds the package if applicable, and forwards.
+
 use super::*;
 
-use super::common::load_extra_programs_into_vm;
-use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
-use leo_package::{Package, ProgramData};
+use leo_ast::NetworkName;
+use leo_cli_core::commands::run::{RunArgs, RunOutput};
+use leo_package::Package;
 
-use aleo_std::StorageMode;
-
-use clap::Parser;
-
+use snarkvm::circuit::AleoTestnetV0;
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
-use snarkvm::{
-    circuit::{Aleo, AleoTestnetV0},
-    prelude::{
-        Identifier,
-        ProgramID,
-        VM,
-        store::{ConsensusStore, helpers::memory::ConsensusMemory},
-    },
-};
 
 /// Run the Leo program with the given inputs, without generating a proof.
 #[derive(Parser, Debug)]
@@ -73,9 +65,7 @@ impl Command for LeoRun {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        // Get the path to the current directory.
         let path = context.dir()?;
-        // Get the path to the home directory.
         let home_path = context.home()?;
         // If the current directory is a valid Leo package, then build it.
         if Package::from_directory_no_graph(
@@ -84,12 +74,12 @@ impl Command for LeoRun {
             self.env_override.network,
             self.env_override.endpoint.as_deref(),
             self.env_override.network_retries,
+            leo_cli_core::package_fetch::fetch_compilation_unit,
         )
         .is_ok()
         {
             let package = LeoBuild { env_override: self.env_override.clone(), options: self.build_options.clone() }
                 .execute(context)?;
-            // Return the package.
             Ok(Some(package))
         } else {
             Ok(None)
@@ -97,233 +87,41 @@ impl Command for LeoRun {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        // Libraries cannot be run.
-        if let Some(package) = &input
-            && package.compilation_units.last().is_some_and(|p| p.kind.is_library())
-        {
-            return Err(crate::errors::custom("Cannot run a library package. Only programs can be run.").into());
-        }
-
-        // Get the network, defaulting to `TestnetV0` if none is specified.
         let network = match get_network(&self.env_override.network) {
-            Ok(network) => network,
+            Ok(n) => n,
             Err(_) => {
                 println!("⚠️ No network specified, defaulting to 'testnet'.");
                 NetworkName::TestnetV0
             }
         };
 
-        // Handle each network with the appropriate parameterization.
+        let home_path = context.home()?;
+        let args = RunArgs {
+            name: self.name.clone(),
+            inputs: self.inputs.clone(),
+            with: &self.with,
+            private_key: &self.env_override.private_key,
+            endpoint: &self.env_override.endpoint,
+            network_retries: self.env_override.network_retries,
+            network,
+            home_path: &home_path,
+            package: input.as_ref(),
+        };
+
         match network {
-            NetworkName::TestnetV0 => handle_run::<AleoTestnetV0>(self, context, network, input),
+            NetworkName::TestnetV0 => leo_cli_core::commands::run::handle_run::<AleoTestnetV0>(args),
             NetworkName::MainnetV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Mainnet chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_run::<AleoV0>(self, context, network, input)
+                leo_cli_core::commands::run::handle_run::<AleoV0>(args)
             }
             NetworkName::CanaryV0 => {
                 #[cfg(feature = "only_testnet")]
                 panic!("Canary chosen with only_testnet feature");
                 #[cfg(not(feature = "only_testnet"))]
-                handle_run::<AleoCanaryV0>(self, context, network, input)
+                leo_cli_core::commands::run::handle_run::<AleoCanaryV0>(args)
             }
         }
     }
-}
-
-// A helper function to handle the `run` command.
-fn handle_run<A: Aleo>(
-    command: LeoRun,
-    context: Context,
-    network: NetworkName,
-    package: Option<Package>,
-) -> Result<<LeoRun as Command>::Output> {
-    // Get the private key, defaulting to a test key.
-    let private_key = match get_private_key::<A::Network>(&command.env_override.private_key) {
-        Ok(private_key) => private_key,
-        Err(_) => {
-            println!("⚠️ No valid private key specified, defaulting to '{TEST_PRIVATE_KEY}'.");
-            PrivateKey::<A::Network>::from_str(TEST_PRIVATE_KEY).expect("Failed to parse the test private key")
-        }
-    };
-
-    // Parse the <NAME> into an optional program name and a function name.
-    // If only a function name is provided, then use the program name from the package.
-    let (program_name, function_name) = match command.name.split_once('/').or_else(|| command.name.split_once("::")) {
-        Some((program_name, function_name)) => (program_name.to_string(), function_name.to_string()),
-        None => match &package {
-            Some(package) => (
-                package
-                    .compilation_units
-                    .last()
-                    .expect("There must be at least one program in a Leo package")
-                    .name
-                    .to_string(),
-                command.name,
-            ),
-            None => {
-                return Err(crate::errors::custom(format!(
-                    "Running `leo execute {} ...`, without an explicit program name requires that your current working directory is a valid Leo project.",
-                    command.name
-                )).into());
-            }
-        },
-    };
-
-    // Parse the program name as a `ProgramID`.
-    let program_id = ProgramID::<A::Network>::from_str(&program_name)
-        .map_err(|e| crate::errors::custom(format!("Failed to parse program name: {e}")))?;
-    // Parse the function name as an `Identifier`.
-    let function_id = Identifier::<A::Network>::from_str(&function_name)
-        .map_err(|e| crate::errors::custom(format!("Failed to parse function name: {e}")))?;
-
-    // Get all the dependencies in the package if it exists.
-    // Get the programs and optional manifests for all programs.
-    let programs = if let Some(package) = &package {
-        // Get the program names and their bytecode.
-        package
-            .compilation_units
-            .iter()
-            .clone()
-            .filter(|unit| !unit.kind.is_library())
-            .map(|unit| {
-                let program_id = ProgramID::<A::Network>::from_str(&format!("{}", unit.name))
-                    .map_err(|e| crate::errors::custom(format!("Failed to parse program ID: {e}")))?;
-                match &unit.data {
-                    ProgramData::Bytecode(bytecode) => Ok((program_id, bytecode.to_string(), unit.edition)),
-                    ProgramData::SourcePath { .. } => {
-                        // Get the path to the built bytecode.
-                        let bytecode_path = package.unit_bytecode_path(&unit.name.to_string());
-                        // Fetch the bytecode.
-                        let bytecode = std::fs::read_to_string(&bytecode_path).map_err(|e| {
-                            crate::errors::custom(format!(
-                                "Failed to read bytecode at {}: {e}",
-                                bytecode_path.display()
-                            ))
-                        })?;
-                        // Return the bytecode and the manifest.
-                        Ok((program_id, bytecode, unit.edition))
-                    }
-                }
-            })
-            .collect::<Result<Vec<_>>>()?
-    } else {
-        Vec::new()
-    };
-
-    // Parse the program strings into AVM programs.
-    let mut programs = programs
-        .into_iter()
-        .map(|(_, bytecode, edition)| {
-            // Parse the program.
-            let program = snarkvm::prelude::Program::<A::Network>::from_str(&bytecode)
-                .map_err(|e| crate::errors::custom(format!("Failed to parse program: {e}")))?;
-            // Return the program and its name.
-            Ok((program, edition))
-        })
-        .collect::<Result<Vec<_>>>()?;
-
-    // Determine whether the program is local or remote.
-    let is_local = programs.iter().any(|(program, _)| program.id() == &program_id);
-
-    // If the program is local, then check that the function exists.
-    if is_local {
-        let program = &programs
-            .iter()
-            .find(|(program, _)| program.id() == &program_id)
-            .expect("Program should exist since it is local")
-            .0;
-        // `view fn`s are read-only finalize-store reads; they have no transition semantics, so
-        // `leo run` (an in-memory simulation against an empty finalize store) can't produce a
-        // meaningful result. Detect this up front instead of falling through to the
-        // "function does not exist" branch below, which would mislead the user.
-        if program.contains_view(&function_id) {
-            return Err(crate::errors::custom(format!(
-                "`{function_name}` is a `view fn`; views are read-only and cannot be simulated by `leo run` \
-                 (which evaluates against an empty in-memory finalize store)."
-            ))
-            .into());
-        }
-        if !program.contains_function(&function_id) {
-            return Err(crate::errors::custom(format!(
-                "Function `{function_name}` does not exist in program `{program_name}`."
-            ))
-            .into());
-        }
-    }
-
-    let inputs =
-        command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
-
-    // Initialize an RNG.
-    let rng = &mut rand::rng();
-
-    // Initialize a new VM.
-    let vm = VM::from(ConsensusStore::<A::Network, ConsensusMemory<A::Network>>::open(StorageMode::Production)?)?;
-
-    // If the program is not local, then download it and its dependencies for the network.
-    // Note: The dependencies are downloaded in "post-order" (child before parent).
-    if !is_local {
-        // Get the endpoint, accounting for overrides.
-        let endpoint = get_endpoint(&command.env_override.endpoint)?;
-        println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        // Load the programs from the network.
-        programs = load_latest_programs_from_network(
-            &context,
-            program_id,
-            network,
-            &endpoint,
-            command.env_override.network_retries,
-        )?;
-    };
-
-    // Add the programs to the VM.
-    println!("\n➕Adding programs to the VM in the following order:");
-    let programs_and_editions = programs
-        .into_iter()
-        .map(|(program, edition)| {
-            print_program_source(&program.id().to_string(), edition);
-            let edition = edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION);
-            (program, edition)
-        })
-        .collect::<Vec<_>>();
-    vm.process().lock().add_programs_with_editions(&programs_and_editions)?;
-
-    // Load any extra programs specified via `--with`.
-    if !command.with.is_empty() {
-        let endpoint = get_endpoint(&command.env_override.endpoint).ok();
-        load_extra_programs_into_vm::<A::Network>(
-            &command.with,
-            &vm,
-            &context,
-            network,
-            endpoint.as_deref(),
-            command.env_override.network_retries,
-        )?;
-    }
-
-    // Evaluate the program and get a response.
-    let authorization = vm
-        .authorize(&private_key, program_id, function_id, inputs.iter(), rng)
-        .map_err(|e| crate::errors::custom(format!("Failed to authorize execution: {e}")))?;
-    let response = vm
-        .process()
-        .evaluate::<A>(authorization)
-        .map_err(|e| crate::errors::custom(format!("Failed to evaluate program: {e}")))?;
-
-    // Collect outputs.
-    let outputs: Vec<String> = response.outputs().iter().map(|o| o.to_string()).collect();
-
-    // Print the response.
-    match outputs.len() {
-        0 => (),
-        1 => println!("\n➡️  Output\n"),
-        _ => println!("\n➡️  Outputs\n"),
-    };
-    for output in &outputs {
-        println!(" • {output}");
-    }
-
-    Ok(RunOutput { program: program_id.to_string(), function: function_id.to_string(), outputs })
 }

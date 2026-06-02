@@ -18,7 +18,8 @@ use super::*;
 use std::{collections::HashSet, fs};
 
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network};
+use leo_cli_core::network::fetch_program_from_network;
+use leo_package::{Package, ProgramData};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -264,10 +265,10 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let mut programs_and_editions = Vec::with_capacity(program_ids.len());
     for id in &program_ids {
         // Load the program from the network.
-        let Ok(program) = leo_package::CompilationUnit::fetch(
+        let Ok(program) = leo_cli_core::package_fetch::fetch_compilation_unit(
             Symbol::intern(&id.name().to_string()),
             None,
-            context.home()?,
+            &context.home()?,
             network,
             &endpoint,
             true,

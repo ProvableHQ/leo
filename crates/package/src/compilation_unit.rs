@@ -17,16 +17,28 @@
 use crate::{MAX_PROGRAM_SIZE, *};
 
 use leo_errors::Result;
-use leo_span::Symbol;
-
-use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
+use leo_span::{Symbol, file_source::FileSource};
 
 use indexmap::{IndexMap, IndexSet};
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Where the bytecode or source of a compilation unit lives.
+///
+/// - `Bytecode` is an already-compiled `.aleo` program: typically a network
+///   dependency we fetched, or a local file dropped into the dep tree.
+/// - `SourcePath` is a Leo package or test source — `directory` is the
+///   package root (for `from_package_path`) or the test directory (for
+///   `from_test_path`); `source` is the entry file the parser starts at.
+#[derive(Clone, Debug)]
+pub enum ProgramData {
+    Bytecode(String),
+    SourcePath { directory: PathBuf, source: PathBuf },
+}
 
 /// Find the latest cached edition for a program in the local registry.
 /// Returns None if no cached version exists.
-fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
+/// Find the latest cached edition for a program in the local registry.
+pub fn find_cached_edition(cache_directory: &Path, name: &str) -> Option<u16> {
     let program_cache = cache_directory.join(name);
     if !program_cache.exists() {
         return None;
@@ -87,16 +99,24 @@ impl CompilationUnit {
     /// Given the location `path` of a `.aleo` file, read the filesystem
     /// to obtain a `CompilationUnit`.
     pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        Self::from_aleo_path_impl(name, path.as_ref(), map)
+        Self::from_aleo_path_with_file_source(name, path, map, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        let bytecode = std::fs::read_to_string(path).map_err(|e| {
+    /// Read an `.aleo` file via an explicit [`FileSource`].
+    ///
+    /// Resolves paths against `file_source` instead of the real filesystem so
+    /// the same code path serves wasm callers using `InMemoryFileSource`.
+    pub fn from_aleo_path_with_file_source<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        map: &IndexMap<Symbol, Dependency>,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let path = path.as_ref();
+        let bytecode = file_source.read_file(path).map_err(|e| {
             crate::errors::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
-
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
-
         Ok(CompilationUnit {
             name,
             data: ProgramData::Bytecode(bytecode),
@@ -110,11 +130,17 @@ impl CompilationUnit {
     /// Given the location `path` of a local Leo package, read the filesystem
     /// to obtain a `CompilationUnit`.
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
-        Self::from_package_path_impl(name, path.as_ref())
+        Self::from_package_path_with_file_source(name, path, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_package_path_impl(name: Symbol, path: &Path) -> Result<Self> {
-        let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
+    /// Read a Leo package at `path` via an explicit [`FileSource`].
+    pub fn from_package_path_with_file_source<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let path = path.as_ref();
+        let manifest = Manifest::read_from_file_source(path.join(MANIFEST_FILENAME), file_source)?;
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
             return Err(
@@ -122,17 +148,20 @@ impl CompilationUnit {
             );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
-        source_directory.read_dir().map_err(|e| {
-            crate::errors::util_file_io_error(
+        if !file_source.is_dir(&source_directory) {
+            return Err(crate::errors::util_file_io_error(
                 format_args!("Failed to read directory {}", source_directory.display()),
-                e,
+                std::io::Error::new(std::io::ErrorKind::NotFound, source_directory.display().to_string()),
             )
-        })?;
+            .into());
+        }
 
         let main_path = source_directory.join(MAIN_FILENAME);
         let lib_path = source_directory.join(LIB_FILENAME);
+        let main_present = file_source.is_file(&main_path);
+        let lib_present = file_source.is_file(&lib_path);
 
-        let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
+        let (source_path, kind) = match (main_present, lib_present) {
             (true, true) => {
                 return Err(crate::errors::ambiguous_entry_file(
                     source_directory.display(),
@@ -159,8 +188,12 @@ impl CompilationUnit {
                 .unwrap_or_default()
                 .into_iter()
                 .map(|dependency| {
-                    let dep = canonicalize_dependency_path_relative_to(path, dependency)?;
-                    if dep.location == Location::Workspace { resolve_workspace_dependency(path, dep) } else { Ok(dep) }
+                    let dep = resolve_dependency_path_relative_to(path, dependency, file_source)?;
+                    if dep.location == Location::Workspace {
+                        resolve_workspace_dependency_with_file_source(path, dep, file_source)
+                    } else {
+                        Ok(dep)
+                    }
                 })
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
@@ -175,10 +208,16 @@ impl CompilationUnit {
     ///
     /// `main_program` must be provided since every test is dependent on it.
     pub fn from_test_path<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
-        Self::from_path_test_impl(source_path.as_ref(), main_program)
+        Self::from_test_path_with_file_source(source_path, main_program, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+    /// Read a test source via an explicit [`FileSource`].
+    pub fn from_test_path_with_file_source<P: AsRef<Path>>(
+        source_path: P,
+        main_program: Dependency,
+        file_source: &impl FileSource,
+    ) -> Result<Self> {
+        let source_path = source_path.as_ref();
         let name = filename_no_leo_extension(source_path)
             .ok_or_else(|| crate::errors::failed_path(source_path.display(), ""))?;
         let test_directory = source_path.parent().ok_or_else(|| {
@@ -193,15 +232,15 @@ impl CompilationUnit {
                 source_path.display()
             ))
         })?;
-        let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        let manifest = Manifest::read_from_file_source(package_directory.join(MANIFEST_FILENAME), file_source)?;
         let mut dependencies = manifest
             .dev_dependencies
             .unwrap_or_default()
             .into_iter()
             .map(|dependency| {
-                let dep = canonicalize_dependency_path_relative_to(package_directory, dependency)?;
+                let dep = resolve_dependency_path_relative_to(package_directory, dependency, file_source)?;
                 if dep.location == Location::Workspace {
-                    resolve_workspace_dependency(package_directory, dep)
+                    resolve_workspace_dependency_with_file_source(package_directory, dep, file_source)
                 } else {
                     Ok(dep)
                 }
@@ -221,154 +260,89 @@ impl CompilationUnit {
             kind: PackageKind::Test,
         })
     }
-
-    /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
-    /// If no edition is found, the latest edition is pulled from the network.
-    pub fn fetch<P: AsRef<Path>>(
-        name: Symbol,
-        edition: Option<u16>,
-        home_path: P,
-        network: NetworkName,
-        endpoint: &str,
-        no_cache: bool,
-        network_retries: u32,
-    ) -> Result<Self> {
-        Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries)
-    }
-
-    fn fetch_impl(
-        name: Symbol,
-        edition: Option<u16>,
-        home_path: &Path,
-        network: NetworkName,
-        endpoint: &str,
-        no_cache: bool,
-        network_retries: u32,
-    ) -> Result<Self> {
-        // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
-        // here so cache paths and network URLs are constructed consistently.
-        let name = Symbol::intern(name.to_string().strip_suffix(".aleo").unwrap_or(&name.to_string()));
-
-        // It's not a local program; let's check the cache.
-        let cache_directory = home_path.join(format!("registry/{network}"));
-
-        // If the edition is not specified, try to find a cached version first,
-        // then fall back to querying the network for the latest edition.
-        let edition = match edition {
-            // Credits program always has edition 0.
-            _ if name == Symbol::intern("credits") => 0,
-            Some(edition) => edition,
-            None if !no_cache => {
-                // Check if we have a cached version - avoid network call if possible.
-                match find_cached_edition(&cache_directory, &name.to_string()) {
-                    Some(cached_edition) => cached_edition,
-                    None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
-                }
-            }
-            // no_cache is set - user wants fresh data from network.
-            None => crate::fetch_latest_edition(&name.to_string(), endpoint, network, network_retries)?,
-        };
-
-        // Define the full cache path for the program.
-
-        // Build cache paths.
-        let cache_directory = cache_directory.join(format!("{name}/{edition}"));
-        let full_cache_path = cache_directory.join(format!("{name}.aleo"));
-        if !cache_directory.exists() {
-            // Create directory if it doesn't exist.
-            std::fs::create_dir_all(&cache_directory).map_err(|err| {
-                crate::errors::util_file_io_error(format!("Could not write path {}", cache_directory.display()), err)
-            })?;
-        }
-
-        // Get the existing bytecode if the file exists.
-        let existing_bytecode = match full_cache_path.exists() {
-            false => None,
-            true => {
-                let existing_contents = std::fs::read_to_string(&full_cache_path).map_err(|e| {
-                    crate::errors::util_file_io_error(
-                        format_args!("Trying to read cached file at {}", full_cache_path.display()),
-                        e,
-                    )
-                })?;
-                Some(existing_contents)
-            }
-        };
-
-        let bytecode = match (existing_bytecode, no_cache) {
-            // If we are using the cache, we can just return the bytecode.
-            (Some(bytecode), false) => bytecode,
-            // Otherwise, we need to fetch it from the network.
-            (existing, _) => {
-                // Define the primary URL to fetch the program from.
-                let primary_url = if name == Symbol::intern("credits") {
-                    format!("{endpoint}/{network}/program/credits.aleo")
-                } else {
-                    format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
-                };
-                let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&primary_url, network_retries)
-                    .or_else(|_| fetch_from_network(&secondary_url, network_retries))
-                    .map_err(|err| {
-                        crate::errors::failed_to_retrieve_from_endpoint(
-                            primary_url,
-                            format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
-                        )
-                    })?;
-
-                // If the file already exists, compare it to the new contents.
-                if let Some(existing_contents) = existing
-                    && existing_contents != contents
-                {
-                    println!(
-                        "Warning: The cached file at `{}` is different from the one fetched from the network. The cached file will be overwritten.",
-                        full_cache_path.display()
-                    );
-                }
-
-                // Write the bytecode to the cache.
-                std::fs::write(&full_cache_path, &contents).map_err(|err| {
-                    crate::errors::util_file_io_error(
-                        format_args!("Could not open file `{}`", full_cache_path.display()),
-                        err,
-                    )
-                })?;
-
-                contents
-            }
-        };
-
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
-
-        Ok(CompilationUnit {
-            // Network programs store the name with the ".aleo" suffix (unlike local packages).
-            // TODO: unify the invariant so the suffix is always absent.
-            name: Symbol::intern(&(name.to_string() + ".aleo")),
-            data: ProgramData::Bytecode(bytecode),
-            edition: Some(edition),
-            dependencies,
-            is_local: false,
-            kind: PackageKind::Program,
-        })
-    }
 }
 
-/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
+/// If `dependency` has a relative path, assume it's relative to `base` and resolve it.
 ///
-/// This needs to be done when collecting local dependencies from manifests which
-/// may be located at different places on the file system.
-pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+/// On the real disk we canonicalize (resolves `..`, symlinks, etc.). When a
+/// `FileSource` is supplied that isn't backed by the real disk (e.g. wasm's
+/// virtual FS), we fall back to syntactic normalization — `..` is collapsed,
+/// `.` is dropped, and the resulting path is verified to be addressable in
+/// the source.
+pub(crate) fn resolve_dependency_path_relative_to(
+    base: &Path,
+    mut dependency: Dependency,
+    file_source: &impl FileSource,
+) -> Result<Dependency> {
     if let Some(path) = &mut dependency.path
         && !path.is_absolute()
     {
         let joined = base.join(&path);
-        *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
+        *path = normalize_path_via_file_source(&joined, file_source)?;
     }
     Ok(dependency)
 }
 
+/// Joins a relative dep path to `base` and resolves it via the supplied
+/// `FileSource::canonicalize`. On `DiskFileSource` this matches the historical
+/// behaviour (real `Path::canonicalize`); on in-memory sources it falls back
+/// to component normalization.
+pub(crate) fn canonicalize_dependency_path_relative_to_with_file_source(
+    base: &Path,
+    mut dependency: Dependency,
+    file_source: &impl FileSource,
+) -> Result<Dependency> {
+    if let Some(path) = &mut dependency.path
+        && !path.is_absolute()
+    {
+        let joined = base.join(&path);
+        *path = file_source.canonicalize(&joined).map_err(|e| crate::errors::failed_path(joined.display(), e))?;
+    }
+    Ok(dependency)
+}
+
+/// Resolve a path against a [`FileSource`].
+///
+/// Delegates to `FileSource::canonicalize` so each source decides whether to
+/// consult a real filesystem: `DiskFileSource` calls `Path::canonicalize` (so
+/// symlinks resolve the way `leo build` has always done), and in-memory
+/// sources fall back to component-only normalization.
+fn normalize_path_via_file_source(path: &Path, file_source: &impl FileSource) -> Result<PathBuf> {
+    let resolved = file_source.canonicalize(path).map_err(|e| crate::errors::failed_path(path.display(), e))?;
+    if !file_source.exists(&resolved) {
+        return Err(crate::errors::failed_path(
+            resolved.display(),
+            std::io::Error::new(std::io::ErrorKind::NotFound, resolved.display().to_string()),
+        )
+        .into());
+    }
+    Ok(resolved)
+}
+
+/// Workspace dependency resolution via [`FileSource`] (wraps the native
+/// [`resolve_workspace_dependency`]).
+///
+/// `Workspace::discover` itself still consults `std::fs`, so wasm callers
+/// will see a runtime error when actually resolving workspace deps —
+/// stage the dep with an explicit `path` instead.
+pub(crate) fn resolve_workspace_dependency_with_file_source(
+    base: &Path,
+    dep: Dependency,
+    _file_source: &impl FileSource,
+) -> Result<Dependency> {
+    resolve_workspace_dependency(base, dep)
+}
+
 /// Parse the `.aleo` file's imports and construct `Dependency`s.
-fn parse_dependencies_from_aleo(
+///
+/// On native, the bytecode is parsed through snarkVM's full umbrella
+/// (`Program::parse`) and the resulting `imports()` map is the source of
+/// truth — this catches the same grammar edge cases the deployer would
+/// (tab whitespace, block comments, etc.). On `wasm32` the full umbrella
+/// isn't in the dep graph, so a hardened inline scanner takes over.
+/// Both paths produce the same shape, so downstream `Package::graph_build`
+/// behaves identically across targets.
+pub fn parse_dependencies_from_aleo(
     name: Symbol,
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,
@@ -384,22 +358,141 @@ fn parse_dependencies_from_aleo(
         )));
     }
 
-    // Parse the bytecode into an SVM program.
-    let svm_program: SvmProgram<TestnetV0> =
-        bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
-    let dependencies = svm_program
-        .imports()
-        .keys()
-        .map(|program_id| {
-            // If the dependency already exists, use it.
-            // Otherwise, assume it's a network dependency.
-            if let Some(dependency) = existing.get(&Symbol::intern(&program_id.to_string())) {
+    // Extract import names with the inline scanner on every target. Callers
+    // that want strict bytecode validation should run
+    // `leo_cli_core::validation::verify_valid_program` separately — it pulls
+    // in snarkVM's full parser, which isn't available on wasm.
+    let imports: Vec<String> = extract_aleo_import_names(bytecode);
+
+    let dependencies = imports
+        .into_iter()
+        .map(|import_name| {
+            let sym = Symbol::intern(&import_name);
+            if let Some(dependency) = existing.get(&sym) {
                 dependency.clone()
             } else {
-                let name = program_id.to_string();
-                Dependency { name, location: Location::Network, path: None, edition: None }
+                Dependency { name: import_name, location: Location::Network, path: None, edition: None }
             }
         })
         .collect();
     Ok(dependencies)
+}
+
+/// Extract the program names referenced by `import <name>;` statements at the
+/// top of an `.aleo` source file.
+///
+/// Stops at the first non-import, non-blank, non-comment token — Aleo imports
+/// are only legal at the top. Tolerates arbitrary whitespace (including tabs)
+/// between `import`, the program name, and the trailing `;`. Ignores line
+/// (`// …`) and block (`/* … */`) comments anywhere before the program block.
+///
+/// Used on every target as the canonical import-name extractor for `.aleo`
+/// bytecode. `leo_cli_core` carries a native-only parity test that confirms
+/// it matches what `Program::<TestnetV0>::imports()` would produce.
+pub fn extract_aleo_import_names(bytecode: &str) -> Vec<String> {
+    // Strip every block comment first — they can straddle lines and would
+    // otherwise hide an `import`-prefixed line from the per-line walk below.
+    let stripped = strip_block_comments(bytecode);
+    let mut out = Vec::new();
+    for line in stripped.lines() {
+        // Drop any trailing `// …` comment.
+        let line = match line.find("//") {
+            Some(idx) => &line[..idx],
+            None => line,
+        };
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        // Split off the `import` keyword (any whitespace, including tabs).
+        let mut tokens = line.splitn(2, char::is_whitespace);
+        let head = tokens.next().unwrap_or("");
+        if head != "import" {
+            // First non-import token ends the import block.
+            break;
+        }
+        let Some(rest) = tokens.next() else { break };
+        let name = rest.trim_end_matches(';').trim();
+        if !name.is_empty() {
+            out.push(name.to_string());
+        }
+    }
+    out
+}
+
+/// Drop `/* … */` block comments from `src`. Nesting is not supported (Aleo
+/// bytecode emitted by snarkVM never nests block comments).
+fn strip_block_comments(src: &str) -> String {
+    let mut out = String::with_capacity(src.len());
+    let mut rest = src;
+    while let Some(start) = rest.find("/*") {
+        out.push_str(&rest[..start]);
+        match rest[start + 2..].find("*/") {
+            Some(end) => rest = &rest[start + 2 + end + 2..],
+            None => {
+                // Unterminated block comment — consume the rest.
+                rest = "";
+                break;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::extract_aleo_import_names;
+
+    #[test]
+    fn extract_imports_basic() {
+        let src = "import foo.aleo;\nimport bar.aleo;\n\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_with_blank_lines_and_comments() {
+        let src = "\
+            // top-level comment\n\
+            \n\
+            import foo.aleo;\n\
+            // another comment\n\
+            import bar.aleo;\n\
+            \n\
+            program baz.aleo;\n\
+            // imports below `program` are illegal in .aleo and not extracted\n\
+        ";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_no_imports() {
+        let src = "program baz.aleo;\nfunction main:\n    input r0 as u32.public;\n";
+        assert!(extract_aleo_import_names(src).is_empty());
+    }
+
+    #[test]
+    fn extract_imports_stops_at_program_block() {
+        // Anything after a non-import, non-blank, non-comment line is ignored
+        // — matches snarkVM's parser, which rejects imports below `program`.
+        let src = "import foo.aleo;\nprogram baz.aleo;\nimport sneaky.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_tab_whitespace() {
+        // Tabs between `import` and the name; trailing line comment.
+        let src = "import\tfoo.aleo;\nimport \tbar.aleo; // trailing\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    #[test]
+    fn extract_imports_strips_block_comments() {
+        // Block comment between two imports — snarkVM accepts this.
+        let src = "import foo.aleo;\n/* block\n comment */ import bar.aleo;\nprogram baz.aleo;\n";
+        assert_eq!(extract_aleo_import_names(src), vec!["foo.aleo", "bar.aleo"]);
+    }
+
+    // The snarkVM parity test lives in `leo-cli-core::validation::tests`
+    // (the only place snarkVM is available on the dep graph).
 }

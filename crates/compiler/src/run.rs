@@ -27,15 +27,40 @@
 //!
 //! Also defines types for program configuration, test cases, and outcomes.
 
-use leo_ast::{TEST_PRIVATE_KEY, const_eval::Value};
+use leo_ast::const_eval::Value;
 use leo_errors::Result;
 
-use aleo_std_storage::StorageMode;
 use anyhow::anyhow;
+use indexmap::IndexMap;
 use rand_chacha::{ChaCha20Rng, rand_core::SeedableRng as _};
+use std::{
+    fmt,
+    panic::{AssertUnwindSafe, catch_unwind},
+    str::FromStr as _,
+};
+
+// Wasm-buildable execution surface — used by `run_without_ledger` on both
+// targets so leo-wasm and the native CLI share one execution path.
+use snarkvm_circuit::AleoTestnetV0;
+use snarkvm_console::{
+    account::PrivateKey,
+    network::TestnetV0,
+    program::{Identifier, Plaintext, ProgramID, Value as SvmValue},
+};
+use snarkvm_ledger_block::Execution as SvmExecution;
+use snarkvm_ledger_store::{FinalizeStore, helpers::memory::FinalizeMemory};
+use snarkvm_synthesizer_process::Process;
+use snarkvm_synthesizer_program::{FinalizeGlobalState, FinalizeStoreTrait, Program as SvmProgram, StackTrait};
+
+// Native-only: deploy/proof/ledger surface used by `run_with_ledger`.
+#[cfg(not(target_arch = "wasm32"))]
+use aleo_std_storage::StorageMode;
+#[cfg(not(target_arch = "wasm32"))]
+use leo_ast::TEST_PRIVATE_KEY;
+#[cfg(not(target_arch = "wasm32"))]
 use serde_json;
+#[cfg(not(target_arch = "wasm32"))]
 use snarkvm::{
-    circuit::AleoTestnetV0,
     prelude::{
         Address,
         Block,
@@ -45,27 +70,17 @@ use snarkvm::{
         Execution,
         Fee,
         FromBytes,
-        Identifier,
         Ledger,
         Network,
-        PrivateKey,
-        ProgramID,
         ProgramOwner,
-        TestnetV0,
         Transaction,
         VM,
-        Value as SvmValue,
         VerifyingKey,
         deployment_cost,
         execution_cost,
-        store::{ConsensusStore, helpers::memory::ConsensusMemory},
+        store::helpers::memory::ConsensusMemory,
     },
-    synthesizer::program::{FinalizeStoreTrait, ProgramCore, StackTrait},
-};
-use std::{
-    fmt,
-    panic::{AssertUnwindSafe, catch_unwind},
-    str::FromStr as _,
+    synthesizer::program::ProgramCore,
 };
 
 type CurrentNetwork = TestnetV0;
@@ -165,11 +180,25 @@ impl Outcome {
     }
 }
 
+/// Mapping state visible after a transition's finalize block ran.
+///
+/// `mappings` is keyed by mapping name (within the called program) and lists
+/// `(key, value)` pairs in their snarkVM display form. Empty when the
+/// transition has no finalize logic.
+#[derive(Debug, Clone, Default)]
+pub struct FinalizeState {
+    pub mappings: IndexMap<String, Vec<(String, String)>>,
+}
+
 /// Outcome of an evaluation-only run (no execution trace, no verification).
 #[derive(Debug, Clone)]
 pub struct EvaluationOutcome {
     pub outcome: Outcome,
     pub status: EvaluationStatus,
+    /// `Some` iff the transition's function had finalize logic that ran to
+    /// completion. `None` for view functions, no-finalize transitions, or
+    /// when finalize failed (failures surface via `status`).
+    pub finalize: Option<FinalizeState>,
 }
 
 impl EvaluationOutcome {
@@ -201,6 +230,7 @@ pub const PLACEHOLDER_CERT: &str =
     "certificate1qyqsqqqqqqqqqqxvwszp09v860w62s2l4g6eqf0kzppyax5we36957ywqm2dplzwvvlqg0kwlnmhzfatnax7uaqt7yqqqw0sc4u";
 
 /// Deploy a program without generating certificates or proofs.
+#[cfg(not(target_arch = "wasm32"))]
 fn deploy_without_proof(
     vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
     private_key: &PrivateKey<CurrentNetwork>,
@@ -246,6 +276,7 @@ fn deploy_without_proof(
 }
 
 /// Execute a transition without generating proofs. Returns (Transaction, Response).
+#[cfg(not(target_arch = "wasm32"))]
 fn execute_without_proof(
     vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
     private_key: &PrivateKey<CurrentNetwork>,
@@ -288,11 +319,11 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
         return Ok(Vec::new());
     }
 
-    let programs_and_editions: Vec<(snarkvm::prelude::Program<CurrentNetwork>, u16)> = config
+    let programs_and_editions: Vec<(SvmProgram<CurrentNetwork>, u16)> = config
         .programs
         .iter()
         .map(|Program { bytecode, name }| {
-            let program = snarkvm::prelude::Program::<CurrentNetwork>::from_str(bytecode)
+            let program = SvmProgram::<CurrentNetwork>::from_str(bytecode)
                 .map_err(|e| anyhow!("Failed to parse bytecode of program {name}: {e}"))?;
             // Assume edition 1. We can consider parametrizing this in the future.
             let edition: u16 = 1;
@@ -313,36 +344,40 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
                     output: Value::make_unit(),
                 },
                 status: EvaluationStatus::Failed(e),
+                finalize: None,
             };
 
-            let vm = match ConsensusStore::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::open(
-                StorageMode::Production,
-            ) {
-                Ok(store) => match VM::from(store) {
-                    Ok(vm) => vm,
-                    Err(e) => return failed_outcome(format!("VM init error: {e}")),
-                },
-                Err(e) => return failed_outcome(format!("Consensus store open error: {e}")),
+            // Load the `Process` directly — drop the surrounding VM /
+            // ConsensusStore, since `run_without_ledger` doesn't touch the
+            // block store, fees, or proof verification. `Process::load_web`
+            // on wasm bootstraps an embedded-keys process suitable for the
+            // browser; `Process::load` reads keys from the local registry.
+            let process = match load_process() {
+                Ok(p) => p,
+                Err(e) => return failed_outcome(format!("Process init error: {e}")),
             };
 
-            if let Err(e) = vm.process().lock().add_programs_with_editions(&programs_and_editions) {
+            if let Err(e) = process.lock().add_programs_with_editions(&programs_and_editions) {
                 return failed_outcome(format!("Failed to add programs: {e}"));
             }
 
-            // `add_programs_with_editions` registers programs in the process but does not touch
-            // the finalize store. Views that read mappings need the mappings to be present in
-            // the finalize store, so initialize each program's mappings here. This mirrors what
-            // a real deployment would do during finalize.
+            // Standalone in-memory finalize store. Replaces `vm.finalize_store()`.
+            // Views that read mappings need them present; initialize one per program.
+            let finalize_store: FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>> =
+                match open_finalize_store_in_memory() {
+                    Ok(s) => s,
+                    Err(e) => return failed_outcome(format!("Finalize store open error: {e}")),
+                };
             for (program, _) in &programs_and_editions {
                 for mapping_name in program.mappings().keys() {
                     // `initialize_mapping` returns an error if the mapping is already present.
                     // We discard that error: across multiple cases the same mapping is initialized
                     // each time.
-                    let _ = vm.finalize_store().initialize_mapping(*program.id(), *mapping_name);
+                    let _ = finalize_store.initialize_mapping(*program.id(), *mapping_name);
                 }
             }
 
-            let private_key = match PrivateKey::from_str(leo_ast::TEST_PRIVATE_KEY) {
+            let private_key = match PrivateKey::from_str(test_private_key()) {
                 Ok(pk) => pk,
                 Err(e) => return failed_outcome(format!("Private key parse error: {e}")),
             };
@@ -363,7 +398,7 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
                     Ok(n) => n,
                     Err(e) => return failed_outcome(format!("Failed to parse seed mapping name: {e}")),
                 };
-                let key = match snarkvm::prelude::Plaintext::<CurrentNetwork>::from_str(key_str) {
+                let key = match Plaintext::<CurrentNetwork>::from_str(key_str) {
                     Ok(k) => k,
                     Err(e) => return failed_outcome(format!("Failed to parse seed key: {e}")),
                 };
@@ -371,7 +406,7 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
                     Ok(v) => v,
                     Err(e) => return failed_outcome(format!("Failed to parse seed value: {e}")),
                 };
-                if let Err(e) = vm.finalize_store().update_key_value(program_id, mapping_name, key, value) {
+                if let Err(e) = finalize_store.update_key_value(program_id, mapping_name, key, value) {
                     return failed_outcome(format!("Failed to seed mapping: {e}"));
                 }
             }
@@ -380,16 +415,13 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
             //   - Transitions go through `authorize` + `evaluate`, producing a transition object.
             //   - Views go through `evaluate_view_at_height`, returning plaintext outputs with no transition and
             //     no transaction.
-            let is_view = vm
-                .process()
-                .get_stack(program_id)
-                .map(|stack| stack.program().contains_view(&function_id))
-                .unwrap_or(false);
+            let is_view =
+                process.get_stack(program_id).map(|stack| stack.program().contains_view(&function_id)).unwrap_or(false);
 
             if is_view {
-                handle_view(case, &vm, program_id, function_id)
+                handle_view(case, &process, &finalize_store, program_id, function_id)
             } else {
-                handle_transition(case, &vm, program_id, function_id, &private_key, rng)
+                handle_transition(case, &process, &finalize_store, program_id, function_id, &private_key, rng)
             }
         })
         .collect();
@@ -397,10 +429,49 @@ pub fn run_without_ledger(config: &Config, cases: &[Case]) -> Result<Vec<Evaluat
     Ok(outcomes)
 }
 
-/// Evaluate a single view-fn case against `vm`'s in-memory finalize store and return the outcome.
+/// Target-aware Process loader. Native reads keys from the local registry
+/// (with on-disk caching), wasm bootstraps from the bundled embedded keys.
+#[cfg(not(target_arch = "wasm32"))]
+fn load_process() -> anyhow::Result<Process<CurrentNetwork>> {
+    Process::<CurrentNetwork>::load().map_err(|e| anyhow!("{e}"))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn load_process() -> anyhow::Result<Process<CurrentNetwork>> {
+    Process::<CurrentNetwork>::load_web().map_err(|e| anyhow!("{e}"))
+}
+
+/// Target-aware in-memory finalize-store opener. `StorageMode::Test(None)`
+/// uses `aleo_std::StorageMode` on wasm (no disk root) and
+/// `aleo_std_storage::StorageMode` on native (matches the rest of the
+/// snarkVM API surface on native builds).
+#[cfg(not(target_arch = "wasm32"))]
+fn open_finalize_store_in_memory() -> anyhow::Result<FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>>> {
+    FinalizeStore::open(StorageMode::Test(None)).map_err(|e| anyhow!("{e}"))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn open_finalize_store_in_memory() -> anyhow::Result<FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>>> {
+    FinalizeStore::open(aleo_std::StorageMode::Test(None)).map_err(|e| anyhow!("{e}"))
+}
+
+/// Well-known test private key. Native uses the `leo-ast` constant directly
+/// (also referenced by tests). Wasm doesn't have `leo-ast::TEST_PRIVATE_KEY`
+/// gated out, so we mirror the same string here.
+#[cfg(not(target_arch = "wasm32"))]
+fn test_private_key() -> &'static str {
+    TEST_PRIVATE_KEY
+}
+#[cfg(target_arch = "wasm32")]
+fn test_private_key() -> &'static str {
+    leo_ast::TEST_PRIVATE_KEY
+}
+
+/// Evaluate a single view-fn case against `process`'s in-memory finalize store and return the outcome.
 fn handle_view(
     case: &Case,
-    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    process: &Process<CurrentNetwork>,
+    finalize_store: &FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>>,
     program_id: ProgramID<CurrentNetwork>,
     function_id: Identifier<CurrentNetwork>,
 ) -> EvaluationOutcome {
@@ -417,19 +488,12 @@ fn handle_view(
     // For an empty in-memory consensus store there is no block 0, so route directly through
     // `Process::evaluate_view_at_height` with a fabricated `FinalizeGlobalState`. Tests are off-consensus by
     // construction, so the values here only matter for queries that read `block.height` / `network.id`.
-    let state = match snarkvm::synthesizer::program::FinalizeGlobalState::new::<CurrentNetwork>(
-        0,
-        0,
-        None,
-        0,
-        0,
-        Default::default(),
-    ) {
+    let state = match FinalizeGlobalState::new::<CurrentNetwork>(0, 0, None, 0, 0, Default::default()) {
         Ok(s) => s,
         Err(e) => return failed(format!("Failed to build FinalizeGlobalState: {e}")),
     };
     let response = match catch_unwind(AssertUnwindSafe(|| {
-        vm.process().evaluate_view_at_height(state, vm.finalize_store(), program_id, function_id, parsed_inputs, 0)
+        process.evaluate_view_at_height(state, finalize_store, program_id, function_id, parsed_inputs, 0)
     })) {
         Ok(Ok(resp)) => resp,
         Ok(Err(e)) => return failed(format!("{e}")),
@@ -443,31 +507,62 @@ fn handle_view(
     EvaluationOutcome {
         outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
         status: EvaluationStatus::Success,
+        finalize: None,
     }
 }
 
-/// Evaluate a single transition case (authorize + evaluate) against `vm` and return the outcome.
+/// Evaluate a single transition case (authorize + evaluate) against `process` and return the outcome.
+///
+/// If the function has finalize logic, `finalize_execution` runs against
+/// `finalize_store` and the post-finalize mapping state for `program_id`
+/// is attached to the returned `EvaluationOutcome`.
 fn handle_transition(
     case: &Case,
-    vm: &VM<CurrentNetwork, ConsensusMemory<CurrentNetwork>>,
+    process: &Process<CurrentNetwork>,
+    finalize_store: &FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>>,
     program_id: ProgramID<CurrentNetwork>,
     function_id: Identifier<CurrentNetwork>,
     private_key: &PrivateKey<CurrentNetwork>,
     rng: &mut ChaCha20Rng,
 ) -> EvaluationOutcome {
     let failed = |e: String| failed_evaluation_outcome(case, e);
-    let inputs = case.input.iter();
+
+    // Parse the input strings into snarkVM `Value`s up front. `Process::authorize` accepts
+    // strings on the VM path but `Process::authorize_unchecked` (which we use here) wants
+    // pre-parsed values.
+    let parsed_inputs: Vec<SvmValue<CurrentNetwork>> = match case
+        .input
+        .iter()
+        .map(|s| SvmValue::<CurrentNetwork>::from_str(s))
+        .collect::<std::result::Result<Vec<_>, _>>()
+    {
+        Ok(v) => v,
+        Err(e) => return failed(format!("Failed to parse transition input: {e}")),
+    };
 
     // --- catch panics from authorize ---
-    let authorization =
-        match catch_unwind(AssertUnwindSafe(|| vm.authorize(private_key, program_id, function_id, inputs, rng))) {
-            Ok(Ok(auth)) => auth,
-            Ok(Err(e)) => return failed(format!("{e}")),
-            Err(e) => return failed(format!("{e:?}")),
-        };
+    let authorization = match catch_unwind(AssertUnwindSafe(|| {
+        process.authorize_unchecked::<AleoTestnetV0, _>(
+            private_key,
+            program_id,
+            function_id,
+            parsed_inputs.into_iter(),
+            rng,
+        )
+    })) {
+        Ok(Ok(auth)) => auth,
+        Ok(Err(e)) => return failed(format!("{e}")),
+        Err(e) => return failed(format!("{e:?}")),
+    };
+
+    // Capture transitions before `evaluate` consumes the authorization. The
+    // transitions are needed downstream to build an `Execution` for the
+    // finalize step. `authorize_unchecked` populates full transitions
+    // (Authorize mode), so no proof is required.
+    let transitions = authorization.transitions();
 
     // --- catch panics from evaluate ---
-    let response = match catch_unwind(AssertUnwindSafe(|| vm.process().evaluate::<AleoTestnetV0>(authorization))) {
+    let response = match catch_unwind(AssertUnwindSafe(|| process.evaluate::<AleoTestnetV0>(authorization))) {
         Ok(Ok(resp)) => resp,
         Ok(Err(e)) => return failed(format!("{e}")),
         Err(e) => return failed(format!("{e:?}")),
@@ -480,10 +575,62 @@ fn handle_transition(
         _ => Value::make_tuple(outputs.iter().map(|x| x.clone().into())),
     };
 
+    // Run the finalize block if the function has one, against the same
+    // in-memory store views read from. Collect post-finalize mapping state
+    // for the called program.
+    let has_finalize = process
+        .get_stack(program_id)
+        .ok()
+        .and_then(|stack| stack.program().get_function(&function_id).ok())
+        .map(|f| f.finalize_logic().is_some())
+        .unwrap_or(false);
+
+    let finalize = if has_finalize {
+        match run_finalize(process, finalize_store, program_id, transitions.into_values()) {
+            Ok(state) => Some(state),
+            Err(e) => return failed(format!("Finalize error: {e}")),
+        }
+    } else {
+        None
+    };
+
     EvaluationOutcome {
         outcome: Outcome { program_name: case.program_name.clone(), function: case.function.clone(), output },
         status: EvaluationStatus::Success,
+        finalize,
     }
+}
+
+/// Run the finalize block for `transitions` and read back the called program's
+/// post-finalize mapping state. `transitions` is the result of
+/// `Authorization::transitions().into_values()` for the auth that produced the
+/// transition being finalized.
+fn run_finalize(
+    process: &Process<CurrentNetwork>,
+    finalize_store: &FinalizeStore<CurrentNetwork, FinalizeMemory<CurrentNetwork>>,
+    program_id: ProgramID<CurrentNetwork>,
+    transitions: impl Iterator<Item = snarkvm_ledger_block::Transition<CurrentNetwork>>,
+) -> std::result::Result<FinalizeState, String> {
+    let execution =
+        SvmExecution::from(transitions, Default::default(), None).map_err(|e| format!("build execution: {e}"))?;
+    let state = FinalizeGlobalState::new_genesis::<CurrentNetwork>().map_err(|e| format!("finalize state: {e}"))?;
+
+    process
+        .lock()
+        .finalize_execution(state, finalize_store, &execution, None)
+        .map_err(|e| format!("finalize execution: {e}"))?;
+
+    // Read back every mapping declared by the called program.
+    let mut mappings: IndexMap<String, Vec<(String, String)>> = IndexMap::new();
+    let stack = process.get_stack(program_id).map_err(|e| format!("stack: {e}"))?;
+    for mapping_name in stack.program().mappings().keys() {
+        let pairs = finalize_store
+            .get_mapping_speculative(program_id, *mapping_name)
+            .map_err(|e| format!("read mapping `{mapping_name}`: {e}"))?;
+        let entries = pairs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+        mappings.insert(mapping_name.to_string(), entries);
+    }
+    Ok(FinalizeState { mappings })
 }
 
 /// Build a `Failed` outcome carrying `e` for the given case.
@@ -495,10 +642,12 @@ fn failed_evaluation_outcome(case: &Case, e: String) -> EvaluationOutcome {
             output: Value::make_unit(),
         },
         status: EvaluationStatus::Failed(e),
+        finalize: None,
     }
 }
 
 /// Run the functions indicated by `cases` from the programs in `config`.
+#[cfg(not(target_arch = "wasm32"))]
 pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<ExecutionOutcome>>> {
     if case_sets.is_empty() {
         return Ok(Vec::new());

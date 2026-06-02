@@ -18,4 +18,8 @@
 #![allow(clippy::module_inception)]
 
 pub mod cli;
-pub(crate) mod errors;
+
+/// Re-export the shared CLI error constructors from `leo-cli-core` so the
+/// existing `crate::errors::*` paths inside `cli/commands/*.rs` keep
+/// working without churn.
+pub(crate) use leo_cli_core::errors;

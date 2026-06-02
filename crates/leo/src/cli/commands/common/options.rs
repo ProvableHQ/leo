@@ -18,7 +18,7 @@ use super::*;
 use anyhow::{bail, ensure};
 use itertools::Itertools;
 use leo_ast::NetworkName;
-use leo_package::fetch_from_network;
+use leo_cli_core::network::fetch_from_network;
 use snarkvm::prelude::{
     CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
     ConsensusVersion,
@@ -27,109 +27,11 @@ use snarkvm::prelude::{
     TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
 };
 
-pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
-
-/// Compiler Options wrapper for Build command. Also used by other commands which
-/// require Build command output as their input.
-#[derive(Parser, Clone, Debug)]
-pub struct BuildOptions {
-    #[clap(long, help = "Enables offline mode.")]
-    pub offline: bool,
-    #[clap(long, help = "Enable spans in AST snapshots.")]
-    pub enable_ast_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
-    pub enable_dce: bool,
-    #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
-    pub conditional_block_max_depth: usize,
-    #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
-    pub disable_conditional_branch_type_checking: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
-    pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
-    pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
-    pub ast_snapshots: Vec<String>,
-    #[clap(long, help = "Build tests along with the main program and dependencies.")]
-    pub build_tests: bool,
-    #[clap(long, help = "Don't use the dependency cache.")]
-    pub no_cache: bool,
-    #[clap(long, help = "Don't use the local source code.")]
-    pub no_local: bool,
-}
-
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self {
-            offline: false,
-            enable_ast_spans: false,
-            enable_dce: true,
-            conditional_block_max_depth: 10,
-            disable_conditional_branch_type_checking: false,
-            enable_initial_ast_snapshot: false,
-            enable_all_ast_snapshots: false,
-            ast_snapshots: Vec::new(),
-            build_tests: false,
-            no_cache: false,
-            no_local: false,
-        }
-    }
-}
-
-/// Overrides for the `.env` file.
-#[derive(Parser, Clone, Debug)]
-pub struct EnvOptions {
-    #[clap(
-        long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
-        global = true
-    )]
-    pub(crate) private_key: Option<String>,
-    #[clap(
-        long,
-        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
-        global = true
-    )]
-    pub(crate) network: Option<NetworkName>,
-    #[clap(
-        long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
-        global = true
-    )]
-    pub(crate) endpoint: Option<String>,
-    #[clap(
-        long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
-        global = true
-    )]
-    pub(crate) devnet: bool,
-    #[clap(
-        long,
-        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
-        value_delimiter = ',',
-        global = true
-    )]
-    pub(crate) consensus_heights: Option<Vec<u32>>,
-    #[clap(
-        long,
-        env = "NETWORK_RETRIES",
-        help = "Number of times to retry a failed network request before giving up.",
-        default_value = "2"
-    )]
-    pub(crate) network_retries: u32,
-}
-
-impl Default for EnvOptions {
-    fn default() -> Self {
-        Self {
-            private_key: None,
-            network: None,
-            endpoint: None,
-            devnet: false,
-            consensus_heights: None,
-            network_retries: 2,
-        }
-    }
-}
+// `EnvOptions` and `BuildOptions` live in `leo-cli-core` so they can be
+// reused by `leo-wasm` (which runs on `wasm32-unknown-unknown` and so cannot
+// pull in this module's snarkVM-bound helpers). Re-exported here for
+// backward compatibility with every existing `cli::commands::*` import.
+pub use leo_cli_core::options::{BuildOptions, DEFAULT_ENDPOINT, EnvOptions};
 
 /// The fee options for the transactions.
 #[derive(Parser, Clone, Debug, Default)]

@@ -48,6 +48,55 @@ pub trait FileSource {
 
     /// List all `.leo` files under `dir`, excluding `exclude`.
     fn list_leo_files(&self, dir: &Path, exclude: &Path) -> io::Result<Vec<PathBuf>>;
+
+    /// Whether `path` resolves to a regular file in this source.
+    ///
+    /// Default implementation probes with [`Self::read_file`] and treats a
+    /// successful read as a file. Concrete sources should override when they
+    /// can answer more cheaply.
+    fn is_file(&self, path: &Path) -> bool {
+        self.read_file(path).is_ok()
+    }
+
+    /// Whether `path` resolves to a directory in this source.
+    ///
+    /// Default implementation: a path is a directory if `list_leo_files` on
+    /// it returns at least one entry. Real-disk and in-memory sources should
+    /// override with cheaper checks.
+    fn is_dir(&self, path: &Path) -> bool {
+        self.list_leo_files(path, Path::new("")).map(|files| !files.is_empty()).unwrap_or(false)
+    }
+
+    /// Whether `path` exists (as a file or directory) in this source.
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
+    }
+
+    /// Resolve `path` to a canonical form within this file source.
+    ///
+    /// Default implementation collapses `.` / `..` components without consulting
+    /// any real filesystem — safe for any in-memory source. [`DiskFileSource`]
+    /// overrides this with [`Path::canonicalize`] so symlinks resolve the way
+    /// they always have for on-disk builds.
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        Ok(normalize_path_components(path))
+    }
+}
+
+/// Collapse `.` and `..` components without consulting any filesystem.
+fn normalize_path_components(p: &Path) -> PathBuf {
+    use std::path::Component;
+    let mut out = PathBuf::new();
+    for comp in p.components() {
+        match comp {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                out.pop();
+            }
+            other => out.push(other.as_os_str()),
+        }
+    }
+    out
 }
 
 /// Reads source files from the real filesystem.
@@ -63,6 +112,22 @@ impl FileSource for DiskFileSource {
         walk_dir_recursive(dir, exclude, &mut files)?;
         files.sort();
         Ok(files)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        path.is_file()
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        path.is_dir()
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        path.exists()
+    }
+
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        path.canonicalize()
     }
 }
 
@@ -115,6 +180,19 @@ impl FileSource for InMemoryFileSource {
 
         files.sort();
         Ok(files)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        self.files.contains_key(path)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        // A virtual "directory" exists when at least one stored file lies strictly below it.
+        self.files.keys().any(|p| p != path && p.starts_with(path))
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
     }
 }
 
