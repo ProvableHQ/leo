@@ -12,7 +12,7 @@ For installation instructions, see [Getting Started - Installation](../getting_s
 
 ## Release Model
 
-Leo uses a per-crate release model. Each publishable crate in the [Leo repository](https://github.com/ProvableHQ/leo) is released independently via git tags matching the pattern `{crate-name}-v{version}` (e.g. `leo-lang-v4.0.1`, `leo-fmt-v1.0.0`).
+Leo uses a per-crate release model. Each publishable crate in the [Leo repository](https://github.com/ProvableHQ/leo) is released independently via git tags matching the pattern `{crate-name}-v{version}` (e.g. `leo-lang-v4.0.1`, `leo-fmt-v4.1.0`).
 
 When a tag is pushed, CI builds cross-platform binaries and publishes them as a GitHub Release under that tag.
 
@@ -66,7 +66,7 @@ Future plugin crates will follow the same pattern.
 
 ## Plugin Versioning
 
-Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`. Each crate has its own git tag and release cadence, allowing tooling updates to ship without requiring a new compiler release.
+Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`. Each crate has its own git tag and release cadence, allowing tooling updates to ship without requiring a new compiler release. As a result, the installed versions need not match — for example, a formatter fix can ship as `leo-fmt` 4.1.0 while `leo-lang` is still at 4.0.1 (`cargo binstall leo-lang@4.0.1 leo-fmt@4.1.0`).
 
 When packaging Leo, ensure the installed plugin versions are compatible with the installed `leo-lang` version.
 

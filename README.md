@@ -73,7 +73,7 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
 If you don't intend to work on the Leo compiler itself, you can install the latest Leo release with:
 
 ```bash
-cargo install leo-lang leo-fmt
+cargo install leo-lang leo-fmt leo-lsp
 ```
 
 Now to use leo, in your terminal, run:
