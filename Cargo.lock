@@ -2506,6 +2506,7 @@ name = "leo-lsp"
 version = "4.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "crossbeam-channel",
  "indexmap",
  "leo-ast",
