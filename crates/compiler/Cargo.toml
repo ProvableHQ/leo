@@ -26,20 +26,25 @@ ci_skip = [ "leo-ast/ci_skip" ]
 leo-abi           = { workspace = true }
 leo-ast           = { workspace = true }
 leo-errors        = { workspace = true }
-leo-package       = { workspace = true }
 leo-passes        = { workspace = true }
 leo-parser        = { workspace = true }
 leo-span          = { workspace = true }
 # third party dependencies
 aleo-std          = { workspace = true }
-aleo-std-storage  = { workspace = true }
 anyhow            = { workspace = true }
 indexmap          = { workspace = true }
 leo-disassembler  = { workspace = true }
 rand_chacha       = { workspace = true }
 rayon             = { workspace = true }
-snarkvm           = { workspace = true }
 serde_json        = { workspace = true }
+
+# `run` (snarkVM `Process` execution surface used by `leo run`/`leo test`/`leo deploy`)
+# is the only unit pulling the snarkVM umbrella; native-only so the rest of
+# the compiler stays wasm-buildable.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+aleo-std-storage  = { workspace = true }
+leo-package       = { workspace = true }
+snarkvm           = { workspace = true }
 
 [dev-dependencies]
 # leo dependencies

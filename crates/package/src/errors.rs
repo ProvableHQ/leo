@@ -24,6 +24,13 @@ use std::{
 const CODE_PREFIX: &str = "PAK";
 const CODE_MASK: i32 = 5000;
 
+/// Generic uncategorised error — replaces the ad-hoc `anyhow!()` uses that
+/// pulled in `snarkvm::prelude::anyhow` (and therefore the whole snarkVM
+/// umbrella) so this crate stays wasm-buildable.
+pub(crate) fn custom(message: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 99, message.to_string())
+}
+
 pub(crate) fn io_error_gitignore_file(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("failed to write `.gitignore`: {error}"))
         .with_help("Verify the package directory is writable.")

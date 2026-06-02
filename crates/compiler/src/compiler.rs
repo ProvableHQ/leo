@@ -18,38 +18,25 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::{AstSnapshots, CompilerOptions, errors};
+use crate::{AstSnapshots, CompilerOptions};
 
-use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
+use leo_ast::{Library, NetworkName, NodeBuilder, Stub};
 use leo_errors::{Handler, Result};
-use leo_package::{
-    CompilationUnit,
-    Dependency,
-    Location,
-    MANIFEST_FILENAME,
-    Manifest,
-    PackageKind,
-    ProgramData,
-    resolve_workspace_dependency,
-};
 use leo_passes::*;
-use leo_span::{
-    Span,
-    Symbol,
-    create_session_if_not_set_then,
-    file_source::{DiskFileSource, FileSource},
-    source_map::FileName,
-    with_session_globals,
-};
+use leo_span::{Span, Symbol, file_source::FileSource, source_map::FileName, with_session_globals};
 
 use std::{
-    fs,
     path::{Path, PathBuf},
     rc::Rc,
 };
 
-use indexmap::{IndexMap, map::Entry};
+use indexmap::IndexMap;
+
+// On wasm we never write artifacts to disk; the AST-snapshot writers below
+// become no-ops there, so suppress dead-code lints for the path field.
+#[cfg(not(target_arch = "wasm32"))]
+use std::fs;
 
 /// Borrowed frontend state after parsing and semantic frontend passes complete.
 pub struct FrontendAnalysis<'a> {
@@ -59,14 +46,6 @@ pub struct FrontendAnalysis<'a> {
     pub symbol_table: &'a SymbolTable,
     /// Type information produced by semantic frontend passes.
     pub type_table: &'a TypeTable,
-}
-
-/// Import stubs together with the filesystem inputs that invalidate them.
-pub struct LoadedImportStubs {
-    /// Import stubs available for compiler or LSP frontend analysis.
-    pub stubs: IndexMap<Symbol, Stub>,
-    /// Package inputs whose metadata changes should force a stub reload.
-    pub watch_paths: Vec<PathBuf>,
 }
 
 /// A single compiled program with its bytecode and ABI.
@@ -92,6 +71,7 @@ pub struct Compiled {
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
     /// The path to where the compiler outputs all generated files.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
@@ -255,7 +235,7 @@ impl Compiler {
         &mut self,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
     ) -> Result<FrontendAnalysis<'_>> {
         self.analyze_frontend_from_directory_with_file_source_and_check(
             entry_file_path,
@@ -272,7 +252,7 @@ impl Compiler {
         &mut self,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
         mut should_continue: C,
     ) -> Result<FrontendAnalysis<'_>>
     where
@@ -555,7 +535,7 @@ impl Compiler {
     ///
     /// Returns `Err(CompilerError)` if reading any file fails.
     fn read_sources_and_modules(
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
     ) -> Result<(String, Vec<(String, FileName)>)> {
@@ -582,21 +562,12 @@ impl Compiler {
         Ok((source, modules))
     }
 
-    /// Compiles a program from a source file and its associated module files in the same directory tree.
-    pub fn compile_from_directory(
-        &mut self,
-        entry_file_path: impl AsRef<Path>,
-        source_directory: impl AsRef<Path>,
-    ) -> Result<Compiled> {
-        self.compile_from_directory_with_file_source(entry_file_path, source_directory, &DiskFileSource)
-    }
-
     /// Compiles a program from a source file using the given file source.
     pub fn compile_from_directory_with_file_source(
         &mut self,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
     ) -> Result<Compiled> {
         let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
@@ -608,21 +579,12 @@ impl Compiler {
         self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
     }
 
-    /// Parses a program from a source file and its associated module files in the same directory tree.
-    pub fn parse_program_from_directory(
-        &mut self,
-        entry_file_path: impl AsRef<Path>,
-        source_directory: impl AsRef<Path>,
-    ) -> Result<Program> {
-        self.parse_program_from_directory_with_file_source(entry_file_path, source_directory, &DiskFileSource)
-    }
-
     /// Parses a program from a source file using the given file source.
     pub fn parse_program_from_directory_with_file_source(
         &mut self,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
     ) -> Result<Program> {
         let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
@@ -639,28 +601,13 @@ impl Compiler {
         }
     }
 
-    /// Parses a program from a source file and its associated module files in the same directory tree.
-    pub fn parse_library_from_directory(
-        &mut self,
-        library_name: Symbol,
-        entry_file_path: impl AsRef<Path>,
-        source_directory: impl AsRef<Path>,
-    ) -> Result<Library> {
-        self.parse_library_from_directory_with_file_source(
-            library_name,
-            entry_file_path,
-            source_directory,
-            &DiskFileSource,
-        )
-    }
-
     /// Parses a library from a source file.
     pub fn parse_library_from_directory_with_file_source(
         &mut self,
         library_name: Symbol,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
     ) -> Result<Library> {
         let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
@@ -676,40 +623,42 @@ impl Compiler {
     }
 
     /// Writes the AST to a JSON file under the unit's snapshots directory.
-    fn write_ast_to_json(&self, filename: &str) -> Result<()> {
-        match &self.state.ast {
-            Ast::Program(program) => {
-                // Snapshots are opt-in; create the directory lazily on first write.
-                fs::create_dir_all(&self.output_directory)
-                    .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-                // Remove `Span`s if they are not enabled.
-                if self.compiler_options.ast_spans_enabled {
-                    program.to_json_file(self.output_directory.clone(), filename)?;
-                } else {
-                    program.to_json_file_without_keys(self.output_directory.clone(), filename, &["_span", "span"])?;
-                }
-            }
-            Ast::Library(_) => {
-                // no-op for libraries
+    ///
+    /// No-op on wasm: snapshot artifacts only exist on the native build path.
+    fn write_ast_to_json(
+        &self,
+        #[cfg_attr(target_arch = "wasm32", allow(unused_variables))] filename: &str,
+    ) -> Result<()> {
+        #[cfg(not(target_arch = "wasm32"))]
+        if let Ast::Program(program) = &self.state.ast {
+            // Snapshots are opt-in; create the directory lazily on first write.
+            fs::create_dir_all(&self.output_directory)
+                .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
+            if self.compiler_options.ast_spans_enabled {
+                program.to_json_file(self.output_directory.clone(), filename)?;
+            } else {
+                program.to_json_file_without_keys(self.output_directory.clone(), filename, &["_span", "span"])?;
             }
         }
         Ok(())
     }
 
     /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
-    fn write_ast(&self, filename: &str) -> Result<()> {
-        // Snapshots are opt-in; create the directory lazily on first write.
-        fs::create_dir_all(&self.output_directory)
-            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-        let full_filename = self.output_directory.join(filename);
-
-        let contents = match &self.state.ast {
-            Ast::Program(program) => program.to_string(),
-            Ast::Library(_) => String::new(), // empty for libraries
-        };
-
-        fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
-
+    ///
+    /// No-op on wasm: snapshot artifacts only exist on the native build path.
+    fn write_ast(&self, #[cfg_attr(target_arch = "wasm32", allow(unused_variables))] filename: &str) -> Result<()> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            fs::create_dir_all(&self.output_directory)
+                .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
+            let full_filename = self.output_directory.join(filename);
+            let contents = match &self.state.ast {
+                Ast::Program(program) => program.to_string(),
+                Ast::Library(_) => String::new(), // empty for libraries
+            };
+            fs::write(&full_filename, contents)
+                .map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
+        }
         Ok(())
     }
 
@@ -853,28 +802,13 @@ impl Compiler {
         }
     }
 
-    /// Builds a library from a source file and its associated module files in the same directory tree.
-    pub fn build_library_from_directory(
-        &mut self,
-        library_name: Symbol,
-        entry_file_path: impl AsRef<Path>,
-        source_directory: impl AsRef<Path>,
-    ) -> Result<Library> {
-        self.build_library_from_directory_with_file_source(
-            library_name,
-            entry_file_path,
-            source_directory,
-            &DiskFileSource,
-        )
-    }
-
     /// Builds a library from a source file using the given file source.
     pub fn build_library_from_directory_with_file_source(
         &mut self,
         library_name: Symbol,
         entry_file_path: impl AsRef<Path>,
         source_directory: impl AsRef<Path>,
-        file_source: &impl FileSource,
+        file_source: &dyn FileSource,
     ) -> Result<Library> {
         let (source, modules_owned) = Self::read_sources_and_modules(file_source, &entry_file_path, &source_directory)?;
 
@@ -885,285 +819,14 @@ impl Compiler {
     }
 }
 
-/// Loads only locally resolvable dependency stubs for a package.
-///
-/// The LSP should not fetch or install dependencies while the user is typing, so
-/// this helper walks the local manifest tree, builds stubs for local packages and
-/// checked-in `.aleo` files, and silently skips network-only dependencies.
-///
-/// The returned `watch_paths` cover the manifests and source files that can
-/// change the stub set. Editor caches can hash or stat those paths to know when
-/// dependency-backed semantic state must be rebuilt.
-pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) -> Result<LoadedImportStubs> {
-    load_import_stubs_for_package_with_file_source(package_root, network, &DiskFileSource)
-}
-
-/// Load local dependency stubs using an explicit file source for Leo source reads.
-///
-/// This variant lets editor integrations serve unsaved overlays and record the
-/// exact disk bytes used for dependency source stubs. Manifest discovery still
-/// reads the real filesystem because dependencies are package-level metadata,
-/// but every parsed Leo source file flows through `file_source`.
-pub fn load_import_stubs_for_package_with_file_source(
-    package_root: &Path,
-    network: NetworkName,
-    file_source: &impl FileSource,
-) -> Result<LoadedImportStubs> {
-    create_session_if_not_set_then(|_| {
-        let package_root =
-            package_root.canonicalize().map_err(|error| crate::errors::failed_path(package_root.display(), error))?;
-        let declared_dependencies = collect_local_declared_dependencies(&package_root)?;
-        let mut import_stubs = IndexMap::new();
-        let mut watch_paths = vec![package_root.join(MANIFEST_FILENAME)];
-
-        for (name, dependency) in &declared_dependencies {
-            let Some(path) = dependency.path.as_ref() else {
-                continue;
-            };
-
-            let unit = if path.extension().is_some_and(|extension| extension == "aleo") && path.is_file() {
-                watch_paths.push(path.clone());
-                CompilationUnit::from_aleo_path(*name, path, &declared_dependencies)?
-            } else {
-                let unit = CompilationUnit::from_package_path(*name, path)?;
-                watch_paths.extend(unit_watch_paths(&unit, file_source)?);
-                unit
-            };
-
-            let stub = match &unit.data {
-                ProgramData::Bytecode(bytecode) => disassemble_dependency_bytecode(unit.name, bytecode, network)?,
-                ProgramData::SourcePath { directory, source } => load_source_dependency_stub(
-                    &unit,
-                    source,
-                    dependency_source_directory(directory, source),
-                    network,
-                    file_source,
-                )?,
-            };
-            import_stubs.insert(unit.name, stub);
-        }
-
-        watch_paths.sort();
-        watch_paths.dedup();
-
-        Ok(LoadedImportStubs { stubs: import_stubs, watch_paths })
-    })
-}
-
-/// Return the directory root the parser should scan for sibling Leo modules.
-fn dependency_source_directory(directory: &Path, source: &Path) -> PathBuf {
-    let source_root = directory.join("src");
-    if source.starts_with(&source_root) { source_root } else { directory.to_path_buf() }
-}
-
-/// Collect the transitive set of manifest-declared local dependencies.
-///
-/// Network dependencies are intentionally excluded here because editor semantic
-/// analysis must stay local-only.
-fn collect_local_declared_dependencies(package_root: &Path) -> Result<IndexMap<Symbol, Dependency>> {
-    let manifest = Manifest::read_from_file(package_root.join(MANIFEST_FILENAME))?;
-    let mut declared = IndexMap::new();
-    collect_local_declared_dependencies_recursive(package_root, &manifest, &mut declared)?;
-    Ok(declared)
-}
-
-/// Walk local manifests recursively and record each dependency once.
-fn collect_local_declared_dependencies_recursive(
-    base_path: &Path,
-    manifest: &Manifest,
-    declared: &mut IndexMap<Symbol, Dependency>,
-) -> Result<()> {
-    for dependency in manifest.dependencies.iter().flatten() {
-        let dependency = normalize_local_dependency(base_path, dependency.clone())?;
-        // Resolve workspace deps early - converts to Location::Local with an absolute path.
-        let dependency = if dependency.location == Location::Workspace {
-            resolve_workspace_dependency(base_path, dependency)?
-        } else {
-            dependency
-        };
-        if dependency.location != Location::Local {
-            continue;
-        }
-
-        let Some(path) = dependency.path.as_ref() else {
-            continue;
-        };
-        let symbol = Symbol::intern(&dependency.name);
-
-        match declared.entry(symbol) {
-            Entry::Occupied(_) => continue,
-            Entry::Vacant(entry) => {
-                entry.insert(dependency.clone());
-                let manifest_path = path.join(MANIFEST_FILENAME);
-                if path.is_dir() && manifest_path.is_file() {
-                    let child = Manifest::read_from_file(manifest_path)?;
-                    collect_local_declared_dependencies_recursive(path, &child, declared)?;
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-
-/// Canonicalize a local dependency path relative to the manifest that declared it.
-fn normalize_local_dependency(base_path: &Path, mut dependency: Dependency) -> Result<Dependency> {
-    if let Some(path) = dependency.path.as_mut()
-        && !path.is_absolute()
-    {
-        let joined = base_path.join(&*path);
-        *path = joined.canonicalize().map_err(|error| crate::errors::failed_path(joined.display(), error))?;
-    }
-
-    Ok(dependency)
-}
-
-/// Return the manifest and source files whose metadata should invalidate one stubbed unit.
-fn unit_watch_paths(unit: &CompilationUnit, file_source: &impl FileSource) -> Result<Vec<PathBuf>> {
-    let ProgramData::SourcePath { directory, source } = &unit.data else {
-        return Ok(Vec::new());
-    };
-
-    let source_directory = dependency_source_directory(directory, source);
-    let mut watch_paths = vec![directory.join(MANIFEST_FILENAME), source_directory.clone(), source.clone()];
-    if source_directory.is_dir() {
-        collect_source_directories(&source_directory, &mut watch_paths)?;
-        let mut modules = file_source
-            .list_leo_files(&source_directory, source)
-            .map_err(|error| crate::errors::file_read_error(source_directory.display().to_string(), error))?;
-        watch_paths.append(&mut modules);
-    }
-
-    Ok(watch_paths)
-}
-
-/// Collect source directories whose mtimes signal nested module creation/removal.
-fn collect_source_directories(dir: &Path, watch_paths: &mut Vec<PathBuf>) -> Result<()> {
-    for entry in fs::read_dir(dir).map_err(|error| errors::file_read_error(dir.display().to_string(), error))? {
-        let entry = entry.map_err(|error| errors::file_read_error(dir.display().to_string(), error))?;
-        let path = entry.path();
-        if path.is_dir() {
-            // Watching only existing `.leo` files misses the first file added to
-            // an already-existing nested module directory. Include directories
-            // so LSP-side cache revisions notice those create/remove events.
-            watch_paths.push(path.clone());
-            collect_source_directories(&path, watch_paths)?;
-        }
-    }
-    Ok(())
-}
-
-/// Parse a local dependency just far enough to recover the public interface
-/// stub consumed by downstream import resolution.
-fn load_source_dependency_stub(
-    unit: &CompilationUnit,
-    source: &Path,
-    source_directory: PathBuf,
-    network: NetworkName,
-    file_source: &impl FileSource,
-) -> Result<Stub> {
-    let handler = Handler::default();
-    let node_builder = Rc::new(NodeBuilder::default());
-    let mut compiler = Compiler::new(
-        Some(unit.name.to_string()),
-        false,
-        handler,
-        node_builder,
-        PathBuf::default(),
-        Some(CompilerOptions::default()),
-        IndexMap::new(),
-        network,
-    );
-
-    match unit.kind {
-        PackageKind::Library => {
-            let library_name = Symbol::intern(&unit.name.to_string());
-            let library = compiler.parse_library_from_directory_with_file_source(
-                library_name,
-                source,
-                &source_directory,
-                file_source,
-            )?;
-            Ok(library.into())
-        }
-        PackageKind::Program | PackageKind::Test => {
-            let program =
-                compiler.parse_program_from_directory_with_file_source(source, &source_directory, file_source)?;
-            Ok(extract_program_interface_stub(unit.name, &program))
-        }
-    }
-}
-
-/// Build the public interface stub for a source dependency program.
-fn extract_program_interface_stub(_program_name: Symbol, program: &Program) -> Stub {
-    let scope = program.program_scopes.values().next().expect("program AST should contain one program scope");
-
-    // Source dependencies contribute only their public interface to the import
-    // graph. Build the same stub shape we would get from disassembled bytecode
-    // so downstream passes and the LSP can treat source and bytecode imports
-    // uniformly.
-    let functions = scope
-        .functions
-        .iter()
-        .map(|(sym, func)| {
-            (*sym, FunctionStub {
-                annotations: func.annotations.clone(),
-                variant: func.variant,
-                identifier: func.identifier,
-                input: func.input.clone(),
-                output: func.output.clone(),
-                output_type: func.output_type.clone(),
-                span: func.span,
-                id: func.id,
-            })
-        })
-        .collect();
-
-    let imports = program
-        .imports
-        .keys()
-        .map(|sym| {
-            let sym_str = sym.to_string();
-            // Import stubs track bare program names and always use the `aleo`
-            // network identifier, matching the normalized form produced by the
-            // bytecode disassembler.
-            let name_only = sym_str.strip_suffix(".aleo").unwrap_or(&sym_str);
-            ProgramId {
-                name: Identifier { name: Symbol::intern(name_only), span: Default::default(), id: Default::default() },
-                network: Identifier { name: Symbol::intern("aleo"), span: Default::default(), id: Default::default() },
-            }
-        })
-        .collect();
-
-    AleoProgram {
-        imports,
-        stub_id: scope.program_id,
-        consts: scope.consts.clone(),
-        composites: scope.composites.clone(),
-        mappings: scope.mappings.clone(),
-        functions,
-        span: scope.span,
-    }
-    .into()
-}
-
-/// Convert checked-in dependency bytecode into the same stub shape used for
-/// source dependencies so import consumers can stay agnostic to how a
+/// Convert checked-in dependency bytecode into the same `Stub::FromAleo` shape
+/// used for source dependencies so import consumers can stay agnostic to how a
 /// dependency was declared.
-fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
-    let disassembled = match network {
-        NetworkName::MainnetV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::MainnetV0>(program_name, bytecode)
-        }
-        NetworkName::TestnetV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::TestnetV0>(program_name, bytecode)
-        }
-        NetworkName::CanaryV0 => {
-            leo_disassembler::disassemble_from_str_unchecked::<snarkvm::prelude::CanaryV0>(program_name, bytecode)
-        }
-    };
-
-    disassembled
+///
+/// Public so wasm callers (with no `leo-package` access) can build import stubs
+/// from raw bytecode the same way the native build does.
+pub fn disassemble_dependency_bytecode(program_name: Symbol, bytecode: &str, network: NetworkName) -> Result<Stub> {
+    leo_disassembler::disassemble_from_str_for_network(program_name, bytecode, network)
         .map(Into::into)
         .map_err(|err| crate::errors::file_read_error(format!("dependency bytecode for `{program_name}`"), err).into())
 }

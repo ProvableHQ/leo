@@ -18,6 +18,7 @@ use crate::{Dependency, Location, MANIFEST_FILENAME, Manifest, errors};
 
 use leo_ast::DiGraph;
 use leo_errors::{Backtraced, Result};
+use leo_span::file_source::{DiskFileSource, FileSource};
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -32,11 +33,21 @@ pub struct WorkspaceManifest {
 
 impl WorkspaceManifest {
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, Backtraced> {
-        let contents =
-            std::fs::read_to_string(&path).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
+        Self::read_from_file_source(path, &DiskFileSource)
+    }
+
+    /// FileSource-aware counterpart to [`Self::read_from_file`].
+    pub fn read_from_file_source<P: AsRef<Path>>(
+        path: P,
+        file_source: &dyn FileSource,
+    ) -> std::result::Result<Self, Backtraced> {
+        let contents = file_source
+            .read_file(path.as_ref())
+            .map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
         serde_json::from_str(&contents).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn write_to_file<P: AsRef<Path>>(&self, path: P) -> std::result::Result<(), Backtraced> {
         let mut contents = serde_json::to_string_pretty(self)
             .map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
@@ -57,27 +68,33 @@ pub struct Workspace {
 }
 
 impl Workspace {
-    /// Read the workspace at `path`, if a `workspace.json` exists there.
+    /// Read the workspace at `path` from the real filesystem.
     ///
-    /// Returns `Ok(None)` if no manifest exists.
-    /// Returns `Err` if the manifest exists but is malformed, or if members are missing.
+    /// Returns `Ok(None)` if no `workspace.json` exists there.
     pub fn from_directory(path: &Path) -> Result<Option<Self>> {
+        Self::from_directory_with_file_source(path, &DiskFileSource)
+    }
+
+    /// FileSource-aware counterpart to [`Self::from_directory`]. Used by the
+    /// wasm build path to expand workspace manifests served from an in-memory
+    /// file map; the native CLI passes `&DiskFileSource`.
+    pub fn from_directory_with_file_source(path: &Path, file_source: &dyn FileSource) -> Result<Option<Self>> {
         let manifest_path = path.join(WORKSPACE_MANIFEST_FILENAME);
-        if !manifest_path.exists() {
+        if !file_source.is_file(&manifest_path) {
             return Ok(None);
         }
 
         let root_directory =
-            path.canonicalize().map_err(|e| errors::workspace_manifest_error(manifest_path.display(), e))?;
+            file_source.canonicalize(path).map_err(|e| errors::workspace_manifest_error(manifest_path.display(), e))?;
 
-        let manifest = WorkspaceManifest::read_from_file(&manifest_path)?;
+        let manifest = WorkspaceManifest::read_from_file_source(&manifest_path, file_source)?;
 
         // Resolve and validate each member entry, expanding glob patterns relative to the root.
         let mut dir_to_name: Vec<(PathBuf, String)> = Vec::with_capacity(manifest.members.len());
         let mut seen: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
         for member in &manifest.members {
             if is_glob_pattern(member) {
-                let expanded = expand_member_pattern(&root_directory, member)?;
+                let expanded = expand_member_pattern(&root_directory, member, file_source)?;
                 if expanded.is_empty() {
                     tracing::warn!(
                         "workspace member glob `{member}` in {} matched no packages",
@@ -86,13 +103,13 @@ impl Workspace {
                     continue;
                 }
                 for entry in expanded {
-                    let record = load_member_record(&root_directory, &entry)?;
+                    let record = load_member_record(&root_directory, &entry, file_source)?;
                     if seen.insert(record.0.clone()) {
                         dir_to_name.push(record);
                     }
                 }
             } else {
-                let record = load_member_record(&root_directory, member)?;
+                let record = load_member_record(&root_directory, member, file_source)?;
                 if seen.insert(record.0.clone()) {
                     dir_to_name.push(record);
                 }
@@ -100,7 +117,7 @@ impl Workspace {
         }
 
         // Build a dependency graph to determine the correct build order.
-        let ordered = order_members(&dir_to_name)?;
+        let ordered = order_members(&dir_to_name, file_source)?;
 
         let member_paths = ordered.iter().map(|(p, _)| p.clone()).collect();
         let member_names = ordered.into_iter().map(|(_, n)| n).collect();
@@ -109,12 +126,15 @@ impl Workspace {
     }
 
     /// Walk up from `start_dir` looking for `workspace.json`, returning the
-    /// fully resolved workspace.
-    ///
-    /// Returns `Ok(None)` if no workspace root is found.
+    /// fully resolved workspace. Native (real-disk) variant.
     pub fn discover(start_dir: &Path) -> Result<Option<Self>> {
-        match discover_root(start_dir)? {
-            Some(root) => Self::from_directory(&root),
+        Self::discover_with_file_source(start_dir, &DiskFileSource)
+    }
+
+    /// FileSource-aware counterpart to [`Self::discover`].
+    pub fn discover_with_file_source(start_dir: &Path, file_source: &dyn FileSource) -> Result<Option<Self>> {
+        match discover_root(start_dir, file_source)? {
+            Some(root) => Self::from_directory_with_file_source(&root, file_source),
             None => Ok(None),
         }
     }
@@ -138,6 +158,8 @@ impl Workspace {
     }
 
     /// Check whether a given canonicalized path is one of the member directories.
+    /// Native-only — the wasm build doesn't need post-load membership checks.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn is_member(&self, path: &Path) -> bool {
         let Ok(canonical) = path.canonicalize() else {
             return false;
@@ -148,9 +170,8 @@ impl Workspace {
     /// If a workspace contains `member_dir`, append `member_dir` to its
     /// `workspace.json` (unless already covered by a literal entry or a glob).
     ///
-    /// Returns `Ok(true)` if the workspace manifest was modified. Returns
-    /// `Ok(false)` if there is no enclosing workspace, `member_dir` is outside
-    /// the workspace root, or the path is already covered.
+    /// Native-only: writes the manifest back to disk.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn auto_register_member(member_dir: &Path) -> Result<bool> {
         let canonical_member = member_dir.canonicalize().map_err(|e| errors::failed_path(member_dir.display(), e))?;
 
@@ -160,7 +181,7 @@ impl Workspace {
         // Only the workspace root is needed here, so locate it without resolving
         // members; that keeps `leo new` from failing when an unrelated existing
         // member is broken.
-        let Some(root_directory) = discover_root(parent)? else {
+        let Some(root_directory) = discover_root(parent, &DiskFileSource)? else {
             return Ok(false);
         };
 
@@ -201,6 +222,7 @@ impl Workspace {
     /// responsible for ensuring `parent` exists.
     ///
     /// Returns the absolute path of the new workspace directory.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn initialize_skeleton(name: &str, parent: &Path) -> Result<PathBuf> {
         if !crate::is_valid_library_name(name) {
             return Err(errors::cli_invalid_package_name("workspace", name).into());
@@ -226,11 +248,12 @@ impl Workspace {
 ///
 /// Returns the canonicalized workspace root, or `Ok(None)` if none is found.
 /// Unlike [`Workspace::discover`], this does not resolve or validate members.
-fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
-    let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
+fn discover_root(start_dir: &Path, file_source: &dyn FileSource) -> Result<Option<PathBuf>> {
+    let start =
+        file_source.canonicalize(start_dir).map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
     let mut dir = start.as_path();
     loop {
-        if dir.join(WORKSPACE_MANIFEST_FILENAME).exists() {
+        if file_source.is_file(&dir.join(WORKSPACE_MANIFEST_FILENAME)) {
             return Ok(Some(dir.to_path_buf()));
         }
         match dir.parent() {
@@ -246,8 +269,17 @@ fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
 ///
 /// `package_dir` is the directory of the package that declared the dependency.
 pub fn resolve_workspace_dependency(package_dir: &Path, dep: Dependency) -> Result<Dependency> {
-    let workspace =
-        Workspace::discover(package_dir)?.ok_or_else(|| errors::workspace_dep_outside_workspace(&dep.name))?;
+    resolve_workspace_dependency_with_file_source(package_dir, dep, &DiskFileSource)
+}
+
+/// FileSource-aware counterpart to [`resolve_workspace_dependency`].
+pub fn resolve_workspace_dependency_with_file_source(
+    package_dir: &Path,
+    dep: Dependency,
+    file_source: &dyn FileSource,
+) -> Result<Dependency> {
+    let workspace = Workspace::discover_with_file_source(package_dir, file_source)?
+        .ok_or_else(|| errors::workspace_dep_outside_workspace(&dep.name))?;
     let member_path = workspace
         .find_member(&dep.name)
         .ok_or_else(|| errors::workspace_dep_member_not_found(&dep.name, workspace.root_directory.display()))?;
@@ -264,25 +296,39 @@ fn is_glob_pattern(s: &str) -> bool {
 ///
 /// Only directories containing a `program.json` are returned. Other matches
 /// (files, directories without a manifest, non-UTF8 paths) are silently skipped.
-fn expand_member_pattern(root: &Path, pattern: &str) -> Result<Vec<String>> {
-    let absolute_pattern = root.join(pattern);
-    let pattern_str = absolute_pattern.to_string_lossy();
-    let entries = glob::glob(&pattern_str).map_err(|e| errors::workspace_manifest_error(pattern, e))?;
+///
+/// Implementation walks every file under `root` via `file_source` (so the
+/// wasm path can glob over an in-memory file map without `glob::glob`'s
+/// filesystem dependency), then matches each candidate directory against
+/// the glob pattern with `glob::Pattern`.
+fn expand_member_pattern(root: &Path, pattern: &str, file_source: &dyn FileSource) -> Result<Vec<String>> {
+    let pattern = glob::Pattern::new(pattern).map_err(|e| errors::workspace_manifest_error(pattern, e))?;
+    let options = glob::MatchOptions { require_literal_separator: true, ..Default::default() };
+
+    // Find each directory that holds a `program.json`. With an in-memory source
+    // these are virtual; with disk we walk the real tree.
+    let files =
+        file_source.list_files_recursive(root).map_err(|e| errors::workspace_manifest_error(root.display(), e))?;
 
     let mut out = Vec::new();
-    for entry in entries {
-        let Ok(path) = entry else { continue };
-        if !path.is_dir() {
+    let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for file in files {
+        if file.file_name().and_then(|s| s.to_str()) != Some(MANIFEST_FILENAME) {
             continue;
         }
-        if !path.join(MANIFEST_FILENAME).exists() {
-            continue;
-        }
-        let Ok(relative) = path.strip_prefix(root) else { continue };
+        let Some(dir) = file.parent() else { continue };
+        let Ok(relative) = dir.strip_prefix(root) else { continue };
         let Some(relative_str) = relative.to_str() else { continue };
         // Normalize to forward slashes so the entry round-trips cleanly on Windows.
-        out.push(relative_str.replace('\\', "/"));
+        let normalized = relative_str.replace('\\', "/");
+        if !pattern.matches_with(&normalized, options) {
+            continue;
+        }
+        if seen.insert(normalized.clone()) {
+            out.push(normalized);
+        }
     }
+    out.sort();
     Ok(out)
 }
 
@@ -303,17 +349,18 @@ fn pattern_matches_relative(patterns: &[String], relative: &str) -> bool {
 
 /// Load a single member's `(canonical_path, program_name)` pair, erroring if
 /// the directory or its `program.json` is missing.
-fn load_member_record(root: &Path, entry: &str) -> Result<(PathBuf, String)> {
+fn load_member_record(root: &Path, entry: &str, file_source: &dyn FileSource) -> Result<(PathBuf, String)> {
     let member_dir = root.join(entry);
-    if !member_dir.is_dir() {
+    if !file_source.is_dir(&member_dir) {
         return Err(errors::workspace_member_not_found(entry, root.display()).into());
     }
     let member_manifest_path = member_dir.join(MANIFEST_FILENAME);
-    if !member_manifest_path.exists() {
+    if !file_source.is_file(&member_manifest_path) {
         return Err(errors::workspace_member_not_found(entry, root.display()).into());
     }
-    let member_manifest = Manifest::read_from_file(&member_manifest_path)?;
-    let canonical = member_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
+    let member_manifest = Manifest::read_from_file_source(&member_manifest_path, file_source)?;
+    let canonical =
+        file_source.canonicalize(&member_dir).map_err(|e| errors::workspace_manifest_error(member_dir.display(), e))?;
     // `root` is the canonicalized workspace root; reject members (e.g. `../sibling`)
     // that resolve outside it.
     if canonical.strip_prefix(root).is_err() {
@@ -329,7 +376,7 @@ fn load_member_record(root: &Path, entry: &str) -> Result<(PathBuf, String)> {
 /// whose paths resolve to other workspace member directories. Edges are added
 /// to a `DiGraph` from dependent to dependency, and the graph is topologically
 /// sorted so that dependencies appear before the members that depend on them.
-fn order_members(members: &[(PathBuf, String)]) -> Result<Vec<(PathBuf, String)>> {
+fn order_members(members: &[(PathBuf, String)], file_source: &dyn FileSource) -> Result<Vec<(PathBuf, String)>> {
     // If there are 0 or 1 members, no ordering is needed.
     if members.len() <= 1 {
         return Ok(members.to_vec());
@@ -365,14 +412,14 @@ fn order_members(members: &[(PathBuf, String)]) -> Result<Vec<(PathBuf, String)>
     for (member_path, _) in members {
         let member_dir_name = member_path.file_name().and_then(|n| n.to_str()).unwrap_or_default();
         let manifest_path = member_path.join(MANIFEST_FILENAME);
-        let manifest = Manifest::read_from_file(&manifest_path)?;
+        let manifest = Manifest::read_from_file_source(&manifest_path, file_source)?;
 
         for dep in manifest.dependencies.iter().flatten() {
             let dep_dir_name = match dep.location {
                 Location::Local => {
                     let Some(dep_path) = &dep.path else { continue };
                     let resolved = if dep_path.is_absolute() { dep_path.clone() } else { member_path.join(dep_path) };
-                    let Ok(canonical) = resolved.canonicalize() else { continue };
+                    let Ok(canonical) = file_source.canonicalize(&resolved) else { continue };
                     let Some(&name) = path_to_dir_name.get(canonical.as_path()) else { continue };
                     name
                 }

@@ -21,7 +21,6 @@ use leo_errors::Result;
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, map::Entry};
-use snarkvm::prelude::anyhow;
 use std::path::{Path, PathBuf};
 
 /// Either the bytecode of an Aleo program (if it was a network dependency) or
@@ -115,10 +114,12 @@ impl Package {
     }
 
     /// Create a Leo package by the name `package_name` in a subdirectory of `path`.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn initialize<P: AsRef<Path>>(package_name: &str, path: P, is_library: bool) -> Result<PathBuf> {
         Self::initialize_impl(package_name, path.as_ref(), is_library)
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn initialize_impl(package_name: &str, path: &Path, is_library: bool) -> Result<PathBuf> {
         let package_name = if is_library {
             if !crate::is_valid_library_name(package_name) {
@@ -230,6 +231,7 @@ impl Package {
     /// Examine the Leo package at `path` to create a `Package`, but don't find dependencies.
     ///
     /// This may be useful if you just need other information like the manifest file.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_directory_no_graph<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
@@ -239,7 +241,7 @@ impl Package {
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
-            home_path.as_ref(),
+            Some(home_path.as_ref()),
             /* build_graph */ false,
             /* with_tests */ false,
             /* no_cache */ false,
@@ -247,11 +249,13 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            &leo_span::file_source::DiskFileSource,
         )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
@@ -263,7 +267,7 @@ impl Package {
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
-            home_path.as_ref(),
+            Some(home_path.as_ref()),
             /* build_graph */ true,
             /* with_tests */ false,
             no_cache,
@@ -271,11 +275,13 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            &leo_span::file_source::DiskFileSource,
         )
     }
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies
     /// and its tests, obtaining dependencies from the file system or network and topologically sorting them.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
@@ -287,7 +293,7 @@ impl Package {
     ) -> Result<Self> {
         Self::from_directory_impl(
             path.as_ref(),
-            home_path.as_ref(),
+            Some(home_path.as_ref()),
             /* build_graph */ true,
             /* with_tests */ true,
             no_cache,
@@ -295,6 +301,63 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            &leo_span::file_source::DiskFileSource,
+        )
+    }
+
+    /// Unified loader callable from both native and wasm. Native callers pass
+    /// `&DiskFileSource` + `Some(home_path)` + `Some(endpoint)` so network
+    /// dependency fetches go through the registry; wasm callers pass an
+    /// `InMemoryFileSource` + `None` / `None` / `0`, and any unstaged
+    /// `Location::Network` dependency is a hard error.
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_directory_with_file_source<P: AsRef<Path>>(
+        path: P,
+        file_source: &dyn leo_span::file_source::FileSource,
+        network: NetworkName,
+        home_path: Option<&Path>,
+        endpoint: Option<&str>,
+        network_retries: u32,
+        no_cache: bool,
+        no_local: bool,
+    ) -> Result<Self> {
+        Self::from_directory_impl(
+            path.as_ref(),
+            home_path,
+            true,
+            false,
+            no_cache,
+            no_local,
+            Some(network),
+            endpoint,
+            network_retries,
+            file_source,
+        )
+    }
+
+    /// `--build-tests` counterpart to [`Self::from_directory_with_file_source`].
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_directory_with_tests_with_file_source<P: AsRef<Path>>(
+        path: P,
+        file_source: &dyn leo_span::file_source::FileSource,
+        network: NetworkName,
+        home_path: Option<&Path>,
+        endpoint: Option<&str>,
+        network_retries: u32,
+        no_cache: bool,
+        no_local: bool,
+    ) -> Result<Self> {
+        Self::from_directory_impl(
+            path.as_ref(),
+            home_path,
+            true,
+            true,
+            no_cache,
+            no_local,
+            Some(network),
+            endpoint,
+            network_retries,
+            file_source,
         )
     }
 
@@ -319,10 +382,15 @@ impl Package {
             })
     }
 
+    /// Unified loader. Threads `file_source` through every read so the same
+    /// code drives both the native build (with `DiskFileSource` + a real
+    /// `home_path` / `endpoint`) and the wasm build (with an in-memory source
+    /// and no network access). The `home_path == None` / `endpoint == None`
+    /// combination forbids `Location::Network` deps at the graph-walk stage.
     #[allow(clippy::too_many_arguments)]
     fn from_directory_impl(
         path: &Path,
-        home_path: &Path,
+        home_path: Option<&Path>,
         build_graph: bool,
         with_tests: bool,
         no_cache: bool,
@@ -330,85 +398,90 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
+        file_source: &dyn leo_span::file_source::FileSource,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             crate::errors::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
         };
 
-        let path = path.canonicalize().map_err(|err| map_err(path, err))?;
+        let path = file_source.canonicalize(path).map_err(|err| map_err(path, err))?;
+        let manifest = Manifest::read_from_file_source(path.join(MANIFEST_FILENAME), file_source)?;
 
-        let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
+        if !build_graph {
+            return Ok(Package {
+                base_directory: path,
+                compilation_units: Vec::new(),
+                manifest,
+                dep_graph: DiGraph::default(),
+            });
+        }
 
-        let (compilation_units, digraph) = if build_graph {
-            let home_path = home_path.canonicalize().map_err(|err| map_err(home_path, err))?;
+        // Canonicalize the registry-cache root once if the caller provided one.
+        // Native callers always do; wasm callers pass `None` (no registry).
+        let canonical_home =
+            home_path.map(|hp| file_source.canonicalize(hp).map_err(|e| map_err(hp, e))).transpose()?;
 
-            let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
+        // Pre-collect all declared dependencies from the manifest tree so that
+        // .aleo file import classification doesn't depend on processing order.
+        let declared_deps = collect_declared_deps(&path, &manifest, with_tests, file_source)?;
 
-            let mut digraph = DiGraph::<Symbol>::new(Default::default());
-
-            // Pre-collect all declared dependencies from the manifest tree so that
-            // .aleo file import classification doesn't depend on processing order.
-            let declared_deps = collect_declared_deps(&path, &manifest, with_tests)?;
-
-            let first_dependency = Dependency {
-                name: manifest.program.clone(),
-                location: Location::Local,
-                path: Some(path.clone()),
-                edition: None,
-            };
-
-            let test_dependencies: Vec<Dependency> = if with_tests {
-                let tests_directory = path.join(TESTS_DIRECTORY);
-                let mut test_dependencies: Vec<Dependency> = Self::files_with_extension(&tests_directory, "leo")
-                    .map(|path| Dependency {
-                        // We just made sure it has a ".leo" extension.
-                        name: format!("{}.aleo", crate::filename_no_leo_extension(&path).unwrap()),
-                        edition: None,
-                        location: Location::Test,
-                        path: Some(path.to_path_buf()),
-                    })
-                    .collect();
-                if let Some(deps) = manifest.dev_dependencies.as_ref() {
-                    test_dependencies.extend(deps.iter().cloned());
-                }
-                test_dependencies
-            } else {
-                Vec::new()
-            };
-
-            for dependency in test_dependencies.into_iter().chain(std::iter::once(first_dependency.clone())) {
-                Self::graph_build(
-                    &home_path,
-                    network,
-                    endpoint,
-                    &first_dependency,
-                    dependency,
-                    &mut map,
-                    &mut digraph,
-                    no_cache,
-                    no_local,
-                    network_retries,
-                    &declared_deps,
-                )?;
-            }
-
-            let ordered_dependency_symbols =
-                digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
-
-            (
-                ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
-                digraph,
-            )
-        } else {
-            (Vec::new(), DiGraph::default())
+        let first_dependency = Dependency {
+            name: manifest.program.clone(),
+            location: Location::Local,
+            path: Some(path.clone()),
+            edition: None,
         };
+
+        let test_dependencies: Vec<Dependency> = if with_tests {
+            let tests_directory = path.join(TESTS_DIRECTORY);
+            let mut deps: Vec<Dependency> = file_source
+                .list_leo_files(&tests_directory, Path::new(""))
+                .unwrap_or_default()
+                .into_iter()
+                .map(|p| Dependency {
+                    name: format!("{}.aleo", crate::filename_no_leo_extension(&p).unwrap()),
+                    edition: None,
+                    location: Location::Test,
+                    path: Some(p),
+                })
+                .collect();
+            if let Some(dev) = manifest.dev_dependencies.as_ref() {
+                deps.extend(dev.iter().cloned());
+            }
+            deps
+        } else {
+            Vec::new()
+        };
+
+        let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
+        let mut digraph = DiGraph::<Symbol>::new(Default::default());
+
+        for dependency in test_dependencies.into_iter().chain(std::iter::once(first_dependency.clone())) {
+            Self::graph_build(
+                canonical_home.as_deref(),
+                network,
+                endpoint,
+                &first_dependency,
+                dependency,
+                &mut map,
+                &mut digraph,
+                no_cache,
+                no_local,
+                network_retries,
+                &declared_deps,
+                file_source,
+            )?;
+        }
+
+        let ordered = digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
+        let compilation_units = ordered.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect();
 
         Ok(Package { base_directory: path, compilation_units, manifest, dep_graph: digraph })
     }
 
     #[allow(clippy::too_many_arguments)]
     fn graph_build(
-        home_path: &Path,
+        home_path: Option<&Path>,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         main_program: &Dependency,
@@ -419,13 +492,13 @@ impl Package {
         no_local: bool,
         network_retries: u32,
         declared_deps: &IndexMap<Symbol, Dependency>,
+        file_source: &dyn leo_span::file_source::FileSource,
     ) -> Result<()> {
         let name_symbol = symbol(&new.name)?;
 
         let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
-                // We've already visited this dependency. Just make sure it's compatible with
-                // the one we already have.
+                // Already visited — make sure the redefinition is compatible.
                 let existing_dep = &occupied.get().0;
                 assert_eq!(new.name, existing_dep.name);
                 if new.location != existing_dep.location
@@ -439,48 +512,52 @@ impl Package {
             Entry::Vacant(vacant) => {
                 let unit = match (new.path.as_ref(), new.location) {
                     (Some(path), Location::Local) if !no_local => {
-                        // It's a local dependency.
-                        if path.extension().and_then(|p| p.to_str()) == Some("aleo") && path.is_file() {
-                            CompilationUnit::from_aleo_path(name_symbol, path, declared_deps)?
+                        if path.extension().and_then(|p| p.to_str()) == Some("aleo") && file_source.is_file(path) {
+                            let net = network.ok_or_else(|| {
+                                crate::errors::custom(
+                                    "A network must be provided to read `.aleo` dependencies (used for size limits and bytecode parsing).",
+                                )
+                            })?;
+                            CompilationUnit::from_aleo_path_with_file_source(
+                                name_symbol,
+                                path,
+                                declared_deps,
+                                file_source,
+                                net,
+                            )?
                         } else {
-                            CompilationUnit::from_package_path(name_symbol, path)?
+                            CompilationUnit::from_package_path_with_file_source(name_symbol, path, file_source)?
                         }
                     }
                     (Some(path), Location::Test) => {
-                        // It's a test dependency - the path points to the source file,
-                        // not a package.
-                        CompilationUnit::from_test_path(path, main_program.clone())?
+                        CompilationUnit::from_test_path_with_file_source(path, main_program.clone(), file_source)?
                     }
-                    (_, Location::Network) | (Some(_), Location::Local) => {
-                        // It's a network dependency.
-                        let Some(endpoint) = endpoint else {
-                            return Err(anyhow!("An endpoint must be provided to fetch network dependencies.").into());
-                        };
-                        let Some(network) = network else {
-                            return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
-                        };
-                        CompilationUnit::fetch(
-                            name_symbol,
-                            new.edition,
-                            home_path,
-                            network,
-                            endpoint,
-                            no_cache,
-                            network_retries,
-                        )?
-                    }
+                    (_, Location::Network) | (Some(_), Location::Local) => fetch_network_dependency(
+                        &new,
+                        name_symbol,
+                        home_path,
+                        network,
+                        endpoint,
+                        no_cache,
+                        network_retries,
+                    )?,
                     (_, Location::Workspace) => {
-                        return Err(anyhow!(
+                        return Err(crate::errors::custom(format!(
                             "Workspace dependency `{}` was not resolved before graph building. This is a compiler bug.",
                             new.name
-                        )
+                        ))
                         .into());
                     }
-                    _ => return Err(anyhow!("Invalid dependency data for {} (path must be given).", new.name).into()),
+                    _ => {
+                        return Err(crate::errors::custom(format!(
+                            "Invalid dependency data for {} (path must be given).",
+                            new.name
+                        ))
+                        .into());
+                    }
                 };
 
                 vacant.insert((new, unit.clone()));
-
                 unit
             }
         };
@@ -502,10 +579,44 @@ impl Package {
                 no_local,
                 network_retries,
                 declared_deps,
+                file_source,
             )?;
         }
 
         Ok(())
+    }
+}
+
+/// Fetch the bytecode of a network-only dependency. The native path goes to
+/// the registry; the wasm path errors with a hint to stage the `.aleo` bytes
+/// in the virtual file map instead.
+#[allow(clippy::too_many_arguments, unused_variables)]
+fn fetch_network_dependency(
+    new: &Dependency,
+    name_symbol: Symbol,
+    home_path: Option<&Path>,
+    network: Option<NetworkName>,
+    endpoint: Option<&str>,
+    no_cache: bool,
+    network_retries: u32,
+) -> Result<CompilationUnit> {
+    #[cfg(target_arch = "wasm32")]
+    {
+        Err(crate::errors::custom(format!(
+            "Network dependency `{}` is not supported in wasm builds; stage the `.aleo` bytecode in the file map and reference it with `Location::Local`.",
+            new.name
+        ))
+        .into())
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let endpoint = endpoint
+            .ok_or_else(|| crate::errors::custom("An endpoint must be provided to fetch network dependencies."))?;
+        let network = network
+            .ok_or_else(|| crate::errors::custom("A network must be provided to fetch network dependencies."))?;
+        let home_path = home_path
+            .ok_or_else(|| crate::errors::custom("A home directory must be provided to fetch network dependencies."))?;
+        CompilationUnit::fetch(name_symbol, new.edition, home_path, network, endpoint, no_cache, network_retries)
     }
 }
 
@@ -591,9 +702,10 @@ fn collect_declared_deps(
     root_path: &Path,
     manifest: &Manifest,
     with_tests: bool,
+    file_source: &dyn leo_span::file_source::FileSource,
 ) -> Result<IndexMap<Symbol, Dependency>> {
     let mut declared = IndexMap::new();
-    collect_declared_deps_recursive(root_path, manifest, with_tests, &mut declared)?;
+    collect_declared_deps_recursive(root_path, manifest, with_tests, &mut declared, file_source)?;
     Ok(declared)
 }
 
@@ -602,14 +714,19 @@ fn collect_declared_deps_recursive(
     manifest: &Manifest,
     include_dev: bool,
     declared: &mut IndexMap<Symbol, Dependency>,
+    file_source: &dyn leo_span::file_source::FileSource,
 ) -> Result<()> {
     let deps = manifest.dependencies.iter().flatten();
     let dev: Vec<&Dependency> =
         if include_dev { manifest.dev_dependencies.iter().flatten().collect() } else { Vec::new() };
     for dep in deps.chain(dev) {
-        let dep = canonicalize_dependency_path_relative_to(base_path, dep.clone())?;
+        let dep = crate::resolve_dependency_path_relative_to(base_path, dep.clone(), file_source)?;
         // Resolve workspace deps early - converts to Location::Local with an absolute path.
-        let dep = if dep.location == Location::Workspace { resolve_workspace_dependency(base_path, dep)? } else { dep };
+        let dep = if dep.location == Location::Workspace {
+            crate::workspace::resolve_workspace_dependency_with_file_source(base_path, dep, file_source)?
+        } else {
+            dep
+        };
         let sym = symbol(&dep.name)?;
         // Only recurse into newly discovered dependencies to avoid infinite
         // recursion on circular manifests (cycles are caught later by
@@ -622,10 +739,10 @@ fn collect_declared_deps_recursive(
             && let Some(path) = &dep.path
         {
             let manifest_path = path.join(MANIFEST_FILENAME);
-            if path.is_dir() && manifest_path.exists() {
-                let child = Manifest::read_from_file(manifest_path)?;
+            if file_source.is_dir(path) && file_source.is_file(&manifest_path) {
+                let child = Manifest::read_from_file_source(manifest_path, file_source)?;
                 // dev_dependencies are not transitive.
-                collect_declared_deps_recursive(path, &child, false, declared)?;
+                collect_declared_deps_recursive(path, &child, false, declared, file_source)?;
             }
         }
     }

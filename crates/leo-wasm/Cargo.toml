@@ -1,0 +1,31 @@
+[package]
+name = "leo-wasm"
+version = "4.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "WASM bindings for the Leo compiler"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [ "aleo", "leo", "wasm", "compiler", "zero-knowledge" ]
+categories = [ "compilers", "wasm", "web-programming" ]
+include = [ "Cargo.toml", "src", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+crate-type = [ "cdylib", "rlib" ]
+
+[dependencies]
+leo-commands = { workspace = true }
+leo-package  = { workspace = true }
+leo-span     = { workspace = true }
+# third party
+indexmap     = { workspace = true }
+serde_json   = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1"
+wasm-bindgen             = "0.2"
+# snarkVM's transitive deps pull `getrandom 0.4` on wasm32; it refuses to
+# build without the `wasm_js` backend opted in.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }

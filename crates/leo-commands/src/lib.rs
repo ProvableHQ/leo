@@ -14,21 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The Leo parser.
+//! Wasm-buildable `handle_build` core, shared between the Leo CLI
+//! ([`crates/leo`]) and the `leo-wasm` bindings ([`crates/leo-wasm`]).
+//! Both surfaces become thin wrappers around
+//! [`commands::build::handle_build`] — the CLI passes a
+//! [`commands::build::DiskSink`] + `DiskFileSource`, the wasm side passes
+//! a [`commands::build::MemorySink`] + `InMemoryFileSource`.
 //!
-//! This crate provides parsing functionality for Leo source code, converting
-//! it into the Leo AST. Uses `leo-parser-rowan` for IDE-grade error recovery
-//! and lossless syntax trees.
+//! [`crates/leo`]: https://github.com/ProvableHQ/leo/tree/master/crates/leo
+//! [`crates/leo-wasm`]: https://github.com/ProvableHQ/leo/tree/master/crates/leo-wasm
 
-// Wasm-only shim: alias `leo_ast` as `snarkvm` so `use snarkvm::...` lines
-// resolve against the slim re-exports already exposed by `leo-ast`. The
-// `snarkvm_wasm` module lives in `leo-ast`; this crate just borrows it.
-#[cfg(target_arch = "wasm32")]
-extern crate leo_ast as snarkvm;
+#![forbid(unsafe_code)]
 
-mod errors;
-mod rowan;
-pub use rowan::{parse_expression, parse_library, parse_module, parse_program, parse_statement};
-
-#[cfg(test)]
-mod test;
+pub mod commands;
+pub mod errors;
+pub mod options;

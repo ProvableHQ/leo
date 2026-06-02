@@ -48,6 +48,51 @@ pub trait FileSource {
 
     /// List all `.leo` files under `dir`, excluding `exclude`.
     fn list_leo_files(&self, dir: &Path, exclude: &Path) -> io::Result<Vec<PathBuf>>;
+
+    /// Whether `path` resolves to a regular file in this source.
+    fn is_file(&self, path: &Path) -> bool;
+
+    /// Whether `path` resolves to a directory in this source.
+    fn is_dir(&self, path: &Path) -> bool;
+
+    /// Resolve `path` to a canonical form within this file source.
+    ///
+    /// [`DiskFileSource`] uses [`Path::canonicalize`] (resolves symlinks);
+    /// pure in-memory sources collapse `.` / `..` components syntactically
+    /// via [`normalize_path_components`].
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf>;
+
+    /// Whether `path` exists (as a file or directory) in this source.
+    ///
+    /// Derived from [`Self::is_file`] and [`Self::is_dir`]; implementations
+    /// with a cheaper combined check may override.
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
+    }
+
+    /// Recursively list every file path under `root`, returning absolute paths
+    /// (whatever form the source itself stores). Used by the workspace loader
+    /// to expand member-glob patterns without invoking the `glob` crate (which
+    /// is filesystem-bound and unusable on wasm).
+    fn list_files_recursive(&self, root: &Path) -> io::Result<Vec<PathBuf>>;
+}
+
+/// Collapse `.` and `..` components without consulting any filesystem.
+/// Pure in-memory sources call this from their [`FileSource::canonicalize`]
+/// implementation.
+pub fn normalize_path_components(p: &Path) -> PathBuf {
+    use std::path::Component;
+    let mut out = PathBuf::new();
+    for comp in p.components() {
+        match comp {
+            Component::CurDir => {}
+            Component::ParentDir => {
+                out.pop();
+            }
+            other => out.push(other.as_os_str()),
+        }
+    }
+    out
 }
 
 /// Reads source files from the real filesystem.
@@ -64,6 +109,43 @@ impl FileSource for DiskFileSource {
         files.sort();
         Ok(files)
     }
+
+    fn is_file(&self, path: &Path) -> bool {
+        path.is_file()
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        path.is_dir()
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        path.exists()
+    }
+
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        path.canonicalize()
+    }
+
+    fn list_files_recursive(&self, root: &Path) -> io::Result<Vec<PathBuf>> {
+        let mut files = Vec::new();
+        walk_all_files_recursive(root, &mut files)?;
+        files.sort();
+        Ok(files)
+    }
+}
+
+/// Recursively walks `dir`, collecting every regular file (any extension).
+fn walk_all_files_recursive(dir: &Path, files: &mut Vec<PathBuf>) -> io::Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            walk_all_files_recursive(&path, files)?;
+        } else if path.is_file() {
+            files.push(path);
+        }
+    }
+    Ok(())
 }
 
 /// Recursively walks `dir`, collecting `.leo` files and propagating I/O errors.
@@ -116,6 +198,29 @@ impl FileSource for InMemoryFileSource {
         files.sort();
         Ok(files)
     }
+
+    fn is_file(&self, path: &Path) -> bool {
+        self.files.contains_key(path)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        // A virtual "directory" exists when at least one stored file lies strictly below it.
+        self.files.keys().any(|p| p != path && p.starts_with(path))
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        self.is_file(path) || self.is_dir(path)
+    }
+
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        Ok(normalize_path_components(path))
+    }
+
+    fn list_files_recursive(&self, root: &Path) -> io::Result<Vec<PathBuf>> {
+        let mut files: Vec<PathBuf> = self.files.keys().filter(|p| p.starts_with(root)).cloned().collect();
+        files.sort();
+        Ok(files)
+    }
 }
 
 /// Reads one overlay file from memory and falls back to another file source for everything else.
@@ -149,6 +254,31 @@ impl<F: FileSource> FileSource for OverlayFileSource<'_, F> {
             files.sort();
         }
 
+        Ok(files)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        path == self.overlay_path || self.fallback.is_file(path)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        self.fallback.is_dir(path)
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        path == self.overlay_path || self.fallback.exists(path)
+    }
+
+    fn canonicalize(&self, path: &Path) -> io::Result<PathBuf> {
+        self.fallback.canonicalize(path)
+    }
+
+    fn list_files_recursive(&self, root: &Path) -> io::Result<Vec<PathBuf>> {
+        let mut files = self.fallback.list_files_recursive(root)?;
+        if self.overlay_path.starts_with(root) && !files.iter().any(|p| p == &self.overlay_path) {
+            files.push(self.overlay_path.clone());
+            files.sort();
+        }
         Ok(files)
     }
 }

@@ -659,7 +659,7 @@ fn run_compiler_analysis(
     expected_unit_name: Option<String>,
     entry_file: &StdPath,
     source_directory: &StdPath,
-    file_source: &impl FileSource,
+    file_source: &dyn FileSource,
     import_stubs: IndexMap<Symbol, leo_ast::Stub>,
     program_roots: ProgramRoots,
     mut should_continue: impl FnMut() -> leo_errors::Result<()>,
@@ -805,6 +805,25 @@ impl FileSource for RecordingFileSource {
         files.sort();
         Ok(files)
     }
+
+    fn is_file(&self, path: &StdPath) -> bool {
+        // An open overlay buffer counts as a file even if it hasn't been flushed.
+        self.overlays.iter().any(|overlay| overlay.path.as_ref() == path) || path.is_file()
+    }
+
+    fn is_dir(&self, path: &StdPath) -> bool {
+        path.is_dir()
+    }
+
+    fn canonicalize(&self, path: &StdPath) -> io::Result<PathBuf> {
+        path.canonicalize()
+    }
+
+    fn list_files_recursive(&self, root: &StdPath) -> io::Result<Vec<PathBuf>> {
+        // Disk view drives workspace discovery; overlays are still file
+        // buffers, not directory structure, so they aren't added here.
+        DiskFileSource.list_files_recursive(root)
+    }
 }
 
 /// File source adapter for standalone buffers that must not discover modules.
@@ -828,6 +847,22 @@ impl FileSource for SingleFileSource<'_> {
     /// Suppress sibling module discovery for loose, unmanaged files.
     fn list_leo_files(&self, _dir: &StdPath, _exclude: &StdPath) -> io::Result<Vec<PathBuf>> {
         Ok(Vec::new())
+    }
+
+    fn is_file(&self, path: &StdPath) -> bool {
+        self.inner.is_file(path)
+    }
+
+    fn is_dir(&self, path: &StdPath) -> bool {
+        self.inner.is_dir(path)
+    }
+
+    fn canonicalize(&self, path: &StdPath) -> io::Result<PathBuf> {
+        self.inner.canonicalize(path)
+    }
+
+    fn list_files_recursive(&self, root: &StdPath) -> io::Result<Vec<PathBuf>> {
+        self.inner.list_files_recursive(root)
     }
 }
 

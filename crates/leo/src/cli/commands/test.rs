@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
-use leo_compiler::run;
+use leo_compiler::{DiskFileSource, run};
 use leo_package::{Package, ProgramData};
 use leo_span::{Symbol, sym};
 
@@ -152,7 +152,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             network,
         );
 
-        let ast = compiler.parse_program_from_directory(source, &source_dir);
+        let ast = compiler.parse_program_from_directory_with_file_source(source, &source_dir, &DiskFileSource);
         let ast = match ast {
             Ok(ast) => ast,
             Err(_) => continue,
