@@ -74,7 +74,7 @@ pub struct FormatCliArgs {
 
 /// Standalone `leo-fmt` CLI parser.
 #[derive(Debug, Parser)]
-#[command(name = "leo-fmt", about = "Format Leo source files", long_about = None)]
+#[command(name = "leo-fmt", version, about = "Format Leo source files", long_about = None)]
 pub struct LeoFmtCli {
     #[command(flatten)]
     pub format: FormatCliArgs,

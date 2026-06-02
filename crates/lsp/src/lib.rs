@@ -69,6 +69,15 @@ pub fn run_server(connection: Connection) -> Result<ExitCode> {
 /// This keeps the binary wrapper thin while preserving the library-oriented
 /// `Result`-returning entrypoints for tests, embeddings, and future plugins.
 pub fn run_standalone() -> ExitCode {
+    // The language server communicates over stdio and otherwise ignores its CLI
+    // arguments, so editor clients can launch it however they like. We only
+    // intercept `--version`/`-V` here so the standalone plugin binary can report
+    // its version like `leo` and `leo-fmt`, without changing how clients spawn it.
+    if std::env::args().skip(1).any(|arg| arg == "--version" || arg == "-V") {
+        println!("leo-lsp {}", env!("CARGO_PKG_VERSION"));
+        return ExitCode::SUCCESS;
+    }
+
     match run_stdio() {
         Ok(exit_code) => exit_code,
         Err(error) => {
