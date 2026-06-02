@@ -31,18 +31,10 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(Parser, Clone, Debug)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(long, help = "Enables offline mode.")]
-    pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.", default_value = "true")]
-    pub enable_dce: bool,
-    #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
-    pub conditional_block_max_depth: usize,
-    #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
-    pub disable_conditional_branch_type_checking: bool,
     #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
     pub enable_initial_ast_snapshot: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -55,24 +47,6 @@ pub struct BuildOptions {
     pub no_cache: bool,
     #[clap(long, help = "Don't use the local source code.")]
     pub no_local: bool,
-}
-
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self {
-            offline: false,
-            enable_ast_spans: false,
-            enable_dce: true,
-            conditional_block_max_depth: 10,
-            disable_conditional_branch_type_checking: false,
-            enable_initial_ast_snapshot: false,
-            enable_all_ast_snapshots: false,
-            ast_snapshots: Vec::new(),
-            build_tests: false,
-            no_cache: false,
-            no_local: false,
-        }
-    }
 }
 
 /// Overrides for the `.env` file.

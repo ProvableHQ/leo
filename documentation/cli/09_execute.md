@@ -199,16 +199,8 @@ Specifies the number of blocks to look at when searching for a transaction. Defa
 Options:
 --base-fees <BASE_FEES>
   [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
---offline
-    Enables offline mode.
 --enable-ast-spans
     Enable spans in AST snapshots.
---enable-dce
-    Enables dead code elimination in the compiler.
---conditional-block-max-depth <CONDITIONAL_BLOCK_MAX_DEPTH>
-    Max depth to type check nested conditionals. [default: 10]
---disable-conditional-branch-type-checking
-    Disable type checking of nested conditional branches in finalize scope.
 --enable-initial-ast-snapshot
     Write an AST snapshot immediately after parsing.
 --enable-all-ast-snapshots

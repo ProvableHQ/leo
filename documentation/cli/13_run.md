@@ -56,16 +56,8 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
     remote program to fetch (with its transitive dependencies) from the network
     endpoint. Local files must be listed in topological order (dependencies
     before the programs that depend on them).
---offline
-    Enables offline mode.
 --enable-ast-spans
     Enable spans in AST snapshots.
---enable-dce
-    Enables dead code elimination in the compiler.
---conditional-block-max-depth <CONDITIONAL_BLOCK_MAX_DEPTH>
-    Max depth to type check nested conditionals. [default: 10]
---disable-conditional-branch-type-checking
-    Disable type checking of nested conditional branches in finalize scope.
 --enable-initial-ast-snapshot
     Write an AST snapshot immediately after parsing.
 --enable-all-ast-snapshots

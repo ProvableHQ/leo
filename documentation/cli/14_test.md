@@ -25,16 +25,8 @@ Check out the [**Testing**](./../guides/09_testing.md) guide for more informatio
 ## Flags
 
 ```text
---offline
-    Enables offline mode.
 --enable-ast-spans
     Enable spans in AST snapshots.
---enable-dce
-    Enables dead code elimination in the compiler.
---conditional-block-max-depth <CONDITIONAL_BLOCK_MAX_DEPTH>
-    Max depth to type check nested conditionals. [default: 10]
---disable-conditional-branch-type-checking
-    Disable type checking of nested conditional branches in finalize scope.
 --enable-initial-ast-snapshot
     Write an AST snapshot immediately after parsing.
 --enable-all-ast-snapshots

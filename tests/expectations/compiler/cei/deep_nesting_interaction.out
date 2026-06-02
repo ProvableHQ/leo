@@ -16,7 +16,7 @@
     │ │       
     │ ╰─────── here
     │     
-    │     Help: Add `.run()` calls so every path consumes each `Final` exactly once, or pass `--disable-conditional-branch-type-checking` to silence the warning.
+    │     Help: Add `.run()` calls so every path consumes each `Final` exactly once.
 ────╯
 program dep.aleo;
 
