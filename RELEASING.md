@@ -82,7 +82,9 @@ Release tags use:
 {crate-name}-v{version}
 ```
 
-Examples: `leo-lang-v4.0.1`, `leo-fmt-v1.0.0`, `leo-lsp-v4.0.1`.
+Examples: `leo-lang-v4.0.1`, `leo-fmt-v4.1.0`, `leo-lsp-v4.0.2`. Because each crate
+is tagged independently, its version can differ from `leo-lang` (e.g. `leo-fmt-v4.1.0`
+shipping while `leo-lang` is still at `4.0.1`).
 
 Tags use the crate name from `Cargo.toml` (for example, `leo-lang`, not `leo`).
 release-plz creates package tags for published crates. `release-crate.yml` runs
