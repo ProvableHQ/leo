@@ -245,5 +245,7 @@ pub(crate) fn workspace_duplicate_program_name(
         CODE_MASK + 75,
         format!("workspace members `{first}` and `{second}` both declare program `{program}`"),
     )
-    .with_help("Rename one of the programs in its `program.json`; every workspace member must have a unique program name.")
+    .with_help(
+        "Rename one of the programs in its `program.json`; every workspace member must have a unique program name.",
+    )
 }

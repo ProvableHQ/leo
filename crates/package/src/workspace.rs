@@ -108,7 +108,9 @@ impl Workspace {
         for (path, program) in &ordered {
             let bare = crate::bare_unit_name(program);
             if let Some(existing) = by_bare_name.insert(bare, path) {
-                return Err(errors::workspace_duplicate_program_name(program, existing.display(), path.display()).into());
+                return Err(
+                    errors::workspace_duplicate_program_name(program, existing.display(), path.display()).into()
+                );
             }
         }
 
