@@ -1,0 +1,11 @@
+program test.aleo;
+
+function unused_deserialize:
+    input r0 as [boolean; 253u32].private;
+    deserialize.bits.raw r0 ([boolean; 253u32]) into r1 (field);
+    output 1u8 as u8.private;
+
+function used_deserialize:
+    input r0 as [boolean; 253u32].private;
+    deserialize.bits.raw r0 ([boolean; 253u32]) into r1 (field);
+    output r1 as field.private;

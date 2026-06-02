@@ -1358,7 +1358,9 @@ impl Intrinsic {
             | Intrinsic::DynamicCall
             | Intrinsic::DynamicContains
             | Intrinsic::DynamicGet
-            | Intrinsic::DynamicGetOrUse => false,
+            | Intrinsic::DynamicGetOrUse
+            // Deserialization can halt on invalid encodings.
+            | Intrinsic::Deserialize(_, _) => false,
 
             Intrinsic::ChaChaRand(_)
             | Intrinsic::ECDSAVerify(_)
@@ -1389,8 +1391,7 @@ impl Intrinsic {
             | Intrinsic::SignatureVerify
             | Intrinsic::SnarkVerify
             | Intrinsic::SnarkVerifyBatch
-            | Intrinsic::Serialize(_)
-            | Intrinsic::Deserialize(_, _) => true,
+            | Intrinsic::Serialize(_) => true,
         }
     }
 }
