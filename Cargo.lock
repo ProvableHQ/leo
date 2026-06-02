@@ -2382,6 +2382,8 @@ dependencies = [
  "clap",
  "getrandom 0.4.2",
  "indexmap",
+ "itertools 0.14.0",
+ "leo-abi",
  "leo-ast",
  "leo-compiler",
  "leo-disassembler",

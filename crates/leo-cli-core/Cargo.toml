@@ -25,6 +25,7 @@ edition = "2024"
 
 [dependencies]
 # leo dependencies (wasm-buildable layer)
+leo-abi          = { workspace = true, features = [ "aleo-bytecode" ] }
 leo-ast          = { workspace = true }
 leo-compiler     = { workspace = true }
 leo-disassembler = { workspace = true }
@@ -35,6 +36,7 @@ leo-span         = { workspace = true }
 # third party (wasm-buildable layer)
 clap       = { workspace = true }
 indexmap   = { workspace = true }
+itertools  = { workspace = true }
 serde      = { workspace = true }
 serde_json = { workspace = true }
 
