@@ -208,9 +208,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let intrinsic = Intrinsic::from_symbol(input.name, &input.type_parameters)
             .expect("Type checking guarantees this is valid.");
 
-        if values.len() == input.arguments.len() && intrinsic.is_pure() {
-            // We've evaluated every argument, and this function has no side
-            // effects, so maybe we can compute the result at compile time.
+        if values.len() == input.arguments.len() && intrinsic.can_const_evaluate() {
+            // We've evaluated every argument, and this function can be computed at compile time.
 
             match const_eval::evaluate_intrinsic(&mut values, intrinsic, &[], input.span()) {
                 Ok(Some(value)) => {
