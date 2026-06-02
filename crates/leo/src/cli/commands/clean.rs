@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use anyhow::anyhow;
+use leo_package::Workspace;
 
 use super::*;
 
@@ -37,12 +38,19 @@ impl Command for LeoClean {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         match context.resolve_targets()? {
             Some(targets) => {
+                // Workspace mode: build/ lives at the workspace root and is
+                // shared across all members, so remove it once. Then loop
+                // members to clear pre-shared-layout `<member>/build/` and
+                // pre-flat-layout `<member>/outputs/` leftovers.
+                let root = Workspace::discover_root(&context.dir()?)?
+                    .ok_or_else(|| anyhow!("workspace targets resolved but no workspace root was found"))?;
+                remove_dir_if_present(&root.join(leo_package::BUILD_DIRECTORY), "build directory");
                 for target in &targets {
                     let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");
                     if targets.len() > 1 {
                         println!("\n--- workspace member '{member_name}' ---");
                     }
-                    clean_package(context.with_path(target.clone()))?;
+                    clean_member_legacy(target)?;
                 }
                 Ok(())
             }
@@ -68,16 +76,39 @@ fn clean_package(context: Context) -> Result<()> {
     // `outputs/` directory for AST snapshots. Snapshots now live under
     // `build/<unit>/snapshots/`, so this entry only fires when wiping an
     // upgraded checkout that still has the stale directory on disk.
-    let legacy_outputs = path.join("outputs");
-    if std::fs::remove_dir_all(&legacy_outputs).is_ok() {
-        tracing::info!("🧹 Cleaned the legacy outputs directory {}", legacy_outputs.display().to_string().dimmed());
-    }
+    remove_dir_if_present(&path.join("outputs"), "legacy outputs directory");
 
     // Removes the build/ directory.
-    let build_path = path.join(leo_package::BUILD_DIRECTORY);
-    if std::fs::remove_dir_all(&build_path).is_ok() {
-        tracing::info!("🧹 Cleaned the build directory {}", build_path.display().to_string().dimmed());
-    }
+    remove_dir_if_present(&path.join(leo_package::BUILD_DIRECTORY), "build directory");
 
     Ok(())
+}
+
+/// Per-member cleanup in workspace mode. The shared
+/// `<workspace_root>/build/` is removed once by the caller.
+fn clean_member_legacy(member_dir: &std::path::Path) -> Result<()> {
+    let manifest_path = member_dir.join(leo_package::MANIFEST_FILENAME);
+    if !manifest_path.exists() {
+        return Err(anyhow!(
+            "{} doesn't exist - this doesn't appear to be a Leo package.",
+            leo_package::MANIFEST_FILENAME
+        )
+        .into());
+    }
+    // Migration aid: a per-member `build/` from a pre-shared-layout checkout.
+    remove_dir_if_present(&member_dir.join(leo_package::BUILD_DIRECTORY), "legacy per-member build directory");
+    // Migration aid: a per-member `outputs/` from a pre-flat-layout checkout.
+    remove_dir_if_present(&member_dir.join("outputs"), "legacy outputs directory");
+    Ok(())
+}
+
+/// Best-effort remove `path` if it exists; log on success. Returns `true`
+/// if the directory was removed.
+fn remove_dir_if_present(path: &std::path::Path, label: &str) -> bool {
+    if std::fs::remove_dir_all(path).is_ok() {
+        tracing::info!("🧹 Cleaned the {label} {}", path.display().to_string().dimmed());
+        true
+    } else {
+        false
+    }
 }

@@ -73,6 +73,14 @@ A typical workspace looks like this:
 ```text
 my_project/
 ├── workspace.json
+├── .gitignore        # ignores `build/`
+├── build/            # shared across all members (created on `leo build`)
+│   ├── token/
+│   │   ├── token.aleo
+│   │   └── abi.json
+│   └── swap/
+│       ├── swap.aleo
+│       └── abi.json
 ├── token/
 │   ├── program.json
 │   └── src/
@@ -83,7 +91,11 @@ my_project/
         └── main.leo
 ```
 
-Each member is a self-contained Leo package. It has its own `build/` directory when compiled.
+Build artifacts live in a single `build/` directory at the workspace root,
+keyed by compilation unit name. A unit built once - whether as a member's own
+program or as a dependency - is reused by every other member that imports it
+rather than being rebuilt per member. Running `leo clean` from anywhere
+inside the workspace removes the shared `build/` in one step.
 
 ## Member Dependencies
 

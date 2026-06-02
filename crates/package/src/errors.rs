@@ -232,3 +232,18 @@ pub(crate) fn workspace_dep_member_not_found(dep_name: impl Display, workspace_r
     )
     .with_help("Check the `members` list in `workspace.json` and verify the member's `program.json` declares a matching program name.")
 }
+
+/// Two workspace members declare programs with the same bare unit name, which
+/// would race on the shared `<workspace_root>/build/<name>/` directory.
+pub(crate) fn workspace_duplicate_program_name(
+    program: impl Display,
+    first: impl Display,
+    second: impl Display,
+) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 75,
+        format!("workspace members `{first}` and `{second}` both declare program `{program}`"),
+    )
+    .with_help("Rename one of the programs in its `program.json`; every workspace member must have a unique program name.")
+}

@@ -16,7 +16,7 @@ To compile your program into Aleo instructions and verify that it builds properl
 leo build
 ```
 
-On invoking the build command, Leo automatically creates a `build/`⁠ folder in the project directory. Inside it, every program - your own program and each dependency - gets its own `build/{program}/` directory containing its compiled `.aleo` bytecode and ABI.
+On invoking the build command, Leo automatically creates a `build/`⁠ folder in the project directory - or, when the package is inside a [workspace](../guides/03_workspaces.md), at the workspace root, shared across every member. Inside it, every program - your own program and each dependency - gets its own `build/{program}/` directory containing its compiled `.aleo` bytecode and ABI.
 
 ```bash title="console output:"
   Leo     2 statements before dead code elimination.

@@ -43,6 +43,15 @@ pub struct Package {
     /// The directory on the filesystem where the package is located, canonicalized.
     pub base_directory: PathBuf,
 
+    /// Canonicalized workspace root, when the package lives inside a workspace
+    /// tree (an ancestor directory contains `workspace.json`). `None` for
+    /// standalone packages. When `Some`, `build_directory()` returns
+    /// `<workspace_root>/build/` so every package under the workspace root -
+    /// member or not - shares one flat, unit-keyed build root, and a unit
+    /// built once by any member is reused structurally by all the others.
+    /// Populated once in `from_directory_impl`; never mutated afterwards.
+    pub workspace_root: Option<PathBuf>,
+
     /// A topologically sorted list of all compilation units in this package, whether
     /// dependencies or the main program.
     ///
@@ -62,9 +71,12 @@ impl Package {
     /// The root of the build directory.
     ///
     /// This is the single place that knows where build artifacts are rooted;
-    /// every per-unit path below is composed from it.
+    /// every per-unit path below is composed from it. For a package inside a
+    /// workspace tree this returns `<workspace_root>/build/` so every member
+    /// shares one flat, unit-keyed build root; for a standalone package it
+    /// returns `<base_directory>/build/`.
     pub fn build_directory(&self) -> PathBuf {
-        self.base_directory.join(BUILD_DIRECTORY)
+        self.workspace_root.as_deref().unwrap_or(&self.base_directory).join(BUILD_DIRECTORY)
     }
 
     /// The package's own compilation unit, identified via the manifest.
@@ -337,6 +349,11 @@ impl Package {
 
         let path = path.canonicalize().map_err(|err| map_err(path, err))?;
 
+        // Detect an enclosing workspace so build artifacts route to a shared
+        // `<workspace_root>/build/`. The walk only checks for `workspace.json`
+        // (no manifest parsing, no member resolution), so it is cheap.
+        let workspace_root = Workspace::discover_root(&path)?;
+
         let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
 
         let (compilation_units, digraph) = if build_graph {
@@ -403,7 +420,7 @@ impl Package {
             (Vec::new(), DiGraph::default())
         };
 
-        Ok(Package { base_directory: path, compilation_units, manifest, dep_graph: digraph })
+        Ok(Package { base_directory: path, workspace_root, compilation_units, manifest, dep_graph: digraph })
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -637,8 +654,13 @@ mod tests {
     use super::*;
 
     fn dummy_package(base: &str) -> Package {
+        dummy_package_with(base, None)
+    }
+
+    fn dummy_package_with(base: &str, workspace_root: Option<PathBuf>) -> Package {
         Package {
             base_directory: PathBuf::from(base),
+            workspace_root,
             compilation_units: Vec::new(),
             manifest: Manifest {
                 program: "demo.aleo".to_string(),
@@ -689,5 +711,31 @@ mod tests {
         // Every per-unit path is rooted at `build_directory()`, the single layout seam.
         assert!(pkg.unit_bytecode_path("x").starts_with(pkg.build_directory()));
         assert!(pkg.unit_interfaces_directory("credits.aleo").starts_with(pkg.build_directory()));
+    }
+
+    #[test]
+    fn workspace_root_routes_build_directory_to_shared() {
+        // When inside a workspace, `build_directory()` routes to the
+        // workspace root - not the package's own directory - so every
+        // member's per-unit subdirectory collapses under one shared
+        // `<root>/build/` and deduplicates structurally on unit name.
+        let pkg = dummy_package_with("/tmp/ws/members/token", Some(PathBuf::from("/tmp/ws")));
+        assert_eq!(pkg.build_directory(), PathBuf::from("/tmp/ws/build"));
+        assert_eq!(pkg.unit_build_directory("token"), PathBuf::from("/tmp/ws/build/token"));
+        assert_eq!(pkg.unit_bytecode_path("token"), PathBuf::from("/tmp/ws/build/token/token.aleo"));
+        // The package's own base_directory is irrelevant for the per-unit path:
+        // a workspace member and a separate dependency keyed by the same unit
+        // name resolve to byte-identical paths.
+        let dep = dummy_package_with("/tmp/ws/members/swap", Some(PathBuf::from("/tmp/ws")));
+        assert_eq!(pkg.unit_bytecode_path("token"), dep.unit_bytecode_path("token"));
+    }
+
+    #[test]
+    fn standalone_package_keeps_per_base_build_directory() {
+        // The standalone path must not change: a package outside any
+        // workspace still rooots its build under its own directory.
+        let pkg = dummy_package_with("/tmp/standalone", None);
+        assert_eq!(pkg.build_directory(), PathBuf::from("/tmp/standalone/build"));
+        assert_eq!(pkg.unit_build_directory("demo"), PathBuf::from("/tmp/standalone/build/demo"));
     }
 }
