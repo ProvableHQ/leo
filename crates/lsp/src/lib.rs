@@ -32,9 +32,20 @@ mod server;
 mod syntax_semantics;
 
 use anyhow::{Context, Result};
+use clap::Parser;
 use lsp_server::Connection;
 use std::process::ExitCode;
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+
+/// Standalone `leo-lsp` CLI parser.
+///
+/// The language server communicates over stdio and takes no arguments of its
+/// own; this parser exists so the binary honors `--version`/`-V` and `--help`
+/// like the `leo` and `leo-fmt` binaries. Editor clients launch the server with
+/// no arguments, so strict parsing does not affect how they spawn it.
+#[derive(Debug, Parser)]
+#[command(name = "leo-lsp", version, about = "Language server for the Leo programming language", long_about = None)]
+struct LeoLspCli {}
 
 /// Run the Leo language server over stdio.
 ///
@@ -69,14 +80,9 @@ pub fn run_server(connection: Connection) -> Result<ExitCode> {
 /// This keeps the binary wrapper thin while preserving the library-oriented
 /// `Result`-returning entrypoints for tests, embeddings, and future plugins.
 pub fn run_standalone() -> ExitCode {
-    // The language server communicates over stdio and otherwise ignores its CLI
-    // arguments, so editor clients can launch it however they like. We only
-    // intercept `--version`/`-V` here so the standalone plugin binary can report
-    // its version like `leo` and `leo-fmt`, without changing how clients spawn it.
-    if std::env::args().skip(1).any(|arg| arg == "--version" || arg == "-V") {
-        println!("leo-lsp {}", env!("CARGO_PKG_VERSION"));
-        return ExitCode::SUCCESS;
-    }
+    // Parse CLI arguments so the binary honors `--version` and `--help`. The
+    // server itself takes no arguments and communicates over stdio.
+    LeoLspCli::parse();
 
     match run_stdio() {
         Ok(exit_code) => exit_code,

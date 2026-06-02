@@ -25,6 +25,7 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow             = { workspace = true }
+clap               = { workspace = true }
 crossbeam-channel  = { workspace = true }
 indexmap           = { workspace = true }
 leo-ast            = { workspace = true }
