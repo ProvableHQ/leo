@@ -1394,4 +1394,9 @@ impl Intrinsic {
             | Intrinsic::Serialize(_) => true,
         }
     }
+
+    /// Returns whether or not this function can be evaluated at compile time.
+    pub fn can_const_evaluate(&self) -> bool {
+        self.is_pure() || matches!(self, Intrinsic::Deserialize(_, _))
+    }
 }
