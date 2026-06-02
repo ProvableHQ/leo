@@ -1358,16 +1358,21 @@ impl Intrinsic {
             | Intrinsic::DynamicCall
             | Intrinsic::DynamicContains
             | Intrinsic::DynamicGet
-            | Intrinsic::DynamicGetOrUse => false,
+            | Intrinsic::DynamicGetOrUse
+            // These intrinsics can halt.
+            | Intrinsic::Commit(_, _)
+            | Intrinsic::ECDSAVerify(_)
+            | Intrinsic::SnarkVerify
+            | Intrinsic::SnarkVerifyBatch
+            // Deserialization can halt on invalid encodings.
+            | Intrinsic::Deserialize(_, _) => false,
 
             Intrinsic::ChaChaRand(_)
-            | Intrinsic::ECDSAVerify(_)
             | Intrinsic::ProgramChecksum
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner
             | Intrinsic::VectorLen
             | Intrinsic::VectorGet
-            | Intrinsic::Commit(_, _)
             | Intrinsic::Hash(_, _)
             | Intrinsic::OptionalUnwrap
             | Intrinsic::OptionalUnwrapOr
@@ -1387,10 +1392,13 @@ impl Intrinsic {
             | Intrinsic::BlockTimestamp
             | Intrinsic::NetworkId
             | Intrinsic::SignatureVerify
-            | Intrinsic::SnarkVerify
-            | Intrinsic::SnarkVerifyBatch
-            | Intrinsic::Serialize(_)
-            | Intrinsic::Deserialize(_, _) => true,
+            | Intrinsic::Serialize(_) => true,
         }
+    }
+
+    /// Returns whether or not this function can be evaluated at compile time.
+    pub fn can_const_evaluate(&self) -> bool {
+        self.is_pure()
+            || matches!(self, Intrinsic::Commit(_, _) | Intrinsic::ECDSAVerify(_) | Intrinsic::Deserialize(_, _))
     }
 }

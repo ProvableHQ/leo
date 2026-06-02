@@ -1,0 +1,44 @@
+program test.aleo;
+
+function unused_deserialize:
+    input r0 as [boolean; 253u32].private;
+    deserialize.bits.raw r0 ([boolean; 253u32]) into r1 (field);
+    output 1u8 as u8.private;
+
+function unused_commit:
+    input r0 as field.private;
+    input r1 as scalar.private;
+    commit.bhp256 r0 r1 into r2 as field;
+    output 1u8 as u8.private;
+
+function unused_finalize_intrinsics:
+    input r0 as [u8; 65u32].private;
+    input r1 as [u8; 33u32].private;
+    input r2 as [u8; 32u32].private;
+    input r3 as [u8; 128u32].private;
+    input r4 as u8.private;
+    input r5 as [field; 4u32].private;
+    input r6 as [u8; 256u32].private;
+    input r7 as [[u8; 128u32]; 2u32].private;
+    input r8 as [[[field; 4u32]; 3u32]; 2u32].private;
+    async unused_finalize_intrinsics r0 r1 r2 r3 r4 r5 r6 r7 r8 into r9;
+    output r9 as test.aleo/unused_finalize_intrinsics.future;
+
+finalize unused_finalize_intrinsics:
+    input r0 as [u8; 65u32].public;
+    input r1 as [u8; 33u32].public;
+    input r2 as [u8; 32u32].public;
+    input r3 as [u8; 128u32].public;
+    input r4 as u8.public;
+    input r5 as [field; 4u32].public;
+    input r6 as [u8; 256u32].public;
+    input r7 as [[u8; 128u32]; 2u32].public;
+    input r8 as [[[field; 4u32]; 3u32]; 2u32].public;
+    ecdsa.verify.digest r0 r1 r2 into r9;
+    snark.verify r3 r4 r5 r6 into r10;
+    snark.verify.batch r7 r4 r8 r6 into r11;
+
+function used_deserialize:
+    input r0 as [boolean; 253u32].private;
+    deserialize.bits.raw r0 ([boolean; 253u32]) into r1 (field);
+    output r1 as field.private;
