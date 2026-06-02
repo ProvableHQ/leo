@@ -72,7 +72,7 @@ pub use upgrade::LeoUpgrade;
 use super::*;
 use crate::cli::{helpers::context::*, query::QueryCommands};
 
-use leo_errors::{Handler, Result};
+use leo_errors::Result;
 use snarkvm::{
     console::network::Network,
     prelude::{Address, Ciphertext, Plaintext, PrivateKey, Record, Value, ViewKey, block::Transaction},

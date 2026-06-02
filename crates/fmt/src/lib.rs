@@ -93,7 +93,7 @@ pub fn run_format_cli(args: &FormatCliArgs, base_dir: &Path) -> io::Result<bool>
 pub fn run_format_with_file_source(
     args: &FormatCliArgs,
     base_dir: &Path,
-    file_source: &impl FileSource,
+    file_source: &dyn FileSource,
 ) -> io::Result<bool> {
     let paths = resolve_paths(&args.paths, base_dir);
     let leo_files = collect_leo_files(&paths)?;

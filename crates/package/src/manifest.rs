@@ -52,10 +52,18 @@ impl Manifest {
 
     /// Read a Manifest from the given file as a JSON string.
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, Backtraced> {
-        // Read the manifest file.
-        let contents = std::fs::read_to_string(&path)
+        Self::read_from_file_source(path, &leo_span::file_source::DiskFileSource)
+    }
+
+    /// FileSource-aware counterpart to [`Self::read_from_file`]. Lets wasm
+    /// callers feed in an `InMemoryFileSource` instead of reading from disk.
+    pub fn read_from_file_source<P: AsRef<Path>>(
+        path: P,
+        file_source: &dyn leo_span::file_source::FileSource,
+    ) -> Result<Self, Backtraced> {
+        let contents = file_source
+            .read_file(path.as_ref())
             .map_err(|_| crate::errors::failed_to_load_package(path.as_ref().display()))?;
-        // Deserialize the manifest.
         serde_json::from_str(&contents)
             .map_err(|err| crate::errors::failed_to_deserialize_manifest_file(path.as_ref().display(), err))
     }

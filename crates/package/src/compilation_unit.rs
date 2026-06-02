@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{MAX_PROGRAM_SIZE, *};
+use crate::*;
 
+use leo_ast::NetworkName;
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -84,19 +85,34 @@ pub struct CompilationUnit {
 }
 
 impl CompilationUnit {
-    /// Given the location `path` of a `.aleo` file, read the filesystem
-    /// to obtain a `CompilationUnit`.
-    pub fn from_aleo_path<P: AsRef<Path>>(name: Symbol, path: P, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        Self::from_aleo_path_impl(name, path.as_ref(), map)
+    /// Given the location `path` of a `.aleo` file, read it via the disk and
+    /// build a `CompilationUnit`.
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn from_aleo_path<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        map: &IndexMap<Symbol, Dependency>,
+        network: NetworkName,
+    ) -> Result<Self> {
+        Self::from_aleo_path_with_file_source(name, path.as_ref(), map, &leo_span::file_source::DiskFileSource, network)
     }
 
-    fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        let bytecode = std::fs::read_to_string(path).map_err(|e| {
+    /// FileSource-aware [`Self::from_aleo_path`]. Used by the native path with
+    /// `DiskFileSource` and by the wasm path with `InMemoryFileSource`. Both
+    /// targets go through snarkVM's full `Program::from_str` to extract
+    /// imports (wasm gets the slimmer `snarkvm-synthesizer-program` crate
+    /// via the shim in `lib.rs`).
+    pub fn from_aleo_path_with_file_source(
+        name: Symbol,
+        path: &Path,
+        map: &IndexMap<Symbol, Dependency>,
+        file_source: &dyn leo_span::file_source::FileSource,
+        network: NetworkName,
+    ) -> Result<Self> {
+        let bytecode = file_source.read_file(path).map_err(|e| {
             crate::errors::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
-
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode, map)?;
-
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode, map, network)?;
         Ok(CompilationUnit {
             name,
             data: ProgramData::Bytecode(bytecode),
@@ -110,11 +126,24 @@ impl CompilationUnit {
     /// Given the location `path` of a local Leo package, read the filesystem
     /// to obtain a `CompilationUnit`.
     pub fn from_package_path<P: AsRef<Path>>(name: Symbol, path: P) -> Result<Self> {
-        Self::from_package_path_impl(name, path.as_ref())
+        Self::from_package_path_with_file_source(name, path, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_package_path_impl(name: Symbol, path: &Path) -> Result<Self> {
-        let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
+    /// FileSource-aware counterpart to [`Self::from_package_path`].
+    pub fn from_package_path_with_file_source<P: AsRef<Path>>(
+        name: Symbol,
+        path: P,
+        file_source: &dyn leo_span::file_source::FileSource,
+    ) -> Result<Self> {
+        Self::from_package_path_impl(name, path.as_ref(), file_source)
+    }
+
+    fn from_package_path_impl(
+        name: Symbol,
+        path: &Path,
+        file_source: &dyn leo_span::file_source::FileSource,
+    ) -> Result<Self> {
+        let manifest = Manifest::read_from_file_source(path.join(MANIFEST_FILENAME), file_source)?;
         let manifest_symbol = crate::symbol(&manifest.program)?;
         if name != manifest_symbol {
             return Err(
@@ -122,17 +151,18 @@ impl CompilationUnit {
             );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
-        source_directory.read_dir().map_err(|e| {
-            crate::errors::util_file_io_error(
+        if !file_source.is_dir(&source_directory) {
+            return Err(crate::errors::util_file_io_error(
                 format_args!("Failed to read directory {}", source_directory.display()),
-                e,
+                std::io::Error::new(std::io::ErrorKind::NotFound, source_directory.display().to_string()),
             )
-        })?;
+            .into());
+        }
 
         let main_path = source_directory.join(MAIN_FILENAME);
         let lib_path = source_directory.join(LIB_FILENAME);
 
-        let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
+        let (source_path, kind) = match (file_source.is_file(&main_path), file_source.is_file(&lib_path)) {
             (true, true) => {
                 return Err(crate::errors::ambiguous_entry_file(
                     source_directory.display(),
@@ -159,8 +189,12 @@ impl CompilationUnit {
                 .unwrap_or_default()
                 .into_iter()
                 .map(|dependency| {
-                    let dep = canonicalize_dependency_path_relative_to(path, dependency)?;
-                    if dep.location == Location::Workspace { resolve_workspace_dependency(path, dep) } else { Ok(dep) }
+                    let dep = resolve_dependency_path_relative_to(path, dependency, file_source)?;
+                    if dep.location == Location::Workspace {
+                        crate::workspace::resolve_workspace_dependency_with_file_source(path, dep, file_source)
+                    } else {
+                        Ok(dep)
+                    }
                 })
                 .collect::<Result<IndexSet<_>, _>>()?,
             is_local: true,
@@ -175,10 +209,23 @@ impl CompilationUnit {
     ///
     /// `main_program` must be provided since every test is dependent on it.
     pub fn from_test_path<P: AsRef<Path>>(source_path: P, main_program: Dependency) -> Result<Self> {
-        Self::from_path_test_impl(source_path.as_ref(), main_program)
+        Self::from_test_path_with_file_source(source_path, main_program, &leo_span::file_source::DiskFileSource)
     }
 
-    fn from_path_test_impl(source_path: &Path, main_program: Dependency) -> Result<Self> {
+    /// FileSource-aware counterpart to [`Self::from_test_path`].
+    pub fn from_test_path_with_file_source<P: AsRef<Path>>(
+        source_path: P,
+        main_program: Dependency,
+        file_source: &dyn leo_span::file_source::FileSource,
+    ) -> Result<Self> {
+        Self::from_path_test_impl(source_path.as_ref(), main_program, file_source)
+    }
+
+    fn from_path_test_impl(
+        source_path: &Path,
+        main_program: Dependency,
+        file_source: &dyn leo_span::file_source::FileSource,
+    ) -> Result<Self> {
         let name = filename_no_leo_extension(source_path)
             .ok_or_else(|| crate::errors::failed_path(source_path.display(), ""))?;
         let test_directory = source_path.parent().ok_or_else(|| {
@@ -193,15 +240,15 @@ impl CompilationUnit {
                 source_path.display()
             ))
         })?;
-        let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        let manifest = Manifest::read_from_file_source(package_directory.join(MANIFEST_FILENAME), file_source)?;
         let mut dependencies = manifest
             .dev_dependencies
             .unwrap_or_default()
             .into_iter()
             .map(|dependency| {
-                let dep = canonicalize_dependency_path_relative_to(package_directory, dependency)?;
+                let dep = resolve_dependency_path_relative_to(package_directory, dependency, file_source)?;
                 if dep.location == Location::Workspace {
-                    resolve_workspace_dependency(package_directory, dep)
+                    crate::workspace::resolve_workspace_dependency_with_file_source(package_directory, dep, file_source)
                 } else {
                     Ok(dep)
                 }
@@ -224,6 +271,7 @@ impl CompilationUnit {
 
     /// Given an Aleo program on a network, fetch it to build a `CompilationUnit`.
     /// If no edition is found, the latest edition is pulled from the network.
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
         edition: Option<u16>,
@@ -236,6 +284,7 @@ impl CompilationUnit {
         Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries)
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     fn fetch_impl(
         name: Symbol,
         edition: Option<u16>,
@@ -338,7 +387,7 @@ impl CompilationUnit {
             }
         };
 
-        let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
+        let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new(), network)?;
 
         Ok(CompilationUnit {
             // Network programs store the name with the ".aleo" suffix (unlike local packages).
@@ -353,16 +402,20 @@ impl CompilationUnit {
     }
 }
 
-/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
-///
-/// This needs to be done when collecting local dependencies from manifests which
-/// may be located at different places on the file system.
-pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+/// If `dependency` has a relative path, assume it's relative to `base` and
+/// canonicalize it via `file_source`. `DiskFileSource::canonicalize` matches
+/// `Path::canonicalize` exactly; in-memory sources fall back to syntactic
+/// normalization.
+pub(crate) fn resolve_dependency_path_relative_to(
+    base: &Path,
+    mut dependency: Dependency,
+    file_source: &dyn leo_span::file_source::FileSource,
+) -> Result<Dependency> {
     if let Some(path) = &mut dependency.path
         && !path.is_absolute()
     {
         let joined = base.join(&path);
-        *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
+        *path = file_source.canonicalize(&joined).map_err(|e| crate::errors::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
 }
@@ -372,15 +425,17 @@ fn parse_dependencies_from_aleo(
     name: Symbol,
     bytecode: &str,
     existing: &IndexMap<Symbol, Dependency>,
+    network: NetworkName,
 ) -> Result<IndexSet<Dependency>> {
     // Check if the program size exceeds the maximum allowed limit.
     let program_size = bytecode.len();
+    let max_size = crate::max_program_size(network);
 
-    if program_size > MAX_PROGRAM_SIZE {
+    if program_size > max_size {
         return Err(leo_errors::LeoError::Backtraced(crate::errors::program_size_limit_exceeded(
             name,
             program_size,
-            MAX_PROGRAM_SIZE,
+            max_size,
         )));
     }
 

@@ -16,33 +16,9 @@
 
 use snarkvm::prelude::{ConsensusVersion, Network, Program};
 
-/// Threshold percentage for program size warnings.
-const PROGRAM_SIZE_WARNING_THRESHOLD: usize = 90;
-
-/// Formats program size as KB and returns a warning message if approaching the limit.
-///
-/// Both `size` and `max_size` are expected in bytes.
-/// Returns `(size_kb, max_kb, warning)` where `warning` is `Some` if size exceeds 90% of max.
-pub fn format_program_size(size: usize, max_size: usize) -> (f64, f64, Option<String>) {
-    let size_kb = size as f64 / 1024.0;
-    let max_kb = max_size as f64 / 1024.0;
-    let percentage = (size as f64 / max_size as f64) * 100.0;
-
-    let warning = if size > max_size * PROGRAM_SIZE_WARNING_THRESHOLD / 100 {
-        Some(format!("approaching the size limit ({percentage:.1}% of {max_kb:.2} KB)"))
-    } else {
-        None
-    };
-
-    (size_kb, max_kb, warning)
-}
-
-/// Default edition for local programs during local operations (run, execute, synthesize).
-///
-/// Local programs don't have an on-chain edition yet. We default to edition 1 to avoid
-/// snarkVM's V8+ check that rejects edition 0 programs without constructors. That check
-/// is only relevant for deployed programs, not local development.
-pub const LOCAL_PROGRAM_DEFAULT_EDITION: leo_package::Edition = 1;
+// Owned by `leo-package` so the CLI, the shared build core, and the wasm
+// bindings all key off the same definitions.
+pub use leo_package::{LOCAL_PROGRAM_DEFAULT_EDITION, format_program_size};
 
 /// Prints a program's ID and source (local or network edition).
 pub fn print_program_source(id: &str, edition: Option<leo_package::Edition>) {

@@ -17,6 +17,12 @@
 #![forbid(unsafe_code)]
 #![doc = include_str!("../README.md")]
 
+// Wasm-only shim: alias `leo_ast` as `snarkvm` so `use snarkvm::...` lines
+// resolve against the slim re-exports already exposed by `leo-ast`. The
+// `snarkvm_wasm` module lives in `leo-ast`; this crate just borrows it.
+#[cfg(target_arch = "wasm32")]
+extern crate leo_ast as snarkvm;
+
 mod errors;
 
 mod static_analysis;

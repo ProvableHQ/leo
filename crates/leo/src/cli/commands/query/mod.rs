@@ -120,7 +120,7 @@ fn handle_query(
 
     // Verify that the source file parses into a valid Aleo program.
     if let Some(name) = program {
-        verify_valid_program(&name, &result)?;
+        verify_valid_program(&name, &result, network)?;
     }
 
     Ok(result)

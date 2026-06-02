@@ -1,0 +1,44 @@
+[package]
+name = "leo-commands"
+version = "4.1.0"
+authors = [ "The Leo Team <leo@provable.com>" ]
+description = "Per-command `handle_*` cores shared between the Leo CLI and the leo-wasm bindings"
+homepage = "https://leo-lang.org"
+repository = "https://github.com/ProvableHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2024"
+
+# Hosts the per-command `handle_*` cores that both `crates/leo` (the CLI)
+# and `crates/leo-wasm` (the wasm-bindgen layer) call into. Everything here
+# compiles on `wasm32-unknown-unknown`. Native-only deps (e.g. the snarkVM
+# umbrella for post-build validation) are target-gated.
+
+[dependencies]
+leo-abi          = { workspace = true }
+leo-ast          = { workspace = true }
+leo-compiler     = { workspace = true }
+leo-disassembler = { workspace = true }
+leo-errors       = { workspace = true }
+leo-package      = { workspace = true }
+leo-span         = { workspace = true }
+# third party
+clap       = { workspace = true }
+indexmap   = { workspace = true }
+itertools  = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+tracing    = { workspace = true }
+
+# snarkVM is only pulled in for the optional post-build validation
+# (`Process::add_program_with_edition`); native-only.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+snarkvm = { workspace = true }

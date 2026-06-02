@@ -22,11 +22,24 @@ edition = "2024"
 leo-ast     = { workspace = true }
 leo-errors  = { workspace = true }
 leo-span    = { workspace = true }
-# third party dependencies
+# third party — target-neutral
 glob        = { workspace = true }
 indexmap    = { workspace = true }
 serde       = { workspace = true }
 serde_json  = { workspace = true }
-snarkvm     = { workspace = true }
 tracing     = { workspace = true }
+
+# `snarkvm` (keyword tables + bytecode parsing) and `ureq` (registry HTTP)
+# are used by the disk-based `from_directory*` loader + the
+# `CompilationUnit::fetch` and related helpers. They're target-gated to
+# native; wasm callers go through the new `_with_file_source` loader path
+# and stage `.aleo` bytecode in the virtual file map instead.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+snarkvm     = { workspace = true }
 ureq        = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# Force `getrandom` 0.4's `wasm_js` backend on; pulled transitively by
+# `snarkvm-console` (via leo-ast). The `snarkvm::*` facade itself comes
+# through leo-ast's re-exports, so no direct slim-snarkvm deps here.
+getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }

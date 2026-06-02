@@ -60,6 +60,7 @@ pub(crate) fn old_release_version(current: impl Display, latest: impl Display) -
     .with_help("Run `leo update` to upgrade to the latest version.")
 }
 
+#[allow(dead_code)] // moved to leo-commands::errors; kept for callers still on this side.
 pub(crate) fn failed_to_load_instructions(error: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,
@@ -159,6 +160,7 @@ pub(crate) fn tests_failed(failed: impl Display, total: impl Display) -> Backtra
         .with_help("Re-run with `leo test -- --nocapture` to see per-test output.")
 }
 
+#[allow(dead_code)] // moved to leo-commands::errors; kept for callers still on this side.
 pub(crate) fn generated_invalid_bytecode(
     name: impl Display,
     path: impl Display,
@@ -220,16 +222,19 @@ pub(crate) fn failed_to_read_file(error: impl Display) -> Backtraced {
         .with_help("Verify the file exists and that the current process has permission to read it.")
 }
 
+#[allow(dead_code)] // moved to leo-commands::errors; kept for callers still on this side.
 pub(crate) fn util_file_io_error(msg: impl Display, err: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 53, format!("filesystem I/O error: {msg}: {err}"))
         .with_help("Check the target path and the current process's permissions.")
 }
 
+#[allow(dead_code)] // moved to leo-commands::errors; kept for callers still on this side.
 pub(crate) fn failed_to_open_file(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 54, format!("failed to open file: {error}"))
         .with_help("Verify the file exists and that the current process has permission to read it.")
 }
 
+#[allow(dead_code)] // moved to leo-commands::errors; kept for callers still on this side.
 pub(crate) fn program_size_limit_exceeded(name: impl Display, size: usize, limit: usize) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,

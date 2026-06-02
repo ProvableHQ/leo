@@ -70,11 +70,20 @@
 //! a program, you can use `CompilationUnit::fetch`.
 
 #![forbid(unsafe_code)]
+// On `wasm32` the native-only loader + registry items below are unreachable;
+// suppress the dead-code lints to keep the wasm build clean.
+#![cfg_attr(target_arch = "wasm32", allow(dead_code, unused_imports))]
+
+// Wasm-only shim: alias `leo_ast` as `snarkvm` so `use snarkvm::...` lines
+// resolve against the slim re-exports already exposed by `leo-ast`. The
+// `snarkvm_wasm` module lives in `leo-ast`; this crate just borrows it.
+#[cfg(target_arch = "wasm32")]
+extern crate leo_ast as snarkvm;
 
 mod errors;
 
 use leo_ast::NetworkName;
-use leo_errors::{Backtraced, Result};
+use leo_errors::Result;
 use leo_span::Symbol;
 
 use std::path::Path;
@@ -116,13 +125,46 @@ pub const SNAPSHOTS_DIRNAME: &str = "snapshots";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 
-/// Maximum allowed program size in bytes.
-pub const MAX_PROGRAM_SIZE: usize =
-    <snarkvm::prelude::TestnetV0 as snarkvm::prelude::Network>::MAX_PROGRAM_SIZE.last().unwrap().1;
+/// Maximum allowed program size in bytes for the given network.
+///
+/// Forwards to snarkVM's `LATEST_MAX_PROGRAM_SIZE` per-network helper. The
+/// three networks happen to share 512_000 today, but they can diverge — this
+/// function is the single point of truth so callers never need to guess.
+pub fn max_program_size(network: NetworkName) -> usize {
+    use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
+    match network {
+        NetworkName::MainnetV0 => <MainnetV0 as Network>::LATEST_MAX_PROGRAM_SIZE(),
+        NetworkName::TestnetV0 => <TestnetV0 as Network>::LATEST_MAX_PROGRAM_SIZE(),
+        NetworkName::CanaryV0 => <CanaryV0 as Network>::LATEST_MAX_PROGRAM_SIZE(),
+    }
+}
 
 /// The edition of a deployed program on the Aleo network.
 /// Edition 0 is the initial deployment, and increments with each upgrade.
 pub type Edition = u16;
+
+/// Default edition for local programs during local operations (run, execute, synthesize, build validation).
+///
+/// Local programs don't have an on-chain edition yet. Edition 1 avoids snarkVM's V8+ check
+/// that rejects edition 0 programs without constructors — that check is only relevant for
+/// deployed programs, not local development.
+pub const LOCAL_PROGRAM_DEFAULT_EDITION: Edition = 1;
+
+/// Threshold (% of the size limit) at which `leo build` warns about a program nearing the limit.
+const PROGRAM_SIZE_WARNING_THRESHOLD: usize = 90;
+
+/// Format a program size for human-readable build output.
+///
+/// Returns `(size_kb, max_kb, warning)` where `warning` is `Some` once `size` exceeds
+/// [`PROGRAM_SIZE_WARNING_THRESHOLD`]% of `max_size`.
+pub fn format_program_size(size: usize, max_size: usize) -> (f64, f64, Option<String>) {
+    let size_kb = size as f64 / 1024.0;
+    let max_kb = max_size as f64 / 1024.0;
+    let percentage = (size as f64 / max_size as f64) * 100.0;
+    let warning = (size > max_size * PROGRAM_SIZE_WARNING_THRESHOLD / 100)
+        .then(|| format!("approaching the size limit ({percentage:.1}% of {max_kb:.2} KB)"));
+    (size_kb, max_kb, warning)
+}
 
 /// Strips a trailing `.aleo` (the Aleo program-ID suffix) from a compilation
 /// unit name, yielding the bare name.
@@ -144,195 +186,13 @@ fn symbol(name: &str) -> Result<Symbol> {
     }
 }
 
-/// Checks whether a string is a valid Aleo program name.
-///
-/// A valid program name must end with `.aleo` and the base name (without the
-/// suffix) must satisfy Aleo package naming rules.
-pub fn is_valid_program_name(name: &str) -> bool {
-    let Some(rest) = name.strip_suffix(".aleo") else {
-        tracing::error!("Program names must end with `.aleo`.");
-        return false;
-    };
-
-    is_valid_package_name(rest)
-}
-
-/// Checks whether a string is a valid Aleo library name.
-///
-/// Library names must satisfy Aleo package naming rules but do not require
-/// a `.aleo` suffix.
-pub fn is_valid_library_name(name: &str) -> bool {
-    is_valid_package_name(name)
-}
-
-/// Checks whether a string satisfies general Aleo package naming rules.
-///
-/// Names must be nonempty, start with a letter, contain only ASCII alphanumeric
-/// characters or underscores, avoid reserved keywords, and not contain "aleo".
-fn is_valid_package_name(name: &str) -> bool {
-    // Check that the name is nonempty.
-    if name.is_empty() {
-        tracing::error!("Aleo names must be nonempty");
-        return false;
-    }
-
-    let first = name.chars().next().unwrap();
-
-    // Check that the first character is not an underscore.
-    if first == '_' {
-        tracing::error!("Aleo names cannot begin with an underscore");
-        return false;
-    }
-
-    // Check that the first character is not a number.
-    if first.is_numeric() {
-        tracing::error!("Aleo names cannot begin with a number");
-        return false;
-    }
-
-    // Check valid characters.
-    if name.chars().any(|c| !c.is_ascii_alphanumeric() && c != '_') {
-        tracing::error!("Aleo names can only contain ASCII alphanumeric characters and underscores.");
-        return false;
-    }
-
-    // Check reserved keywords.
-    if reserved_keywords().any(|kw| kw == name) {
-        tracing::error!(
-            "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
-            reserved_keywords().collect::<Vec<_>>().join(", ")
-        );
-        return false;
-    }
-
-    // Disallow "aleo"
-    if name.contains("aleo") {
-        tracing::error!("Aleo names cannot contain the keyword `aleo`.");
-        return false;
-    }
-
-    true
-}
-
-/// Get the list of all reserved and restricted keywords from snarkVM.
-/// These keywords cannot be used as program names.
-/// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
-pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
-    use snarkvm::prelude::{Program, TestnetV0};
-
-    // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
-    let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
-
-    Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
-}
-
-/// Creates a configured ureq agent for Leo network requests.
-///
-/// Disables `http_status_as_error` so 4xx/5xx responses return `Ok(Response)`
-/// instead of `Err(StatusCode)`. This preserves response bodies which often
-/// contain useful error details from the server.
-pub fn create_http_agent() -> ureq::Agent {
-    ureq::Agent::config_builder().max_redirects(0).http_status_as_error(false).build().new_agent()
-}
-
-/// Retries a fallible network operation with exponential backoff.
-///
-/// Attempts the operation `retries + 1` times. Delays between attempts are
-/// 1 s, 2 s, 4 s, …, capped at 64 s. Returns the result of the last attempt.
-///
-/// Only use this for idempotent, read-only network calls (GET requests);
-/// never use it for state-mutating calls such as transaction broadcasts.
-pub fn retry_network_call<T, E: std::fmt::Display>(
-    network_retries: u32,
-    mut f: impl FnMut() -> std::result::Result<T, E>,
-) -> std::result::Result<T, E> {
-    let mut result = f();
-    for attempt in 1..=network_retries {
-        if result.is_ok() {
-            break;
-        }
-        let delay_secs = 2u64.pow(attempt - 1).min(64);
-        eprintln!("⚠️  Network request failed, retrying in {delay_secs}s (attempt {attempt}/{network_retries})...");
-        std::thread::sleep(std::time::Duration::from_secs(delay_secs));
-        result = f();
-    }
-    result
-}
-
-// Fetch the given endpoint url and return the sanitized response.
-pub fn fetch_from_network(url: &str, network_retries: u32) -> Result<String, Backtraced> {
-    fetch_from_network_plain(url, network_retries).map(|s| s.replace("\\n", "\n").replace('\"', ""))
-}
-
-pub fn fetch_from_network_plain(url: &str, network_retries: u32) -> Result<String, Backtraced> {
-    // Retry only on transport-level failures (connection errors, timeouts, etc.).
-    // HTTP 3xx/4xx/5xx responses are not retried since they reflect persistent conditions.
-    let agent = create_http_agent();
-    let mut response = retry_network_call(network_retries, || {
-        agent
-            .get(url)
-            .header("X-Leo-Version", env!("CARGO_PKG_VERSION"))
-            .call()
-            .map_err(|e| crate::errors::failed_to_retrieve_from_endpoint(url, e))
-    })?;
-    match response.status().as_u16() {
-        200..=299 => Ok(response.body_mut().read_to_string().unwrap()),
-        301 => Err(crate::errors::endpoint_moved_error(url)),
-        _ => Err(crate::errors::network_error(url, response.status())),
-    }
-}
-
-/// Fetch the given program from the network and return the program as a string.
-// TODO (@d0cd) Unify with `leo_package::CompilationUnit::fetch`.
-pub fn fetch_program_from_network(
-    name: &str,
-    endpoint: &str,
-    network: NetworkName,
-    network_retries: u32,
-) -> Result<String, Backtraced> {
-    let url = format!("{endpoint}/{network}/program/{name}");
-    let program = fetch_from_network(&url, network_retries)?;
-    Ok(program)
-}
-
-/// Fetch the latest edition of a program from the network.
-///
-/// Returns the actual latest edition number for the given program.
-/// This should be used instead of defaulting to arbitrary edition numbers.
-pub fn fetch_latest_edition(
-    name: &str,
-    endpoint: &str,
-    network: NetworkName,
-    network_retries: u32,
-) -> Result<Edition, Backtraced> {
-    // Strip the .aleo suffix if present for the URL.
-    let name_without_suffix = name.strip_suffix(".aleo").unwrap_or(name);
-
-    let url = format!("{endpoint}/{network}/program/{name_without_suffix}.aleo/latest_edition");
-    let contents = fetch_from_network(&url, network_retries)?;
-    contents.parse::<u16>().map_err(|e| {
-        crate::errors::failed_to_retrieve_from_endpoint(url, format!("Failed to parse edition as u16: {e}"))
-    })
-}
-
-// Verify that a fetched program is valid aleo instructions.
-pub fn verify_valid_program(name: &str, program: &str) -> Result<(), Backtraced> {
-    use snarkvm::prelude::{Program, TestnetV0};
-    use std::str::FromStr as _;
-
-    // Check if the program size exceeds the maximum allowed limit.
-    let program_size = program.len();
-
-    if program_size > MAX_PROGRAM_SIZE {
-        return Err(crate::errors::program_size_limit_exceeded(name, program_size, MAX_PROGRAM_SIZE));
-    }
-
-    // Parse the program to verify it's valid Aleo instructions.
-    match Program::<TestnetV0>::from_str(program) {
-        Ok(_) => Ok(()),
-        Err(_) => Err(crate::errors::snarkvm_parsing_error(name)),
-    }
-}
+// Name validation (uses snarkVM keyword tables) and the registry HTTP
+// fetchers (use ureq) are native-only. The module is gated at its
+// declaration so the file itself can stay `#[cfg]`-free.
+#[cfg(not(target_arch = "wasm32"))]
+mod native;
+#[cfg(not(target_arch = "wasm32"))]
+pub use native::*;
 
 pub fn filename_no_leo_extension(path: &Path) -> Option<&str> {
     filename_no_extension(path, ".leo")

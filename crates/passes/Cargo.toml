@@ -25,7 +25,6 @@ path = "src/lib.rs"
 leo-abi-types = { workspace = true }
 leo-ast       = { workspace = true }
 leo-errors    = { workspace = true }
-leo-package   = { workspace = true }
 leo-span      = { workspace = true }
 # third party dependencies
 anyhow        = { workspace = true }
@@ -37,7 +36,15 @@ regex         = { workspace = true }
 sha2          = { workspace = true }
 serde         = { workspace = true }
 serde_json    = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 snarkvm       = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# Force `getrandom` 0.4's `wasm_js` backend on; pulled transitively by
+# `snarkvm-console` (via leo-ast). The `snarkvm::*` facade itself comes
+# through leo-ast's re-exports, so no direct slim-snarkvm deps here.
+getrandom               = { version = "0.4", features = ["wasm_js"] }
 
 [dev-dependencies]
 # leo dependencies
