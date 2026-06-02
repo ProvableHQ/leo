@@ -67,7 +67,7 @@ cargo install leo-fmt leo-lsp
 cargo binstall leo-fmt leo-lsp
 ```
 
-Pre-built binaries are also available from [Leo releases](https://github.com/ProvableHQ/leo/releases). Each plugin crate is released independently under its own git tag (e.g. `leo-fmt-v1.0.0`).
+Pre-built binaries are also available from [Leo releases](https://github.com/ProvableHQ/leo/releases). Each plugin crate is released independently under its own git tag (e.g. `leo-fmt-v4.1.0`), so a plugin's version may differ from `leo-lang`.
 
 For details on release artifacts, target platforms, and packaging guidelines, see the [Binary Distribution Reference](../guides/12_binary_distribution.md).
 
