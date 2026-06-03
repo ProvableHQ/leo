@@ -5,7 +5,7 @@
     ┆ ┆   
  12 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add the missing function `status` with the exact signature specified in `ifaces/traits::Worker`.
 ────╯

@@ -9,7 +9,7 @@ fn fn2(t: other.aleo::Token) -> other.aleo::Token
     ┆ ┆   
  18 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -24,7 +24,7 @@ fn fn1(t: other.aleo::Token) -> other.aleo::Token
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -35,7 +35,7 @@ fn fn1(t: other.aleo::Token) -> other.aleo::Token
     ┆ ┆   
  15 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -51,7 +51,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  6 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
@@ -62,7 +62,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  15 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -73,7 +73,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  15 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯

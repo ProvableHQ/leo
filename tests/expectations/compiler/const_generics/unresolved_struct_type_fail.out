@@ -12,7 +12,7 @@
     ┆ ┆   
  13 │ ├─▶         };
     │ │                
-    │ ╰──────────────── 
+    │ ╰──────────────── here
     │     
     │     Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ────╯

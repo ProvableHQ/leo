@@ -9,7 +9,7 @@ fn external_transfer(t: test.aleo::Token) -> test.aleo::Token
     ┆ ┆   
  17 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -20,7 +20,7 @@ fn external_transfer(t: test.aleo::Token) -> test.aleo::Token
    ┆ ┆   
  8 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯

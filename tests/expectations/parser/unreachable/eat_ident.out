@@ -55,7 +55,7 @@
     ┆ ┆   
  56 │ ├─▶ program test.aleo {}
     │ │                          
-    │ ╰────────────────────────── 
+    │ ╰────────────────────────── here
     │     
     │     Help: Add a program scope of the form `program <name>.aleo { ... }` to the Leo file.
 ────╯

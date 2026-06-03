@@ -5,7 +5,7 @@
     ┆ ┆   
  11 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
@@ -16,7 +16,7 @@
     ┆ ┆   
  11 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Ensure every path through the function ends in a `return` expression matching the declared output type.
 ────╯

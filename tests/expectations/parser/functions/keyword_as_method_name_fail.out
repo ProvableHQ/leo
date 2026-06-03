@@ -17,7 +17,7 @@
    │
  1 │ fn f() { x.assert(); }
    │ ───────────┬───────────  
-   │            ╰───────────── 
+   │            ╰───────────── here
    │ 
    │ Help: Add a program scope of the form `program <name>.aleo { ... }` to the Leo file.
 ───╯

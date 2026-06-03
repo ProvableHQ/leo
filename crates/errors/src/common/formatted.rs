@@ -291,7 +291,7 @@ impl Formatted {
             });
             let mut primary = ariadne::Label::new(primary_span.clone()).with_color(primary_color);
             if primary_is_multiline {
-                primary = primary.with_message("");
+                primary = primary.with_message("here");
             }
             let primary_label = std::iter::once(primary);
 
@@ -399,7 +399,7 @@ pub struct DiagnosticLabelView {
 #[cfg(test)]
 mod tests {
     use super::{Color, Formatted, Label};
-    use leo_span::{Span, create_session_if_not_set_then};
+    use leo_span::{Span, create_session_if_not_set_then, source_map::FileName};
 
     /// Verifies the structured view round-trips primary message, code, help, and note.
     #[test]
@@ -443,6 +443,26 @@ mod tests {
             let view = warning.diagnostic_view();
             assert!(!view.is_error);
             assert_eq!(view.code, warning.warning_code());
+        });
+    }
+
+    /// Verifies only multi-line primary spans render with a visible fallback label.
+    #[test]
+    fn multi_line_primary_span_uses_default_label() {
+        create_session_if_not_set_then(|s| {
+            let source = "program test.aleo {\n    @custom\n    constructor() {}\n}\n";
+            let file = s.source_map.new_source(source, FileName::Custom("test.leo".into()));
+            let lo = file.absolute_start + source.find("@custom").unwrap() as u32;
+            let hi = file.absolute_start + source.find(" {}\n").unwrap() as u32 + 3;
+            let rendered = Formatted::error("TST", 4, "boom", Span::new(lo, hi)).to_string();
+
+            assert!(rendered.contains("here"));
+
+            let lo = file.absolute_start + source.find("test").unwrap() as u32;
+            let hi = lo + "test".len() as u32;
+            let rendered = Formatted::error("TST", 5, "boom", Span::new(lo, hi)).to_string();
+
+            assert!(!rendered.contains("here"));
         });
     }
 }
