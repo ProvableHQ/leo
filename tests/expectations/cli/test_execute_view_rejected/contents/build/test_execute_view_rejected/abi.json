@@ -1,6 +1,5 @@
 {
   "program": "test_execute_view_rejected.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [
@@ -20,31 +19,28 @@
   "functions": [
     {
       "name": "noop",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "x",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }
@@ -52,29 +48,26 @@
   "views": [
     {
       "name": "get_balance",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "addr",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Public"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Public"
+          }
         }
       ]
     }

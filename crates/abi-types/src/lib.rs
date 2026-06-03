@@ -38,8 +38,6 @@ pub type Path = Vec<String>;
 pub struct Program {
     /// The program identifier (e.g., "token.aleo").
     pub program: String,
-    /// Interfaces this program implements, by reference.
-    pub implements: Vec<InterfaceRef>,
     /// Struct type definitions.
     pub structs: Vec<Struct>,
     /// Record type definitions.
@@ -93,13 +91,6 @@ pub struct InterfaceRef {
     pub program: Option<String>,
     /// Path segments to the interface, e.g. `["IToken"]` or `["mod", "IToken"]`.
     pub path: Path,
-}
-
-/// A const generic parameter on an interface function prototype.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ConstParameter {
-    pub name: String,
-    pub ty: Plaintext,
 }
 
 /// A struct type definition.
@@ -156,13 +147,8 @@ pub enum StorageType {
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Function {
     pub name: String,
-    /// Whether this function has a finalize block. Compiled to an Aleo `finalize` scope.
-    pub is_final: bool,
-    /// Const generic parameters. Always empty for program ABIs (post-monomorphization);
-    /// may be populated for interface function prototypes.
-    pub const_parameters: Vec<ConstParameter>,
-    pub inputs: Vec<Input>,
-    pub outputs: Vec<Output>,
+    pub inputs: Vec<FunctionInput>,
+    pub outputs: Vec<FunctionOutput>,
 }
 
 /// A struct field.
@@ -180,25 +166,15 @@ pub struct RecordField {
     pub mode: Mode,
 }
 
-/// A function input.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Input {
-    pub name: String,
-    pub ty: FunctionInput,
-    pub mode: Mode,
-}
-
-/// A function output.
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Output {
-    pub ty: FunctionOutput,
-    pub mode: Mode,
-}
-
-/// Visibility mode for inputs, outputs, and record fields.
+/// Visibility mode for plaintext inputs/outputs and record fields.
+///
+/// Only plaintext I/O carries a visibility in Aleo (`.constant`/`.public`/`.private`); records,
+/// futures, and dynamic records have no such mode. The ABI always records a concrete visibility:
+/// unmoded source-level items are resolved during ABI generation the same way code generation
+/// lowers them — transition plaintext I/O and record fields become [`Mode::Private`], while view
+/// plaintext I/O becomes [`Mode::Public`].
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Mode {
-    None,
     Constant,
     Private,
     Public,
@@ -249,20 +225,25 @@ pub enum Plaintext {
     Optional(Optional),
 }
 
-/// Valid types for function inputs. Aleo: `transition` inputs.
+/// Valid types for function inputs. Aleo: `transition` inputs. Only the plaintext variant carries
+/// a visibility [`Mode`]; records and dynamic records use the Aleo `.record` marker and have none.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum FunctionInput {
-    Plaintext(Plaintext),
+    Plaintext { ty: Plaintext, mode: Mode },
     Record(RecordRef),
     DynamicRecord,
 }
 
-/// Valid types for function outputs. Aleo: `transition` outputs.
+/// Valid types for function outputs. Aleo: `transition` outputs. Only the plaintext variant carries
+/// a visibility [`Mode`]; records, futures, and dynamic records have none.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum FunctionOutput {
-    Plaintext(Plaintext),
+    Plaintext {
+        ty: Plaintext,
+        mode: Mode,
+    },
     Record(RecordRef),
-    /// Aleo `future` - the handle for an on-chain finalization.
+    /// Aleo `future` - the handle for an on-chain finalization. Has no visibility.
     Final,
     DynamicRecord,
 }

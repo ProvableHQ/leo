@@ -14,14 +14,6 @@ build exit code: 0
 --- program ABI ---
 {
   "program": "bar.aleo",
-  "implements": [
-    {
-      "program": null,
-      "path": [
-        "Extended"
-      ]
-    }
-  ],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -29,37 +21,32 @@ build exit code: 0
   "functions": [
     {
       "name": "fetch_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "store_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": []
@@ -77,19 +64,17 @@ build exit code: 0
   "functions": [
     {
       "name": "fetch_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }
@@ -117,19 +102,16 @@ build exit code: 0
   "functions": [
     {
       "name": "store_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": []

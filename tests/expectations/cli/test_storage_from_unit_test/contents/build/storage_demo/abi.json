@@ -1,6 +1,5 @@
 {
   "program": "storage_demo.aleo",
-  "implements": [],
   "structs": [
     {
       "path": [
@@ -135,224 +134,163 @@
   "functions": [
     {
       "name": "set_flag",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "b",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Boolean"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_counter",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "bump_counter",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "clear_counter",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_tiny",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U8"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_signed",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "Int": "I64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_tag",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_marker",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "f",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Field"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_pivot",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "g",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Group"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_point",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "p",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "Point"
                 ],
                 "program": "storage_demo.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_quad",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Array": {
                 "element": {
                   "Primitive": {
@@ -361,123 +299,91 @@
                 },
                 "length": 4
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "push_history",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "pop_history",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "set_history",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "i",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "swap_remove_history",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "i",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "clear_history",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     }
   ]

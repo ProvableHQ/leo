@@ -1,6 +1,5 @@
 {
   "program": "some_sample_leo_program.aleo",
-  "implements": [],
   "structs": [],
   "records": [
     {
@@ -13,7 +12,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "None"
+          "mode": "Private"
         },
         {
           "name": "amount",
@@ -22,7 +21,7 @@
               "UInt": "U64"
             }
           },
-          "mode": "None"
+          "mode": "Private"
         }
       ]
     }
@@ -32,119 +31,97 @@
   "functions": [
     {
       "name": "main",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "Public"
+            },
+            "mode": "Public"
+          }
         },
         {
-          "name": "b",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "mint",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "owner",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "amount",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Record": {
-              "path": [
-                "Token"
-              ],
-              "program": "some_sample_leo_program.aleo"
-            }
-          },
-          "mode": "None"
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "some_sample_leo_program.aleo"
+          }
         }
       ]
     },
     {
       "name": "dynamic_transfer",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "target",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Field"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
+        "DynamicRecord",
         {
-          "name": "token",
-          "ty": "DynamicRecord",
-          "mode": "None"
-        },
-        {
-          "name": "to",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "DynamicRecord",
-          "mode": "None"
-        }
+        "DynamicRecord"
       ]
     }
   ]
