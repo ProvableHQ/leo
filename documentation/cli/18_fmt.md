@@ -69,3 +69,9 @@ Check if files are formatted without modifying them. Prints a diff and exits wit
 #### `[PATH]...`
 
 Files or directories to format. Defaults to the project `src/` directory if not specified.
+
+#### `--version`
+
+#### `-V`
+
+Print the `leo-fmt` plugin version. Works both standalone (`leo-fmt --version`) and through the CLI (`leo fmt --version`).
