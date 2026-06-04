@@ -90,6 +90,15 @@ pub(crate) fn invalid_network_name(name: impl Display) -> Backtraced {
         .with_help("Valid network names are `testnet`, `mainnet`, and `canary`.")
 }
 
+pub(crate) fn invalid_manifest_dependency(dep_name: impl Display, reason: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 75,
+        format!("invalid dependency `{dep_name}` in `program.json`: {reason}"),
+    )
+    .with_help("Use `edition` only for `network` dependencies, `path` only for `local` and `test`, and neither for `workspace`.")
+}
+
 pub(crate) fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 57, format!("cannot find path `{path}`: {err}"))
         .with_help("Verify the path exists and is accessible from the current working directory.")
