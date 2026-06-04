@@ -68,7 +68,7 @@ impl Command for LeoTest {
         // prelude+apply flow, because test needs to build and test each
         // member independently.
         match context.resolve_targets()? {
-            Some(targets) if targets.len() > 1 => {
+            Some((_, targets)) if targets.len() > 1 => {
                 let mut aggregate = TestOutput::default();
                 for target in &targets {
                     let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");

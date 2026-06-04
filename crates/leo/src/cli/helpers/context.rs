@@ -83,14 +83,18 @@ impl Context {
         Ok(manifest)
     }
 
-    /// Returns the ordered list of member directories to operate on, respecting
-    /// `--package` filtering and workspace discovery.
+    /// Returns the workspace root and the ordered list of member directories to
+    /// operate on, respecting `--package` filtering and workspace discovery.
     ///
     /// - At workspace root without `--package`: all members in dependency order.
     /// - At workspace root with `--package`: just that member.
     /// - Inside a member directory: just that member.
     /// - No workspace found: `None` (caller falls through to single-package behavior).
-    pub fn resolve_targets(&self) -> Result<Option<Vec<PathBuf>>> {
+    ///
+    /// When `Some`, the first tuple element is the canonicalized workspace root,
+    /// so callers needing it (e.g. `leo clean` removing the shared `build/`) do
+    /// not have to re-walk for it.
+    pub fn resolve_targets(&self) -> Result<Option<(PathBuf, Vec<PathBuf>)>> {
         let dir = self.dir()?;
 
         let workspace = match Workspace::discover(&dir)? {
@@ -103,21 +107,21 @@ impl Context {
             }
         };
 
+        let root = workspace.root_directory.clone();
+
         if let Some(ref filter) = self.package_filter {
             match workspace.find_member(filter) {
-                Some(path) => Ok(Some(vec![path.clone()])),
-                None => {
-                    Err(crate::errors::workspace_package_not_found(filter, workspace.root_directory.display()).into())
-                }
+                Some(path) => Ok(Some((root, vec![path.clone()]))),
+                None => Err(crate::errors::workspace_package_not_found(filter, root.display()).into()),
             }
         } else {
             let canonical = dir.canonicalize().unwrap_or_else(|_| dir.clone());
             if canonical == workspace.root_directory {
                 // At workspace root - operate on all members.
-                Ok(Some(workspace.member_paths))
+                Ok(Some((root, workspace.member_paths)))
             } else if workspace.is_member(&canonical) {
                 // Inside a member - operate on just this member.
-                Ok(Some(vec![canonical]))
+                Ok(Some((root, vec![canonical])))
             } else {
                 // Inside the workspace tree but not in a member directory.
                 Ok(None)
