@@ -102,6 +102,18 @@ impl Workspace {
         // Build a dependency graph to determine the correct build order.
         let ordered = order_members(&dir_to_name)?;
 
+        // Reject members that share a bare program name: they would otherwise
+        // race on the shared `<workspace_root>/build/<name>/` artifacts.
+        let mut by_bare_name: std::collections::HashMap<&str, &PathBuf> = std::collections::HashMap::new();
+        for (path, program) in &ordered {
+            let bare = crate::bare_unit_name(program);
+            if let Some(existing) = by_bare_name.insert(bare, path) {
+                return Err(
+                    errors::workspace_duplicate_program_name(program, existing.display(), path.display()).into()
+                );
+            }
+        }
+
         let member_paths = ordered.iter().map(|(p, _)| p.clone()).collect();
         let member_names = ordered.into_iter().map(|(_, n)| n).collect();
 
@@ -113,9 +125,31 @@ impl Workspace {
     ///
     /// Returns `Ok(None)` if no workspace root is found.
     pub fn discover(start_dir: &Path) -> Result<Option<Self>> {
-        match discover_root(start_dir)? {
+        match Self::discover_root(start_dir)? {
             Some(root) => Self::from_directory(&root),
             None => Ok(None),
+        }
+    }
+
+    /// Walk up from `start_dir` to find the directory containing
+    /// `workspace.json`, returning its canonicalized path. Returns `Ok(None)`
+    /// if none is found.
+    ///
+    /// Unlike [`Workspace::discover`], this does not resolve or validate
+    /// members - it only checks for the manifest's presence. Use this when
+    /// you only need the root path (e.g. routing build artifacts) and want
+    /// to avoid the cost of reading every member's manifest.
+    pub fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
+        let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
+        let mut dir = start.as_path();
+        loop {
+            if dir.join(WORKSPACE_MANIFEST_FILENAME).exists() {
+                return Ok(Some(dir.to_path_buf()));
+            }
+            match dir.parent() {
+                Some(parent) => dir = parent,
+                None => return Ok(None),
+            }
         }
     }
 
@@ -160,7 +194,7 @@ impl Workspace {
         // Only the workspace root is needed here, so locate it without resolving
         // members; that keeps `leo new` from failing when an unrelated existing
         // member is broken.
-        let Some(root_directory) = discover_root(parent)? else {
+        let Some(root_directory) = Self::discover_root(parent)? else {
             return Ok(false);
         };
 
@@ -197,7 +231,8 @@ impl Workspace {
 
     /// Create a fresh workspace skeleton named `name` inside `parent`.
     ///
-    /// Writes a `workspace.json` with an empty `members` array. The caller is
+    /// Writes a `workspace.json` with an empty `members` array and a
+    /// `.gitignore` listing the shared `build/` directory. The caller is
     /// responsible for ensuring `parent` exists.
     ///
     /// Returns the absolute path of the new workspace directory.
@@ -218,25 +253,13 @@ impl Workspace {
         let manifest = WorkspaceManifest { members: Vec::new() };
         manifest.write_to_file(full_path.join(WORKSPACE_MANIFEST_FILENAME))?;
 
-        Ok(full_path)
-    }
-}
+        // The workspace root owns the shared `build/` so its `.gitignore` is
+        // the natural place to ignore it. Member-level concerns (`.env`,
+        // `*.avm`, ...) stay in each member's own `.gitignore`.
+        std::fs::write(full_path.join(".gitignore"), "build/\n")
+            .map_err(|e| errors::failed_to_initialize_package(name, &full_path, e))?;
 
-/// Walk up from `start_dir` to find the directory containing `workspace.json`.
-///
-/// Returns the canonicalized workspace root, or `Ok(None)` if none is found.
-/// Unlike [`Workspace::discover`], this does not resolve or validate members.
-fn discover_root(start_dir: &Path) -> Result<Option<PathBuf>> {
-    let start = start_dir.canonicalize().map_err(|e| errors::workspace_manifest_error(start_dir.display(), e))?;
-    let mut dir = start.as_path();
-    loop {
-        if dir.join(WORKSPACE_MANIFEST_FILENAME).exists() {
-            return Ok(Some(dir.to_path_buf()));
-        }
-        match dir.parent() {
-            Some(parent) => dir = parent,
-            None => return Ok(None),
-        }
+        Ok(full_path)
     }
 }
 
@@ -900,6 +923,69 @@ mod tests {
         // Names containing "aleo" are rejected.
         let result = Workspace::initialize_skeleton("my_aleo_ws", &dir);
         assert!(result.is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn initialize_skeleton_writes_gitignore() {
+        let dir = temp_dir().join("ws_test_init_skeleton_gitignore");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        let full_path = Workspace::initialize_skeleton("my_workspace", &dir).unwrap();
+        let gitignore = full_path.join(".gitignore");
+        assert!(gitignore.exists(), ".gitignore should be created at the workspace root");
+        assert_eq!(std::fs::read_to_string(&gitignore).unwrap(), "build/\n");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn workspace_rejects_duplicate_program_names() {
+        let dir = temp_dir().join("ws_test_dup_program_names");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        // Two members in distinct directories whose `program.json` declares
+        // the same `program: "token.aleo"`. The shared `<root>/build/token/`
+        // would otherwise race - reject at workspace load time.
+        create_member(&dir, "token", &[]);
+        let other = dir.join("token-v2");
+        std::fs::create_dir_all(other.join("src")).unwrap();
+        let manifest = Manifest {
+            program: "token.aleo".to_string(),
+            version: "0.1.0".to_string(),
+            description: String::new(),
+            license: "MIT".to_string(),
+            leo: "0.0.0".to_string(),
+            dependencies: None,
+            dev_dependencies: None,
+        };
+        manifest.write_to_file(other.join(MANIFEST_FILENAME)).unwrap();
+        std::fs::write(other.join("src/main.leo"), "program token.aleo {\n    @noupgrade\n    constructor() {}\n}\n")
+            .unwrap();
+        create_workspace(&dir, &["token", "token-v2"]);
+
+        let err = Workspace::from_directory(&dir).unwrap_err().to_string();
+        assert!(err.contains("token.aleo"), "expected error to name the duplicated program: {err}");
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn discover_root_returns_workspace_dir_without_resolving_members() {
+        // Verifies the cheap parent-walk: even when a *listed* member is
+        // broken (here, missing entirely), `discover_root` still finds the
+        // workspace root. The full `discover` would error.
+        let dir = temp_dir().join("ws_test_discover_root_cheap");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        create_workspace(&dir, &["does_not_exist"]);
+
+        let canonical = dir.canonicalize().unwrap();
+        assert_eq!(Workspace::discover_root(&dir).unwrap(), Some(canonical));
+        assert!(Workspace::discover(&dir).is_err());
 
         std::fs::remove_dir_all(&dir).unwrap();
     }

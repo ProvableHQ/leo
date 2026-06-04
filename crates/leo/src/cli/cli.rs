@@ -701,8 +701,8 @@ mod tests {
             run_with_args(build).expect("workspace build should succeed");
         });
 
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -736,8 +736,8 @@ mod tests {
             run_with_args(build).expect("single member build should succeed");
         });
 
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(!ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should NOT be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("build/swap/swap.aleo").exists(), "swap should NOT be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -771,8 +771,8 @@ mod tests {
             run_with_args(build).expect("--package build should succeed");
         });
 
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(!ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should NOT be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("build/swap/swap.aleo").exists(), "swap should NOT be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -837,8 +837,8 @@ mod tests {
             run_with_args(build).expect("build should succeed");
         });
 
-        assert!(ws_root.join("token/build").exists(), "token build dir should exist");
-        assert!(ws_root.join("swap/build").exists(), "swap build dir should exist");
+        assert!(ws_root.join("build/token").exists(), "token build dir should exist under shared build/");
+        assert!(ws_root.join("build/swap").exists(), "swap build dir should exist under shared build/");
 
         // Clean.
         let clean = CLI {
@@ -856,8 +856,7 @@ mod tests {
             run_with_args(clean).expect("workspace clean should succeed");
         });
 
-        assert!(!ws_root.join("token/build").exists(), "token build dir should be cleaned");
-        assert!(!ws_root.join("swap/build").exists(), "swap build dir should be cleaned");
+        assert!(!ws_root.join("build").exists(), "shared workspace build dir should be cleaned");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -891,8 +890,8 @@ mod tests {
             run_with_args(build).expect("workspace build with workspace deps should succeed");
         });
 
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -927,7 +926,7 @@ mod tests {
             run_with_args(build).expect("single member build with workspace dep should succeed");
         });
 
-        assert!(ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should be built");
+        assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -962,7 +961,7 @@ mod tests {
             run_with_args(build).expect("build with workspace dev dep should succeed");
         });
 
-        assert!(ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should be built");
+        assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -1010,8 +1009,8 @@ mod tests {
         });
 
         // Verify both members were built.
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -1057,8 +1056,8 @@ mod tests {
 
         // --package=token targets a single member, so resolve_targets returns 1 target.
         // This falls through to the single-package deploy path, building only token.
-        assert!(ws_root.join("token/build/token/token.aleo").exists(), "token should be built");
-        assert!(!ws_root.join("swap/build/swap/swap.aleo").exists(), "swap should NOT be built");
+        assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
+        assert!(!ws_root.join("build/swap/swap.aleo").exists(), "swap should NOT be built");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }
@@ -1151,9 +1150,9 @@ mod tests {
         });
 
         // The app program should be built.
-        assert!(ws_root.join("app/build/app/app.aleo").exists(), "app should be built");
+        assert!(ws_root.join("build/app/app.aleo").exists(), "app should be built");
         // utils is a library - no bytecode output.
-        assert!(!ws_root.join("utils/build/utils/utils.aleo").exists(), "utils library should not produce bytecode");
+        assert!(!ws_root.join("build/utils/utils.aleo").exists(), "utils library should not produce bytecode");
 
         let _ = std::fs::remove_dir_all(&ws_root);
     }

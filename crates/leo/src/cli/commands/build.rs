@@ -89,7 +89,7 @@ impl Command for LeoBuild {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         match context.resolve_targets()? {
-            Some(targets) => {
+            Some((_, targets)) => {
                 let mut last_package = None;
                 for target in &targets {
                     let member_name = target.file_name().and_then(|n| n.to_str()).unwrap_or("?");

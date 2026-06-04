@@ -36,6 +36,12 @@
 //! `build/<name>/` directory with the same shape. When compiler-debug AST
 //! snapshots are requested they appear under `build/<name>/snapshots/`.
 //!
+//! For packages that live inside a workspace (a directory whose `workspace.json`
+//! is an ancestor), `build/` moves to the workspace root rather than the
+//! package's own directory. Every member's per-unit subdirectory is then keyed
+//! by unit name under `<workspace_root>/build/<name>/`, so a unit built once
+//! is reused across members instead of being rebuilt per member.
+//!
 //! The file `program.json` is a manifest containing the program name, version, description,
 //! and license, together with information about its dependencies.
 //!

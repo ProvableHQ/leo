@@ -158,7 +158,7 @@ impl Command for LeoDeploy {
     fn execute(self, context: Context) -> Result<Self::Output> {
         // Intercept workspace mode before the default prelude+apply flow.
         match context.resolve_targets()? {
-            Some(targets) if targets.len() > 1 => handle_workspace_deploy(self, context, targets),
+            Some((_, targets)) if targets.len() > 1 => handle_workspace_deploy(self, context, targets),
             _ => {
                 // Single target or no workspace: use the standard flow.
                 let input = self.prelude(context.clone())?;
