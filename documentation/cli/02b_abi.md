@@ -52,7 +52,7 @@ The output is the same JSON shape that `leo build` produces in `build/abi.json`.
 
 ## Checking compatibility with an ABI
 
-Pass `--satisfies <FILE>` to check whether the input program's public interface is a superset of an interface standard, instead of printing its ABI. The standard is a `.abi.json` file:
+Pass `--satisfies <FILE>` to check whether the input program's public interface is a superset of an interface standard, instead of printing its ABI. The standard is a JSON file containing an ABI (such as one produced by `leo abi` or `leo build`):
 
 ```bash
 leo abi token.aleo --satisfies token_standard.abi.json
@@ -91,6 +91,6 @@ Pass `--output <FILE>` together with `--satisfies` to write the report as JSON (
     `imports/` directory next to the input file if one exists. Network builtins
     (e.g. `credits.aleo`) do not need to be present here.
 --satisfies <FILE>
-    Check whether the input program satisfies an interface standard (a `.abi.json`
-    file), instead of printing its ABI. Exits non-zero when it does not.
+    Check whether the input program satisfies an interface standard (a JSON file
+    containing an ABI), instead of printing its ABI. Exits non-zero when it does not.
 ```
