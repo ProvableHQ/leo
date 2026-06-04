@@ -56,7 +56,7 @@ Error [ECLI0377001]: invalid CLI input: File not found: does_not_exist.abi.json
 exit: 169
 
 === error: --satisfies given a .aleo file (only .abi.json is accepted) ===
-Error [ECLI0377001]: invalid CLI input: Expected a .abi.json file for `--satisfies`, got: standard.aleo
+Error [ECLI0377001]: invalid CLI input: Expected a JSON file containing an ABI for `--satisfies`, got: standard.aleo
      |
      = Run `leo <command> --help` to review the expected arguments.
 exit: 169

@@ -57,9 +57,9 @@ pub struct LeoAbi {
     imports_dir: Option<PathBuf>,
 
     /// Check whether the input program satisfies an interface standard, instead of printing its
-    /// ABI. The standard is a `.abi.json` file. The input satisfies the standard when the
-    /// standard's public interface is a subset of the input's. Exits non-zero when it does not.
-    /// With `--output`, the report is written there as JSON.
+    /// ABI. The standard is a JSON file containing an ABI. The input satisfies the standard when
+    /// the standard's public interface is a subset of the input's. Exits non-zero when it does
+    /// not. With `--output`, the report is written there as JSON.
     #[clap(long, value_name = "FILE")]
     satisfies: Option<PathBuf>,
 }
@@ -138,8 +138,8 @@ impl Command for LeoAbi {
     }
 }
 
-/// Loads the ABI of an interface standard for the satisfies check from a `.abi.json` file, parsed
-/// directly as a serialized [`leo_abi::Program`].
+/// Loads the ABI of an interface standard for the satisfies check from a JSON file (any `.json`
+/// file), parsed directly as a serialized [`leo_abi::Program`].
 fn load_standard_abi(path: &Path) -> Result<leo_abi::Program> {
     if !path.exists() {
         return Err(crate::errors::cli_invalid_input(format!("File not found: {}", path.display())).into());
@@ -152,7 +152,7 @@ fn load_standard_abi(path: &Path) -> Result<leo_abi::Program> {
             })
         }
         _ => Err(crate::errors::cli_invalid_input(format!(
-            "Expected a .abi.json file for `--satisfies`, got: {}",
+            "Expected a JSON file containing an ABI for `--satisfies`, got: {}",
             path.display()
         ))
         .into()),
@@ -642,13 +642,13 @@ function id_a:
 
     #[test]
     fn load_standard_abi_rejects_aleo() {
-        // The standard must be a `.abi.json` file; a `.aleo` bytecode file is rejected.
+        // The standard must be a JSON file; a `.aleo` bytecode file is rejected.
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("token.aleo");
         std::fs::write(&path, "irrelevant").unwrap();
 
         let err = load_standard_abi(&path).expect_err("expected a .aleo standard to be rejected");
-        assert!(err.to_string().contains(".abi.json"), "unexpected error: {err}");
+        assert!(err.to_string().contains("JSON file containing an ABI"), "unexpected error: {err}");
     }
 
     #[test]
