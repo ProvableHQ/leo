@@ -14,7 +14,7 @@
  1 │ ╭─▶ @@
  2 │ ├─▶ fn f() {}
    │ │               
-   │ ╰─────────────── 
+   │ ╰─────────────── here
    │     
    │     Help: Add a program scope of the form `program <name>.aleo { ... }` to the Leo file.
 ───╯

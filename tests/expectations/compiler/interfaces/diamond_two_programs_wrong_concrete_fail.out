@@ -9,7 +9,7 @@ fn transfer(t: lib1.aleo::Token) -> lib1.aleo::Token
     ┆ ┆   
  13 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -24,7 +24,7 @@ fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token
     ┆ ┆   
  17 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -35,7 +35,7 @@ fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -46,7 +46,7 @@ fn stake(t: lib1.aleo::Token) -> lib1.aleo::Token
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
@@ -76,7 +76,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -87,7 +87,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -98,7 +98,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
@@ -109,7 +109,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯

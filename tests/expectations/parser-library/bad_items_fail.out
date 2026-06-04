@@ -34,7 +34,7 @@
  1 │ ╭─▶ @noupgrade
  2 │ ├─▶ constructor() {}
    │ │                     
-   │ ╰───────────────────── 
+   │ ╰───────────────────── here
 ───╯
 [EPAR0370047] Error: expected `import`, `program`, or module item at top level
    ╭─[ test_8:1:1 ]

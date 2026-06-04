@@ -9,7 +9,7 @@ fn split(t: test.aleo::Token) -> (test.aleo::Token, u64)
     ┆ ┆   
  21 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -20,7 +20,7 @@ fn split(t: test.aleo::Token) -> (test.aleo::Token, u64)
    ┆ ┆   
  9 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯

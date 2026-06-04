@@ -9,7 +9,7 @@ fn transfer(amount: u64) -> u64
     ┆ ┆   
  13 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯

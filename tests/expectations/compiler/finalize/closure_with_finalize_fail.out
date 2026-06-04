@@ -26,7 +26,7 @@
     ┆ ┆   
  15 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯

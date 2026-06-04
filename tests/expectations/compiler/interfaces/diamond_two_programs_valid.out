@@ -5,7 +5,7 @@
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -16,7 +16,7 @@
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
@@ -72,7 +72,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -83,7 +83,7 @@ Note: Treating dependencies as Aleo produces different results:
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
@@ -94,7 +94,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
@@ -105,7 +105,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  7 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯

@@ -4,7 +4,7 @@
   9 │ ╭─▶ interface Combined: Counter1 + Counter2 {
  10 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
@@ -14,7 +14,7 @@
   9 │ ╭─▶ interface Combined: Counter1 + Counter2 {
  10 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯

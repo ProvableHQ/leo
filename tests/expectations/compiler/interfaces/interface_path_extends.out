@@ -23,7 +23,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  6 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
@@ -34,7 +34,7 @@ Note: Treating dependencies as Aleo produces different results:
    ┆ ┆   
  6 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯

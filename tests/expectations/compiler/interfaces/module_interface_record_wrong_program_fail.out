@@ -9,7 +9,7 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
     ┆ ┆   
  11 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -20,7 +20,7 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
@@ -31,7 +31,7 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Simplify the declaration to `record Token;`.
 ───╯

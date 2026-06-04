@@ -9,7 +9,7 @@ fn mint(owner: address) -> test.aleo::Coin
    ┆ ┆   
  9 │ ├─▶     }
    │ │           
-   │ ╰─────────── 
+   │ ╰─────────── here
    │     
    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ───╯
@@ -20,7 +20,7 @@ fn mint(owner: address) -> test.aleo::Coin
     ┆ ┆   
  10 │ ├─▶ }
     │ │      
-    │ ╰────── 
+    │ ╰────── here
     │     
     │     Help: Add a `record Token` definition matching the shape declared by `token_lib/itoken::TokenInterface`.
 ────╯

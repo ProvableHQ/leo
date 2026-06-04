@@ -4,7 +4,7 @@
  3 │ ╭─▶ struct Bar {
  4 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Add at least one field to the struct, or remove the declaration if it is unused.
 ───╯
@@ -15,7 +15,7 @@
    ┆ ┆   
  8 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Add a field of non-zero size, or remove the struct if it is unused.
 ───╯

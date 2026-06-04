@@ -9,7 +9,7 @@ fn process(v: u64) -> u32
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
@@ -20,7 +20,7 @@ fn process(v: u64) -> u32
     ┆ ┆   
  18 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add the missing function `fetch` with the exact signature specified in `top_lib/Top`.
 ────╯
@@ -31,7 +31,7 @@ fn process(v: u64) -> u32
     ┆ ┆   
  18 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add the missing function `reset` with the exact signature specified in `top_lib/Top`.
 ────╯
