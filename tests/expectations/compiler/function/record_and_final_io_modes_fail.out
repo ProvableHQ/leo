@@ -1,0 +1,133 @@
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:19:22 ]
+    │
+ 19 │     fn rec_in_public(public t: Token) -> u64 { return t.amount; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:20:23 ]
+    │
+ 20 │     fn rec_in_private(private t: Token) -> u64 { return t.amount; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372039] Error: entry point functions cannot have constant inputs
+    ╭─[ compiler-test:21:24 ]
+    │
+ 21 │     fn rec_in_constant(constant t: Token) -> u64 { return t.amount; }
+    │ 
+    │ Help: Remove the `constant` modifier from the input, or make this function a regular `fn` instead of an entry point.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:21:24 ]
+    │
+ 21 │     fn rec_in_constant(constant t: Token) -> u64 { return t.amount; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:24:55 ]
+    │
+ 24 │     fn rec_out_public(owner: address, amount: u64) -> public Token { return Token { owner, amount }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:25:56 ]
+    │
+ 25 │     fn rec_out_private(owner: address, amount: u64) -> private Token { return Token { owner, amount }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:26:57 ]
+    │
+ 26 │     fn rec_out_constant(owner: address, amount: u64) -> constant Token { return Token { owner, amount }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:29:15 ]
+    │
+ 29 │     fn dyn_in(public t: dyn record) -> u8 { return 1u8; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a record cannot have a visibility mode
+    ╭─[ compiler-test:30:34 ]
+    │
+ 30 │     fn dyn_out(t: dyn record) -> public dyn record { return t; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a `Final` cannot have a visibility mode
+    ╭─[ compiler-test:33:15 ]
+    │
+ 33 │     fn fut_in(public f: Final) -> u8 { return 1u8; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372116] Error: `Final`s may only appear as parameters to a `final fn`
+    ╭─[ compiler-test:33:15 ]
+    │
+ 33 │     fn fut_in(public f: Final) -> u8 { return 1u8; }
+    │ 
+    │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
+────╯
+[ETYC0372192] Error: a `Final` cannot have a visibility mode
+    ╭─[ compiler-test:36:28 ]
+    │
+ 36 │     fn fut_out_public() -> public Final { return final { fin(1u32, 1u32); }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a `Final` cannot have a visibility mode
+    ╭─[ compiler-test:37:29 ]
+    │
+ 37 │     fn fut_out_private() -> private Final { return final { fin(1u32, 1u32); }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372192] Error: a `Final` cannot have a visibility mode
+    ╭─[ compiler-test:38:30 ]
+    │
+ 38 │     fn fut_out_constant() -> constant Final { return final { fin(1u32, 1u32); }; }
+    │ 
+    │ Help: Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility. Remove the `public` or `private` modifier.
+────╯
+[ETYC0372028] Error: `view fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:42:15 ]
+    │
+ 42 │     view fn v(public x: u32) -> private u32 { return x; }
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372032] Error: `view fn` outputs cannot have visibility modes
+    ╭─[ compiler-test:42:33 ]
+    │
+ 42 │     view fn v(public x: u32) -> private u32 { return x; }
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372057] Error: only entry point fns can have a record as input or output
+    ╭─[ compiler-test:50:11 ]
+    │
+ 50 │ fn helper(public t: Token) -> u8 { return 1u8; }
+    │ 
+    │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
+────╯
+[ETYC0372028] Error: regular `fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:50:11 ]
+    │
+ 50 │ fn helper(public t: Token) -> u8 { return 1u8; }
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372028] Error: `final fn` inputs cannot have visibility modes
+    ╭─[ compiler-test:59:20 ]
+    │
+ 59 │ final fn fin_moded(public f: Final) {}
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯

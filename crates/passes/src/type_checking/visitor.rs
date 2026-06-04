@@ -2311,6 +2311,22 @@ impl TypeCheckingVisitor<'_> {
                 _ => {} // Do nothing.
             }
 
+            // Records and `Final`s lower to `.record`/`.future` markers, neither of which carries a
+            // visibility, so an explicit mode on such an input is meaningless. (Non-entry variants
+            // already reject all input modes above, so this only adds the record/`Final` cases.)
+            if function.variant.is_entry() && input.mode() != Mode::None {
+                let kind = if self.type_is_record(table_type) {
+                    Some("record")
+                } else if matches!(table_type, Type::Future(_)) {
+                    Some("`Final`")
+                } else {
+                    None
+                };
+                if let Some(kind) = kind {
+                    self.emit_err(crate::errors::type_checker::record_or_final_cannot_have_mode(kind, input.span()));
+                }
+            }
+
             if matches!(table_type, Type::Future(..)) {
                 // Future parameters may only appear in onchain functions.
                 // TODO: we may want to relax this
@@ -2376,8 +2392,25 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the mode of the output is valid.
-            // For functions, only public and private outputs are allowed
-            if function_output.mode == Mode::Constant {
+            // Records and `Final`s lower to `.record`/`.future` markers, neither of which carries a
+            // visibility, so an explicit mode on such an output is meaningless. These types are only
+            // valid as outputs on entry points (other variants already error above).
+            let record_or_final_output = if self.type_is_record(&function_output.type_) {
+                Some("record")
+            } else if matches!(function_output.type_, Type::Future(_)) {
+                Some("`Final`")
+            } else {
+                None
+            };
+            if let Some(kind) = record_or_final_output {
+                if function.variant.is_entry() && function_output.mode != Mode::None {
+                    self.emit_err(crate::errors::type_checker::record_or_final_cannot_have_mode(
+                        kind,
+                        function_output.span,
+                    ));
+                }
+            } else if function_output.mode == Mode::Constant {
+                // For other types, only public and private outputs are allowed.
                 self.emit_err(crate::errors::type_checker::cannot_have_constant_output_mode(function_output.span));
             }
             // View outputs lower to `.public` from the variant alone, same as their inputs.
@@ -2426,6 +2459,17 @@ impl TypeCheckingVisitor<'_> {
             }
         } else if !lhs.eq_user(rhs) {
             *lhs = Type::Err;
+        }
+    }
+
+    /// Returns `true` if `type_` resolves to a record, including dynamic interface records.
+    pub fn type_is_record(&mut self, type_: &Type) -> bool {
+        match type_ {
+            Type::DynRecord => true,
+            Type::Composite(composite) => {
+                self.lookup_composite(composite.path.expect_global_location()).is_some_and(|comp| comp.is_record)
+            }
+            _ => false,
         }
     }
 

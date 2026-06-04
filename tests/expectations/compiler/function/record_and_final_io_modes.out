@@ -1,0 +1,33 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+struct Pair:
+    a as u32;
+    b as u32;
+
+mapping Yo:
+    key as u32.public;
+    value as u32.public;
+
+function rec_io:
+    input r0 as Token.record;
+    cast r0.owner r0.amount into r1 as Token.record;
+    output r1 as Token.record;
+
+function struct_io:
+    input r0 as Pair.public;
+    output r0 as Pair.public;
+
+function dyn_io:
+    input r0 as dynamic.record;
+    output r0 as dynamic.record;
+
+function fut_io:
+    async fut_io into r0;
+    output r0 as test.aleo/fut_io.future;
+
+finalize fut_io:
+    set 1u32 into Yo[1u32];
