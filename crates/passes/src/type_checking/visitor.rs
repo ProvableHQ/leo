@@ -2323,7 +2323,7 @@ impl TypeCheckingVisitor<'_> {
                     None
                 };
                 if let Some(kind) = kind {
-                    self.emit_err(crate::errors::type_checker::record_or_final_cannot_have_mode(kind, input.span()));
+                    self.emit_err(crate::errors::type_checker::cannot_have_mode(kind, input.span()));
                 }
             }
 
@@ -2404,10 +2404,7 @@ impl TypeCheckingVisitor<'_> {
             };
             if let Some(kind) = record_or_final_output {
                 if function.variant.is_entry() && function_output.mode != Mode::None {
-                    self.emit_err(crate::errors::type_checker::record_or_final_cannot_have_mode(
-                        kind,
-                        function_output.span,
-                    ));
+                    self.emit_err(crate::errors::type_checker::cannot_have_mode(kind, function_output.span));
                 }
             } else if function_output.mode == Mode::Constant {
                 // For other types, only public and private outputs are allowed.
