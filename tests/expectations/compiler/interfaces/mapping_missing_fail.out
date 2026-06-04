@@ -5,7 +5,7 @@
    ┆ ┆   
  7 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Add a `mapping counter` definition with the key/value types declared by `test.aleo/CounterInterface`.
 ───╯

@@ -5,7 +5,7 @@
     ┆ ┆   
  17 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add the missing function `subtract` with the exact signature specified in `test.aleo/Calculator`.
 ────╯

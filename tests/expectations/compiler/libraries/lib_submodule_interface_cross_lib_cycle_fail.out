@@ -5,7 +5,7 @@
    ┆ ┆   
  3 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
@@ -16,7 +16,7 @@
    ┆ ┆   
  3 │ ├─▶ }
    │ │       
-   │ ╰─────── 
+   │ ╰─────── here
    │     
    │     Help: Make sure the interface is defined in the current program or an imported program.
 ───╯

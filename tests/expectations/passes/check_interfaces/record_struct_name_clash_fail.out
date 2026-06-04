@@ -5,7 +5,7 @@
     ┆ ┆   
  23 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add a `record Token` definition matching the shape declared by `test.aleo/IToken`.
 ────╯
@@ -16,7 +16,7 @@
     ┆ ┆   
  10 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Simplify the declaration to `record Token;`.
 ────╯

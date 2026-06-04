@@ -5,7 +5,7 @@
     ┆ ┆   
  17 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add a `record Token` definition matching the shape declared by `test.aleo/TokenStandard`.
 ────╯

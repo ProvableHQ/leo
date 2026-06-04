@@ -9,7 +9,7 @@ fn process(value: u64, multiplier: u32) -> u64
     ┆ ┆   
  11 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯

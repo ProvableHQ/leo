@@ -9,7 +9,7 @@ fn hash(input: [u8; 16]) -> [u8; 32]
     ┆ ┆   
  13 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯

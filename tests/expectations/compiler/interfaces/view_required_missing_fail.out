@@ -5,7 +5,7 @@
     ┆ ┆   
  16 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │     
     │     Help: Add the missing function `balance_of` with the exact signature specified in `scratch.aleo/IToken`.
 ────╯

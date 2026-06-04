@@ -4,7 +4,7 @@
  17 │ ╭─▶ interface Combined: TokenA + TokenB {
  18 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │
     ├─[ compiler-test:17:1 ]
     │
@@ -29,7 +29,7 @@
  17 │ ╭─▶ interface Combined: TokenA + TokenB {
  18 │ ├─▶ }
     │ │       
-    │ ╰─────── 
+    │ ╰─────── here
     │
     ├─[ compiler-test:17:1 ]
     │

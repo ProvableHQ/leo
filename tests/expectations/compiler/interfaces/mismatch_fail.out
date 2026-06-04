@@ -9,7 +9,7 @@ fn foo() -> u32
     ┆ ┆   
  10 │ ├─▶     }
     │ │           
-    │ ╰─────────── 
+    │ ╰─────────── here
     │     
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
