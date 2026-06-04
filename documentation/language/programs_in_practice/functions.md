@@ -20,6 +20,8 @@ Inputs are declared as `{visibility} {name}: {type}`. They must be declared just
 ```leo file=../../code_snippets/functions/entry_input/src/main.leo#snippet showLineNumbers
 ```
 
+A visibility modifier may not be applied to a record or `Final` parameter. Records are passed by their `.record` marker and `Final`s carry no visibility, so a `public` or `private` mode on them is meaningless and is rejected.
+
 ### Outputs
 
 The return type of the function is declared as `-> {expression}` and must be declared just after the function inputs.
@@ -27,6 +29,8 @@ A function output is calculated as `return {expression};`. Returning an output e
 
 ```leo file=../../code_snippets/functions/entry_output/src/main.leo#snippet showLineNumbers
 ```
+
+As with inputs, a record or `Final` output cannot carry a visibility modifier.
 
 ## On-chain State with `final { }`
 

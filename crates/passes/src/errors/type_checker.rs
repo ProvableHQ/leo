@@ -1078,6 +1078,14 @@ pub(crate) fn storage_op_requires_path_receiver(
     .with_help(format!("Call `{operation}` directly on a declared {kind}, not on a temporary expression."))
 }
 
+pub(crate) fn cannot_have_mode(kind: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 192, format!("a {kind} cannot have a visibility mode"), span)
+        .with_help("Remove the `public` or `private` modifier.")
+        .with_note(
+            "Records lower to a `.record` marker and `Final`s to a `.future`, neither of which carries a visibility.",
+        )
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {
