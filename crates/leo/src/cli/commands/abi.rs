@@ -42,10 +42,11 @@ pub struct LeoAbi {
     #[clap(long, short, default_value = "testnet")]
     network: NetworkName,
 
-    /// Output directory. Writes `<DIR>/<program>.abi.json` for the input and for each declared dependency. Created if
-    /// missing; existing files are overwritten. When omitted, every ABI is printed to stdout, separated by
-    /// `=== <name> ===` headers.
-    #[clap(long, short, value_name = "DIR")]
+    /// Without `--satisfies`, the output directory: writes `<PATH>/<program>.abi.json` for the input and for each
+    /// declared dependency (created if missing; existing files overwritten); when omitted, every ABI is printed to
+    /// stdout, separated by `=== <name> ===` headers. With `--satisfies`, the file path to write the JSON
+    /// compatibility report to instead of printing a human-readable one.
+    #[clap(long, short, value_name = "PATH")]
     output: Option<PathBuf>,
 
     /// Directory containing the program's `.aleo` imports. Two layouts are supported:
@@ -54,6 +55,13 @@ pub struct LeoAbi {
     /// otherwise a sibling `imports/` directory next to the input.
     #[clap(long, value_name = "DIR")]
     imports_dir: Option<PathBuf>,
+
+    /// Check whether the input program satisfies an interface standard, instead of printing its
+    /// ABI. The standard is a JSON file containing an ABI. The input satisfies the standard when
+    /// the standard's public interface is a subset of the input's. Exits non-zero when it does
+    /// not. With `--output`, the report is written there as JSON.
+    #[clap(long, value_name = "FILE")]
+    satisfies: Option<PathBuf>,
 }
 
 impl Command for LeoAbi {
@@ -100,8 +108,8 @@ impl Command for LeoAbi {
 
         // `Process::add_program` is contextual, so dependencies must be loaded in topological order before the main
         // program.
-        let (main_aleo, dep_aleos) = match imports_dir {
-            Some(dir) => disassemble_with_imports(file_name, &content, self.network, &dir)?,
+        let (main_aleo, dep_aleos) = match &imports_dir {
+            Some(dir) => disassemble_with_imports(file_name, &content, self.network, dir)?,
             None => (
                 leo_disassembler::disassemble_from_str_for_network(file_name, &content, self.network)
                     .map_err(|e| crate::errors::failed_to_parse_aleo_file(file_name, e))?,
@@ -110,6 +118,14 @@ impl Command for LeoAbi {
         };
 
         let main_abi = leo_abi::aleo::generate(&main_aleo);
+
+        // Satisfies mode: check the input's interface against a JSON ABI standard rather than printing its ABI.
+        if let Some(standard) = &self.satisfies {
+            let standard_abi = load_standard_abi(standard)?;
+            let problems = leo_abi::compatibility::check_compatibility(&main_abi, &standard_abi);
+            return report_compatibility(&problems, &main_abi.program, &standard_abi.program, self.output.as_deref());
+        }
+
         let dep_abis: IndexMap<String, _> =
             dep_aleos.into_iter().map(|(name, aleo)| (name, leo_abi::aleo::generate(&aleo))).collect();
 
@@ -119,6 +135,53 @@ impl Command for LeoAbi {
         }
 
         Ok(())
+    }
+}
+
+/// Loads the ABI of an interface standard for the satisfies check from a JSON file (any `.json`
+/// file), parsed directly as a serialized [`leo_abi::Program`].
+fn load_standard_abi(path: &Path) -> Result<leo_abi::Program> {
+    if !path.exists() {
+        return Err(crate::errors::cli_invalid_input(format!("File not found: {}", path.display())).into());
+    }
+    match path.extension().and_then(|s| s.to_str()) {
+        Some("json") => {
+            let text = std::fs::read_to_string(path).map_err(crate::errors::cli_io_error)?;
+            serde_json::from_str(&text).map_err(|e| {
+                crate::errors::cli_invalid_input(format!("could not parse ABI JSON `{}`: {e}", path.display())).into()
+            })
+        }
+        _ => Err(crate::errors::cli_invalid_input(format!(
+            "Expected a JSON file containing an ABI for `--satisfies`, got: {}",
+            path.display()
+        ))
+        .into()),
+    }
+}
+
+/// Reports the satisfies `problems` (empty means satisfied) and returns a `not_compatible` error
+/// when there are any, so the command exits non-zero. With `output`, writes a JSON report to that
+/// file; otherwise prints a human-readable report to stdout.
+fn report_compatibility(problems: &[String], program: &str, standard: &str, output: Option<&Path>) -> Result<()> {
+    if let Some(path) = output {
+        let value = serde_json::json!({ "satisfied": problems.is_empty(), "problems": problems });
+        let text =
+            serde_json::to_string_pretty(&value).map_err(|e| crate::errors::failed_to_serialize_abi(e.to_string()))?;
+        std::fs::write(path, text).map_err(crate::errors::failed_to_write_abi)?;
+        tracing::info!("Compatibility report written to '{}'.", path.display());
+    } else if problems.is_empty() {
+        eprintln!("`{program}` satisfies `{standard}`");
+    } else {
+        eprintln!("`{program}` does not satisfy `{standard}`:");
+        for problem in problems {
+            eprintln!("  - {problem}");
+        }
+    }
+
+    if problems.is_empty() {
+        Ok(())
+    } else {
+        Err(crate::errors::not_compatible(program, standard, problems.len()).into())
     }
 }
 
@@ -554,5 +617,59 @@ function id_a:
             let names: Vec<&str> = deps.iter().map(|(n, _)| n.as_str()).collect();
             assert_eq!(names, vec!["b.aleo"], "credits.aleo must be skipped silently, got: {names:?}");
         });
+    }
+
+    /// A minimal but well-formed ABI JSON document (no items), enough to exercise the parser.
+    const SAMPLE_ABI_JSON: &str = r#"{
+  "program": "token.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [],
+  "views": []
+}"#;
+
+    #[test]
+    fn load_standard_abi_reads_json() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("token.abi.json");
+        std::fs::write(&path, SAMPLE_ABI_JSON).unwrap();
+
+        let loaded = load_standard_abi(&path).expect("expected JSON ABI to load");
+        assert_eq!(loaded.program, "token.aleo");
+    }
+
+    #[test]
+    fn load_standard_abi_rejects_aleo() {
+        // The standard must be a JSON file; a `.aleo` bytecode file is rejected.
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("token.aleo");
+        std::fs::write(&path, "irrelevant").unwrap();
+
+        let err = load_standard_abi(&path).expect_err("expected a .aleo standard to be rejected");
+        assert!(err.to_string().contains("JSON file containing an ABI"), "unexpected error: {err}");
+    }
+
+    #[test]
+    fn load_standard_abi_rejects_invalid_json() {
+        // A `.json` file that is not valid JSON at all.
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("broken.json");
+        std::fs::write(&path, "{ not valid json").unwrap();
+
+        let err = load_standard_abi(&path).expect_err("expected invalid JSON to be rejected");
+        assert!(err.to_string().contains("could not parse ABI JSON"), "unexpected error: {err}");
+    }
+
+    #[test]
+    fn load_standard_abi_rejects_non_abi_json() {
+        // Valid JSON, but not an ABI: it lacks the required fields (e.g. `program`).
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("notabi.json");
+        std::fs::write(&path, r#"{ "hello": "world" }"#).unwrap();
+
+        let err = load_standard_abi(&path).expect_err("expected non-ABI JSON to be rejected");
+        assert!(err.to_string().contains("could not parse ABI JSON"), "unexpected error: {err}");
     }
 }

@@ -8,19 +8,17 @@
   "functions": [
     {
       "name": "fetch_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

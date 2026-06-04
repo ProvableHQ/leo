@@ -50,6 +50,26 @@ By default `leo abi` resolves imported `.aleo` files from a sibling `imports/` d
 
 The output is the same JSON shape that `leo build` produces in `build/abi.json`. See the [ABI Generation guide](../guides/11_abi.md) for the format reference and type-lowering specification.
 
+## Checking compatibility with an ABI
+
+Pass `--satisfies <FILE>` to check whether the input program's public interface is a superset of an interface standard, instead of printing its ABI. The standard is a JSON file containing an ABI (such as one produced by `leo abi` or `leo build`):
+
+```bash
+leo abi token.aleo --satisfies token_standard.abi.json
+```
+
+The program *satisfies* the standard when it declares every function, view, mapping, storage variable, record, and struct the standard requires, with matching signatures. The program may declare additional items beyond the standard. Type references are compared relative to each side's owning program, so a standard's reference to one of its own types matches the program's reference to the corresponding type even though the two programs have different names.
+
+On success a one-line confirmation is printed; otherwise the unsatisfied items are listed and the command exits non-zero:
+
+```text
+`token.aleo` does not satisfy `token_standard.aleo`:
+  - missing function `burn`
+  - mapping `balances` differs
+```
+
+Pass `--output <FILE>` together with `--satisfies` to write the report as JSON (`{ "satisfied": <bool>, "problems": [...] }`) to that file instead of printing a human-readable summary. The command still exits non-zero when the program does not satisfy the standard.
+
 ## Flags
 
 ```text
@@ -59,12 +79,18 @@ The output is the same JSON shape that `leo build` produces in `build/abi.json`.
 --network <NETWORK>, -n <NETWORK>
     Network used to parse the bytecode (`mainnet`, `testnet`, or `canary`). Defaults to
     `testnet`. Network choice affects how some literals are interpreted.
---output <DIR>, -o <DIR>
-    Output directory. Writes `<DIR>/<program>.abi.json` for the input and for each
-    declared dependency. Created if missing; existing files are overwritten. When
-    omitted, every ABI is printed to stdout, separated by `=== <name> ===` headers.
+--output <PATH>, -o <PATH>
+    Without `--satisfies`: output directory. Writes `<PATH>/<program>.abi.json` for the
+    input and for each declared dependency. Created if missing; existing files are
+    overwritten. When omitted, every ABI is printed to stdout, separated by
+    `=== <name> ===` headers.
+    With `--satisfies`: the file path to write the JSON compatibility report to instead
+    of printing a human-readable summary.
 --imports-dir <DIR>
     Directory containing the program's `.aleo` imports. Defaults to a sibling
     `imports/` directory next to the input file if one exists. Network builtins
     (e.g. `credits.aleo`) do not need to be present here.
+--satisfies <FILE>
+    Check whether the input program satisfies an interface standard (a JSON file
+    containing an ABI), instead of printing its ABI. Exits non-zero when it does not.
 ```

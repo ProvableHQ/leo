@@ -1,6 +1,5 @@
 {
   "program": "token.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,40 +7,36 @@
   "functions": [
     {
       "name": "mint",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "owner",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "amount",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

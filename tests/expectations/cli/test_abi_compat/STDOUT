@@ -1,0 +1,62 @@
+=== satisfies: superset vs standard ===
+`compatible.aleo` satisfies `standard.aleo`
+exit: 0
+
+=== satisfies: identical (standard vs standard) ===
+`standard.aleo` satisfies `standard.aleo`
+exit: 0
+
+=== does not satisfy: missing function, mapping, and struct ===
+`missing.aleo` does not satisfy `standard.aleo`:
+  - missing function `describe`
+  - missing mapping `balances`
+  - missing struct `Metadata`
+Error [ECLI0377069]: program `missing.aleo` is not compatible with ABI `standard.aleo`: 3 interface item(s) unsatisfied
+     |
+     = Review the unsatisfied items listed above. The program must declare every function, view, mapping, storage variable, record, and struct the ABI requires, with matching signatures.
+exit: 237
+
+=== does not satisfy: differing function, record, and struct definitions ===
+`differs.aleo` does not satisfy `standard.aleo`:
+  - function `transfer` differs
+  - record `Token` differs
+  - struct `Metadata` differs
+Error [ECLI0377069]: program `differs.aleo` is not compatible with ABI `standard.aleo`: 3 interface item(s) unsatisfied
+     |
+     = Review the unsatisfied items listed above. The program must declare every function, view, mapping, storage variable, record, and struct the ABI requires, with matching signatures.
+exit: 237
+
+=== JSON report via --output (satisfied) ===
+       Leo Compatibility report written to 'report_ok.json'.
+exit: 0
+{
+  "satisfied": true,
+  "problems": []
+}
+
+=== JSON report via --output (not satisfied) ===
+       Leo Compatibility report written to 'report_bad.json'.
+Error [ECLI0377069]: program `missing.aleo` is not compatible with ABI `standard.aleo`: 3 interface item(s) unsatisfied
+     |
+     = Review the unsatisfied items listed above. The program must declare every function, view, mapping, storage variable, record, and struct the ABI requires, with matching signatures.
+exit: 237
+{
+  "satisfied": false,
+  "problems": [
+    "missing function `describe`",
+    "missing mapping `balances`",
+    "missing struct `Metadata`"
+  ]
+}
+
+=== error: --satisfies file does not exist ===
+Error [ECLI0377001]: invalid CLI input: File not found: does_not_exist.abi.json
+     |
+     = Run `leo <command> --help` to review the expected arguments.
+exit: 169
+
+=== error: --satisfies given a .aleo file (only .abi.json is accepted) ===
+Error [ECLI0377001]: invalid CLI input: Expected a JSON file containing an ABI for `--satisfies`, got: standard.aleo
+     |
+     = Run `leo <command> --help` to review the expected arguments.
+exit: 169

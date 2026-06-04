@@ -1,6 +1,5 @@
 {
   "program": "test_invalid_literal_rejection.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,27 +7,24 @@
   "functions": [
     {
       "name": "main",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Field"
-            }
-          },
-          "mode": "Public"
+            },
+            "mode": "Public"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Field"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

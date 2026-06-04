@@ -1,13 +1,5 @@
 {
   "program": "my_program.aleo",
-  "implements": [
-    {
-      "program": "my_lib",
-      "path": [
-        "Greeter"
-      ]
-    }
-  ],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -15,29 +7,26 @@
   "functions": [
     {
       "name": "greet",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "who",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

@@ -1,6 +1,5 @@
 {
   "program": "my_program.aleo",
-  "implements": [],
   "structs": [],
   "records": [
     {
@@ -13,7 +12,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "None"
+          "mode": "Private"
         },
         {
           "name": "amount",
@@ -22,7 +21,7 @@
               "UInt": "U64"
             }
           },
-          "mode": "None"
+          "mode": "Private"
         }
       ]
     }
@@ -32,71 +31,61 @@
   "functions": [
     {
       "name": "mint",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "owner",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "amount",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Record": {
-              "path": [
-                "Token"
-              ],
-              "program": "my_program.aleo"
-            }
-          },
-          "mode": "None"
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "my_program.aleo"
+          }
         }
       ]
     },
     {
       "name": "double_amount",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "x",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

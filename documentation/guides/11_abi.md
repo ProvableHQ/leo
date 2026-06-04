@@ -55,7 +55,6 @@ The ABI is a JSON object with the following top-level structure:
 ```json title="abi.json"
 {
   "program": "token.aleo",
-  "implements": [...],
   "structs": [...],
   "records": [...],
   "mappings": [...],
@@ -68,7 +67,6 @@ The ABI is a JSON object with the following top-level structure:
 | Field               | Description                                                              |
 | ------------------- | ------------------------------------------------------------------------ |
 | `program`           | Program identifier (e.g., `"token.aleo"`)                                |
-| `implements`        | Fully qualified interfaces the program implements                        |
 | `structs`           | Struct type definitions used in the public interface                     |
 | `records`           | Record type definitions                                                  |
 | `mappings`          | On-chain key-value storage declarations                                  |
@@ -142,13 +140,14 @@ Nested arrays are supported:
 
 ### Structs
 
-Struct references include a path (supporting modules) and optionally the source program:
+Struct references include a path (supporting modules) and the source program. References to a
+type defined in the current program carry that program's own identifier (they are not elided):
 
 ```json
 {
   "Struct": {
     "path": ["Point"],
-    "program": "geometry"
+    "program": "geometry.aleo"
   }
 }
 ```
@@ -159,7 +158,7 @@ For structs in modules:
 {
   "Struct": {
     "path": ["utils", "Vector3"],
-    "program": "geometry"
+    "program": "geometry.aleo"
   }
 }
 ```
@@ -184,7 +183,7 @@ Records are similar to structs but include a visibility mode for each field:
 {
   "path": ["Token"],
   "fields": [
-    { "name": "owner", "ty": { "Primitive": "Address" }, "mode": "None" },
+    { "name": "owner", "ty": { "Primitive": "Address" }, "mode": "Private" },
     { "name": "amount", "ty": { "Primitive": { "UInt": "U64" } }, "mode": "Public" },
     { "name": "data", "ty": { "Primitive": "Field" }, "mode": "Private" }
   ]
@@ -193,10 +192,13 @@ Records are similar to structs but include a visibility mode for each field:
 
 **Mode values:**
 
-- `"None"` - Default visibility (private for records)
 - `"Constant"` - Publicly visible constant
 - `"Private"` - Encrypted, visible only to owner
 - `"Public"` - Visible on-chain
+
+The ABI always records a concrete mode. Source items written without an explicit visibility are
+resolved the same way code generation lowers them (an unannotated record field becomes `Private`),
+so there is no `"None"` mode in the ABI.
 
 ### Optional
 
@@ -251,27 +253,25 @@ Entry functions define the public entry points:
 ```json
 {
   "name": "transfer",
-  "has_final": false,
   "inputs": [
     {
-      "name": "receiver",
-      "ty": { "Plaintext": { "Primitive": "Address" } },
-      "mode": "Public"
+      "Plaintext": { "ty": { "Primitive": "Address" }, "mode": "Public" }
     },
     {
-      "name": "amount",
-      "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } },
-      "mode": "Public"
+      "Plaintext": { "ty": { "Primitive": { "UInt": "U64" } }, "mode": "Public" }
     }
   ],
   "outputs": [
     {
-      "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } },
-      "mode": "Public"
+      "Plaintext": { "ty": { "Primitive": { "UInt": "U64" } }, "mode": "Public" }
     }
   ]
 }
 ```
+
+Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility
+mode. A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`; a record is
+`{ "Record": { "path": [...], "program": "..." } }`.
 
 **Input types:**
 
@@ -284,17 +284,17 @@ Entry functions define the public entry points:
 - `Record` - Record output (created by the entry function)
 - `Final` - Entry function with a `final { }` block returns a `Final`
 
-Entry functions with `final { }` blocks have `has_final: true` and return a `Final`:
+Entry functions with `final { }` blocks return a `Final` (an Aleo `future`), serialized as the
+bare string `"Final"`. A `Final` has no visibility mode:
 
 ```json
 {
   "name": "mint_public",
-  "has_final": true,
   "inputs": [
-    { "name": "receiver", "ty": { "Plaintext": { "Primitive": "Address" } }, "mode": "Public" },
-    { "name": "amount", "ty": { "Plaintext": { "Primitive": { "UInt": "U64" } } }, "mode": "Public" }
+    { "Plaintext": { "ty": { "Primitive": "Address" }, "mode": "Public" } },
+    { "Plaintext": { "ty": { "Primitive": { "UInt": "U64" } }, "mode": "Public" } }
   ],
-  "outputs": [{ "ty": "Final", "mode": "None" }]
+  "outputs": ["Final"]
 }
 ```
 
@@ -440,7 +440,7 @@ Here's a complete example showing a Leo program and its generated ABI.
 **Key observations:**
 
 - Only `Token` record is included (no internal helper types)
-- `mint_public` has a `final { }` block (`has_final: true`) and returns a `Final` in the ABI
+- `mint_public` has a `final { }` block and returns a `"Final"` in the ABI
 - `mint_private` and `transfer_private` return `Record` outputs
 - `transfer_private` takes a `Record` input (consuming the token)
 

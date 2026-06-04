@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+
+# Run a leo invocation, folding stderr into stdout and recording its exit code, so each
+# scenario's full output is captured deterministically.
+run() {
+    "$@" 2>&1
+    echo "exit: $?"
+}
+
+# The standard is a JSON ABI; generate it from standard.aleo once up front.
+${LEO_BIN} --disable-update-check abi standard.aleo -o std_abi >/dev/null
+STD=std_abi/standard.aleo.abi.json
+
+echo "=== satisfies: superset vs standard ==="
+run ${LEO_BIN} --disable-update-check abi compatible.aleo --satisfies ${STD}
+
+echo ""
+echo "=== satisfies: identical (standard vs standard) ==="
+run ${LEO_BIN} --disable-update-check abi standard.aleo --satisfies ${STD}
+
+echo ""
+echo "=== does not satisfy: missing function, mapping, and struct ==="
+run ${LEO_BIN} --disable-update-check abi missing.aleo --satisfies ${STD}
+
+echo ""
+echo "=== does not satisfy: differing function, record, and struct definitions ==="
+run ${LEO_BIN} --disable-update-check abi differs.aleo --satisfies ${STD}
+
+echo ""
+echo "=== JSON report via --output (satisfied) ==="
+run ${LEO_BIN} --disable-update-check abi compatible.aleo --satisfies ${STD} --output report_ok.json
+cat report_ok.json
+echo ""
+
+echo ""
+echo "=== JSON report via --output (not satisfied) ==="
+run ${LEO_BIN} --disable-update-check abi missing.aleo --satisfies ${STD} --output report_bad.json
+cat report_bad.json
+echo ""
+
+echo ""
+echo "=== error: --satisfies file does not exist ==="
+run ${LEO_BIN} --disable-update-check abi compatible.aleo --satisfies does_not_exist.abi.json
+
+echo ""
+echo "=== error: --satisfies given a .aleo file (only .abi.json is accepted) ==="
+run ${LEO_BIN} --disable-update-check abi compatible.aleo --satisfies standard.aleo

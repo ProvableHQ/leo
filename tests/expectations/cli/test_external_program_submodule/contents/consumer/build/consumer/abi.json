@@ -1,6 +1,5 @@
 {
   "program": "consumer.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,13 +7,10 @@
   "functions": [
     {
       "name": "identity",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "c",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -22,15 +18,15 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -38,21 +34,19 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "make_white",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -60,39 +54,34 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "sum_of_white",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "average",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -100,14 +89,13 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "b",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -115,15 +103,15 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -131,21 +119,18 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "blend_twice",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "a",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -153,14 +138,13 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "b",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -168,14 +152,13 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "c",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -183,15 +166,15 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Struct": {
                 "path": [
                   "colors",
@@ -199,27 +182,25 @@
                 ],
                 "program": "provider.aleo"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     },
     {
       "name": "channel_count",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

@@ -15,19 +15,16 @@
   "functions": [
     {
       "name": "store_value",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "v",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": []

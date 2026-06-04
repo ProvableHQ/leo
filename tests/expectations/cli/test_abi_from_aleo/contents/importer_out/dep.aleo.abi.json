@@ -1,6 +1,5 @@
 {
   "program": "dep.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,31 +7,28 @@
   "functions": [
     {
       "name": "id",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "arg1",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "Private"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "Private"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

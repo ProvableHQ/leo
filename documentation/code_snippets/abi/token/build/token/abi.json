@@ -1,6 +1,5 @@
 {
   "program": "token.aleo",
-  "implements": [],
   "structs": [],
   "records": [
     {
@@ -13,7 +12,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "None"
+          "mode": "Private"
         },
         {
           "name": "amount",
@@ -22,7 +21,7 @@
               "UInt": "U64"
             }
           },
-          "mode": "None"
+          "mode": "Private"
         }
       ]
     }
@@ -44,115 +43,91 @@
   "functions": [
     {
       "name": "mint_public",
-      "is_final": true,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "receiver",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "Public"
+            },
+            "mode": "Public"
+          }
         },
         {
-          "name": "amount",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "Public"
+            },
+            "mode": "Public"
+          }
         }
       ],
       "outputs": [
-        {
-          "ty": "Final",
-          "mode": "None"
-        }
+        "Final"
       ]
     },
     {
       "name": "mint_private",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "receiver",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         },
         {
-          "name": "amount",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Record": {
-              "path": [
-                "Token"
-              ],
-              "program": "token.aleo"
-            }
-          },
-          "mode": "None"
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "token.aleo"
+          }
         }
       ]
     },
     {
       "name": "transfer_private",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [
         {
-          "name": "token",
-          "ty": {
-            "Record": {
-              "path": [
-                "Token"
-              ],
-              "program": "token.aleo"
-            }
-          },
-          "mode": "None"
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "token.aleo"
+          }
         },
         {
-          "name": "receiver",
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": "Address"
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ],
       "outputs": [
         {
-          "ty": {
-            "Record": {
-              "path": [
-                "Token"
-              ],
-              "program": "token.aleo"
-            }
-          },
-          "mode": "None"
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "token.aleo"
+          }
         }
       ]
     }

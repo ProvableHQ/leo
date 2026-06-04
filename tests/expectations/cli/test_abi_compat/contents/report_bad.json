@@ -1,0 +1,8 @@
+{
+  "satisfied": false,
+  "problems": [
+    "missing function `describe`",
+    "missing mapping `balances`",
+    "missing struct `Metadata`"
+  ]
+}

@@ -1,6 +1,5 @@
 {
   "program": "my_program.aleo",
-  "implements": [],
   "structs": [],
   "records": [],
   "mappings": [],
@@ -8,19 +7,17 @@
   "functions": [
     {
       "name": "main",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U32"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }

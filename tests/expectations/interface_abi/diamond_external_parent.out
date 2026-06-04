@@ -16,19 +16,17 @@
   "functions": [
     {
       "name": "left_fn",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }
@@ -57,19 +55,17 @@
   "functions": [
     {
       "name": "right_fn",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }
@@ -91,19 +87,17 @@
   "functions": [
     {
       "name": "root_fn",
-      "is_final": false,
-      "const_parameters": [],
       "inputs": [],
       "outputs": [
         {
-          "ty": {
-            "Plaintext": {
+          "Plaintext": {
+            "ty": {
               "Primitive": {
                 "UInt": "U64"
               }
-            }
-          },
-          "mode": "None"
+            },
+            "mode": "Private"
+          }
         }
       ]
     }
