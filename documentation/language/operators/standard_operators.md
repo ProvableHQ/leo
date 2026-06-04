@@ -41,6 +41,7 @@ toc_max_heading_level: 3
 | [mul_wrapped](#mul_wrapped)                                | Wrapping multiplication                                   |
 | [nand](#nand)                                              | Negated conjunction                                       |
 | [neg](#neg)                                                | Additive inverse                                          |
+| [network.id](#networkid)                                   | Fetch the network id                                      |
 | [nor](#nor)                                                | Negated disjunction                                       |
 | [not](#not)                                                | Logical negation                                          |
 | [or](#or)                                                  | (Inclusive) disjunction                                   |
@@ -1003,6 +1004,24 @@ The `block.timestamp` operator is used to fetch the UNIX timestamp of the latest
 
 - The `block.timestamp` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. It is rejected in entry `fn` bodies, helper `fn`s, and constant initialisers, since chain state is only observable in the finalization context.
 - The `block.timestamp` operator doesn't take any parameters.
+
+  :::
+
+[Back to Top](#table-of-contents)
+
+---
+
+### `network.id`
+
+```leo file=../../code_snippets/operators/standard/src/main.leo#network_id
+```
+
+The `network.id` operator is used to fetch the id of the network on which the program is running, as a `u16`. In the above example, `network.id` is used in a `final { }` block to fetch the current network id in a program.
+
+:::info
+
+- The `network.id` operator can only be used in on-chain context — a `final { }` block, a `final fn`, or a `constructor`. It is rejected in entry `fn` bodies, helper `fn`s, and constant initialisers, since chain state is only observable in the finalization context.
+- The `network.id` operator doesn't take any parameters.
 
   :::
 

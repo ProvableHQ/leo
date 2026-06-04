@@ -361,6 +361,14 @@ program standard_ops_demo.aleo {
     }
     // ANCHOR_END: block_timestamp
 
+    // ANCHOR: network_id
+    fn matches_network(id: u16) -> Final {
+        return final {
+            assert_eq(id, network.id);
+        };
+    }
+    // ANCHOR_END: network_id
+
     // ANCHOR: self_checksum
     fn matches_checksum(checksum: [u8; 32]) -> Final {
         return final {
