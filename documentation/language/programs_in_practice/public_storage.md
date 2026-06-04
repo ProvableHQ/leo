@@ -232,3 +232,15 @@ external_program.aleo::id_numbers.pop();             // invalid
 external_program.aleo::id_numbers.swap_remove(0u32); // invalid
 external_program.aleo::id_numbers.clear();           // invalid
 ```
+
+## Supported value types
+
+Singleton storage variables and storage vectors can hold:
+
+- the primitive types `address`, `bool`, `field`, `group`, `scalar`, `signature`, and the integer types `i8`–`i128` and `u8`–`u128`;
+- fixed-length arrays whose element type is itself supported;
+- structs whose fields are all supported types (checked recursively).
+
+They may **not** hold records, `dyn record`, futures, optionals (`T?`), tuples, mappings, the unit type `()`, or any zero-sized type.
+
+A storage vector `Vector<T>` lowers to a `u32 => T` mapping, so its element type `T` is one of the value types above — a primitive, array, or struct — and cannot itself be another vector or a mapping. Mapping keys and values accept the same primitive, array, and struct types.

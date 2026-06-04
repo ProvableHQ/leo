@@ -115,6 +115,18 @@ To add a workspace member as a development dependency:
 leo add --workspace --dev token
 ```
 
+## Manifest field reference
+
+This applies to every kind of dependency, not just workspace members. `leo add` fills in these fields for you, but if you edit `program.json` by hand Leo validates each dependency entry when it loads the manifest and rejects incompatible combinations. Every entry has a `location`; the other fields depend on it:
+
+| `location`  | `path`      | `edition`   | `network`            |
+| ----------- | ----------- | ----------- | -------------------- |
+| `network`   | not allowed | optional    | target network       |
+| `local`     | required    | not allowed | —                    |
+| `workspace` | not allowed | not allowed | —                    |
+
+The same rules apply to entries in `dev_dependencies`. `workspace` entries are looked up in `workspace.json` and resolved to a local path automatically.
+
 ## Removing Dependencies
 
 ```bash
