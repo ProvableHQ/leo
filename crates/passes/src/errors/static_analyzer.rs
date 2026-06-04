@@ -98,7 +98,7 @@ pub(crate) fn some_paths_do_not_run_all_finals(
         format!("not all paths through the function run every `Final` ({num_unawaited_paths}/{num_total_paths} paths leave at least one `Final` un-run)"),
         span,
     )
-    .with_help("Add `.run()` calls so every path consumes each `Final` exactly once, or pass `--disable-conditional-branch-type-checking` to silence the warning.")
+    .with_help("Add `.run()` calls so every path consumes each `Final` exactly once.")
 }
 
 pub(crate) fn some_paths_contain_duplicate_final_runs(
@@ -112,7 +112,7 @@ pub(crate) fn some_paths_contain_duplicate_final_runs(
         format!("some paths through the function contain duplicate `Final` runs ({num_duplicate_await_paths}/{num_total_paths} paths run at least one `Final` more than once)"),
         span,
     )
-    .with_help("Remove the redundant `.run()` calls, or pass `--disable-conditional-branch-type-checking` to silence the warning.")
+    .with_help("Remove the redundant `.run()` calls.")
 }
 
 pub(crate) fn final_not_awaited_in_order(future_name: impl Display, span: Span) -> Formatted {

@@ -61,20 +61,12 @@ Options:
           Number of blocks to look at when searching for a transaction. [default: 12]
       --skip <SKIP>...
           Skips deployment of any program that contains one of the given substrings.
-      --offline
-          Enables offline mode.
       --enable-ast-spans
           Enable spans in AST snapshots.
       --path <PATH>
           Path to Leo program root folder
-      --enable-dce
-          Enables dead code elimination in the compiler.
       --home <HOME>
           Path to aleo program registry
-      --conditional-block-max-depth <CONDITIONAL_BLOCK_MAX_DEPTH>
-          Max depth to type check nested conditionals. [default: 10]
-      --disable-conditional-branch-type-checking
-          Disable type checking of nested conditional branches in finalize scope.
       --enable-initial-ast-snapshot
           Write an AST snapshot immediately after parsing.
       --enable-all-ast-snapshots
