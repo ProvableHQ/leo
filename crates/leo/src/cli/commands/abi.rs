@@ -170,11 +170,11 @@ fn report_compatibility(problems: &[String], program: &str, standard: &str, outp
         std::fs::write(path, text).map_err(crate::errors::failed_to_write_abi)?;
         tracing::info!("Compatibility report written to '{}'.", path.display());
     } else if problems.is_empty() {
-        println!("`{program}` satisfies `{standard}`");
+        eprintln!("`{program}` satisfies `{standard}`");
     } else {
-        println!("`{program}` does not satisfy `{standard}`:");
+        eprintln!("`{program}` does not satisfy `{standard}`:");
         for problem in problems {
-            println!("  - {problem}");
+            eprintln!("  - {problem}");
         }
     }
 

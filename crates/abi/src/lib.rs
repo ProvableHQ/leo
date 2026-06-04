@@ -174,8 +174,13 @@ pub(crate) fn resolve_io_mode(mode: ast::Mode, is_view: bool) -> abi::Mode {
         ast::Mode::Constant => abi::Mode::Constant,
         ast::Mode::Private => abi::Mode::Private,
         ast::Mode::Public => abi::Mode::Public,
-        ast::Mode::None if is_view => abi::Mode::Public,
-        ast::Mode::None => abi::Mode::Private,
+        ast::Mode::None => {
+            if is_view {
+                abi::Mode::Public
+            } else {
+                abi::Mode::Private
+            }
+        }
     }
 }
 
