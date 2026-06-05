@@ -215,6 +215,11 @@ fn is_valid_package_name(name: &str) -> bool {
         return false;
     }
 
+    if name == "std" {
+        tracing::error!("`{name}` is reserved by Leo and cannot be used as a package, program, or library name.");
+        return false;
+    }
+
     // Disallow "aleo"
     if name.contains("aleo") {
         tracing::error!("Aleo names cannot contain the keyword `aleo`.");

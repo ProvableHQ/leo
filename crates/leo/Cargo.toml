@@ -56,6 +56,7 @@ leo-disassembler  = { workspace = true }
 leo-errors        = { workspace = true }
 leo-package       = { workspace = true }
 leo-span          = { workspace = true }
+leo-std           = { workspace = true }
 # third party dependencies
 aleo-std           = { workspace = true }
 aleo-std-storage   = { workspace = true }

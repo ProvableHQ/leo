@@ -2403,6 +2403,7 @@ dependencies = [
  "leo-parser",
  "leo-passes",
  "leo-span",
+ "leo-std",
  "leo-test-framework",
  "rand_chacha 0.10.0",
  "rayon",
@@ -2489,6 +2490,7 @@ dependencies = [
  "leo-errors",
  "leo-package",
  "leo-span",
+ "leo-std",
  "libc",
  "nix 0.30.1",
  "num-format",
@@ -2625,6 +2627,10 @@ dependencies = [
  "scoped-tls",
  "serde",
 ]
+
+[[package]]
+name = "leo-std"
+version = "4.2.0"
 
 [[package]]
 name = "leo-test-framework"

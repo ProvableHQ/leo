@@ -473,6 +473,7 @@ mod tests {
             leo: "0.0.0".to_string(),
             dependencies: if dependencies.is_empty() { None } else { Some(dependencies) },
             dev_dependencies: None,
+            no_std: false,
         };
 
         manifest.write_to_file(member_dir.join(MANIFEST_FILENAME)).unwrap();
@@ -631,6 +632,7 @@ mod tests {
             leo: "0.0.0".to_string(),
             dependencies: if dependencies.is_empty() { None } else { Some(dependencies) },
             dev_dependencies: None,
+            no_std: false,
         };
 
         manifest.write_to_file(member_dir.join(MANIFEST_FILENAME)).unwrap();
@@ -959,6 +961,7 @@ mod tests {
             description: String::new(),
             license: "MIT".to_string(),
             leo: "0.0.0".to_string(),
+            no_std: false,
             dependencies: None,
             dev_dependencies: None,
         };

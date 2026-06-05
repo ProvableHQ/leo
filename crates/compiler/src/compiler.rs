@@ -730,6 +730,9 @@ impl Compiler {
     pub fn add_import_stubs(&mut self) -> Result<()> {
         use indexmap::IndexSet;
 
+        // Inject the implicit standard library as a dependency of the current unit.
+        self.inject_std_library()?;
+
         // Track which programs we've already processed.
         let mut explored = IndexSet::<Symbol>::new();
 
@@ -828,6 +831,65 @@ impl Compiler {
             Ast::Library(library) => library.stubs = reachable,
         }
 
+        Ok(())
+    }
+
+    /// Builds the implicit `std` library and returns it as a `Stub` with an empty parent set.
+    ///
+    /// Callers that compile multiple units against a shared `NodeBuilder` can invoke this once
+    /// and pass the resulting stub into each per-unit `Compiler` via `import_stubs`, avoiding
+    /// re-parsing and re-type-checking `std` for every unit.
+    pub fn build_std_stub(handler: Handler, node_builder: Rc<NodeBuilder>, network: NetworkName) -> Result<Stub> {
+        let std_name = Symbol::intern(leo_std::library_name());
+
+        let mut sub_compiler = Compiler::new(
+            Some(leo_std::library_name().to_string()),
+            false,
+            handler,
+            node_builder,
+            PathBuf::new(),
+            Some(CompilerOptions {
+                // avoid infinite recursion
+                no_std: true,
+                ..CompilerOptions::default()
+            }),
+            IndexMap::new(),
+            network,
+        );
+
+        let module_refs: Vec<(&str, FileName)> =
+            leo_std::modules().iter().map(|(path, source)| (*source, FileName::Custom((*path).to_string()))).collect();
+
+        let library = sub_compiler.build_library(
+            std_name,
+            leo_std::entry_source(),
+            FileName::Custom(format!("<{}>", leo_std::library_name())),
+            &module_refs,
+        )?;
+
+        Ok(library.into())
+    }
+
+    /// Registers the implicit `std` library on `self.import_stubs`.
+    ///
+    /// Reuses an existing entry if one was preloaded
+    fn inject_std_library(&mut self) -> Result<()> {
+        if self.compiler_options.no_std {
+            return Ok(());
+        }
+
+        let std_name = Symbol::intern(leo_std::library_name());
+        let parent = Symbol::intern(self.unit_name.as_deref().expect("Cannot get unit name"));
+
+        if let Some(existing) = self.import_stubs.get_mut(&std_name) {
+            existing.add_parent(parent);
+            return Ok(());
+        }
+
+        let mut stub =
+            Self::build_std_stub(self.state.handler.clone(), Rc::clone(&self.state.node_builder), self.state.network)?;
+        stub.add_parent(parent);
+        self.import_stubs.insert(std_name, stub);
         Ok(())
     }
 

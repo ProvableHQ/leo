@@ -17,6 +17,7 @@ leo-parser          = { path = "./crates/parser",           version = "=4.2.0" }
 leo-parser-rowan    = { path = "./crates/parser-rowan",     version = "=4.2.0" }
 leo-passes          = { path = "./crates/passes",           version = "=4.2.0" }
 leo-span            = { path = "./crates/span",             version = "=4.2.0" }
+leo-std             = { path = "./crates/leo-std",          version = "=4.2.0" }
 leo-test-framework  = { path = "./crates/test-framework" }
 # third party dependencies
 aleo-std           = { version = "1.0.3"}

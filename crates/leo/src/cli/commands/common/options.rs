@@ -47,6 +47,8 @@ pub struct BuildOptions {
     pub no_cache: bool,
     #[clap(long, help = "Don't use the local source code.")]
     pub no_local: bool,
+    #[clap(skip)]
+    pub no_std: bool,
 }
 
 /// Overrides for the `.env` file.

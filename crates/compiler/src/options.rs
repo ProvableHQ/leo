@@ -26,6 +26,8 @@ pub struct CompilerOptions {
     pub ast_snapshots: AstSnapshots,
 
     pub initial_ast: bool,
+
+    pub no_std: bool,
 }
 
 #[derive(Clone, Debug)]

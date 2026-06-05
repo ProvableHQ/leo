@@ -62,6 +62,7 @@ impl From<BuildOptions> for CompilerOptions {
                 AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
             },
             initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
+            no_std: options.no_std,
         }
     }
 }
@@ -179,7 +180,20 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     let handler = Handler::default();
     let node_builder = Rc::new(NodeBuilder::default());
 
+    // Manifest opt-out for the implicit `std` library. Propagated to every
+    // unit's `Compiler` via `CompilerOptions::no_std`.
+    let mut build_options = command.options.clone();
+    build_options.no_std = package.manifest.no_std;
+
     let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
+
+    // Prebuild the implicit `std` library once. Every per-unit `Compiler` clones `stubs`,
+    // so the prebuilt stub is shared across the build instead of recompiled per unit.
+    // `inject_std_library` short-circuits when it finds this entry.
+    if !build_options.no_std {
+        let std_stub = Compiler::build_std_stub(handler.clone(), Rc::clone(&node_builder), network)?;
+        stubs.insert(Symbol::intern(leo_std::library_name()), std_stub);
+    }
 
     // All programs to validate through snarkVM's bytecode validator, in dependency order
     // (imports must be loaded before the programs that depend on them).
@@ -276,7 +290,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         &snapshots_directory,
                         &handler,
                         &node_builder,
-                        command.options.clone(),
+                        build_options.clone(),
                         stubs.clone(),
                         network,
                     )?;
@@ -345,7 +359,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                             &snapshots_directory,
                             &handler,
                             &node_builder,
-                            command.options.clone(),
+                            build_options.clone(),
                             stubs.clone(),
                             network,
                         )?;
@@ -362,7 +376,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                             unit.name,
                             &handler,
                             &node_builder,
-                            command.options.clone(),
+                            build_options.clone(),
                             network,
                         )?
                     };
@@ -385,7 +399,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         unit.name,
                         &handler,
                         &node_builder,
-                        command.options.clone(),
+                        build_options.clone(),
                         network,
                     )?;
 
@@ -417,7 +431,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             &snapshots_directory,
             &handler,
             &node_builder,
-            command.options.clone(),
+            build_options.clone(),
             stubs.clone(),
             network,
         )?;

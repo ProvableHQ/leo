@@ -34,6 +34,8 @@ pub struct Manifest {
     pub leo: String,
     pub dependencies: Option<Vec<Dependency>>,
     pub dev_dependencies: Option<Vec<Dependency>>,
+    #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+    pub no_std: bool,
 }
 
 impl Manifest {
@@ -59,12 +61,27 @@ impl Manifest {
         let manifest: Self = serde_json::from_str(&contents)
             .map_err(|err| crate::errors::failed_to_deserialize_manifest_file(path.as_ref().display(), err))?;
         manifest.validate_dependencies()?;
+        manifest.validate_reserved_names()?;
         Ok(manifest)
     }
 
     fn validate_dependencies(&self) -> Result<(), Backtraced> {
         for dependency in self.dependencies.iter().flatten().chain(self.dev_dependencies.iter().flatten()) {
             dependency.validate_manifest_shape()?;
+        }
+        Ok(())
+    }
+
+    fn validate_reserved_names(&self) -> Result<(), Backtraced> {
+        let program_bare = crate::bare_unit_name(&self.program);
+        if program_bare == "std" {
+            return Err(crate::errors::reserved_std_name("program name"));
+        }
+        for dep in self.dependencies.iter().flatten().chain(self.dev_dependencies.iter().flatten()) {
+            let dep_bare = crate::bare_unit_name(&dep.name);
+            if dep_bare == "std" {
+                return Err(crate::errors::reserved_std_name("dependency name"));
+            }
         }
         Ok(())
     }
