@@ -1,0 +1,11 @@
+Error while running execution tests:
+
+
+Errors:
+[ECEV0378000] Error: binary operation `64i8 << 1u8` failed at compile time: shl
+    ╭─[ compiler-test:10:16 ]
+    │
+ 10 │         return 64i8 << 1u8;
+    │ 
+    │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
+────╯

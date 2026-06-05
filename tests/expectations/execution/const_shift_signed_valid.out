@@ -1,0 +1,21 @@
+program const_shift_signed_valid.aleo;
+
+function const_neg_shift:
+    output -4i8 as i8.private;
+
+function const_min_shift:
+    output -128i8 as i8.private;
+
+function runtime_min_shift:
+    input r0 as i8.private;
+    shl r0 7u8 into r1;
+    output r1 as i8.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: -4i8
+status: success
+output: -128i8
+status: success
+output: -128i8
