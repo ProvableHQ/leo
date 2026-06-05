@@ -161,8 +161,7 @@ mod tests {
     fn read_manifest(contents: &str) -> Result<Manifest, Backtraced> {
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
         let sequence = NEXT_TEST_DIR_ID.fetch_add(1, Ordering::Relaxed);
-        let dir =
-            std::env::temp_dir().join(format!("leo-manifest-test-{}-{nanos}-{sequence}", process::id()));
+        let dir = std::env::temp_dir().join(format!("leo-manifest-test-{}-{nanos}-{sequence}", process::id()));
         fs::create_dir(&dir).unwrap();
         let path = dir.join(MANIFEST_FILENAME);
         fs::write(&path, contents).unwrap();
