@@ -56,7 +56,6 @@ status: accepted
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
 }
-
 verified: true
 status: accepted
 {
@@ -104,4 +103,3 @@ status: accepted
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
 }
-
