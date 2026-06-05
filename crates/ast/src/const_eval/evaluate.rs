@@ -724,91 +724,71 @@ fn evaluate_binary_inner(
                 SvmLiteralParam::U64(_) | SvmLiteralParam::I64(_) if rhs >= 64 => return Err("shl overflow".into()),
                 SvmLiteralParam::U128(_) | SvmLiteralParam::I128(_) if rhs >= 128 => return Err("shl overflow".into()),
                 SvmLiteralParam::U8(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::U16(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::U32(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::U64(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::U128(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::I8(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::I16(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::I32(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::I64(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
                 }
                 SvmLiteralParam::I128(x) => {
-                    let before_ones = x.count_ones();
                     let shifted = (**x) << rhs;
-                    let after_ones = x.count_ones();
-                    if before_ones != after_ones {
+                    if (shifted >> rhs) != **x {
                         return Err("shl".into());
                     }
                     shifted.into()
