@@ -138,8 +138,12 @@ mod tests {
     use super::*;
     use std::{
         fs,
+        process,
+        sync::atomic::{AtomicU64, Ordering},
         time::{SystemTime, UNIX_EPOCH},
     };
+
+    static NEXT_TEST_DIR_ID: AtomicU64 = AtomicU64::new(0);
 
     fn manifest_json(dependencies: &str, dev_dependencies: &str) -> String {
         format!(
@@ -155,8 +159,10 @@ mod tests {
     }
 
     fn read_manifest(contents: &str) -> Result<Manifest, Backtraced> {
-        let unique = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
-        let dir = std::env::temp_dir().join(format!("leo-manifest-test-{unique}"));
+        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let sequence = NEXT_TEST_DIR_ID.fetch_add(1, Ordering::Relaxed);
+        let dir =
+            std::env::temp_dir().join(format!("leo-manifest-test-{}-{nanos}-{sequence}", process::id()));
         fs::create_dir(&dir).unwrap();
         let path = dir.join(MANIFEST_FILENAME);
         fs::write(&path, contents).unwrap();
