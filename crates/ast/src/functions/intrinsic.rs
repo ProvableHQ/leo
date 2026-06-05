@@ -1364,11 +1364,11 @@ impl Intrinsic {
             | Intrinsic::ECDSAVerify(_)
             | Intrinsic::SnarkVerify
             | Intrinsic::SnarkVerifyBatch
+            // Random draws advance the generator state.
+            | Intrinsic::ChaChaRand(_)
             // Deserialization can halt on invalid encodings.
             | Intrinsic::Deserialize(_, _) => false,
-
-            Intrinsic::ChaChaRand(_)
-            | Intrinsic::ProgramChecksum
+            Intrinsic::ProgramChecksum
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner
             | Intrinsic::VectorLen
