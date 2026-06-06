@@ -1,0 +1,19 @@
+program a_dep.aleo;
+
+function one:
+    output 1u8 as u8.private;
+// --- Next Program --- //
+program z_dep.aleo;
+
+function two:
+    output 2u8 as u8.private;
+// --- Next Program --- //
+import a_dep.aleo;
+import z_dep.aleo;
+program sorted_import_bytecode.aleo;
+
+function main:
+    call a_dep.aleo/one into r0;
+    call z_dep.aleo/two into r1;
+    add r0 r1 into r2;
+    output r2 as u8.private;

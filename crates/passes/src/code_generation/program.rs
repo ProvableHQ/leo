@@ -39,12 +39,12 @@ use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
 impl<'a> CodeGeneratingVisitor<'a> {
     pub fn visit_program(&mut self, input: &'a Program) -> AleoProgram {
-        // Dependencies of the program. Already arranged in post order by Retriever module.
-        // Ignore library stubs since they are compile-time only entities.
+        // Emit import declarations deterministically; library stubs are compile-time only.
         let imports = input
             .stubs
             .iter()
             .filter_map(|(program_name, stub)| if stub.is_library() { None } else { Some(program_name.to_string()) })
+            .sorted()
             .collect();
 
         // Retrieve the program scope.

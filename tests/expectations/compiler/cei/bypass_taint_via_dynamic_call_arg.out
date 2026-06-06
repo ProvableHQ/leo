@@ -52,8 +52,8 @@ finalize execute_trade:
     input r1 as u64.public;
     set r1 into trades[r0];
 // --- Next Program --- //
-import oracle.aleo;
 import exchange.aleo;
+import oracle.aleo;
 program trader.aleo;
 
 function trade:
