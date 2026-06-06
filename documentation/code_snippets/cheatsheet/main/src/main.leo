@@ -260,6 +260,7 @@ program cheatsheet.aleo {
 
             // Modifying
             balances.set(receiver, 100u64);
+            update_balance(receiver, 1u64);
             balances.remove(receiver);
 
             // External mappings (read-only)
