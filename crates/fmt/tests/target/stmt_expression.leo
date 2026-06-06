@@ -6,5 +6,7 @@ final fn do_mapping(addr: address, item: u64) {
 program test.aleo {
     mapping balances: address => u64;
 
-    fn main(public item: u64) {}
+    fn main(public addr: address, public item: u64) -> Final {
+        return final { do_mapping(addr, item); };
+    }
 }

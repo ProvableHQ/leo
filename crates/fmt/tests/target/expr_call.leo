@@ -14,5 +14,9 @@ program test.aleo {
         return x;
     }
 
+    fn finalize_map(public addr: address) -> Final {
+        return final { do_map(addr); };
+    }
+
     mapping balances: address => u64;
 }
