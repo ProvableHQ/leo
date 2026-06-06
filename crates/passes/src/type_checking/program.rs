@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::TypeCheckingVisitor;
-use crate::VariableSymbol;
+use crate::{SymbolAccessCollector, VariableSymbol, VariableType};
 
 use leo_ast::{DiGraphError, Type, *};
 use leo_errors::Label;
@@ -75,6 +75,11 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+
+        if self.state.handler.err_count() == 0 {
+            input.program_scopes.values().for_each(|scope| self.check_orphan_storage_final_fns_in_scope(scope));
+            input.modules.values().for_each(|module| self.check_orphan_storage_final_fns_in_module(module));
+        }
     }
 
     fn visit_program_scope(&mut self, input: &ProgramScope) {
@@ -751,5 +756,45 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_composite_stub(&mut self, input: &Composite) {
         self.visit_composite(input);
+    }
+}
+
+impl TypeCheckingVisitor<'_> {
+    fn check_orphan_storage_final_fns_in_scope(&mut self, input: &ProgramScope) {
+        let unit_name = input.program_id.as_symbol();
+        for (_, function) in input.functions.iter().filter(|(_, function)| function.variant == Variant::FinalFn) {
+            self.check_orphan_storage_final_fn(unit_name, &[], function);
+        }
+    }
+
+    fn check_orphan_storage_final_fns_in_module(&mut self, input: &Module) {
+        for (_, function) in input.functions.iter().filter(|(_, function)| function.variant == Variant::FinalFn) {
+            self.check_orphan_storage_final_fn(input.unit_name, &input.path, function);
+        }
+    }
+
+    fn check_orphan_storage_final_fn(&mut self, unit_name: Symbol, module_path: &[Symbol], function: &Function) {
+        let location =
+            Location::new(unit_name, module_path.iter().cloned().chain(std::iter::once(function.name())).collect());
+        if self.state.call_count.get(&location).copied().unwrap_or_default() != 0 {
+            return;
+        }
+
+        let symbol_accesses = {
+            let mut collector = SymbolAccessCollector::new(self.state);
+            collector.visit_block(&function.block);
+            collector.symbol_accesses
+        };
+
+        let touches_storage = symbol_accesses.into_iter().any(|(path, _)| {
+            self.state
+                .symbol_table
+                .lookup_path(unit_name, &path)
+                .is_some_and(|var| var.declaration == VariableType::Storage)
+        });
+
+        if touches_storage {
+            self.emit_err(crate::errors::type_checker::orphan_final_fn(function.name(), function.identifier.span()));
+        }
     }
 }

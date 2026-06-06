@@ -1,0 +1,17 @@
+program reachable_final_fn_storage.aleo;
+
+mapping flag__:
+    key as boolean.public;
+    value as u8.public;
+
+function main:
+    input r0 as u8.private;
+    async main r0 into r1;
+    output r1 as reachable_final_fn_storage.aleo/main.future;
+
+finalize main:
+    input r0 as u8.public;
+    set r0 into flag__[false];
+
+constructor:
+    assert.eq edition 0u16;

@@ -1086,6 +1086,11 @@ pub(crate) fn cannot_have_mode(kind: impl Display, span: Span) -> Formatted {
         )
 }
 
+pub(crate) fn orphan_final_fn(name: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 193, format!("`final fn {name}` is never called"), span)
+        .with_help("Remove this `final fn`, or call it from a `final` block or another `final fn`.")
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {
