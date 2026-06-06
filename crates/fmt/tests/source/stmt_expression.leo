@@ -17,8 +17,11 @@ program test.aleo
     mapping  balances  :  address  =>  u64  ;
 
 	fn main(
+            public addr
+                :  address  ,
             public item
                 :  u64
-    )  {
+    )  ->  Final  {
+        return final { do_mapping(addr, item); };
     }
 }
