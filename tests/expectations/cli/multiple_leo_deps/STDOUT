@@ -4,7 +4,7 @@
        Leo 🔨 Compiling 'parent.aleo'
        Leo     9 statements before dead code elimination.
        Leo     9 statements after dead code elimination.
-       Leo     The program checksum is: '[215u8, 203u8, 66u8, 86u8, 222u8, 65u8, 57u8, 252u8, 117u8, 231u8, 155u8, 25u8, 45u8, 60u8, 202u8, 131u8, 149u8, 90u8, 30u8, 208u8, 156u8, 22u8, 227u8, 204u8, 30u8, 127u8, 166u8, 190u8, 70u8, 12u8, 210u8, 133u8]'.
+       Leo     The program checksum is: '[36u8, 42u8, 7u8, 48u8, 36u8, 141u8, 90u8, 111u8, 93u8, 3u8, 27u8, 112u8, 152u8, 129u8, 88u8, 13u8, 223u8, 75u8, 216u8, 223u8, 25u8, 10u8, 48u8, 182u8, 189u8, 54u8, 128u8, 147u8, 96u8, 174u8, 215u8, 57u8]'.
        Leo     Program size: 0.29 KB / 500.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
        Leo     Import 'grandchild.aleo': checksum = '[174u8, 187u8, 41u8, 199u8, 29u8, 93u8, 47u8, 173u8, 98u8, 32u8, 73u8, 250u8, 151u8, 53u8, 73u8, 94u8, 242u8, 95u8, 71u8, 74u8, 121u8, 121u8, 133u8, 66u8, 113u8, 125u8, 133u8, 149u8, 137u8, 234u8, 137u8, 134u8]'
