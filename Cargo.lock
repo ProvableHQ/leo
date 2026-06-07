@@ -2555,6 +2555,7 @@ dependencies = [
  "indexmap",
  "leo-ast",
  "leo-errors",
+ "leo-parser-rowan",
  "leo-span",
  "serde",
  "serde_json",
