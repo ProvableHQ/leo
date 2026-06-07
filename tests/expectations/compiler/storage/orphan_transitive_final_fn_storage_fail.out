@@ -1,6 +1,6 @@
 [ETYC0372193] Error: `final fn orphan` is never called
    ╭─[ compiler-test:1:10 ]
-   │
+   │ 
  1 │ final fn orphan() {
    │
    │ Help: Remove this `final fn`, or call it from a `final` block or another `final fn`.
