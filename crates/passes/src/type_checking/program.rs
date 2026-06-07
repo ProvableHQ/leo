@@ -794,10 +794,10 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    fn final_fn_reaches_storage<'a>(
+    fn final_fn_reaches_storage(
         &mut self,
         location: &Location,
-        final_fns: &IndexMap<Location, &'a Function>,
+        final_fns: &IndexMap<Location, &Function>,
         reaches_storage: &mut HashMap<Location, bool>,
         visiting: &mut IndexSet<Location>,
     ) -> bool {
