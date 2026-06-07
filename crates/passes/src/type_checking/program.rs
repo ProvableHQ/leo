@@ -21,6 +21,7 @@ use leo_ast::{DiGraphError, Type, *};
 use leo_errors::Label;
 use leo_span::{Symbol, sym};
 
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 use std::collections::{BTreeMap, HashMap};
@@ -77,8 +78,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
 
         if self.state.handler.err_count() == 0 {
-            input.program_scopes.values().for_each(|scope| self.check_orphan_storage_final_fns_in_scope(scope));
-            input.modules.values().for_each(|module| self.check_orphan_storage_final_fns_in_module(module));
+            self.check_orphan_storage_final_fns(input);
         }
     }
 
@@ -760,41 +760,102 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 }
 
 impl TypeCheckingVisitor<'_> {
-    fn check_orphan_storage_final_fns_in_scope(&mut self, input: &ProgramScope) {
+    fn collect_final_fns_in_scope<'a>(final_fns: &mut IndexMap<Location, &'a Function>, input: &'a ProgramScope) {
         let unit_name = input.program_id.as_symbol();
         for (_, function) in input.functions.iter().filter(|(_, function)| function.variant == Variant::FinalFn) {
-            self.check_orphan_storage_final_fn(unit_name, &[], function);
+            final_fns.insert(Location::new(unit_name, vec![function.name()]), function);
         }
     }
 
-    fn check_orphan_storage_final_fns_in_module(&mut self, input: &Module) {
+    fn collect_final_fns_in_module<'a>(final_fns: &mut IndexMap<Location, &'a Function>, input: &'a Module) {
         for (_, function) in input.functions.iter().filter(|(_, function)| function.variant == Variant::FinalFn) {
-            self.check_orphan_storage_final_fn(input.unit_name, &input.path, function);
+            let path = input.path.iter().cloned().chain(std::iter::once(function.name())).collect();
+            final_fns.insert(Location::new(input.unit_name, path), function);
         }
     }
 
-    fn check_orphan_storage_final_fn(&mut self, unit_name: Symbol, module_path: &[Symbol], function: &Function) {
-        let location =
-            Location::new(unit_name, module_path.iter().cloned().chain(std::iter::once(function.name())).collect());
-        if self.state.call_count.get(&location).copied().unwrap_or_default() != 0 {
-            return;
+    fn check_orphan_storage_final_fns(&mut self, input: &Program) {
+        let mut final_fns = IndexMap::new();
+        input.program_scopes.values().for_each(|scope| Self::collect_final_fns_in_scope(&mut final_fns, scope));
+        input.modules.values().for_each(|module| Self::collect_final_fns_in_module(&mut final_fns, module));
+
+        let mut reaches_storage = HashMap::new();
+        for (location, function) in final_fns.iter() {
+            if self.state.call_count.get(location).copied().unwrap_or_default() != 0 {
+                continue;
+            }
+
+            if self.final_fn_reaches_storage(location, &final_fns, &mut reaches_storage, &mut IndexSet::new()) {
+                self.emit_err(crate::errors::type_checker::orphan_final_fn(
+                    function.name(),
+                    function.identifier.span(),
+                ));
+            }
+        }
+    }
+
+    fn final_fn_reaches_storage<'a>(
+        &mut self,
+        location: &Location,
+        final_fns: &IndexMap<Location, &'a Function>,
+        reaches_storage: &mut HashMap<Location, bool>,
+        visiting: &mut IndexSet<Location>,
+    ) -> bool {
+        if let Some(reaches_storage) = reaches_storage.get(location) {
+            return *reaches_storage;
         }
 
+        if !visiting.insert(location.clone()) {
+            return false;
+        }
+
+        let function =
+            final_fns.get(location).expect("final function reachability is only queried for collected final functions");
         let symbol_accesses = {
             let mut collector = SymbolAccessCollector::new(self.state);
             collector.visit_block(&function.block);
             collector.symbol_accesses
         };
 
-        let touches_storage = symbol_accesses.into_iter().any(|(path, _)| {
+        let reaches = symbol_accesses.into_iter().any(|(path, _)| {
             self.state
                 .symbol_table
-                .lookup_path(unit_name, &path)
+                .lookup_path(location.program, &path)
                 .is_some_and(|var| var.declaration == VariableType::Storage)
-        });
+        }) || {
+            let mut collector = FunctionCallCollector::default();
+            collector.visit_block(&function.block);
+            collector.calls.iter().any(|callee| {
+                final_fns.contains_key(callee)
+                    && self.final_fn_reaches_storage(callee, final_fns, reaches_storage, visiting)
+            })
+        };
 
-        if touches_storage {
-            self.emit_err(crate::errors::type_checker::orphan_final_fn(function.name(), function.identifier.span()));
+        visiting.shift_remove(location);
+        reaches_storage.insert(location.clone(), reaches);
+        reaches
+    }
+}
+
+#[derive(Default)]
+struct FunctionCallCollector {
+    calls: IndexSet<Location>,
+}
+
+impl AstVisitor for FunctionCallCollector {
+    type AdditionalInput = ();
+    type Output = ();
+
+    fn visit_call(&mut self, input: &CallExpression, _: &Self::AdditionalInput) -> Self::Output {
+        if let Some(location) = input.function.try_global_location() {
+            self.calls.insert(location.clone());
         }
+
+        input.const_arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, &());
+        });
+        input.arguments.iter().for_each(|expr| {
+            self.visit_expression(expr, &());
+        });
     }
 }
