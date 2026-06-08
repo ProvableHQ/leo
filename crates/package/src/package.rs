@@ -183,6 +183,7 @@ impl Package {
             leo: env!("CARGO_PKG_VERSION").to_string(),
             dependencies: None,
             dev_dependencies: None,
+            no_std: false,
         };
 
         let manifest_path = full_path.join(MANIFEST_FILENAME);
@@ -670,6 +671,7 @@ mod tests {
                 leo: "0.0.0".to_string(),
                 dependencies: None,
                 dev_dependencies: None,
+                no_std: false,
             },
             dep_graph: DiGraph::default(),
         }

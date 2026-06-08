@@ -20,7 +20,7 @@ pub mod function_stub;
 pub use function_stub::*;
 
 use crate::{Composite, ConstDeclaration, Identifier, Indent, Library, Mapping, NodeID, Program, ProgramId};
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -115,7 +115,8 @@ impl From<AleoProgram> for Stub {
 }
 
 impl From<Library> for Stub {
-    fn from(library: Library) -> Self {
+    fn from(mut library: Library) -> Self {
+        library.stubs = IndexMap::new();
         Stub::FromLibrary { library, parents: IndexSet::new() }
     }
 }

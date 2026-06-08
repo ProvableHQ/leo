@@ -2,8 +2,8 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'abi_test.aleo'
-       Leo     73 statements before dead code elimination.
-       Leo     67 statements after dead code elimination.
+       Leo     75 statements before dead code elimination.
+       Leo     69 statements after dead code elimination.
        Leo     The program checksum is: '[147u8, 105u8, 236u8, 139u8, 183u8, 167u8, 83u8, 66u8, 169u8, 230u8, 240u8, 183u8, 226u8, 65u8, 221u8, 93u8, 124u8, 254u8, 215u8, 43u8, 81u8, 204u8, 98u8, 180u8, 105u8, 144u8, 195u8, 133u8, 20u8, 100u8, 141u8, 55u8]'.
        Leo     Program size: 4.09 KB / 500.00 KB
        Leo ✅ Compiled 'abi_test.aleo' into Aleo instructions.

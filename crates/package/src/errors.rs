@@ -249,3 +249,14 @@ pub(crate) fn workspace_duplicate_program_name(
         "Rename one of the programs in its `program.json`; every workspace member must have a unique program name.",
     )
 }
+
+/// The user named a program/library/dependency `std`, which is reserved for
+/// the implicit standard library injected by the compiler.
+pub(crate) fn reserved_std_name(context: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 76,
+        format!("`std` is a reserved name and cannot be used as a {context}"),
+    )
+    .with_help("Pick a different name.")
+}

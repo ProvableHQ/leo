@@ -30,6 +30,7 @@ leo-package       = { workspace = true }
 leo-passes        = { workspace = true }
 leo-parser        = { workspace = true }
 leo-span          = { workspace = true }
+leo-std           = { workspace = true }
 # third party dependencies
 aleo-std          = { workspace = true }
 aleo-std-storage  = { workspace = true }
