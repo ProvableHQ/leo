@@ -139,6 +139,12 @@ pub fn bare_unit_name(name: &str) -> &str {
     name.strip_suffix(".aleo").unwrap_or(name)
 }
 
+/// Canonicalizes a program name to its `.aleo`-suffixed form, appending the
+/// suffix only when it is absent. The inverse of [`bare_unit_name`].
+pub fn canonicalize_program_name(name: &str) -> String {
+    if name.ends_with(".aleo") { name.to_string() } else { format!("{name}.aleo") }
+}
+
 /// Converts a valid program or library name into a `Symbol`.
 ///
 /// Names must either end with `.aleo` or contain no periods; otherwise an error is returned.

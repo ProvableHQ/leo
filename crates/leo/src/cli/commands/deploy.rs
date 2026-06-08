@@ -73,6 +73,11 @@ pub struct LeoDeploy {
     pub(crate) extra: ExtraOptions,
     #[clap(long, help = "Skips deployment of any program that contains one of the given substrings.", value_delimiter = ',', num_args = 1..)]
     pub(crate) skip: Vec<String>,
+    #[clap(
+        long,
+        help = "Deploy the program under a different name, producing a genuinely distinct on-chain deployment. Programs importing the original name are not redirected to the renamed copy."
+    )]
+    pub(crate) rename: Option<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
     #[clap(long, help = "Use placeholder certificate and verifying keys during deployment.", default_value = "false")]
@@ -125,6 +130,7 @@ impl Command for LeoDeploy {
                 options.no_cache = true;
                 options
             },
+            rename: self.rename.clone(),
         }
         .execute(context)
     }
@@ -606,6 +612,13 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
 
 /// Handle deployment for workspace mode: build each member, then deploy all.
 fn handle_workspace_deploy(command: LeoDeploy, context: Context, targets: Vec<PathBuf>) -> Result<DeployOutput> {
+    // A single `--rename` cannot apply across multiple workspace members.
+    if command.rename.is_some() {
+        return Err(crate::errors::custom(
+            "`--rename` is not supported when deploying multiple workspace members; deploy a single program instead.",
+        )
+        .into());
+    }
     // Build each member, collecting deployable packages.
     let mut packages = Vec::new();
     for target in &targets {
@@ -619,6 +632,8 @@ fn handle_workspace_deploy(command: LeoDeploy, context: Context, targets: Vec<Pa
                 opts.no_cache = true;
                 opts
             },
+            // Workspace deploys reject `--rename` upfront, so members never rename.
+            rename: None,
         }
         .execute(member_ctx)?;
         // Skip library packages - they cannot be deployed.

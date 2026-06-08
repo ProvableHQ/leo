@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+ENDPOINT="http://localhost:${LEO_DEVNODE_PORT:-3030}"
+COMMON_OPTS="--disable-update-check --network testnet --endpoint $ENDPOINT --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+
+# Scoping the deploy to a single workspace member (here via `--package`) makes
+# `--rename` valid: the dependency-free `token` member is deployed on-chain as
+# `renamed_token.aleo`.
+$LEO_BIN deploy -y --broadcast --package token --rename renamed_token $COMMON_OPTS
+
+# Confirm the renamed member landed on-chain under its new name.
+$LEO_BIN query --disable-update-check --network testnet --endpoint $ENDPOINT program renamed_token.aleo

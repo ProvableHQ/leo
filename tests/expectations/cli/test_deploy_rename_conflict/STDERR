@@ -1,0 +1,4 @@
+Error [ECLI0377045]: `--rename` target 'child.aleo' conflicts with an existing program or dependency in this package; choose a different name.
+
+Error [ECLI0377045]: `--rename` target 'grandchild.aleo' conflicts with an existing program or dependency in this package; choose a different name.
+

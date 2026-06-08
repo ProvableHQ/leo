@@ -589,6 +589,24 @@ mod tests {
 
     #[test]
     #[serial]
+    fn deploy_rename_flag_parses() {
+        // `leo deploy --rename <name>` should populate the deploy command's `rename` field.
+        let cli = CLI::try_parse_from(["leo", "deploy", "--rename", "renamed"])
+            .expect("`leo deploy --rename renamed` should parse");
+        match cli.command {
+            Commands::Deploy { command } => assert_eq!(command.rename.as_deref(), Some("renamed")),
+            _ => panic!("expected a deploy command"),
+        }
+        // The flag is optional: deploying without it leaves `rename` unset.
+        let cli = CLI::try_parse_from(["leo", "deploy"]).expect("`leo deploy` should parse");
+        match cli.command {
+            Commands::Deploy { command } => assert_eq!(command.rename, None),
+            _ => panic!("expected a deploy command"),
+        }
+    }
+
+    #[test]
+    #[serial]
     fn new_inside_workspace_auto_registers() {
         let temp_dir = temp_dir();
         let ws_root = temp_dir.join("ws_new_inside_test");
@@ -686,6 +704,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -721,6 +740,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -756,6 +776,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -791,6 +812,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: Default::default(),
                 },
             },
@@ -822,6 +844,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -875,6 +898,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -911,6 +935,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -946,6 +971,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()
@@ -993,6 +1019,7 @@ mod tests {
                     },
                     extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
                     skip: vec![],
+                    rename: None,
                     build_options: Default::default(),
                     skip_deploy_certificate: true,
                 },
@@ -1040,6 +1067,7 @@ mod tests {
                     },
                     extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
                     skip: vec![],
+                    rename: None,
                     build_options: Default::default(),
                     skip_deploy_certificate: true,
                 },
@@ -1087,6 +1115,7 @@ mod tests {
                     },
                     extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
                     skip: vec![],
+                    rename: None,
                     build_options: Default::default(),
                     skip_deploy_certificate: true,
                 },
@@ -1135,6 +1164,7 @@ mod tests {
                     },
                     extra: crate::cli::commands::ExtraOptions { yes: true, ..Default::default() },
                     skip: vec![],
+                    rename: None,
                     build_options: Default::default(),
                     skip_deploy_certificate: true,
                 },
@@ -1193,6 +1223,7 @@ mod tests {
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
+                    rename: None,
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
                         ..Default::default()

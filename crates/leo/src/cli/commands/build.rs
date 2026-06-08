@@ -74,6 +74,10 @@ pub struct LeoBuild {
     pub(crate) options: BuildOptions,
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
+    /// Recompile the primary program under a different on-chain name. Set internally
+    /// by `leo deploy --rename`; not exposed as a build flag.
+    #[clap(skip)]
+    pub(crate) rename: Option<String>,
 }
 
 impl Command for LeoBuild {
@@ -131,7 +135,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
         }
     };
 
-    let package = if command.options.build_tests {
+    let mut package = if command.options.build_tests {
         Package::from_directory_with_tests(
             &package_path,
             &home_path,
@@ -169,6 +173,10 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
     // Resolve via the manifest so this isn't a test unit under `--build-tests`.
     let primary_name = package.primary_unit().map(|p| p.name);
+
+    // `leo deploy --rename`: recompile the primary program under a different on-chain name.
+    let rename_target = apply_rename(command, &mut package, primary_name)?;
+
     std::fs::create_dir_all(&build_directory).map_err(|err| {
         crate::errors::util_file_io_error(format_args!("Couldn't create directory {}", build_directory.display()), err)
     })?;
@@ -293,6 +301,8 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         build_options.clone(),
                         stubs.clone(),
                         network,
+                        // Only the primary program is renamed; tests and imports keep their names.
+                        if is_main { rename_target.clone() } else { None },
                     )?;
 
                     // Write this unit's compiled bytecode. ABI and interface ABIs are
@@ -392,7 +402,10 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     }
                     stubs.insert(unit.name, library_stub);
                 } else {
-                    // Parse intermediate dependencies only.
+                    // Parse the primary program (for its stub) and intermediate dependencies.
+                    // The primary's stub must adopt the rename too, otherwise re-parsing the
+                    // source (which still declares the original name) under the renamed unit
+                    // name would fail the program-name check.
                     let leo_program = parse_leo_source_directory(
                         source,
                         &source_dir,
@@ -401,6 +414,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         &node_builder,
                         build_options.clone(),
                         network,
+                        if is_main { rename_target.clone() } else { None },
                     )?;
 
                     stubs.insert(unit.name, leo_program.into());
@@ -434,6 +448,8 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             build_options.clone(),
             stubs.clone(),
             network,
+            // Dependencies are never renamed; only the primary deploy target is.
+            None,
         )?;
         let primary_path = package.unit_bytecode_path(&unit_name);
         ensure_parent_dir(&primary_path)?;
@@ -458,6 +474,75 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     Ok(package)
 }
 
+/// Resolves `leo deploy --rename` and applies it to `package`.
+///
+/// Returns `Ok(None)` when no rename was requested. Otherwise validates the
+/// requested name, rejects conflicts, and rewrites the primary unit's name in
+/// `package` so the build artifacts, the deploy read path, and the compiled
+/// bytecode all share the renamed identity; the canonical `.aleo`-suffixed name
+/// to compile under is returned. Programs that import the original name are
+/// intentionally not redirected to the renamed copy.
+///
+/// `primary_name` is the primary unit's name captured *before* any mutation,
+/// since rewriting it would make `package.primary_unit()` no longer resolve.
+fn apply_rename(command: &LeoBuild, package: &mut Package, primary_name: Option<Symbol>) -> Result<Option<String>> {
+    let Some(requested) = &command.rename else {
+        return Ok(None);
+    };
+
+    // `--rename` rewrites a single primary program, so it cannot apply to a test build:
+    // tests keep their original names and would dangle against the renamed primary.
+    if command.options.build_tests {
+        return Err(crate::errors::custom("`--rename` cannot be combined with `--build-tests`.").into());
+    }
+
+    let renamed = leo_package::canonicalize_program_name(requested);
+    if !leo_package::is_valid_program_name(&renamed) {
+        return Err(crate::errors::custom(format!(
+            "Invalid program name '{requested}' for `--rename`; expected a valid Aleo program name."
+        ))
+        .into());
+    }
+
+    let Some(original) = primary_name else {
+        return Err(crate::errors::custom("`--rename` requires a primary program to rename.").into());
+    };
+
+    // Compare on the bare name: a local primary's name is bare while the target is
+    // `.aleo`-suffixed, so a direct symbol comparison would never flag a no-op rename.
+    let renamed_bare = leo_package::bare_unit_name(&renamed);
+    if renamed_bare == leo_package::bare_unit_name(&original.to_string()) {
+        return Err(crate::errors::custom(format!(
+            "`--rename` target '{renamed}' is identical to the program's current name."
+        ))
+        .into());
+    }
+
+    // Reject renaming onto a name already used by another unit or dependency. Build
+    // artifacts are keyed by bare unit name, so a collision would silently discard the
+    // renamed program and deploy the colliding unit's bytecode instead. Compare on the
+    // bare name to match that keying.
+    if package
+        .compilation_units
+        .iter()
+        .any(|unit| unit.name != original && leo_package::bare_unit_name(&unit.name.to_string()) == renamed_bare)
+    {
+        return Err(crate::errors::custom(format!(
+            "`--rename` target '{renamed}' conflicts with an existing program or dependency in this package; choose a different name."
+        ))
+        .into());
+    }
+
+    let renamed_symbol = Symbol::intern(&renamed);
+    for unit in package.compilation_units.iter_mut() {
+        if !unit.kind.is_test() && unit.name == original {
+            unit.name = renamed_symbol;
+        }
+    }
+
+    Ok(Some(renamed))
+}
+
 /// Compiles a Leo file. Writes and returns the compiled bytecode and ABI.
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_source_directory(
@@ -471,6 +556,7 @@ fn compile_leo_source_directory(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
     network: NetworkName,
+    rename: Option<String>,
 ) -> Result<Compiled> {
     // Print a newline for better formatting.
     println!();
@@ -486,6 +572,8 @@ fn compile_leo_source_directory(
         stubs,
         network,
     );
+    // When set, recompile the program scope under this on-chain name (`leo deploy --rename`).
+    compiler.rename = rename;
 
     // Compile the Leo program into Aleo instructions.
     let compiled = compiler.compile_from_directory(entry_file_path, source_directory)?;
@@ -540,6 +628,7 @@ fn compile_leo_source_directory(
 }
 
 /// Parses a Leo file into an AST without generating bytecode.
+#[allow(clippy::too_many_arguments)]
 fn parse_leo_source_directory(
     entry_file_path: &Path,
     source_directory: &Path,
@@ -548,6 +637,7 @@ fn parse_leo_source_directory(
     node_builder: &Rc<NodeBuilder>,
     options: BuildOptions,
     network: NetworkName,
+    rename: Option<String>,
 ) -> Result<Program> {
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
@@ -560,6 +650,9 @@ fn parse_leo_source_directory(
         IndexMap::new(),
         network,
     );
+    // When set, rewrite the parsed program scope under this on-chain name so the stub
+    // matches the renamed identity (`leo deploy --rename`).
+    compiler.rename = rename;
 
     // Parse the Leo program into an AST.
     compiler.parse_program_from_directory(entry_file_path, source_directory)

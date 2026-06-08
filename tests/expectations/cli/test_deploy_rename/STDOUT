@@ -1,0 +1,165 @@
+
+       Leo 🔨 Compiling 'renamed_prog.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[160u8, 166u8, 60u8, 22u8, 228u8, 140u8, 165u8, 241u8, 171u8, 140u8, 243u8, 102u8, 94u8, 227u8, 44u8, 139u8, 3u8, 205u8, 179u8, 211u8, 213u8, 124u8, 14u8, 113u8, 28u8, 135u8, 160u8, 183u8, 198u8, 61u8, 226u8, 215u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'renamed_prog.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI for program 'renamed_prog.aleo'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  15
+
+📦 Deployment Tasks:
+  • renamed_prog.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'renamed_prog.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq edition 0u16;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'renamed_prog.aleo'...
+
+
+📊 Deployment Summary for renamed_prog.aleo
+──────────────────────────────────────────────
+  Program Size:         0.19 KB / 500.00 KB
+  Total Variables:      17,071
+  Total Constraints:    12,927
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.881000
+  Program Synthesis:    0.029998
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.912998
+  Function 'main'
+    Total Execution Cost:   0.001323
+    |- Storage Cost:        0.001323
+    |- Finalize Cost:       0.000000
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for renamed_prog.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+       Leo ✅ Successfully retrieved data from 'http://localhost:3030/testnet/program/renamed_prog.aleo'.
+
+program renamed_prog.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+
+       Leo 🔨 Compiling 'original_prog.aleo'
+       Leo     2 statements before dead code elimination.
+       Leo     2 statements after dead code elimination.
+       Leo     The program checksum is: '[46u8, 88u8, 192u8, 107u8, 124u8, 253u8, 177u8, 198u8, 7u8, 246u8, 78u8, 154u8, 166u8, 255u8, 106u8, 182u8, 102u8, 24u8, 18u8, 238u8, 37u8, 29u8, 121u8, 185u8, 215u8, 183u8, 112u8, 171u8, 135u8, 101u8, 45u8, 41u8]'.
+       Leo     Program size: 0.19 KB / 500.00 KB
+       Leo ✅ Compiled 'original_prog.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI for program 'original_prog.aleo'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🚀 Execution Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  15
+
+🎯 Execution Target:
+  Program:        renamed_prog.aleo
+  Function:       main
+  Source:         remote
+
+💸 Fee Info:
+  Priority Fee:   0 μcredits
+  Fee Record:     no (public fee)
+
+⚙️ Actions:
+  - Program and its dependencies will be downloaded from the network.
+  - Transaction will NOT be printed to the console.
+  - Transaction will NOT be saved to a file.
+  - Transaction will be broadcast to http://localhost:3030
+
+⚠️ Warnings:
+──────────────────────────────────────────────
+
+⬇️ Downloading renamed_prog.aleo and its dependencies from http://localhost:3030...
+
+➕Adding programs to the VM in the following order:
+  - renamed_prog.aleo (edition: 0)
+
+⚙️ Executing renamed_prog.aleo/main...
+
+📊 Execution Cost Summary for renamed_prog.aleo
+──────────────────────────────────────────────
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.001323
+  On-chain Execution:   0.000000
+  Priority Fee:         0.000000
+  Total Fee:            0.001323
+──────────────────────────────────────────────
+
+➡️  Output
+
+ • 3u32
+
+📡 Broadcasting execution for renamed_prog.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Execution confirmed!

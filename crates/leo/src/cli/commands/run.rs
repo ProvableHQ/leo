@@ -87,8 +87,9 @@ impl Command for LeoRun {
         )
         .is_ok()
         {
-            let package = LeoBuild { env_override: self.env_override.clone(), options: self.build_options.clone() }
-                .execute(context)?;
+            let package =
+                LeoBuild { env_override: self.env_override.clone(), options: self.build_options.clone(), rename: None }
+                    .execute(context)?;
             // Return the package.
             Ok(Some(package))
         } else {

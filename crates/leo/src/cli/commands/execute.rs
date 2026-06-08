@@ -126,6 +126,7 @@ impl Command for LeoExecute {
                     options.no_cache = true;
                     options
                 },
+                rename: None,
             }
             .execute(context)?;
             // Return the package.

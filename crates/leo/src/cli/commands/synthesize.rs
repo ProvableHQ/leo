@@ -73,6 +73,7 @@ impl Command for LeoSynthesize {
                     options.no_cache = true;
                     options
                 },
+                rename: None,
             }
             .execute(context)?;
             // Return the package.
