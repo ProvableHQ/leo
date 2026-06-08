@@ -34,6 +34,7 @@ The body of the program is delimited by curly braces `{}`.
 
 The following must be declared inside the scope of a program in a Leo file:
 
+- A single, mandatory [`constructor`](./02_structure.md#constructor)
 - [Mappings](./02_structure.md#mappings) and [Storage](./02_structure.md#storage)
 - [Records](./02_structure.md#record)
 - [Entry point `fn` declarations](./programs_in_practice/functions.md#entry-functions)

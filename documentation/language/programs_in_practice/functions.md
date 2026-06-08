@@ -80,6 +80,10 @@ The same rule applies across programs — a `final {}` block can call a `view fn
 ```leo file=../../code_snippets/functions/view_cross_program_caller/src/main.leo#file showLineNumbers
 ```
 
+## The Constructor
+
+The `constructor` is the one other function-like declaration inside a `program {}` block. Unlike the entry, `final`, and `view` functions above, it is never called directly: the network runs it on-chain at deployment and on every upgrade to enforce the program's upgrade policy. It is documented alongside the other program-level declarations under [Constructor](../02_structure.md#constructor), with the full upgrade-policy semantics in the [Upgrading Programs guide](../../guides/10_program_upgradability.md).
+
 ## Helper Function
 
 A helper function is declared as `fn {name}({arguments}) {}` **outside** the `program {}` block.

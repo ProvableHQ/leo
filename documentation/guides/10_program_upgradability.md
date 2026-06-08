@@ -61,6 +61,7 @@ Within a `constructor`, you can access on-chain metadata about the program using
 
 | Operand              | Leo Type   | Description                                                                                                                                  |
 | -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `self.address`       | `address`  | The program's own account address.                                                                                                           |
 | `self.edition`       | `u16`      | The program's version number. Starts at `0` and is incremented by `1` for each upgrade. The edition is tracked automatically on the network. |
 | `self.program_owner` | `address`  | The address that submitted the deployment transaction.                                                                                       |
 | `self.checksum`      | `[u8, 32]` | The program's checksum, which is a unique identifier for the program's code.                                                                 |
