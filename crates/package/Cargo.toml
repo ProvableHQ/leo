@@ -21,6 +21,7 @@ edition = "2024"
 # leo dependencies
 leo-ast     = { workspace = true }
 leo-errors  = { workspace = true }
+leo-parser-rowan = { workspace = true }
 leo-span    = { workspace = true }
 # third party dependencies
 glob        = { workspace = true }

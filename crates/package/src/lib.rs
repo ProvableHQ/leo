@@ -202,11 +202,15 @@ fn is_valid_package_name(name: &str) -> bool {
         return false;
     }
 
-    // Check reserved keywords.
-    if reserved_keywords().any(|kw| kw == name) {
+    if is_leo_keyword(name) {
+        tracing::error!("Aleo names cannot be a Leo keyword.");
+        return false;
+    }
+
+    if is_aleo_keyword(name) {
         tracing::error!(
             "Aleo names cannot be a SnarkVM reserved keyword. Reserved keywords are: {}.",
-            reserved_keywords().collect::<Vec<_>>().join(", ")
+            aleo_reserved_keywords().collect::<Vec<_>>().join(", ")
         );
         return false;
     }
@@ -223,13 +227,21 @@ fn is_valid_package_name(name: &str) -> bool {
 /// Get the list of all reserved and restricted keywords from snarkVM.
 /// These keywords cannot be used as program names.
 /// See: https://github.com/ProvableHQ/snarkVM/blob/046a2964f75576b2c4afbab9aa9eabc43ceb6dc3/synthesizer/program/src/lib.rs#L192
-pub fn reserved_keywords() -> impl Iterator<Item = &'static str> {
+pub fn aleo_reserved_keywords() -> impl Iterator<Item = &'static str> {
     use snarkvm::prelude::{Program, TestnetV0};
 
     // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
     let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());
 
     Program::<TestnetV0>::KEYWORDS.iter().copied().chain(restricted)
+}
+
+fn is_leo_keyword(name: &str) -> bool {
+    leo_parser_rowan::is_keyword(name)
+}
+
+fn is_aleo_keyword(name: &str) -> bool {
+    aleo_reserved_keywords().any(|kw| kw == name)
 }
 
 /// Creates a configured ureq agent for Leo network requests.
@@ -350,4 +362,32 @@ pub fn filename_no_aleo_extension(path: &Path) -> Option<&str> {
 
 fn filename_no_extension<'a>(path: &'a Path, extension: &'static str) -> Option<&'a str> {
     path.file_name().and_then(|os_str| os_str.to_str()).and_then(|s| s.strip_suffix(extension))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Package, is_valid_library_name, is_valid_program_name};
+
+    #[test]
+    fn package_names_reject_leo_keywords() {
+        assert!(!is_valid_program_name("in.aleo"));
+        assert!(!is_valid_library_name("in"));
+    }
+
+    #[test]
+    fn package_names_accept_keyword_prefixes() {
+        assert!(is_valid_program_name("inside.aleo"));
+        assert!(is_valid_library_name("inside"));
+    }
+
+    #[test]
+    fn package_initialize_rejects_leo_keyword_program_names() {
+        let dir = std::env::temp_dir().join(format!("leo_keyword_program_name_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        assert!(Package::initialize("in", &dir, false).is_err());
+
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 }
