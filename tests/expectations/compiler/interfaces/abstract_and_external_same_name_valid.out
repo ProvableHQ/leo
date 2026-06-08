@@ -21,8 +21,8 @@ program lib.aleo;
 
 function dummy:
 // --- Next Program --- //
-import other.aleo;
 import lib.aleo;
+import other.aleo;
 program test.aleo;
 
 record Token:

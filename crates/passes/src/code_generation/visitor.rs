@@ -90,6 +90,7 @@ impl CodeGeneratingVisitor<'_> {
                                 .get_transitive_imports(program_name)
                                 .into_iter()
                                 .map(|sym| sym.to_string())
+                                .sorted()
                                 .collect::<Vec<_>>();
 
                             let mut generated = self.visit_program(program);

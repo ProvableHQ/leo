@@ -17,8 +17,8 @@ function entry:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import grandchild.aleo;
 import child.aleo;
+import grandchild.aleo;
 program top.aleo;
 
 function pipeline:

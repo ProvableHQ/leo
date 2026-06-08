@@ -1,6 +1,6 @@
-import grandchild.aleo;
 import child1.aleo;
 import child2.aleo;
+import grandchild.aleo;
 program parent.aleo;
 
 function main:

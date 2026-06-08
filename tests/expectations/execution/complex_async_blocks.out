@@ -36,8 +36,8 @@ finalize d:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import zero_program.aleo;
 import one_program.aleo;
+import zero_program.aleo;
 program two_program.aleo;
 
 mapping counts:
@@ -63,9 +63,9 @@ finalize b:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import zero_program.aleo;
 import one_program.aleo;
 import two_program.aleo;
+import zero_program.aleo;
 program three_program.aleo;
 
 mapping counts:
@@ -94,10 +94,10 @@ finalize e:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import zero_program.aleo;
 import one_program.aleo;
-import two_program.aleo;
 import three_program.aleo;
+import two_program.aleo;
+import zero_program.aleo;
 program four_program.aleo;
 
 mapping counts:

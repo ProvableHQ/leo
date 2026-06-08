@@ -80,8 +80,8 @@ finalize main:
     position end_otherwise_0_3;
     set 1u32 into ayo[1u32];
 // --- Next Program --- //
-import test_dep.aleo;
 import test.aleo;
+import test_dep.aleo;
 program wrapper.aleo;
 
 function main:
@@ -102,8 +102,8 @@ finalize main:
     await r1;
     await r2;
 // --- Next Program --- //
-import test_dep.aleo;
 import test.aleo;
+import test_dep.aleo;
 import wrapper.aleo;
 program big_wrapper.aleo;
 

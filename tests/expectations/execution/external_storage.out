@@ -50,8 +50,8 @@ finalize d:
 constructor:
     assert.eq edition 0u16;
 // --- Next Program --- //
-import zero_program.aleo;
 import one_program.aleo;
+import zero_program.aleo;
 program two_program.aleo;
 
 struct Optional__DmN5CQ9hzeK:
