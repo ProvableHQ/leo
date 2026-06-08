@@ -259,7 +259,7 @@ impl<'a> ConversionContext<'a> {
         if text.starts_with('_') {
             self.handler.emit_err(crate::errors::identifier_cannot_start_with_underscore(ident.span));
         }
-        if symbol_is_keyword(ident.name) {
+        if leo_parser_rowan::is_keyword(&text) {
             self.emit_unexpected_str("an identifier", &text, ident.span);
         }
     }
@@ -3052,7 +3052,7 @@ pub fn parse_program(
 
         if let Some(key) = compute_module_key(&module.name, root_dir.as_deref()) {
             for segment in &key {
-                if symbol_is_keyword(*segment) {
+                if leo_parser_rowan::is_keyword(&segment.to_string()) {
                     return Err(crate::errors::keyword_used_as_module_name(key.iter().format("::"), segment).into());
                 }
             }
@@ -3106,7 +3106,7 @@ pub fn parse_library(
 
         if let Some(key) = compute_module_key(&module_sf.name, root_dir.as_deref()) {
             for segment in &key {
-                if symbol_is_keyword(*segment) {
+                if leo_parser_rowan::is_keyword(&segment.to_string()) {
                     return Err(crate::errors::keyword_used_as_module_name(key.iter().format("::"), segment).into());
                 }
             }
@@ -3264,62 +3264,6 @@ fn token_to_binary_op(kind: SyntaxKind) -> leo_ast::BinaryOperation {
         CARET => leo_ast::BinaryOperation::Xor,
         _ => panic!("unexpected binary operator: {:?}", kind),
     }
-}
-
-fn symbol_is_keyword(symbol: Symbol) -> bool {
-    matches!(
-        symbol,
-        sym::address
-            | sym::aleo
-            | sym::As
-            | sym::assert
-            | sym::assert_eq
-            | sym::assert_neq
-            | sym::block
-            | sym::bool
-            | sym::Const
-            | sym::constant
-            | sym::constructor
-            | sym::Else
-            | sym::False
-            | sym::field
-            | sym::FnUpper
-            | sym::Fn
-            | sym::For
-            | sym::Final
-            | sym::group
-            | sym::i8
-            | sym::i16
-            | sym::i32
-            | sym::i64
-            | sym::i128
-            | sym::If
-            | sym::import
-            | sym::In
-            | sym::inline
-            | sym::Let
-            | sym::leo
-            | sym::mapping
-            | sym::storage
-            | sym::network
-            | sym::private
-            | sym::program
-            | sym::public
-            | sym::record
-            | sym::Return
-            | sym::scalar
-            | sym::script
-            | sym::SelfLower
-            | sym::signature
-            | sym::string
-            | sym::Struct
-            | sym::True
-            | sym::u8
-            | sym::u16
-            | sym::u32
-            | sym::u64
-            | sym::u128
-    )
 }
 
 /// Computes a module key from a `FileName`, optionally relative to a root directory.

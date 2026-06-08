@@ -188,3 +188,34 @@ fn runner_parser_test(test: &str) -> String {
 fn parser_tests() {
     leo_test_framework::run_tests("parser", runner_parser_test);
 }
+
+#[test]
+#[serial]
+fn parser_rejects_keyword_module_names_from_rowan_lexer() {
+    create_session_if_not_set_then(|_| {
+        for keyword in ["view", "dyn"] {
+            let buf = BufferEmitter::new();
+            let handler = Handler::new(buf.clone());
+            let source_file = with_session_globals(|s| {
+                s.source_map.new_source("program test.aleo {}", FileName::Custom("test.leo".into()))
+            });
+            let module =
+                with_session_globals(|s| s.source_map.new_source("", FileName::Custom(format!("{keyword}.leo"))));
+
+            let result = crate::parse_program(
+                handler.clone(),
+                &Default::default(),
+                &source_file,
+                &[module],
+                NetworkName::TestnetV0,
+            );
+
+            assert!(handler.extend_if_error(result).is_err(), "expected `{keyword}` module name to be rejected");
+            let errors = format!("{}", buf.extract_errs());
+            assert!(
+                errors.contains(&format!("reserved keyword `{keyword}`")),
+                "expected keyword module error for `{keyword}`"
+            );
+        }
+    });
+}

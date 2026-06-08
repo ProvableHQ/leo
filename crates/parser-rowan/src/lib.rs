@@ -37,6 +37,11 @@ pub use parser::{
 pub use rowan::TextRange;
 pub use syntax_kind::{SyntaxKind, syntax_kind_from_raw};
 
+/// Returns whether `s` is a Leo keyword recognized by the lexer.
+pub fn is_keyword(s: &str) -> bool {
+    lexer::is_keyword(s)
+}
+
 /// The Leo language type for rowan.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum LeoLanguage {}

@@ -344,6 +344,10 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
     }
 }
 
+pub(crate) fn is_keyword(s: &str) -> bool {
+    ident_to_kind(s).is_keyword()
+}
+
 /// Strip integer type suffix from a string, returning the numeric part.
 fn strip_int_suffix(s: &str) -> Option<&str> {
     // Check for integer type suffixes (longest first to match correctly)
@@ -722,6 +726,14 @@ mod tests {
             KW_IDENTIFIER "identifier"
             EOF ""
         "#]]);
+    }
+
+    #[test]
+    fn keyword_predicate_matches_identifier_keywords() {
+        assert!(super::is_keyword("view"));
+        assert!(super::is_keyword("dyn"));
+        assert!(super::is_keyword("in"));
+        assert!(!super::is_keyword("inside"));
     }
 
     #[test]
