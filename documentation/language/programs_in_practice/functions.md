@@ -82,7 +82,7 @@ The same rule applies across programs — a `final {}` block can call a `view fn
 
 ## The Constructor
 
-The `constructor` is the one other function-like declaration inside a `program {}` block. Unlike the entry, `final`, and `view` functions above, it is never called directly: the network runs it on-chain at deployment and on every upgrade to enforce the program's upgrade policy. It is documented alongside the other program-level declarations under [Constructor](../02_structure.md#constructor), with the full upgrade-policy semantics in the [Upgrading Programs guide](../../guides/10_program_upgradability.md).
+The `constructor` is the one other function-like declaration inside a `program {}` block. Unlike the entry, `final`, and `view` functions above, it is never called directly: the network runs it on-chain at deployment and on every upgrade to enforce the program's upgrade policy. It is documented alongside the other program-level declarations under [Constructor](../structure.md#constructor), with the full upgrade-policy semantics in the [Upgrading Programs guide](../../guides/program_upgradability.md).
 
 ## Helper Function
 
@@ -122,7 +122,7 @@ Use `@no_inline` when the function is intentionally shared across multiple call 
 Some helpers cannot exist as standalone AVM functions and **must** be inlined regardless of the annotation. In these cases the compiler ignores `@no_inline` and emits a warning at the annotation site:
 
 - helper functions defined in a submodule (`path::nested::fn`) — Aleo identifiers are flat, so there is no bytecode form for a nested name,
-- helper functions defined in a [library](../06_libraries.md) — libraries have no on-chain footprint,
+- helper functions defined in a [library](../libraries.md) — libraries have no on-chain footprint,
 - a `final fn`,
 - a helper reached from an on-chain context (a `constructor` or finalize block),
 - a helper with more than 16 arguments,
@@ -133,7 +133,7 @@ The annotation has no effect on entry `fn` declarations either — the entry-poi
 
 ### The `@inline` Annotation
 
-The compiler accepts `@inline` as a recognized annotation name, but **no compiler pass acts on it** — it is a silent no-op carried over from earlier Leo versions, where `inline` was a function-modifier keyword rather than an annotation (see [Migrating from Leo 3.5 to 4.0](../../guides/13_migration_3_5_to_4_0.md#inline-becomes-fn)). The default inlining behaviour described above is the same whether or not `@inline` is present, so prefer to leave it out of new code.
+The compiler accepts `@inline` as a recognized annotation name, but **no compiler pass acts on it** — it is a silent no-op carried over from earlier Leo versions, where `inline` was a function-modifier keyword rather than an annotation (see [Migrating from Leo 3.5 to 4.0](../../guides/migration_3_5_to_4_0.md#inline-becomes-fn)). The default inlining behaviour described above is the same whether or not `@inline` is present, so prefer to leave it out of new code.
 
 ## Function Call Rules
 

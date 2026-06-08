@@ -158,7 +158,7 @@ When the reader is inside the same program that declares the interface, drop the
 
 ### Dynamic Storage Reads
 
-Interfaces that declare [`storage`](../02_structure.md#storage) variables support dynamic reads with the same pattern. Storage reads always return an `Option<T>`:
+Interfaces that declare [`storage`](../structure.md#storage) variables support dynamic reads with the same pattern. Storage reads always return an `Option<T>`:
 
 ```text
 Interface@(target[, network])::singleton            // Option<T>
