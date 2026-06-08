@@ -179,6 +179,46 @@ Saves the transaction to the directory located at the `<SAVE>` path.
 
 Skips deployment of any program that contains one of the given substrings, delimited by a space.
 
+### `--rename <NAME>`
+
+Deploys the project's program under a different on-chain name, without editing your source. The program is recompiled so its on-chain identity becomes `<NAME>`, producing a **genuinely distinct deployment** — not an alias of the original name. The argument may be given with or without the `.aleo` suffix (`--rename token` and `--rename token.aleo` are equivalent).
+
+```bash
+# The package declares `original_prog.aleo`, but deploy it as `renamed_prog.aleo`.
+leo deploy --broadcast --rename renamed_prog
+```
+
+The deployment plan and summary reflect the new name, and the on-chain program is the renamed one:
+
+```bash title="sample output (abridged):"
+       Leo ✅ Compiled 'renamed_prog.aleo' into Aleo instructions.
+...
+📦 Deployment Tasks:
+  • renamed_prog.aleo  │ priority fee: 0  │ fee record: no (public fee)
+...
+✅ Deployment confirmed!
+```
+
+:::note
+Only the project's own (primary) program is renamed. Programs that `import` the original name are **not** redirected to the renamed copy, and your local source and `program.json` are left unchanged.
+:::
+
+`--rename` is rejected, before any network interaction, when:
+
+- the name is not a valid Aleo program name;
+- the target collides with another program or dependency in the package (build artifacts are keyed by name, so this would be ambiguous);
+- the target is the program's current name (a no-op rename);
+- it is combined with `--build-tests` (tests keep their original names and would dangle against the renamed primary);
+- deploying multiple [workspace](../guides/workspaces.md) members at once (deploy a single program instead).
+
+**Executing a renamed program.** Because your local package keeps its original identity, run the renamed program by its **fully qualified** on-chain name so it resolves to the deployed copy on the network:
+
+```bash
+leo execute --broadcast renamed_prog.aleo::main 1u32 2u32
+```
+
+Running `leo execute main ...` (unqualified) from the same directory would instead target your local program under its original name, which was never deployed.
+
 ### `--yes`
 
 ### `-y`
@@ -231,6 +271,8 @@ Options:
   [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --skip <SKIP>...
   Skips deployment of any program that contains one of the given substrings.
+--rename <NAME>
+  Deploy the program under a different name, producing a genuinely distinct on-chain deployment. Programs importing the original name are not redirected to the renamed copy.
 --enable-ast-spans
     Enable spans in AST snapshots.
 --enable-initial-ast-snapshot
