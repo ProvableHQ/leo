@@ -18,6 +18,14 @@ orbs:
   windows: circleci/windows@5.1.0
   codecov: codecov/codecov@1.0.2
 
+# Set by the `path-filtering` orb in the setup config (config.yml). The
+# `full` default makes an empty or unmatched diff run everything.
+parameters:
+  pipeline-scope:
+    type: enum
+    enum: [docs, snippets, full]
+    default: full
+
 executors:
   macos-executor:
     macos:
@@ -30,22 +38,75 @@ executors:
     resource_class: 2xlarge
 
 commands:
+  # The workflows always run so their required GitHub checks always report;
+  # guarded jobs halt early (reporting success) when `pipeline-scope` is not in
+  # the space-separated `scope-is`.
+  only-run-if:
+    description: "Halt the job unless `pipeline-scope` is in `scope-is`."
+    parameters:
+      scope-is:
+        type: string
+      is_windows:
+        type: boolean
+        default: false
+    steps:
+      - run:
+          name: Skip unless pipeline scope matches
+          # `master` never halts: the path-filtering diff there covers only the
+          # newest commit, so a multi-commit push could be misclassified.
+          command: |
+            <<# parameters.is_windows >>
+            foreach ($t in "<< parameters.scope-is >>".Split(" ")) {
+              if ($t -notin @("docs", "snippets", "full")) {
+                Write-Host "unknown scope '$t' in '<< parameters.scope-is >>'"
+                exit 1
+              }
+            }
+            if ($Env:CIRCLE_BRANCH -eq "master") {
+              Write-Host "on master; running."
+            } elseif ("<< parameters.scope-is >>".Split(" ") -contains "<< pipeline.parameters.pipeline-scope >>") {
+              Write-Host "scope '<< pipeline.parameters.pipeline-scope >>' matches; running."
+            } else {
+              Write-Host "scope '<< pipeline.parameters.pipeline-scope >>' not in '<< parameters.scope-is >>'; skipping."
+              if (-not (Get-Command circleci-agent -ErrorAction SilentlyContinue)) {
+                Write-Host "circleci-agent not found; failing instead of running unguarded."
+                exit 1
+              }
+              circleci-agent step halt
+            }
+            <</ parameters.is_windows >>
+            <<^ parameters.is_windows >>
+            for t in << parameters.scope-is >>; do
+              case "$t" in
+                docs|snippets|full) ;;
+                *) echo "unknown scope '$t' in '<< parameters.scope-is >>'"; exit 1 ;;
+              esac
+            done
+            if [ "${CIRCLE_BRANCH:-}" = "master" ]; then
+              echo "on master; running."
+            else
+              case " << parameters.scope-is >> " in
+                *" << pipeline.parameters.pipeline-scope >> "*) echo "scope '<< pipeline.parameters.pipeline-scope >>' matches; running." ;;
+                *) echo "scope '<< pipeline.parameters.pipeline-scope >>' not in '<< parameters.scope-is >>'; skipping."; circleci-agent step halt ;;
+              esac
+            fi
+            <</ parameters.is_windows >>
+
   install-rust:
     description: "Install Rust (Linux/macOS)"
     steps:
       - run:
           name: Install Rust
           command: |
-            # If Rust is not installed on the machine, install it
-            # (temporarily install it regardless, as we want 1.96.0, not 1.85.0)
-            # if ! command -v rustc &> /dev/null; then
+            # Install only when the pinned 1.96.0 toolchain is missing (e.g. the macOS image).
+            if ! command -v rustc &> /dev/null || ! rustc --version | grep -q '^rustc 1\.96\.0 '; then
               curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
               source "$HOME/.cargo/env"
               rustup install 1.96.0
               rustup override set 1.96.0
               cargo --version --verbose
               rustc --version
-            # fi
+            fi
             if [ ! -f "Cargo.lock" ]; then
               cargo generate-lockfile
             fi
@@ -205,7 +266,6 @@ commands:
           # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
           command: |
             ulimit -n 65536
-            cargo-mtime . ~/.cache/mtimes/project.db
             cargo nextest run --all --locked --cargo-profile ci --features only_testnet --verbose
 
   install_rust_nightly:
@@ -223,6 +283,9 @@ jobs:
       RUST_MIN_STACK: "16777216"    # 16 MB stack for rustc
       CARGO_INCREMENTAL: 0
     steps:
+      - only-run-if:
+          scope-is: "full"
+          is_windows: true
       - run:
           name: Force git to use HTTPS
           command: |
@@ -252,6 +315,8 @@ jobs:
   test-macos:
     executor: macos-executor
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - restore_cache:
           keys:
@@ -277,6 +342,8 @@ jobs:
   test-linux:
     executor: linux-executor
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - restore_cache:
           keys:
@@ -324,6 +391,8 @@ jobs:
       - image: "cimg/rust:1.96.0-node"  # Rust image with Node.js for tree-sitter CLI checks.
     resource_class: small
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - install_rust_nightly
       - run:
@@ -332,17 +401,26 @@ jobs:
       - run:
           name: Check style
           command: cargo +nightly fmt --all -- --check
+      - restore_cache:
+          keys:
+            - npx-treesitter-v1-0.25.10
       - run:
           name: Validate tree-sitter corpus
           command: |
             cd tree-sitter
             npx --yes tree-sitter-cli@0.25.10 test
+      - save_cache:
+          key: npx-treesitter-v1-0.25.10
+          paths:
+            - ~/.npm
 
   clippy:
     docker:
       - image: "cimg/rust:1.96.0"
     resource_class: large
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - restore_cache:
           keys:
@@ -370,6 +448,8 @@ jobs:
       - image: "cimg/rust:1.96.0"
     resource_class: large
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - restore_cache:
           keys:
@@ -417,6 +497,8 @@ jobs:
       - image: "cimg/rust:1.96.0"
     resource_class: large
     steps:
+      - only-run-if:
+          scope-is: "full"
       - checkout
       - restore_cache:
           keys:
@@ -452,6 +534,9 @@ jobs:
     resource_class: small
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - npx-docs-v1-mdlint-0.47.0-mlc-3.14.2
       - run:
           name: markdownlint
           command: npx --yes markdownlint-cli@0.47.0 --config .markdownlint.yaml 'documentation/**/*.md'
@@ -464,11 +549,17 @@ jobs:
               npx --yes markdown-link-check@3.14.2 --config .mlc_config.json --quiet "$f" || rc=1
             done < <(find documentation -name '*.md' -print0)
             exit $rc
+      - save_cache:
+          key: npx-docs-v1-mdlint-0.47.0-mlc-3.14.2
+          paths:
+            - ~/.npm
 
   leo-executable:
     executor: linux-executor
     resource_class: xlarge
     steps:
+      - only-run-if:
+          scope-is: "full snippets"
       - checkout
       - restore_cache:
           keys:
@@ -503,6 +594,8 @@ jobs:
       - image: cimg/rust:1.96.0
     resource_class: small
     steps:
+      - only-run-if:
+          scope-is: "full"
       - attach_workspace:
           at: /home/circleci/project/
       - run:
@@ -516,6 +609,8 @@ jobs:
       - image: cimg/rust:1.96.0
     resource_class: small
     steps:
+      - only-run-if:
+          scope-is: "full"
       - attach_workspace:
           at: /home/circleci/project/
       - run:
@@ -529,6 +624,8 @@ jobs:
       - image: cimg/rust:1.96.0
     resource_class: large
     steps:
+      - only-run-if:
+          scope-is: "full"
       - attach_workspace:
           at: /home/circleci/project/
       - run:
@@ -543,6 +640,8 @@ jobs:
       - image: cimg/rust:1.96.0
     resource_class: medium
     steps:
+      - only-run-if:
+          scope-is: "full snippets"
       - attach_workspace:
           at: /home/circleci/project/
       - run:
@@ -570,9 +669,9 @@ jobs:
             done < <(find documentation/code_snippets -name program.json -not -path '*/build/*' -not -path '*/imports/*' | xargs -n1 dirname | sort)
             exit $failed
 
+# Workflows always run so required GitHub checks report; jobs halt per scope
+# (see `only-run-if`).
 workflows:
-  version: 2
-
   test-windows:
     jobs:
       - test-windows

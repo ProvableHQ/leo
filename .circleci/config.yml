@@ -1,0 +1,27 @@
+version: 2.1
+
+# Setup config: inspects the diff vs `master` and continues with
+# `continue_config.yml`, which holds the real jobs. `pipeline-scope` selects
+# how much runs: `docs` (only `docs-lint`), `snippets` (also build the doc
+# snippets), or `full` (default; everything).
+#
+# Requires "Enable dynamic config using setup workflows" in the project settings.
+
+setup: true
+
+orbs:
+  path-filtering: circleci/path-filtering@3.0.0
+
+workflows:
+  setup:
+    jobs:
+      - path-filtering/filter:
+          base-revision: master
+          config-path: .circleci/continue_config.yml
+          # The orb anchors each pattern as `^<pattern>$`; the lowest matching
+          # line wins. An empty or unmatched diff falls back to the `full`
+          # default in `continue_config.yml`.
+          mapping: |
+            documentation/.* pipeline-scope docs
+            documentation/code_snippets/.* pipeline-scope snippets
+            (?!documentation/).* pipeline-scope full
