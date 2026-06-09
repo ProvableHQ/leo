@@ -8,7 +8,7 @@ sidebar_label: Program Structure
 
 ## Layout of a Leo Program
 
-A Leo program contains declarations of a [Program](#program), [Constants](#constant), [Imports](#import)
+A Leo program contains declarations of a [Program](#program), a [Constructor](#constructor), [Constants](#constant), [Imports](#import)
 , [Structs](#struct), [Records](#record), [Mappings](#mappings), [Interfaces](./programs_in_practice/interfaces.md), and functions.
 Declarations are locally accessible within a program file.
 If you need a declaration from another Leo file, you must import it.
@@ -21,6 +21,25 @@ For the canonical list of which declarations belong inside vs. outside the `prog
 
 ```leo file=../code_snippets/layout/main_example/src/main.leo#file
 ```
+
+### Constructor
+
+A `constructor` is a special, mandatory function declared inside the `program { ... }` block as `constructor() { ... }`. Every program must declare exactly one. It takes no parameters and returns no value, and it is not a regular `fn`: you never call it directly. Instead, the network runs it on-chain during the program's initial deployment and on every subsequent upgrade, where it acts as the gatekeeper for the program's upgrade policy.
+
+Two properties set a `constructor` apart from an ordinary function:
+
+- **Immutable.** The logic set at first deployment can never be changed, modified, or deleted by a future upgrade.
+- **Policy-bearing.** It carries exactly one upgrade annotation — `@noupgrade`, `@admin`, `@checksum`, or `@custom` — that selects how the program may be upgraded. The managed modes (`@noupgrade`, `@admin`, `@checksum`) require an **empty** body, since the compiler generates their logic; `@custom` requires a **non-empty** body that you write yourself. A constructor with no annotation, or with more than one, is a compile error.
+
+```leo file=../code_snippets/upgradability/noupgrade/src/main.leo#file
+```
+
+Inside a `constructor`, you can read on-chain program metadata through `self` — namely `self.address`, `self.edition`, `self.program_owner`, and `self.checksum`. A `@custom` constructor typically branches on `self.edition` to apply different rules at first deployment (`edition == 0`) versus later upgrades:
+
+```leo file=../code_snippets/upgradability/timelock/src/main.leo#file
+```
+
+For the annotation argument grammar, the type and meaning of each `self.*` operand, and worked patterns for every upgrade mode, see the [Upgrading Programs guide](../guides/10_program_upgradability.md).
 
 ### Constant
 
