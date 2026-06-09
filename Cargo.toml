@@ -107,17 +107,26 @@ incremental = true
 debug-assertions = false
 
 [profile.dev]
-opt-level = 2
+opt-level = 1     # Low opt-level keeps incremental rebuilds of workspace crates fast.
 lto = "off"
 incremental = true
 debug-assertions = false
 
+# Build all dependencies (notably the large snarkVM tree) with full optimizations.
+# They are compiled once and cached, so this does not affect incremental rebuild
+# times, but it keeps runtime fast even though our own crates are barely optimized.
+[profile.dev.package."*"]
+opt-level = 3
+
 [profile.test]
-opt-level = 2
+opt-level = 1     # See `profile.dev`; low opt-level for fast workspace rebuilds.
 lto = "off"
 incremental = true
-debug = true
+debug = "line-tables-only" # Enough for file/line in backtraces; far cheaper to emit and link than full debuginfo.
 debug-assertions = true
+
+[profile.test.package."*"]
+opt-level = 3
 
 [profile.ci]
 inherits = "test"
@@ -127,3 +136,9 @@ incremental = false
 debug = false
 debug-assertions = false
 codegen-units = 32 # HIGH codegen parallelism speeds compile (default is usually 16)
+
+# CI does near-clean builds, so optimizing dependencies would only slow compilation.
+# Override the `profile.test` dependency setting inherited above to keep every crate
+# at the low opt-level for the fastest possible CI builds.
+[profile.ci.package."*"]
+opt-level = 1
