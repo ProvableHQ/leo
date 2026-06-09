@@ -1,0 +1,90 @@
+
+       Leo 🔨 Compiling 'renamed_token.aleo'
+       Leo     3 statements before dead code elimination.
+       Leo     3 statements after dead code elimination.
+       Leo     The program checksum is: '[99u8, 159u8, 227u8, 233u8, 157u8, 86u8, 229u8, 246u8, 229u8, 17u8, 237u8, 30u8, 146u8, 88u8, 44u8, 89u8, 211u8, 124u8, 225u8, 53u8, 78u8, 39u8, 73u8, 65u8, 105u8, 35u8, 209u8, 104u8, 16u8, 146u8, 198u8, 241u8]'.
+       Leo     Program size: 0.17 KB / 500.00 KB
+       Leo ✅ Compiled 'renamed_token.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI for program 'renamed_token.aleo'.
+
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+  To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
+
+Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+
+🛠️  Deployment Plan Summary
+──────────────────────────────────────────────
+🔧 Configuration:
+  Private Key:        APrivateKey1zkp8CZNn3yeC...
+  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Endpoint:           http://localhost:3030
+  Network:            testnet
+  Consensus Version:  15
+
+📦 Deployment Tasks:
+  • renamed_token.aleo  │ priority fee: 0  │ fee record: no (public fee)
+
+⚙️ Actions:
+  • Transaction(s) will NOT be printed to the console.
+  • Transaction(s) will NOT be saved to a file.
+  • Transaction(s) will be broadcast to http://localhost:3030
+──────────────────────────────────────────────
+
+
+🔧 Your program 'renamed_token.aleo' has the following constructor.
+──────────────────────────────────────────────
+constructor:
+    assert.eq edition 0u16;
+──────────────────────────────────────────────
+Once it is deployed, it CANNOT be changed.
+
+📦 Creating deployment transaction for 'renamed_token.aleo'...
+
+
+📊 Deployment Summary for renamed_token.aleo
+──────────────────────────────────────────────
+  Program Size:         0.17 KB / 500.00 KB
+  Total Variables:      18,362
+  Total Constraints:    14,192
+  Max Variables:        XXXXXX
+  Max Constraints:      XXXXXX
+
+💰 Cost Breakdown (credits)
+  Transaction Storage:  0.872000
+  Program Synthesis:    0.032554
+  Namespace:            1.000000
+  Constructor:          0.002000
+  Priority Fee:         0.000000
+  Total Fee:            1.906554
+  Function 'mint'
+    Total Execution Cost:   0.001383
+    |- Storage Cost:        0.001383
+    |- Finalize Cost:       0.000000
+──────────────────────────────────────────────
+
+📡 Broadcasting deployment for renamed_token.aleo...
+💰Your current public balance is XXXXXX credits.
+
+✉️ Broadcasted transaction with:
+  - transaction ID: 'XXXXXX'
+  - fee ID: 'XXXXXX'
+  - fee transaction ID: 'XXXXXX'
+    (use this to check for rejected transactions)
+
+🔄 Searching up to 12 blocks to confirm transaction (this may take several seconds)...
+Explored XXXXXX blocks.
+Transaction accepted.
+✅ Deployment confirmed!
+       Leo ✅ Successfully retrieved data from 'http://localhost:3030/testnet/program/renamed_token.aleo'.
+
+program renamed_token.aleo;
+
+function mint:
+    input r0 as address.private;
+    input r1 as u32.private;
+    output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+
+

@@ -31,6 +31,7 @@ use leo_package::{
     Manifest,
     PackageKind,
     ProgramData,
+    bare_unit_name,
     resolve_workspace_dependency,
 };
 use leo_passes::*;
@@ -95,6 +96,9 @@ pub struct Compiler {
     output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
+    /// When set, recompile under this on-chain name instead of the one the source
+    /// declares, so the bytecode is a distinct deployment. Used by `leo deploy --rename`.
+    pub rename: Option<String>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
     /// State.
@@ -133,7 +137,7 @@ impl Compiler {
             .collect::<Vec<_>>();
 
         // Use the parser to construct the abstract syntax tree (ast).
-        let program = leo_parser::parse_program(
+        let mut program = leo_parser::parse_program(
             self.state.handler.clone(),
             &self.state.node_builder,
             &source_file,
@@ -141,13 +145,24 @@ impl Compiler {
             self.state.network,
         )?;
 
-        // Check that the name of its program scope matches the expected name.
+        // Capture the declared program name and span before any rewrite, so the
+        // borrow does not outlive a potential mutation below.
         // Note that parsing enforces that there is exactly one program scope in a file.
-        let program_scope = program.program_scopes.values().next().unwrap();
-        if let Some(unit_name) = &self.unit_name {
-            if unit_name != &program_scope.program_id.as_symbol().to_string() {
+        let (source_name, source_span) = {
+            let program_id = &program.program_scopes.values().next().unwrap().program_id;
+            (program_id.as_symbol().to_string(), program_id.span())
+        };
+
+        if let Some(rename) = self.rename.clone() {
+            let bare = bare_unit_name(&rename);
+            let program_scope = program.program_scopes.values_mut().next().unwrap();
+            program_scope.program_id.name.name = Symbol::intern(bare);
+            self.unit_name = Some(rename);
+        } else if let Some(unit_name) = &self.unit_name {
+            // Check that the name of its program scope matches the expected name.
+            if unit_name != &source_name {
                 return Err(crate::errors::program_name_should_match_file_name(
-                    program_scope.program_id.as_symbol(),
+                    Symbol::intern(&source_name),
                     // If this is a test, use the filename as the expected name.
                     if self.state.is_test {
                         format!(
@@ -157,12 +172,12 @@ impl Compiler {
                     } else {
                         format!("`{unit_name}` (specified in `program.json`)")
                     },
-                    program_scope.program_id.span(),
+                    source_span,
                 )
                 .into());
             }
         } else {
-            self.unit_name = Some(program_scope.program_id.as_symbol().to_string());
+            self.unit_name = Some(source_name);
         }
 
         self.state.ast = Ast::Program(program);
@@ -328,6 +343,7 @@ impl Compiler {
             },
             output_directory,
             unit_name: expected_unit_name,
+            rename: None,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
             statements_before_dce: 0,
@@ -1236,7 +1252,7 @@ mod tests {
 
     use leo_ast::{NetworkName, NodeBuilder};
     use leo_errors::{BufferEmitter, Handler};
-    use leo_span::{Symbol, create_session_if_not_set_then, file_source::InMemoryFileSource};
+    use leo_span::{Symbol, create_session_if_not_set_then, file_source::InMemoryFileSource, source_map::FileName};
 
     use std::{path::PathBuf, rc::Rc};
 
@@ -1366,6 +1382,51 @@ mod tests {
                 "module `utils` should be loaded from the in-memory file source; found keys: {:?}",
                 ast.modules.keys().collect::<Vec<_>>()
             );
+        });
+    }
+
+    /// Verifies that a `rename` override recompiles the program under the new name:
+    /// the emitted bytecode header uses the renamed identity and the original name
+    /// does not leak, even though the source declares the old name.
+    #[test]
+    fn rename_override_recompiles_under_new_name() {
+        create_session_if_not_set_then(|_| {
+            let handler = Handler::default();
+            let node_builder = Rc::new(NodeBuilder::default());
+            let mut compiler = Compiler::new(
+                Some("foo.aleo".into()),
+                false,
+                handler,
+                node_builder,
+                PathBuf::from("/unused"),
+                None,
+                IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+            // Request deployment under a different name.
+            compiler.rename = Some("bar.aleo".into());
+
+            let source = concat!(
+                "program foo.aleo {\n",
+                "    record R {\n",
+                "        owner: address,\n",
+                "        x: bool,\n",
+                "    }\n",
+                "    fn foo() -> R {\n",
+                "        return R { owner: self.signer, x: true };\n",
+                "    }\n",
+                "}\n",
+            );
+            let filename = FileName::Custom("main.leo".into());
+            let modules: Vec<(&str, FileName)> = Vec::new();
+            let compiled = compiler
+                .compile(source, filename, &modules)
+                .unwrap_or_else(|err| panic!("compiling with rename failed: {err}"));
+
+            assert_eq!(compiler.unit_name.as_deref(), Some("bar.aleo"), "unit name should adopt the rename");
+            let bytecode = &compiled.primary.bytecode;
+            assert!(bytecode.contains("program bar.aleo;"), "expected renamed header, got:\n{bytecode}");
+            assert!(!bytecode.contains("program foo.aleo;"), "old name leaked into bytecode:\n{bytecode}");
         });
     }
 }

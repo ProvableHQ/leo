@@ -56,7 +56,7 @@ impl Command for LeoTest {
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         let mut options = self.compiler_options.clone();
         options.build_tests = true;
-        (LeoBuild { env_override: self.env_override.clone(), options }).execute(context)
+        (LeoBuild { env_override: self.env_override.clone(), options, rename: None }).execute(context)
     }
 
     fn apply(self, _: Context, input: Self::Input) -> Result<Self::Output> {
@@ -79,8 +79,8 @@ impl Command for LeoTest {
                     // Build with tests.
                     let mut opts = self.compiler_options.clone();
                     opts.build_tests = true;
-                    let package =
-                        (LeoBuild { env_override: self.env_override.clone(), options: opts }).execute(member_ctx)?;
+                    let package = (LeoBuild { env_override: self.env_override.clone(), options: opts, rename: None })
+                        .execute(member_ctx)?;
 
                     // Run tests for this member.
                     let member_test = LeoTest {

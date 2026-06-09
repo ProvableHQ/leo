@@ -82,6 +82,7 @@ impl Command for LeoUpgrade {
                 options.no_cache = true;
                 options
             },
+            rename: None,
         }
         .execute(context)
     }
@@ -558,6 +559,7 @@ impl From<&LeoUpgrade> for LeoDeploy {
             env_override: upgrade.env_override.clone(),
             extra: upgrade.extra.clone(),
             skip: upgrade.skip.clone(),
+            rename: None,
             build_options: upgrade.build_options.clone(),
             skip_deploy_certificate: upgrade.skip_deploy_certificate,
         }

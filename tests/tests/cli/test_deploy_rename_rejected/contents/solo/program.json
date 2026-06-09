@@ -1,0 +1,9 @@
+{
+  "program": "solo.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.2.0",
+  "dependencies": null,
+  "dev_dependencies": null
+}

@@ -1,0 +1,4 @@
+Error [ECLI0377045]: `--rename` target 'solo.aleo' is identical to the program's current name.
+
+Error [ECLI0377045]: `--rename` cannot be combined with `--build-tests`.
+

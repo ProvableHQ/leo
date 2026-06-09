@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+ENDPOINT="http://localhost:${LEO_DEVNODE_PORT:-3030}"
+COMMON_OPTS="--disable-update-check --network testnet --endpoint $ENDPOINT --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+
+# The package declares `original_prog.aleo`, but `--rename` recompiles and deploys
+# it on-chain under a different identity.
+$LEO_BIN deploy -y --broadcast --rename renamed_prog $COMMON_OPTS
+
+# Confirm the renamed program actually landed on-chain under its new name.
+$LEO_BIN query --disable-update-check --network testnet --endpoint $ENDPOINT program renamed_prog.aleo
+
+# Execute the renamed program from the original project directory. The local
+# package still declares `original_prog`, so the qualified name resolves to a
+# remote program that is fetched from the network (where it is deployed as
+# `renamed_prog.aleo`) rather than the local source.
+$LEO_BIN execute -y --broadcast renamed_prog.aleo::main 1u32 2u32 $COMMON_OPTS

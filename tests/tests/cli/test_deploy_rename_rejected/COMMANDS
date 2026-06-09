@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+COMMON_OPTS="--disable-update-check --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+
+# Both rejections fire before any network interaction, so this test manages no
+# devnode (see SKIP_DEVNODE).
+cd solo || exit 1
+
+# Renaming to the program's current name is a no-op and must be rejected. The
+# primary's name is bare while the target is `.aleo`-suffixed, so this guards the
+# comparison against being done on the wrong (suffixed vs. bare) form.
+$LEO_BIN deploy -y --rename solo $COMMON_OPTS
+
+# `--rename` cannot be combined with `--build-tests`: tests keep their original
+# names and would dangle against the renamed primary.
+$LEO_BIN deploy -y --build-tests --rename other $COMMON_OPTS
