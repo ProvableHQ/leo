@@ -96,10 +96,8 @@ pub struct Compiler {
     output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
-    /// An optional override that recompiles the program under a different on-chain
-    /// name (e.g. `bar.aleo`). When set, the parsed program scope is rewritten to this
-    /// identity and `unit_name` adopts it, so the emitted bytecode is a genuinely
-    /// distinct deployment. Used by `leo deploy --rename`.
+    /// When set, recompile under this on-chain name instead of the one the source
+    /// declares, so the bytecode is a distinct deployment. Used by `leo deploy --rename`.
     pub rename: Option<String>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
@@ -156,11 +154,6 @@ impl Compiler {
         };
 
         if let Some(rename) = self.rename.clone() {
-            // `leo deploy --rename` recompiles the program under a different on-chain
-            // identity. Rewrite the parsed program scope to the new name so that every
-            // downstream pass (type checking, code generation) emits the renamed program,
-            // and adopt it as the unit name. The source-scope equality check below is
-            // intentionally skipped because the override replaces the declared name.
             let bare = bare_unit_name(&rename);
             let program_scope = program.program_scopes.values_mut().next().unwrap();
             program_scope.program_id.name.name = Symbol::intern(bare);

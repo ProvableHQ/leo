@@ -301,7 +301,6 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         build_options.clone(),
                         stubs.clone(),
                         network,
-                        // Only the primary program is renamed; tests and imports keep their names.
                         if is_main { rename_target.clone() } else { None },
                     )?;
 
@@ -402,10 +401,8 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     }
                     stubs.insert(unit.name, library_stub);
                 } else {
-                    // Parse the primary program (for its stub) and intermediate dependencies.
-                    // The primary's stub must adopt the rename too, otherwise re-parsing the
-                    // source (which still declares the original name) under the renamed unit
-                    // name would fail the program-name check.
+                    // Parse the primary program (for its stub) and intermediate dependencies; the
+                    // primary's stub adopts the rename too, or its parse would fail the name check.
                     let leo_program = parse_leo_source_directory(
                         source,
                         &source_dir,
@@ -482,9 +479,6 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 /// bytecode all share the renamed identity; the canonical `.aleo`-suffixed name
 /// to compile under is returned. Programs that import the original name are
 /// intentionally not redirected to the renamed copy.
-///
-/// `primary_name` is the primary unit's name captured *before* any mutation,
-/// since rewriting it would make `package.primary_unit()` no longer resolve.
 fn apply_rename(command: &LeoBuild, package: &mut Package, primary_name: Option<Symbol>) -> Result<Option<String>> {
     let Some(requested) = &command.rename else {
         return Ok(None);
