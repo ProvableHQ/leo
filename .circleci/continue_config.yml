@@ -1,0 +1,709 @@
+version: 2.1
+
+# Notes
+# - `sccache` was removed because it doesn't actually provide much benefit in CI. Lots of cache misses.
+# - https://github.com/Swatinem/rust-cache?tab=readme-ov-file#cache-details provides guidance on which directories to cache.
+# - Incremental builds should be disabled in CI, since they don't provide much benefit.
+# - Enabling `--only_testnet` feature flag to reduce the amount of time spent building leo-lang, since it's not needed for the test suite.
+
+# Rust Version: 1.96.0
+# Ensure that this matches the `rust-version` in `Cargo.toml`.
+# If this is changed, propogate the changes to all places in this file, including the `install-rust` command.
+
+# TODO:
+#  - The cache size can accumulate as the dependencies get upgraded. Ideally you want some pruning before the cache gets persisted.
+#    See swatinem/rust-cache for a sensible approach. Unfortunately, we'd have to build this for CircleCI.
+
+orbs:
+  windows: circleci/windows@5.1.0
+  codecov: codecov/codecov@1.0.2
+
+# Set by the `path-filtering` orb in the setup config (config.yml). The
+# `full` default makes an empty or unmatched diff run everything.
+parameters:
+  pipeline-scope:
+    type: enum
+    enum: [docs, snippets, full]
+    default: full
+
+executors:
+  macos-executor:
+    macos:
+      xcode: "26.0.1"  # Use appropriate Xcode version
+    resource_class: m4pro.large
+
+  linux-executor:
+    docker:
+      - image: "cimg/rust:1.96.0"  # Ensure that this matches the `rust-version` in `Cargo.toml`.
+    resource_class: 2xlarge
+
+commands:
+  # The workflows always run so their required GitHub checks always report;
+  # guarded jobs halt early (reporting success) when `pipeline-scope` is not in
+  # the space-separated `scope-is`.
+  only-run-if:
+    description: "Halt the job unless `pipeline-scope` is in `scope-is`."
+    parameters:
+      scope-is:
+        type: string
+      is_windows:
+        type: boolean
+        default: false
+    steps:
+      - run:
+          name: Skip unless pipeline scope matches
+          # `master` never halts: the path-filtering diff there covers only the
+          # newest commit, so a multi-commit push could be misclassified.
+          command: |
+            <<# parameters.is_windows >>
+            foreach ($t in "<< parameters.scope-is >>".Split(" ")) {
+              if ($t -notin @("docs", "snippets", "full")) {
+                Write-Host "unknown scope '$t' in '<< parameters.scope-is >>'"
+                exit 1
+              }
+            }
+            if ($Env:CIRCLE_BRANCH -eq "master") {
+              Write-Host "on master; running."
+            } elseif ("<< parameters.scope-is >>".Split(" ") -contains "<< pipeline.parameters.pipeline-scope >>") {
+              Write-Host "scope '<< pipeline.parameters.pipeline-scope >>' matches; running."
+            } else {
+              Write-Host "scope '<< pipeline.parameters.pipeline-scope >>' not in '<< parameters.scope-is >>'; skipping."
+              if (-not (Get-Command circleci-agent -ErrorAction SilentlyContinue)) {
+                Write-Host "circleci-agent not found; failing instead of running unguarded."
+                exit 1
+              }
+              circleci-agent step halt
+            }
+            <</ parameters.is_windows >>
+            <<^ parameters.is_windows >>
+            for t in << parameters.scope-is >>; do
+              case "$t" in
+                docs|snippets|full) ;;
+                *) echo "unknown scope '$t' in '<< parameters.scope-is >>'"; exit 1 ;;
+              esac
+            done
+            if [ "${CIRCLE_BRANCH:-}" = "master" ]; then
+              echo "on master; running."
+            else
+              case " << parameters.scope-is >> " in
+                *" << pipeline.parameters.pipeline-scope >> "*) echo "scope '<< pipeline.parameters.pipeline-scope >>' matches; running." ;;
+                *) echo "scope '<< pipeline.parameters.pipeline-scope >>' not in '<< parameters.scope-is >>'; skipping."; circleci-agent step halt ;;
+              esac
+            fi
+            <</ parameters.is_windows >>
+
+  install-rust:
+    description: "Install Rust (Linux/macOS)"
+    steps:
+      - run:
+          name: Install Rust
+          command: |
+            # Install only when the pinned 1.96.0 toolchain is missing (e.g. the macOS image).
+            if ! command -v rustc &> /dev/null || ! rustc --version | grep -q '^rustc 1\.96\.0 '; then
+              curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+              source "$HOME/.cargo/env"
+              rustup install 1.96.0
+              rustup override set 1.96.0
+              cargo --version --verbose
+              rustc --version
+            fi
+            if [ ! -f "Cargo.lock" ]; then
+              cargo generate-lockfile
+            fi
+            cargo install cargo-mtime
+
+
+
+  install-rust-windows:
+    description: "Install Rust (Windows)"
+    steps:
+      - run:
+          name: Install Rust (Windows)
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            choco uninstall rust
+            Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
+            Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
+            $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
+            rustup install 1.96.0
+            rustup default 1.96.0
+            cargo --version --verbose
+            rustc --version | Out-File -FilePath "rust-version"
+            if (!(Test-Path "Cargo.lock" -PathType Leaf)) {
+                cargo generate-lockfile
+            }
+            cargo install cargo-mtime
+      - restore_cache:
+          keys:
+            - llvm-v1-{{ arch }}
+      - run:
+          name: Install LLVM/libclang (Windows)
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            if (!(Test-Path "C:\Program Files\LLVM\bin\libclang.dll")) {
+              choco install llvm --no-progress -y
+            }
+            $llvmBin = "C:\Program Files\LLVM\bin"
+            [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Process")
+            [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Machine")
+            $Env:Path += ";$llvmBin"
+      - save_cache:
+          key: llvm-v1-{{ arch }}
+          paths:
+            - C:\Program Files\LLVM
+
+  install-snarkos:
+    description: "Build snarkOS from crates.io with the `test_network` feature (Linux/macOS, cached by version)"
+    steps:
+      # Cache the built binary, keyed on the requested snarkOS version. A cache hit
+      # skips the (slow) `cargo install` entirely; a version bump misses and rebuilds.
+      - restore_cache:
+          keys:
+            - snarkos-bin-v1-{{ arch }}-{{ checksum ".resources/snarkos-version" }}
+      - run:
+          name: Install snarkOS
+          # Building snarkOS from source is slow and has long silent compile
+          # stretches; raise the no-output timeout above the 10m default.
+          no_output_timeout: 40m
+          command: |
+            case "$(uname -s)" in
+              Linux|Darwin) ;;
+              *) echo "Unsupported platform, skipping"; exit 0 ;;
+            esac
+
+            SNARKOS_VERSION="$(tr -d '[:space:]' < .resources/snarkos-version)"
+
+            mkdir -p "$HOME/.local/bin"
+            if [ -x "$HOME/.cache/snarkos/bin/snarkos" ]; then
+              echo "Using cached snarkOS ${SNARKOS_VERSION}"
+            else
+              # snarkOS refuses `--dev` unless the binary is built with the
+              # `test_network` feature, and the prebuilt release artifacts are not.
+              # Build it from crates.io with the feature so the devnet tests can run.
+              cargo install snarkos --locked --version "${SNARKOS_VERSION}" \
+                --features test_network --root "$HOME/.cache/snarkos"
+            fi
+            install -m 0755 "$HOME/.cache/snarkos/bin/snarkos" "$HOME/.local/bin/snarkos"
+            echo "export PATH=$HOME/.local/bin:\$PATH" >> "$BASH_ENV"
+      - save_cache:
+          key: snarkos-bin-v1-{{ arch }}-{{ checksum ".resources/snarkos-version" }}
+          paths:
+            - ~/.cache/snarkos
+
+  install-libclang:
+    description: "Install libclang required by bindgen (Linux/macOS, for the persistent-storage feature)"
+    steps:
+      - restore_cache:
+          keys:
+            - libclang-v1-{{ arch }}
+      - run:
+          name: Install libclang
+          command: |
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+              # libclang ships with Xcode — locate it and export the path for bindgen.
+              LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
+              echo "export LIBCLANG_PATH=$LIBCLANG_PATH" >> "$BASH_ENV"
+            else
+              sudo apt-get update -qq
+              sudo apt-get install -y libclang-dev
+            fi
+      - save_cache:
+          key: libclang-v1-{{ arch }}
+          paths:
+            - /var/cache/apt/archives
+
+  build-and-test:
+    description: "Build and run tests"
+    parameters:
+      is_windows:
+        type: boolean
+        default: false
+    steps:
+      - restore_cache:
+          keys:
+            - cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+
+      - run:
+          name: Install cargo-nextest
+          command: |
+            <<# parameters.is_windows >>
+            powershell -Command "
+              if (Get-Command cargo-nextest -ErrorAction SilentlyContinue) {
+                cargo nextest --version
+              } else {
+                cargo install cargo-nextest --locked
+              }
+            "
+            <</ parameters.is_windows >>
+
+            <<^ parameters.is_windows >>
+            set -euo pipefail
+            if command -v cargo-nextest >/dev/null 2>&1; then
+              cargo nextest --version
+            else
+              cargo install cargo-nextest --locked
+            fi
+            <</ parameters.is_windows >>
+
+      - save_cache:
+          key: cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo/bin
+            - ~/.cargo/registry
+            - ~/.cargo/git
+
+      - run:
+          name: Build
+          no_output_timeout: 30m
+          command: |
+            ulimit -n 65536
+            cargo-mtime . ~/.cache/mtimes/project.db
+            cargo nextest run --no-run --all --locked --cargo-profile ci --features only_testnet
+
+      - run:
+          name: Run tests
+          no_output_timeout: 30m
+          # The `--verbose` flag is used to check which files are being recompiled. Ideally, this should be none.
+          command: |
+            ulimit -n 65536
+            cargo nextest run --all --locked --cargo-profile ci --features only_testnet --verbose
+
+  install_rust_nightly:
+    description: "Install Rust nightly toolchain"
+    steps:
+      - run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
+
+jobs:
+  test-windows:
+    executor:
+      name: windows/default
+      size: xlarge
+    environment:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      RUST_MIN_STACK: "16777216"    # 16 MB stack for rustc
+      CARGO_INCREMENTAL: 0
+    steps:
+      - only-run-if:
+          scope-is: "full"
+          is_windows: true
+      - run:
+          name: Force git to use HTTPS
+          command: |
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-windows-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-test-windows-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-windows-{{ arch }}-master-
+      - install-rust-windows
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - build-and-test:
+          is_windows: true
+      - save_cache:
+          key: cargo-v3-test-windows-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - C:\Users\circleci\.cargo
+            - C:\Users\circleci\.aleo\resources
+            - C:\Users\circleci\.cache\mtimes
+            - target
+
+  test-macos:
+    executor: macos-executor
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-macos-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-test-macos-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-macos-{{ arch }}-master-
+      - install-rust
+      - install-libclang
+      - install-snarkos
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - build-and-test
+      - save_cache:
+          key: cargo-v3-test-macos-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.aleo/resources
+            - ~/.cache/mtimes
+            - target
+
+  test-linux:
+    executor: linux-executor
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-linux-{{ arch }}-master-
+      - install-rust
+      - install-libclang
+      - install-snarkos
+      - run:
+            name: Update Submodules
+            command: git submodule update --init --recursive
+      - build-and-test
+      - save_cache:
+          key: cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.aleo/resources
+            - ~/.cache/mtimes
+            - target
+
+# TODO: Move code-coverage to CircleCI
+#  code-coverage:
+#    executor: linux-executor
+#    steps:
+#      - checkout
+#      - restore_cache:
+#          keys:
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#            - codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}
+#            - codecov-cargo-v1-{{ arch }}
+#      - install-rust
+#      - build-and-test
+#      - codecov/upload:
+#            file: { { coverage_report_filepath } }
+#      - save_cache:
+#          key: codecov-cargo-v1-{{ arch }}-{{ checksum "Cargo.toml" }}-{{ checksum "Cargo.lock" }}
+#          paths:
+#            - ~/.cargo
+#            - ~/.aleo/resources
+
+  code-style:
+    docker:
+      - image: "cimg/rust:1.96.0-node"  # Rust image with Node.js for tree-sitter CLI checks.
+    resource_class: small
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - install_rust_nightly
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Check style
+          command: cargo +nightly fmt --all -- --check
+      - restore_cache:
+          keys:
+            - npx-treesitter-v1-0.25.10
+      - run:
+          name: Validate tree-sitter corpus
+          command: |
+            cd tree-sitter
+            npx --yes tree-sitter-cli@0.25.10 test
+      - save_cache:
+          key: npx-treesitter-v1-0.25.10
+          paths:
+            - ~/.npm
+
+  clippy:
+    docker:
+      - image: "cimg/rust:1.96.0"
+    resource_class: large
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-clippy-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-clippy-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-clippy-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-clippy-{{ arch }}-master-
+      - install-libclang
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Clippy
+          no_output_timeout: 35m
+          command: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - save_cache:
+          key: cargo-v3-clippy-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  fmt-validate:
+    docker:
+      - image: "cimg/rust:1.96.0"
+    resource_class: large
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-fmt-validate-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-fmt-validate-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-fmt-validate-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-fmt-validate-{{ arch }}-master-
+      - install-libclang
+      - restore_cache:
+          keys:
+            - cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Install cargo-nextest
+          command: |
+            set -euo pipefail
+            if command -v cargo-nextest >/dev/null 2>&1; then
+              cargo nextest --version
+            else
+              cargo install cargo-nextest --locked
+            fi
+      - save_cache:
+          key: cargo-nextest-v1-{{ arch }}-{{ checksum "Cargo.lock" }}
+          paths:
+            - ~/.cargo/bin
+            - ~/.cargo/registry
+            - ~/.cargo/git
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Validate Leo formatter semantics
+          no_output_timeout: 35m
+          command: |
+            cargo nextest run -p leo-fmt --locked --cargo-profile ci --features validate \
+              -E 'test(/validate_/) - test(validate_ast_equivalence_repos)'
+      - save_cache:
+          key: cargo-v3-fmt-validate-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  cargo-doc:
+    docker:
+      - image: "cimg/rust:1.96.0"
+    resource_class: large
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-cargo-doc-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-cargo-doc-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-cargo-doc-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-cargo-doc-{{ arch }}-master-
+      - install-libclang
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Build Cargo Docs
+          command: |
+            cargo doc --no-deps --document-private-items --workspace
+            rm -rf ./tests
+          environment:
+            RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
+            RUSTC_BOOTSTRAP: "1"
+      - save_cache:
+          key: cargo-v3-cargo-doc-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  docs-lint:
+    docker:
+      # Need Node 22.12+ or 24.x so `require(esm)` is unflagged — older patches
+      # choke on the marked v17 ESM module imported by markdown-link-check's
+      # transitive deps.
+      - image: "cimg/node:24.0"
+    resource_class: small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npx-docs-v1-mdlint-0.47.0-mlc-3.14.2
+      - run:
+          name: markdownlint
+          command: npx --yes markdownlint-cli@0.47.0 --config .markdownlint.yaml 'documentation/**/*.md'
+      - run:
+          name: Check documentation links
+          no_output_timeout: 10m
+          command: |
+            rc=0
+            while IFS= read -r -d '' f; do
+              npx --yes markdown-link-check@3.14.2 --config .mlc_config.json --quiet "$f" || rc=1
+            done < <(find documentation -name '*.md' -print0)
+            exit $rc
+      - save_cache:
+          key: npx-docs-v1-mdlint-0.47.0-mlc-3.14.2
+          paths:
+            - ~/.npm
+
+  leo-executable:
+    executor: linux-executor
+    resource_class: xlarge
+    steps:
+      - only-run-if:
+          scope-is: "full snippets"
+      - checkout
+      - restore_cache:
+          keys:
+            - cargo-v3-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-leo-exec-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-leo-exec-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-leo-exec-{{ arch }}-master-
+      - install-libclang
+      - run:
+          name: Update Submodules
+          command: git submodule update --init --recursive
+      - run:
+          name: Build and install Leo
+          no_output_timeout: 30m
+          command: cargo install --path crates/leo --root . --locked
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/bin
+            - project/.circleci
+            - project/examples
+            - project/documentation
+      - save_cache:
+          key: cargo-v3-leo-exec-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          paths:
+            - ~/.cargo
+            - ~/.cache/mtimes
+            - target
+
+  leo-new:
+    docker:
+      - image: cimg/rust:1.96.0
+    resource_class: small
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo new
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            timeout 30m ./project/.circleci/leo-new.sh
+
+  leo-clean:
+    docker:
+      - image: cimg/rust:1.96.0
+    resource_class: small
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clean
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clean.sh
+
+  test-examples:
+    docker:
+      - image: cimg/rust:1.96.0
+    resource_class: large
+    steps:
+      - only-run-if:
+          scope-is: "full"
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: test examples example
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            export EXAMPLES=/home/circleci/project/project/examples
+            ./project/.circleci/test-examples.sh
+
+  build-doc-code-snippets:
+    docker:
+      - image: cimg/rust:1.96.0
+    resource_class: medium
+    steps:
+      - only-run-if:
+          scope-is: "full snippets"
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo build on every documentation example
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            # `leo build` resolves dependencies through ~/.aleo and errors out
+            # if the directory is missing on a fresh CI image.
+            mkdir -p "$HOME/.aleo"
+            cd /home/circleci/project/project
+            failed=0
+            # Walk every directory that has a top-level program.json (skipping
+            # generated build/ and imports/ subdirs that contain their own copies).
+            # If a snippet has a `tests/` subdirectory, run `leo test` (which
+            # builds the program, builds the tests, and executes them against
+            # the local VM). Otherwise run `leo build` for fast compile-only
+            # verification.
+            while IFS= read -r d; do
+              echo "--- $d ---"
+              if [ -d "$d/tests" ]; then
+                (cd "$d" && "$LEO" --disable-update-check test) || failed=1
+              else
+                (cd "$d" && "$LEO" --disable-update-check build) || failed=1
+              fi
+            done < <(find documentation/code_snippets -name program.json -not -path '*/build/*' -not -path '*/imports/*' | xargs -n1 dirname | sort)
+            exit $failed
+
+# Workflows always run so required GitHub checks report; jobs halt per scope
+# (see `only-run-if`).
+workflows:
+  test-windows:
+    jobs:
+      - test-windows
+
+  test-macos:
+    jobs:
+      - test-macos
+
+  test-linux:
+    jobs:
+      - test-linux
+
+  code-quality:
+    jobs:
+      - code-style
+      - clippy
+      - fmt-validate
+      - cargo-doc
+      - docs-lint
+
+  leo-executable:
+    jobs:
+      - leo-executable
+      - leo-new:
+          requires:
+            - leo-executable
+      - leo-clean:
+          requires:
+            - leo-executable
+      - test-examples:
+          requires:
+            - leo-executable
+      - build-doc-code-snippets:
+          requires:
+            - leo-executable
