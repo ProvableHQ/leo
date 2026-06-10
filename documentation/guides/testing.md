@@ -4,17 +4,26 @@ title: Testing, Testing, 123
 sidebar_label: Testing
 ---
 
-[general tags]: # "guides, tests, testing, unit_testing, integration_testing, devnet, testnet"
+[general tags]: # "guides, tests, testing, unit_testing, integration_testing, devnode, devnet, testnet"
 
 Once deployed, an application lives on the ledger forever. Consequently, it's important to consider every edge case and rigorously test your code. There are a number of tools and techniques you can use.
 
 - [**Unit and Integration Testing**](#unit-and-integration-testing) - Validate Leo program logic through test cases.
-
-- [**Running a Devnet**](#running-a-devnet) - Deploy and execute on a local devnet.
-
+- [**Running a Devnode**](#running-a-devnode) - Deploy and execute against a lightweight local node.
+- [**Running a Devnet**](#running-a-devnet) - Deploy and execute on a full local devnet backed by snarkOS.
 - [**Deploying/Executing on Testnet**](#deployingexecuting-on-testnet) - Deploy and execute on the Aleo Testnet.
-
 - [**Other Tools**](#other-tools) - Tools and methodologies developed by the open-source Aleo community.
+
+## Choosing a Testing Strategy
+
+| Tool | Best for | Notes |
+|------|----------|-------|
+| `leo test` | Logic, record fields, mappings | Fast; no network round-trip; no fee credits required |
+| `leo devnode` | End-to-end deploy/execute cycles, multi-program interaction | No snarkOS required; proof generation can be skipped |
+| `leo devnet` | Full consensus scenarios, multi-validator behaviour | Requires a snarkOS installation; heavier setup |
+| Testnet | Final validation before mainnet | Real credits required; use the [Aleo faucet](https://faucet.aleo.org/) |
+
+Start with `leo test` for pure logic. Reach for `leo devnode` when you need to test deploy/execute cycles against a live node. Use `leo devnet` when your scenario requires full consensus behaviour. Promote to Testnet for final validation before mainnet.
 
 ## Unit and Integration Testing
 
@@ -140,11 +149,21 @@ leo test addition
 
 See the [`leo test` CLI documentation](./../cli/test.md).
 
+## Running a Devnode
+
+`leo devnode` is a lightweight, single-process node that bypasses consensus and proof generation. It is the recommended local tool for end-to-end deploy/execute testing — no snarkOS installation required.
+
+:::warning
+`--skip-deploy-certificate` skips both proof generation **and** the circuit deployment limit check. A deployment that succeeds on a devnode with this flag can still be rejected by Testnet or Mainnet if the circuit exceeds the on-chain limits. Run `leo synthesize --local` before deploying to a public network to verify your program's constraint count.
+:::
+
+See the [`leo devnode` CLI reference](./../cli/devnode.md) for setup instructions, all flags, and a step-by-step workflow.
+
 ## Running a Devnet
 
-A local devnet can be a heavyweight but reliable way to test your application on Aleo.
+`leo devnet` spins up a full multi-validator snarkOS network locally. It is heavier to set up than `leo devnode` but provides a closer approximation of consensus behaviour for scenarios that require it.
 
-For more information, refer to the [Devnet](./devnet.md) guide
+See the [`leo devnet` CLI reference](./../cli/devnet.md) for setup instructions and flags.
 
 ## Deploying/Executing on Testnet
 
