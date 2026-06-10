@@ -2395,7 +2395,7 @@ mod tests {
         let tempdir = tempdir().expect("tempdir");
         let root = tempdir.path().join("root");
         write_manifest(&root, "root.aleo", "null");
-        let source = "program root.aleo {\n    const LIMIT: u32 = 1u32;\n\n    fn main() -> u32 {\n        return LIMIT;\n    }\n}\n";
+        let source = "const LIMIT: u32 = 1u32;\n\n    program root.aleo {\n    fn main() -> u32 {\n        return LIMIT;\n    }\n}\n";
         fs::write(root.join("src").join("main.leo"), source).expect("write root source");
         let main_path = root.join("src").join("main.leo").canonicalize().expect("canonical main path");
 

@@ -11,7 +11,9 @@ struct Bar {
     a: u32,
     b: bool,
     // inline comment
-} // after struct
+}
+
+// after struct
 
 program test.aleo {
     fn main(f: Foo, b: Bar) -> u32 {
