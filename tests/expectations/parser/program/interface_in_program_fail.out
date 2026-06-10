@@ -1,0 +1,11 @@
+[EPAR0370047] Error: `interface` definitions are not allowed inside a `program { ... }` block.
+   ╭─[ test:2:5 ]
+   │
+ 2 │ ╭─▶     interface I {
+   ┆ ┆   
+ 4 │ ├─▶     }
+   │ │           
+   │ ╰─────────── here
+   │     
+   │     Help: Move the declaration outside the `program` block, to the top level of the file.
+───╯

@@ -1,9 +1,9 @@
-program test.aleo {
-    struct S {
-        x: u8,
-        y: u32,
-    }
+struct S {
+    x: u8,
+    y: u32,
+}
 
+program test.aleo {
     // Regression: an array written element-wise then used directly in an assert must be rebuilt from its writes.
     fn write_then_assert(public p0: u8, public p1: u8) -> public u8 {
         let src: [u8; 4] = [p0, p1, p0, p1];

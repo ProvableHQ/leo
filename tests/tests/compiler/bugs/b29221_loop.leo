@@ -3,9 +3,9 @@
 // type parameter verifies that loop unrolling and const propagation cooperate
 // correctly when N appears in an intrinsic type parameter.
 
-program test.aleo {
-    const N: u32 = 2u32;
+const N: u32 = 2u32;
 
+program test.aleo {
     fn main(bits: [bool; 182]) -> u32 {
         let arr: [u32; N] = Deserialize::from_bits::[[u32; N]](bits);
         let total: u32 = 0u32;
