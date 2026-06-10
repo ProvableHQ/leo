@@ -2,6 +2,8 @@
    ╭─[ compiler-test:1:9 ]
    │
  1 │ program test.aleo {
+   │             │      
+   │             ╰────── 
    │ 
    │ Help: Add a constructor such as `@noupgrade constructor() {}` inside the `program` block.
 ───╯

@@ -1,0 +1,7 @@
+import dependency.aleo;
+program test.aleo;
+
+function main:
+
+constructor:
+    assert.eq edition 0u16;

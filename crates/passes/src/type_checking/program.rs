@@ -188,12 +188,10 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             ));
         }
 
-        // `visit_program_scope` only runs for local Leo source scopes, so imported Aleo stubs
-        // remain allowed to omit it.
+        // Imported Aleo bytecode dependencies are registered as stubs, so this local-source check
+        // does not require constructors on those dependencies.
         if input.constructor.is_none() {
-            self.emit_err(crate::errors::type_checker::missing_constructor(
-                input.program_id.name.span + input.program_id.network.span,
-            ));
+            self.emit_err(crate::errors::type_checker::missing_constructor(input.program_id.span()));
         }
     }
 
