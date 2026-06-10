@@ -17,7 +17,7 @@ Once deployed, an application lives on the ledger forever. Consequently, it's im
 ## Choosing a Testing Strategy
 
 | Tool | Best for | Notes |
-|------|----------|-------|
+| ---- | -------- | ----- |
 | `leo test` | Logic, record fields, mappings | Fast; no network round-trip; no fee credits required |
 | `leo devnode` | End-to-end deploy/execute cycles, multi-program interaction | No snarkOS required; proof generation can be skipped |
 | `leo devnet` | Full consensus scenarios, multi-validator behaviour | Requires a snarkOS installation; heavier setup |
