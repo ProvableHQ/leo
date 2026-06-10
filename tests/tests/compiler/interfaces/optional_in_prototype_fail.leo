@@ -16,4 +16,7 @@ program test.aleo: Finder {
     fn main(key: u32) -> u32 {
         return find(key).unwrap();
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -28,6 +28,9 @@ program test.aleo {
             );
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(

@@ -11,4 +11,7 @@ program test.aleo {
         }
         return Token { owner: owner, amount: amount };
     }
+
+    @noupgrade
+    constructor() {}
 }

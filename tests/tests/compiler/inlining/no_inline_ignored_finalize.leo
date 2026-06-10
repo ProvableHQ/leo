@@ -9,6 +9,9 @@ program test.aleo {
     fn mint(public receiver: address, public amount: u64) -> Final {
         return final { finalize_mint(receiver, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_mint(receiver: address, amount: u64) {

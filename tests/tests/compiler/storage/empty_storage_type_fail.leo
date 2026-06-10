@@ -6,6 +6,9 @@ program empty_storage_type.aleo {
     fn prepare(a: [u32; 0]) -> Final {
         return final { finalize(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(a: [u32; 0]) {

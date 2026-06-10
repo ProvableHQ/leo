@@ -2,6 +2,9 @@ program a_dep.aleo {
     fn one() -> u8 {
         return 1u8;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -9,6 +12,9 @@ program z_dep.aleo {
     fn two() -> u8 {
         return 2u8;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -19,4 +25,7 @@ program sorted_import_bytecode.aleo {
     fn main() -> u8 {
         return a_dep.aleo::one() + z_dep.aleo::two();
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -20,3 +20,6 @@ finalize main:
     cast false into r0 as Foo__2rFGm7eiSQp;
     cast true into r1 as Foo__EnAOzcWpQDB;
     set r1 into map[r0];
+
+constructor:
+    assert.eq edition 0u16;

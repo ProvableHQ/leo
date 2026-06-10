@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 struct Foo {
     foo: [Foo; 1],

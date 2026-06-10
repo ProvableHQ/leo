@@ -38,4 +38,7 @@ program test.aleo {
             foo.set(32u8, 32u8);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

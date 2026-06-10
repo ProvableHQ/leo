@@ -13,4 +13,7 @@ program test.aleo {
         let arr: [token; 2] = [t, t];
         return 0u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

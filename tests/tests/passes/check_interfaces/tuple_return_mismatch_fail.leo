@@ -11,6 +11,9 @@ interface ISplit {
 }
 
 program test.aleo: ISplit {
+    @noupgrade
+    constructor() {}
+
     record Token {
         owner: address,
         amount: u64,

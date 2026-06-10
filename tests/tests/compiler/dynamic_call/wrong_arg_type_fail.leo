@@ -10,4 +10,7 @@ program test.aleo: Adder {
     fn main(target: field) -> u32 {
         return Adder@(target)::sum(1u32, true);
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -5,6 +5,9 @@ interface Converter {
 }
 
 program test.aleo: Converter {
+    @noupgrade
+    constructor() {}
+
     // Wrong return type: u64 instead of u32
     fn convert(value: u64) -> u64 {
         return value;

@@ -1,21 +1,21 @@
 [ETYC0372025] Error: cannot reach the following statement
-   ╭─[ compiler-test:5:5 ]
+   ╭─[ compiler-test:8:5 ]
    │
- 5 │     let double: u32 = x + x;
+ 8 │     let double: u32 = x + x;
    │ 
    │ Help: All paths above this point already return. Remove the unreachable code or rework the control flow.
 ───╯
 [ETYC0372025] Error: cannot reach the following statement
-   ╭─[ compiler-test:6:5 ]
+   ╭─[ compiler-test:9:5 ]
    │
- 6 │     return double;
+ 9 │     return double;
    │ 
    │ Help: All paths above this point already return. Remove the unreachable code or rework the control flow.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

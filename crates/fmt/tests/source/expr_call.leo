@@ -12,6 +12,8 @@ let mapped
 	}
 
 program test.aleo   {
+    @noupgrade constructor() {}
+
     fn main(
             public  addr  :  address  )  ->  u64   {
 

@@ -12,4 +12,7 @@ program test.aleo {
         let amount: u64 = a * a;
         return Token { amount, owner };
     }
+
+    @noupgrade
+    constructor() {}
 }

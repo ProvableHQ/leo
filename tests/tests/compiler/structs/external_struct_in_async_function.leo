@@ -8,6 +8,9 @@ program parent.aleo {
         let test_struct: TestStruct = TestStruct { data0: 0u128, data1: 1u128 };
         return final { finalize_init(test_struct); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_init(test_struct: TestStruct) {
@@ -21,4 +24,7 @@ program child.aleo {
     fn main() -> u32 {
         return 1u32;
     }
+
+    @noupgrade
+    constructor() {}
 }

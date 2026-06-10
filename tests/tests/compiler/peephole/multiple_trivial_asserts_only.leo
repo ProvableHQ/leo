@@ -5,6 +5,9 @@ program test.aleo {
         assert(true);
         return identity(x);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn identity(x: u32) -> u32 {

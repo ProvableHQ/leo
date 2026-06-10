@@ -5,4 +5,7 @@ program test.aleo {
     fn main() -> u32 {
         return MAX;
     }
+
+    @noupgrade
+    constructor() {}
 }

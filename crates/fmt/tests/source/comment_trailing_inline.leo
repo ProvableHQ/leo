@@ -1,4 +1,6 @@
 program test.aleo  {
+    @noupgrade constructor() {}
+
         const X  :  u32  =  4u32  ;        // trailing on const
 
     struct Foo  {

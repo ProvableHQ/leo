@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main(a$$0: u16, b$$1: u16) -> u32 {
         let $var$4 = a$$0 as u32;
         let $var$5 = b$$1 as u32;

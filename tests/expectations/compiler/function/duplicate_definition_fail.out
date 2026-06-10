@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `main` is defined multiple times
-   ╭─[ compiler-test:7:4 ]
-   │
- 7 │ fn main(y: bool) -> bool {
-   │
-   ├─[ compiler-test:7:4 ]
-   │
- 3 │ fn main(y: bool) -> bool {
-   │    ──┬─  
-   │      ╰─── previous definition of `main` here
-   │ 
- 7 │ fn main(y: bool) -> bool {
-   │    ──┬─  
-   │      ╰─── `main` redefined here
-   │ 
-   │ Help: Rename or remove all but one of the `main` definitions so the name is unique within its scope.
-───╯
+    ╭─[ compiler-test:10:4 ]
+    │
+ 10 │ fn main(y: bool) -> bool {
+    │
+    ├─[ compiler-test:10:4 ]
+    │
+  6 │ fn main(y: bool) -> bool {
+    │    ──┬─  
+    │      ╰─── previous definition of `main` here
+    │ 
+ 10 │ fn main(y: bool) -> bool {
+    │    ──┬─  
+    │      ╰─── `main` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `main` definitions so the name is unique within its scope.
+────╯

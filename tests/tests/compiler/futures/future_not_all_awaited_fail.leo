@@ -10,6 +10,9 @@ program child.aleo {
         let caller = self.caller;
         return final { finalize_boo(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(addr: address) {
@@ -35,6 +38,9 @@ program parent.aleo {
         let f6 = child.aleo::boo();
         return final { finalize_foo(f1, f2, f3, f4, f5, f6); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // Doesn't await f4.

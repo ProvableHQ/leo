@@ -40,3 +40,6 @@ function main:
     output r21 as scalar.private;
     output r22 as scalar.private;
     output 373920131474347276151359638872914148506028178490774341959026790568204503982scalar as scalar.private;
+
+constructor:
+    assert.eq edition 0u16;

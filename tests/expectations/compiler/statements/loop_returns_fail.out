@@ -1,20 +1,20 @@
 [ETYC0372026] Error: loop body contains a return statement or always returns
-   ╭─[ compiler-test:4:5 ]
+   ╭─[ compiler-test:7:5 ]
    │
- 4 │ ╭─▶     for i: u32 in 0u32..9u32 {
+ 7 │ ╭─▶     for i: u32 in 0u32..9u32 {
    ┆ ┆   
- 6 │ ├─▶     }
+ 9 │ ├─▶     }
    │ │           
    │ ╰─────────── here
    │     
    │     Help: Move the `return` out of the loop, or add a branch that does not return so the loop can iterate.
 ───╯
 [ETYC0372026] Error: loop body contains a return statement or always returns
-    ╭─[ compiler-test:7:5 ]
+    ╭─[ compiler-test:10:5 ]
     │
-  7 │ ╭─▶     for i: u32 in 0u32..9u32 {
+ 10 │ ╭─▶     for i: u32 in 0u32..9u32 {
     ┆ ┆   
- 13 │ ├─▶     }
+ 16 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     
@@ -23,7 +23,7 @@
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

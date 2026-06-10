@@ -36,3 +36,6 @@ finalize finalize_self_caller:
     get account[r0] into r5;
     add r5 1u64 into r6;
     set r6 into account[r0];
+
+constructor:
+    assert.eq edition 0u16;

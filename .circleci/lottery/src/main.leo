@@ -1,6 +1,9 @@
 // The 'lottery' program.
 
 program lottery.aleo {
+    @noupgrade
+    constructor() {}
+
     mapping num_winners: u8 => u8;
 
     record Ticket {

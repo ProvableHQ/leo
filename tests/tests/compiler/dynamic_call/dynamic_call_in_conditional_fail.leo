@@ -14,4 +14,7 @@ program test.aleo : Adder {
         }
         return 0u32;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -4,4 +4,7 @@ program test.aleo {
 
         return b - a; // -128i8
     }
+
+    @noupgrade
+    constructor() {}
 }

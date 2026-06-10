@@ -5,3 +5,6 @@ function foo:
     input r1 as u32.private;
     input r2 as boolean.private;
     output 1u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

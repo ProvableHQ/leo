@@ -6,4 +6,7 @@ program test.aleo {
         let y1 = z.3;
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

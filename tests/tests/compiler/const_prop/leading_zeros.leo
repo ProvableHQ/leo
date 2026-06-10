@@ -61,4 +61,7 @@ program test.aleo {
     fn i8_tr2() -> i8 {
         return I4;
     }
+
+    @noupgrade
+    constructor() {}
 }

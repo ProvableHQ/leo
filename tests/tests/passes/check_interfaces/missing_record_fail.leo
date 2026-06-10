@@ -6,6 +6,9 @@ interface TokenStandard {
 }
 
 program test.aleo: TokenStandard {
+    @noupgrade
+    constructor() {}
+
     // Missing Token record
     fn transfer(amount: u64) -> u64 {
         return amount;

@@ -1,17 +1,17 @@
 [ECHI03712013] Error: field `data` in record `Entry` does not match the type required by interface `test.aleo/Vault`
 Expected:  [u8; 32]
 Found:  [u8; 16]
-    ╭─[ test:17:9 ]
+    ╭─[ test:20:9 ]
     │
- 17 │         data: [u8; 16],
+ 20 │         data: [u8; 16],
     │
-    ├─[ test:17:9 ]
+    ├─[ test:20:9 ]
     │
   8 │         data: [u8; 32],
     │         ───────┬──────  
     │                ╰──────── expected by interface here
     │ 
- 17 │         data: [u8; 16],
+ 20 │         data: [u8; 16],
     │         ───────┬──────  
     │                ╰──────── type mismatch here
     │ 

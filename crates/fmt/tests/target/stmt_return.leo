@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn with_expr(a: u64) -> u64 {
         return a * 2u64;
     }

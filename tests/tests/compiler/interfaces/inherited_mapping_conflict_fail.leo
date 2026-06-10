@@ -11,4 +11,7 @@ interface Combined: Counter1 + Counter2 {
 
 program test.aleo: Combined {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

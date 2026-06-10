@@ -12,3 +12,6 @@ function foo:
 
 finalize foo:
     assert.eq true true;
+
+constructor:
+    assert.eq edition 0u16;

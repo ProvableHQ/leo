@@ -39,3 +39,6 @@ function main:
     output r15 as group.private;
     output r16 as scalar.private;
     output r17 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

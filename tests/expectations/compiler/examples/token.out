@@ -85,3 +85,6 @@ finalize transfer_public_to_private:
     get.or_use account[r0] 0u64 into r2;
     sub r2 r1 into r3;
     set r3 into account[r0];
+
+constructor:
+    assert.eq edition 0u16;

@@ -8,3 +8,6 @@ function main:
     ternary r1 1u32 r3 into r4;
     is.eq r4 r0 into r5;
     output r5 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

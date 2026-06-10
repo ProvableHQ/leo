@@ -7,6 +7,9 @@ program test.aleo {
             return subber(a, b);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn check_not_eq(a: u32, b: u32) {

@@ -15,6 +15,9 @@ program test.aleo: interfaces::HasToken {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: interfaces.leo --- //

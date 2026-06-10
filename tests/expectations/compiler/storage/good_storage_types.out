@@ -126,3 +126,6 @@ mapping vec_struct__len__:
     value as u32.public;
 
 function foo:
+
+constructor:
+    assert.eq edition 0u16;

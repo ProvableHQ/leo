@@ -1,7 +1,7 @@
 [ESAZ0374010] Error: array index 0 is out of bounds (array length is 0)
-    ╭─[ compiler-test:10:16 ]
+    ╭─[ compiler-test:13:16 ]
     │
- 10 │         sum += arr[0u32];
+ 13 │         sum += arr[0u32];
     │ 
     │ Help: Array indices are zero-based, so the valid range is `0` to `0 - 1`.
 ────╯

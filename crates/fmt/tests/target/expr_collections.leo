@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() {
         let arr: [u64; 3] = [1u64, 2u64, 3u64];
         let tup: (u64, u64, u64) = (1u64, 2u64, 3u64);

@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     struct Flag {
         active: bool,
         payload: u32,

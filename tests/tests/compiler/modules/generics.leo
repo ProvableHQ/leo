@@ -18,6 +18,9 @@ program multifile.aleo {
             + dep::goo::[31]()
             + dep::other_dep::Y;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn goo::[M: u32]() -> u32 {

@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn main(y: bool) -> bool {
     let (a, b, c): (u8, u8) = (2u8, 3u8);

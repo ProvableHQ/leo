@@ -6,4 +6,7 @@ program test.aleo {
             return false;
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

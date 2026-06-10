@@ -23,9 +23,13 @@ interface IRight: IBase {
     fn owner_of(t: Token) -> address;
 }
 
-interface IDiamond: ILeft + IRight {}
+interface IDiamond: ILeft + IRight {
+}
 
 program test.aleo: IDiamond {
+    @noupgrade
+    constructor() {}
+
     record Token {
         owner: address,
         amount: u64,

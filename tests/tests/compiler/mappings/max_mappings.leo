@@ -34,4 +34,7 @@ program test.aleo {
     fn foo() -> u8 {
         return 1u8 + 1u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

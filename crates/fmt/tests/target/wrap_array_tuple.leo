@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public a: u64, public b: u64) -> u64 {
         let short_arr: [u64; 3] = [1u64, 2u64, 3u64];
         let first_amount: u64 = a + 1u64;

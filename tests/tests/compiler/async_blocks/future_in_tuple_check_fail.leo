@@ -8,6 +8,9 @@ program credits.aleo {
         let f: Final = final { assert_eq(1u8, 1u8); };
         return (input, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -32,4 +35,7 @@ program test_credits.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

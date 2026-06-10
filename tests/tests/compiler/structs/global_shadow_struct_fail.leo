@@ -15,4 +15,7 @@ program test.aleo {
         x = x + 1u32;
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

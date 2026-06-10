@@ -5,6 +5,9 @@ program test.aleo {
         let key: [address; 2] = [key0, key1];
         return final { fin_foo(key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn fin_foo(key: [address; 2]) {

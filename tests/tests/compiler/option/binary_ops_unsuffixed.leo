@@ -71,4 +71,7 @@ program binary_ops_unsuffixed.aleo {
         let c: u8? = (5 - 2) + (10 - 7);
         return 42u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

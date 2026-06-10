@@ -45,4 +45,7 @@ program test.aleo {
         let h: u8 = f.g.i.h.data;
         return a + c + e + h;
     }
+
+    @noupgrade
+    constructor() {}
 }

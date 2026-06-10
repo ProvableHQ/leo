@@ -37,4 +37,7 @@ program test.aleo {
             field_bits[0u8] != field_bits_raw[0u8], group_bits[0u8] != group_bits_raw[0u8],
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

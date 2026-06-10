@@ -4,4 +4,7 @@ program test.aleo {
         let balance = r.balance;
         return balance;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -14,3 +14,6 @@ function foo:
 finalize foo:
     input r0 as [address; 2u32].public;
     get.or_use allowances[r0] 0u128 into r1;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn fold_to_cond(cond$$0: bool) -> bool {
         let $var$1 = true;
         let $var$2 = false;

@@ -11,4 +11,7 @@ program foo.aleo {
     fn main(target: identifier, token: dyn record, to: address) -> dyn record {
         return ARC20@(target)::transfer_private(token, to);
     }
+
+    @noupgrade
+    constructor() {}
 }

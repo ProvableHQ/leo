@@ -1,5 +1,5 @@
 [ETYC0372156] Error: `entries` is a vector storage variable; read an element with `test.aleo::Logs::entries.get(index)`.
-    ╭─[ compiler-test:13:19 ]
+    ╭─[ compiler-test:16:19 ]
     │
- 13 │     let v: u64? = Logs@(target)::entries;
+ 16 │     let v: u64? = Logs@(target)::entries;
 ────╯

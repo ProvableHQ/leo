@@ -6,4 +6,7 @@ program test.aleo {
         }
         return z == aleo1drcl2g8zxhxjzjw63ajp067gzvl94am3z7m7wgrzmr2ecd5sdq8sy66l5k;
     }
+
+    @noupgrade
+    constructor() {}
 }

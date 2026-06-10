@@ -4,4 +4,7 @@ program test.aleo {
         let (a, b): (u32, u32) = _dynamic_call::[public u32, public u32, (u32, u32)](target, net, func, x, y);
         return (a, b);
     }
+
+    @noupgrade
+    constructor() {}
 }

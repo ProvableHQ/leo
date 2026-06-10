@@ -5,6 +5,9 @@ program relay.aleo {
         let a: u32 = relay.aleo::users;
         return final { finalize_send(addr); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_send(addr: address) {

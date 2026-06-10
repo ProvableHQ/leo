@@ -16,4 +16,7 @@ program test.aleo {
     fn bax(n: u8) -> u8 {
         return baz(n);
     }
+
+    @noupgrade
+    constructor() {}
 }

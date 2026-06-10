@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() -> u32 {
         let sum = 0u32;
         for i in 0u32..5u32 {

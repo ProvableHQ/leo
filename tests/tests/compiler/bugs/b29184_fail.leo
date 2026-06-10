@@ -7,4 +7,7 @@ program b29184.aleo {
         let (a, b) = (1u8, 2u8, 3u8);
         return (a, b);
     }
+
+    @noupgrade
+    constructor() {}
 }

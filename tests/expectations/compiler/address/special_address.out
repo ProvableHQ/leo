@@ -11,3 +11,6 @@ function main:
     assert.eq r0 test.aleo;
     assert.eq r0 hello.aleo;
     output foo.aleo as address.private;
+
+constructor:
+    assert.eq edition 0u16;

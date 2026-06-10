@@ -4,6 +4,9 @@ program inner.aleo {
     fn inner(a: u32) -> Final {
         return final { Mapping::set(foo, 0u32, a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,6 +24,9 @@ program mid.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -39,4 +45,7 @@ program outer.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

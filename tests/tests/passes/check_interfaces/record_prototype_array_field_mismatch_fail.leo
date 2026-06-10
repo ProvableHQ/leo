@@ -12,6 +12,9 @@ interface Vault {
 }
 
 program test.aleo: Vault {
+    @noupgrade
+    constructor() {}
+
     record Entry {
         owner: address,
         data: [u8; 16],

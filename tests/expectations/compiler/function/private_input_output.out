@@ -5,3 +5,6 @@ function foo:
     input r1 as u8.public;
     add r0 r1 into r2;
     output r2 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

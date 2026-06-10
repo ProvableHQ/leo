@@ -6,4 +6,7 @@ program test.aleo: StorageInterface {
     storage counter: u64;
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

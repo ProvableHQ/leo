@@ -4,4 +4,7 @@ program test.aleo {
         let b: field = a * 2field;
         return b;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -10,4 +10,7 @@ program test.aleo {
             assert_neq(result, 0u8);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

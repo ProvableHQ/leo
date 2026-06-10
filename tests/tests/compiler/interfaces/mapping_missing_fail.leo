@@ -4,4 +4,7 @@ interface CounterInterface {
 
 program test.aleo: CounterInterface {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

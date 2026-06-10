@@ -5,6 +5,9 @@ program test.aleo {
     fn do_work(a: u32) -> Final {
         return final { finalize_do_work(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_work(a: u32) {

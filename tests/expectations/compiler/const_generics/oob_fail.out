@@ -1,7 +1,7 @@
 [ESAZ0374010] Error: array index 20 is out of bounds (array length is 2)
-   ╭─[ compiler-test:8:12 ]
-   │
- 8 │     return arr[20];
-   │ 
-   │ Help: Array indices are zero-based, so the valid range is `0` to `2 - 1`.
-───╯
+    ╭─[ compiler-test:11:12 ]
+    │
+ 11 │     return arr[20];
+    │ 
+    │ Help: Array indices are zero-based, so the valid range is `0` to `2 - 1`.
+────╯

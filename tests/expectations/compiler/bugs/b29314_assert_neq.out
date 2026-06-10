@@ -21,3 +21,6 @@ finalize main:
     set r0 into values[r0];
     set r0 into values[r0];
     assert.eq false true;
+
+constructor:
+    assert.eq edition 0u16;

@@ -85,4 +85,7 @@ program test.aleo {
             1 // field
         ] { x: 0 };
     }
+
+    @noupgrade
+    constructor() {}
 }

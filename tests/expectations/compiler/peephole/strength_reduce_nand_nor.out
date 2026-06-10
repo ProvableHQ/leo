@@ -7,3 +7,6 @@ function main:
     not r1 into r3;
     output r2 as boolean.private;
     output r3 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

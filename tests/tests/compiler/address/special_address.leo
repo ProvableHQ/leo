@@ -8,4 +8,7 @@ program test.aleo {
         assert_eq(a, hello.aleo);
         return foo.aleo;
     }
+
+    @noupgrade
+    constructor() {}
 }

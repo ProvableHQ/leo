@@ -15,6 +15,9 @@ program b28668.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn f() {

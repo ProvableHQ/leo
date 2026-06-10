@@ -1,7 +1,7 @@
 [ETYC0372005] Error: unknown interface `test.aleo::Point`
-    ╭─[ compiler-test:14:19 ]
+    ╭─[ compiler-test:17:19 ]
     │
- 14 │     let v: u64? = Point@(target)::balances.get(key);
+ 17 │     let v: u64? = Point@(target)::balances.get(key);
     │ 
     │ Help: Check `test.aleo::Point` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

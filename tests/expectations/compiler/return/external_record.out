@@ -6,6 +6,9 @@ record R:
 function foo:
     cast self.signer into r0 as R.record;
     output r0 as R.record;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test0.aleo;
 program test1.aleo;
@@ -13,3 +16,6 @@ program test1.aleo;
 function bar:
     input r0 as test0.aleo/R.record;
     output r0 as test0.aleo/R.record;
+
+constructor:
+    assert.eq edition 0u16;

@@ -10,4 +10,7 @@ program b28788.aleo {
         let f = Foo { x };
         return f.x;
     }
+
+    @noupgrade
+    constructor() {}
 }

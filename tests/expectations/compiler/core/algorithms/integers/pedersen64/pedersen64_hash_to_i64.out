@@ -33,3 +33,6 @@ function main:
     output r17 as i64.private;
     output r18 as i64.private;
     output r19 as i64.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,4 +1,8 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
     fn main(cond$$0: bool, a$$1: u32, b$$2: u32) -> u32 {
         let condition$3 = cond$$0;
         {

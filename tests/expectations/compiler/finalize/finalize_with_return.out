@@ -1,20 +1,20 @@
 [ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:14:1 ]
+    ╭─[ compiler-test:17:1 ]
     │
- 14 │ ╭─▶ final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
+ 17 │ ╭─▶ final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
     ┆ ┆   
- 17 │ ├─▶ }
+ 20 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     
     │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯
 [ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:19:1 ]
+    ╭─[ compiler-test:22:1 ]
     │
- 19 │ ╭─▶ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+ 22 │ ╭─▶ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     ┆ ┆   
- 21 │ ├─▶ }
+ 24 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     

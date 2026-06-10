@@ -8,6 +8,9 @@ fn build_foo() -> Foo {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() -> [u8; 2] {
         return build_foo().y;
     }

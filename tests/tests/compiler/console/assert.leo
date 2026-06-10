@@ -25,4 +25,7 @@ program test.aleo {
         );
         return a == true;
     }
+
+    @noupgrade
+    constructor() {}
 }

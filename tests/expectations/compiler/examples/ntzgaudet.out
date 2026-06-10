@@ -27,3 +27,6 @@ function main:
     add r22 r16 into r23;
     add r23 r19 into r24;
     output r24 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

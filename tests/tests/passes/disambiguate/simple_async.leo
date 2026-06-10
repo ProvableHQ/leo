@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     mapping foo: u32 => u32;
 
     fn main(x: u32, y: u32) -> Final {

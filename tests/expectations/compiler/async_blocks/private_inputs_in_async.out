@@ -9,3 +9,6 @@ finalize foo:
     input r0 as u8.public;
     is.eq r0 5u8 into r1;
     assert.eq r1 true;
+
+constructor:
+    assert.eq edition 0u16;

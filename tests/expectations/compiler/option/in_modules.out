@@ -234,3 +234,6 @@ function complex_array_access:
     cast r31 r37 r48 into r49 as [[Optional__3aph2JMPtnA; 2u32]; 3u32];
     assert.eq r49[1u32][0u32].is_some true;
     output r49[1u32][0u32].val as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -6,6 +6,9 @@ program test.aleo {
 
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn signed(a: i8, b: u8, c: u16, d: u32) -> i8 {

@@ -14,4 +14,7 @@ program test.aleo {
     fn bar() -> Final {
         return final { foo(); };
     }
+
+    @noupgrade
+    constructor() {}
 }

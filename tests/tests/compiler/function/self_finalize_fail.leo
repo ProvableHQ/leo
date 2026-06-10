@@ -7,6 +7,9 @@ program test.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_matches(addr: address) {

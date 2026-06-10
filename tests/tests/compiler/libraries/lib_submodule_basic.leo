@@ -17,4 +17,7 @@ program submodule_basic.aleo {
         let product: u32 = math_lib::arith::mul(3u32, 4u32);
         return math_lib::arith::add(sum, product);
     }
+
+    @noupgrade
+    constructor() {}
 }

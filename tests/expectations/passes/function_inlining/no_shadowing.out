@@ -1,4 +1,7 @@
 program inline_no_shadowing.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main(a: u32, b: u32) -> u32 {
         let first: u32 = inline_no_shadowing.aleo::square(a);
         let second: u32 = inline_no_shadowing.aleo::square(b);

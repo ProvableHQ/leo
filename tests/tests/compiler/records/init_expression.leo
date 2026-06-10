@@ -15,4 +15,7 @@ program test.aleo {
         let t: Token = Token { owner: x, amount: c };
         return c * c;
     }
+
+    @noupgrade
+    constructor() {}
 }

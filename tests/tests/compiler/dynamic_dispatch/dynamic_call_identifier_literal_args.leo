@@ -4,4 +4,7 @@ program test.aleo {
         let result: u64 = _dynamic_call::[u64]('some_program', 'aleo', 'add', x);
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

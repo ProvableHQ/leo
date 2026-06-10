@@ -7,6 +7,9 @@ program test.aleo {
             write_b();
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn write_a() {

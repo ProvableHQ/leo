@@ -14,4 +14,7 @@ program test.aleo {
         }
         return total;
     }
+
+    @noupgrade
+    constructor() {}
 }

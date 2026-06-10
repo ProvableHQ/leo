@@ -1,4 +1,6 @@
 program test.aleo  {
+    @noupgrade constructor() {}
+
         struct Foo  {
         // leading comment on x
                     x  :  u32  ,

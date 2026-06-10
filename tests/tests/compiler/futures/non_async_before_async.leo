@@ -8,6 +8,9 @@ program test.aleo {
     fn baz(a: u32, b: u32) -> u32 {
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(a: u32, b: u32) {
@@ -34,6 +37,9 @@ program basic.aleo {
         let f: Final = final { finalize(f1, f2); };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(f1: Final, f2: Final) {

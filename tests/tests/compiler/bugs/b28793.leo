@@ -3,6 +3,9 @@ program b28610.aleo {
     fn foo() {
         return final { bar(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn bar() {

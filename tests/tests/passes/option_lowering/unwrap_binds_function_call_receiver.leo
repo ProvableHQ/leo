@@ -4,6 +4,9 @@ fn maybe(x: u32) -> u32? {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // `.unwrap_or(...)` on a function-call receiver must bind the call to a
     // temporary before synthesizing `.is_some` and `.val` accesses — otherwise
     // the call subtree gets duplicated and will be emitted twice downstream.

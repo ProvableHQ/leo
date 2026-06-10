@@ -11,4 +11,7 @@ program test.aleo {
     fn main(a: u64, b: u64) -> Token {
         return Token { amount: a + b, owner: self.signer, flag: true };
     }
+
+    @noupgrade
+    constructor() {}
 }

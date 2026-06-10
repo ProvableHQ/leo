@@ -7,6 +7,9 @@ final fn do_map(addr: address) {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public addr: address) -> u64 {
         let x: u64 = add(1u64, 2u64);
         let y: u64 = add(1u64, 2u64);

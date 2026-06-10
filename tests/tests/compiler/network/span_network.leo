@@ -5,12 +5,18 @@
 
 program child.aleo {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
 import child.aleo;
 
-program parent.aleo {}
+program parent.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn f(x: u8) {
     assert_eq(x, x);

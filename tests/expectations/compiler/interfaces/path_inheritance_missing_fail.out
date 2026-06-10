@@ -1,14 +1,14 @@
 [ECHI03712002] Error: program `test.aleo` implements interface `lib.aleo/Counter` but is missing the required function `increment`
-   ╭─[ compiler-test:4:1 ]
-   │
- 4 │ ╭─▶ program test.aleo: lib.aleo::Counter {
-   ┆ ┆   
- 8 │ ├─▶ }
-   │ │       
-   │ ╰─────── here
-   │     
-   │     Help: Add the missing function `increment` with the exact signature specified in `lib.aleo/Counter`.
-───╯
+    ╭─[ compiler-test:4:1 ]
+    │
+  4 │ ╭─▶ program test.aleo: lib.aleo::Counter {
+    ┆ ┆   
+ 11 │ ├─▶ }
+    │ │       
+    │ ╰─────── here
+    │     
+    │     Help: Add the missing function `increment` with the exact signature specified in `lib.aleo/Counter`.
+────╯
 
 
 ---

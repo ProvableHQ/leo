@@ -4,4 +4,7 @@ program test.aleo {
     fn foo(a: u8, b: u8, flag: bool) -> u8 {
         return GOODBYE;
     }
+
+    @noupgrade
+    constructor() {}
 }

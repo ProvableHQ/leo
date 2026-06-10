@@ -10,4 +10,7 @@ interface AbstractFoo: Baz {
     fn foobar() -> Foo;
 }
 
-program scratch.aleo: AbstractFoo {}
+program scratch.aleo: AbstractFoo {
+    @noupgrade
+    constructor() {}
+}

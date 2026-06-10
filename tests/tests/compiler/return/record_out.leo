@@ -10,4 +10,7 @@ program test.aleo {
         // This should be cloned.
         return r;
     }
+
+    @noupgrade
+    constructor() {}
 }

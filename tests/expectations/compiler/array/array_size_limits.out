@@ -7,3 +7,6 @@ function foo:
 function bar:
     input r0 as [boolean; 32u32].private;
     output true as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

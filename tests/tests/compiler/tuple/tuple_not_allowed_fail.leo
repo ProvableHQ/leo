@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn main(zz: bool) -> u8 {
     return 1u8;

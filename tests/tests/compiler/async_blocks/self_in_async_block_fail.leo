@@ -5,4 +5,7 @@ program test.aleo {
             let s = self.signer;
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -4,4 +4,7 @@ program test.aleo {
         let d: bool = a != b;
         return d;
     }
+
+    @noupgrade
+    constructor() {}
 }

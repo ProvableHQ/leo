@@ -4,4 +4,7 @@ program test.aleo {
         let result: u64 = _dynamic_call::[public u64, u64](target, net, func, x, y);
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

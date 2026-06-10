@@ -78,3 +78,6 @@ finalize disagree:
     get.or_use disagree_votes[r0] 0u64 into r1;
     add r1 1u64 into r2;
     set r2 into disagree_votes[r0];
+
+constructor:
+    assert.eq edition 0u16;

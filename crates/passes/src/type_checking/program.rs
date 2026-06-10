@@ -163,9 +163,6 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        // Typecheck the constructor.
-        // Note: Constructors are required for all **new** programs once they are supported in the AVM.
-        //  However, we do not require them to exist to ensure backwards compatibility with existing programs.
         if let Some(constructor) = &input.constructor {
             self.visit_constructor(constructor);
         }
@@ -187,6 +184,14 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // requirement; views do not count toward this minimum.
         else if transition_count == 0 {
             self.emit_err(crate::errors::type_checker::no_entry_points(
+                input.program_id.name.span + input.program_id.network.span,
+            ));
+        }
+
+        // `visit_program_scope` only runs for local Leo source scopes, so imported Aleo stubs
+        // remain allowed to omit it.
+        if input.constructor.is_none() {
+            self.emit_err(crate::errors::type_checker::missing_constructor(
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }

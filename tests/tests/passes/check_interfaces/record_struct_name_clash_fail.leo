@@ -12,6 +12,9 @@ interface IToken {
 }
 
 program test.aleo: IToken {
+    @noupgrade
+    constructor() {}
+
     struct Token {
         owner: address,
         amount: u64,

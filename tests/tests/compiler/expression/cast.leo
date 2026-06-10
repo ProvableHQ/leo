@@ -211,4 +211,7 @@ program test.aleo {
 
         return l_field == m_field;
     }
+
+    @noupgrade
+    constructor() {}
 }

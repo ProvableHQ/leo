@@ -4,6 +4,9 @@ struct Foo {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // Comment for the function
     fn bar() -> u64 {
         return 1u64;

@@ -13,4 +13,7 @@ program test.aleo {
         let g = vec.get(0);
         vec.set(0, 0);
     }
+
+    @noupgrade
+    constructor() {}
 }

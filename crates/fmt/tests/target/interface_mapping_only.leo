@@ -3,6 +3,9 @@ interface CounterInterface {
 }
 
 program test.aleo: CounterInterface {
+    @noupgrade
+    constructor() {}
+
     mapping counter: address => u64;
 
     fn main() {}

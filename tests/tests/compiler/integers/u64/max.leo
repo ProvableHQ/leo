@@ -3,4 +3,7 @@ program test.aleo {
         let a: u64 = 18446744073709551615u64;
         return y == true;
     }
+
+    @noupgrade
+    constructor() {}
 }

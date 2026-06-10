@@ -1,14 +1,14 @@
 [ETYC0372008] Error: the value `170141183460469231731687303715884105728` is not a valid `i128`
-   ╭─[ compiler-test:4:19 ]
+   ╭─[ compiler-test:7:19 ]
    │
- 4 │     let a: i128 = 170141183460469231731687303715884105728i128;
+ 7 │     let a: i128 = 170141183460469231731687303715884105728i128;
    │ 
    │ Help: Use a literal that fits within the range of `i128`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

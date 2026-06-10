@@ -4,4 +4,7 @@ program test.aleo {
             assert(a[i]);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

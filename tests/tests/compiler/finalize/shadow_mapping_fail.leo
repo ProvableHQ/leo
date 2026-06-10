@@ -13,6 +13,9 @@ program test.aleo {
         let bar: u8 = a + 1u8;
         return bar;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 struct bar {

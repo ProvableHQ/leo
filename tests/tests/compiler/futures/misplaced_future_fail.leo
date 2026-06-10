@@ -11,6 +11,9 @@ program child.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(x: u32) {
@@ -34,6 +37,9 @@ program parent.aleo {
 
         return final { finalize_foo(f0); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(f0: Final) {

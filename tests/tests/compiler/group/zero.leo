@@ -4,4 +4,7 @@ program test.aleo {
 
         return element * a;
     }
+
+    @noupgrade
+    constructor() {}
 }

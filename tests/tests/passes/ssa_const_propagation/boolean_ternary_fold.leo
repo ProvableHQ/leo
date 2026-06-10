@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // `cond ? true : false` folds to `cond`. This pattern commonly arises
     // after composite forwarding erases a boolean flag that was selected
     // across a ternary (e.g. `opt.is_some` on a ternary of optional structs).

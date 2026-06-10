@@ -30,4 +30,7 @@ program test.aleo {
         // Output the sender's change record and the receiver's record.
         return (remaining, transferred);
     }
+
+    @noupgrade
+    constructor() {}
 }

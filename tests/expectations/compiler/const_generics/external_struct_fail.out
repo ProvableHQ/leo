@@ -11,12 +11,18 @@ struct Bar__DI7sPAg0NJ0:
 
 function main:
     input r0 as Bar__DI7sPAg0NJ0.private;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 program parent.aleo;
 
 function main:
     input r0 as child.aleo/Bar__IEGwqtYsUsS.private;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

@@ -120,4 +120,7 @@ program token.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

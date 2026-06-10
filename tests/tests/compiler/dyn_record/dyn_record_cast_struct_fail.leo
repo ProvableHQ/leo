@@ -7,4 +7,7 @@ program test.aleo {
         // Should fail: cannot cast struct to dyn record
         return f as dyn record;
     }
+
+    @noupgrade
+    constructor() {}
 }

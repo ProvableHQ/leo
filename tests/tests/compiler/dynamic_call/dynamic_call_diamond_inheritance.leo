@@ -29,4 +29,7 @@ program test.aleo: Diamond {
     fn main(target: field) -> u64 {
         return Base@(target)::get_value();
     }
+
+    @noupgrade
+    constructor() {}
 }

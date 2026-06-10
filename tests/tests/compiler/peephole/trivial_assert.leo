@@ -4,4 +4,7 @@ program test.aleo {
         assert_eq(x, x);
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

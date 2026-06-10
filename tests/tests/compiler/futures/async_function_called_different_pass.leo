@@ -8,6 +8,9 @@ program dependent.aleo {
         let f: Final = final { finalize2(1u8); };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize1(x: u8) {
@@ -31,6 +34,9 @@ program test.aleo {
         let f: Final = dependent.aleo::t2();
         return final { finalize(f); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(f: Final) {

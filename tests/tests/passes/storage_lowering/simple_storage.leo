@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     storage flag: bool;
     storage scalar_val: scalar;
     storage field_val: field;

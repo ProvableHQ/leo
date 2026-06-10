@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // Nested `.unwrap_or(...)` calls each synthesize their own `$opt$N` temp:
     // the outer receiver (`a`) and the inner receiver (`b`) should each get a
     // fresh binding, not share one or reuse the other's subtree.

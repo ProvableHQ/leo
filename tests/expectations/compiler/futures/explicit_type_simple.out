@@ -1,7 +1,7 @@
 [WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:15:5 ]
+    ╭─[ compiler-test:18:5 ]
     │
- 15 │     assert_eq(a, b);
+ 18 │     assert_eq(a, b);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -23,6 +23,9 @@ function main_inner:
 
 finalize main_inner:
     set 1u32 into foo[1u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 program basic.aleo;
@@ -42,3 +45,6 @@ finalize main:
     input r2 as test.aleo/main_inner.future;
     await r2;
     assert.eq r0 r1;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,42 +1,50 @@
 [ECHI03712011] Error: record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`
     ╭─[ test:24:1 ]
     │
- 24 │ interface ICombined: ILeft + IRight {}
+ 24 │ ╭─▶ interface ICombined: ILeft + IRight {
+ 25 │ ├─▶ }
+    │ │       
+    │ ╰─────── here
     │
     ├─[ test:24:1 ]
     │
-  9 │         amount: u64,
-    │         ─────┬─────  
-    │              ╰─────── defined in `ILeft` here
+  9 │             amount: u64,
+    │             ─────┬─────  
+    │                  ╰─────── defined in `ILeft` here
     │ 
- 18 │         amount: u128,
-    │         ──────┬─────  
-    │               ╰─────── conflicts with definition here
+ 18 │             amount: u128,
+    │             ──────┬─────  
+    │                   ╰─────── conflicts with definition here
     │ 
- 24 │ interface ICombined: ILeft + IRight {}
-    │ ───────────────────┬──────────────────  
-    │                    ╰──────────────────── conflict detected here
-    │ 
-    │ Help: Fields with the same name must have identical types and modes. Align both definitions, or rename one of them.
+ 24 │ ╭─▶ interface ICombined: ILeft + IRight {
+ 25 │ ├─▶ }
+    │ │       
+    │ ╰─────── conflict detected here
+    │     
+    │     Help: Fields with the same name must have identical types and modes. Align both definitions, or rename one of them.
 ────╯
 [ECHI03712011] Error: record `Token` has a conflicting definition for field `amount` in interface `ICombined` inherited from `ILeft`
     ╭─[ test:24:1 ]
     │
- 24 │ interface ICombined: ILeft + IRight {}
+ 24 │ ╭─▶ interface ICombined: ILeft + IRight {
+ 25 │ ├─▶ }
+    │ │       
+    │ ╰─────── here
     │
     ├─[ test:24:1 ]
     │
-  9 │         amount: u64,
-    │         ─────┬─────  
-    │              ╰─────── defined in `ILeft` here
+  9 │             amount: u64,
+    │             ─────┬─────  
+    │                  ╰─────── defined in `ILeft` here
     │ 
- 18 │         amount: u128,
-    │         ──────┬─────  
-    │               ╰─────── conflicts with definition here
+ 18 │             amount: u128,
+    │             ──────┬─────  
+    │                   ╰─────── conflicts with definition here
     │ 
- 24 │ interface ICombined: ILeft + IRight {}
-    │ ───────────────────┬──────────────────  
-    │                    ╰──────────────────── conflict detected here
-    │ 
-    │ Help: Fields with the same name must have identical types and modes. Align both definitions, or rename one of them.
+ 24 │ ╭─▶ interface ICombined: ILeft + IRight {
+ 25 │ ├─▶ }
+    │ │       
+    │ ╰─────── conflict detected here
+    │     
+    │     Help: Fields with the same name must have identical types and modes. Align both definitions, or rename one of them.
 ────╯

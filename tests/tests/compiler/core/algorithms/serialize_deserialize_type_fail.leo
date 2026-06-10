@@ -41,4 +41,7 @@ program test.aleo {
 
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

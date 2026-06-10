@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
         fn process(  a  : u64  )  ->  u64  {
                         // validate input
         assert(  a  >  0u64  );

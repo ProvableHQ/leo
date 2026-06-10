@@ -27,6 +27,9 @@ program test.aleo {
         let value: field = Deserialize::from_bits_raw::[field](bits);
         return value;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(

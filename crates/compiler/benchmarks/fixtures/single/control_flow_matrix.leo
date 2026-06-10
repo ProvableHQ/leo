@@ -455,6 +455,9 @@ fn stress_mix_07(a: u64, b: u64, c: u64) -> u64 {
 }
 
 program bench_control_flow_matrix.aleo {
+    @noupgrade
+    constructor() {}
+
     fn evaluate_route(
         pool_a: Pool,
         pool_b: Pool,

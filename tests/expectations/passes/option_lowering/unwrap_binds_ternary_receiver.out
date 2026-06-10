@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     struct u32? {
         is_some: bool,
         val: u32,

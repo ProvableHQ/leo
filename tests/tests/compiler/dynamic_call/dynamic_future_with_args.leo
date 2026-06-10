@@ -19,6 +19,9 @@ program test.aleo: Setter {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f: Final, extra: u32) {

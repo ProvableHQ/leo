@@ -5,4 +5,7 @@ program test.aleo {
 
         return -a; // This line attempts to return 32768i16 however, the largest i16 value is 32767i16.
     }
+
+    @noupgrade
+    constructor() {}
 }

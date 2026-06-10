@@ -13,4 +13,7 @@ program test.aleo {
         let result_no_inline: u32 = add_no_inline(x, y);
         return (result_inline, result_no_inline);
     }
+
+    @noupgrade
+    constructor() {}
 }

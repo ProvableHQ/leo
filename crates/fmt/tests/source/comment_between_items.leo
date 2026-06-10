@@ -1,5 +1,7 @@
         // File-level comment about this program
 program test.aleo{
+    @noupgrade constructor() {}
+
     // A struct
         struct  Point{
         x  :  u64,

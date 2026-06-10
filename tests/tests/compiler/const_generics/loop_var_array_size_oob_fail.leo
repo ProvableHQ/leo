@@ -2,6 +2,9 @@ program test.aleo {
     fn main() -> u32 {
         return foo::[3]();
     }
+
+    @noupgrade
+    constructor() {}
 }
 fn foo::[P: u32]() -> u32 {
     let sum = 0u32;

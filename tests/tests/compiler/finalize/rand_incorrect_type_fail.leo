@@ -4,6 +4,9 @@ program test.aleo {
     fn foo() -> Final {
         return final { finalize_foo(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo() {

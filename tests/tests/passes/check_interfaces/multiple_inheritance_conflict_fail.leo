@@ -9,6 +9,9 @@ interface BoolChecker {
 }
 
 program test.aleo: IntCounter + BoolChecker {
+    @noupgrade
+    constructor() {}
+
     fn get_value() -> u64 {
         return 0u64;
     }

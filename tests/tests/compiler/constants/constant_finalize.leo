@@ -8,6 +8,9 @@ program test.aleo {
         let caller = self.caller;
         return final { finalize_finalize_self_caller(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_finalize_self_caller(caller: address) -> () {

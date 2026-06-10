@@ -126,4 +126,7 @@ program test.aleo {
     fn thirty_two() -> u8 {
         return 32u8 + 32u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

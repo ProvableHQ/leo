@@ -19,4 +19,7 @@ program submodule_generic.aleo {
         let doubled: u32 = math_lib::ops::double(scaled);
         return doubled;
     }
+
+    @noupgrade
+    constructor() {}
 }

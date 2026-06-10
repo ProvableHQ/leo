@@ -1,6 +1,9 @@
 // The token program.
 // Implements minting and transferring of tokens.
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // A token record.
     // - `owner` : The token owner.
     // - `amount` : The token amount.

@@ -6,4 +6,7 @@ program test.aleo {
     fn foo() -> Final {
         return final { bar(); };
     }
+
+    @noupgrade
+    constructor() {}
 }

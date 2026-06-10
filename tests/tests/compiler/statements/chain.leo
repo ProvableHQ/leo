@@ -10,4 +10,7 @@ program test.aleo {
         }
         return c == x;
     }
+
+    @noupgrade
+    constructor() {}
 }

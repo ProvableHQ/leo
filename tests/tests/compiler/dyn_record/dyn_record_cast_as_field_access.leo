@@ -8,4 +8,7 @@ program test.aleo {
         let d: dyn record = t as dyn record;
         return d.balance as u64;
     }
+
+    @noupgrade
+    constructor() {}
 }

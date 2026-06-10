@@ -17,6 +17,9 @@ program test.aleo {
     fn test_in_finalize() -> Final {
         return final { finalize_test(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_test() {

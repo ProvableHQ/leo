@@ -5,4 +5,7 @@ program test.aleo {
         let m: u8 = 1u8;
         return m;
     }
+
+    @noupgrade
+    constructor() {}
 }

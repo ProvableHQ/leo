@@ -7,6 +7,9 @@ program test.aleo {
     fn lookup(target: field, i: u32) -> Final {
         return final { finalize_query(target, i); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_query(target: field, i: u32) {

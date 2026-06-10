@@ -14,4 +14,7 @@ program test.aleo: TokenInterface {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

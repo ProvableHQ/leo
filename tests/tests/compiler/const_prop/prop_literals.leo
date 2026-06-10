@@ -19,4 +19,7 @@ program test.aleo {
         let c: [address; 2] = C;
         return c;
     }
+
+    @noupgrade
+    constructor() {}
 }

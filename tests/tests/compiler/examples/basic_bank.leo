@@ -87,4 +87,7 @@ program basic_bank.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

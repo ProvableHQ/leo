@@ -1,4 +1,7 @@
 program singleton_storage.aleo {
+    @noupgrade
+    constructor() {}
+
     storage counter: u8;
 
     storage vec: [u8];

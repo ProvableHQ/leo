@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     struct Pair {
         a: u32,
         b: u32,

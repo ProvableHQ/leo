@@ -4,4 +4,7 @@ program test.aleo {
 
         return (t.0, t.1); // The second element should be type u64 as in the fn declaration.
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -29,4 +29,7 @@ program test.aleo {
         let (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q) = inputs;
         return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q;
     }
+
+    @noupgrade
+    constructor() {}
 }

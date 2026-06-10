@@ -18,4 +18,7 @@ program test.aleo {
         let s: scalar = 0b0;
         let g: group = 0o0;
     }
+
+    @noupgrade
+    constructor() {}
 }

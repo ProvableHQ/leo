@@ -5,4 +5,7 @@ program test.aleo {
             let c = self.caller;
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

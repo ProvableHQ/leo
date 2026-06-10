@@ -7,4 +7,7 @@ program test.aleo {
         let (a, b): u32 = (1u32, 2u32);
         return (a, final { let _ = b; });
     }
+
+    @noupgrade
+    constructor() {}
 }

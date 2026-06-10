@@ -7,4 +7,7 @@ program test.aleo {
         let a = self.address;
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -14,6 +14,9 @@ program test.aleo {
 
         let f4: Foo::[5] = Foo::[4] { x: 0 };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn foo::[N: u32]() -> u32 {

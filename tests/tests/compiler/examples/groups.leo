@@ -13,4 +13,7 @@ program test.aleo {
 
         return d + e;
     }
+
+    @noupgrade
+    constructor() {}
 }

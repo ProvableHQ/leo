@@ -1,14 +1,14 @@
 [ETYC0372117] Error: expected type `scalar`, but type `field` was found
-    ╭─[ compiler-test:10:21 ]
+    ╭─[ compiler-test:13:21 ]
     │
- 10 │     let a: scalar = ChaCha::rand_field();
+ 13 │     let a: scalar = ChaCha::rand_field();
     │ 
     │ Help: Change the expression to produce type `scalar`.
 ────╯
 [ETYC0372117] Error: expected type `group`, but type `field` was found
-    ╭─[ compiler-test:11:20 ]
+    ╭─[ compiler-test:14:20 ]
     │
- 11 │     let b: group = ChaCha::rand_field();
+ 14 │     let b: group = ChaCha::rand_field();
     │ 
     │ Help: Change the expression to produce type `group`.
 ────╯

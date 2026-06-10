@@ -15,6 +15,9 @@ program other.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -31,6 +34,9 @@ interface HasMixed {
 
 program lib.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -53,4 +59,7 @@ program test.aleo: lib.aleo::HasMixed {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

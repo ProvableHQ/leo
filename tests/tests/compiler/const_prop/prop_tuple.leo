@@ -3,4 +3,7 @@ program test.aleo {
         const a: (u8, u16, u32) = (1u8, 2u16, 3u32);
         return a.2;
     }
+
+    @noupgrade
+    constructor() {}
 }

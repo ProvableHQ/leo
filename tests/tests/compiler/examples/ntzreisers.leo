@@ -5,6 +5,9 @@ program test.aleo {
         x = (x & 0u32.sub_wrapped(x)).rem_wrapped(37u32);
         return reisersTableLookup(x);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // There are 37 entries here

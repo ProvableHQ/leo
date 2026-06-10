@@ -7,6 +7,9 @@ program test.aleo {
         }
         return sum;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn at_n::[N: u32](arr: [u32; 6]) -> u32 {

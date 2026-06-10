@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn main(k: bool) -> bool {
     let reverse: u32 = 0u32;

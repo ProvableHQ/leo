@@ -6,3 +6,6 @@ function main:
     is.eq aleo1dtpkpg3d653mdlzh6g028937qdgujecn5gw5tzh7ftcvyz7jxvfqw6t8p6 r0 into r2;
     ternary r1 r2 r1 into r3;
     output r3 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

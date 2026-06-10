@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     struct Matrix::[M: u32, N: u32] {
         values: [[u32; N]; M],
     }

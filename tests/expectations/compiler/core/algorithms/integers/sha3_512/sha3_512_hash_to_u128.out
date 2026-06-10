@@ -40,3 +40,6 @@ function main:
     output r21 as u128.private;
     output r22 as u128.private;
     output 193451887604480016027865725154070519476u128 as u128.private;
+
+constructor:
+    assert.eq edition 0u16;

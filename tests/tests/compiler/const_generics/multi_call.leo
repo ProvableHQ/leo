@@ -2,6 +2,9 @@ program test.aleo {
     fn main() -> u32 {
         return bar::[5u32, 1u32]() + bar::[6u32, 2u32]();
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn bar::[N: u32, M: u32]() -> u32 {

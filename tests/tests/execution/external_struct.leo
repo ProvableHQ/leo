@@ -33,6 +33,9 @@ struct Two {
 }
 
 program child.aleo {
+    @noupgrade
+    constructor() {}
+
     record Boo {
         owner: address,
         val: u32,
@@ -78,6 +81,9 @@ struct Woo {
 }
 
 program parent.aleo {
+    @noupgrade
+    constructor() {}
+
     record BooHoo {
         owner: address,
         val: u32,
@@ -156,6 +162,9 @@ import parent.aleo;
 import child.aleo;
 
 program grandparent.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(b: u32) -> u32 {
         let a: u32 = 1u32 + b;
         return a;

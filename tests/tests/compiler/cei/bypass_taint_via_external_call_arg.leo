@@ -23,6 +23,9 @@ program oracle.aleo {
         // Proof-time snapshot: the "current" price at proving time.
         return (500u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_price(id: u32) {
@@ -38,6 +41,9 @@ program exchange.aleo {
     fn execute_trade(id: u32, amount: u64) -> Final {
         return final { finalize_execute_trade(id, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_execute_trade(id: u32, amount: u64) {

@@ -9,4 +9,7 @@ program test.aleo {
         }
         return start.0 + start.1;
     }
+
+    @noupgrade
+    constructor() {}
 }

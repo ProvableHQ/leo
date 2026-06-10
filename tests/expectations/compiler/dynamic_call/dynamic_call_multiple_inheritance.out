@@ -20,3 +20,6 @@ function main:
     call.dynamic r0 'aleo' 'product' with r1 r2 (as u32.private u32.private) into r4 (as u32.private);
     add r3 r4 into r5;
     output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

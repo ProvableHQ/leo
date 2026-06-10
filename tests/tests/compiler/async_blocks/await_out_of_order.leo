@@ -4,6 +4,9 @@ program test.aleo {
     fn main_inner(public a: u32, public b: u32) -> Final {
         return final { Mapping::set(foo, a, b); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,4 +24,7 @@ program basic.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

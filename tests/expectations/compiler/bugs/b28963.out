@@ -7,3 +7,6 @@ function main:
     cast r1 into r3 as u32;
     add r2 r3 into r4;
     output r4 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

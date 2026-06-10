@@ -8,3 +8,6 @@ function lookup:
 finalize lookup:
     input r0 as field.public;
     get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r1 as u32;
+
+constructor:
+    assert.eq edition 0u16;

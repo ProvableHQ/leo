@@ -3,4 +3,7 @@ program test.aleo {
         let x: u32 = 10u32;
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

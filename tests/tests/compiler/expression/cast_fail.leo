@@ -16,6 +16,9 @@ program test.aleo {
         let f: field = e as field;
         return final { finalize_main(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(a: field) {

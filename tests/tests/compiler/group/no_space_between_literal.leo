@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn main(x: bool) -> group {
     let g: group = 1 group;

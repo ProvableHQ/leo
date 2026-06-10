@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn main(a: bool, b: bool) -> (bool, bool) {
     let t: (bool, bool) = (a, b);

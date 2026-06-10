@@ -10,4 +10,7 @@ program test.aleo {
             assert(t.owner == aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -1,6 +1,9 @@
 program lib.aleo;
 
 function unused:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib.aleo;
 program test.aleo;
@@ -11,6 +14,9 @@ function get:
 function set:
     input r0 as u64.private;
     output r0 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

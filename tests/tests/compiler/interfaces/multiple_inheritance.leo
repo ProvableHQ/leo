@@ -14,4 +14,7 @@ program test.aleo: Counter + Resettable {
     fn reset() -> u64 {
         return 0u64;
     }
+
+    @noupgrade
+    constructor() {}
 }

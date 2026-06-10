@@ -58,3 +58,6 @@ function f2:
     output r1 as Token.record;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;

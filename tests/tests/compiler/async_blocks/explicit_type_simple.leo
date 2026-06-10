@@ -9,6 +9,9 @@ program test.aleo {
         };
         return (c, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -24,4 +27,7 @@ program basic.aleo {
         };
         return (c, f);
     }
+
+    @noupgrade
+    constructor() {}
 }

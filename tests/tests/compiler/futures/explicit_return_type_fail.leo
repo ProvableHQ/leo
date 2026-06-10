@@ -6,6 +6,9 @@ program test.aleo {
         let f: Final = final { finalize(); };
         return (c, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() -> Final {
@@ -22,6 +25,9 @@ program basic.aleo {
         let f: Final = final { finalize(c, f1); };
         return (c, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(input: u32, f: Final) {

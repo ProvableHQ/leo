@@ -12,6 +12,9 @@ function inner:
 finalize inner:
     input r0 as u32.public;
     set r0 into foo[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import inner.aleo;
 program mid.aleo;
@@ -30,6 +33,9 @@ finalize mid:
     await r1;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import inner.aleo;
 import mid.aleo;
@@ -48,3 +54,6 @@ finalize outer:
     input r1 as mid.aleo/mid.future;
     await r0;
     await r1;
+
+constructor:
+    assert.eq edition 0u16;

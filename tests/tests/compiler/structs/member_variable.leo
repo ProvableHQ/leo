@@ -8,4 +8,7 @@ program test.aleo {
 
         return (a.x == 1u32) == y;
     }
+
+    @noupgrade
+    constructor() {}
 }

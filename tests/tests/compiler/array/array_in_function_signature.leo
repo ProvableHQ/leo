@@ -6,6 +6,9 @@ program test.aleo {
     fn bar(a: [bool; 8]) -> [bool; 8] {
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn baz(a: [bool; 8]) -> bool {

@@ -9,6 +9,9 @@ program test.aleo {
         }
         return sum + sum_first_n_ints::[2 * 3]() + other::[5](); // this call to `other` will get resolved in the first pass of monomorphization
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn sum_first_n_ints::[N: u32]() -> u32 {

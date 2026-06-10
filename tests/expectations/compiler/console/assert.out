@@ -20,3 +20,6 @@ function main:
     assert.neq r2 r4;
     is.eq r0 true into r5;
     output r5 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

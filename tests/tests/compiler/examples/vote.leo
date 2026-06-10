@@ -96,4 +96,7 @@ program vote.aleo {
         let pid = ticket.pid;
         return final { finalize_disagree(pid); };
     }
+
+    @noupgrade
+    constructor() {}
 }

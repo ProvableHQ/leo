@@ -15,4 +15,7 @@ program test.aleo {
     fn foo2(x: S, y: S) -> (S, S, field, field, u8, u8) {
         return (x, x, 2field, 2field, 1u8, 1u8);
     }
+
+    @noupgrade
+    constructor() {}
 }

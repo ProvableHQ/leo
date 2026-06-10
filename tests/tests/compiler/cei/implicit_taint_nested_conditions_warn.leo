@@ -7,6 +7,9 @@ program oracle.aleo {
         let f: Final = final { finalize_get_price(id); };
         return (500u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_price(id: u32) {

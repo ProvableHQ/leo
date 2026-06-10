@@ -21,3 +21,6 @@ function main:
     output 1field as field.private;
 
 function main2:
+
+constructor:
+    assert.eq edition 0u16;

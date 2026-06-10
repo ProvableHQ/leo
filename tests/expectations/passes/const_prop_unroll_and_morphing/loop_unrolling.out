@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main() -> u32 {
         let sum = 0u32;
         {

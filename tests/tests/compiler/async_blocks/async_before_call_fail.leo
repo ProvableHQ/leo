@@ -1,5 +1,8 @@
 program child.aleo {
     fn t() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -11,4 +14,7 @@ program parent.aleo {
         child.aleo::t();
         return future;
     }
+
+    @noupgrade
+    constructor() {}
 }

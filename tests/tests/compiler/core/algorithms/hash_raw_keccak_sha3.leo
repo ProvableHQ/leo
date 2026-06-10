@@ -48,4 +48,7 @@ program test.aleo {
             sha3_256_addr_raw, sha3_384_field_raw, sha3_512_scalar_raw, sha3_512_i16_raw,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

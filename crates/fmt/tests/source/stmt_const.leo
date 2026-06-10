@@ -1,5 +1,7 @@
 program test.aleo
         {
+    @noupgrade constructor() {}
+
 	fn main(
 	    )  ->  u64   {
 const X  :u64

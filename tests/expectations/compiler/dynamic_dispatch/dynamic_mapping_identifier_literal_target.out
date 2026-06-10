@@ -8,3 +8,6 @@ function lookup:
 finalize lookup:
     input r0 as address.public;
     get.dynamic 'test' 'aleo' 'balances'[r0] into r1 as u64;
+
+constructor:
+    assert.eq edition 0u16;

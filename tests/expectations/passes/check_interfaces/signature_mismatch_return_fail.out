@@ -3,11 +3,11 @@ Expected:
 fn convert(value: u64) -> u32
 Found:
 fn convert(value: u64) -> u64
-    ╭─[ test:9:5 ]
+    ╭─[ test:12:5 ]
     │
-  9 │ ╭─▶     fn convert(value: u64) -> u64 {
+ 12 │ ╭─▶     fn convert(value: u64) -> u64 {
     ┆ ┆   
- 11 │ ├─▶     }
+ 14 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     

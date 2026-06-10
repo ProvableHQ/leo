@@ -3,6 +3,9 @@ program test.aleo {
         owner: address,
         micrcredits: u64,
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn foo(a: credits) -> u8 {

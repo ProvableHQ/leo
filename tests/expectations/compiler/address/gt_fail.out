@@ -1,21 +1,21 @@
 [ETYC0372117] Error: expected a field, scalar, or integer, but type `address` was found
-   ╭─[ compiler-test:6:12 ]
+   ╭─[ compiler-test:9:12 ]
    │
- 6 │     return x > sender;
+ 9 │     return x > sender;
    │ 
    │ Help: Change the expression to produce a field, scalar, or integer.
 ───╯
 [ETYC0372117] Error: expected a field, scalar, or integer, but type `address` was found
-   ╭─[ compiler-test:6:16 ]
+   ╭─[ compiler-test:9:16 ]
    │
- 6 │     return x > sender;
+ 9 │     return x > sender;
    │ 
    │ Help: Change the expression to produce a field, scalar, or integer.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

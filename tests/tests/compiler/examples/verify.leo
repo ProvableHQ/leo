@@ -118,4 +118,7 @@ program test.aleo {
         assert_eq(num_bits, 14u64); // Given 4 individually-valid ships, a valid combination should yield exactly 14 flipped bits.
         return ships;
     }
+
+    @noupgrade
+    constructor() {}
 }

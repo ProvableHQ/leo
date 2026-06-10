@@ -6,4 +6,7 @@ program test.aleo {
         let y = (1u32, 2u8, 3u16);
         return final { let _ = y.8; };
     }
+
+    @noupgrade
+    constructor() {}
 }

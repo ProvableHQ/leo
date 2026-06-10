@@ -1,23 +1,23 @@
 [WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
-    ╭─[ compiler-test:22:9 ]
+    ╭─[ compiler-test:25:9 ]
     │
- 22 │     for i: u32 in 0u32..3u32 {
+ 25 │     for i: u32 in 0u32..3u32 {
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
 [WCEI03713002] Warning: the call to `caller.aleo::balance_of` runs after an interaction (`Final.run()`), and `caller.aleo::balance_of` itself performs checks or effects
-    ╭─[ compiler-test:26:24 ]
+    ╭─[ compiler-test:29:24 ]
     │
- 26 │         let val: u32 = balance_of(i);
+ 29 │         let val: u32 = balance_of(i);
     │ 
     │ Help: Move the call to `caller.aleo::balance_of` above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:27:9 ]
+    ╭─[ compiler-test:30:9 ]
     │
- 27 │         assert(val >= 0u32);
+ 30 │         assert(val >= 0u32);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -37,6 +37,9 @@ function modify:
 finalize modify:
     input r0 as u32.public;
     set r0 into shared[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -70,3 +73,6 @@ finalize do_work:
     call balance_of 2u32 into r5;
     gte r5 0u32 into r6;
     assert.eq r6 true;
+
+constructor:
+    assert.eq edition 0u16;

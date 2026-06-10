@@ -14,6 +14,9 @@ program test.aleo {
             let f = final {};
         }
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn f2(x: u32) {

@@ -18,4 +18,7 @@ program test.aleo: Extended {
     fn main(target: field, x: u64) -> u64 {
         return Base@(target)::double_val(x);
     }
+
+    @noupgrade
+    constructor() {}
 }

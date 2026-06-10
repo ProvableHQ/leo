@@ -6,4 +6,7 @@ program test.aleo: CounterInterface {
     mapping counter: address => u64;
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

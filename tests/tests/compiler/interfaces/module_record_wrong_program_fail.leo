@@ -14,6 +14,9 @@ interface HasToken {
 
 program lib.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -23,6 +26,9 @@ program other.aleo {
     record Token {
         owner: address,
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -35,4 +41,7 @@ program test.aleo: lib.aleo::HasToken {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

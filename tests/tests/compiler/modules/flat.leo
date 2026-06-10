@@ -14,6 +14,9 @@ program flat_module_corner.aleo {
         let boosted = shared::boost(val1 + val2);
         return val1 + val2 + d1.values[1] + d2.values[2] + res1 + res2 + boosted;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: util.leo --- //

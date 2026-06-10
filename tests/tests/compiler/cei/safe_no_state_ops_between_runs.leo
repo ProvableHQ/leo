@@ -5,6 +5,9 @@ program dep_a.aleo {
     fn update(a: u32) -> Final {
         return final { finalize_update(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_update(a: u32) {
@@ -18,6 +21,9 @@ program dep_b.aleo {
     fn update(a: u32) -> Final {
         return final { finalize_update(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_update(a: u32) {
@@ -34,6 +40,9 @@ program caller.aleo {
         let fb: Final = dep_b.aleo::update(a + 1u32);
         return final { finalize_do_work(fa, fb); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_work(fa: Final, fb: Final) {

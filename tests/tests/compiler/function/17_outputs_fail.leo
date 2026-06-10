@@ -17,6 +17,9 @@ program test.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn baz_finalize() {}

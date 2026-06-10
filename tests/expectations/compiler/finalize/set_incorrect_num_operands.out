@@ -13,44 +13,44 @@
     │ Help: Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 4 were supplied
-    ╭─[ compiler-test:16:5 ]
+    ╭─[ compiler-test:19:5 ]
     │
- 16 │     Mapping::set(tokens, addr, amount, 1u128);
+ 19 │     Mapping::set(tokens, addr, amount, 1u128);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 4 were supplied
-    ╭─[ compiler-test:17:5 ]
-    │
- 17 │     tokens.set(addr, amount, 1u128);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
-    ╭─[ compiler-test:18:5 ]
-    │
- 18 │     Mapping::set(amounts, 1u8);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
-    ╭─[ compiler-test:19:5 ]
-    │
- 19 │     amounts.set(1u8);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
     ╭─[ compiler-test:20:5 ]
     │
- 20 │     Mapping::set(amounts);
+ 20 │     tokens.set(addr, amount, 1u128);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
+    ╭─[ compiler-test:21:5 ]
+    │
+ 21 │     Mapping::set(amounts, 1u8);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     amounts.set(1u8);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
-    ╭─[ compiler-test:21:5 ]
+    ╭─[ compiler-test:23:5 ]
     │
- 21 │     amounts.set();
+ 23 │     Mapping::set(amounts);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
+    ╭─[ compiler-test:24:5 ]
+    │
+ 24 │     amounts.set();
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

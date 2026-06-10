@@ -9,4 +9,7 @@ program signature_storage.aleo {
     storage sig_vec: [signature];
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

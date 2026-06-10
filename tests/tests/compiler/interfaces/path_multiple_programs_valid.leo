@@ -4,6 +4,9 @@ interface InterfaceA {
 
 program lib_a.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -14,6 +17,9 @@ interface InterfaceB {
 
 program lib_b.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -32,4 +38,7 @@ program test.aleo: lib_a.aleo::InterfaceA + lib_b.aleo::InterfaceB {
     fn main(x: u64) -> u64 {
         return 0;
     }
+
+    @noupgrade
+    constructor() {}
 }

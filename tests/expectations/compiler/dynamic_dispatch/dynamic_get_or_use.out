@@ -19,3 +19,6 @@ finalize get_balance:
     input r3 as address.public;
     get.or_use.dynamic r0 r1 r2[r3] 0u64 into r4 as u64;
     set r4 into result[r3];
+
+constructor:
+    assert.eq edition 0u16;

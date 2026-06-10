@@ -21,4 +21,7 @@ program submodule_struct.aleo {
         let v: geo_lib::types::Vec2 = geo_lib::types::make_vec2(3u32, 4u32);
         return geo_lib::types::magnitude_sq(v);
     }
+
+    @noupgrade
+    constructor() {}
 }

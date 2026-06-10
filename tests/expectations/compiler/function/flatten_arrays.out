@@ -56,3 +56,6 @@ function bar:
     cast r23 into r24 as Data;
     cast r20 r24 into r25 as [Data; 2u32];
     output r25 as [Data; 2u32].private;
+
+constructor:
+    assert.eq edition 0u16;

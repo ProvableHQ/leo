@@ -3,4 +3,7 @@ program test.aleo {
         let x: u64 = r.owner;
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -9,4 +9,7 @@ program test.aleo {
         x = x + 1i8;
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

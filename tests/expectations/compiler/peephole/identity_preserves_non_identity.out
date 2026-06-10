@@ -6,3 +6,6 @@ function main:
     add r0 r1 into r2;
     mul r2 2field into r3;
     output r3 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -21,6 +21,9 @@ finalize get_price:
     input r0 as u32.public;
     get.or_use prices[r0] 0u64 into r1;
     set r1 into prices[r0];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import oracle.aleo;
 program trader.aleo;
@@ -47,3 +50,6 @@ finalize trade:
     set 0u64 into positions[r2];
     position end_otherwise_0_1;
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

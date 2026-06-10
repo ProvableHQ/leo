@@ -10,4 +10,7 @@ program test.aleo {
     fn main() -> [u32; 6] {
         return repeat_value::[3](42u32);
     }
+
+    @noupgrade
+    constructor() {}
 }

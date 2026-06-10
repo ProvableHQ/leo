@@ -7,6 +7,9 @@ program exchange.aleo {
         let f: Final = final { finalize_get_rate(id); };
         return (100u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_rate(id: u32) {
@@ -29,6 +32,9 @@ program caller.aleo {
         let local_val: u64 = amount * 2u64;
         return final { finalize_transfer(f, adjusted_rate, local_val, id); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_transfer(f: Final, adjusted_rate: u64, local_val: u64, id: u32) {

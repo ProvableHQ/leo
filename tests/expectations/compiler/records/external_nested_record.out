@@ -5,15 +5,24 @@ record child_rec:
 
 function main:
     input r0 as child_rec.record;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 program inter.aleo;
 
 function use_child:
     input r0 as child.aleo/child_rec.record;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 import inter.aleo;
 program parent.aleo;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;

@@ -8,3 +8,6 @@ function matches:
 finalize matches:
     input r0 as u32.public;
     assert.eq r0 block.height;
+
+constructor:
+    assert.eq edition 0u16;

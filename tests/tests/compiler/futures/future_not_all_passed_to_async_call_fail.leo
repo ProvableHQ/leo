@@ -20,6 +20,9 @@ program child.aleo {
         let caller = self.caller;
         return final { finalize_boo(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -37,6 +40,9 @@ program parent.aleo {
         // Doesn't pass f1.
         return final { finalize_foo(f0, f3, f2, f5, f4); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final) {

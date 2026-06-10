@@ -46,6 +46,9 @@ program child.aleo {
             ],
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -77,4 +80,7 @@ program parent.aleo {
     fn create_wrapper() -> Foo {
         return child.aleo::create();
     }
+
+    @noupgrade
+    constructor() {}
 }

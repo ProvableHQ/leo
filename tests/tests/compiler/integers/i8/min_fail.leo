@@ -5,4 +5,7 @@ program test.aleo {
 
         return a - 2i8; // This line attempts to return -129i8 however, the smallest i8 value is -128i8.
     }
+
+    @noupgrade
+    constructor() {}
 }

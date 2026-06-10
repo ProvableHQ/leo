@@ -5,4 +5,7 @@ program test.aleo {
 
         return b;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -247,3 +247,6 @@ function bounded_iteration_interest:
     add r203 r206 into r207;
     ternary r204 r207 r203 into r208;
     output r208 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

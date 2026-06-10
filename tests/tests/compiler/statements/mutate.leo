@@ -12,4 +12,7 @@ program test.aleo {
             return (b == 0u32);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

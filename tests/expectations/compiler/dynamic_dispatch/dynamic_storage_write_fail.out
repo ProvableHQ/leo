@@ -1,7 +1,7 @@
 [ETYC0372000] Error: invalid assignment target: `test.aleo::Counter@(target)::total`
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:17:5 ]
     │
- 14 │     Counter@(target)::total = 5u64;
+ 17 │     Counter@(target)::total = 5u64;
     │ 
     │ Help: Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 ────╯

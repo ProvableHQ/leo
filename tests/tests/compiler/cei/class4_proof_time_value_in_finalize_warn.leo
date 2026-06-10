@@ -8,6 +8,9 @@ program token.aleo {
         // At proof time, return a snapshot value
         return (100u32, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_supply(id: u32) {
@@ -27,6 +30,9 @@ program caller.aleo {
         // val is passed to finalize alongside the future
         return final { finalize_make_decision(f, val, id); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_make_decision(f: Final, val: u32, id: u32) {

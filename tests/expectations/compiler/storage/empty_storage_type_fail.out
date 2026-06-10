@@ -27,16 +27,16 @@
    │ Help: Use a primitive type, a struct of primitives, or a supported container as the storage type.
 ───╯
 [ETYC0372000] Error: invalid assignment target: `empty_storage_type.aleo::vector_of_empty_array`
-    ╭─[ compiler-test:13:5 ]
+    ╭─[ compiler-test:16:5 ]
     │
- 13 │     vector_of_empty_array = [];
+ 16 │     vector_of_empty_array = [];
     │ 
     │ Help: Valid assignment targets are identifiers, tuple accesses, array accesses, and struct accesses.
 ────╯
 [ETYC0372004] Error: could not determine the type of `[]`
-    ╭─[ compiler-test:13:29 ]
+    ╭─[ compiler-test:16:29 ]
     │
- 13 │     vector_of_empty_array = [];
+ 16 │     vector_of_empty_array = [];
     │ 
     │ Help: Add an explicit type annotation, e.g. `let x: u32 = …;`, so the type can be inferred.
 ────╯

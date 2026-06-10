@@ -1,16 +1,16 @@
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:18:5 ]
+    ╭─[ compiler-test:21:5 ]
     │
- 18 │     Mapping::set(balances, 0u32, a);
+ 21 │     Mapping::set(balances, 0u32, a);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713000] Warning: a call to `_mapping_get_or_use` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:21:18 ]
+    ╭─[ compiler-test:24:18 ]
     │
- 21 │     let v: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
+ 24 │     let v: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -30,6 +30,9 @@ function do_a:
 finalize do_a:
     input r0 as u32.public;
     set r0 into data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 program dep_b.aleo;
 
@@ -45,6 +48,9 @@ function do_b:
 finalize do_b:
     input r0 as u32.public;
     set r0 into data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep_a.aleo;
 import dep_b.aleo;
@@ -69,3 +75,6 @@ finalize do_work:
     set r2 into balances[0u32];
     await r1;
     get.or_use balances[0u32] 0u32 into r3;
+
+constructor:
+    assert.eq edition 0u16;

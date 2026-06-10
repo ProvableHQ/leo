@@ -17,3 +17,6 @@ finalize foo:
     contains balances[r0] into r2;
     not r2 into r3;
     assert.eq r3 true;
+
+constructor:
+    assert.eq edition 0u16;

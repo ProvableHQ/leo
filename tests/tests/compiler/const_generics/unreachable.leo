@@ -6,6 +6,9 @@ program const_generics.aleo {
     fn main2() -> Final {
         return final { foo(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn foo() {}

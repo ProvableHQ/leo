@@ -36,4 +36,7 @@ program top.aleo {
     fn main(x: u32, y: u32) -> base.aleo::Data {
         return middle.aleo::wrap_data(x, y);
     }
+
+    @noupgrade
+    constructor() {}
 }

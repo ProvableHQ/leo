@@ -11,3 +11,6 @@ function main:
     is.eq r6 r2 into r7;
     and r5 r7 into r8;
     output r8 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

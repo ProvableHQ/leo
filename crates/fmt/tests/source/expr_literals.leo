@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
 	fn main(  public x  :  u8  ){
 
 let a  :u8  =  1u8;

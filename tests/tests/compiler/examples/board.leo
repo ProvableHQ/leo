@@ -101,4 +101,7 @@ program test.aleo {
             game_started: board.game_started,
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

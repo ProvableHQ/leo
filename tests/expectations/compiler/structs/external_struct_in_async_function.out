@@ -12,9 +12,15 @@ function init:
 finalize init:
     input r0 as TestStruct.public;
     assert.eq 0u32 0u32;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import parent.aleo;
 program child.aleo;
 
 function main:
     output 1u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

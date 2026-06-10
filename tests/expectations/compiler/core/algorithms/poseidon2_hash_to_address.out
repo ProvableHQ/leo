@@ -40,3 +40,6 @@ function main:
     output r21 as address.private;
     output r22 as address.private;
     output aleo1fssf0g22zdtr3enw2etg9lhve7g66dnvaywe2qmnr5egpj4mwczqmaxdcj as address.private;
+
+constructor:
+    assert.eq edition 0u16;

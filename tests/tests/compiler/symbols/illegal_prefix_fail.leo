@@ -5,6 +5,9 @@ program child.aleo {
     }
 
     fn bar() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -27,4 +30,7 @@ program parent.aleo {
     }
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

@@ -187,4 +187,7 @@ program all_types.aleo {
 
         return (val1, val2, val3, val4);
     }
+
+    @noupgrade
+    constructor() {}
 }

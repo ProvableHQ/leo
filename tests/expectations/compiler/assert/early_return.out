@@ -7,3 +7,6 @@ function main:
     assert.eq r2 true;
     ternary r0 r1 r0 into r3;
     output r3 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

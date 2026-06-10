@@ -1,16 +1,16 @@
 [EAST0372017] Error: the name `N` is defined multiple times
-   ╭─[ compiler-test:8:9 ]
-   │
- 8 │     let N: u32 = 10u32;
-   │
-   ├─[ compiler-test:8:9 ]
-   │
- 7 │ fn foo::[N: u32]() -> u32 {
-   │          ┬  
-   │          ╰── previous definition of `N` here
- 8 │     let N: u32 = 10u32;
-   │         ┬  
-   │         ╰── `N` redefined here
-   │ 
-   │ Help: Rename or remove all but one of the `N` definitions so the name is unique within its scope.
-───╯
+    ╭─[ compiler-test:11:9 ]
+    │
+ 11 │     let N: u32 = 10u32;
+    │
+    ├─[ compiler-test:11:9 ]
+    │
+ 10 │ fn foo::[N: u32]() -> u32 {
+    │          ┬  
+    │          ╰── previous definition of `N` here
+ 11 │     let N: u32 = 10u32;
+    │         ┬  
+    │         ╰── `N` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `N` definitions so the name is unique within its scope.
+────╯

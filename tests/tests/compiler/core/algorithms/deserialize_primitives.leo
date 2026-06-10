@@ -46,4 +46,7 @@ program test.aleo {
             i128_val, f, g, s, addr,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
