@@ -227,7 +227,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         command.env_override.network_retries,
     )?;
 
-    // Use the stricter active endpoint rules for proven-invalid upgrades; fetch uncertainty remains a warning below.
+    // Fail closed for proven-invalid upgrades by using the stricter active endpoint rules; fetch uncertainty remains a warning below.
     let validation_consensus_version =
         get_endpoint_consensus_version(&endpoint, network, command.env_override.network_retries)
             .map_or(consensus_version, |network_version| consensus_version.max(network_version));
@@ -536,12 +536,12 @@ fn reject_invalid_upgrade<N: Network>(
             }
         })
         .map_err(|e| {
-            crate::errors::custom(format!(
-                "The program '{id}' is not a valid upgrade: {e}\n\n\
-                Try preserving the original interface and output registers, adding a new function for the changed \
-                interface, or deploying a new program."
-            ))
-            .into()
+            crate::errors::custom(format!("program '{id}' is not a valid upgrade: {e}"))
+                .with_help(
+                    "Try preserving the original interface and output registers, adding a new function for the changed \
+                    interface, or deploying a new program.",
+                )
+                .into()
         })
 }
 
@@ -630,7 +630,7 @@ fn push_remote_upgrade_warnings<N: Network>(
     // Check if the program is a valid upgrade.
     if remote_program.contains_constructor() {
         if let Err(e) = reject_invalid_upgrade(id, remote_program, program, consensus_version) {
-            warnings.push(format!("{e}\n\nThe upgrade will likely fail."));
+            warnings.push(e.to_string());
         }
     } else if consensus_version >= ConsensusVersion::V8 {
         warnings.push(format!("The program '{id}' can only ever be upgraded once and its contents cannot be changed. Otherwise, the upgrade will likely fail."));
@@ -800,7 +800,7 @@ constructor:
         );
 
         assert_eq!(warnings.len(), 1);
-        assert!(warnings[0].contains("mismatched record output registers"));
+        assert!(warnings[0].contains("not a valid upgrade"));
         assert!(warnings[0].contains("Try preserving the original interface and output registers"));
     }
 }
