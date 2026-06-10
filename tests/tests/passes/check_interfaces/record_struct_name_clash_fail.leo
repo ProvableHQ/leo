@@ -11,12 +11,12 @@ interface IToken {
     fn mint(owner: address) -> Token;
 }
 
-program test.aleo: IToken {
-    struct Token {
-        owner: address,
-        amount: u64,
-    }
+struct Token {
+    owner: address,
+    amount: u64,
+}
 
+program test.aleo: IToken {
     fn mint(owner: address) -> Token {
         return Token { owner: owner, amount: 0u64 };
     }

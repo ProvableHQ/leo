@@ -2469,8 +2469,8 @@ mod tests {
         let root = tempdir.path().join("root");
         write_manifest(&root, "root.aleo", "null");
         let source = concat!(
+            "struct Point { x: u32, }\n\n",
             "program root.aleo {\n",
-            "    struct Point { x: u32, }\n\n",
             "    fn main() {\n",
             "        let point: Point = Point { x: 1u32 };\n",
             "        let value = point.x;\n",

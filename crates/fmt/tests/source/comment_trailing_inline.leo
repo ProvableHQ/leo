@@ -1,9 +1,9 @@
-program test.aleo  {
-        const X  :  u32  =  4u32  ;        // trailing on const
-
     struct Foo  {
             x  :  u32  ,
         }
+
+program test.aleo  {
+        const X  :  u32  =  4u32  ;        // trailing on const
 
 mapping balances  :  address  =>  u64  ;           // trailing on mapping
 

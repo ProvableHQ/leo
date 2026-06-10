@@ -1,9 +1,9 @@
-program test.aleo {
-    struct Pair {
-        a: u32,
-        b: u32,
-    }
+struct Pair {
+    a: u32,
+    b: u32,
+}
 
+program test.aleo {
     // Composite literals with atom-valued fields are tracked; subsequent
     // `s.a` / `s.b` accesses are forwarded to the stored atom. The
     // `Pair { ... }` binding becomes dead — DCE removes it in a later pass —

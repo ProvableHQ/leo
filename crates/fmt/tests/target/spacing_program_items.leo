@@ -1,12 +1,12 @@
+struct A {
+    x: u64,
+}
+
+struct B {
+    y: u64,
+}
+
 program test.aleo {
-    struct A {
-        x: u64,
-    }
-
-    struct B {
-        y: u64,
-    }
-
     fn foo(a: u64) -> u64 {
         return a;
     }

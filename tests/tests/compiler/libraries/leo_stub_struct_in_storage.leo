@@ -8,12 +8,12 @@
 // `self.composites` via the `FromLeo` match arm so that `wrap_none`'s
 // zero-synthesis lookup succeeds.
 
-program base.aleo {
-    struct Data {
-        x: u32,
-        y: u32,
-    }
+struct Data {
+    x: u32,
+    y: u32,
+}
 
+program base.aleo {
     fn make_data(x: u32, y: u32) -> Data {
         return Data { x: x, y: y };
     }

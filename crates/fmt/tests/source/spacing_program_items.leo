@@ -1,5 +1,3 @@
-program test.aleo
-  {
 struct A{
 x:u64,
 }
@@ -9,6 +7,8 @@ struct B{
 
 
 
+program test.aleo
+  {
 fn foo( a  :  u64 )  ->u64 {
   return a;
     }

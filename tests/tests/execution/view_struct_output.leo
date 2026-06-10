@@ -19,15 +19,15 @@ input = ["aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9"]
 */
 
 // Views that read multiple mappings and return a struct (or boolean).
+struct AccountSummary {
+    addr: address,
+    balance: u64,
+    nonce: u64,
+}
+
 program test.aleo {
     mapping balances: address => u64;
     mapping nonces: address => u64;
-
-    struct AccountSummary {
-        addr: address,
-        balance: u64,
-        nonce: u64,
-    }
 
     fn dummy(x: u32) -> u32 { return x; }
 
