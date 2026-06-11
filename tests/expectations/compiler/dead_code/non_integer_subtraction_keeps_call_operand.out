@@ -7,4 +7,5 @@ closure field_identity:
 function main:
     input r0 as field.private;
     call field_identity r0 into r1;
+    sub r1 1field into r2;
     output r0 as field.private;
