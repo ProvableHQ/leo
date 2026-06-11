@@ -60,7 +60,7 @@
 //! ```no_run
 //! # use leo_ast::NetworkName;
 //! use leo_package::Package;
-//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030"), 3).unwrap();
+//! let package = Package::from_directory("path/to/package", "/home/me/.aleo", false, false, false, Some(NetworkName::TestnetV0), Some("http://localhost:3030"), 3).unwrap();
 //! ```
 //! This will read the manifest and keep their data in `package.manifest`.
 //! It will also process dependencies and store them in topological order in `package.compilation_units`. This processing
@@ -100,8 +100,19 @@ pub use package::*;
 mod compilation_unit;
 pub use compilation_unit::*;
 
+pub mod git;
+
+mod lock;
+pub use lock::*;
+
 mod workspace;
 pub use workspace::*;
+
+#[cfg(test)]
+mod test_util;
+
+#[cfg(test)]
+mod tests;
 
 pub const SOURCE_DIRECTORY: &str = "src";
 
@@ -179,9 +190,10 @@ pub fn is_valid_library_name(name: &str) -> bool {
 
 /// Checks whether a string satisfies general Aleo package naming rules.
 ///
-/// Names must be nonempty, start with a letter, contain only ASCII alphanumeric
-/// characters or underscores, avoid reserved keywords, and not contain "aleo".
-fn is_valid_package_name(name: &str) -> bool {
+/// Expects a bare name (no `.aleo` suffix; use [`bare_unit_name`] to strip one first). Names must
+/// be nonempty, start with a letter, contain only ASCII alphanumeric characters or underscores,
+/// avoid reserved keywords, and not contain "aleo".
+pub fn is_valid_package_name(name: &str) -> bool {
     // Check that the name is nonempty.
     if name.is_empty() {
         tracing::error!("Aleo names must be nonempty");
@@ -376,7 +388,7 @@ fn filename_no_extension<'a>(path: &'a Path, extension: &'static str) -> Option<
 }
 
 #[cfg(test)]
-mod tests {
+mod package_tests {
     use super::{Package, is_valid_library_name, is_valid_program_name};
 
     #[test]

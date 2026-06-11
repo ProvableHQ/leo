@@ -1,0 +1,153 @@
+--- 1. add a git LIBRARY dependency (repo/lib, found by name) ---
+       Leo ✅ Added git dependency `gitlib`.
+exit: 0
+{
+  "program": "consumer.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "LEO_VERSION",
+  "dependencies": [
+    {
+      "name": "gitlib",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL"
+      }
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 2. add a git PROGRAM dependency pinned to a tag (repo/prog, found by name) ---
+       Leo ✅ Added git dependency `gitprog.aleo`.
+exit: 0
+{
+  "program": "consumer.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "LEO_VERSION",
+  "dependencies": [
+    {
+      "name": "gitlib",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL"
+      }
+    },
+    {
+      "name": "gitprog.aleo",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL",
+        "tag": "v1"
+      }
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 3. add a git ALEO BYTECODE dependency (repo/gitbytes.aleo) ---
+       Leo ✅ Added git dependency `gitbytes.aleo`.
+exit: 0
+{
+  "program": "consumer.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "LEO_VERSION",
+  "dependencies": [
+    {
+      "name": "gitlib",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL"
+      }
+    },
+    {
+      "name": "gitprog.aleo",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL",
+        "tag": "v1"
+      }
+    },
+    {
+      "name": "gitbytes.aleo",
+      "location": "git",
+      "path": null,
+      "edition": null,
+      "git": {
+        "url": "REPO_URL"
+      }
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 4. build: resolve + compile all three kinds from the one repository ---
+build exit: 0
+leo.lock:
+{
+  "version": 1,
+  "git": [
+    {
+      "name": "gitbytes.aleo",
+      "git": "REPO_URL",
+      "reference": "default",
+      "commit": "COMMIT"
+    },
+    {
+      "name": "gitlib",
+      "git": "REPO_URL",
+      "reference": "default",
+      "commit": "COMMIT"
+    },
+    {
+      "name": "gitprog.aleo",
+      "git": "REPO_URL",
+      "reference": "tag=v1",
+      "commit": "COMMIT"
+    }
+  ]
+}
+--- 4b. build --offline reuses the lock and cache ---
+offline build exit: 0
+--- 5. --branch without --git (should fail) ---
+exit: 2
+--- 6. multiple git references (should fail) ---
+exit: 2
+--- 7. --git combined with --network (should fail) ---
+exit: 2
+--- 8. add a library under a name ending in .aleo (should fail) ---
+exit: 213
+--- 9. remove a git dependency (its lock pin is pruned) ---
+exit: 0
+leo.lock after remove:
+{
+  "version": 1,
+  "git": [
+    {
+      "name": "gitbytes.aleo",
+      "git": "REPO_URL",
+      "reference": "default",
+      "commit": "COMMIT"
+    },
+    {
+      "name": "gitlib",
+      "git": "REPO_URL",
+      "reference": "default",
+      "commit": "COMMIT"
+    }
+  ]
+}
+--- 10. a path-traversal dependency name is rejected before fetching ---
+exit: 213
