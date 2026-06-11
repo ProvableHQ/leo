@@ -1,0 +1,7 @@
+program test.aleo;
+
+function main:
+    input r0 as u8.private;
+    cast r0 into r1 as i8;
+    cast r1 into r2 as u8;
+    output r2 as u8.private;

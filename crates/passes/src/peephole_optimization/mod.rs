@@ -721,17 +721,46 @@ fn fold_consecutive_casts(stmts: &mut Vec<AleoStmt>) {
         }
     }
 
-    let num_bit_width = |ty: &AleoType| -> Option<u32> {
+    #[derive(Clone, Copy)]
+    enum PrimitiveCastDomain {
+        Signed { bits: u32 },
+        Unsigned { bits: u32 },
+    }
+
+    let primitive_cast_domain = |ty: &AleoType| -> Option<PrimitiveCastDomain> {
         match ty {
-            AleoType::Boolean => Some(1),
-            AleoType::U8 | AleoType::I8 => Some(8),
-            AleoType::U16 | AleoType::I16 => Some(16),
-            AleoType::U32 | AleoType::I32 => Some(32),
-            AleoType::U64 | AleoType::I64 => Some(64),
-            AleoType::U128 | AleoType::I128 => Some(128),
+            AleoType::Boolean => Some(PrimitiveCastDomain::Unsigned { bits: 1 }),
+            AleoType::I8 => Some(PrimitiveCastDomain::Signed { bits: 8 }),
+            AleoType::I16 => Some(PrimitiveCastDomain::Signed { bits: 16 }),
+            AleoType::I32 => Some(PrimitiveCastDomain::Signed { bits: 32 }),
+            AleoType::I64 => Some(PrimitiveCastDomain::Signed { bits: 64 }),
+            AleoType::I128 => Some(PrimitiveCastDomain::Signed { bits: 128 }),
+            AleoType::U8 => Some(PrimitiveCastDomain::Unsigned { bits: 8 }),
+            AleoType::U16 => Some(PrimitiveCastDomain::Unsigned { bits: 16 }),
+            AleoType::U32 => Some(PrimitiveCastDomain::Unsigned { bits: 32 }),
+            AleoType::U64 => Some(PrimitiveCastDomain::Unsigned { bits: 64 }),
+            AleoType::U128 => Some(PrimitiveCastDomain::Unsigned { bits: 128 }),
             _ => None,
         }
     };
+
+    let intermediate_accepts_all_final_values =
+        |intermediate: &AleoType, final_target: &AleoType| -> bool {
+            use PrimitiveCastDomain::*;
+            match (primitive_cast_domain(intermediate), primitive_cast_domain(final_target)) {
+                (Some(Signed { bits: intermediate_bits }), Some(Signed { bits: final_bits })) => {
+                    intermediate_bits >= final_bits
+                }
+                (Some(Signed { bits: intermediate_bits }), Some(Unsigned { bits: final_bits })) => {
+                    intermediate_bits > final_bits
+                }
+                (Some(Unsigned { bits: intermediate_bits }), Some(Unsigned { bits: final_bits })) => {
+                    intermediate_bits >= final_bits
+                }
+                (Some(Unsigned { .. }), Some(Signed { .. })) => false,
+                _ => false,
+            }
+        };
 
     let mut i = 0;
     while i + 1 < stmts.len() {
@@ -745,14 +774,11 @@ fn fold_consecutive_casts(stmts: &mut Vec<AleoStmt>) {
             {
                 inner_reg == r0
                     && reg_use_count.get(r0).copied().unwrap_or(0) == 1
-                    // Only fold when the first cast widens (or preserves width).
-                    // Removing it is safe because the second (narrower) cast
-                    // still catches overflows. For non-numeric types where we
-                    // can't determine failure conditions, skip folding.
-                    && match (num_bit_width(t1), num_bit_width(t2)) {
-                        (Some(w1), Some(w2)) => w1 >= w2,
-                        _ => false,
-                    }
+                    // This source-agnostic fold is only safe when every value
+                    // accepted by the final target is also accepted by the
+                    // intermediate target. Equal bit widths are not enough
+                    // across signed and unsigned primitive domains.
+                    && intermediate_accepts_all_final_values(t1, t2)
             } else {
                 false
             }
