@@ -485,6 +485,7 @@ fn validate_upgrade_tasks<N: Network>(
     let mut remote_programs = Vec::with_capacity(tasks.len());
 
     for Task { id, program, is_local, .. } in tasks {
+        // A proven-invalid upgrade is rejected before transaction construction in every output mode.
         if !is_local || skipped.contains(id) {
             continue;
         }
@@ -492,6 +493,7 @@ fn validate_upgrade_tasks<N: Network>(
         let Ok(remote_program) =
             fetch_program_from_network(&id.to_string(), endpoint, network, command.env_override.network_retries)
         else {
+            // Fetch uncertainty remains in `check_tasks_for_warnings` so transient network state does not block planning.
             continue;
         };
         let Ok(remote_program) = Program::<N>::from_str(&remote_program) else {
