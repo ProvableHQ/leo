@@ -336,7 +336,12 @@ impl Expression {
                     // These can halt for any of their operand types.
                     Div | Mod | Rem | Shl | Shr => false,
                     // These can only halt for integers.
-                    Add | Mul | Pow | Sub => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Add | Mul | Pow => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Sub => {
+                        !matches!(get_type(expr.id()), Type::Integer(..))
+                            && expr.left.is_pure(get_type)
+                            && expr.right.is_pure(get_type)
+                    }
                     _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
                 }
             }
