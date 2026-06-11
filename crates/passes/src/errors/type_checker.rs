@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{Backtraced, Formatted, Label, LeoError};
+use leo_errors::{Backtraced, Formatted, LeoError};
 use leo_span::Span;
 use std::fmt::Display;
 
@@ -407,7 +407,7 @@ pub(crate) fn no_entry_points(span: Span) -> Formatted {
 
 pub(crate) fn missing_constructor(span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 84, "a program must declare a constructor", span)
-        .with_label(Label::new(span))
+        .with_primary_span_underline()
         .with_help("Add a constructor such as `@noupgrade constructor() {}` inside the `program` block.")
 }
 

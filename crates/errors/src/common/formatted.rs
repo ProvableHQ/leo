@@ -16,8 +16,7 @@
 
 use crate::{compute_exit_code, format_error_code, format_warning_code};
 use leo_span::{
-    SESSION_GLOBALS,
-    Span,
+    SESSION_GLOBALS, Span,
     source_map::{LeoSourceCache, is_color},
 };
 
@@ -114,6 +113,7 @@ struct FormattedInner {
     error: bool,
     span: Span,
     labels: Vec<Label>,
+    primary_span_underline: bool,
 }
 
 impl Formatted {
@@ -140,6 +140,7 @@ impl Formatted {
                 error,
                 span,
                 labels,
+                primary_span_underline: false,
             }),
         }
     }
@@ -166,6 +167,13 @@ impl Formatted {
 
     pub fn with_label(mut self, label: Label) -> Self {
         self.inner.labels.push(label);
+        self
+    }
+
+    /// Render the primary single-line span with a plain underline even when the
+    /// diagnostic has no primary label message.
+    pub fn with_primary_span_underline(mut self) -> Self {
+        self.inner.primary_span_underline = true;
         self
     }
 
@@ -292,6 +300,8 @@ impl Formatted {
             let mut primary = ariadne::Label::new(primary_span.clone()).with_color(primary_color);
             if primary_is_multiline {
                 primary = primary.with_message("here");
+            } else if self.inner.primary_span_underline {
+                primary = primary.with_message("");
             }
             let primary_label = std::iter::once(primary);
 
@@ -336,6 +346,11 @@ impl fmt::Display for Formatted {
             let mut buf = Vec::new();
             report.write(&mut cache, &mut buf).map_err(|_| fmt::Error)?;
             let output = String::from_utf8(buf).map_err(|_| fmt::Error)?;
+            let output = if self.inner.primary_span_underline {
+                normalize_empty_primary_label_underline(&output)
+            } else {
+                output
+            };
             write!(f, "{output}")
         } else {
             // Fallback when session globals are unavailable (e.g. tests).
@@ -350,6 +365,35 @@ impl fmt::Display for Formatted {
             }
             Ok(())
         }
+    }
+}
+
+fn normalize_empty_primary_label_underline(output: &str) -> String {
+    let mut normalized = Vec::new();
+    let mut lines = output.lines();
+
+    while let Some(line) = lines.next() {
+        // Ariadne requires an empty label message to draw the underline row, but
+        // that also emits an empty pointer connector. Keep the underline and
+        // drop only the connector line for diagnostics that explicitly opt in.
+        if line.contains('┬') && line.contains('─') {
+            normalized.push(line.replace('┬', "─").trim_end().to_owned());
+            if let Some(next) = lines.next() {
+                if !next.contains('╰') {
+                    normalized.push(next.to_owned());
+                }
+            }
+        } else {
+            normalized.push(line.to_owned());
+        }
+    }
+
+    let mut output = normalized.join("\n");
+    if output.is_empty() || output.ends_with('\n') {
+        output
+    } else {
+        output.push('\n');
+        output
     }
 }
 
@@ -463,6 +507,24 @@ mod tests {
             let rendered = Formatted::error("TST", 5, "boom", Span::new(lo, hi)).to_string();
 
             assert!(!rendered.contains("here"));
+        });
+    }
+
+    /// Verifies diagnostics can opt into an unmessaged primary underline without
+    /// inheriting ariadne's empty-message pointer connector.
+    #[test]
+    fn primary_span_underline_omits_empty_pointer_connector() {
+        create_session_if_not_set_then(|s| {
+            let source = "program test.aleo {\n}\n";
+            let file = s.source_map.new_source(source, FileName::Custom("test.leo".into()));
+            let lo = file.absolute_start + source.find("test.aleo").unwrap() as u32;
+            let hi = lo + "test.aleo".len() as u32;
+            let rendered =
+                Formatted::error("TST", 6, "boom", Span::new(lo, hi)).with_primary_span_underline().to_string();
+
+            assert!(rendered.chars().filter(|c| *c == '─').count() >= 13);
+            assert!(!rendered.contains('┬'));
+            assert!(!rendered.contains('╰'));
         });
     }
 }
