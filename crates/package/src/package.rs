@@ -257,6 +257,7 @@ impl Package {
             /* with_tests */ false,
             /* no_cache */ false,
             /* no_local */ false,
+            /* offline */ false,
             network,
             endpoint,
             network_retries,
@@ -265,11 +266,13 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies,
     /// obtaining dependencies from the file system or network and topologically sorting them.
+    #[allow(clippy::too_many_arguments)]
     pub fn from_directory<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
         no_cache: bool,
         no_local: bool,
+        offline: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
@@ -281,6 +284,7 @@ impl Package {
             /* with_tests */ false,
             no_cache,
             no_local,
+            offline,
             network,
             endpoint,
             network_retries,
@@ -289,11 +293,13 @@ impl Package {
 
     /// Examine the Leo package at `path` to create a `Package`, including all its dependencies
     /// and its tests, obtaining dependencies from the file system or network and topologically sorting them.
+    #[allow(clippy::too_many_arguments)]
     pub fn from_directory_with_tests<P: AsRef<Path>, Q: AsRef<Path>>(
         path: P,
         home_path: Q,
         no_cache: bool,
         no_local: bool,
+        offline: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
@@ -305,6 +311,7 @@ impl Package {
             /* with_tests */ true,
             no_cache,
             no_local,
+            offline,
             network,
             endpoint,
             network_retries,
@@ -340,6 +347,7 @@ impl Package {
         with_tests: bool,
         no_cache: bool,
         no_local: bool,
+        offline: bool,
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
@@ -368,11 +376,18 @@ impl Package {
             // .aleo file import classification doesn't depend on processing order.
             let declared_deps = collect_declared_deps(&path, &manifest, with_tests)?;
 
+            // The lock lives at the workspace root, else beside this package's `program.json`.
+            let lock_dir = workspace_root.as_deref().unwrap_or(&path).to_path_buf();
+            // New lock records only this build's resolutions; others are carried over from the old lock after.
+            let old_lock = Lock::read(&lock_dir);
+            let mut new_lock = Lock::default();
+
             let first_dependency = Dependency {
                 name: manifest.program.clone(),
                 location: Location::Local,
                 path: Some(path.clone()),
                 edition: None,
+                ..Default::default()
             };
 
             let test_dependencies: Vec<Dependency> = if with_tests {
@@ -384,6 +399,7 @@ impl Package {
                         edition: None,
                         location: Location::Test,
                         path: Some(path.to_path_buf()),
+                        ..Default::default()
                     })
                     .collect();
                 if let Some(deps) = manifest.dev_dependencies.as_ref() {
@@ -407,8 +423,32 @@ impl Package {
                     no_local,
                     network_retries,
                     &declared_deps,
+                    &old_lock,
+                    &mut new_lock,
+                    offline,
                 )?;
             }
+
+            // Workspace: carry all entries since the lock is shared. Standalone: carry only dev-git
+            // names (a plain build skips dev deps, so their pins may legitimately be unresolved).
+            if workspace_root.is_some() {
+                new_lock.carry_over(&old_lock, |_| true);
+            } else {
+                let dev_git_names: Vec<&str> = if with_tests {
+                    Vec::new()
+                } else {
+                    manifest
+                        .dev_dependencies
+                        .iter()
+                        .flatten()
+                        .filter(|dep| dep.location == Location::Git)
+                        .map(|dep| dep.name.as_str())
+                        .collect()
+                };
+                new_lock.carry_over(&old_lock, |entry| dev_git_names.contains(&entry.name.as_str()));
+            }
+            // Persist the lock (and drop a stale one when no git deps remain).
+            new_lock.write(&lock_dir)?;
 
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
@@ -437,6 +477,9 @@ impl Package {
         no_local: bool,
         network_retries: u32,
         declared_deps: &IndexMap<Symbol, Dependency>,
+        old_lock: &Lock,
+        new_lock: &mut Lock,
+        offline: bool,
     ) -> Result<()> {
         let name_symbol = symbol(&new.name)?;
 
@@ -449,6 +492,7 @@ impl Package {
                 if new.location != existing_dep.location
                     || new.path != existing_dep.path
                     || new.edition != existing_dep.edition
+                    || new.git != existing_dep.git
                 {
                     return Err(crate::errors::conflicting_dependency(existing_dep, new).into());
                 }
@@ -487,6 +531,15 @@ impl Package {
                             network_retries,
                         )?
                     }
+                    (_, Location::Git) => CompilationUnit::from_git(
+                        name_symbol,
+                        &new,
+                        home_path,
+                        old_lock,
+                        new_lock,
+                        offline,
+                        declared_deps,
+                    )?,
                     (_, Location::Workspace) => {
                         return Err(anyhow!(
                             "Workspace dependency `{}` was not resolved before graph building. This is a compiler bug.",
@@ -505,6 +558,34 @@ impl Package {
 
         graph.add_node(name_symbol);
 
+        // Security: a package in a git checkout may only path-reference its own checkout.
+        // Intra-checkout deps were rewritten to git deps in `from_git`; any remaining path dep is an escape.
+        let checkouts_root = crate::git::checkouts_root(home_path);
+        if let ProgramData::SourcePath { directory, .. } = &unit.data
+            && directory.starts_with(&checkouts_root)
+        {
+            // The checkout root is `<checkouts_root>/<key>/<commit>`.
+            let checkout = directory
+                .strip_prefix(&checkouts_root)
+                .ok()
+                .and_then(|rel| {
+                    let mut components = rel.components();
+                    Some((components.next()?, components.next()?))
+                })
+                .map(|(key, commit)| checkouts_root.join(key).join(commit));
+            for dependency in unit.dependencies.iter() {
+                if let Some(path) = &dependency.path
+                    && !checkout.as_ref().is_some_and(|checkout| path.starts_with(checkout))
+                {
+                    return Err(crate::errors::invalid_manifest_dependency(
+                        &dependency.name,
+                        "a git dependency may only reference paths inside its own repository checkout",
+                    )
+                    .into());
+                }
+            }
+        }
+
         for dependency in unit.dependencies.iter() {
             let dependency_symbol = symbol(&dependency.name)?;
             graph.add_edge(name_symbol, dependency_symbol);
@@ -520,6 +601,9 @@ impl Package {
                 no_local,
                 network_retries,
                 declared_deps,
+                old_lock,
+                new_lock,
+                offline,
             )?;
         }
 

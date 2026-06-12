@@ -1247,7 +1247,7 @@ mod tests {
 
 #[cfg(test)]
 mod test_helpers {
-    use crate::cli::{CLI, DependencySource, LeoAdd, LeoNew, cli::Commands, run_with_args};
+    use crate::cli::{CLI, DependencySource, GitRef, LeoAdd, LeoNew, cli::Commands, run_with_args};
     use leo_span::create_session_if_not_set_then;
     use std::path::{Path, PathBuf};
 
@@ -1792,7 +1792,14 @@ function external_nested_function:
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nested_example_layer_0".to_string(),
-                    source: DependencySource { local: None, network: true, edition: Some(0), workspace: false },
+                    source: DependencySource {
+                        local: None,
+                        network: true,
+                        edition: Some(0),
+                        workspace: false,
+                        git: None,
+                    },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -1923,7 +1930,9 @@ program child.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -1946,7 +1955,9 @@ program child.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -1969,7 +1980,9 @@ program child.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -2123,7 +2136,9 @@ program inner_2.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -2146,7 +2161,9 @@ program inner_2.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -2335,7 +2352,9 @@ program inner_2.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },
@@ -2358,7 +2377,9 @@ program inner_2.aleo {
                         network: false,
                         edition: None,
                         workspace: false,
+                        git: None,
                     },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
                     clear: false,
                     dev: false,
                 },

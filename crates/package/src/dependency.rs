@@ -26,12 +26,90 @@ pub struct Dependency {
     /// The name of the program. As this corresponds to what appears in `program.json`,
     /// it should have the ".aleo" suffix.
     pub name: String,
-    /// Network, local, or test dependency?
     pub location: Location,
     /// For a local dependency, where is its package? Or, for a test, where is its source file?
     pub path: Option<PathBuf>,
     /// For a network dependency, what is its edition?
     pub edition: Option<u16>,
+    /// For a git dependency, the repository URL and the reference to track.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub git: Option<GitSource>,
+}
+
+/// The `git` entry of a git dependency: a repository URL and at most one of `branch`/`tag`/`rev`.
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct GitSource {
+    pub url: String,
+    /// Git branch to track (exclusive with `tag`/`rev`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    /// Git tag to pin (exclusive with `branch`/`rev`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
+    /// Git revision to pin (exclusive with `branch`/`tag`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rev: Option<String>,
+}
+
+impl GitSource {
+    /// The [`GitReference`] this source tracks (see [`GitReference::from_opts`]).
+    pub fn reference(&self) -> Result<GitReference, &'static str> {
+        GitReference::from_opts(&self.branch, &self.tag, &self.rev)
+    }
+}
+
+/// The git reference a dependency tracks, derived from its `branch`/`tag`/`rev` fields.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum GitReference {
+    /// Tip of a named branch. Mutable: re-resolved online each build.
+    Branch(String),
+    /// A tag. Immutable: reused from cache once fetched.
+    Tag(String),
+    /// A revision (commit-ish). Immutable: reused from cache once fetched.
+    Rev(String),
+    /// The repository's default branch. Mutable, like `Branch`.
+    DefaultBranch,
+}
+
+impl GitReference {
+    /// Whether the reference tracks a moving target (a branch tip) and must be re-resolved online.
+    pub fn is_mutable(&self) -> bool {
+        matches!(self, GitReference::Branch(_) | GitReference::DefaultBranch)
+    }
+
+    /// Stable string form stored in `leo.lock`; a change here forces re-resolution.
+    pub fn lock_string(&self) -> String {
+        match self {
+            GitReference::Branch(b) => format!("branch={b}"),
+            GitReference::Tag(t) => format!("tag={t}"),
+            GitReference::Rev(r) => format!("rev={r}"),
+            GitReference::DefaultBranch => "default".to_string(),
+        }
+    }
+
+    /// Build a reference from `branch`/`tag`/`rev`, defaulting to `DefaultBranch`. Errors if more than
+    /// one is set, or if `rev` isn't a commit hash (a symbolic revspec like `HEAD` is not a stable pin).
+    pub fn from_opts(
+        branch: &Option<String>,
+        tag: &Option<String>,
+        rev: &Option<String>,
+    ) -> Result<GitReference, &'static str> {
+        match (branch, tag, rev) {
+            (Some(branch), None, None) => Ok(GitReference::Branch(branch.clone())),
+            (None, Some(tag), None) => Ok(GitReference::Tag(tag.clone())),
+            (None, None, Some(rev)) if is_commit_hash(rev) => Ok(GitReference::Rev(rev.clone())),
+            (None, None, Some(_)) => {
+                Err("a git `rev` must be a commit hash; use `branch` or `tag` for a named reference")
+            }
+            (None, None, None) => Ok(GitReference::DefaultBranch),
+            _ => Err("a git dependency may specify at most one of `branch`, `tag`, or `rev`"),
+        }
+    }
+}
+
+/// Whether `s` looks like a commit hash (hex, 4–64 chars) rather than a symbolic revspec.
+fn is_commit_hash(s: &str) -> bool {
+    (4..=64).contains(&s.len()) && s.bytes().all(|b| b.is_ascii_hexdigit())
 }
 
 impl Display for Dependency {
@@ -42,6 +120,18 @@ impl Display for Dependency {
         }
         if let Some(edition) = self.edition {
             write!(f, " (edition {edition})")?;
+        }
+        if let Some(git) = &self.git {
+            write!(f, " (git {})", git.url)?;
+            if let Some(branch) = &git.branch {
+                write!(f, " (branch {branch})")?;
+            }
+            if let Some(tag) = &git.tag {
+                write!(f, " (tag {tag})")?;
+            }
+            if let Some(rev) = &git.rev {
+                write!(f, " (rev {rev})")?;
+            }
         }
         Ok(())
     }
