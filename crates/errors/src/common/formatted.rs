@@ -16,7 +16,8 @@
 
 use crate::{compute_exit_code, format_error_code, format_warning_code};
 use leo_span::{
-    SESSION_GLOBALS, Span,
+    SESSION_GLOBALS,
+    Span,
     source_map::{LeoSourceCache, is_color},
 };
 
