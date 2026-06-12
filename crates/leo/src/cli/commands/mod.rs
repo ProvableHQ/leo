@@ -18,7 +18,7 @@ mod abi;
 pub use abi::LeoAbi;
 
 mod add;
-pub use add::{DependencySource, LeoAdd};
+pub use add::{DependencySource, GitRef, LeoAdd};
 
 mod account;
 pub use account::Account;

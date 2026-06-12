@@ -33,4 +33,7 @@ pub enum Location {
     /// Resolved to `Local` with an absolute path during manifest loading.
     #[serde(rename = "workspace")]
     Workspace,
+    /// A dependency fetched from a git repository, resolved to a checkout in the local git cache.
+    #[serde(rename = "git")]
+    Git,
 }
