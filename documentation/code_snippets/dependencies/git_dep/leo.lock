@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "git": [
+    {
+      "name": "helloworld.aleo",
+      "git": "https://github.com/ProvableHQ/leo-examples",
+      "reference": "rev=e8d20b8690f42ae0c12c8626aa5dbcbb282a98e3",
+      "commit": "e8d20b8690f42ae0c12c8626aa5dbcbb282a98e3"
+    }
+  ]
+}

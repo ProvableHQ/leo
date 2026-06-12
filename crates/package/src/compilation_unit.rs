@@ -351,17 +351,163 @@ impl CompilationUnit {
             kind: PackageKind::Program,
         })
     }
+
+    /// Resolve a git dependency, check it out, and build a `CompilationUnit`.
+    pub fn from_git(
+        name: Symbol,
+        dependency: &Dependency,
+        home_path: &Path,
+        old_lock: &Lock,
+        new_lock: &mut Lock,
+        offline: bool,
+        declared_deps: &IndexMap<Symbol, Dependency>,
+    ) -> Result<Self> {
+        let git = dependency
+            .git
+            .as_ref()
+            .ok_or_else(|| crate::errors::invalid_manifest_dependency(&dependency.name, "missing `git` URL"))?;
+        let url = git.url.as_str();
+        let reference =
+            git.reference().map_err(|reason| crate::errors::invalid_manifest_dependency(&dependency.name, reason))?;
+        let reference_str = reference.lock_string();
+
+        // Reuse a resolution of the same `(url, reference)` already performed in this build, so
+        // all dependencies into one repository see the same commit and it is cloned only once.
+        let memoized = new_lock
+            .commit_for_source(url, &reference_str)
+            .map(|commit| (crate::git::checkout_dir(home_path, url, commit), commit.to_string()))
+            .filter(|(dir, _)| dir.is_dir());
+        let (checkout, commit) = match memoized {
+            Some(hit) => hit,
+            None => {
+                let locked = old_lock.commit_for(&dependency.name, url, &reference_str).map(str::to_string);
+                crate::git::resolve(home_path, &dependency.name, url, &reference, locked.as_deref(), offline)?
+            }
+        };
+        new_lock.record(dependency.name.clone(), url.to_string(), reference_str, commit);
+
+        let located = find_in_checkout(&checkout, &dependency.name)?;
+        let mut unit = if located.extension().and_then(|e| e.to_str()) == Some("aleo") && located.is_file() {
+            Self::from_aleo_path(name, located, declared_deps)?
+        } else {
+            Self::from_package_path(name, located)?
+        };
+
+        // Intra-checkout deps (workspace siblings, local paths) become git deps on the same source
+        // so every route to a package in this repository is the same dependency.
+        unit.dependencies = unit
+            .dependencies
+            .into_iter()
+            .map(|dep| {
+                if dep.location == Location::Local && dep.path.as_ref().is_some_and(|p| p.starts_with(&checkout)) {
+                    Dependency {
+                        name: dep.name,
+                        location: Location::Git,
+                        path: None,
+                        edition: None,
+                        git: Some(git.clone()),
+                    }
+                } else {
+                    dep
+                }
+            })
+            .collect();
+        Ok(unit)
+    }
 }
 
-/// If `dependency` has a relative path, assume it's relative to `base` and canonicalize it.
-///
-/// This needs to be done when collecting local dependencies from manifests which
-/// may be located at different places on the file system.
-pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
-    if let Some(path) = &mut dependency.path
-        && !path.is_absolute()
+/// Locate the package named `dep_name` within a git checkout (by name, Cargo-style): a package
+/// directory whose `program.json` declares it (searched recursively), else a `<name>.aleo` file at
+/// the root. A directory declaring exactly the requested form wins over the alternate (`.aleo`)
+/// form; multiple candidates for the chosen form are an error.
+pub fn find_in_checkout(checkout: &Path, dep_name: &str) -> Result<std::path::PathBuf> {
+    // Match both name forms so callers may pass a library (`foo`) or program (`foo.aleo`) name.
+    let bare = crate::bare_unit_name(dep_name);
+    let with_aleo = format!("{bare}.aleo");
+    let (requested, alternate) =
+        if dep_name.ends_with(".aleo") { (with_aleo.as_str(), bare) } else { (bare, with_aleo.as_str()) };
+
+    let mut exact = Vec::new();
+    let mut alt = Vec::new();
+    collect_matching_manifest_dirs(checkout, requested, alternate, 0, &mut exact, &mut alt);
+    let matches = if exact.is_empty() { alt } else { exact };
+    if matches.len() > 1 {
+        let listed = matches
+            .iter()
+            .map(|d| d.strip_prefix(checkout).unwrap_or(d).display().to_string())
+            .collect::<Vec<_>>()
+            .join("`, `");
+        return Err(crate::errors::git_ambiguous_package(dep_name, listed).into());
+    }
+    if let Some(dir) = matches.into_iter().next() {
+        return Ok(dir);
+    }
+    let aleo = checkout.join(&with_aleo);
+    if aleo.is_file() {
+        return Ok(aleo);
+    }
+    Err(crate::errors::git_package_not_found(dep_name, checkout.display()).into())
+}
+
+/// Recursively search `dir` (up to a bounded depth) for directories whose `program.json` declares
+/// `requested` (collected into `exact`) or `alternate` (collected into `alt`).
+fn collect_matching_manifest_dirs(
+    dir: &Path,
+    requested: &str,
+    alternate: &str,
+    depth: usize,
+    exact: &mut Vec<std::path::PathBuf>,
+    alt: &mut Vec<std::path::PathBuf>,
+) {
+    // Enough to reach workspace members, and bounds the scan of a deep repository.
+    const MAX_DEPTH: usize = 6;
+    if depth > MAX_DEPTH {
+        return;
+    }
+
+    // Just the `program` field, parsed without validation so a malformed sibling can't fail the search.
+    #[derive(serde::Deserialize)]
+    struct ManifestProgramOnly {
+        program: String,
+    }
+
+    let manifest = dir.join(MANIFEST_FILENAME);
+    if manifest.is_file()
+        && !manifest.is_symlink()
+        && let Ok(contents) = std::fs::read_to_string(&manifest)
+        && let Ok(parsed) = serde_json::from_str::<ManifestProgramOnly>(&contents)
     {
-        let joined = base.join(&path);
+        if parsed.program == requested {
+            exact.push(dir.to_path_buf());
+        } else if parsed.program == alternate {
+            alt.push(dir.to_path_buf());
+        }
+    }
+
+    // Sort so any ambiguity report is deterministic.
+    let mut entries: Vec<_> = std::fs::read_dir(dir).ok().into_iter().flatten().flatten().map(|e| e.path()).collect();
+    entries.sort();
+    for path in entries {
+        // Don't follow symlinks: a repo symlink could let the search escape the checkout.
+        if path.is_symlink() || !path.is_dir() {
+            continue;
+        }
+        // Skip dotfiles/VCS and build output directories.
+        let Some(name) = path.file_name().map(|n| n.to_string_lossy()) else {
+            continue;
+        };
+        if name.starts_with('.') || name == BUILD_DIRECTORY || name == "target" {
+            continue;
+        }
+        collect_matching_manifest_dirs(&path, requested, alternate, depth + 1, exact, alt);
+    }
+}
+
+/// Canonicalize the path in `dependency` relative to `base`. Absolute paths are canonicalized too
+/// so git-checkout containment checks see resolved symlinks and no `..` components.
+pub(crate) fn canonicalize_dependency_path_relative_to(base: &Path, mut dependency: Dependency) -> Result<Dependency> {
+    if let Some(path) = &mut dependency.path {
+        let joined = if path.is_absolute() { path.clone() } else { base.join(&path) };
         *path = joined.canonicalize().map_err(|e| crate::errors::failed_path(joined.display(), e))?;
     }
     Ok(dependency)
@@ -397,7 +543,7 @@ fn parse_dependencies_from_aleo(
                 dependency.clone()
             } else {
                 let name = program_id.to_string();
-                Dependency { name, location: Location::Network, path: None, edition: None }
+                Dependency { name, location: Location::Network, path: None, edition: None, ..Default::default() }
             }
         })
         .collect();

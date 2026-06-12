@@ -41,6 +41,7 @@ dotenvy            = "0.15"
 dunce              = "1.0"
 expect-test        = "1.5"
 fxhash             = "0.2"
+gix                = { version = "0.84", default-features = false, features = [ "blocking-http-transport-reqwest-rust-tls", "worktree-mutation", "max-performance-safe", "comfort", "basic", "extras", "sha1" ] }
 glob               = "0.3"
 http               = "1"
 indexmap           = { version = "2.6", features = [ "serde" ] }

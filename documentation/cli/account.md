@@ -24,8 +24,6 @@ We urge you to exercise caution when managing your private keys. `leo account` c
 - [`verify`](#leo-account-verify) - Verify a message and signature from an Aleo address.
 - [`decrypt`](#leo-account-decrypt) - Decrypt record ciphertexts using your Aleo private key or view key.
 
-&nbsp;
-
 ---
 
 ## `leo account new`
@@ -60,8 +58,6 @@ Writes the generated private key to a `.env` file in the current working directo
 
 Print sensitive information (such as private key) discreetly to an alternate screen
 
-&nbsp;
-
 ---
 
 ## `leo account import`
@@ -89,8 +85,6 @@ Writes the generated private key to a `.env` file in the current working directo
 #### `--discreet`
 
 Print sensitive information (such as private key) discreetly to an alternate screen
-
-&nbsp;
 
 ---
 
@@ -133,8 +127,6 @@ Alternative way to explicitly specify the private key by reading from a text fil
 #### `-r`
 
 Parses the message as bytes instead of Aleo literals.
-
-&nbsp;
 
 ---
 
