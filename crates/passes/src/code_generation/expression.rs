@@ -1051,6 +1051,15 @@ impl CodeGeneratingVisitor<'_> {
                 Intrinsic::ProgramOwner => {
                     (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), "program_owner"))), vec![])
                 }
+                Intrinsic::FunctionChecksum => {
+                    // `args[1]` is an identifier literal, rendered as `'foo'`; strip the quotes to recover
+                    // the bare component name. The operand is `<component>/checksum`, fully qualified with the
+                    // program ID when it differs from the current program.
+                    let component = args[1].to_string();
+                    let component = component.trim_matches('\'');
+                    let name = format!("{component}/checksum");
+                    (Some(AleoExpr::RawName(generate_program_core(&args[0].to_string(), &name))), vec![])
+                }
                 Intrinsic::Serialize(variant) => {
                     // Get the input type.
                     let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {

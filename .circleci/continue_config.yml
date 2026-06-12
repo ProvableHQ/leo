@@ -145,9 +145,9 @@ commands:
               choco install llvm --no-progress -y
             }
             $llvmBin = "C:\Program Files\LLVM\bin"
+            # clang-sys `dlopen`s libclang via LIBCLANG_PATH (Machine scope persists); no loader PATH needed.
             [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Process")
             [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Machine")
-            $Env:Path += ";$llvmBin"
       - save_cache:
           key: llvm-v1-{{ arch }}
           paths:
@@ -192,7 +192,7 @@ commands:
             - ~/.cache/snarkos
 
   install-libclang:
-    description: "Install libclang required by bindgen (Linux/macOS, for the persistent-storage feature)"
+    description: "Make libclang available for bindgen (clang-sys `dlopen`s it at build time, via snarkVM's RocksDB-backed ledger store)"
     steps:
       - restore_cache:
           keys:

@@ -6,7 +6,7 @@
        Leo     81 statements before dead code elimination.
        Leo     83 statements after dead code elimination.
        Leo     The program checksum is: '[180u8, 223u8, 5u8, 182u8, 121u8, 236u8, 70u8, 205u8, 63u8, 169u8, 165u8, 193u8, 163u8, 145u8, 151u8, 8u8, 17u8, 113u8, 67u8, 189u8, 228u8, 154u8, 198u8, 1u8, 132u8, 217u8, 135u8, 148u8, 97u8, 216u8, 215u8, 171u8]'.
-       Leo     Program size: 1.69 KB / 500.00 KB
+       Leo     Program size: 1.69 KB / 1000.00 KB
        Leo ✅ Compiled 'consumer.aleo' into Aleo instructions.
        Leo     Import 'provider.aleo': checksum = '[65u8, 143u8, 101u8, 10u8, 122u8, 113u8, 65u8, 0u8, 200u8, 13u8, 10u8, 147u8, 182u8, 18u8, 16u8, 101u8, 135u8, 136u8, 47u8, 202u8, 209u8, 17u8, 150u8, 249u8, 134u8, 116u8, 3u8, 5u8, 53u8, 167u8, 16u8, 6u8]'
        Leo ✅ Generated ABI for program 'consumer.aleo'.

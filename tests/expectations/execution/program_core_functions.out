@@ -16,6 +16,7 @@ finalize bar:
     assert.neq checksum child.aleo/checksum;
     assert.eq edition child.aleo/edition;
     assert.eq program_owner child.aleo/program_owner;
+    assert.neq bar/checksum child.aleo/dummy/checksum;
 
 constructor:
     assert.eq edition 0u16;

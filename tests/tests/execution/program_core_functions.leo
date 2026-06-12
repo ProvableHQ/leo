@@ -31,6 +31,10 @@ program test.aleo {
             let g: address = Program::program_owner(test.aleo);
             let h: address = Program::program_owner(child.aleo);
             assert_eq(g, h);
+
+            let i: [u8; 32] = Program::function_checksum(test.aleo, 'bar');
+            let j: [u8; 32] = Program::function_checksum(child.aleo, 'dummy');
+            assert_neq(i, j);
         };
     }
 
