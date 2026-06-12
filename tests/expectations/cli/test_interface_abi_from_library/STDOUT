@@ -6,7 +6,7 @@
 
        Leo 🔨 Compiling 'my_program.aleo'
        Leo     4 statements before dead code elimination.
-       Leo     4 statements after dead code elimination.
+       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[226u8, 34u8, 235u8, 95u8, 27u8, 197u8, 219u8, 39u8, 65u8, 192u8, 228u8, 78u8, 1u8, 103u8, 68u8, 8u8, 67u8, 148u8, 90u8, 69u8, 68u8, 50u8, 132u8, 203u8, 93u8, 12u8, 125u8, 21u8, 184u8, 187u8, 65u8, 251u8]'.
        Leo     Program size: 0.15 KB / 500.00 KB
        Leo ✅ Compiled 'my_program.aleo' into Aleo instructions.
