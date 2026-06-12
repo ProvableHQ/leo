@@ -199,6 +199,7 @@ pub fn load_fixture(package_dir: &Path) -> Result<FixtureData, String> {
         &home,
         false, // no_cache
         false, // no_local
+        false, // offline
         Some(BENCH_NETWORK),
         None, // no endpoint needed for local-only fixtures
         2,

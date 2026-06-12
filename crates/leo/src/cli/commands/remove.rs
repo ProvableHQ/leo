@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_package::Manifest;
+use leo_package::{Location, Lock, Manifest, Workspace};
 
 /// Remove a dependency from the current package.
 #[derive(Parser, Debug)]
@@ -69,7 +69,12 @@ impl Command for LeoRemove {
             manifest.dependencies.as_mut().unwrap()
         };
 
+        // Names of removed git dependencies, whose `leo.lock` pins are pruned below.
+        let mut removed_git_names: Vec<String> = Vec::new();
+
         if self.all {
+            removed_git_names
+                .extend(dependencies.iter().filter(|dep| dep.location == Location::Git).map(|dep| dep.name.clone()));
             *dependencies = Vec::new();
         } else {
             // Accept both `math_lib` and `math_lib.aleo` on the command line.
@@ -86,14 +91,22 @@ impl Command for LeoRemove {
             let original_len = dependencies.len();
             for dependency in dependencies.iter() {
                 if dependency.name == name {
-                    if let Some(local_path) = &dependency.path {
-                        tracing::warn!(
+                    match dependency.location {
+                        leo_package::Location::Local | leo_package::Location::Test => tracing::warn!(
                             "✅ Successfully removed the local dependency {} with path {}.",
                             dependency.name,
-                            local_path.display()
-                        );
-                    } else {
-                        tracing::warn!("✅ Successfully removed the network dependency {}.", dependency.name);
+                            dependency.path.as_ref().map(|p| p.display().to_string()).unwrap_or_default()
+                        ),
+                        leo_package::Location::Workspace => {
+                            tracing::warn!("✅ Successfully removed the workspace dependency {}.", dependency.name)
+                        }
+                        leo_package::Location::Git => {
+                            removed_git_names.push(dependency.name.clone());
+                            tracing::warn!("✅ Successfully removed the git dependency {}.", dependency.name)
+                        }
+                        leo_package::Location::Network => {
+                            tracing::warn!("✅ Successfully removed the network dependency {}.", dependency.name)
+                        }
                     }
                 }
             }
@@ -106,6 +119,16 @@ impl Command for LeoRemove {
         }
 
         manifest.write_to_file(&manifest_path)?;
+
+        // Prune the removed git dependencies' pins so the lock doesn't accumulate dead entries.
+        if !removed_git_names.is_empty() {
+            let lock_dir = Workspace::discover_root(&path)?.unwrap_or_else(|| path.clone());
+            let mut lock = Lock::read(&lock_dir);
+            for name in &removed_git_names {
+                lock.remove_name(name);
+            }
+            lock.write(&lock_dir)?;
+        }
 
         Ok(())
     }

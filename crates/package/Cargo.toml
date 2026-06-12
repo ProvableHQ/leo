@@ -24,6 +24,7 @@ leo-errors  = { workspace = true }
 leo-parser-rowan = { workspace = true }
 leo-span    = { workspace = true }
 # third party dependencies
+gix         = { workspace = true }
 glob        = { workspace = true }
 indexmap    = { workspace = true }
 serde       = { workspace = true }
