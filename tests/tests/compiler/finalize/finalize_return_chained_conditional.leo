@@ -12,6 +12,9 @@ program test.aleo {
             Mapping::set(audit, 0u8, credited);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn settle_amount(receiver: address, amount: u64) -> u64 {

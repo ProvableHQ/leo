@@ -28,6 +28,9 @@ program test.aleo {
             Mapping::set(audit, 2u8, amount);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn capped(receiver: address, amount: u64) -> u64 {

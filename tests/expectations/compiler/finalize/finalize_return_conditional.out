@@ -28,3 +28,6 @@ finalize mint_capped:
     set r3 into account[r0];
     set r3 into audit[0u8];
     position end_otherwise_0_1;
+
+constructor:
+    assert.eq edition 0u16;

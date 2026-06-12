@@ -60,3 +60,6 @@ finalize guarded:
     position end_then_0_0;
     position end_otherwise_0_1;
     set r2 into audit[2u8];
+
+constructor:
+    assert.eq edition 0u16;

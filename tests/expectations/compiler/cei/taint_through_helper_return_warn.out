@@ -27,6 +27,9 @@ function get_price:
 finalize get_price:
     input r0 as u32.public;
     set 50u64 into prices[r0];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import oracle.aleo;
 program trader.aleo;

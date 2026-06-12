@@ -21,3 +21,6 @@ function unsigned_to_signed:
     cast r0 into r1 as u16;
     cast r1 into r2 as i8;
     output r2 as i8.private;
+
+constructor:
+    assert.eq edition 0u16;
