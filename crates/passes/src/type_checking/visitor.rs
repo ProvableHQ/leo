@@ -1395,6 +1395,72 @@ impl TypeCheckingVisitor<'_> {
                 // Return the type.
                 Type::Address
             }
+            Intrinsic::FunctionChecksum => {
+                // The first argument is the program ID, the second the component name.
+                let (program_type, program_expr) = &arguments[0];
+                let program_span = program_expr.span();
+                // Check that the first argument is a program ID.
+                let program_id = match program_expr {
+                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                        if program_id_regex.is_match(s) =>
+                    {
+                        Some(s.clone())
+                    }
+                    _ => {
+                        self.emit_err(crate::errors::type_checker::custom(
+                            "`Program::function_checksum` must be called on a program ID, e.g. `foo.aleo`",
+                            program_span,
+                        ));
+                        None
+                    }
+                };
+                self.assert_type(program_type, &Type::Address, program_span);
+                // Check that the second argument is an identifier literal naming the component, e.g. `'foo'`.
+                let (component_type, component_expr) = &arguments[1];
+                let component_span = component_expr.span();
+                let component = match component_expr {
+                    Expression::Literal(Literal { variant: LiteralVariant::Identifier(name), .. }) => {
+                        Some(name.clone())
+                    }
+                    _ => {
+                        self.emit_err(crate::errors::type_checker::custom(
+                            "the function name must be an identifier literal, e.g. `'foo'`",
+                            component_span,
+                        ));
+                        None
+                    }
+                };
+                self.assert_type(component_type, &Type::Identifier, component_span);
+                // The checksum is only defined for the externally-callable components: entry functions
+                // and view functions. Closures and `final fn`s are inlining artifacts with no stable
+                // identity, so reject anything that does not resolve to an entry or view function of the
+                // named program. The lookup also rejects components of programs that are not imported.
+                if let (Some(program_id), Some(component)) = (program_id, component) {
+                    let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(&component)]);
+                    let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
+                    let is_entry_or_view = self
+                        .state
+                        .symbol_table
+                        .lookup_function(current_unit, &location)
+                        .is_some_and(|symbol| symbol.function.variant.is_externally_callable());
+                    if !is_entry_or_view {
+                        self.emit_err(crate::errors::type_checker::custom(
+                            format!("`{component}` must be an entry function or a view function of `{program_id}`"),
+                            component_span,
+                        ));
+                    }
+                }
+                // Return the type.
+                Type::Array(ArrayType::new(
+                    Type::Integer(IntegerType::U8),
+                    Expression::Literal(Literal::integer(
+                        IntegerType::U8,
+                        "32".to_string(),
+                        Default::default(),
+                        Default::default(),
+                    )),
+                ))
+            }
             Intrinsic::Serialize(variant) => {
                 // Determine the variant.
                 let is_raw = match variant {

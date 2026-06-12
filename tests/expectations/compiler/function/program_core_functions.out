@@ -1,5 +1,9 @@
 program test.aleo;
 
+mapping vals:
+    key as u32.public;
+    value as u32.public;
+
 function bar:
     async bar into r0;
     output r0 as test.aleo/bar.future;
@@ -8,6 +12,12 @@ finalize bar:
     assert.eq checksum checksum;
     assert.eq edition edition;
     assert.eq program_owner program_owner;
+    assert.neq bar/checksum peek/checksum;
+
+view peek:
+    input r0 as u32.public;
+    get.or_use vals[r0] 0u32 into r1;
+    output r1 as u32.public;
 
 constructor:
     assert.eq edition 0u16;

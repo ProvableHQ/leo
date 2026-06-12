@@ -4,11 +4,11 @@
        Leo     6 statements before dead code elimination.
        Leo     7 statements after dead code elimination.
        Leo     The program checksum is: '[164u8, 227u8, 239u8, 85u8, 158u8, 211u8, 176u8, 226u8, 23u8, 120u8, 188u8, 240u8, 23u8, 13u8, 140u8, 193u8, 191u8, 32u8, 242u8, 13u8, 202u8, 30u8, 230u8, 20u8, 35u8, 63u8, 224u8, 175u8, 163u8, 59u8, 169u8, 138u8]'.
-       Leo     Program size: 0.34 KB / 500.00 KB
+       Leo     Program size: 0.34 KB / 1000.00 KB
        Leo ✅ Compiled 'test_execute_view_rejected.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_execute_view_rejected.aleo'.
 
-📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,14906000,15370000,16886000
+📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000,10525000,11952000,12669000,14906000,15370000,16886000,17287000
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Error [ECLI0377045]: `get_balance` is a `view fn`; views are read-only and do not produce a transaction, so they cannot be executed.

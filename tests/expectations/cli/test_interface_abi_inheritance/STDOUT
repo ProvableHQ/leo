@@ -6,7 +6,7 @@
        Leo     5 statements before dead code elimination.
        Leo     7 statements after dead code elimination.
        Leo     The program checksum is: '[211u8, 240u8, 72u8, 85u8, 185u8, 143u8, 54u8, 240u8, 0u8, 154u8, 86u8, 74u8, 240u8, 249u8, 117u8, 179u8, 7u8, 254u8, 207u8, 143u8, 11u8, 135u8, 51u8, 139u8, 136u8, 189u8, 114u8, 73u8, 206u8, 159u8, 119u8, 186u8]'.
-       Leo     Program size: 0.18 KB / 500.00 KB
+       Leo     Program size: 0.18 KB / 1000.00 KB
        Leo ✅ Compiled 'bar.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'bar.aleo'.
        Leo ✅ Generated 2 interface ABI(s).

@@ -5,11 +5,11 @@
        Leo     10 statements before dead code elimination.
        Leo     12 statements after dead code elimination.
        Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
-       Leo     Program size: 0.40 KB / 500.00 KB
+       Leo     Program size: 0.40 KB / 1000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -21,7 +21,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  15
+  Consensus Version:  16
 
 📦 Deployment Tasks:
   • persistent_counter.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -45,7 +45,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for persistent_counter.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.40 KB / 500.00 KB
+  Program Size:         0.40 KB / 1000.00 KB
   Total Variables:      15,600
   Total Constraints:    10,766
   Max Variables:        XXXXXX
@@ -83,11 +83,11 @@ Transaction accepted.
        Leo     10 statements before dead code elimination.
        Leo     12 statements after dead code elimination.
        Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
-       Leo     Program size: 0.40 KB / 500.00 KB
+       Leo     Program size: 0.40 KB / 1000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -99,7 +99,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  15
+  Consensus Version:  16
 
 🎯 Execution Target:
   Program:        persistent_counter.aleo

@@ -415,8 +415,10 @@ fn handle_view(
         Err(e) => return failed(format!("Failed to parse view input: {e}")),
     };
     // For an empty in-memory consensus store there is no block 0, so route directly through
-    // `Process::evaluate_view_at_height` with a fabricated `FinalizeGlobalState`. Tests are off-consensus by
-    // construction, so the values here only matter for queries that read `block.height` / `network.id`.
+    // `evaluate_view_with_stack_at_height` with a fabricated `FinalizeGlobalState`. Tests are off-consensus
+    // by construction, so the values here only matter for queries that read `block.height` / `network.id`.
+    // `VM::evaluate_view_at_height` cannot be used here: it resolves the program edition from on-chain
+    // deployments, which an empty store does not have.
     let state = match snarkvm::synthesizer::program::FinalizeGlobalState::new::<CurrentNetwork>(
         0,
         0,
@@ -428,8 +430,20 @@ fn handle_view(
         Ok(s) => s,
         Err(e) => return failed(format!("Failed to build FinalizeGlobalState: {e}")),
     };
+    // Evaluate against the live (latest) stack; off-consensus tests have a single edition.
+    let stack = match vm.process().get_stack(program_id) {
+        Ok(stack) => stack,
+        Err(e) => return failed(format!("Failed to load stack for `{program_id}`: {e}")),
+    };
     let response = match catch_unwind(AssertUnwindSafe(|| {
-        vm.process().evaluate_view_at_height(state, vm.finalize_store(), program_id, function_id, parsed_inputs, 0)
+        snarkvm::synthesizer::process::evaluate_view_with_stack_at_height(
+            state,
+            vm.finalize_store(),
+            &stack,
+            &function_id,
+            parsed_inputs,
+            0,
+        )
     })) {
         Ok(Ok(resp)) => resp,
         Ok(Err(e)) => return failed(format!("{e}")),

@@ -239,6 +239,7 @@ pub fn get_consensus_version(
         Some(13) => Ok(ConsensusVersion::V13),
         Some(14) => Ok(ConsensusVersion::V14),
         Some(15) => Ok(ConsensusVersion::V15),
+        Some(16) => Ok(ConsensusVersion::V16),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -324,6 +325,7 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         13 => Ok(ConsensusVersion::V13),
         14 => Ok(ConsensusVersion::V14),
         15 => Ok(ConsensusVersion::V15),
+        16 => Ok(ConsensusVersion::V16),
         _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
@@ -364,6 +366,14 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<
 
 /// Validates a vector of heights as consensus heights.
 pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
+    // There must be exactly one height per consensus version. snarkVM parses the heights into a
+    // fixed-size array and panics on a mismatch, so reject the wrong count here with a clear error.
+    let expected = ConsensusVersion::latest() as usize;
+    ensure!(
+        heights.len() == expected,
+        "expected exactly {expected} consensus heights (one per consensus version), but found {}",
+        heights.len()
+    );
     // Assert that the genesis height is 0.
     ensure!(heights[0] == 0, "Genesis height must be 0.");
     // Assert that the consensus heights are strictly increasing.
@@ -445,6 +455,18 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V15); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V16); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+    }
+
+    #[test]
+    fn test_validate_consensus_heights() {
+        let n = ConsensusVersion::latest() as u32;
+        // Exactly one height per version, genesis 0, strictly increasing: ok.
+        let valid: Vec<u32> = (0..n).collect();
+        assert!(super::validate_consensus_heights(&valid).is_ok());
+        // Wrong count is a graceful error, not a panic.
+        assert!(super::validate_consensus_heights(&(0..n - 1).collect::<Vec<_>>()).is_err());
+        // Empty input is a graceful error, not an index-out-of-bounds panic.
+        assert!(super::validate_consensus_heights(&[]).is_err());
     }
 }

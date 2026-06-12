@@ -105,6 +105,7 @@ pub fn classify_intrinsic(intrinsic: &Intrinsic) -> Option<CeiCategory> {
         | Intrinsic::ProgramOwner
         | Intrinsic::ProgramChecksum
         | Intrinsic::ProgramEdition
+        | Intrinsic::FunctionChecksum
         | Intrinsic::SelfProgramOwner
         | Intrinsic::SelfAddress
         | Intrinsic::SelfCaller
