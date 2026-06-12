@@ -59,3 +59,6 @@ function create_board:
     call bitcount r6 into r7;
     assert.eq r7 14u64;
     output r6 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

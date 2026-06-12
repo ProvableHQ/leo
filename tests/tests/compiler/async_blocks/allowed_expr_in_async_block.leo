@@ -13,4 +13,7 @@ program test.aleo {
             assert(!foo.contains(0u32));
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

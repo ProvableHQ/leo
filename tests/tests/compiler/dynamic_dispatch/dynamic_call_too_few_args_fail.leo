@@ -3,4 +3,7 @@ program test.aleo {
     fn main(target: field) -> u64 {
         return _dynamic_call::[u64](target);
     }
+
+    @noupgrade
+    constructor() {}
 }

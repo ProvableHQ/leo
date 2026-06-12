@@ -10,3 +10,6 @@ function main:
     div r0 r1 into r6;
     ternary r5 r0 r6 into r7;
     output r7 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

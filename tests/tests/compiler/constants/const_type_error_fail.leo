@@ -6,4 +6,7 @@ program test.aleo {
         const B: u8 = ((1u8, 1u8), 1u8);
         return 1u32;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -5,6 +5,9 @@ program test.aleo {
         let a: scalar = ChaCha::rand_scalar();
         return final { finalize_foo(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(a: scalar) {

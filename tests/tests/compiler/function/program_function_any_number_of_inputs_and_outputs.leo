@@ -10,4 +10,7 @@ program test.aleo {
     fn foo1_to_1(a: u8) -> u8 {
         return a * a;
     }
+
+    @noupgrade
+    constructor() {}
 }

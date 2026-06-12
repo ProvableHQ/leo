@@ -7,4 +7,7 @@ program test.aleo {
         let d: u8 = a - b;
         return (c, d);
     }
+
+    @noupgrade
+    constructor() {}
 }

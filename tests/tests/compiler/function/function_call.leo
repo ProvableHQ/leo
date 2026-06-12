@@ -6,6 +6,9 @@ program test.aleo {
             return subber(a, b);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn adder(a: u32, b: u32) -> u32 {

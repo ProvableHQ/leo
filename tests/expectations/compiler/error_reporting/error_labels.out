@@ -1,126 +1,126 @@
 [ETYC0372015] Error: struct field `x` is already declared
-   ╭─[ compiler-test:7:5 ]
-   │
- 7 │     x: u32,
-   │
-   ├─[ compiler-test:7:5 ]
-   │
- 6 │     x: u32,
-   │     ───┬──  
-   │        ╰──── `x` first declared here
- 7 │     x: u32,
-   │     ───┬──  
-   │        ╰──── struct field already declared
-   │ 
-   │ Help: Remove or rename the duplicate `x` field.
-───╯
-[ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:12:5 ]
+    ╭─[ compiler-test:10:5 ]
     │
- 12 │     x: u32,
+ 10 │     x: u32,
     │
-    ├─[ compiler-test:12:5 ]
+    ├─[ compiler-test:10:5 ]
     │
- 11 │     x: u32,
+  9 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 12 │     x: u32,
+ 10 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:17:5 ]
+    ╭─[ compiler-test:15:5 ]
     │
- 17 │     x: u32,
+ 15 │     x: u32,
     │
-    ├─[ compiler-test:17:5 ]
+    ├─[ compiler-test:15:5 ]
     │
- 16 │     x: u32,
+ 14 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 17 │     x: u32,
+ 15 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:22:5 ]
+    ╭─[ compiler-test:20:5 ]
     │
- 22 │     x: u32,
+ 20 │     x: u32,
     │
-    ├─[ compiler-test:22:5 ]
+    ├─[ compiler-test:20:5 ]
     │
- 21 │     x: u32,
+ 19 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 22 │     x: u32,
+ 20 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:27:5 ]
+    ╭─[ compiler-test:25:5 ]
     │
- 27 │     x: u32,
+ 25 │     x: u32,
     │
-    ├─[ compiler-test:27:5 ]
+    ├─[ compiler-test:25:5 ]
     │
- 26 │     x: u32,
+ 24 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 27 │     x: u32,
+ 25 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:32:5 ]
+    ╭─[ compiler-test:30:5 ]
     │
- 32 │     x: u32,
+ 30 │     x: u32,
     │
-    ├─[ compiler-test:32:5 ]
+    ├─[ compiler-test:30:5 ]
     │
- 31 │     x: u32,
+ 29 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 32 │     x: u32,
+ 30 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:37:5 ]
+    ╭─[ compiler-test:35:5 ]
     │
- 37 │     x: u32,
+ 35 │     x: u32,
     │
-    ├─[ compiler-test:37:5 ]
+    ├─[ compiler-test:35:5 ]
     │
- 36 │     x: u32,
+ 34 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 37 │     x: u32,
+ 35 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `x` field.
 ────╯
 [ETYC0372015] Error: struct field `x` is already declared
-    ╭─[ compiler-test:42:5 ]
+    ╭─[ compiler-test:40:5 ]
     │
- 42 │     x: u32,
+ 40 │     x: u32,
     │
-    ├─[ compiler-test:42:5 ]
+    ├─[ compiler-test:40:5 ]
     │
- 41 │     x: u32,
+ 39 │     x: u32,
     │     ───┬──  
     │        ╰──── `x` first declared here
- 42 │     x: u32,
+ 40 │     x: u32,
+    │     ───┬──  
+    │        ╰──── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
+────╯
+[ETYC0372015] Error: struct field `x` is already declared
+    ╭─[ compiler-test:45:5 ]
+    │
+ 45 │     x: u32,
+    │
+    ├─[ compiler-test:45:5 ]
+    │
+ 44 │     x: u32,
+    │     ───┬──  
+    │        ╰──── `x` first declared here
+ 45 │     x: u32,
     │     ───┬──  
     │        ╰──── struct field already declared
     │ 

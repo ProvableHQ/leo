@@ -2,3 +2,6 @@ program test.aleo;
 
 function main:
     output 7303014field as field.private;
+
+constructor:
+    assert.eq edition 0u16;

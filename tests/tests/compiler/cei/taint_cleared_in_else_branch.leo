@@ -8,6 +8,9 @@ program exchange.aleo {
         let f: Final = final { finalize_get_rate(id); };
         return (100u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_rate(id: u32) {
@@ -34,4 +37,7 @@ program caller.aleo {
             f.run();
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

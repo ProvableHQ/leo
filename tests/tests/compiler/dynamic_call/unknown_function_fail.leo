@@ -10,4 +10,7 @@ program test.aleo: Foo {
     fn main(target: field) -> u32 {
         return Foo@(target)::baz(1u32);
     }
+
+    @noupgrade
+    constructor() {}
 }

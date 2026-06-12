@@ -1,5 +1,8 @@
 program labels.aleo {
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 struct Foo0 {

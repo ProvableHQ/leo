@@ -1,6 +1,9 @@
 program lib.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib.aleo;
 program test.aleo;
@@ -11,6 +14,9 @@ function increment:
 function main:
     input r0 as u64.private;
     output 0u64 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

@@ -30,4 +30,7 @@ program negative_storage_tests.aleo {
     storage vec_record: [MyRecord];
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

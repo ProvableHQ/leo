@@ -8,4 +8,7 @@ program test.aleo {
     fn main(t: Token) -> dyn record {
         return t as dyn record;
     }
+
+    @noupgrade
+    constructor() {}
 }

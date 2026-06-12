@@ -10,6 +10,9 @@ program test.aleo {
     fn decrease_self(amount: u128) -> Final {
         return final { finalize_decrease_self(self.caller, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_decrease_self(addr: address, amount: u128) {

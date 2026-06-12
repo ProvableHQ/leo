@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     mapping flag__: bool => bool;
     mapping scalar_val__: bool => scalar;
     mapping field_val__: bool => field;

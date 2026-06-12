@@ -1,14 +1,14 @@
 [ETYC0372008] Error: the value `9223372036854775808` is not a valid `i64`
-   ╭─[ compiler-test:4:18 ]
+   ╭─[ compiler-test:7:18 ]
    │
- 4 │     let a: i64 = 9223372036854775808i64;
+ 7 │     let a: i64 = 9223372036854775808i64;
    │ 
    │ Help: Use a literal that fits within the range of `i64`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

@@ -4,4 +4,7 @@ program test.aleo {
 
         return group_value + a;
     }
+
+    @noupgrade
+    constructor() {}
 }

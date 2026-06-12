@@ -6,6 +6,8 @@ record Receipt;
 }
 
 program test.aleo: CounterInterface{
+    @noupgrade constructor() {}
+
 mapping counter :address=>u64;
 storage owner :address;
 record Receipt{

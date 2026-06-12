@@ -4,6 +4,9 @@ struct NotAnInterface {
 
 program lib.aleo {
     fn dummy(n: NotAnInterface) {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -13,4 +16,7 @@ program test.aleo: lib.aleo::NotAnInterface + u64 {
     fn main(x: u64) -> u64 {
         return 0;
     }
+
+    @noupgrade
+    constructor() {}
 }

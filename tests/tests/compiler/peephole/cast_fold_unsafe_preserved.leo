@@ -4,4 +4,7 @@ program test.aleo {
         let wide: u64 = narrow as u64;
         return wide;
     }
+
+    @noupgrade
+    constructor() {}
 }

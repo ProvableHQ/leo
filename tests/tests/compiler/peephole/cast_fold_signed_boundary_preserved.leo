@@ -22,4 +22,7 @@ program test.aleo {
         let signed: i8 = unsigned as i8;
         return signed;
     }
+
+    @noupgrade
+    constructor() {}
 }

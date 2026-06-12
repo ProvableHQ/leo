@@ -16,4 +16,7 @@ program test.aleo {
     ) -> bool {
         return Snark::verify_batch(vks, v, batch_inputs, proof);
     }
+
+    @noupgrade
+    constructor() {}
 }

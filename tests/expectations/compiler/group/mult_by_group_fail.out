@@ -1,14 +1,14 @@
 [ETYC0372120] Error: operands of `*` have unsupported types: `group` and `group`
-   ╭─[ compiler-test:4:12 ]
+   ╭─[ compiler-test:7:12 ]
    │
- 4 │     return 0group * a;
+ 7 │     return 0group * a;
    │ 
    │ Help: Valid operands for `*` are two integers of the same type, two `field`s, or a `scalar` and a `group`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

@@ -10,6 +10,9 @@ struct T {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn nested2(s: S, t: T) -> (S, T) {
         t.y[1u8] = s;
         t.y[1u8].x = 1u8;

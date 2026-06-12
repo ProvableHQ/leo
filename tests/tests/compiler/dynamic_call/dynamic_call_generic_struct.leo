@@ -15,4 +15,7 @@ program test.aleo: Storer {
     fn main(target: field, s: Slot::[8u32]) -> u32 {
         return Storer@(target)::store(s);
     }
+
+    @noupgrade
+    constructor() {}
 }

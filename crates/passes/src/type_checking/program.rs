@@ -163,9 +163,6 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        // Typecheck the constructor.
-        // Note: Constructors are required for all **new** programs once they are supported in the AVM.
-        //  However, we do not require them to exist to ensure backwards compatibility with existing programs.
         if let Some(constructor) = &input.constructor {
             self.visit_constructor(constructor);
         }
@@ -189,6 +186,12 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(crate::errors::type_checker::no_entry_points(
                 input.program_id.name.span + input.program_id.network.span,
             ));
+        }
+
+        // Imported Aleo bytecode dependencies are registered as stubs, so this local-source check
+        // does not require constructors on those dependencies.
+        if input.constructor.is_none() {
+            self.emit_err(crate::errors::type_checker::missing_constructor(input.program_id.span()));
         }
     }
 

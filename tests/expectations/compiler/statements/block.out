@@ -5,3 +5,6 @@ function main:
     add r0 5u32 into r1;
     is.eq r1 8u32 into r2;
     output r2 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

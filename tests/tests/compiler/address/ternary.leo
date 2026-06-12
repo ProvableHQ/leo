@@ -5,4 +5,7 @@ program test.aleo {
 
         return x == sender ? receiver == x : sender == x;
     }
+
+    @noupgrade
+    constructor() {}
 }

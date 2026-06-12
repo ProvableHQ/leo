@@ -6,6 +6,9 @@ program const_generics.aleo {
     fn main() -> u32 {
         return bar::[9u16, 0u32]();
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn bar::[N: u32, S: scalar]() -> u32 {

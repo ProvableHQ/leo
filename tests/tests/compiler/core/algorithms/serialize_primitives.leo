@@ -52,4 +52,7 @@ program test.aleo {
             bool_bits[0u8],
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

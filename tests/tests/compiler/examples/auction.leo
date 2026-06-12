@@ -57,4 +57,7 @@ program test.aleo {
         // Return 'is_winner' as 'true' in the winning 'Bid'.
         return Bid { owner: bid.bidder, bidder: bid.bidder, amount: bid.amount, is_winner: true };
     }
+
+    @noupgrade
+    constructor() {}
 }

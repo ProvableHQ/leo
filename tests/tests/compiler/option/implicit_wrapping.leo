@@ -138,4 +138,7 @@ program implicit_wrapping.aleo {
     fn complex_array_access() -> u8 {
         return complex_array_access_();
     }
+
+    @noupgrade
+    constructor() {}
 }

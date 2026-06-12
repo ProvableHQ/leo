@@ -12,6 +12,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -34,3 +37,6 @@ finalize do_work:
     set r3 into balances[0u32];
     set r1 into balances[1u32];
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

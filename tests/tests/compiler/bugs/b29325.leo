@@ -8,4 +8,7 @@ program test.aleo {
         t[0u8] = 1u8;
         return t;
     }
+
+    @noupgrade
+    constructor() {}
 }

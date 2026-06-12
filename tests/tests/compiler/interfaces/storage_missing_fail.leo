@@ -4,4 +4,7 @@ interface StorageInterface {
 
 program test.aleo: StorageInterface {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

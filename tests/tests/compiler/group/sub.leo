@@ -4,4 +4,7 @@ program test.aleo {
 
         return a - b == c;
     }
+
+    @noupgrade
+    constructor() {}
 }

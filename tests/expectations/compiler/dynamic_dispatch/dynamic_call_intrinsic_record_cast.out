@@ -12,3 +12,6 @@ function main:
     cast r3 into r4 as dynamic.record;
     call.dynamic r0 r1 r2 with r4 (as dynamic.record) into r5 (as dynamic.record);
     output r5 as dynamic.record;
+
+constructor:
+    assert.eq edition 0u16;

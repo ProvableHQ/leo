@@ -8,6 +8,9 @@ program child.aleo {
         a[2] = 3;
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -15,4 +18,7 @@ import child.aleo;
 
 program parent.aleo {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

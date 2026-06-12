@@ -18,6 +18,9 @@ program test.aleo {
         let f1 = final {};
         let f2 = final {};
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn foo() {}

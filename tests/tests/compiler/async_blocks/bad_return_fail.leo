@@ -8,4 +8,7 @@ program test.aleo {
         let f = final { return; };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

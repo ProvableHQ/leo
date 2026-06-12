@@ -8,4 +8,7 @@ program test.aleo {
         owner: address,
         foo: Foo,
     }
+
+    @noupgrade
+    constructor() {}
 }

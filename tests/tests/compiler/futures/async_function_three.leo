@@ -10,6 +10,9 @@ program dependent.aleo {
         let f: Final = final { finalize(1u8); };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -24,6 +27,9 @@ program dependent2.aleo {
         let f: Final = dependent.aleo::t1();
         return final { finalize(f); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -38,4 +44,7 @@ program test.aleo {
         let f: Final = dependent2.aleo::t1();
         return final { finalize(f); };
     }
+
+    @noupgrade
+    constructor() {}
 }

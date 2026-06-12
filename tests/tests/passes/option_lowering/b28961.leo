@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn assign_optional_from_unwrap() -> u32 {
         let a: u32? = 5u32;
 

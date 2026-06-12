@@ -17,6 +17,9 @@ program test.aleo {
 
     @test(bogus_key = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH")
     fn foo6() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 @test

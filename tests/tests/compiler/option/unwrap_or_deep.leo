@@ -37,4 +37,7 @@ program unwrap_or_deep.aleo {
         }).arr.unwrap_or([fallback_inner])[0].unwrap_or(fallback_inner).val.unwrap_or(99u8);
         return val;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -3,4 +3,7 @@ program test.aleo {
         let bar = [false; 2049];
         return true;
     }
+
+    @noupgrade
+    constructor() {}
 }

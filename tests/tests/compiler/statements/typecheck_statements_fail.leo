@@ -7,4 +7,7 @@ program test.aleo {
         let c16: bool = ("123i32" & 123i16) == ("sss" / 1i8 - 1i8 + 22u32);
         return false;
     }
+
+    @noupgrade
+    constructor() {}
 }

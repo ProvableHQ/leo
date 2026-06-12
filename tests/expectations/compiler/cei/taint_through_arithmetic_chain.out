@@ -21,6 +21,9 @@ finalize get_rate:
     input r0 as u32.public;
     get.or_use rates[r0] 0u64 into r1;
     set r1 into rates[r0];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import exchange.aleo;
 program caller.aleo;
@@ -43,3 +46,6 @@ finalize do_work:
     input r1 as exchange.aleo/get_rate.future;
     set r0 into balances[0u32];
     await r1;
+
+constructor:
+    assert.eq edition 0u16;

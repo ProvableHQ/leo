@@ -13,4 +13,7 @@ program test.aleo {
         another_f_that_returns_a_value(a);
         let b: u32 = another_f_that_returns_a_value(a);
     }
+
+    @noupgrade
+    constructor() {}
 }

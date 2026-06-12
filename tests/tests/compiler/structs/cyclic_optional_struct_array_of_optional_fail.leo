@@ -5,4 +5,7 @@ struct Node {
     kids: [Node?; 2],
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}

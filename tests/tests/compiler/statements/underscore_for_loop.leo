@@ -52,4 +52,7 @@ program test.aleo {
         }
         return true;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -3,4 +3,7 @@ program test.aleo {
         let r: dyn record = flag ? a : b;
         return r.owner;
     }
+
+    @noupgrade
+    constructor() {}
 }

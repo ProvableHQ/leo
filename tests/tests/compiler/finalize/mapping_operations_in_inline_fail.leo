@@ -1,6 +1,9 @@
 program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
+
+    @noupgrade
+    constructor() {}
 }
 
 fn foo() {

@@ -1,7 +1,7 @@
 [ETYC0372177] Error: dynamic calls can only be made from an entry point fn, but found one in a final function
-    ╭─[ compiler-test:11:20 ]
+    ╭─[ compiler-test:14:20 ]
     │
- 11 │     let val: u64 = _dynamic_call::[u64](target, target, target);
+ 14 │     let val: u64 = _dynamic_call::[u64](target, target, target);
     │ 
     │ Help: Move the dynamic call into an entry point fn body.
 ────╯

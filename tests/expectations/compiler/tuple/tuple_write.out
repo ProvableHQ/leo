@@ -34,3 +34,6 @@ function baz4:
     ternary r2 r1 r0 into r4;
     output r3 as field.private;
     output r4 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

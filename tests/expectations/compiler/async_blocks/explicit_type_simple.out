@@ -24,6 +24,9 @@ function main_inner:
 finalize main_inner:
     input r0 as u32.public;
     set 1u32 into foo[r0];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 program basic.aleo;
@@ -43,3 +46,6 @@ finalize main:
     input r2 as u32.public;
     await r0;
     assert.eq r1 r2;
+
+constructor:
+    assert.eq edition 0u16;

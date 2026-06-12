@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn transfer(sender: address, qty: u64) -> u64 {
         return qty;
     }

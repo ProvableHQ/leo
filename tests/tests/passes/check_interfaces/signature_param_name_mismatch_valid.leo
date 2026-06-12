@@ -7,6 +7,9 @@ interface Transferable {
 }
 
 program test.aleo: Transferable {
+    @noupgrade
+    constructor() {}
+
     // Different parameter names (`sender` and `qty` vs `from` and `amount`) — must compile.
     fn transfer(sender: address, qty: u64) -> u64 {
         return qty;

@@ -4,6 +4,9 @@ program inner.aleo {
     fn inner(a: u32) -> Final {
         return final { finalize(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(a: u32) {
@@ -22,6 +25,9 @@ program mid.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(f1: Final, f2: Final) {
@@ -42,6 +48,9 @@ program outer.aleo {
         let f: Final = final { finalize(f1, f2); };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(f1: Final, f2: Final) {

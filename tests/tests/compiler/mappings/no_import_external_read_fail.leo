@@ -5,6 +5,9 @@ program registry.aleo {
         let caller = self.caller;
         return final { finalize_register(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_register(addr: address) {
@@ -17,6 +20,9 @@ program relay.aleo {
     fn send(addr: address) -> Final {
         return final { finalize_send(addr); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_send(addr: address) {

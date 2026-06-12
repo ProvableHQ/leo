@@ -7,4 +7,7 @@ program test.aleo {
         // no member y in Foo
         let a: Foo = Foo { y: 0u32 };
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -1,16 +1,16 @@
 [WCEI03713001] Warning: a storage variable write runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:18:5 ]
+    ╭─[ compiler-test:21:5 ]
     │
- 18 │     counter = a;
+ 21 │     counter = a;
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713001] Warning: a storage variable write runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:20:5 ]
+    ╭─[ compiler-test:23:5 ]
     │
- 20 │     flag = true;
+ 23 │     flag = true;
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -30,6 +30,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -54,3 +57,6 @@ finalize do_work:
     await r0;
     set r1 into counter__[false];
     set true into flag__[false];
+
+constructor:
+    assert.eq edition 0u16;

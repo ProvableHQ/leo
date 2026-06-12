@@ -4,6 +4,9 @@ struct Pair {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // Composite literals with atom-valued fields are tracked; subsequent
     // `s.a` / `s.b` accesses are forwarded to the stored atom. The
     // `Pair { ... }` binding becomes dead — DCE removes it in a later pass —

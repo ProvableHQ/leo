@@ -7,4 +7,7 @@ program test.aleo {
         let b: bool = sig.verify(self.caller, t);
         let c: bool = sig.verify(self.caller, m);
     }
+
+    @noupgrade
+    constructor() {}
 }

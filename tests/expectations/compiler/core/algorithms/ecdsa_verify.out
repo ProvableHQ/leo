@@ -63,3 +63,6 @@ finalize main:
     assert.eq r26 r26;
     assert.eq r27 r27;
     assert.eq r28 r28;
+
+constructor:
+    assert.eq edition 0u16;

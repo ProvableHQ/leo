@@ -11,4 +11,7 @@ program test.aleo {
     fn main(x: u32) -> u32 {
         return scale::[3u32](x);
     }
+
+    @noupgrade
+    constructor() {}
 }

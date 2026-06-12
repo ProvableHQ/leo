@@ -6,6 +6,9 @@ struct Point {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // A fn that uses the struct
     fn make_point(x: u64, y: u64) -> Point {
         return Point { x: x, y: y }; // construct it

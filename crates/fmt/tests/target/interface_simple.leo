@@ -14,6 +14,9 @@ interface Child: Base + ParentB {
 }
 
 program interface_test.aleo: Base + Child {
+    @noupgrade
+    constructor() {}
+
     record Receipt {
         owner: address,
     }

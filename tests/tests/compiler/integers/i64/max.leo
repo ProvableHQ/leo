@@ -3,4 +3,7 @@ program test.aleo {
         let b: i64 = 9223372036854775807i64;
         return b - a;
     }
+
+    @noupgrade
+    constructor() {}
 }

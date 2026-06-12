@@ -16,6 +16,9 @@ fn choose_wrapper(cond: bool) -> Wrapper? {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(cond: bool) -> u8 {
         return choose_wrapper(cond).unwrap().arr[0u32].unwrap().x.unwrap();
     }

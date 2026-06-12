@@ -6,6 +6,9 @@ program test.aleo {
             assert(fin_foo(a) != fin_foo(a));
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn fin_foo(a: u32) {

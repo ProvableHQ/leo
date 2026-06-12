@@ -13,4 +13,7 @@ program test.aleo {
         let f: Final = final { };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -9,4 +9,7 @@ program test.aleo {
 
         return err;
     }
+
+    @noupgrade
+    constructor() {}
 }

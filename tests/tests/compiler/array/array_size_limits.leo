@@ -6,4 +6,7 @@ program test.aleo {
     fn bar(a: [bool; 32]) -> bool {
         return true;
     }
+
+    @noupgrade
+    constructor() {}
 }

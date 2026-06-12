@@ -16,4 +16,7 @@ program test.aleo {
     fn main(a: u32) -> Final {
         return final { foo(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }

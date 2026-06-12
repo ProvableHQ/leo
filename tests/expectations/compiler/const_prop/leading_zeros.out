@@ -23,3 +23,6 @@ function i8_tr:
 
 function i8_tr2:
     output -3i8 as i8.private;
+
+constructor:
+    assert.eq edition 0u16;

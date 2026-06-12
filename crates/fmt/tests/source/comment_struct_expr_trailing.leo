@@ -21,6 +21,8 @@ fn build_nested()->Nested{
 }
 
 program test.aleo{
+    @noupgrade constructor() {}
+
     fn main()->[u8;2]{
         return [
             build_wrapper().arr[0u32].unwrap().x.unwrap(),

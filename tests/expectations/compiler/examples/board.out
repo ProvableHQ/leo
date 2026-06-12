@@ -40,3 +40,6 @@ function update_hits_and_misses:
     or r0.hits_and_misses r1 into r2;
     cast r0.owner r2 r0.played_tiles r0.ships r0.player_1 r0.player_2 r0.game_started into r3 as board_state.record;
     output r3 as board_state.record;
+
+constructor:
+    assert.eq edition 0u16;

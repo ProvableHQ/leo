@@ -58,4 +58,7 @@ program test.aleo {
             sha3_256_bits[0u8] != sha3_256_bits_raw[0u8],
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

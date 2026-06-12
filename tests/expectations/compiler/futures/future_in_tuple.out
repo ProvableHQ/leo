@@ -22,6 +22,9 @@ function transfer_private_to_public:
 
 finalize transfer_private_to_public:
     assert.eq 1u8 1u8;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import credits.aleo;
 program test_credits.aleo;
@@ -37,3 +40,6 @@ function send_credits:
 finalize send_credits:
     input r0 as credits.aleo/transfer_private_to_public.future;
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

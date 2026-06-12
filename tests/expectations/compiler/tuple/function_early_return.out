@@ -10,3 +10,6 @@ function main:
     ternary r2 r1 r4 into r6;
     output r5 as u8.private;
     output r6 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,7 +1,7 @@
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:4:9 ]
    │
- 4 │ program parent.aleo {}
+ 4 │ program parent.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

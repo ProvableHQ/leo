@@ -15,6 +15,9 @@ program test.aleo {
             Mapping::set(values, 0u8, sum);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {

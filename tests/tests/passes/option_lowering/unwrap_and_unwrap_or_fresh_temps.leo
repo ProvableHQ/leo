@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // Repeated unwrap operations on the same logical value each produce a
     // fresh `$opt$N` temp and do not share a binding. The counter is global
     // to the function, so indices are monotonically increasing.

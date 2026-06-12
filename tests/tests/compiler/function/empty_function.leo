@@ -8,4 +8,7 @@ program test.aleo {
     fn t(a: bool) -> u8 {
         return x(a);
     }
+
+    @noupgrade
+    constructor() {}
 }

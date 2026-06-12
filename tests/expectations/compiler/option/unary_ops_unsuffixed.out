@@ -56,3 +56,6 @@ function test_nested_unary_unsuffixed:
 
 function test_unary_in_expression:
     output 42u8 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

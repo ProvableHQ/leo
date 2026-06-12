@@ -8,6 +8,9 @@ program credits.aleo {
         let f: Final = final { finalize(); };
         return (input, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() {
@@ -26,6 +29,9 @@ program multi_token_support_program.aleo {
         let f: Final = final { finalize(); };
         return (Token { owner: self.signer, amount: 100u64 }, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() {
@@ -54,6 +60,9 @@ program mtsp_credits.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // In an earlier Leo version, both Finals would be incorrectly inferred to

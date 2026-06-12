@@ -1,7 +1,7 @@
 [ETYC0372117] Error: expected `field` or `identifier`, but type `u64` was found
-    ╭─[ compiler-test:11:42 ]
+    ╭─[ compiler-test:14:42 ]
     │
- 11 │     let exists: bool = _dynamic_contains(42u64, 0field, 0field, key);
+ 14 │     let exists: bool = _dynamic_contains(42u64, 0field, 0field, key);
     │ 
     │ Help: Change the expression to produce `field` or `identifier`.
 ────╯

@@ -5,6 +5,9 @@ program test.aleo {
     fn check(prog: field, net: field, mapping_name: field) -> Final {
         return final { finalize_check(prog, net, mapping_name); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_check(prog: field, net: field, mapping_name: field) {

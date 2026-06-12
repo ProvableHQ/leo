@@ -1,5 +1,5 @@
 [ETYC0372156] Error: Unknown mapping operation `remove`. Expected `get`, `get_or_use`, or `contains`.
-    ╭─[ compiler-test:13:29 ]
+    ╭─[ compiler-test:16:29 ]
     │
- 13 │     Bank@(target)::balances.remove(key);
+ 16 │     Bank@(target)::balances.remove(key);
 ────╯

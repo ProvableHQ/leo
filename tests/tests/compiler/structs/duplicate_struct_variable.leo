@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 // test 1: adjacent duplicate - no gap marker
 struct Bar {

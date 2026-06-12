@@ -4,4 +4,7 @@ program test.aleo {
 
         return (-a == 0i64) == y;
     }
+
+    @noupgrade
+    constructor() {}
 }

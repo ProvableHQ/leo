@@ -1,21 +1,21 @@
 [ETYC0372117] Error: expected type `u64`, but type `u8` was found
-    ╭─[ compiler-test:11:12 ]
+    ╭─[ compiler-test:14:12 ]
     │
- 11 │     return 1u8 + 2u8;
+ 14 │     return 1u8 + 2u8;
     │ 
     │ Help: Change the expression to produce type `u64`.
 ────╯
 [ETYC0372117] Error: expected type `u64`, but type `u8` was found
-    ╭─[ compiler-test:11:18 ]
+    ╭─[ compiler-test:14:18 ]
     │
- 11 │     return 1u8 + 2u8;
+ 14 │     return 1u8 + 2u8;
     │ 
     │ Help: Change the expression to produce type `u64`.
 ────╯
 [ETYC0372117] Error: expected type `u64`, but type `u8` was found
-    ╭─[ compiler-test:11:12 ]
+    ╭─[ compiler-test:14:12 ]
     │
- 11 │     return 1u8 + 2u8;
+ 14 │     return 1u8 + 2u8;
     │ 
     │ Help: Change the expression to produce type `u64`.
 ────╯

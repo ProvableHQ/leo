@@ -4,4 +4,7 @@ program test.aleo {
         let val: u64 = _dynamic_get::[u64](prog, net, m, key);
         return val;
     }
+
+    @noupgrade
+    constructor() {}
 }

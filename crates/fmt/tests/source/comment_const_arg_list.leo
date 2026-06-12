@@ -3,6 +3,8 @@ struct Foo::[X:u32,Y:u32]{
 }
 
 program test.aleo{
+    @noupgrade constructor() {}
+
     fn main()->(u32,u32){
         let item=make();
         return (

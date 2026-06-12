@@ -1,7 +1,7 @@
 [ETYC0372005] Error: unknown function `test.aleo::increment`
-    ╭─[ compiler-test:11:5 ]
+    ╭─[ compiler-test:14:5 ]
     │
- 11 │     increment(amounts, addr, amount);
+ 14 │     increment(amounts, addr, amount);
     │ 
     │ Help: Check `test.aleo::increment` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

@@ -3,4 +3,7 @@ program test.aleo {
         let s: scalar = 1scalar;
         return s + a == 0scalar;
     }
+
+    @noupgrade
+    constructor() {}
 }

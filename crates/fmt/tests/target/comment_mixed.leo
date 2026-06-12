@@ -1,5 +1,8 @@
 // File-level comment
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn example(a: u64, b: u64) -> u64 {
         let x: u64 = a + b; // trailing comment
         // standalone comment

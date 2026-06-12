@@ -21,6 +21,9 @@ program test.aleo: Worker {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f1: Final, f2: Final) {

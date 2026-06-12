@@ -8,4 +8,7 @@ program fooaleobar.aleo {
     }
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

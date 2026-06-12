@@ -3,6 +3,8 @@
             y  :  u64  }
 
 program test.aleo   {
+    @noupgrade constructor() {}
+
     fn main(  )  ->  Point   {
 
 let p  :Point  =  Point  {   x  :  1u64  ,

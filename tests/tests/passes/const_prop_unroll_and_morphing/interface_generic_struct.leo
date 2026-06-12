@@ -14,6 +14,9 @@ interface Combiner {
 }
 
 program test.aleo: Combiner {
+    @noupgrade
+    constructor() {}
+
     fn combine(a: Pair::[4u32], b: Pair::[4u32]) -> Pair::[4u32] {
         return Pair::[4u32] { first: a.first + b.first, second: a.second + b.second };
     }

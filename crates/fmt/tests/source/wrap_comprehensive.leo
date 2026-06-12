@@ -8,6 +8,8 @@ fn compute_remaining(  sender_amount  :  u64  ,  receiver_amount  :  u64  ,  tra
 
 program test.aleo
 {
+    @noupgrade constructor() {}
+
 	fn transfer(
 	    public   sender_amount  :  u64  ,
 	        public  receiver_amount  :u64  ,

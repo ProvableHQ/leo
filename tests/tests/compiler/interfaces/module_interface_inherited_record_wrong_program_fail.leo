@@ -9,6 +9,9 @@ program other.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -28,6 +31,9 @@ program test.aleo: interfaces::IChild {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: interfaces.leo --- //

@@ -3,4 +3,7 @@ program test.aleo {
         assert_eq(height, block.height);
         return;
     }
+
+    @noupgrade
+    constructor() {}
 }

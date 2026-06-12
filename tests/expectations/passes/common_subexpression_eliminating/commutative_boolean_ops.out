@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main(x$$0: bool, y$$1: bool) -> bool {
         let a$#2 = x$$0 && y$$1;
         {

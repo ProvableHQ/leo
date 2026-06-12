@@ -260,3 +260,6 @@ function main:
     ternary r163 1u8 r193 into r194;
     output r192 as Board.private;
     output r194 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

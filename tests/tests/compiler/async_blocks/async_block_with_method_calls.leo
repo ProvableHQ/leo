@@ -20,4 +20,7 @@ program test.aleo {
             account.set(caller, current_amount + 1u64);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

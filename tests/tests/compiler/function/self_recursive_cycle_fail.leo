@@ -15,4 +15,7 @@ program test.aleo {
             return foo(n - 1u8) + foo(n - 2u8);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -11,6 +11,9 @@ program test.aleo {
     fn maybe_query(target: field, key: address, cond: bool) -> Final {
         return final { finalize_maybe_query(target, key, cond); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_maybe_query(target: field, key: address, cond: bool) {

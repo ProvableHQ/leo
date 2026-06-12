@@ -49,3 +49,6 @@ finalize foo:
     add r33 r32 into r34;
     set r34 into map[0u32];
     set r34 into map[0u32];
+
+constructor:
+    assert.eq edition 0u16;

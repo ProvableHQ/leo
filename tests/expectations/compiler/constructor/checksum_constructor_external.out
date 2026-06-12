@@ -5,6 +5,9 @@ mapping floo:
     value as [u8; 32u32].public;
 
 function foo:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dependent.aleo;
 program test.aleo;

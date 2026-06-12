@@ -10,6 +10,9 @@ program test.aleo {
     fn maybe_query(target: field, i: u32, cond: bool) -> Final {
         return final { finalize_maybe_query(target, i, cond); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_maybe_query(target: field, i: u32, cond: bool) {

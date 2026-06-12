@@ -18,4 +18,7 @@ program cross_module_call.aleo {
     fn main() -> u32 {
         return utils_lib::geometry::distance_sq(0u32, 0u32, 3u32, 4u32);
     }
+
+    @noupgrade
+    constructor() {}
 }

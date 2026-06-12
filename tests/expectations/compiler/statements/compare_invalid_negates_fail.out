@@ -1,105 +1,105 @@
 [ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
-   ╭─[ compiler-test:4:20 ]
-   │
- 4 │     let b: bool = -a == -1u8;
-   │ 
-   │ Help: Change the expression to produce a signed integer, group, or field.
-───╯
-[ETYC0372008] Error: the value `-1` is not a valid `u8`
-   ╭─[ compiler-test:4:25 ]
-   │
- 4 │     let b: bool = -a == -1u8;
-   │ 
-   │ Help: Use a literal that fits within the range of `u8`.
-───╯
-[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
-   ╭─[ compiler-test:5:20 ]
-   │
- 5 │     let c: bool = -a > -1u8;
-   │ 
-   │ Help: Change the expression to produce a signed integer, group, or field.
-───╯
-[ETYC0372008] Error: the value `-1` is not a valid `u8`
-   ╭─[ compiler-test:5:24 ]
-   │
- 5 │     let c: bool = -a > -1u8;
-   │ 
-   │ Help: Use a literal that fits within the range of `u8`.
-───╯
-[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
-   ╭─[ compiler-test:6:20 ]
-   │
- 6 │     let d: bool = -a < -1u8;
-   │ 
-   │ Help: Change the expression to produce a signed integer, group, or field.
-───╯
-[ETYC0372008] Error: the value `-1` is not a valid `u8`
-   ╭─[ compiler-test:6:24 ]
-   │
- 6 │     let d: bool = -a < -1u8;
-   │ 
-   │ Help: Use a literal that fits within the range of `u8`.
-───╯
-[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
    ╭─[ compiler-test:7:20 ]
    │
- 7 │     let e: bool = -a >= -1u8;
+ 7 │     let b: bool = -a == -1u8;
    │ 
    │ Help: Change the expression to produce a signed integer, group, or field.
 ───╯
 [ETYC0372008] Error: the value `-1` is not a valid `u8`
    ╭─[ compiler-test:7:25 ]
    │
- 7 │     let e: bool = -a >= -1u8;
+ 7 │     let b: bool = -a == -1u8;
    │ 
    │ Help: Use a literal that fits within the range of `u8`.
 ───╯
 [ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
    ╭─[ compiler-test:8:20 ]
    │
- 8 │     let f: bool = -a <= -1u8;
+ 8 │     let c: bool = -a > -1u8;
    │ 
    │ Help: Change the expression to produce a signed integer, group, or field.
 ───╯
 [ETYC0372008] Error: the value `-1` is not a valid `u8`
-   ╭─[ compiler-test:8:25 ]
+   ╭─[ compiler-test:8:24 ]
    │
- 8 │     let f: bool = -a <= -1u8;
+ 8 │     let c: bool = -a > -1u8;
    │ 
    │ Help: Use a literal that fits within the range of `u8`.
 ───╯
 [ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
-   ╭─[ compiler-test:9:18 ]
+   ╭─[ compiler-test:9:20 ]
    │
- 9 │     let g: u8 = -a * -1u8;
+ 9 │     let d: bool = -a < -1u8;
    │ 
    │ Help: Change the expression to produce a signed integer, group, or field.
 ───╯
 [ETYC0372008] Error: the value `-1` is not a valid `u8`
-   ╭─[ compiler-test:9:22 ]
+   ╭─[ compiler-test:9:24 ]
    │
- 9 │     let g: u8 = -a * -1u8;
+ 9 │     let d: bool = -a < -1u8;
    │ 
    │ Help: Use a literal that fits within the range of `u8`.
 ───╯
 [ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
-    ╭─[ compiler-test:10:18 ]
+    ╭─[ compiler-test:10:20 ]
     │
- 10 │     let h: u8 = -a ** -1u8;
+ 10 │     let e: bool = -a >= -1u8;
     │ 
     │ Help: Change the expression to produce a signed integer, group, or field.
 ────╯
 [ETYC0372008] Error: the value `-1` is not a valid `u8`
-    ╭─[ compiler-test:10:23 ]
+    ╭─[ compiler-test:10:25 ]
     │
- 10 │     let h: u8 = -a ** -1u8;
+ 10 │     let e: bool = -a >= -1u8;
+    │ 
+    │ Help: Use a literal that fits within the range of `u8`.
+────╯
+[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
+    ╭─[ compiler-test:11:20 ]
+    │
+ 11 │     let f: bool = -a <= -1u8;
+    │ 
+    │ Help: Change the expression to produce a signed integer, group, or field.
+────╯
+[ETYC0372008] Error: the value `-1` is not a valid `u8`
+    ╭─[ compiler-test:11:25 ]
+    │
+ 11 │     let f: bool = -a <= -1u8;
+    │ 
+    │ Help: Use a literal that fits within the range of `u8`.
+────╯
+[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
+    ╭─[ compiler-test:12:18 ]
+    │
+ 12 │     let g: u8 = -a * -1u8;
+    │ 
+    │ Help: Change the expression to produce a signed integer, group, or field.
+────╯
+[ETYC0372008] Error: the value `-1` is not a valid `u8`
+    ╭─[ compiler-test:12:22 ]
+    │
+ 12 │     let g: u8 = -a * -1u8;
+    │ 
+    │ Help: Use a literal that fits within the range of `u8`.
+────╯
+[ETYC0372117] Error: expected a signed integer, group, or field, but type `u8` was found
+    ╭─[ compiler-test:13:18 ]
+    │
+ 13 │     let h: u8 = -a ** -1u8;
+    │ 
+    │ Help: Change the expression to produce a signed integer, group, or field.
+────╯
+[ETYC0372008] Error: the value `-1` is not a valid `u8`
+    ╭─[ compiler-test:13:23 ]
+    │
+ 13 │     let h: u8 = -a ** -1u8;
     │ 
     │ Help: Use a literal that fits within the range of `u8`.
 ────╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

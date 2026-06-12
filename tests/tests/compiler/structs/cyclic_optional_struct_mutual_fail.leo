@@ -7,4 +7,7 @@ struct B {
     a: A?,
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}

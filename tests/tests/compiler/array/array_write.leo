@@ -75,4 +75,7 @@ program test.aleo {
         }
         return xs;
     }
+
+    @noupgrade
+    constructor() {}
 }

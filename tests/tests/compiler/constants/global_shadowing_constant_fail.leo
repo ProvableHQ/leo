@@ -5,4 +5,7 @@ program test.aleo {
         let start: (u8, u8) = (a, b);
         return start.0 + start.1 + HELLO;
     }
+
+    @noupgrade
+    constructor() {}
 }

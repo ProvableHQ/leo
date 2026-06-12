@@ -7,6 +7,9 @@ interface Transferable {
 }
 
 program test.aleo: Transferable {
+    @noupgrade
+    constructor() {}
+
     // Wrong mode: `amount` is private (default) but the interface requires public.
     fn transfer(amount: u64) -> u64 {
         return amount;

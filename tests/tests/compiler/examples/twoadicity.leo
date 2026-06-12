@@ -14,6 +14,9 @@ program test.aleo {
         }
         return powers_of_two;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 /* We define the is_even predicate on fields as follows.

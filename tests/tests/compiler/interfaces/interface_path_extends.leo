@@ -4,6 +4,9 @@ interface Base {
 
 program lib.aleo {
     fn unused() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,4 +24,7 @@ program test.aleo: Extended {
     fn set(v: u64) -> u64 {
         return v;
     }
+
+    @noupgrade
+    constructor() {}
 }

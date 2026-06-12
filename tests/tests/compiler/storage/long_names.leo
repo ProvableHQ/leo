@@ -11,4 +11,7 @@ program st.aleo {
             some_verrry_long_storage_vector.push(some_very_long_storage_variable.unwrap());
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

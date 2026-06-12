@@ -58,4 +58,7 @@ program unary_ops_unsuffixed.aleo {
         let c: bool? = !true && false;
         return 42u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -40,3 +40,6 @@ function main:
     output r21 as field.private;
     output r22 as field.private;
     output 2889273711195535004711117566557514152851243182316683685687975535565654014600field as field.private;
+
+constructor:
+    assert.eq edition 0u16;

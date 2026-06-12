@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
   mapping   balances :  address   =>u64
 ;
 

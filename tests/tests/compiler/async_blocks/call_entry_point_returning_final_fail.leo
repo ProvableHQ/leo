@@ -11,4 +11,7 @@ program test.aleo {
     fn finish() -> Final {
         return final {};
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -40,4 +40,7 @@ program test.aleo {
             prev_hit_or_miss: 0u64,
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

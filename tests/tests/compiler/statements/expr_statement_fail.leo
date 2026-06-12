@@ -14,4 +14,7 @@ program test.aleo {
         1field;
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }

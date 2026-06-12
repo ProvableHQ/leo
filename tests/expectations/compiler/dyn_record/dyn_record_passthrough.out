@@ -3,3 +3,6 @@ program test.aleo;
 function main:
     input r0 as dynamic.record;
     output r0.owner as address.private;
+
+constructor:
+    assert.eq edition 0u16;

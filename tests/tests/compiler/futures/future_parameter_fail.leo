@@ -6,6 +6,9 @@ program test.aleo {
     fn second(x: Final) -> u8 {
         return 1u8;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn third(x: Final) -> u8 {

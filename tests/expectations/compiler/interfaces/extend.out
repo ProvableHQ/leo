@@ -3,3 +3,6 @@ program bar.aleo;
 function foo:
 
 function bar:
+
+constructor:
+    assert.eq edition 0u16;

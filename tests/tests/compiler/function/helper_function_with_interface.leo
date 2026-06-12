@@ -3,6 +3,9 @@ program test.aleo {
         let c: u32 = a + b;
         return c;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 struct Board {

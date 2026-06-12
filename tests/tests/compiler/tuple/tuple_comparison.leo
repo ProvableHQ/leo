@@ -133,4 +133,7 @@ program tuple_eq_flat_stress.aleo {
         let sel4 = ((a, b).0 == a) ? (a, b) : (0u32, 0u32);
         assert_eq(sel4, (a, b));
     }
+
+    @noupgrade
+    constructor() {}
 }

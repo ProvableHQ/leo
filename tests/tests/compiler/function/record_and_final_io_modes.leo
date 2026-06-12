@@ -25,6 +25,9 @@ program test.aleo {
 
     // `Final` output without a mode: OK.
     fn fut_io() -> Final { return final { fin(1u32, 1u32); }; }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn fin(a: u32, b: u32) {

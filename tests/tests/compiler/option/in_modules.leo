@@ -138,6 +138,9 @@ program in_modules.aleo {
         let arr = complex_array_access_();
         return arr[1][0].unwrap(); // should be 20
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: dep.leo --- //

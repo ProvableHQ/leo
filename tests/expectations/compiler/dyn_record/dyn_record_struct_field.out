@@ -12,3 +12,6 @@ function main:
     cast r0 into r1 as dynamic.record;
     get.record.dynamic r1.data into r2 as Info;
     output r2.inner as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

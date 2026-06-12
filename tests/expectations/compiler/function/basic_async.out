@@ -10,3 +10,6 @@ function main:
 
 finalize main:
     set 1u32 into Yo[1u32];
+
+constructor:
+    assert.eq edition 0u16;

@@ -25,6 +25,9 @@ fn access_chain(w: Wrapper, arr: [u64; 3], tup_a: u64, tup_b: u64) -> u64 {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     mapping balances: address => u64;
 
     fn deposit(public sender: address, public amount: u64) -> Final {

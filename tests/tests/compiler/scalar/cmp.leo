@@ -6,4 +6,7 @@ program test.aleo {
         let f: bool = a <= b;
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

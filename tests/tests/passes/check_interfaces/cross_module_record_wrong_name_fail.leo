@@ -16,6 +16,9 @@ interface TokenInterface {
 // --- Next Program --- //
 
 program test.aleo: token_lib::itoken::TokenInterface {
+    @noupgrade
+    constructor() {}
+
     record Coin {
         owner: address,
         balance: u64,

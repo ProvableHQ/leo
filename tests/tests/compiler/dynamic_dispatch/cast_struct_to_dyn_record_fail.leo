@@ -7,4 +7,7 @@ program test.aleo {
     fn main(f: Foo) -> dyn record {
         return f as dyn record;
     }
+
+    @noupgrade
+    constructor() {}
 }

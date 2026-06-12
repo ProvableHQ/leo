@@ -160,3 +160,6 @@ function ternary_optional_cases:
     add r11 r8 into r12;
     add r12 r9.val into r13;
     output r13 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

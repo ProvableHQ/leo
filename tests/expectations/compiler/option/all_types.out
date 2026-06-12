@@ -250,3 +250,6 @@ function optional_signature:
     output r5 as signature.private;
     output r8.val.a as signature.private;
     output r10.val.val as signature.private;
+
+constructor:
+    assert.eq edition 0u16;

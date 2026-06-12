@@ -9,4 +9,7 @@ program test.aleo {
         let w: field = 0field;
         w = self.signer;
     }
+
+    @noupgrade
+    constructor() {}
 }

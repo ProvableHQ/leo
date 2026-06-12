@@ -2,6 +2,9 @@
 import some_sample_leo_program.aleo;
 
 program test_some_sample_leo_program.aleo {
+    @noupgrade
+    constructor() {}
+
     @test
     fn test_it() {
         let result: u32 = some_sample_leo_program.aleo::main(1u32, 2u32);

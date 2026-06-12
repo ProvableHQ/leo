@@ -1,16 +1,16 @@
 [WCEI03713002] Warning: the call to `caller.aleo::balance_of` runs after an interaction (`Final.run()`), and `caller.aleo::balance_of` itself performs checks or effects
-    ╭─[ compiler-test:21:20 ]
+    ╭─[ compiler-test:24:20 ]
     │
- 21 │     let val: u32 = balance_of(0u32);
+ 24 │     let val: u32 = balance_of(0u32);
     │ 
     │ Help: Move the call to `caller.aleo::balance_of` above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:22:5 ]
+    ╭─[ compiler-test:25:5 ]
     │
- 22 │     assert(val >= 0u32);
+ 25 │     assert(val >= 0u32);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -30,6 +30,9 @@ function modify:
 finalize modify:
     input r0 as u32.public;
     set r0 into shared[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -55,3 +58,6 @@ finalize do_work:
     call balance_of 0u32 into r1;
     gte r1 0u32 into r2;
     assert.eq r2 true;
+
+constructor:
+    assert.eq edition 0u16;

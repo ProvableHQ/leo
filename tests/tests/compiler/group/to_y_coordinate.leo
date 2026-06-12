@@ -4,4 +4,7 @@ program test.aleo {
         let y: field = 0group.to_y_coordinate();
         return group::to_y_coordinate(a);
     }
+
+    @noupgrade
+    constructor() {}
 }

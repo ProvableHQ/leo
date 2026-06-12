@@ -12,6 +12,9 @@ program test.aleo {
 
         return total;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn sum_array::[N: u32](arr: [u32; N]) -> u32 {

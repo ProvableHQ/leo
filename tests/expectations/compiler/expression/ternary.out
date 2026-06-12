@@ -29,3 +29,6 @@ function main:
     output r11 as u128.private;
     output r12 as scalar.private;
     output r13 as i32.private;
+
+constructor:
+    assert.eq edition 0u16;

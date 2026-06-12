@@ -10,6 +10,9 @@ interface TokenStorage {
 }
 
 program test.aleo: TokenStorage {
+    @noupgrade
+    constructor() {}
+
     mapping allowances: [address; N] => u128;
 
     fn foo() {}

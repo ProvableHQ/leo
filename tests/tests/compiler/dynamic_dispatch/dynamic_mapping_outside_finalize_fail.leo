@@ -7,4 +7,7 @@ program test.aleo {
     fn lookup(target: field, key: address) -> u64 {
         return Bank@(target)::balances.get(key);
     }
+
+    @noupgrade
+    constructor() {}
 }

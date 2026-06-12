@@ -26,6 +26,9 @@ program test.aleo {
             finalize(sig, addr, addr_eth, digest, msg_u32, msg_u64, msg_u128, msg_array, msg_array2);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(

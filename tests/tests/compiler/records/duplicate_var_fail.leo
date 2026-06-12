@@ -21,6 +21,9 @@ program test.aleo {
         owner: address,
         amount: u64,
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn main(zz: bool) -> bool {

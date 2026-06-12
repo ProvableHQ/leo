@@ -7,6 +7,9 @@ program dep.aleo {
     fn modify_shared(a: u32) -> Final {
         return final { finalize_modify_shared(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_modify_shared(a: u32) {
@@ -23,6 +26,9 @@ program caller.aleo {
         let f: Final = dep.aleo::modify_shared(a);
         return final { finalize_do_work(f, a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_work(f: Final, a: u32) {

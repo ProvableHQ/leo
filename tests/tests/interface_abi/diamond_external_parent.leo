@@ -6,8 +6,12 @@ interface Root {
 }
 
 program root.aleo {
+    @noupgrade
+    constructor() {}
+
     fn dummy() {}
 }
+
 // --- Next Program --- //
 import root.aleo;
 
@@ -16,8 +20,12 @@ interface Left: root.aleo::Root {
 }
 
 program left.aleo {
+    @noupgrade
+    constructor() {}
+
     fn dummy() {}
 }
+
 // --- Next Program --- //
 import root.aleo;
 
@@ -26,14 +34,21 @@ interface Right: root.aleo::Root {
 }
 
 program right.aleo {
+    @noupgrade
+    constructor() {}
+
     fn dummy() {}
 }
+
 // --- Next Program --- //
 import root.aleo;
 import left.aleo;
 import right.aleo;
 
 program test.aleo: left.aleo::Left + right.aleo::Right {
+    @noupgrade
+    constructor() {}
+
     fn root_fn() -> u64 {
         return 0u64;
     }

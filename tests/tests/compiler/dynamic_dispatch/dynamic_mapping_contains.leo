@@ -7,6 +7,9 @@ program test.aleo {
     fn has_account(target: field, key: address) -> Final {
         return final { finalize_has_account(target, key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_has_account(target: field, key: address) {

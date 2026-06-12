@@ -3,11 +3,11 @@ Expected:
 fn get_value() -> bool
 Found:
 fn get_value() -> u64
-    ╭─[ test:12:5 ]
+    ╭─[ test:15:5 ]
     │
- 12 │ ╭─▶     fn get_value() -> u64 {
+ 15 │ ╭─▶     fn get_value() -> u64 {
     ┆ ┆   
- 14 │ ├─▶     }
+ 17 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     

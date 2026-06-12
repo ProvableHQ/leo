@@ -1,7 +1,7 @@
 [WCEI03713002] Warning: the call to `caller.aleo::do_state_ops` runs after an interaction (`Final.run()`), and `caller.aleo::do_state_ops` itself performs checks or effects
-    ╭─[ compiler-test:23:5 ]
+    ╭─[ compiler-test:26:5 ]
     │
- 23 │     do_state_ops(a);
+ 26 │     do_state_ops(a);
     │ 
     │ Help: Move the call to `caller.aleo::do_state_ops` above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -21,6 +21,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -42,3 +45,6 @@ finalize do_work:
     get.or_use balances[0u32] 0u32 into r2;
     add r2 r1 into r3;
     set r3 into balances[0u32];
+
+constructor:
+    assert.eq edition 0u16;

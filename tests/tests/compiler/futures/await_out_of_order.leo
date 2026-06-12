@@ -4,6 +4,9 @@ program test.aleo {
     fn main_inner(public a: u32, public b: u32) -> Final {
         return final { finalize(a, b); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(a: u32, b: u32) {
@@ -20,6 +23,9 @@ program basic.aleo {
         let f: Final = final { finalize(f1, f2); };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(f1: Final, f2: Final) {

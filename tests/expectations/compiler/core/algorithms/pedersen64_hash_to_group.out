@@ -33,3 +33,6 @@ function main:
     output r17 as group.private;
     output r18 as group.private;
     output r19 as group.private;
+
+constructor:
+    assert.eq edition 0u16;

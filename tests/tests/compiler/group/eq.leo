@@ -3,4 +3,7 @@ program test.aleo {
         assert(a == b);
         return a == b;
     }
+
+    @noupgrade
+    constructor() {}
 }

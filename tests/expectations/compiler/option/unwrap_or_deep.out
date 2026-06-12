@@ -120,3 +120,6 @@ function unwrap_or_deep:
     cast r79 into r80 as Inner;
     ternary r80.val.is_some r80.val.val 99u8 into r81;
     output r81 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

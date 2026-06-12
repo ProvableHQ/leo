@@ -3,4 +3,7 @@ program test.aleo {
     fn main(f: field) -> identifier {
         return f as identifier;
     }
+
+    @noupgrade
+    constructor() {}
 }

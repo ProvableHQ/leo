@@ -12,6 +12,9 @@ program credits.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -26,6 +29,9 @@ program multi_token_support_program.aleo {
         let f: Final = final { assert_eq(1u8, 1u8); };
         return (Token { owner: self.signer, amount: 100u64 }, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -51,4 +57,7 @@ program mtsp_credits.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -2805,3 +2805,6 @@ function foo:
     sub r2800 r1 into r2801;
     ternary r2 r2778 r2801 into r2802;
     output r2802 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

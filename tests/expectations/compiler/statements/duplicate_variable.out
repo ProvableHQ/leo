@@ -1,14 +1,14 @@
 [EAST0372017] Error: the name `x` is defined multiple times
-   ╭─[ compiler-test:5:9 ]
+   ╭─[ compiler-test:8:9 ]
    │
- 5 │     let x: bool = true;
+ 8 │     let x: bool = true;
    │
-   ├─[ compiler-test:5:9 ]
+   ├─[ compiler-test:8:9 ]
    │
- 4 │     let x: u8 = 1u8;
+ 7 │     let x: u8 = 1u8;
    │         ┬  
    │         ╰── previous definition of `x` here
- 5 │     let x: bool = true;
+ 8 │     let x: bool = true;
    │         ┬  
    │         ╰── `x` redefined here
    │ 

@@ -36,4 +36,7 @@ program test.aleo {
             fourteen,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

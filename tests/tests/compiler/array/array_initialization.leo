@@ -3,4 +3,7 @@ program test.aleo {
         let result: [bool; 8] = [a, a, a, a, a, a, a, a];
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

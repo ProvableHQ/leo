@@ -18,6 +18,9 @@ interface IGP {
 
 program grandparent.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -29,6 +32,9 @@ interface IP: grandparent.aleo::IGP {
 
 program parent.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -39,6 +45,9 @@ program other.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -61,4 +70,7 @@ program test.aleo: parent.aleo::IP {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

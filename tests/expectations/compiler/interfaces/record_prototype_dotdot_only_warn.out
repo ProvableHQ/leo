@@ -27,3 +27,6 @@ record Token:
     amount as u64.private;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;

@@ -3,4 +3,7 @@ program test.aleo {
         owner: address,
         amounts: (u64, u64),
     }
+
+    @noupgrade
+    constructor() {}
 }

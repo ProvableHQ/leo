@@ -1,14 +1,14 @@
 [ETYC0372008] Error: the value `-0x1` is not a valid `u128`
-   ╭─[ compiler-test:4:19 ]
+   ╭─[ compiler-test:7:19 ]
    │
- 4 │     let a: u128 = -0x1u128;
+ 7 │     let a: u128 = -0x1u128;
    │ 
    │ Help: Use a literal that fits within the range of `u128`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

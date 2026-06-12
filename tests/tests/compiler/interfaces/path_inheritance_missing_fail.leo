@@ -4,6 +4,9 @@ interface Counter {
 
 program lib.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -13,4 +16,7 @@ program test.aleo: lib.aleo::Counter {
     fn main(x: u64) -> u64 {
         return 0;
     }
+
+    @noupgrade
+    constructor() {}
 }

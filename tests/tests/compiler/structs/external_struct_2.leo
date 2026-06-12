@@ -54,6 +54,9 @@ program child.aleo {
             Boo { owner: self.signer, val: 10u32 },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -136,6 +139,9 @@ program parent.aleo {
             Woo { a: 3u32, b: 4u32 },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -152,4 +158,7 @@ program grandparent.aleo {
         let (f, b, bh, w): (child.aleo::Foo, child.aleo::Boo, parent.aleo::BooHoo, parent.aleo::Woo) = parent.aleo::create_another_wrapper();
         return parent.aleo::create_another_wrapper();
     }
+
+    @noupgrade
+    constructor() {}
 }

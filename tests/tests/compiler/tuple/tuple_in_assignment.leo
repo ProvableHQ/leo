@@ -4,4 +4,7 @@ program test.aleo {
         a = (3u8, 4u16);
         return 1u8 + 1u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

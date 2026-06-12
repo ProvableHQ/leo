@@ -19,3 +19,6 @@ function main:
     mod r0 r1 into r15;
     rem r0 r1 into r16;
     output r4 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

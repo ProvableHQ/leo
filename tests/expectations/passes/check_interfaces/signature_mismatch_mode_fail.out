@@ -3,11 +3,11 @@ Expected:
 fn transfer(public amount: u64) -> u64
 Found:
 fn transfer(amount: u64) -> u64
-    ╭─[ test:11:5 ]
+    ╭─[ test:14:5 ]
     │
- 11 │ ╭─▶     fn transfer(amount: u64) -> u64 {
+ 14 │ ╭─▶     fn transfer(amount: u64) -> u64 {
     ┆ ┆   
- 13 │ ├─▶     }
+ 16 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     

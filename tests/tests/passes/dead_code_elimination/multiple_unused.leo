@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(x: u32) -> u32 {
         let unused1: u32 = 10u32;
         let result: u32 = x * 2u32;

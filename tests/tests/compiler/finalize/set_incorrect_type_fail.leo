@@ -11,6 +11,9 @@ program test.aleo {
         let caller = self.caller;
         return final { finalize_decrease_self(caller, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_decrease_self(addr: address, amount: u128) {

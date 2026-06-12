@@ -1,5 +1,5 @@
 [ETYC0372156] Error: `_dynamic_contains` does not accept type parameters.
-    ╭─[ compiler-test:11:24 ]
+    ╭─[ compiler-test:14:24 ]
     │
- 11 │     let exists: bool = _dynamic_contains::[bool](prog, net, m, key);
+ 14 │     let exists: bool = _dynamic_contains::[bool](prog, net, m, key);
 ────╯

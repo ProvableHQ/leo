@@ -8,6 +8,9 @@ program test.aleo {
     fn baz(a: u32, b: u32) -> u32 {
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -33,4 +36,7 @@ program basic.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

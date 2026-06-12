@@ -10,3 +10,6 @@ function main:
     add r2 1i8 into r6;
     is.eq r5 r6 into r7;
     output r7 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

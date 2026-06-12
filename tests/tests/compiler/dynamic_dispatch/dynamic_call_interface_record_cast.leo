@@ -9,4 +9,7 @@ program router.aleo {
     fn dispatch(target: field, token: dyn record) -> dyn record {
         return router.aleo::TokenOps@(target)::transfer(token);
     }
+
+    @noupgrade
+    constructor() {}
 }

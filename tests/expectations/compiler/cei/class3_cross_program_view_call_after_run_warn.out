@@ -1,16 +1,16 @@
 [WCEI03713002] Warning: the call to `dep.aleo::shared_value` runs after an interaction (`Final.run()`), and `dep.aleo::shared_value` itself performs checks or effects
-    ╭─[ compiler-test:17:20 ]
+    ╭─[ compiler-test:20:20 ]
     │
- 17 │     let val: u32 = dep.aleo::shared_value(0u32);
+ 20 │     let val: u32 = dep.aleo::shared_value(0u32);
     │ 
     │ Help: Move the call to `dep.aleo::shared_value` above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, any callee that performs checks or effects must run before any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:18:5 ]
+    ╭─[ compiler-test:21:5 ]
     │
- 18 │     assert(val >= 0u32);
+ 21 │     assert(val >= 0u32);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -35,6 +35,9 @@ view shared_value:
     input r0 as u32.public;
     get.or_use shared[r0] 0u32 into r1;
     output r1 as u32.public;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -55,15 +58,18 @@ finalize do_work:
     call dep.aleo/shared_value 0u32 into r1;
     gte r1 0u32 into r2;
     assert.eq r2 true;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---
 Note: Treating dependencies as Aleo produces different results:
 
 [WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:18:5 ]
+    ╭─[ compiler-test:21:5 ]
     │
- 18 │     assert(val >= 0u32);
+ 21 │     assert(val >= 0u32);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -88,6 +94,9 @@ view shared_value:
     input r0 as u32.public;
     get.or_use shared[r0] 0u32 into r1;
     output r1 as u32.public;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -108,3 +117,6 @@ finalize do_work:
     call dep.aleo/shared_value 0u32 into r1;
     gte r1 0u32 into r2;
     assert.eq r2 true;
+
+constructor:
+    assert.eq edition 0u16;

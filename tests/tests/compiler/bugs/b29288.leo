@@ -4,4 +4,7 @@ interface Foo {
 
 program scratch.aleo : Foo {
     fn foo(a: u8) -> u8 { return 0; }
+
+    @noupgrade
+    constructor() {}
 }

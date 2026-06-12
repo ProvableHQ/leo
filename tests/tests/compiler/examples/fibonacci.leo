@@ -25,6 +25,9 @@ program test.aleo {
         }
         return f0;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn reverse_bits(n: u8) -> u8 {

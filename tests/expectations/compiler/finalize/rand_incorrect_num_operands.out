@@ -1,14 +1,14 @@
 [ETYC0372006] Error: this call expected 0 argument(s), but 1 were supplied
-    ╭─[ compiler-test:10:20 ]
+    ╭─[ compiler-test:13:20 ]
     │
- 10 │     let a: field = ChaCha::rand_field(1field);
+ 13 │     let a: field = ChaCha::rand_field(1field);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
 [ETYC0372006] Error: this call expected 0 argument(s), but 2 were supplied
-    ╭─[ compiler-test:11:20 ]
+    ╭─[ compiler-test:14:20 ]
     │
- 11 │     let b: field = ChaCha::rand_field(1field, 2field);
+ 14 │     let b: field = ChaCha::rand_field(1field, 2field);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

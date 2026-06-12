@@ -7,6 +7,9 @@ program test.aleo {
     mapping tokens: address => Token;
 
     mapping foo: Bar => Baz;
+
+    @noupgrade
+    constructor() {}
 }
 
 struct Token {

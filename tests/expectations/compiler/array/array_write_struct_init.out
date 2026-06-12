@@ -12,3 +12,6 @@ function main2:
     cast 2field 2field into r0 as [field; 2u32];
     cast r0 into r1 as S;
     output r1 as S.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -15,6 +15,9 @@ program lottery.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_play() {

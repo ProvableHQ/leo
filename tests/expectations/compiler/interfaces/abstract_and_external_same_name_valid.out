@@ -15,11 +15,17 @@ record Token:
     owner as address.private;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import other.aleo;
 program lib.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib.aleo;
 import other.aleo;
@@ -38,6 +44,9 @@ function external_transfer:
     output r0 as other.aleo/Token.record;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

@@ -7,4 +7,7 @@ program test.aleo {
     fn main() -> Final {
         return final { finalize_it(); };
     }
+
+    @noupgrade
+    constructor() {}
 }

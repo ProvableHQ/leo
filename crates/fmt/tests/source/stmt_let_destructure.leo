@@ -1,5 +1,7 @@
 program test.aleo
   {
+    @noupgrade constructor() {}
+
 	fn main(  )   {
             let (  a  ,
                 b  )  =  (  1u64  ,

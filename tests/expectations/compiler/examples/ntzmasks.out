@@ -32,3 +32,6 @@ function main:
     ternary r26 r27 r23 into r28;
     ternary r1 32u8 r28 into r29;
     output r29 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

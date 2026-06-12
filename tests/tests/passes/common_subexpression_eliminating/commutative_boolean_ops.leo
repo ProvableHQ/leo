@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(x: bool, y: bool) -> bool {
         let a: bool = x && y;
         let b: bool = y && x;

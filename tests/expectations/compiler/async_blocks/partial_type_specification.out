@@ -59,6 +59,9 @@ function main_dep_2:
 
 finalize main_dep_2:
     set 1u32 into Yo[1u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test_dep.aleo;
 program test.aleo;
@@ -94,6 +97,9 @@ finalize main:
     position end_then_0_2;
     position end_otherwise_0_3;
     set r3 into ayo[1u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 import test_dep.aleo;
@@ -116,6 +122,9 @@ finalize main:
     await r0;
     await r1;
     await r2;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 import test_dep.aleo;
@@ -133,3 +142,6 @@ function main:
 finalize main:
     input r0 as wrapper.aleo/main.future;
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

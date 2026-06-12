@@ -12,3 +12,6 @@ finalize public_adder:
     assert.neq r0 r1;
     add r0 r1 into r2;
     assert.neq r2 0u8;
+
+constructor:
+    assert.eq edition 0u16;

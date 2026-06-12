@@ -10,6 +10,9 @@ interface Derived: Base {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(x: u64) -> u64 {
         return x;
     }

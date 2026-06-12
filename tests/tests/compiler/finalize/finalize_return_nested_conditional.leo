@@ -11,6 +11,9 @@ program test.aleo {
             Mapping::set(audit, tier, tier);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn tier_of(amount: u64) -> u8 {

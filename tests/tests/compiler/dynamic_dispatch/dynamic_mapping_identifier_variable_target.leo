@@ -7,6 +7,9 @@ program test.aleo {
     fn lookup(target: identifier, key: address) -> Final {
         return final { finalize_query(target, key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_query(target: identifier, key: address) {

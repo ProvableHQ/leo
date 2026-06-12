@@ -30,3 +30,6 @@ function foo2:
     output r3 as field.private;
     output 1u8 as u8.private;
     output r4 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

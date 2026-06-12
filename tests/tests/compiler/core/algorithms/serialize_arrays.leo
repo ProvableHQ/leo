@@ -38,4 +38,7 @@ program test.aleo {
             array_u32_bits[0u8] != array_u32_bits_raw[0u8],
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -3,3 +3,6 @@ program test.aleo;
 function main:
     input r0 as boolean.private;
     output r0 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

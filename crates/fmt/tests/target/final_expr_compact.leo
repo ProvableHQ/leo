@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn simple(value: u64) -> Final {
         return final { finalize(value); };
     }

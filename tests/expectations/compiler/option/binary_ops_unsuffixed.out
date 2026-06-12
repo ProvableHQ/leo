@@ -63,3 +63,6 @@ function test_signed_unsuffixed:
 
 function test_nested_unsuffixed:
     output 42u8 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

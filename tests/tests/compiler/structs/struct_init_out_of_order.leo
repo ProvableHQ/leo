@@ -18,4 +18,7 @@ program test.aleo {
         let f: Bar = Bar { b: c, a: a };
         return (e, f);
     }
+
+    @noupgrade
+    constructor() {}
 }

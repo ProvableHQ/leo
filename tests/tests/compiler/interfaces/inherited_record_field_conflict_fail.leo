@@ -19,4 +19,7 @@ interface Combined: TokenA + TokenB {
 
 program test.aleo: Combined {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

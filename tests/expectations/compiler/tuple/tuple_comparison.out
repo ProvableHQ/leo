@@ -60,3 +60,6 @@ function test_all:
     assert.neq 4u32 4u32;
     assert.neq 42u32 42u32;
     assert.neq 99u32 42u32;
+
+constructor:
+    assert.eq edition 0u16;

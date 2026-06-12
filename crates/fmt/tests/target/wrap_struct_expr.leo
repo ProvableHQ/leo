@@ -10,6 +10,9 @@ struct TransferInfo {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public a: u64, public b: u64) -> u64 {
         let p: Point = Point { x: 1u64, y: 2u64 };
         let info: TransferInfo = TransferInfo {

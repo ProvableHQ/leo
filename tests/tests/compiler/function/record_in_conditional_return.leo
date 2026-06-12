@@ -25,4 +25,7 @@ program test.aleo {
         }
         return Token { owner: owner, amount: 0u64 };
     }
+
+    @noupgrade
+    constructor() {}
 }

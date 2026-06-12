@@ -4,6 +4,9 @@ struct Flag {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // End-to-end demonstration of the passes that #29343 adds together:
     // composite forwarding replaces `f.active` with the stored literal `true`,
     // then constant folding collapses the rest of the expression.

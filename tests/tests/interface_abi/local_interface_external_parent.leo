@@ -6,8 +6,12 @@ interface Base {
 }
 
 program lib.aleo {
+    @noupgrade
+    constructor() {}
+
     fn unused() {}
 }
+
 // --- Next Program --- //
 import lib.aleo;
 
@@ -16,6 +20,9 @@ interface Extended: lib.aleo::Base {
 }
 
 program test.aleo: Extended {
+    @noupgrade
+    constructor() {}
+
     fn get() -> u64 {
         return 0u64;
     }

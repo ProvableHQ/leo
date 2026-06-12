@@ -7,6 +7,9 @@ program test0.aleo {
     fn foo() -> R {
         return R { owner: self.signer, x: true };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -59,4 +62,7 @@ program test1.aleo {
         }
         return r;
     }
+
+    @noupgrade
+    constructor() {}
 }

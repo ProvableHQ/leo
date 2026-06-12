@@ -5,6 +5,9 @@ interface Processor {
 }
 
 program test.aleo: Processor {
+    @noupgrade
+    constructor() {}
+
     // Wrong parameter type: `u32` instead of `u64`
     fn process(value: u64, multiplier: u32) -> u64 {
         return value;

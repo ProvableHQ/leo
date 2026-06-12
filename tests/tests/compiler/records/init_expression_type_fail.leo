@@ -5,6 +5,9 @@ program test.aleo {
         // The token amount.
         amount: u64,
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 @no_inline

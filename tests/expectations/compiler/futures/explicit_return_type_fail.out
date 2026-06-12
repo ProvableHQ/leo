@@ -1,16 +1,16 @@
 [ETYC0372110] Error: only entry point fns can return a `Final`
-    ╭─[ compiler-test:11:24 ]
+    ╭─[ compiler-test:14:24 ]
     │
- 11 │ final fn finalize() -> Final {
+ 14 │ final fn finalize() -> Final {
     │ 
     │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ────╯
 [ETYC0372036] Error: function must return a value
-    ╭─[ compiler-test:11:1 ]
+    ╭─[ compiler-test:14:1 ]
     │
- 11 │ ╭─▶ final fn finalize() -> Final {
+ 14 │ ╭─▶ final fn finalize() -> Final {
     ┆ ┆   
- 13 │ ├─▶ }
+ 16 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     

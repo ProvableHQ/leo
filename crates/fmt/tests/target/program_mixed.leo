@@ -3,6 +3,9 @@ struct Data {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     mapping store: field => Data;
 
     fn save(d: Data) {

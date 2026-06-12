@@ -5,6 +5,9 @@ program dependent.aleo {
             assert_eq(y, 1u16);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -15,4 +18,7 @@ program test.aleo {
         let f: Final = dependent.aleo::t1(42, 43);
         return final { f.run(); };
     }
+
+    @noupgrade
+    constructor() {}
 }

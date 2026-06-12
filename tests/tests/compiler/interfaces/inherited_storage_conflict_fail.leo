@@ -11,4 +11,7 @@ interface Combined: Storage1 + Storage2 {
 
 program test.aleo: Combined {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

@@ -40,3 +40,6 @@ function main:
     output r21 as i128.private;
     output r22 as i128.private;
     output -130939373827751660880287921346185802899i128 as i128.private;
+
+constructor:
+    assert.eq edition 0u16;

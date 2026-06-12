@@ -14,6 +14,9 @@ program oracle.aleo: Oracle {
         let f: Final = final { finalize_get_price(id); };
         return (500u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_price(id: u32) {
@@ -31,6 +34,9 @@ program exchange.aleo: Exchange {
     fn execute_trade(id: u32, amount: u64) -> Final {
         return final { finalize_execute_trade(id, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_execute_trade(id: u32, amount: u64) {

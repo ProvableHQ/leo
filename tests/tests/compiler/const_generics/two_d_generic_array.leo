@@ -13,6 +13,9 @@ program test.aleo {
 
         return C;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // Multiply two 2D matrices: A[M][K] * B[K][N] = C[M][N]

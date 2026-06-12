@@ -1,7 +1,7 @@
 [ETYC0372109] Error: cannot reassign `try_get_token` from a conditional scope to an outer scope in a final fn
-    ╭─[ compiler-test:14:9 ]
+    ╭─[ compiler-test:17:9 ]
     │
- 14 │     let try_get_token: TokenInfo = Mapping::get_or_use(
+ 17 │     let try_get_token: TokenInfo = Mapping::get_or_use(
     │ 
     │ Help: Use a ternary `?` or redeclare the variable in the current scope. Future ARC work will lift this restriction (see https://github.com/ProvableHQ/ARCs).
 ────╯

@@ -21,6 +21,9 @@ program foo.aleo {
         let array_access = arr[3u8];
         return (t.0, t.1, t.2, x_plus_1, y_plus_2, b, call_result, array_access);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn foo(x: u32) -> u32 {

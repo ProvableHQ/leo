@@ -8,6 +8,9 @@ program credits.aleo {
         let f: Final = final { finalize(); };
         return (input, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() {
@@ -36,6 +39,9 @@ program test_credits.aleo {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finish(f: Final) {

@@ -3,4 +3,7 @@ program test.aleo {
         let a = [1u32; x];
         return a[0];
     }
+
+    @noupgrade
+    constructor() {}
 }

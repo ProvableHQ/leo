@@ -8,6 +8,9 @@ program test.aleo {
     fn main() -> u64 {
         return 0u64;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -19,4 +22,7 @@ interface B: test.aleo::A {
 
 program lib.aleo {
     fn unused() {}
+
+    @noupgrade
+    constructor() {}
 }

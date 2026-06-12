@@ -3,4 +3,7 @@ program test.aleo {
         let a: field = -(-1field);
         return 1field * -(-1field);
     }
+
+    @noupgrade
+    constructor() {}
 }

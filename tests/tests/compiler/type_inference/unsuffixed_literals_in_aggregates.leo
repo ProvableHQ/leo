@@ -41,6 +41,9 @@ program test.aleo {
         let g = group::GEN;
         let verify = signature::verify(s, a, 0field);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 fn bar(x: u32, y: u64) -> u16 {

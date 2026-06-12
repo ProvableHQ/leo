@@ -23,3 +23,6 @@ finalize play:
     assert.eq r3 true;
     add r2 1u8 into r4;
     set r4 into num_winners[0u8];
+
+constructor:
+    assert.eq edition 0u16;

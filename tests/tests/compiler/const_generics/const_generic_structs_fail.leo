@@ -6,4 +6,7 @@ program test.aleo {
     fn main(x: u32) {
         let f = Foo::[x] { y: 0 };
     }
+
+    @noupgrade
+    constructor() {}
 }

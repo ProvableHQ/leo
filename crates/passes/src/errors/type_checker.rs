@@ -405,6 +405,12 @@ pub(crate) fn no_entry_points(span: Span) -> Formatted {
         .with_help("Define at least one function inside the `program` block.")
 }
 
+pub(crate) fn missing_constructor(span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 84, "a program must declare a constructor", span)
+        .with_primary_span_underline()
+        .with_help("Add a constructor such as `@noupgrade constructor() {}` inside the `program` block.")
+}
+
 pub(crate) fn entry_point_fn_final_invalid_output(span: Span) -> Formatted {
     Formatted::error(
         CODE_PREFIX,

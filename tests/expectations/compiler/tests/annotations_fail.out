@@ -69,44 +69,44 @@
    │ Help: Check the annotation syntax against the Leo documentation.
 ───╯
 [ETYC0372129] Error: invalid annotation: Duplicate annotation @test
-    ╭─[ compiler-test:22:1 ]
+    ╭─[ compiler-test:25:1 ]
     │
- 22 │ @test
+ 25 │ @test
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: Test annotation @test appears outside of tests
-    ╭─[ compiler-test:22:1 ]
+    ╭─[ compiler-test:25:1 ]
     │
- 22 │ @test
+ 25 │ @test
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: Annotation @test may appear only on transitions
-    ╭─[ compiler-test:22:1 ]
+    ╭─[ compiler-test:25:1 ]
     │
- 22 │ @test
+ 25 │ @test
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: Test annotation @test appears outside of tests
-    ╭─[ compiler-test:26:1 ]
+    ╭─[ compiler-test:29:1 ]
     │
- 26 │ @test
+ 29 │ @test
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: Annotation @test may appear only on transitions
-    ╭─[ compiler-test:26:1 ]
+    ╭─[ compiler-test:29:1 ]
     │
- 26 │ @test
+ 29 │ @test
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: A test procedure cannot have inputs
-    ╭─[ compiler-test:27:9 ]
+    ╭─[ compiler-test:30:9 ]
     │
- 27 │ fn foo8(x: u8) -> u8 {
+ 30 │ fn foo8(x: u8) -> u8 {
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯

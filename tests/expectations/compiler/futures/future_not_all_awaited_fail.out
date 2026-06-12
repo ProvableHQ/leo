@@ -1,39 +1,39 @@
 [ESAZ0374001] Error: the following `Final`s were never run: f4
-    ╭─[ compiler-test:17:1 ]
+    ╭─[ compiler-test:20:1 ]
     │
- 17 │ ╭─▶ final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+ 20 │ ╭─▶ final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
     ┆ ┆   
- 23 │ ├─▶ }
+ 26 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     
     │     Help: For a `Final` value `f`, call `f.run()` to run it.
 ────╯
 [WSAZ0374003] Warning: the `Final` `f1` is not run in the order it was passed to the function
-    ╭─[ compiler-test:18:5 ]
+    ╭─[ compiler-test:21:5 ]
     │
- 18 │     f1.run();
+ 21 │     f1.run();
     │ 
     │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
 [WSAZ0374003] Warning: the `Final` `f2` is not run in the order it was passed to the function
-    ╭─[ compiler-test:19:5 ]
+    ╭─[ compiler-test:22:5 ]
     │
- 19 │     f2.run();
+ 22 │     f2.run();
     │ 
     │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
 [WSAZ0374003] Warning: the `Final` `f3` is not run in the order it was passed to the function
-    ╭─[ compiler-test:20:5 ]
+    ╭─[ compiler-test:23:5 ]
     │
- 20 │     f3.run();
+ 23 │     f3.run();
     │ 
     │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯
 [WSAZ0374003] Warning: the `Final` `f5` is not run in the order it was passed to the function
-    ╭─[ compiler-test:22:5 ]
+    ╭─[ compiler-test:25:5 ]
     │
- 22 │     f5.run();
+ 25 │     f5.run();
     │ 
     │ Help: Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.
 ────╯

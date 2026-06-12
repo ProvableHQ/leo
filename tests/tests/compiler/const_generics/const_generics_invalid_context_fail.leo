@@ -21,4 +21,7 @@ program const_generics.aleo {
     fn bar2::[N: u32]() -> Final {
         return final { foo2::[1u32](0u32); };
     }
+
+    @noupgrade
+    constructor() {}
 }

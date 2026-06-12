@@ -12,6 +12,9 @@ program test.aleo {
     fn add_new_token_2() -> Final {
         return final { finalize_add_new_token_2(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_add_new_token() -> () {

@@ -15,6 +15,9 @@ program other.aleo {
     }
 
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -37,6 +40,9 @@ interface ICombined: IAbstract + IConcrete {}
 
 program lib.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -45,4 +51,7 @@ import lib.aleo;
 
 program test.aleo: lib.aleo::ICombined {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

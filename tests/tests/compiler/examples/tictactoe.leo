@@ -105,4 +105,7 @@ program test.aleo {
             return (updated, 0u8);
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -7,6 +7,9 @@ program test.aleo {
     fn balance_or_zero(target: field, key: address) -> Final {
         return final { finalize_balance_or_zero(target, key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_balance_or_zero(target: field, key: address) {

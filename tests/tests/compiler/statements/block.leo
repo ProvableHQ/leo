@@ -6,4 +6,7 @@ program test.aleo {
         }
         return y == 8u32;
     }
+
+    @noupgrade
+    constructor() {}
 }

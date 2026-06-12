@@ -4,4 +4,7 @@ program test.aleo {
         let f: field = 'foo' as field;
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

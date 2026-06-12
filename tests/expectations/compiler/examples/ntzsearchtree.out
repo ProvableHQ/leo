@@ -190,3 +190,6 @@ function main:
     ternary r16 1u8 r185 into r186;
     ternary r14 0u8 r186 into r187;
     output r187 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

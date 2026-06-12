@@ -16,6 +16,9 @@ struct Bar {
 // after struct
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(f: Foo, b: Bar) -> u32 {
         return f.x + b.a;
     }

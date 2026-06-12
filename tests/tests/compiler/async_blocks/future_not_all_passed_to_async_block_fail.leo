@@ -10,6 +10,9 @@ program child.aleo {
         let caller = self.caller;
         return final { finalize_boo(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(addr: address) {
@@ -43,4 +46,7 @@ program parent.aleo {
             f4.run();
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

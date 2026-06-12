@@ -6,6 +6,9 @@ program foo.aleo {
     fn main() {
         let f = foo::[0]();
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // Here, both `Foo::[2 * N]` and `Foo::[2 * N + 1]` can be resolved.

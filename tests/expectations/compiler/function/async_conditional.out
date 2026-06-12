@@ -10,3 +10,6 @@ function main:
 
 finalize main:
     set 2u32 into map[2u32];
+
+constructor:
+    assert.eq edition 0u16;

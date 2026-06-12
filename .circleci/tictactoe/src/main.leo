@@ -1,4 +1,7 @@
 program tictactoe.aleo {
+    @noupgrade
+    constructor() {}
+
     // Returns an empty board.
     fn new() -> Board {
         return Board {

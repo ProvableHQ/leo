@@ -11,4 +11,7 @@ interface Foo {
 
 program bad_op.aleo {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

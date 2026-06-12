@@ -36,4 +36,7 @@ program test.aleo {
             array_u8_result_raw[3u8] == array_u8_orig[3u8],
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

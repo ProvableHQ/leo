@@ -6,6 +6,9 @@ program test.aleo {
         x = (x & 0u32.sub_wrapped(x)).mul_wrapped(72416175u32);
         return sealsTableLookup(x >> 26u8);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // Right now we do not have any structure that allows

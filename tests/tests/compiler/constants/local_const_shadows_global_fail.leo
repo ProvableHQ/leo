@@ -5,4 +5,7 @@ program test.aleo {
         const VALUE: u32 = 20;
         return VALUE;
     }
+
+    @noupgrade
+    constructor() {}
 }

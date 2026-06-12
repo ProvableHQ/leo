@@ -2,6 +2,9 @@ program test.aleo {
     fn main(a: u16) -> Final {
         return final { finalize_main(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(a: u16) {
