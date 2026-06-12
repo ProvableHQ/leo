@@ -729,7 +729,6 @@ fn fold_consecutive_casts(stmts: &mut Vec<AleoStmt>) {
 
     let primitive_cast_domain = |ty: &AleoType| -> Option<PrimitiveCastDomain> {
         match ty {
-            AleoType::Boolean => Some(PrimitiveCastDomain::Unsigned { bits: 1 }),
             AleoType::I8 => Some(PrimitiveCastDomain::Signed { bits: 8 }),
             AleoType::I16 => Some(PrimitiveCastDomain::Signed { bits: 16 }),
             AleoType::I32 => Some(PrimitiveCastDomain::Signed { bits: 32 }),

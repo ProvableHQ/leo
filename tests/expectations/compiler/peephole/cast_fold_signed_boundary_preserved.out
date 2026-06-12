@@ -5,3 +5,19 @@ function main:
     cast r0 into r1 as i8;
     cast r1 into r2 as u8;
     output r2 as u8.private;
+
+function signed_to_signed:
+    input r0 as i32.private;
+    cast r0 into r1 as i8;
+    output r1 as i8.private;
+
+function signed_to_unsigned:
+    input r0 as i32.private;
+    cast r0 into r1 as u8;
+    output r1 as u8.private;
+
+function unsigned_to_signed:
+    input r0 as i16.private;
+    cast r0 into r1 as u16;
+    cast r1 into r2 as i8;
+    output r2 as i8.private;
