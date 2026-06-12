@@ -11,14 +11,14 @@ interface IToken {
     fn mint(owner: address) -> Token;
 }
 
+struct Token {
+    owner: address,
+    amount: u64,
+}
+
 program test.aleo: IToken {
     @noupgrade
     constructor() {}
-
-    struct Token {
-        owner: address,
-        amount: u64,
-    }
 
     fn mint(owner: address) -> Token {
         return Token { owner: owner, amount: 0u64 };

@@ -1,8 +1,8 @@
-program test.aleo {
-    struct Wrapper {
-        token: dyn record,
-    }
+struct Wrapper {
+    token: dyn record,
+}
 
+program test.aleo {
     fn main() -> u8 {
         return 0u8;
     }

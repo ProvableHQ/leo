@@ -2396,10 +2396,10 @@ mod tests {
         let root = tempdir.path().join("root");
         write_manifest(&root, "root.aleo", "null");
         let source = concat!(
+            "const LIMIT: u32 = 1u32;\n\n",
             "program root.aleo {\n",
             "    @noupgrade\n",
             "    constructor() {}\n\n",
-            "    const LIMIT: u32 = 1u32;\n\n",
             "    fn main() -> u32 {\n",
             "        return LIMIT;\n",
             "    }\n",
@@ -2491,10 +2491,10 @@ mod tests {
         let root = tempdir.path().join("root");
         write_manifest(&root, "root.aleo", "null");
         let source = concat!(
+            "struct Point { x: u32, }\n\n",
             "program root.aleo {\n",
             "    @noupgrade\n",
             "    constructor() {}\n\n",
-            "    struct Point { x: u32, }\n\n",
             "    fn main() {\n",
             "        let point: Point = Point { x: 1u32 };\n",
             "        let value = point.x;\n",

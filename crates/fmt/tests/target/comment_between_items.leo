@@ -1,13 +1,13 @@
 // File-level comment about this program
+// A struct
+struct Point {
+    x: u64,
+    y: u64,
+}
+
 program test.aleo {
     @noupgrade
     constructor() {}
-
-    // A struct
-    struct Point {
-        x: u64,
-        y: u64,
-    }
 
     // A fn that uses the struct
     fn make_point(x: u64, y: u64) -> Point {

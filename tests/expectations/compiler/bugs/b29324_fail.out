@@ -1,14 +1,14 @@
 [ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function
-   ╭─[ compiler-test:5:22 ]
+   ╭─[ compiler-test:4:18 ]
    │
- 5 │     const F: Final = final { };
+ 4 │ const F: Final = final { };
    │ 
    │ Help: Move this `final` block into an entry point fn or a script function.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
-   ╭─[ compiler-test:4:9 ]
+   ╭─[ compiler-test:6:9 ]
    │
- 4 │ program test.aleo {
+ 6 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

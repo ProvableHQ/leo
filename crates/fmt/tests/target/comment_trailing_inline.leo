@@ -1,16 +1,15 @@
+struct Foo {
+    x: u32,
+}
+
+const X: u32 = 4u32; // trailing on const
+
+const Y: bool = true; /* block trailing */
+
 program test.aleo {
     @noupgrade
     constructor() {}
-
-    const X: u32 = 4u32; // trailing on const
-
-    struct Foo {
-        x: u32,
-    }
-
     mapping balances: address => u64; // trailing on mapping
-
-    const Y: bool = true; /* block trailing */
 
     fn main(f: Foo) -> u32 {
         return f.x + X;

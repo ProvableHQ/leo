@@ -46,16 +46,15 @@ For the annotation argument grammar, the type and meaning of each `self.*` opera
 A constant is declared as `const {name}: {type} = {expression};`.
 Constants are immutable, and the right-hand side must be an expression evaluatable at compile time.
 
-Constants can be declared in four scopes:
+Constants can be declared in three scopes:
 
 - **Global scope** (outside the `program` block in `main.leo`): accessible anywhere in the same file.
-- **Program scope** (inside a `program` block, outside any function): accessible within that program.
 - **Local scope** (inside a function body): accessible only within that function.
 - **Module scope** (any non-`main.leo` source file in the package; module files do not contain a `program` block and may only declare `const`, `struct`, `fn`, and `interface`): accessible within the same package via `path::to::module::CONST_NAME`. See [Modules](./layout.md#modules) for details.
 
 Constants are also supported in [libraries](./libraries.md), which are separate packages containing reusable code. A library's root file and its submodules may declare constants, accessible from any dependent package as `library::CONST_NAME` or `library::path::to::submodule::CONST_NAME`.
 
-**Accessibility across packages:** Global and program-scope constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. Constants declared in a submodule of an imported program are reachable through their full module path — `program_name.aleo::path::to::submodule::CONST_NAME` — provided the dependency is compiled from Leo source (pre-compiled `.aleo` stubs do not carry the submodule type information needed for resolution).
+**Accessibility across packages:** Global constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. Constants declared in a submodule of an imported program are reachable through their full module path — `program_name.aleo::path::to::submodule::CONST_NAME` — provided the dependency is compiled from Leo source (pre-compiled `.aleo` stubs do not carry the submodule type information needed for resolution).
 
 ```leo file=../code_snippets/structure/constants/src/main.leo#scopes
 ```

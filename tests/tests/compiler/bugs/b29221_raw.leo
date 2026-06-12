@@ -3,9 +3,9 @@
 // parameter must compile successfully — verifying the fix covers both
 // Deserialize variants.
 
-program test.aleo {
-    const N: u32 = 2u32;
+const N: u32 = 2u32;
 
+program test.aleo {
     fn main(bits: [bool; 64]) -> [u32; 2] {
         let result: [u32; N] = Deserialize::from_bits_raw::[[u32; N]](bits);
         return result;
