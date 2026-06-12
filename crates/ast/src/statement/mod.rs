@@ -83,12 +83,18 @@ impl Statement {
         if matches!(self, Block(..) | Conditional(..) | Iteration(..)) { "" } else { ";" }
     }
 
+    /// Returns `true` if the statement produces no instructions
     pub fn is_empty(self: &Statement) -> bool {
         match self {
             Statement::Block(block) => block.statements.is_empty(),
             Statement::Return(return_) => matches!(return_.expression, Expression::Unit(_)),
             _ => false,
         }
+    }
+
+    /// Returns `true` if the statement can be removed from a block without changing behavior.
+    pub fn is_removable(self: &Statement) -> bool {
+        self.is_empty() && !matches!(self, Statement::Return(_))
     }
 }
 

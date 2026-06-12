@@ -38,6 +38,31 @@ pub struct TransformVisitor<'a> {
     pub function_map: IndexMap<Location, Function>,
     /// Whether or not we are currently traversing a block that's executed onchain (either final block or final fn block).
     pub is_finalize_context: bool,
+    /// An inlined callee body that cannot be reduced to a single value at its call expression;
+    /// see [`PendingIterativeInline`].
+    pub pending_iterative_inline: Option<PendingIterativeInline>,
+}
+
+/// How the value of an inlined call is consumed at the callsite.
+pub enum InlineBinder {
+    /// The call result is bound by a definition: `let x = f(…);`.
+    Definition(DefinitionPlace),
+    /// The call result is discarded: `f(…);`.
+    Discard,
+}
+
+/// An inlined callee body whose `return`s sit under live control flow.
+///
+/// `final fn` bodies execute iteratively on-chain: their effects cannot be executed
+/// speculatively, so flattening leaves their conditionals as real branches instead of collapsing
+/// them into ternaries the way it does off-chain. AVM finalize registers are write-once with no
+/// merge mechanism, which rules out every lowering that funnels the per-path return values into
+/// one place after a join (a single trailing return, a shared result variable, a branch to an
+/// exit label). The only sound lowering is tail duplication: control never rejoins, and each
+/// return path carries its own copy of whatever follows the call.
+pub struct PendingIterativeInline {
+    pub statements: Vec<Statement>,
+    pub binder: InlineBinder,
 }
 
 impl<'a> TransformVisitor<'a> {
@@ -51,6 +76,182 @@ impl<'a> TransformVisitor<'a> {
             Type::Array(array) => Self::names_optional_type(array.element_type()),
             _ => false,
         }
+    }
+
+    /// Returns `true` if any of the statements is or contains a `ReturnStatement`.
+    fn statements_contain_return(statements: &[Statement]) -> bool {
+        statements.iter().any(Self::statement_contains_return)
+    }
+
+    fn statement_contains_return(statement: &Statement) -> bool {
+        match statement {
+            Statement::Return(_) => true,
+            Statement::Block(block) => Self::statements_contain_return(&block.statements),
+            Statement::Conditional(conditional) => Self::conditional_contains_return(conditional),
+            _ => false,
+        }
+    }
+
+    fn conditional_contains_return(conditional: &ConditionalStatement) -> bool {
+        Self::statements_contain_return(&conditional.then.statements)
+            || conditional.otherwise.as_ref().is_some_and(|s| Self::statement_contains_return(s))
+    }
+
+    /// Clones a sequence of statements, renaming its definitions so the clone can live alongside
+    /// sibling copies in disjoint branches without colliding in downstream SSA-based passes.
+    fn fresh_clone(&mut self, statements: Vec<Statement>) -> Vec<Statement> {
+        if statements.is_empty() {
+            return Vec::new();
+        }
+        let block = Block { statements, span: Default::default(), id: self.state.node_builder.next_id() };
+        SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program).consume_block(block)
+    }
+
+    /// Applies the tail-duplication lowering described on [`PendingIterativeInline`]: after this
+    /// rewrite, every path through the callee body ends by binding the value it returns and
+    /// running its own copy of the caller's continuation.
+    fn weave(
+        &mut self,
+        statements: Vec<Statement>,
+        binder: &InlineBinder,
+        continuation: &[Statement],
+    ) -> Vec<Statement> {
+        let mut out = Vec::new();
+        let mut iter = statements.into_iter();
+        while let Some(statement) = iter.next() {
+            match statement {
+                Statement::Return(ret) => {
+                    // Anything after a `return` in the same block is unreachable.
+                    out.extend(self.bind_and_continue(ret.expression, binder, continuation));
+                    return out;
+                }
+                Statement::Block(block) if Self::statements_contain_return(&block.statements) => {
+                    // Post-SSA, names are unique across the function, so block scopes carry no
+                    // meaning and the nested block can take over the rest of this one.
+                    let mut merged = block.statements;
+                    merged.extend(iter);
+                    out.extend(self.weave(merged, binder, continuation));
+                    return out;
+                }
+                Statement::Conditional(conditional) if Self::conditional_contains_return(&conditional) => {
+                    // Control may not rejoin after a conditional that returns, so each branch
+                    // takes over the rest of the block.
+                    let rest: Vec<Statement> = iter.collect();
+
+                    let mut then_statements = conditional.then.statements;
+                    then_statements.extend(self.fresh_clone(rest.clone()));
+
+                    let mut else_statements = match conditional.otherwise.map(|s| *s) {
+                        Some(Statement::Block(block)) => block.statements,
+                        Some(other) => vec![other],
+                        None => Vec::new(),
+                    };
+                    else_statements.extend(rest);
+
+                    let then = Block {
+                        statements: self.weave(then_statements, binder, continuation),
+                        span: conditional.then.span,
+                        id: conditional.then.id,
+                    };
+                    let otherwise = Block {
+                        statements: self.weave(else_statements, binder, continuation),
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    out.push(
+                        ConditionalStatement {
+                            condition: conditional.condition,
+                            then,
+                            otherwise: Some(Box::new(otherwise.into())),
+                            span: conditional.span,
+                            id: conditional.id,
+                        }
+                        .into(),
+                    );
+                    return out;
+                }
+                other => out.push(other),
+            }
+        }
+        // A body that falls through its end returns unit implicitly.
+        let id = self.state.node_builder.next_id();
+        self.state.type_table.insert(id, Type::Unit);
+        out.extend(self.bind_and_continue(
+            UnitExpression { span: Default::default(), id }.into(),
+            binder,
+            continuation,
+        ));
+        out
+    }
+
+    /// Materializes one return site: the binding of the returned value, then the caller's
+    /// continuation. The whole fragment is cloned fresh because sibling sites live in disjoint
+    /// branches, yet downstream passes assume definition names are unique per function.
+    fn bind_and_continue(
+        &mut self,
+        value: Expression,
+        binder: &InlineBinder,
+        continuation: &[Statement],
+    ) -> Vec<Statement> {
+        let mut fragment = Vec::with_capacity(continuation.len() + 1);
+        match binder {
+            InlineBinder::Discard => {}
+            InlineBinder::Definition(place) => match (place, value) {
+                // Tuple literals bound to multiple places are segmented into per-element
+                // definitions, like any other inlined definition.
+                (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
+                    assert_eq!(left.len(), right.elements.len());
+                    for (identifier, rhs_value) in left.iter().zip(right.elements) {
+                        fragment.push(
+                            DefinitionStatement {
+                                place: DefinitionPlace::Single(*identifier),
+                                type_: None,
+                                value: rhs_value,
+                                span: Default::default(),
+                                id: self.state.node_builder.next_id(),
+                            }
+                            .into(),
+                        );
+                    }
+                }
+                (place, value) => fragment.push(
+                    DefinitionStatement {
+                        place: place.clone(),
+                        type_: None,
+                        value,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    }
+                    .into(),
+                ),
+            },
+        }
+        fragment.extend(continuation.to_vec());
+        self.fresh_clone(fragment)
+    }
+
+    /// Reconstructs the statements of a block. When a statement inlines an iterative callee, the
+    /// rest of the block becomes that callee's continuation.
+    fn reconstruct_statements(&mut self, statements: Vec<Statement>) -> Vec<Statement> {
+        let mut out = Vec::new();
+        let mut iter = statements.into_iter();
+        while let Some(statement) = iter.next() {
+            let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
+            out.extend(additional_statements);
+            if let Some(pending) = self.pending_iterative_inline.take() {
+                // SSA hoists calls to statement level (a definition RHS or an expression
+                // statement), and both forms dissolve themselves when they stash a pending inline.
+                assert!(
+                    matches!(&reconstructed_statement, Statement::Block(b) if b.statements.is_empty()),
+                    "an iterative inline must be consumed by the statement that produced it"
+                );
+                let continuation = self.reconstruct_statements(iter.collect());
+                out.extend(self.weave(pending.statements, &pending.binder, &continuation));
+                return out;
+            }
+            out.push(reconstructed_statement);
+        }
+        out
     }
 }
 
@@ -306,6 +507,24 @@ impl AstReconstructor for TransformVisitor<'_> {
                 SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
                     .consume_block(reconstructed_block);
 
+            // A body with a `return` under live control flow has no single value to substitute
+            // here; only the enclosing block, which owns the continuation, can lower it (see
+            // `PendingIterativeInline`).
+            let embedded_return = {
+                let body = match inlined_statements.last() {
+                    Some(Statement::Return(_)) => &inlined_statements[..inlined_statements.len() - 1],
+                    _ => &inlined_statements[..],
+                };
+                Self::statements_contain_return(body)
+            };
+            if embedded_return {
+                self.pending_iterative_inline =
+                    Some(PendingIterativeInline { statements: inlined_statements, binder: InlineBinder::Discard });
+                let id = self.state.node_builder.next_id();
+                self.state.type_table.insert(id, Type::Unit);
+                return (UnitExpression { span: Default::default(), id }.into(), Vec::new());
+            }
+
             // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
             let result = match inlined_statements.last() {
                 Some(Statement::Return(_)) => {
@@ -335,14 +554,8 @@ impl AstReconstructor for TransformVisitor<'_> {
 
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
-        let mut statements = Vec::with_capacity(block.statements.len());
-
-        for statement in block.statements {
-            let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
-            statements.extend(additional_statements);
-            statements.push(reconstructed_statement);
-        }
-
+        let statements = self.reconstruct_statements(block.statements);
+        debug_assert!(self.pending_iterative_inline.is_none(), "a pending iterative inline must not escape its block");
         (Block { span: block.span, statements, id: block.id }, Default::default())
     }
 
@@ -369,6 +582,13 @@ impl AstReconstructor for TransformVisitor<'_> {
     /// This function also segments tuple assignment statements into multiple assignment statements.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         let (value, mut statements) = self.reconstruct_expression(input.value, &());
+
+        // An iterative inline takes over the binding: every return site binds this place itself.
+        if let Some(pending) = self.pending_iterative_inline.as_mut() {
+            pending.binder = InlineBinder::Definition(input.place);
+            return (Statement::dummy(), statements);
+        }
+
         match (input.place, value) {
             // If we just inlined the production of a tuple literal, we need multiple definition statements.
             (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
@@ -401,6 +621,11 @@ impl AstReconstructor for TransformVisitor<'_> {
         // Reconstruct the expression.
         // Note that type checking guarantees that the expression is a function call.
         let (expression, additional_statements) = self.reconstruct_expression(input.expression, &());
+
+        // An iterative inline replaces this statement entirely; its result was discarded anyway.
+        if self.pending_iterative_inline.is_some() {
+            return (Statement::dummy(), additional_statements);
+        }
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {

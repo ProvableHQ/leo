@@ -57,12 +57,12 @@ impl UnitReconstructor for DeadCodeEliminatingVisitor<'_> {
         self.used_variables.clear();
         // Traverse the constructor body.
         input.block = self.reconstruct_block(input.block).0;
-        // If the reconstructed input has no statements, and the constructor is a custom one, return an error.
+        // If the reconstructed input has no statements that produce instructions, and the constructor is a custom one, return an error.
         if input
             .get_upgrade_variant_with_network(self.state.network)
             .expect("Type checking guarantees that the upgrade variant is valid")
             == UpgradeVariant::Custom
-            && input.block.statements.is_empty()
+            && input.block.statements.iter().all(|stmt| stmt.is_empty())
         {
             self.state.handler.emit_err(static_analyzer::custom_error(
                 "The `@custom` constructor has no statements after dead code elimination.",

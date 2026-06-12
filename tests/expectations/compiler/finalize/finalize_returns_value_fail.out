@@ -1,11 +1,7 @@
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-   ╭─[ compiler-test:7:1 ]
+[ETYC0372032] Error: `final fn` outputs cannot have visibility modes
+   ╭─[ compiler-test:7:49 ]
    │
- 7 │ ╭─▶ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
-   ┆ ┆   
- 9 │ ├─▶ }
-   │ │       
-   │ ╰─────── here
-   │     
-   │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
+ 7 │ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+   │ 
+   │ Help: Remove the `public`, `private`, or `constant` modifier.
 ───╯
