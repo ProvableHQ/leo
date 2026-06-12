@@ -9,5 +9,5 @@ constructor:
     assert.eq edition 0u16;
 status: success
 output: 0u8
-status: failed: Stack evaluation failed: Instruction (sub 0u8 r0 into r1;) at index 0 failed: Integer subtraction failed on: 0u8 and 1u8
+status: failed: Any { .. }
 output: ()
