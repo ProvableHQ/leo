@@ -1,7 +1,7 @@
 [ECHI03712003] Error: program `test.aleo` implements interface `test.aleo/IToken` but is missing the required record `Token`
-    ╭─[ test:14:1 ]
+    ╭─[ test:19:1 ]
     │
- 14 │ ╭─▶ program test.aleo: IToken {
+ 19 │ ╭─▶ program test.aleo: IToken {
     ┆ ┆   
  23 │ ├─▶ }
     │ │       

@@ -1,0 +1,7 @@
+[EPAR0370047] Error: `const` declarations are not allowed inside a `program { ... }` block.
+   ╭─[ test:2:5 ]
+   │
+ 2 │     const N: u32 = 1u32;
+   │ 
+   │ Help: Move the declaration outside the `program` block, to the top level of the file.
+───╯

@@ -1977,14 +1977,44 @@ impl<'a> ConversionContext<'a> {
                 functions.push((func.identifier.name, func));
             }
             STRUCT_DEF | RECORD_DEF => {
+                if item.kind() == STRUCT_DEF && is_in_program_block {
+                    let span = self.non_trivia_span(item);
+                    self.handler.emit_err(
+                        crate::errors::custom(
+                            "`struct` definitions are not allowed inside a `program { ... }` block.",
+                            span,
+                        )
+                        .with_help("Move the declaration outside the `program` block, to the top level of the file."),
+                    );
+                }
                 let composite = self.to_composite(item)?;
                 composites.push((composite.identifier.name, composite));
             }
             GLOBAL_CONST => {
+                if is_in_program_block {
+                    let span = self.non_trivia_span(item);
+                    self.handler.emit_err(
+                        crate::errors::custom(
+                            "`const` declarations are not allowed inside a `program { ... }` block.",
+                            span,
+                        )
+                        .with_help("Move the declaration outside the `program` block, to the top level of the file."),
+                    );
+                }
                 let global_const = self.to_global_const(item)?;
                 consts.push((global_const.place.name, global_const));
             }
             INTERFACE_DEF => {
+                if is_in_program_block {
+                    let span = self.non_trivia_span(item);
+                    self.handler.emit_err(
+                        crate::errors::custom(
+                            "`interface` definitions are not allowed inside a `program { ... }` block.",
+                            span,
+                        )
+                        .with_help("Move the declaration outside the `program` block, to the top level of the file."),
+                    );
+                }
                 let interface = self.to_interface(item)?;
                 interfaces.push((interface.identifier.name, interface));
             }

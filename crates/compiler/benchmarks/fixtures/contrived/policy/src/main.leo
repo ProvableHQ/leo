@@ -1,1087 +1,1087 @@
 import bench_primitives.aleo;
 import bench_registry.aleo;
 
+struct PlItem000 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem001 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem002 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem003 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem004 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem005 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem006 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem007 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem008 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem009 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem010 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem011 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem012 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem013 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem014 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem015 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem016 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem017 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem018 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem019 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem020 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem021 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem022 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem023 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem024 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem025 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem026 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem027 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem028 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem029 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem030 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem031 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem032 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem033 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem034 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem035 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem036 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem037 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem038 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem039 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem040 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem041 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem042 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem043 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem044 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem045 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem046 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem047 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem048 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem049 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem050 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem051 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem052 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem053 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem054 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem055 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem056 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem057 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem058 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem059 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem060 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem061 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem062 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem063 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem064 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem065 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem066 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem067 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem068 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem069 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem070 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem071 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem072 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem073 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem074 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem075 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem076 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem077 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem078 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem079 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem080 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem081 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem082 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem083 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem084 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem085 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem086 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem087 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem088 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem089 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem090 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem091 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem092 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem093 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem094 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem095 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem096 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem097 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem098 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem099 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem100 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem101 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem102 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem103 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem104 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem105 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem106 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem107 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem108 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem109 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem110 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem111 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem112 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem113 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem114 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem115 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem116 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem117 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem118 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PlItem119 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
 program bench_policy.aleo {
-    struct PlItem000 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem001 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem002 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem003 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem004 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem005 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem006 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem007 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem008 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem009 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem010 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem011 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem012 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem013 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem014 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem015 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem016 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem017 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem018 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem019 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem020 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem021 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem022 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem023 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem024 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem025 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem026 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem027 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem028 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem029 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem030 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem031 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem032 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem033 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem034 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem035 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem036 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem037 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem038 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem039 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem040 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem041 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem042 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem043 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem044 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem045 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem046 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem047 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem048 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem049 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem050 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem051 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem052 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem053 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem054 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem055 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem056 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem057 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem058 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem059 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem060 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem061 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem062 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem063 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem064 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem065 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem066 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem067 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem068 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem069 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem070 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem071 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem072 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem073 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem074 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem075 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem076 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem077 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem078 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem079 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem080 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem081 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem082 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem083 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem084 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem085 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem086 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem087 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem088 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem089 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem090 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem091 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem092 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem093 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem094 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem095 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem096 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem097 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem098 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem099 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem100 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem101 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem102 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem103 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem104 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem105 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem106 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem107 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem108 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem109 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem110 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem111 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem112 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem113 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem114 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem115 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem116 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem117 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem118 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PlItem119 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
     mapping ledger: address => u64;
     mapping scores: u32 => u64;
 

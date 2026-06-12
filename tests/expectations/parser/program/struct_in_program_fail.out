@@ -1,0 +1,11 @@
+[EPAR0370047] Error: `struct` definitions are not allowed inside a `program { ... }` block.
+   ╭─[ test:2:5 ]
+   │
+ 2 │ ╭─▶     struct S {
+   ┆ ┆   
+ 4 │ ├─▶     }
+   │ │           
+   │ ╰─────────── here
+   │     
+   │     Help: Move the declaration outside the `program` block, to the top level of the file.
+───╯

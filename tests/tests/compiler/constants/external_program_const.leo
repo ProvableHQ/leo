@@ -3,9 +3,9 @@
 //   1. Top-level const:  child.aleo::MAIN_CONST (single segment)
 //   2. Submodule const:  child.aleo::sub::SUB_CONST (multi-segment, new syntax)
 
-program child.aleo {
-    const MAIN_CONST: u32 = 42u32;
+const MAIN_CONST: u32 = 42u32;
 
+program child.aleo {
     fn get_main_const() -> u32 {
         return MAIN_CONST;
     }

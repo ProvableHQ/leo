@@ -1,904 +1,904 @@
+struct PrItem000 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem001 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem002 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem003 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem004 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem005 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem006 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem007 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem008 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem009 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem010 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem011 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem012 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem013 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem014 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem015 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem016 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem017 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem018 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem019 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem020 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem021 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem022 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem023 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem024 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem025 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem026 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem027 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem028 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem029 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem030 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem031 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem032 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem033 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem034 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem035 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem036 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem037 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem038 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem039 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem040 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem041 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem042 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem043 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem044 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem045 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem046 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem047 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem048 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem049 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem050 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem051 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem052 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem053 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem054 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem055 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem056 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem057 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem058 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem059 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem060 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem061 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem062 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem063 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem064 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem065 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem066 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem067 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem068 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem069 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem070 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem071 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem072 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem073 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem074 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem075 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem076 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem077 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem078 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem079 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem080 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem081 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem082 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem083 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem084 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem085 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem086 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem087 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem088 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem089 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem090 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem091 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem092 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem093 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem094 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem095 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem096 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem097 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem098 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
+struct PrItem099 {
+    amount: u64,
+    weight: u32,
+    active: bool,
+    score: u64,
+    epoch: u32,
+    nonce: u64,
+}
+
 program bench_primitives.aleo {
-    struct PrItem000 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem001 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem002 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem003 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem004 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem005 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem006 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem007 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem008 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem009 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem010 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem011 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem012 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem013 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem014 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem015 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem016 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem017 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem018 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem019 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem020 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem021 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem022 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem023 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem024 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem025 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem026 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem027 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem028 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem029 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem030 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem031 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem032 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem033 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem034 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem035 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem036 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem037 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem038 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem039 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem040 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem041 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem042 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem043 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem044 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem045 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem046 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem047 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem048 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem049 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem050 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem051 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem052 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem053 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem054 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem055 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem056 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem057 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem058 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem059 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem060 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem061 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem062 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem063 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem064 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem065 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem066 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem067 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem068 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem069 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem070 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem071 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem072 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem073 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem074 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem075 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem076 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem077 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem078 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem079 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem080 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem081 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem082 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem083 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem084 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem085 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem086 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem087 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem088 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem089 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem090 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem091 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem092 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem093 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem094 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem095 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem096 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem097 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem098 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
-    struct PrItem099 {
-        amount: u64,
-        weight: u32,
-        active: bool,
-        score: u64,
-        epoch: u32,
-        nonce: u64,
-    }
-
     mapping ledger: address => u64;
     mapping scores: u32 => u64;
 

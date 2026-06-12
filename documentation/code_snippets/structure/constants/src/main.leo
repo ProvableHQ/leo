@@ -1,9 +1,8 @@
 // ANCHOR: scopes
 const MAX: u64 = 100u64;           // global constant
+const MULTIPLIER: u64 = 2u64;      // another global constant
 
 program constants_demo.aleo {
-    const MULTIPLIER: u64 = 2u64;  // program-scope constant
-
     fn compute(x: u64) -> u64 {
         const OFFSET: u64 = 5u64;  // local constant
         return x * MULTIPLIER + OFFSET;

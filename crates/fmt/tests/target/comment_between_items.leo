@@ -1,11 +1,11 @@
 // File-level comment about this program
-program test.aleo {
-    // A struct
-    struct Point {
-        x: u64,
-        y: u64,
-    }
+// A struct
+struct Point {
+    x: u64,
+    y: u64,
+}
 
+program test.aleo {
     // A fn that uses the struct
     fn make_point(x: u64, y: u64) -> Point {
         return Point { x: x, y: y }; // construct it

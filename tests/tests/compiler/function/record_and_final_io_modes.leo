@@ -1,17 +1,17 @@
 // PASS: records and `Final`s WITHOUT a visibility mode are accepted on entry points, and a mode on a
 // non-record / non-`Final` type (e.g. a `struct`) is still accepted. This guards against the
 // record/`Final` mode check over-firing on the types it should leave alone.
+struct Pair {
+    a: u32,
+    b: u32,
+}
+
 program test.aleo {
     mapping Yo: u32 => u32;
 
     record Token {
         owner: address,
         amount: u64,
-    }
-
-    struct Pair {
-        a: u32,
-        b: u32,
     }
 
     // Record I/O without a mode: OK.

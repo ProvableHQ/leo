@@ -1,4 +1,3 @@
-program test.aleo{
 	struct Point  {
             x  :  u64  ,
         y  :u64  }
@@ -7,6 +6,7 @@ program test.aleo{
         sender_amount  :  u64  ,receiver_amount  :  u64  ,   transfer_fee  :  u64  ,
     }
 
+program test.aleo{
 fn main(  public  a  :  u64  ,
             public  b  :  u64  )  ->  u64  {
 
