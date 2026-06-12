@@ -1,0 +1,85 @@
+program final_fn_early_unit_return.aleo;
+
+mapping store:
+    key as u8.public;
+    value as u64.public;
+
+function f:
+    input r0 as u64.private;
+    async f r0 into r1;
+    output r1 as final_fn_early_unit_return.aleo/f.future;
+
+finalize f:
+    input r0 as u64.public;
+    is.eq r0 0u64 into r1;
+    branch.eq r1 false to end_then_0_0;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    assert.neq r0 0u64;
+    set r0 into store[1u8];
+    position end_otherwise_0_1;
+    add r0 1u64 into r2;
+    set r2 into store[0u8];
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au15ysaa7jwvm2lfwvrwadfkflr0ky0r6fcdtv43mun4h2mefp6aq9qnq2w4u",
+      "program": "final_fn_early_unit_return.aleo",
+      "function": "f",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1646298920640815809448375841213720389455208758147917338002103463212154311137field",
+          "value": "ciphertext1qyqps9agr6e9pjwv5hlzuashtal2wz4r77ehrhyzmvepwhh6h97tsqqn5z3jy"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1911041814670088988129767601139186073294409650639436494460812489361379945814field",
+          "value": "{\n  program_id: final_fn_early_unit_return.aleo,\n  function_name: f,\n  arguments: [\n    0u64\n  ]\n}"
+        }
+      ],
+      "tpk": "5460101671977983421557592666570386705801849939677836799006538765561915017623group",
+      "tcm": "728412264949564638132993146697805541764296730203779013289928905175905438777field",
+      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1xjs40z58vj6fenhkxpcjj2amk7fzc75jn5zp6m5fmnq044cu9ugshkdka2",
+      "program": "final_fn_early_unit_return.aleo",
+      "function": "f",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "8289928857908619782539402276895953239357301317336554613749379229507121453675field",
+          "value": "ciphertext1qyqznpvn88ahdcnqq36qcp57mg66aea9ur4fsfqm0h7c4ym9pfyfczq8w54xl"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6328464124323299388860016513650744107566860580187974749164693361234903742948field",
+          "value": "{\n  program_id: final_fn_early_unit_return.aleo,\n  function_name: f,\n  arguments: [\n    5u64\n  ]\n}"
+        }
+      ],
+      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
+      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+

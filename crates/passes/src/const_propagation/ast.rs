@@ -514,7 +514,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 let bogus_statement = Statement::dummy();
                 let this_statement = std::mem::replace(statement, bogus_statement);
                 *statement = slf.reconstruct_statement(this_statement).0;
-                !statement.is_empty()
+                !statement.is_removable()
             });
             (block, None)
         })

@@ -2205,13 +2205,6 @@ impl TypeCheckingVisitor<'_> {
             self.emit_err(crate::errors::type_checker::no_inline_not_allowed_on_final_fn(function.identifier.span()));
         }
 
-        if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
-            // final functions are not allowed to return values.
-            if !function.output.is_empty() {
-                self.emit_err(crate::errors::type_checker::final_fn_cannot_return_value(function.span()));
-            }
-        }
-
         for const_param in &function.const_parameters {
             self.visit_type(const_param.type_());
 
@@ -2414,6 +2407,14 @@ impl TypeCheckingVisitor<'_> {
             if matches!(function.variant, Variant::View) && function_output.mode != Mode::None {
                 self.emit_err(crate::errors::type_checker::function_outputs_cannot_have_modes(
                     "`view fn`",
+                    function_output.span,
+                ));
+            }
+            // `final fn` helpers are inlined into their callsites, so their outputs never lower to
+            // AVM outputs and a visibility mode is meaningless.
+            if matches!(function.variant, Variant::FinalFn) && function_output.mode != Mode::None {
+                self.emit_err(crate::errors::type_checker::function_outputs_cannot_have_modes(
+                    "`final fn`",
                     function_output.span,
                 ));
             }
