@@ -20,8 +20,6 @@ leo add --local <LOCAL> <NAME>
 
 where `<NAME>` is the name of the imported program or library, and `<LOCAL>` is the path to the local project or library.
 
-&nbsp;
-
 To add a program already deployed onchain as a dependency to your project, run the following command:
 
 ```bash
@@ -30,8 +28,6 @@ leo add --network <NAME>
 
 where `<NAME>` is the name of the imported program.
 
-&nbsp;
-
 To add another member of the enclosing workspace as a dependency:
 
 ```bash
@@ -39,8 +35,6 @@ leo add --workspace <NAME>
 ```
 
 where `<NAME>` is the directory name or program name of the workspace member.
-
-&nbsp;
 
 To add a dependency from a git repository:
 
