@@ -21,22 +21,17 @@ finalize classify:
     add r2 r1 into r3;
     gt r3 1000u64 into r4;
     branch.eq r4 false to end_then_0_0;
-    branch.eq true false to end_then_1_2;
     set 1000u64 into audit[1u8];
-    branch.eq true true to end_otherwise_1_3;
-    position end_then_1_2;
-    set 1000u64 into audit[0u8];
-    position end_otherwise_1_3;
     set 1000u64 into account[r0];
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
     is.eq r3 1000u64 into r5;
-    branch.eq r5 false to end_then_1_4;
+    branch.eq r5 false to end_then_1_2;
     set r3 into audit[1u8];
-    branch.eq true true to end_otherwise_1_5;
-    position end_then_1_4;
+    branch.eq true true to end_otherwise_1_3;
+    position end_then_1_2;
     set r3 into audit[0u8];
-    position end_otherwise_1_5;
+    position end_otherwise_1_3;
     set r3 into account[r0];
     position end_otherwise_0_1;
 
