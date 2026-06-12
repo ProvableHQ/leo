@@ -113,6 +113,7 @@ use leo_span::Symbol;
 use transform::TransformVisitor;
 
 mod analysis;
+mod iterative;
 mod transform;
 
 pub struct FunctionInlining;

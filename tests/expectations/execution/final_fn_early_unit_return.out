@@ -13,15 +13,13 @@ finalize f:
     input r0 as u64.public;
     is.eq r0 0u64 into r1;
     branch.eq r1 false to end_then_0_0;
-    add r0 1u64 into r2;
-    set r2 into store[0u8];
     branch.eq true true to end_otherwise_0_1;
     position end_then_0_0;
     assert.neq r0 0u64;
     set r0 into store[1u8];
-    add r0 1u64 into r3;
-    set r3 into store[0u8];
     position end_otherwise_0_1;
+    add r0 1u64 into r2;
+    set r2 into store[0u8];
 
 constructor:
     assert.eq edition 0u16;
