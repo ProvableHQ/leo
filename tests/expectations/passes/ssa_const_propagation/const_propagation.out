@@ -13,22 +13,19 @@ program test.aleo {
         let $var$5 = 5u32;
         let b$#6 = test.aleo::a + 5u32;
         let $var$7 = true;
-        if true {
+        {
             let b$#8 = 42u32;
         }
         let b$9 = 42u32;
         let $var$10 = false;
-        if false {
-            let b$#11 = 50u32;
-        } else {
+        {
             let b$#12 = 43u32;
         }
         let b$13 = 43u32;
         let $var$14 = true;
         let $var$15 = false;
         let $var$16 = false;
-        if false {
-            let b$#17 = 60u32;
+        {
         }
         let b$18 = 43u32;
         let $var$19 = x$$4 + 43u32;

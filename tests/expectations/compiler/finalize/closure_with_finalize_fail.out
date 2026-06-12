@@ -19,17 +19,6 @@
    │ 
    │ Help: Change the expression to produce a `Final<Fn()>`, or cast it with `as Final<Fn()>` if a conversion exists.
 ───╯
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:16:1 ]
-    │
- 16 │ ╭─▶ final fn finalize_bar(a: u8, b: u8) -> u8 {
-    ┆ ┆   
- 18 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
-────╯
 [ETYC0372110] Error: only entry point fns can return a `Final`
     ╭─[ compiler-test:20:51 ]
     │

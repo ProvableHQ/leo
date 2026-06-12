@@ -1,0 +1,29 @@
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping audit:
+    key as u8.public;
+    value as u64.public;
+
+function pay:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async pay r0 r1 into r2;
+    output r2 as test.aleo/pay.future;
+
+finalize pay:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use account[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    gt r3 1000u64 into r4;
+    branch.eq r4 false to end_then_0_0;
+    set 1000u64 into account[r0];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    set r3 into account[r0];
+    position end_otherwise_0_1;
+    set r1 into audit[0u8];

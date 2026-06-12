@@ -113,6 +113,7 @@ use leo_span::Symbol;
 use transform::TransformVisitor;
 
 mod analysis;
+mod iterative;
 mod transform;
 
 pub struct FunctionInlining;
@@ -142,6 +143,7 @@ impl Pass for FunctionInlining {
             function_map: IndexMap::new(),
             is_finalize_context: false,
             always_inline: analyzer.functions_to_inline,
+            pending_iterative_inline: None,
         };
 
         let ast = ast.map(

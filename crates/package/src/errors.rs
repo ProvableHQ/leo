@@ -96,7 +96,7 @@ pub(crate) fn invalid_manifest_dependency(dep_name: impl Display, reason: impl D
         CODE_MASK + 75,
         format!("invalid dependency `{dep_name}` in `program.json`: {reason}"),
     )
-    .with_help("Use `edition` only for `network` dependencies, `path` only for `local` and `test`, and neither for `workspace`.")
+    .with_help("Each `location` permits specific fields: `network` may set `edition`; `local` and `test` require `path`; `workspace` takes neither; `git` requires `git` and at most one of `branch`/`tag`/`rev`.")
 }
 
 pub(crate) fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
@@ -185,6 +185,75 @@ pub(crate) fn network_error(url: impl Display, status: impl Display) -> Backtrac
 pub(crate) fn circular_dependency_error() -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 68, "circular dependency detected")
         .with_help("Break the cycle by removing one of the dependency edges in `program.json`. Programs cannot depend on themselves transitively.")
+}
+
+/// A git dependency could not be cloned, fetched, or checked out.
+pub(crate) fn git_error(name: impl Display, url: impl Display, error: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 82,
+        format!("failed to fetch git dependency `{name}` from `{url}`: {error}"),
+    )
+    .with_help("Verify the repository URL is correct and reachable, and that you have access to it.")
+}
+
+/// A git dependency's `branch`/`tag`/`rev` could not be resolved in the repository.
+pub(crate) fn git_reference_error(
+    name: impl Display,
+    url: impl Display,
+    reference: impl Display,
+    error: impl Display,
+) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 77,
+        format!("failed to resolve `{reference}` for git dependency `{name}` in `{url}`: {error}"),
+    )
+    .with_help("Verify the branch, tag, or revision exists in the repository.")
+}
+
+/// A git dependency is not cached locally and the build is running offline.
+pub(crate) fn git_offline_unavailable(name: impl Display, url: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 78,
+        format!("git dependency `{name}` from `{url}` is not available in the local cache"),
+    )
+    .with_help("Run the build once with network access to populate the cache before building offline.")
+}
+
+/// A git dependency was fetched, but no package matching its name was found in the checkout.
+pub(crate) fn git_package_not_found(dep_name: impl Display, checkout: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 81,
+        format!("git dependency `{dep_name}` was not found in the repository checkout at `{checkout}`"),
+    )
+    .with_help(format!(
+        "Ensure the repository contains a Leo package whose `program.json` declares `{dep_name}`, or a `{dep_name}` bytecode file."
+    ))
+}
+
+/// Multiple directories in a git checkout declare the requested package name.
+pub(crate) fn git_ambiguous_package(dep_name: impl Display, dirs: impl Display) -> Backtraced {
+    Backtraced::error(
+        CODE_PREFIX,
+        CODE_MASK + 83,
+        format!("git dependency `{dep_name}` is ambiguous: multiple packages in the repository declare it (`{dirs}`)"),
+    )
+    .with_help("Ensure exactly one package in the repository declares this program name.")
+}
+
+/// The lock file could not be serialized (likely an internal bug).
+pub(crate) fn failed_to_serialize_lock(path: impl Display, error: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 79, format!("failed to serialize lock file at `{path}`: {error}"))
+        .with_help("This is likely a bug in Leo; please report it.")
+}
+
+/// The lock file could not be written to disk.
+pub(crate) fn failed_to_write_lock(path: impl Display, error: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 80, format!("failed to write lock file at `{path}`: {error}"))
+        .with_help("Verify the package directory is writable.")
 }
 
 /// For when a workspace member directory is missing or lacks a manifest.

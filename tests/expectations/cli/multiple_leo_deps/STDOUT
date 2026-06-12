@@ -3,7 +3,7 @@
 
        Leo 🔨 Compiling 'parent.aleo'
        Leo     11 statements before dead code elimination.
-       Leo     11 statements after dead code elimination.
+       Leo     15 statements after dead code elimination.
        Leo     The program checksum is: '[36u8, 42u8, 7u8, 48u8, 36u8, 141u8, 90u8, 111u8, 93u8, 3u8, 27u8, 112u8, 152u8, 129u8, 88u8, 13u8, 223u8, 75u8, 216u8, 223u8, 25u8, 10u8, 48u8, 182u8, 189u8, 54u8, 128u8, 147u8, 96u8, 174u8, 215u8, 57u8]'.
        Leo     Program size: 0.29 KB / 500.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.

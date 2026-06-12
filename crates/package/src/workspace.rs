@@ -462,6 +462,7 @@ mod tests {
                 location: Location::Local,
                 path: Some(dep_path.to_path_buf()),
                 edition: None,
+                ..Default::default()
             })
             .collect();
 
@@ -621,6 +622,7 @@ mod tests {
                 location: Location::Workspace,
                 path: None,
                 edition: None,
+                ..Default::default()
             })
             .collect();
 
@@ -655,8 +657,7 @@ mod tests {
         create_workspace(&dir, &["alpha", "beta"]);
 
         let beta_dir = dir.join("beta");
-        let dep =
-            Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, path: None, edition: None };
+        let dep = Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, ..Default::default() };
         let resolved = resolve_workspace_dependency(&beta_dir, dep).unwrap();
         assert_eq!(resolved.location, Location::Local);
         assert!(resolved.path.is_some());
@@ -693,8 +694,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
 
         // No workspace.json - just a standalone directory.
-        let dep =
-            Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, path: None, edition: None };
+        let dep = Dependency { name: "alpha.aleo".to_string(), location: Location::Workspace, ..Default::default() };
         let result = resolve_workspace_dependency(&dir, dep);
         assert!(result.is_err());
 
@@ -716,6 +716,7 @@ mod tests {
             location: Location::Workspace,
             path: None,
             edition: None,
+            ..Default::default()
         };
         let result = resolve_workspace_dependency(&dir.join("alpha"), dep);
         assert!(result.is_err());

@@ -94,56 +94,42 @@ fn current_version() -> String {
 
 impl Dependency {
     fn validate_manifest_shape(&self) -> Result<(), Backtraced> {
-        match self.location {
-            Location::Network => {
-                if self.path.is_some() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`network` dependencies cannot specify `path`",
-                    ));
-                }
+        // Reject any field that has no meaning for the dependency's location, so a stray field
+        // (e.g. `git` on a `local` dependency) errors instead of being silently ignored.
+        let invalid = |reason: String| Err(crate::errors::invalid_manifest_dependency(&self.name, reason));
+        let location = match self.location {
+            Location::Network => "network",
+            Location::Local => "local",
+            Location::Workspace => "workspace",
+            Location::Test => "test",
+            Location::Git => "git",
+        };
+
+        let path_required = matches!(self.location, Location::Local | Location::Test);
+        if path_required && self.path.is_none() {
+            return invalid(format!("`{location}` dependencies must specify `path`"));
+        }
+        if !path_required && self.path.is_some() {
+            return invalid(format!("`{location}` dependencies cannot specify `path`"));
+        }
+        if self.location != Location::Network && self.edition.is_some() {
+            return invalid(format!("`{location}` dependencies cannot specify `edition`"));
+        }
+        if self.location != Location::Git && self.git.is_some() {
+            return invalid(format!("`{location}` dependencies cannot specify `git`"));
+        }
+
+        if self.location == Location::Git {
+            let Some(git) = &self.git else {
+                return invalid("`git` dependencies must specify `git`".to_string());
+            };
+            if let Err(reason) = git.reference() {
+                return invalid(reason.to_string());
             }
-            Location::Local => {
-                if self.path.is_none() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`local` dependencies must specify `path`",
-                    ));
-                }
-                if self.edition.is_some() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`local` dependencies cannot specify `edition`",
-                    ));
-                }
-            }
-            Location::Workspace => {
-                if self.path.is_some() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`workspace` dependencies cannot specify `path`",
-                    ));
-                }
-                if self.edition.is_some() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`workspace` dependencies cannot specify `edition`",
-                    ));
-                }
-            }
-            Location::Test => {
-                if self.path.is_none() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`test` dependencies must specify `path`",
-                    ));
-                }
-                if self.edition.is_some() {
-                    return Err(crate::errors::invalid_manifest_dependency(
-                        &self.name,
-                        "`test` dependencies cannot specify `edition`",
-                    ));
-                }
+            // The name is matched against package manifests in the checkout, so validate it at
+            // this trust boundary.
+            if !crate::is_valid_package_name(crate::bare_unit_name(&self.name)) {
+                return invalid("a git dependency name must be a valid program or library name".to_string());
             }
         }
         Ok(())
@@ -152,40 +138,7 @@ impl Dependency {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use std::{
-        fs,
-        process,
-        sync::atomic::{AtomicU64, Ordering},
-        time::{SystemTime, UNIX_EPOCH},
-    };
-
-    static NEXT_TEST_DIR_ID: AtomicU64 = AtomicU64::new(0);
-
-    fn manifest_json(dependencies: &str, dev_dependencies: &str) -> String {
-        format!(
-            r#"{{
-  "program": "test.aleo",
-  "version": "0.1.0",
-  "description": "",
-  "license": "MIT",
-  "dependencies": {dependencies},
-  "dev_dependencies": {dev_dependencies}
-}}"#
-        )
-    }
-
-    fn read_manifest(contents: &str) -> Result<Manifest, Backtraced> {
-        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
-        let sequence = NEXT_TEST_DIR_ID.fetch_add(1, Ordering::Relaxed);
-        let dir = std::env::temp_dir().join(format!("leo-manifest-test-{}-{nanos}-{sequence}", process::id()));
-        fs::create_dir(&dir).unwrap();
-        let path = dir.join(MANIFEST_FILENAME);
-        fs::write(&path, contents).unwrap();
-        let result = Manifest::read_from_file(&path);
-        fs::remove_dir_all(dir).unwrap();
-        result
-    }
+    use crate::test_util::{manifest_json, read_manifest};
 
     #[test]
     fn manifest_rejects_network_dependency_with_path() {

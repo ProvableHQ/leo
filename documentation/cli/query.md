@@ -22,8 +22,6 @@ The `leo query` command is used to get data from a network supporting the canoni
 - [`mempool`](#leo-query-mempool) - Query transactions and transmissions from the memory pool.
 - [`peers`](#leo-query-peers) - Query peer information.
 
-&nbsp;
-
 ---
 
 ## `leo query block`

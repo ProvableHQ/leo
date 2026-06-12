@@ -1,22 +1,37 @@
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:17:1 ]
-    │
- 17 │ ╭─▶ final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
-    ┆ ┆   
- 20 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
-────╯
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:22:1 ]
-    │
- 22 │ ╭─▶ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
-    ┆ ┆   
- 24 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
-────╯
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping values:
+    key as u8.public;
+    value as u8.public;
+
+function mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async mint_public r0 r1 into r2;
+    output r2 as test.aleo/mint_public.future;
+
+finalize mint_public:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use account[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    set r3 into account[r0];
+
+function public_adder:
+    input r0 as u8.public;
+    input r1 as u8.public;
+    async public_adder r0 r1 into r2;
+    output r2 as test.aleo/public_adder.future;
+
+finalize public_adder:
+    input r0 as u8.public;
+    input r1 as u8.public;
+    add r0 r1 into r2;
+    set r2 into values[0u8];
+
+constructor:
+    assert.eq edition 0u16;
