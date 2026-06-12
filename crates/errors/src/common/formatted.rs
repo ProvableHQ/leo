@@ -378,10 +378,10 @@ fn normalize_empty_primary_label_underline(output: &str) -> String {
         // drop only the connector line for diagnostics that explicitly opt in.
         if line.contains('┬') && line.contains('─') {
             normalized.push(line.replace('┬', "─").trim_end().to_owned());
-            if let Some(next) = lines.next() {
-                if !next.contains('╰') {
-                    normalized.push(next.to_owned());
-                }
+            if let Some(next) = lines.next()
+                && !next.contains('╰')
+            {
+                normalized.push(next.to_owned());
             }
         } else {
             normalized.push(line.to_owned());
