@@ -29,7 +29,7 @@ parameters:
 executors:
   macos-executor:
     macos:
-      xcode: "26.0.1"  # Use appropriate Xcode version
+      xcode: "26.5.0"
     resource_class: m4pro.large
 
   linux-executor:
