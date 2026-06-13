@@ -1086,6 +1086,17 @@ pub(crate) fn cannot_have_mode(kind: impl Display, span: Span) -> Formatted {
         )
 }
 
+pub(crate) fn no_inline_not_allowed_on_underscore_fn(span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 193,
+        "`@no_inline` is not allowed on a function whose name starts with `_`",
+        span,
+    )
+    .with_note("A leading `_` forces the function to be inlined, so it cannot also opt out of inlining.")
+    .with_help("Remove the `@no_inline` annotation or rename the function so it does not start with `_`.")
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {

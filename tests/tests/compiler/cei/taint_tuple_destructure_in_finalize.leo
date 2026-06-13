@@ -27,7 +27,7 @@ program caller.aleo {
         let (rate, f): (u64, Final) = exchange.aleo::get_rate(id);
         return final {
             // Destructure a tuple containing tainted value.
-            let (a, b): (u64, u64) = (rate, amount);
+            let (a, _b): (u64, u64) = (rate, amount);
             // a derives from rate (tainted), b is clean.
             Mapping::set(balances, id, a);
             f.run();

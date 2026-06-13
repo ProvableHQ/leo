@@ -1,3 +1,8 @@
+[WUNU03714002] Warning: struct `Foo` is never constructed
+   ╭─[ compiler-test:1:8 ]
+   │
+ 1 │ struct Foo {
+───╯
 program test.aleo;
 
 function main:

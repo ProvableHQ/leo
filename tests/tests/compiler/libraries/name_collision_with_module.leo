@@ -25,4 +25,4 @@ program collision.aleo {
 // --- Next Module: utils.leo --- //
 // This submodule has the same name as the library.
 // It should be shadowed by the library.
-const VALUE: u32 = 999u32;
+const _VALUE: u32 = 999u32;

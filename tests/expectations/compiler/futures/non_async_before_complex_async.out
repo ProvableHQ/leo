@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `inner.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import inner.aleo;
+───╯
 program inner.aleo;
 
 mapping foo:
@@ -76,6 +81,11 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
+[WUNU03714003] Warning: unused import: `inner.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import inner.aleo;
+───╯
 program inner.aleo;
 
 mapping foo:

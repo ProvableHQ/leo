@@ -8,8 +8,8 @@ program test.aleo {
     fn main(t: Token) -> bool {
         let d: dyn record = t as dyn record;
         let b: u64 = d.balance;
-        let m: field = d.memo;
-        let o: address = d.owner;
+        let _m: field = d.memo;
+        let _o: address = d.owner;
         return b == 0u64;
     }
 

@@ -1,0 +1,18 @@
+[WUNU03714003] Warning: unused import: `credits.aleo`
+   ╭─[ SOURCE_DIRECTORY/main.leo:2:1 ]
+   │
+ 2 │ import credits.aleo;
+───╯
+
+[WUNU03714003] Warning: unused import: `credits.aleo`
+   ╭─[ SOURCE_DIRECTORY/main.leo:2:1 ]
+   │
+ 2 │ import credits.aleo;
+───╯
+
+[WUNU03714003] Warning: unused import: `credits.aleo`
+   ╭─[ SOURCE_DIRECTORY/main.leo:2:1 ]
+   │
+ 2 │ import credits.aleo;
+───╯
+

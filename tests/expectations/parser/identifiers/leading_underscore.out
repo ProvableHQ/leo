@@ -1,0 +1,9 @@
+program test.aleo {
+    fn main(a: u32, b: u32) -> u32 {
+        let _c: u32 = a + b;
+        let _temp = 10u32;
+        return _c + _temp;
+    }
+}
+
+

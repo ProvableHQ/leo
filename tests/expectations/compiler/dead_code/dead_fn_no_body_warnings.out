@@ -1,0 +1,12 @@
+[WUNU03714000] Warning: function `dead_fn` is never used
+    ╭─[ compiler-test:20:4 ]
+    │
+ 20 │ fn dead_fn(unused_param: u32) -> u32 {
+────╯
+program test.aleo;
+
+function main:
+    output 1u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

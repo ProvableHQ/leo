@@ -16,8 +16,7 @@ program test.aleo: Worker {
         return (
             val1 + val2,
             final {
-                f1.run();
-                f2.run();
+                finalize_main(f1, f2);
             },
         );
     }

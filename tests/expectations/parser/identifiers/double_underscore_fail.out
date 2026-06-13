@@ -61,10 +61,3 @@
     │ 
     │ Help: Rename the identifier so it uses at most single underscores between segments.
 ────╯
-[EPAR0370053] Error: identifiers cannot start with an underscore
-    ╭─[ test:20:14 ]
-    │
- 20 │         let __leading_double_underscore: bool = false;
-    │ 
-    │ Help: Rename the identifier so it begins with an ASCII letter.
-────╯

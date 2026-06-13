@@ -236,6 +236,13 @@ macro_rules! compiler_passes {
                 (GlobalItemsCollection, ()),
                 (CheckInterfaces, ()),
             ]),
+            (unused_items_runner, [
+                (GlobalVarsCollection, ()),
+                (PathResolution, ()),
+                (GlobalItemsCollection, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (UnusedItems, ())
+            ]),
         }
     };
 }

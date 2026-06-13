@@ -5,3 +5,8 @@
    │ 
    │ Help: Loop bounds must be `const` expressions. Replace the bound with a literal or a `const` value.
 ───╯
+[WUNU03714001] Warning: unused variable: `max`
+   ╭─[ compiler-test:8:13 ]
+   │
+ 8 │         let max: u64 = 0u64;
+───╯

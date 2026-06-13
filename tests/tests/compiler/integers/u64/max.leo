@@ -1,6 +1,6 @@
 program test.aleo {
     fn main(y: bool) -> bool {
-        let a: u64 = 18446744073709551615u64;
+        let _a: u64 = 18446744073709551615u64;
         return y == true;
     }
 

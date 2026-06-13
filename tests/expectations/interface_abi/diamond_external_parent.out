@@ -1,3 +1,18 @@
+[WUNU03714003] Warning: unused import: `root.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import root.aleo;
+───╯
+[WUNU03714003] Warning: unused import: `left.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import left.aleo;
+───╯
+[WUNU03714003] Warning: unused import: `right.aleo`
+   ╭─[ compiler-test:4:1 ]
+   │
+ 4 │ import right.aleo;
+───╯
 // owner: left.aleo
 {
   "name": "Left",

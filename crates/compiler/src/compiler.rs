@@ -398,6 +398,7 @@ impl Compiler {
         self.do_pass_with_check::<GlobalItemsCollection, _>((), &mut should_continue)?;
         self.do_pass_with_check::<CheckInterfaces, _>((), &mut should_continue)?;
         self.do_pass_with_check::<TypeChecking, _>(TypeCheckingInput::new(self.state.network), &mut should_continue)?;
+        self.do_pass_with_check::<UnusedItems, _>((), &mut should_continue)?;
         self.do_pass_with_check::<Disambiguate, _>((), &mut should_continue)?;
         self.do_pass_with_check::<CeiAnalyzing, _>((), &mut should_continue)?;
         self.do_pass_with_check::<ProcessingAsync, _>(

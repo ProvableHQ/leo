@@ -8,7 +8,7 @@ program test.aleo {
         let c: u8 = 0u8;
 
         let z: u8 = reverse_bits(n);
-        for i: u8 in 0u8..8u8 {
+        for _i: u8 in 0u8..8u8 {
             if n > 0u8 {
                 let f2i1: u128 = f1 * f1 + f0 * f0;
                 let f2i: u128 = f0 * (2u128 * f1 - f0);
@@ -32,7 +32,7 @@ program test.aleo {
 
 fn reverse_bits(n: u8) -> u8 {
     let reverse: u8 = 0u8;
-    for i: u8 in 0u8..8u8 {
+    for _i: u8 in 0u8..8u8 {
         if n > 0u8 {
             reverse = reverse << 1u8;
             if n & 1u8 == 1u8 {

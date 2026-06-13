@@ -1,0 +1,25 @@
+--- leo build (library, exhaustive unused warnings) ---
+[WUNU03714001] Warning: unused variable: `dead`
+    ╭─[ SOURCE_DIRECTORY/lib.leo:18:9 ]
+    │
+ 18 │     let dead: u32 = 99u32;
+────╯
+
+[WUNU03714001] Warning: unused variable: `i`
+    ╭─[ SOURCE_DIRECTORY/lib.leo:24:9 ]
+    │
+ 24 │     for i: u32 in 0u32..3u32 {
+────╯
+
+[WUNU03714001] Warning: unused variable: `k`
+    ╭─[ SOURCE_DIRECTORY/lib.leo:33:9 ]
+    │
+ 33 │     for k: u32 in 0u32..3u32 {
+────╯
+
+[WUNU03714001] Warning: unused variable: `dead_sub_local`
+    ╭─[ SOURCE_DIRECTORY/helpers.leo:19:9 ]
+    │
+ 19 │     let dead_sub_local: u32 = 0u32;
+────╯
+

@@ -1,3 +1,8 @@
+[WUNU03714001] Warning: unused variable: `must_halt`
+    ╭─[ compiler-test:13:9 ]
+    │
+ 13 │     let must_halt: u8 = 0u8 - amount;
+────╯
 program test.aleo;
 
 mapping observed:

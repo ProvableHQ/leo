@@ -13,7 +13,7 @@ program parent.aleo {
     constructor() {}
 }
 
-final fn finalize_init(test_struct: TestStruct) {
+final fn finalize_init(_test_struct: TestStruct) {
     assert_eq(0u32, 0u32);
 }
 

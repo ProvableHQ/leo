@@ -11,7 +11,7 @@ program test.aleo {
         function_that_returns_a_value();
         let a: u32 = function_that_returns_a_value();
         another_f_that_returns_a_value(a);
-        let b: u32 = another_f_that_returns_a_value(a);
+        let _b: u32 = another_f_that_returns_a_value(a);
     }
 
     @noupgrade

@@ -13,5 +13,5 @@ program test.aleo {
 }
 
 final fn finalize_balance_or_zero(target: field, key: address) {
-    let val: u64 = Bank@(target)::balances.get_or_use(key, 0u64);
+    let _val: u64 = Bank@(target)::balances.get_or_use(key, 0u64);
 }

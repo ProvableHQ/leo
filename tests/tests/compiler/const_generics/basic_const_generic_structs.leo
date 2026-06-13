@@ -1,4 +1,4 @@
-const M: u32 = 52;
+const _M: u32 = 52;
 
 struct Foo::[N: u32] {
     arr: [u32; N],
@@ -27,7 +27,7 @@ program test.aleo {
                 f: Foo::[9u32] { arr: [42u32; 9] },
             },
         };
-        let baz = Baz {
+        let _baz = Baz {
             f: Foo::[10u32] { arr: [52; 10] },
         };
         return g.f.arr[6] + s.arr[7] + g2.f.arr[5] + boo.g.f.arr[8];

@@ -54,5 +54,5 @@ final fn finalize_do_work(f1: Final, f2: Final, a: u32) {
     Mapping::set(balances, 0u32, a);
     f2.run();
     // Check after interaction — violation 2
-    let v: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
+    let _v: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
 }

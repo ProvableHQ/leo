@@ -1,0 +1,32 @@
+program test.aleo;
+
+struct InArr:
+    x as u32;
+
+struct InOpt:
+    x as u32;
+
+struct InRet:
+    x as u32;
+
+struct InMap:
+    x as u32;
+
+struct Optional__LWAbvAerc6S:
+    is_some as boolean;
+    val as InOpt;
+
+struct Optional__CQPagHxh2OF:
+    is_some as boolean;
+    val as InRet;
+
+mapping balances:
+    key as address.public;
+    value as InMap.public;
+
+function main:
+    input r0 as [InArr; 1u32].private;
+    output r0[0u32].x as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

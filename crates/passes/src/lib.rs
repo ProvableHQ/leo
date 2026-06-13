@@ -100,6 +100,9 @@ pub use type_checking::*;
 mod name_validation;
 pub use name_validation::*;
 
+mod unused_items;
+pub use unused_items::*;
+
 mod check_interfaces;
 pub use check_interfaces::*;
 

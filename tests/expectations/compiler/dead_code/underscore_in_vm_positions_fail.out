@@ -1,0 +1,63 @@
+[ENV03711002] Error: program `_bad_program` cannot have a name that starts with `_`
+    ╭─[ compiler-test:16:9 ]
+    │
+ 16 │ program _bad_program.aleo {
+    │ 
+    │ Help: program names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: struct `_BadStruct` cannot have a name that starts with `_`
+    ╭─[ compiler-test:11:8 ]
+    │
+ 11 │ struct _BadStruct {
+    │ 
+    │ Help: struct names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: struct member `_bad_struct_field` cannot have a name that starts with `_`
+    ╭─[ compiler-test:12:5 ]
+    │
+ 12 │     _bad_struct_field: u32,
+    │ 
+    │ Help: struct member names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: record `_BadRecord` cannot have a name that starts with `_`
+    ╭─[ compiler-test:18:12 ]
+    │
+ 18 │     record _BadRecord {
+    │ 
+    │ Help: record names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: record member `_bad_record_field` cannot have a name that starts with `_`
+    ╭─[ compiler-test:20:9 ]
+    │
+ 20 │         _bad_record_field: u32,
+    │ 
+    │ Help: record member names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: mapping `_bad_mapping` cannot have a name that starts with `_`
+    ╭─[ compiler-test:24:13 ]
+    │
+ 24 │     mapping _bad_mapping: address => u128;
+    │ 
+    │ Help: mapping names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: storage variable `_bad_storage` cannot have a name that starts with `_`
+    ╭─[ compiler-test:27:13 ]
+    │
+ 27 │     storage _bad_storage: u32;
+    │ 
+    │ Help: storage variable names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: entry-point fn `_bad_entry` cannot have a name that starts with `_`
+    ╭─[ compiler-test:30:8 ]
+    │
+ 30 │     fn _bad_entry() -> u32 {
+    │ 
+    │ Help: entry-point fn names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯
+[ENV03711002] Error: view fn `_bad_view` cannot have a name that starts with `_`
+    ╭─[ compiler-test:37:13 ]
+    │
+ 37 │     view fn _bad_view() -> u32 {
+    │ 
+    │ Help: view fn names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore.
+────╯

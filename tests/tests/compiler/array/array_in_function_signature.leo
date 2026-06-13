@@ -11,12 +11,12 @@ program test.aleo {
     constructor() {}
 }
 
-fn baz(a: [bool; 8]) -> bool {
+fn _baz(a: [bool; 8]) -> bool {
     assert(a[0u8]);
     return true;
 }
 
-fn qux(a: [bool; 8]) -> [bool; 8] {
+fn _qux(a: [bool; 8]) -> [bool; 8] {
     assert(a[0u8]);
     return a;
 }

@@ -29,9 +29,12 @@ impl UnitVisitor for NameValidationVisitor<'_> {
         let program_name = input.program_id.name;
         self.does_not_contain_aleo(program_name, "program");
         self.is_not_keyword(program_name, "program", &[]);
+        self.does_not_start_with_underscore(program_name, "program");
 
         input.composites.iter().for_each(|(_, function)| self.visit_composite(function));
         input.interfaces.iter().for_each(|(_, interface)| self.visit_interface(interface));
+        input.mappings.iter().for_each(|(_, m)| self.visit_mapping(m));
+        input.storage_variables.iter().for_each(|(_, s)| self.visit_storage_variable(s));
         input.functions.iter().for_each(|(_, function)| self.visit_function(function));
     }
 
@@ -53,25 +56,44 @@ impl UnitVisitor for NameValidationVisitor<'_> {
         if input.is_record {
             self.does_not_contain_aleo(composite_name, item_type);
         }
+        self.does_not_start_with_underscore(composite_name, item_type);
 
         for Member { identifier: member_name, .. } in &input.members {
+            let member_item_type = if input.is_record { "record member" } else { "struct member" };
             if input.is_record {
-                self.is_not_keyword(*member_name, "record member", &["owner"]);
-                self.does_not_contain_aleo(*member_name, "record member");
+                self.is_not_keyword(*member_name, member_item_type, &["owner"]);
+                self.does_not_contain_aleo(*member_name, member_item_type);
             } else {
-                self.is_not_keyword(*member_name, "struct member", &[]);
+                self.is_not_keyword(*member_name, member_item_type, &[]);
             }
+            self.does_not_start_with_underscore(*member_name, member_item_type);
         }
     }
 
     fn visit_function(&mut self, function: &Function) {
         use Variant::*;
         match function.variant {
-            EntryPoint => self.is_not_keyword(function.identifier, "entry point fn", &[]),
+            EntryPoint => {
+                self.is_not_keyword(function.identifier, "entry point fn", &[]);
+                // Only entry points and `view fn`s emit their name verbatim to the VM; the other
+                // variants are always inlined, so the underscore check applies only to these two.
+                self.does_not_start_with_underscore(function.identifier, "entry-point fn");
+            }
+            View => {
+                self.is_not_keyword(function.identifier, "view fn", &[]);
+                self.does_not_start_with_underscore(function.identifier, "view fn");
+            }
             Fn => self.is_not_keyword(function.identifier, "regular fn", &[]),
-            View => self.is_not_keyword(function.identifier, "view fn", &[]),
             FinalFn | Finalize => {}
         }
+    }
+
+    fn visit_mapping(&mut self, input: &Mapping) {
+        self.does_not_start_with_underscore(input.identifier, "mapping");
+    }
+
+    fn visit_storage_variable(&mut self, input: &StorageVariable) {
+        self.does_not_start_with_underscore(input.identifier, "storage variable");
     }
 
     fn visit_function_stub(&mut self, input: &FunctionStub) {

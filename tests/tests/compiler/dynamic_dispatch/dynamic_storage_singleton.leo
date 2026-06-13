@@ -13,5 +13,5 @@ program test.aleo {
 }
 
 final fn finalize_query(target: field) {
-    let val: u64? = Counter@(target)::total;
+    let _val: u64? = Counter@(target)::total;
 }

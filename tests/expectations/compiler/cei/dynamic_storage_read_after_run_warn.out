@@ -1,7 +1,7 @@
 [WCEI03713000] Warning: a read of dynamic storage `total` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:24:21 ]
+    ╭─[ compiler-test:24:22 ]
     │
- 24 │     let val: u64? = Counter@(target)::total;
+ 24 │     let _val: u64? = Counter@(target)::total;
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 

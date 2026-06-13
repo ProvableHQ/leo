@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `program_b.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import program_b.aleo;
+───╯
 program program_a.aleo;
 
 record X:

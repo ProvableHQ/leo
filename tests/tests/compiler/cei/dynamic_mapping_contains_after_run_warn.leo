@@ -37,5 +37,5 @@ final fn finalize_do_work(f: Final, target: field, key: address) {
     // [I] Interaction
     f.run();
     // [C] Dynamic mapping contains after interaction — should warn
-    let exists: bool = Bank@(target)::balances.contains(key);
+    let _exists: bool = Bank@(target)::balances.contains(key);
 }

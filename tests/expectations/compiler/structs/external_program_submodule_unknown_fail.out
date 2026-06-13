@@ -19,3 +19,34 @@
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372017] Error: the type `child.aleo::ghost::Point` is not found in the current scope
+   ╭─[ compiler-test:7:17 ]
+   │
+ 7 │     fn bad_type(p: child.aleo::ghost::Point) -> u32 {
+   │ 
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
+───╯
+[ETYC0372017] Error: the type `child.aleo::ghost::Point` is not found in the current scope
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return p.x + p.y;
+   │ 
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
+───╯
+[ETYC0372017] Error: the type `child.aleo::ghost::Point` is not found in the current scope
+   ╭─[ compiler-test:8:22 ]
+   │
+ 8 │         return p.x + p.y;
+   │ 
+   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
+───╯
+[WUNU03714002] Warning: struct `Point` is never constructed
+   ╭─[ types.leo:2:8 ]
+   │
+ 2 │ struct Point {
+───╯

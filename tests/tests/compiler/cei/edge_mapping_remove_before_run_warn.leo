@@ -29,7 +29,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+final fn finalize_do_work(f: Final, _a: u32) {
     // [I] Interaction
     f.run();
     // [E] Effect: remove is a state mutation AFTER interaction — violates CEI

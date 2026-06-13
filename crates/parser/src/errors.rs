@@ -153,14 +153,21 @@ pub(crate) fn wrong_digit_for_radix_span(
     ))
 }
 
-pub(crate) fn identifier_cannot_start_with_underscore(span: leo_span::Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 53, "identifiers cannot start with an underscore", span)
-        .with_help("Rename the identifier so it begins with an ASCII letter.")
-}
-
 pub(crate) fn multiple_program_declarations(span: leo_span::Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 55, "a Leo program can only have one `program` declaration", span)
         .with_help("Remove the duplicate `program` block. Only one is allowed per program.")
+}
+
+pub(crate) fn binding_name_collides_with_intrinsic(name: impl Display, span: leo_span::Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 56,
+        format!("binding name `{name}` collides with a compiler intrinsic"),
+        span,
+    )
+    .with_help(
+        "Calls like `_self_caller()` always dispatch to the intrinsic, ignoring any same-named local. Rename the binding.",
+    )
 }
 
 // Parser warnings
