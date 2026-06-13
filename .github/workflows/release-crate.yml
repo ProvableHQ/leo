@@ -241,12 +241,6 @@ jobs:
             bash -lc "
               rustup target add x86_64-unknown-linux-musl &&
               cd /home/rust/src &&
-              # The RocksDB version pulled in transitively (via snarkVM) predates
-              # GCC 13, which stopped transitively including <cstdint>; force it so
-              # the bundled C++ compiles. Append to the image's hardening flags.
-              # Remove once snarkVM bumps `rocksdb` past `librocksdb-sys 0.11`
-              # (tracked upstream by the snarkVM `rocksdb` bump PR).
-              export TARGET_CXXFLAGS=\"\$TARGET_CXXFLAGS -include cstdint\" &&
               cargo build \
                 --package ${{ needs.prepare.outputs.crate-name }} \
                 --target x86_64-unknown-linux-musl \

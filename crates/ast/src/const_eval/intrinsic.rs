@@ -184,7 +184,10 @@ fn evaluate_intrinsic_inner(
             return Ok(None);
         }
         Intrinsic::FinalRun => panic!("await must be handled elsewhere"),
-        Intrinsic::ProgramChecksum | Intrinsic::ProgramEdition | Intrinsic::ProgramOwner => {
+        Intrinsic::ProgramChecksum
+        | Intrinsic::ProgramEdition
+        | Intrinsic::ProgramOwner
+        | Intrinsic::FunctionChecksum => {
             return Ok(None);
         }
         // Dynamic dispatch cannot be evaluated at compile time.

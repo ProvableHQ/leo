@@ -5,6 +5,7 @@
   "ignorePatterns": [
     { "pattern": "^https://api\\.explorer\\.provable\\.com" },
     { "pattern": "^https://faucet\\.aleo\\.org" },
-    { "pattern": "^https://docs\\.aleo\\.org" }
+    { "pattern": "^https://docs\\.aleo\\.org" },
+    { "pattern": "^https://eprint\\.iacr\\.org" }
   ]
 }

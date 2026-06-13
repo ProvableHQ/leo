@@ -3,11 +3,11 @@
        Leo     3 statements before dead code elimination.
        Leo     4 statements after dead code elimination.
        Leo     The program checksum is: '[99u8, 159u8, 227u8, 233u8, 157u8, 86u8, 229u8, 246u8, 229u8, 17u8, 237u8, 30u8, 146u8, 88u8, 44u8, 89u8, 211u8, 124u8, 225u8, 53u8, 78u8, 39u8, 73u8, 65u8, 105u8, 35u8, 209u8, 104u8, 16u8, 146u8, 198u8, 241u8]'.
-       Leo     Program size: 0.17 KB / 500.00 KB
+       Leo     Program size: 0.17 KB / 1000.00 KB
        Leo ✅ Compiled 'renamed_token.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'renamed_token.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -19,7 +19,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  15
+  Consensus Version:  16
 
 📦 Deployment Tasks:
   • renamed_token.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -43,7 +43,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for renamed_token.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.17 KB / 500.00 KB
+  Program Size:         0.17 KB / 1000.00 KB
   Total Variables:      18,362
   Total Constraints:    14,192
   Max Variables:        XXXXXX

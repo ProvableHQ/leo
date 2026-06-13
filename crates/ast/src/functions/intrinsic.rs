@@ -74,6 +74,9 @@ pub enum Intrinsic {
     ProgramEdition,
     ProgramOwner,
 
+    // Checksum of a named program component (a function, closure, or view).
+    FunctionChecksum,
+
     Serialize(SerializeVariant),
 
     // Note. `Deserialize` cannot be instantiated via `from_symbols` as it requires a type argument.
@@ -650,6 +653,7 @@ impl Intrinsic {
             sym::_program_checksum => Self::ProgramChecksum,
             sym::_program_edition => Self::ProgramEdition,
             sym::_program_owner => Self::ProgramOwner,
+            sym::_function_checksum => Self::FunctionChecksum,
 
             sym::_signature_verify => Self::SignatureVerify,
             sym::_snark_verify => Self::SnarkVerify,
@@ -1204,6 +1208,7 @@ impl Intrinsic {
             (sym::ProgramCore, sym::checksum) => sym::_program_checksum,
             (sym::ProgramCore, sym::edition) => sym::_program_edition,
             (sym::ProgramCore, sym::program_owner) => sym::_program_owner,
+            (sym::ProgramCore, sym::function_checksum) => sym::_function_checksum,
 
             (sym::signature, sym::verify) => sym::_signature_verify,
             (sym::Final, sym::run) => sym::_final_run,
@@ -1267,6 +1272,7 @@ impl Intrinsic {
             Self::ProgramChecksum => 1,
             Self::ProgramEdition => 1,
             Self::ProgramOwner => 1,
+            Self::FunctionChecksum => 2,
 
             Self::Serialize(_) => 1,
             Self::Deserialize(_, _) => 1,
@@ -1295,6 +1301,7 @@ impl Intrinsic {
             | Intrinsic::ProgramChecksum
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner
+            | Intrinsic::FunctionChecksum
             | Intrinsic::VectorPush
             | Intrinsic::VectorLen
             | Intrinsic::VectorClear
@@ -1371,6 +1378,7 @@ impl Intrinsic {
             Intrinsic::ProgramChecksum
             | Intrinsic::ProgramEdition
             | Intrinsic::ProgramOwner
+            | Intrinsic::FunctionChecksum
             | Intrinsic::VectorLen
             | Intrinsic::VectorGet
             | Intrinsic::Hash(_, _)
