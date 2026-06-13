@@ -1,3 +1,13 @@
+[WUNU03714002] Warning: struct `QQ` is never constructed
+   ╭─[ compiler-test:1:8 ]
+   │
+ 1 │ struct QQ {
+───╯
+[WUNU03714002] Warning: struct `Bar` is never constructed
+   ╭─[ inner/dep.leo:7:8 ]
+   │
+ 7 │ struct Bar::[N: u32] {
+───╯
 program multifile.aleo;
 
 struct Foo__DEaGXd8fTqV:

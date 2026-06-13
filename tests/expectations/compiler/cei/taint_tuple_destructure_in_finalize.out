@@ -1,7 +1,7 @@
 [WCEI03713004] Warning: value `rate` used in the finalize block was derived from external call `exchange.aleo/get_rate`, whose finalize may alter the state this value depends on
-    ╭─[ compiler-test:11:39 ]
+    ╭─[ compiler-test:11:40 ]
     │
- 11 │             let (a, b): (u64, u64) = (rate, amount);
+ 11 │             let (a, _b): (u64, u64) = (rate, amount);
     │ 
     │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `rate`. Re-read the value on-chain inside the finalize block.
 ────╯

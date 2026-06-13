@@ -18,5 +18,5 @@ program test.aleo: TokenStorage {
 }
 
 final fn fin_foo(key: [address; 2]) {
-    let val: u128 = allowances.get_or_use(key, 0u128);
+    let _val: u128 = allowances.get_or_use(key, 0u128);
 }

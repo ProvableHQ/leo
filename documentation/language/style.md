@@ -137,6 +137,11 @@ The examples below show the canonical style `leo fmt` produces:
 
 ### Naming Conventions
 
+The table below describes the _conventional_ casing for each kind of
+identifier. For the rules on which identifiers the compiler _accepts_ —
+including which positions permit a leading `_` and where it is rejected — see
+[Identifiers](./structure.md#identifiers).
+
 | Item                      | Convention                          |
 | ------------------------- | ----------------------------------- |
 | Packages                  | snake_case (but prefer single word) |

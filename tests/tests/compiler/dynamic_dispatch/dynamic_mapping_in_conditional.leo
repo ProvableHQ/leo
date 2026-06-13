@@ -18,8 +18,8 @@ program test.aleo {
 
 final fn finalize_maybe_query(target: field, key: address, cond: bool) {
     if cond {
-        let a: u64 = Bank@(target)::balances.get(key);
-        let b: bool = Bank@(target)::balances.contains(key);
-        let c: u64 = Bank@(target)::balances.get_or_use(key, 0u64);
+        let _a: u64 = Bank@(target)::balances.get(key);
+        let _b: bool = Bank@(target)::balances.contains(key);
+        let _c: u64 = Bank@(target)::balances.get_or_use(key, 0u64);
     }
 }

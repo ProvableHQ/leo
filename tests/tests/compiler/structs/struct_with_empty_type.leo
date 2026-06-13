@@ -14,6 +14,6 @@ program scratch.aleo {
     constructor() {}
 }
 
-final fn finalize(a: [u32; 0]) {
+final fn finalize(_a: [u32; 0]) {
     Mapping::set(baz, Baz { a: 0, b: [] }, 3);
 }

@@ -114,11 +114,26 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                 members: input
                     .members
                     .into_iter()
-                    .map(|member| CompositeFieldInitializer {
-                        identifier: member.identifier,
-                        expression: member.expression.map(|expr| self.reconstruct_expression(expr, &()).0),
-                        span: member.span,
-                        id: member.id,
+                    .map(|member| {
+                        // Desugar composite-init shorthand `Foo { a }` into `Foo { a: <resolved
+                        // path>}` whenever `a` resolves to a local binding or a top-level
+                        // (program-scope) global. Mirrors the type checker's shorthand lookup
+                        // in `type_checking::ast::visit_composite_init` — locals first, then
+                        // current-program globals at the program (not module) scope. Later
+                        // passes and the unused-items analysis then see a fully-resolved
+                        // expression instead of a bare identifier with no target. When neither
+                        // resolution succeeds the shorthand stays as `None` and the type
+                        // checker emits its focused diagnostic.
+                        let expression = match member.expression {
+                            Some(expr) => Some(self.reconstruct_expression(expr, &()).0),
+                            None => self.resolve_shorthand(member.identifier).map(Expression::Path),
+                        };
+                        CompositeFieldInitializer {
+                            identifier: member.identifier,
+                            expression,
+                            span: member.span,
+                            id: member.id,
+                        }
                     })
                     .collect(),
                 ..input

@@ -1,7 +1,7 @@
 // Ensure Final types are correctly found through
 // two layers of dependencies.
 
-final fn finalize(x: u8) {
+final fn finalize(_x: u8) {
     assert_eq(1u8, 1u8);
 }
 

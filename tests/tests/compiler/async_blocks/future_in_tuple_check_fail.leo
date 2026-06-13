@@ -23,7 +23,7 @@ program test_credits.aleo {
             self.address,
             amount,
         );
-        let result2: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
+        let _result2: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
             input,
             self.address,
             amount,

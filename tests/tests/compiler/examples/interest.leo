@@ -5,7 +5,7 @@ program test.aleo {
         let amount: u32 = capital;
 
         // Accrue for exactly 10 iterations.
-        for i: u8 in 0u8..10u8 {
+        for _i: u8 in 0u8..10u8 {
             // Note that the added amount is rounded down.
             amount += (amount * rate) / 100u32;
         }

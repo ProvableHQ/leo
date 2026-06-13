@@ -2198,11 +2198,24 @@ impl TypeCheckingVisitor<'_> {
             }
         }
 
-        // Ensure that `@no_inline` is not used on `final fn` functions.
-        if matches!(self.scope_state.variant, Some(Variant::FinalFn))
-            && function.annotations.iter().any(|a| a.identifier.name == sym::no_inline)
-        {
-            self.emit_err(crate::errors::type_checker::no_inline_not_allowed_on_final_fn(function.identifier.span()));
+        // Reject `@no_inline` on functions the compiler force-inlines anyway: `final fn`s, and
+        // leading-`_` `Variant::Fn`s (force-inlined so the name never reaches the VM). The two
+        // cases are mutually exclusive, so emit at most one error.
+        let has_no_inline = function.annotations.iter().any(|a| a.identifier.name == sym::no_inline);
+        if has_no_inline {
+            match self.scope_state.variant {
+                Some(Variant::FinalFn) => {
+                    self.emit_err(crate::errors::type_checker::no_inline_not_allowed_on_final_fn(
+                        function.identifier.span(),
+                    ));
+                }
+                Some(Variant::Fn) if crate::unused_items::name_starts_with_underscore(function.identifier.name) => {
+                    self.emit_err(crate::errors::type_checker::no_inline_not_allowed_on_underscore_fn(
+                        function.identifier.span(),
+                    ));
+                }
+                _ => {}
+            }
         }
 
         for const_param in &function.const_parameters {

@@ -26,7 +26,7 @@ program test_dep.aleo {
 
 final fn finalize_main_dep(a: u32, b: u32) {
     Mapping::set(Yo, a, b);
-    let c: u32 = a + b;
+    let _c: u32 = a + b;
 }
 
 final fn finalize_main_dep_2() {
@@ -42,8 +42,8 @@ program test.aleo {
     mapping ayo: u32 => u32;
 
     fn main(a: u32) -> (u32, Final) {
-        let (y, f): (test_dep.aleo::yeets, Final) = test_dep.aleo::main_dep(10u32);
-        let (y2, f2): (test_dep.aleo::yeets, Final) = test_dep.aleo::main_dep(1u32);
+        let (_y, f): (test_dep.aleo::yeets, Final) = test_dep.aleo::main_dep(10u32);
+        let (_y2, f2): (test_dep.aleo::yeets, Final) = test_dep.aleo::main_dep(1u32);
         let f3: Final = final { finalize_main(f, f2, 1u32); };
         return (a, f3);
     }
@@ -73,8 +73,8 @@ import test.aleo;
 program wrapper.aleo {
     fn main(public a: u32, b: u32) -> (u32, Final) {
         let (val, f): (u32, Final) = test.aleo::main(1u32);
-        let (val2, f2): (u32, Final) = test.aleo::main(1u32);
-        let (val3, f3): (u32, Final) = test.aleo::main(1u32);
+        let (_val2, f2): (u32, Final) = test.aleo::main(1u32);
+        let (_val3, f3): (u32, Final) = test.aleo::main(1u32);
         let f4: Final = final { finalize_main(f, f2, f3); };
         return (val, f4);
     }
@@ -107,7 +107,7 @@ program big_wrapper.aleo {
             )>,
         )>,
     ) {
-        let (val, f): (u32, Final) = wrapper.aleo::main(10u32, 10u32);
+        let (_val, f): (u32, Final) = wrapper.aleo::main(10u32, 10u32);
         return (
             b,
             final {

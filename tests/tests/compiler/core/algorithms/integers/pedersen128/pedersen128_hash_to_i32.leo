@@ -16,11 +16,11 @@ program test.aleo {
     ) -> (
         i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32,
     ) {
-        let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
+        let _addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
-        let field_value: field = 1field;
-        let group_value: group = group::GEN;
-        let scalar_value: scalar = 1scalar;
+        let _field_value: field = 1field;
+        let _group_value: group = group::GEN;
+        let _scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
         // Pedersen128 hash_to_i32 tests
         let a: i32 = Pedersen128::hash_to_i32(bool_value);

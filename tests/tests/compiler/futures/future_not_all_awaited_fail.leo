@@ -44,7 +44,7 @@ program parent.aleo {
 }
 
 // Doesn't await f4.
-final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, _f4: Final, f5: Final) {
     f1.run();
     f2.run();
     f3.run();

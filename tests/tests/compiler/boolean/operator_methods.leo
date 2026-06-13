@@ -4,13 +4,13 @@ program test.aleo {
         let h: bool = a.not();
 
         // binary
-        let l: bool = a.and(b);
-        let o: bool = a.eq(b);
-        let v: bool = a.nand(b);
-        let w: bool = a.neq(b);
-        let x: bool = a.nor(b);
-        let y: bool = a.or(b);
-        let ar: bool = a.xor(b);
+        let _l: bool = a.and(b);
+        let _o: bool = a.eq(b);
+        let _v: bool = a.nand(b);
+        let _w: bool = a.neq(b);
+        let _x: bool = a.nor(b);
+        let _y: bool = a.or(b);
+        let _ar: bool = a.xor(b);
 
         return h;
     }

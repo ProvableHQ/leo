@@ -13,7 +13,7 @@ program child.aleo {
     constructor() {}
 }
 
-fn add_const::[N: u32](x: u32) -> u32 {
+fn _add_const::[N: u32](x: u32) -> u32 {
     return x + N;
 }
 
@@ -23,7 +23,7 @@ import child.aleo;
 
 program parent.aleo {
     fn main(x: u32) -> u32 {
-        return child.aleo::add_const::[10u32](x);
+        return child.aleo::_add_const::[10u32](x);
     }
 
     @noupgrade

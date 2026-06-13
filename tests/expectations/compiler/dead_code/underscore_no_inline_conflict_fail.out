@@ -1,0 +1,9 @@
+[ETYC0372193] Error: `@no_inline` is not allowed on a function whose name starts with `_`
+    ╭─[ compiler-test:11:4 ]
+    │
+ 11 │ fn _foo() -> u32 {
+    │ 
+    │ Help: Remove the `@no_inline` annotation or rename the function so it does not start with `_`.
+    │ 
+    │ Note: A leading `_` forces the function to be inlined, so it cannot also opt out of inlining.
+────╯

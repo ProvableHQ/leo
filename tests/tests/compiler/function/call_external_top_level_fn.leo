@@ -13,7 +13,7 @@ program child.aleo {
     constructor() {}
 }
 
-fn foo() -> u32 {
+fn _foo() -> u32 {
     return 42u32;
 }
 
@@ -23,7 +23,7 @@ import child.aleo;
 
 program parent.aleo {
     fn main() -> u32 {
-        return child.aleo::foo();
+        return child.aleo::_foo();
     }
 
     @noupgrade

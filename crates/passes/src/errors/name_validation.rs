@@ -50,3 +50,15 @@ pub(crate) fn illegal_name_content(
     )
     .with_help(format!("Rename the {item_type} so it does not contain `{keyword}` as a substring."))
 }
+
+pub(crate) fn name_starts_with_underscore(item_name: impl Display, item_type: impl Display, span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 2,
+        format!("{item_type} `{item_name}` cannot have a name that starts with `_`"),
+        span,
+    )
+    .with_help(format!(
+        "{item_type} names are written to the Aleo bytecode and must start with a letter. Rename to avoid the leading underscore."
+    ))
+}

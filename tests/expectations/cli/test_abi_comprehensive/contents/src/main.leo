@@ -132,7 +132,7 @@ program abi_test.aleo {
 
     // Async transition with finalize
     fn async_with_finalize(public amount: u64) -> Final {
-        return final { let dummy: u64 = amount + 1u64; };
+        return final { let _dummy: u64 = amount + 1u64; };
     }
 
     // Async transition that updates mapping

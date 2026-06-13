@@ -1,0 +1,10 @@
+program test.aleo {
+    fn main() -> u32 {
+        return _value;
+    }
+}
+    fn foo(_param: u32) -> u32 {
+        return _param;
+    }
+
+

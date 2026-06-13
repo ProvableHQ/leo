@@ -6,7 +6,7 @@ program test.aleo {
         let powers_of_two: u8 = 0u8;
         // Since field ints are 253 bits or fewer, any number in the field
         // will have at most 252 powers of two in its prime factoring.
-        for i: u8 in 0u8..252u8 {
+        for _i: u8 in 0u8..252u8 {
             if is_even_and_nonzero(remaining_n) {
                 remaining_n = remaining_n / 2field;
                 powers_of_two = powers_of_two + 1u8;

@@ -5,7 +5,7 @@ program const_generics.aleo {
     constructor() {}
 }
 
-fn bar(x: field) -> field {
+fn _bar(_x: field) -> field {
     return abc::[0]();
 }
 

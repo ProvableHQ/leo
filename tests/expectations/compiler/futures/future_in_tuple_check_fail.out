@@ -1,4 +1,4 @@
-[ETYC0372104] Error: not all `Final`s were consumed: result2
+[ETYC0372104] Error: not all `Final`s were consumed: _result2
     ╭─[ compiler-test:18:19 ]
     │
  18 │ ╭─▶             final {

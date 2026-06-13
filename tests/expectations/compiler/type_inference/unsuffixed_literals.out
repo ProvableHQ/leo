@@ -1,161 +1,161 @@
 [ECEV0378000] Error: binary operation `0u8 - 1u8` failed at compile time: sub overflow
-    ╭─[ compiler-test:73:18 ]
+    ╭─[ compiler-test:73:19 ]
     │
- 73 │         let f0 = a0 - 1;
+ 73 │         let _f0 = a0 - 1;
     │ 
     │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ────╯
 [ECEV0378000] Error: binary operation `0u16 - 1u16` failed at compile time: sub overflow
-    ╭─[ compiler-test:74:18 ]
+    ╭─[ compiler-test:74:19 ]
     │
- 74 │         let f1 = a1 - 1u16;
+ 74 │         let _f1 = a1 - 1u16;
     │ 
     │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ────╯
 [ECEV0378000] Error: binary operation `0u128 - 1u128` failed at compile time: sub overflow
-    ╭─[ compiler-test:77:24 ]
+    ╭─[ compiler-test:77:25 ]
     │
- 77 │         let f4: u128 = a4 - 1;
+ 77 │         let _f4: u128 = a4 - 1;
     │ 
     │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ────╯
 [ECEV0378000] Error: binary operation `1u32 / 0u32` failed at compile time: div overflow
-     ╭─[ compiler-test:106:18 ]
+     ╭─[ compiler-test:106:19 ]
      │
- 106 │         let h2 = 1 / a2;
+ 106 │         let _h2 = 1 / a2;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u64 / 0u64` failed at compile time: div overflow
-     ╭─[ compiler-test:107:18 ]
+     ╭─[ compiler-test:107:19 ]
      │
- 107 │         let h3 = 1u64 / a3;
+ 107 │         let _h3 = 1u64 / a3;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i16 / 0i16` failed at compile time: div overflow
-     ╭─[ compiler-test:110:23 ]
+     ╭─[ compiler-test:110:24 ]
      │
- 110 │         let h6: i16 = 1 / a6;
+ 110 │         let _h6: i16 = 1 / a6;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i32 / 0i32` failed at compile time: div overflow
-     ╭─[ compiler-test:111:23 ]
+     ╭─[ compiler-test:111:24 ]
      │
- 111 │         let h7: i32 = 1i32 / a7;
+ 111 │         let _h7: i32 = 1i32 / a7;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u32 % 0u32` failed at compile time: rem error
-     ╭─[ compiler-test:119:18 ]
+     ╭─[ compiler-test:119:19 ]
      │
- 119 │         let i2 = 1 % a2;
+ 119 │         let _i2 = 1 % a2;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u64 % 0u64` failed at compile time: rem error
-     ╭─[ compiler-test:120:18 ]
+     ╭─[ compiler-test:120:19 ]
      │
- 120 │         let i3 = 1u64 % a3;
+ 120 │         let _i3 = 1u64 % a3;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i16 % 0i16` failed at compile time: rem error
-     ╭─[ compiler-test:123:23 ]
+     ╭─[ compiler-test:123:24 ]
      │
- 123 │         let i6: i16 = 1 % a6;
+ 123 │         let _i6: i16 = 1 % a6;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i32 % 0i32` failed at compile time: rem error
-     ╭─[ compiler-test:124:23 ]
+     ╭─[ compiler-test:124:24 ]
      │
- 124 │         let i7: i32 = 1i32 % a7;
+ 124 │         let _i7: i32 = 1i32 % a7;
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u32 rem_wrapped 0u32` failed at compile time: Type error
-     ╭─[ compiler-test:131:18 ]
+     ╭─[ compiler-test:131:19 ]
      │
- 131 │         let j2 = 1.rem_wrapped(a2);
+ 131 │         let _j2 = 1.rem_wrapped(a2);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u64 rem_wrapped 0u64` failed at compile time: Type error
-     ╭─[ compiler-test:132:18 ]
+     ╭─[ compiler-test:132:19 ]
      │
- 132 │         let j3 = 1u64.rem_wrapped(a3);
+ 132 │         let _j3 = 1u64.rem_wrapped(a3);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i16 rem_wrapped 0i16` failed at compile time: Type error
-     ╭─[ compiler-test:135:23 ]
+     ╭─[ compiler-test:135:24 ]
      │
- 135 │         let j6: i16 = 1.rem_wrapped(a6);
+ 135 │         let _j6: i16 = 1.rem_wrapped(a6);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i32 rem_wrapped 0i32` failed at compile time: Type error
-     ╭─[ compiler-test:136:23 ]
+     ╭─[ compiler-test:136:24 ]
      │
- 136 │         let j7: i32 = 1i32.rem_wrapped(a7);
+ 136 │         let _j7: i32 = 1i32.rem_wrapped(a7);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u32 mod 0u32` failed at compile time: mod overflow
-     ╭─[ compiler-test:143:18 ]
+     ╭─[ compiler-test:143:19 ]
      │
- 143 │         let k2 = 1.mod(a2);
+ 143 │         let _k2 = 1.mod(a2);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u64 mod 0u64` failed at compile time: mod overflow
-     ╭─[ compiler-test:144:18 ]
+     ╭─[ compiler-test:144:19 ]
      │
- 144 │         let k3 = 1u64.mod(a3);
+ 144 │         let _k3 = 1u64.mod(a3);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u16 mod 0u16` failed at compile time: mod overflow
-     ╭─[ compiler-test:147:23 ]
+     ╭─[ compiler-test:147:24 ]
      │
- 147 │         let k6: u16 = 1.mod(a1);
+ 147 │         let _k6: u16 = 1.mod(a1);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u32 mod 0u32` failed at compile time: mod overflow
-     ╭─[ compiler-test:148:23 ]
+     ╭─[ compiler-test:148:24 ]
      │
- 148 │         let k7: u32 = 1u32.mod(a2);
+ 148 │         let _k7: u32 = 1u32.mod(a2);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u32 div_wrapped 0u32` failed at compile time: Type error
-     ╭─[ compiler-test:246:18 ]
+     ╭─[ compiler-test:246:19 ]
      │
- 246 │         let s2 = 1.div_wrapped(a2);
+ 246 │         let _s2 = 1.div_wrapped(a2);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1u64 div_wrapped 0u64` failed at compile time: Type error
-     ╭─[ compiler-test:247:18 ]
+     ╭─[ compiler-test:247:19 ]
      │
- 247 │         let s3 = 1u64.div_wrapped(a3);
+ 247 │         let _s3 = 1u64.div_wrapped(a3);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i16 div_wrapped 0i16` failed at compile time: Type error
-     ╭─[ compiler-test:250:23 ]
+     ╭─[ compiler-test:250:24 ]
      │
- 250 │         let s6: i16 = 1.div_wrapped(a6);
+ 250 │         let _s6: i16 = 1.div_wrapped(a6);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯
 [ECEV0378000] Error: binary operation `1i32 div_wrapped 0i32` failed at compile time: Type error
-     ╭─[ compiler-test:251:23 ]
+     ╭─[ compiler-test:251:24 ]
      │
- 251 │         let s7: i32 = 1i32.div_wrapped(a7);
+ 251 │         let _s7: i32 = 1i32.div_wrapped(a7);
      │ 
      │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ─────╯

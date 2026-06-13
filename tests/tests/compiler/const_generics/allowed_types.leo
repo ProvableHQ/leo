@@ -67,7 +67,7 @@ program test.aleo {
     }
 
     fn main2() {
-        let f = Foo::[
+        let _f = Foo::[
             true,
             8,
             16,

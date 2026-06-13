@@ -12,7 +12,7 @@ program child.aleo {
 
 // --- Next Module: utils.leo --- //
 
-fn helper(x: u32) -> u32 {
+fn _helper(x: u32) -> u32 {
     return x * 2u32;
 }
 
@@ -22,7 +22,7 @@ import child.aleo;
 
 program parent.aleo {
     fn call_helper(x: u32) -> u32 {
-        return child.aleo::utils::helper(x);
+        return child.aleo::utils::_helper(x);
     }
 
     @noupgrade

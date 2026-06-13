@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `child.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import child.aleo;
+───╯
 program child.aleo;
 
 struct Bar__DI7sPAg0NJ0:

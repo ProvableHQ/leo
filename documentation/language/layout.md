@@ -61,24 +61,9 @@ The dependency resolver will pull the imported program from the network or the l
 
 ### Program ID
 
-A program ID is declared as `{name}.{network}`.
-
-The first character of a `name` must be a lowercase letter.
-`name` can only contain lowercase letters, numbers, and underscores, and must not contain a double underscore (`__`) or the keyword `aleo` in it.
-
-Currently, `aleo` is the only supported `network` domain.
-
-```leo showLineNumbers
-program hello.aleo; // valid
-
-program Foo.aleo;   // invalid
-program baR.aleo;   // invalid
-program 0foo.aleo;  // invalid
-program 0_foo.aleo; // invalid
-program _foo.aleo;  // invalid
-program foo__bar.aleo;  // invalid
-program aleo.aleo;  // invalid
-```
+A program ID is declared as `{name}.{network}`. See
+[Program name (program ID)](./structure.md#program-name-program-id) for the
+naming rules and the full set of valid and invalid examples.
 
 ## Modules
 

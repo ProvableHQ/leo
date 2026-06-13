@@ -35,14 +35,14 @@ program test.aleo {
     }
 
     fn foo(a: u8, b: u8) -> u8 {
-        let c: u8 = a + b;
+        let _c: u8 = a + b;
         // For now allow this call to remain.
-        let d: u8 = eliminate_unused_function_call(a, b);
+        let _d: u8 = eliminate_unused_function_call(a, b);
         let e: u8 = 0u8;
         if (a == b) {
             e = inline_and_eliminate(a, b);
         }
-        let f: dummy = dummy { owner: self.signer, data: e };
+        let _f: dummy = dummy { owner: self.signer, data: e };
         return a + b;
     }
 
