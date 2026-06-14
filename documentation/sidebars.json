@@ -67,6 +67,7 @@
         },
         "language/libraries",
         "language/style",
+        "language/diagnostics",
         "language/cheatsheet"
       ]
     },

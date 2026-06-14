@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `test_dep.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import test_dep.aleo;
+───╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:28:9 ]
     │
@@ -27,6 +32,139 @@
     │     
     │     Help: Add `.run()` calls so every path consumes each `Final` exactly once.
 ────╯
+program test_dep.aleo;
+
+record yeets:
+    owner as address.private;
+    val as u32.private;
+
+mapping Yo:
+    key as u32.public;
+    value as u32.public;
+
+function main_dep:
+    input r0 as u32.private;
+    async main_dep r0 into r1;
+    cast self.signer 1u32 into r2 as yeets.record;
+    output r2 as yeets.record;
+    output r1 as test_dep.aleo/main_dep.future;
+
+finalize main_dep:
+    input r0 as u32.public;
+    set 1u32 into Yo[r0];
+    add r0 1u32 into r1;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import test_dep.aleo;
+program test.aleo;
+
+mapping ayo:
+    key as u32.public;
+    value as u32.public;
+
+function main:
+    input r0 as u32.private;
+    call test_dep.aleo/main_dep 10u32 into r1 r2;
+    call test_dep.aleo/main_dep 1u32 into r3 r4;
+    async main r2 r4 into r5;
+    output r0 as u32.private;
+    output r5 as test.aleo/main.future;
+
+finalize main:
+    input r0 as test_dep.aleo/main_dep.future;
+    input r1 as test_dep.aleo/main_dep.future;
+    await r0;
+    await r1;
+    set 1u32 into ayo[1u32];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import test.aleo;
+import test_dep.aleo;
+program wrapper.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call test.aleo/main 1u32 into r2 r3;
+    call test.aleo/main 1u32 into r4 r5;
+    call test.aleo/main 1u32 into r6 r7;
+    async main r3 r5 r7 into r8;
+    output r2 as u32.private;
+    output r8 as wrapper.aleo/main.future;
+
+finalize main:
+    input r0 as test.aleo/main.future;
+    input r1 as test.aleo/main.future;
+    input r2 as test.aleo/main.future;
+    await r0;
+    await r1;
+    await r2;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import test.aleo;
+import test_dep.aleo;
+import wrapper.aleo;
+program big_wrapper.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call wrapper.aleo/main 10u32 10u32 into r2 r3;
+    async main r3 into r4;
+    output r1 as u32.private;
+    output r4 as big_wrapper.aleo/main.future;
+
+finalize main:
+    input r0 as wrapper.aleo/main.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
+    ╭─[ compiler-test:28:9 ]
+    │
+ 28 │         Mapping::set(ayo, 1u32, 1u32);
+    │ 
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
+────╯
+[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
+    ╭─[ compiler-test:30:5 ]
+    │
+ 30 │     Mapping::set(ayo, 1u32, a);
+    │ 
+    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
+    │ 
+    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
+────╯
+[WSAZ0374000] Warning: not all paths through the function run every `Final` (2/4 paths leave at least one `Final` un-run)
+    ╭─[ compiler-test:20:1 ]
+    │
+ 20 │ ╭─▶ final fn finalize_main(f: Final, f2: Final, a: u32) {
+    ┆ ┆   
+ 31 │ ├─▶ }
+    │ │       
+    │ ╰─────── here
+    │     
+    │     Help: Add `.run()` calls so every path consumes each `Final` exactly once.
+────╯
+[WUNU03714003] Warning: unused import: `test_dep.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import test_dep.aleo;
+───╯
 program test_dep.aleo;
 
 record yeets:

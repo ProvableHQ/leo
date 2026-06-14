@@ -39,3 +39,8 @@ Note: Treating dependencies as Aleo produces different results:
     │ 
     │ Help: Check `child.aleo::MAIN_CONST` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯
+[WUNU03714004] Warning: constant `SUB_CONST` is never used
+   ╭─[ sub.leo:2:7 ]
+   │
+ 2 │ const SUB_CONST: u32 = 10u32;
+───╯

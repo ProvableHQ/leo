@@ -3,6 +3,6 @@ program constr.aleo {
 
     @custom
     constructor() {
-        let x = self.program_owner;
+        let _x = self.program_owner;
     }
 }

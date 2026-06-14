@@ -1,3 +1,8 @@
+[WUNU03714002] Warning: struct `Message` is never constructed
+   ╭─[ compiler-test:6:8 ]
+   │
+ 6 │ struct Message {
+───╯
 program test.aleo;
 
 function main:

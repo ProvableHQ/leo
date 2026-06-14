@@ -19,8 +19,8 @@ program test.aleo {
     }
 
     fn literal_ops_on_signature(a: bool, b: signature, c: signature) -> signature {
-        let equal: bool = b == c;
-        let not_equal: bool = b != c;
+        let _equal: bool = b == c;
+        let _not_equal: bool = b != c;
         let ternary: signature = a ? b : c;
 
         return ternary;

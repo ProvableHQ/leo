@@ -13,11 +13,11 @@ program dependent.aleo {
     constructor() {}
 }
 
-final fn finalize1(x: u8) {
+final fn finalize1(_x: u8) {
     assert_eq(1u8, 1u8);
 }
 
-final fn finalize2(x: u8) {
+final fn finalize2(_x: u8) {
     assert_eq(1u8, 1u8);
 }
 

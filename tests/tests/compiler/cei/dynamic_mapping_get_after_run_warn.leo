@@ -37,5 +37,5 @@ final fn finalize_do_work(f: Final, target: field, key: address) {
     // [I] Interaction
     f.run();
     // [C] Dynamic mapping get after interaction — should warn
-    let val: u64 = Bank@(target)::balances.get(key);
+    let _val: u64 = Bank@(target)::balances.get(key);
 }

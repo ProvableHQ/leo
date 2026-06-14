@@ -1,3 +1,8 @@
+[WUNU03714001] Warning: unused variable: `a`
+    ╭─[ compiler-test:16:37 ]
+    │
+ 16 │ final fn finalize_do_work(f: Final, a: u32) {
+────╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
     ╭─[ compiler-test:20:5 ]
     │

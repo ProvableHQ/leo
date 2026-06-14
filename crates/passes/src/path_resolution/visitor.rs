@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CompilerState;
-use leo_ast::NodeID;
+use leo_ast::{Location, NodeID, Path};
 
 use leo_span::Symbol;
 
@@ -42,5 +42,21 @@ impl PathResolutionVisitor<'_> {
         let result = func(self);
         self.state.symbol_table.enter_parent();
         result
+    }
+
+    /// Resolve a composite-init shorthand identifier to a fully-resolved `Path`. Mirrors
+    /// the type checker's shorthand lookup in `type_checking::ast::visit_composite_init`:
+    /// a local binding wins over a top-level (program-scope) global. Returns `None` when
+    /// neither resolution succeeds — callers leave the shorthand untouched in that case
+    /// so the type checker can emit its focused error.
+    pub fn resolve_shorthand(&self, identifier: leo_ast::Identifier) -> Option<Path> {
+        if self.state.symbol_table.lookup_local(identifier.name).is_some() {
+            return Some(Path::from(identifier).to_local());
+        }
+        let loc = Location::new(self.program, vec![identifier.name]);
+        if self.state.symbol_table.lookup_global(self.program, &loc).is_some() {
+            return Some(Path::from(identifier).to_global(loc));
+        }
+        None
     }
 }

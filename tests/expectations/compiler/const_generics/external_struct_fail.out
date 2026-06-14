@@ -43,9 +43,9 @@ Note: Treating dependencies as Aleo produces different results:
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372005] Error: unknown struct or record `child.aleo::Bar`
-   ╭─[ compiler-test:6:17 ]
+   ╭─[ compiler-test:6:18 ]
    │
- 6 │         let b = child.aleo::Bar::[3] { x: 0 };
+ 6 │         let _b = child.aleo::Bar::[3] { x: 0 };
    │ 
    │ Help: Check `child.aleo::Bar` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

@@ -20,7 +20,7 @@ struct Point {
     y: u32,
 }
 
-fn make_point(x: u32, y: u32) -> Point {
+fn _make_point(x: u32, y: u32) -> Point {
     return Point { x: x, y: y };
 }
 

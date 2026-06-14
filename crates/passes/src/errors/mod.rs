@@ -22,3 +22,4 @@ pub(crate) mod loop_unroller;
 pub(crate) mod name_validation;
 pub(crate) mod static_analyzer;
 pub(crate) mod type_checker;
+pub(crate) mod unused_items;

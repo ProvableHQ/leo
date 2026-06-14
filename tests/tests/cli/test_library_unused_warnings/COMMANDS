@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Exhaustive coverage of unused-items warnings when building a library directly.
+# Library top-level fns are the public surface and must NOT warn; everything
+# else (locals, top-level consts/structs, submodule fns/consts) still does.
+
+LEO_BIN=${1}
+
+cd my_lib || exit 1
+
+echo "--- leo build (library, exhaustive unused warnings) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check build
+echo "build exit code: $?"

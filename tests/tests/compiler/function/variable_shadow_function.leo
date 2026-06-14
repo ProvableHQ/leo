@@ -1,4 +1,4 @@
-fn f1(a: u8) -> u8 {
+fn _f1(a: u8) -> u8 {
     return a * 100u8;
 }
 

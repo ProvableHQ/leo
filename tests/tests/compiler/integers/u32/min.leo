@@ -1,6 +1,6 @@
 program test.aleo {
     fn main(y: bool) -> bool {
-        let a: u32 = 0u32;
+        let _a: u32 = 0u32;
         return y == true;
     }
 

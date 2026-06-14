@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `impl_ops.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import impl_ops.aleo;
+───╯
 program impl_ops.aleo;
 
 function process:

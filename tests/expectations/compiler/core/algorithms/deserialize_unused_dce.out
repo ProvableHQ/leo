@@ -1,3 +1,28 @@
+[WUNU03714001] Warning: unused variable: `value`
+   ╭─[ compiler-test:3:13 ]
+   │
+ 3 │         let value: field = Deserialize::from_bits_raw::[field](bits);
+───╯
+[WUNU03714001] Warning: unused variable: `commitment`
+   ╭─[ compiler-test:8:13 ]
+   │
+ 8 │         let commitment: field = BHP256::commit_to_field(value, randomness);
+───╯
+[WUNU03714001] Warning: unused variable: `ecdsa_result`
+    ╭─[ compiler-test:46:9 ]
+    │
+ 46 │     let ecdsa_result: bool = ECDSA::verify_digest(sig, addr, digest);
+────╯
+[WUNU03714001] Warning: unused variable: `snark_result`
+    ╭─[ compiler-test:47:9 ]
+    │
+ 47 │     let snark_result: bool = Snark::verify(vk, varuna_version, inputs, proof);
+────╯
+[WUNU03714001] Warning: unused variable: `batch_result`
+    ╭─[ compiler-test:48:9 ]
+    │
+ 48 │     let batch_result: bool = Snark::verify_batch(vks, varuna_version, batch_inputs, proof);
+────╯
 program test.aleo;
 
 function unused_deserialize:

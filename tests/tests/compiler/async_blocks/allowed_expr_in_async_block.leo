@@ -3,12 +3,12 @@ program test.aleo {
 
     fn t1() -> Final {
         return final {
-            let b = block.height;
-            let t = block.timestamp;
-            let i = network.id;
+            let _b = block.height;
+            let _t = block.timestamp;
+            let _i = network.id;
             foo.set(0u32, 0u32);
-            let s1 = foo.get(0u32);
-            let s2 = foo.get_or_use(0u32, 0u32);
+            let _s1 = foo.get(0u32);
+            let _s2 = foo.get_or_use(0u32, 0u32);
             foo.remove(0u32);
             assert(!foo.contains(0u32));
         };

@@ -30,6 +30,15 @@ impl NameValidationVisitor<'_> {
         }
     }
 
+    /// Reject names starting with `_` at positions where the name reaches the Aleo VM, which
+    /// requires identifiers to start with a letter.
+    pub fn does_not_start_with_underscore(&self, name: Identifier, item_type: &str) {
+        if crate::unused_items::name_starts_with_underscore(name.name) {
+            self.handler
+                .emit_err(crate::errors::name_validation::name_starts_with_underscore(name, item_type, name.span));
+        }
+    }
+
     pub fn is_not_keyword(&self, name: Identifier, item_type: &str, whitelist: &[&str]) {
         // Flatten RESTRICTED_KEYWORDS by ignoring ConsensusVersion
         let restricted = Program::<TestnetV0>::RESTRICTED_KEYWORDS.iter().flat_map(|(_, kws)| kws.iter().copied());

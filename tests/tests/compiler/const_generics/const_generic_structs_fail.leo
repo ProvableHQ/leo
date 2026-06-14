@@ -4,7 +4,7 @@ struct Foo::[N: u32] {
 
 program test.aleo {
     fn main(x: u32) {
-        let f = Foo::[x] { y: 0 };
+        let _f = Foo::[x] { y: 0 };
     }
 
     @noupgrade

@@ -36,3 +36,8 @@ Note: Treating dependencies as Aleo produces different results:
    │ 
    │ Help: Check `child.aleo::math::helper` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
+[WUNU03714000] Warning: function `helper` is never used
+   ╭─[ math.leo:3:4 ]
+   │
+ 3 │ fn helper(x: u32) -> u32 {
+───╯

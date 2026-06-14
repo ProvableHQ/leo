@@ -1,0 +1,14 @@
+[EPAR0370056] Error: binding name `_self_caller` collides with a compiler intrinsic
+   ╭─[ test:7:13 ]
+   │
+ 7 │         let _self_caller: address = aleo1qqq00000000000000000000000000000000000000000000000000004hkwch;
+   │ 
+   │ Help: Calls like `_self_caller()` always dispatch to the intrinsic, ignoring any same-named local. Rename the binding.
+───╯
+[EPAR0370001] Error: invalid address literal: `aleo1qqq00000000000000000000000000000000000000000000000000004hkwch`
+   ╭─[ test:7:37 ]
+   │
+ 7 │         let _self_caller: address = aleo1qqq00000000000000000000000000000000000000000000000000004hkwch;
+   │ 
+   │ Help: Aleo addresses are bech32-encoded and start with `aleo1`, e.g. `aleo1qg…`. Check the address for typos.
+───╯

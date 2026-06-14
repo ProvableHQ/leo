@@ -46,3 +46,8 @@ Note: Treating dependencies as Aleo produces different results:
    │ 
    │ Help: Check `child.aleo::add_const` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯
+[WUNU03714000] Warning: function `add_const` is never used
+    ╭─[ compiler-test:16:4 ]
+    │
+ 16 │ fn add_const::[N: u32](x: u32) -> u32 {
+────╯

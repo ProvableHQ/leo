@@ -1,3 +1,43 @@
+[WUNU03714001] Warning: unused variable: `b`
+    ╭─[ compiler-test:27:21 ]
+    │
+ 27 │                 let b = 0u32;
+────╯
+[WUNU03714001] Warning: unused variable: `c`
+    ╭─[ compiler-test:34:25 ]
+    │
+ 34 │                     let c = 0u32;
+────╯
+[WUNU03714001] Warning: unused variable: `d`
+    ╭─[ compiler-test:39:21 ]
+    │
+ 39 │                 let d = 0u32;
+────╯
+[WUNU03714001] Warning: unused variable: `y`
+   ╭─[ compiler-test:9:17 ]
+   │
+ 9 │             let y = (1u32, 2u8, 3u16);
+───╯
+[WUNU03714001] Warning: unused variable: `a`
+    ╭─[ compiler-test:10:17 ]
+    │
+ 10 │             let a = [1u32, 2u32];
+────╯
+[WUNU03714001] Warning: unused variable: `x`
+    ╭─[ compiler-test:11:17 ]
+    │
+ 11 │             let x = 0u32;
+────╯
+[WUNU03714001] Warning: unused variable: `s`
+    ╭─[ compiler-test:12:17 ]
+    │
+ 12 │             let s = Foo { x: 9, y: 4 };
+────╯
+[WUNU03714001] Warning: unused variable: `w`
+    ╭─[ compiler-test:22:17 ]
+    │
+ 22 │             let w = 0u32;
+────╯
 program test.aleo;
 
 struct Foo:

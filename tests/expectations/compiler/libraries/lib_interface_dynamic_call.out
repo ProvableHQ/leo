@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `impl_cross.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import impl_cross.aleo;
+───╯
 program impl_cross.aleo;
 
 function fetch:

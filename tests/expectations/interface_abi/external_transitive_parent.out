@@ -1,3 +1,13 @@
+[WUNU03714003] Warning: unused import: `lib_a.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import lib_a.aleo;
+───╯
+[WUNU03714003] Warning: unused import: `lib_b.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import lib_b.aleo;
+───╯
 // owner: lib_a.aleo
 {
   "name": "Base",

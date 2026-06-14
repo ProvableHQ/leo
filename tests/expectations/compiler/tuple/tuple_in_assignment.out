@@ -1,3 +1,8 @@
+[WUNU03714001] Warning: unused variable: `a`
+   ╭─[ compiler-test:3:13 ]
+   │
+ 3 │         let a: (u8, u16) = (foo, bar);
+───╯
 program test.aleo;
 
 function baz:

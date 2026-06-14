@@ -37,5 +37,5 @@ final fn finalize_do_work(f: Final, target: field) {
     // [I] Interaction
     f.run();
     // [C] Dynamic singleton read after interaction — should warn
-    let val: u64? = Counter@(target)::total;
+    let _val: u64? = Counter@(target)::total;
 }

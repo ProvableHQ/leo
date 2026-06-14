@@ -13,5 +13,5 @@ program test.aleo {
 }
 
 final fn finalize_query(target: field) {
-    let n: u32 = Logs@(target)::entries.len();
+    let _n: u32 = Logs@(target)::entries.len();
 }
