@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "4.2.0"
+version = "4.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
@@ -112,7 +112,7 @@ walkdir = { workspace = true }
 
 [target."cfg(unix)".dependencies]
 libc        = "0.2"
-nix         = { version = "0.30", features = [ "process", "term", "fs", "poll" ] }
+nix         = { version = "0.31", features = [ "process", "term", "fs", "poll" ] }
 signal-hook = { version = "0.4", features = [ "iterator" ] }
 
 [target."cfg(windows)".dependencies]
