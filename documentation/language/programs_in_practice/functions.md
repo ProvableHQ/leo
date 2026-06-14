@@ -52,6 +52,11 @@ When finalization logic is shared across multiple entry functions, it can be ext
 
 The body of `decrement_balance` is inlined into each caller's `final { }` block at compile time — no shared function exists in the compiled output.
 
+A `final fn` may also declare an output type and `return` a value, like an ordinary function. The result is bound at the call site inside the `final { }` block, which is useful for sharing a computed on-chain value across entry functions:
+
+```leo file=../../code_snippets/functions/final_fn_return/src/main.leo#file
+```
+
 ## View Functions
 
 A `view fn` is a read-only entry point. It is declared inside a `program {}` block with the `view` modifier and exposes a query that can be evaluated by a node without producing a transaction.

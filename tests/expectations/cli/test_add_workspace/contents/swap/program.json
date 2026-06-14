@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "leo": "4.2.0",
+  "leo": "4.3.0",
   "dependencies": [
     {
       "name": "token.aleo",
