@@ -184,7 +184,7 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 #[derive(Serialize)]
 #[serde(untagged)]
 #[allow(clippy::large_enum_variant)]
-enum JsonOutput {
+enum Output {
     Deploy(DeployOutput),
     Run(RunOutput),
     Execute(ExecuteOutput),
@@ -234,7 +234,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     let context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
 
     let command_name = cli.command.name();
-    let mut command_output: Option<JsonOutput> = None;
+    let mut command_output: Option<Output> = None;
 
     match cli.command {
         Commands::Add { command } => command.try_execute(context)?,
@@ -245,15 +245,15 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Query { command } => {
             let result = command.execute(context)?;
             let data = serde_json::from_str(&result).unwrap_or_else(|_| serde_json::Value::String(result));
-            command_output = Some(JsonOutput::Query(data));
+            command_output = Some(Output::Query(data));
         }
         Commands::Clean { command } => command.try_execute(context)?,
-        Commands::Deploy { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Deploy { command } => command_output = Some(Output::Deploy(command.execute(context)?)),
         Commands::Devnet { command } => command.try_execute(context)?,
         Commands::Devnode { command } => command.try_execute(context)?,
-        Commands::Run { command } => command_output = Some(JsonOutput::Run(command.execute(context)?)),
-        Commands::Test { command } => command_output = Some(JsonOutput::Test(command.execute(context)?)),
-        Commands::Execute { command } => command_output = Some(JsonOutput::Execute(command.execute(context)?)),
+        Commands::Run { command } => command_output = Some(Output::Run(command.execute(context)?)),
+        Commands::Test { command } => command_output = Some(Output::Test(command.execute(context)?)),
+        Commands::Execute { command } => command_output = Some(Output::Execute(command.execute(context)?)),
         Commands::Plugins => crate::cli::plugin::print_all(),
         Commands::External(args) => {
             let (name, plugin_args) = args.split_first().expect("external subcommand requires a name");
@@ -261,9 +261,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             crate::cli::plugin::exec(&name, plugin_args, Some(&context.dir()?))?;
         }
         Commands::Remove { command } => command.try_execute(context)?,
-        Commands::Synthesize { command } => command_output = Some(JsonOutput::Synthesize(command.execute(context)?)),
+        Commands::Synthesize { command } => command_output = Some(Output::Synthesize(command.execute(context)?)),
         Commands::Update { command } => command.try_execute(context)?,
-        Commands::Upgrade { command } => command_output = Some(JsonOutput::Deploy(command.execute(context)?)),
+        Commands::Upgrade { command } => command_output = Some(Output::Deploy(command.execute(context)?)),
     }
 
     if let Some(json_output_arg) = cli.json_output
@@ -290,7 +290,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             .map_err(|e| crate::errors::custom(format!("Failed to write JSON output to {}: {e}", path.display())))?;
     }
 
-    if let Some(JsonOutput::Test(output)) = &command_output
+    if let Some(Output::Test(output)) = &command_output
         && output.failed > 0
     {
         return Err(crate::errors::tests_failed(output.failed, output.tests.len()).into());
