@@ -13,6 +13,8 @@ program test.aleo {
         let unused_rem: u8 = x.rem_wrapped(0u8);
         let r: dyn record = t as dyn record;
         let unused_balance: field = r.balance;
+        let unused_balance_add: field = r.balance + 0field;
+        let unused_balance_negate: field = -r.balance;
         return x;
     }
 }

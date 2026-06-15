@@ -336,7 +336,11 @@ impl Expression {
                     // These can halt for any of their operand types.
                     Div | DivWrapped | Mod | Rem | RemWrapped | Shl | Shr => false,
                     // These can only halt for integers.
-                    Add | Mul | Pow | Sub => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Add | Mul | Pow | Sub => {
+                        expr.left.is_pure(get_type)
+                            && expr.right.is_pure(get_type)
+                            && !matches!(get_type(expr.id()), Type::Integer(..))
+                    }
                     _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
                 }
             }
@@ -346,7 +350,7 @@ impl Expression {
                     // These can halt for any of their operand types.
                     Abs | Inverse | SquareRoot => false,
                     // Negate can only halt for integers.
-                    Negate => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Negate => expr.receiver.is_pure(get_type) && !matches!(get_type(expr.id()), Type::Integer(..)),
                     _ => expr.receiver.is_pure(get_type),
                 }
             }
