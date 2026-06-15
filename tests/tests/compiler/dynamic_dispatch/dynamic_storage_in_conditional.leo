@@ -17,8 +17,8 @@ program test.aleo {
 
 final fn finalize_maybe_query(target: field, i: u32, cond: bool) {
     if cond {
-        let a: u64? = Counter@(target)::total;
-        let b: u64? = Counter@(target)::entries.get(i);
-        let c: u32 = Counter@(target)::entries.len();
+        let _a: u64? = Counter@(target)::total;
+        let _b: u64? = Counter@(target)::entries.get(i);
+        let _c: u32 = Counter@(target)::entries.len();
     }
 }

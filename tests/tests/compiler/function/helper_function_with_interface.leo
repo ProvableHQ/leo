@@ -12,6 +12,6 @@ struct Board {
     foo: u8,
 }
 
-fn win(b: Board, p: u8) -> bool {
+fn _win(_b: Board, _p: u8) -> bool {
     return false & true;
 }

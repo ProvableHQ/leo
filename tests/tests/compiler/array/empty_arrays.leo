@@ -10,7 +10,7 @@ program empty_arrays.aleo {
     constructor() {}
 }
 
-fn foo(a: u32, b: [u32; 0]) -> [u32; 0] {
+fn foo(_a: u32, b: [u32; 0]) -> [u32; 0] {
     let c = b;
     let d = c;
     return d;

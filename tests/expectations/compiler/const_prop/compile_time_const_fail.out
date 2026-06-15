@@ -1,21 +1,21 @@
 [ECEV0378000] Error: binary operation `1i32 / 0i32` failed at compile time: div overflow
-   ╭─[ compiler-test:1:16 ]
+   ╭─[ compiler-test:1:17 ]
    │
- 1 │ const A: i32 = 1i32 / 0i32;
+ 1 │ const _A: i32 = 1i32 / 0i32;
    │ 
    │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ───╯
 [ECEV0378000] Error: binary operation `255u8 + 1u8` failed at compile time: add overflow
-   ╭─[ compiler-test:3:15 ]
+   ╭─[ compiler-test:3:16 ]
    │
- 3 │ const B: u8 = 255u8 + 1u8;
+ 3 │ const _B: u8 = 255u8 + 1u8;
    │ 
    │ Help: The operands are constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operands to avoid the failure (e.g. division by zero or integer overflow).
 ───╯
 [ECEV0378001] Error: unary operation `0field.inv()` failed at compile time: attempt to invert 0field
-   ╭─[ compiler-test:5:18 ]
+   ╭─[ compiler-test:5:19 ]
    │
- 5 │ const C: field = 0field.inv();
+ 5 │ const _C: field = 0field.inv();
    │ 
    │ Help: The operand is constant, so this operation was evaluated at compile time and would also fail at runtime. Adjust the operand to avoid the failure (e.g. negating the minimum signed integer).
 ───╯

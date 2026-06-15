@@ -1,6 +1,11 @@
 Error [EDIS03713000]: failed to parse the source file for `.aleo` into a valid Aleo program
      |
-     = Verify that `.aleo` is valid Aleo bytecode. If it was produced by Leo, rebuild the dependency from source.
+     = Verify that `.aleo` is valid Aleo bytecode. If it was produced by Leo, rebuild the dependency from source.[WUNU03714003] Warning: unused import: `lib.aleo`
+   ╭─[ compiler-test:3:1 ]
+   │
+ 3 │ import lib.aleo;
+───╯
+
 
 ---
 Note: Treating dependencies as Aleo produces different results:

@@ -1,0 +1,6 @@
+[WUNU03714002] Warning: struct `Unused` is never constructed
+   ╭─[ SOURCE_DIRECTORY/main.leo:8:8 ]
+   │
+ 8 │ struct Unused {
+───╯
+

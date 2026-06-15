@@ -22,10 +22,10 @@ constructor:
 ---
 Note: Treating dependencies as Aleo produces different results:
 
-[ETYC0372005] Error: unknown function `child.aleo::foo`
+[ETYC0372005] Error: unknown function `child.aleo::_foo`
    ╭─[ compiler-test:7:16 ]
    │
- 7 │         return child.aleo::foo();
+ 7 │         return child.aleo::_foo();
    │ 
-   │ Help: Check `child.aleo::foo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+   │ Help: Check `child.aleo::_foo` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

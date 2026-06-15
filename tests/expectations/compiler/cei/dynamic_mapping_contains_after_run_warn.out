@@ -1,7 +1,7 @@
 [WCEI03713000] Warning: a `contains` call on dynamic storage runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:24:24 ]
+    ╭─[ compiler-test:24:25 ]
     │
- 24 │     let exists: bool = Bank@(target)::balances.contains(key);
+ 24 │     let _exists: bool = Bank@(target)::balances.contains(key);
     │ 
     │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
     │ 

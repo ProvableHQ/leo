@@ -7,4 +7,4 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint(receiver: address, amount: u64) {}
+final fn finalize_mint(_receiver: address, _amount: u64) {}

@@ -1,6 +1,6 @@
 // This should pass and insert
 // a dummy instruction into the empty function.
-fn x(a: bool) -> u8 {
+fn x(_a: bool) -> u8 {
     return 0u8;
 }
 

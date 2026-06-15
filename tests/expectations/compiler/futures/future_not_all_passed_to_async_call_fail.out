@@ -1,4 +1,4 @@
-[ETYC0372104] Error: not all `Final`s were consumed: f1
+[ETYC0372104] Error: not all `Final`s were consumed: _f1
     ╭─[ compiler-test:14:22 ]
     │
  14 │         return final { finalize_foo(f0, f3, f2, f5, f4); };

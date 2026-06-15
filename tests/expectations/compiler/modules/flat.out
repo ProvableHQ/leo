@@ -1,3 +1,8 @@
+[WUNU03714002] Warning: struct `Merge` is never constructed
+   ╭─[ compiler-test:1:8 ]
+   │
+ 1 │ struct Merge {
+───╯
 program flat_module_corner.aleo;
 
 struct Data__L3bYhFC4bsQ:

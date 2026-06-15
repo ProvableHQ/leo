@@ -36,9 +36,9 @@ program caller.aleo {
 
 final fn finalize_do_work(f: Final, target: field, key: address) {
     // [C] All dynamic ops before interaction — safe
-    let val: u64 = Bank@(target)::balances.get(key);
-    let exists: bool = Bank@(target)::balances.contains(key);
-    let total: u64? = Bank@(target)::total;
+    let _val: u64 = Bank@(target)::balances.get(key);
+    let _exists: bool = Bank@(target)::balances.contains(key);
+    let _total: u64? = Bank@(target)::total;
     // [I] Interaction after all checks
     f.run();
 }

@@ -1,0 +1,126 @@
+[WUNU03714001] Warning: unused variable: `dead_iter`
+    ╭─[ compiler-test:51:13 ]
+    │
+ 51 │         for dead_iter: u32 in 0u32..1u32 {}
+────╯
+[WUNU03714001] Warning: unused variable: `dead_let`
+    ╭─[ compiler-test:45:13 ]
+    │
+ 45 │         let dead_let: u32 = 0u32;
+────╯
+[WUNU03714004] Warning: constant `DEAD_LOCAL` is never used
+    ╭─[ compiler-test:48:15 ]
+    │
+ 48 │         const DEAD_LOCAL: u32 = 0u32;
+────╯
+[WUNU03714001] Warning: unused variable: `dead_tup`
+    ╭─[ compiler-test:54:24 ]
+    │
+ 54 │         let (used_tup, dead_tup): (u32, u32) = pair(x);
+────╯
+[WUNU03714001] Warning: unused variable: `DEAD_N`
+    ╭─[ compiler-test:71:13 ]
+    │
+ 71 │ fn helper::[DEAD_N: u32](used: u32, dead_param: u32) -> u32 {
+────╯
+[WUNU03714001] Warning: unused variable: `dead_param`
+    ╭─[ compiler-test:71:37 ]
+    │
+ 71 │ fn helper::[DEAD_N: u32](used: u32, dead_param: u32) -> u32 {
+────╯
+[WUNU03714005] Warning: used binding `_y` whose name begins with `_`
+    ╭─[ compiler-test:87:20 ]
+    │
+ 87 │ fn read_underscore(_y: u32) -> u32 {
+    │ 
+    │ Help: Remove the leading `_` from the name, or stop reading the binding.
+────╯
+[WUNU03714001] Warning: unused variable: `dead_module_local`
+    ╭─[ utils.leo:18:9 ]
+    │
+ 18 │     let dead_module_local: u32 = 0u32;
+────╯
+[WUNU03714000] Warning: function `orphan` is never used
+    ╭─[ compiler-test:76:4 ]
+    │
+ 76 │ fn orphan(x: u32) -> u32 {
+────╯
+[WUNU03714000] Warning: function `orphan_final` is never used
+    ╭─[ compiler-test:81:10 ]
+    │
+ 81 │ final fn orphan_final(addr: address, n: u128) {
+────╯
+[WUNU03714002] Warning: struct `DeadTopStruct` is never constructed
+    ╭─[ compiler-test:10:8 ]
+    │
+ 10 │ struct DeadTopStruct {
+────╯
+[WUNU03714002] Warning: struct `A` is never constructed
+    ╭─[ compiler-test:16:8 ]
+    │
+ 16 │ struct A {
+────╯
+[WUNU03714002] Warning: struct `B` is never constructed
+    ╭─[ compiler-test:19:8 ]
+    │
+ 19 │ struct B {
+────╯
+[WUNU03714004] Warning: constant `DEAD_TOP` is never used
+    ╭─[ compiler-test:31:7 ]
+    │
+ 31 │ const DEAD_TOP: u32 = 1u32;
+────╯
+[WUNU03714000] Warning: function `dead_module_fn` is never used
+    ╭─[ utils.leo:23:4 ]
+    │
+ 23 │ fn dead_module_fn(x: u32) -> u32 {
+────╯
+[WUNU03714002] Warning: struct `DeadModuleStruct` is never constructed
+    ╭─[ utils.leo:10:8 ]
+    │
+ 10 │ struct DeadModuleStruct {
+────╯
+[WUNU03714004] Warning: constant `DEAD_MODULE_CONST` is never used
+   ╭─[ utils.leo:7:7 ]
+   │
+ 7 │ const DEAD_MODULE_CONST: u32 = 1u32;
+───╯
+[WUNU03714003] Warning: unused import: `ext.aleo`
+   ╭─[ compiler-test:5:1 ]
+   │
+ 5 │ import ext.aleo;
+───╯
+program ext.aleo;
+
+function from_ext:
+    output 7u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import ext.aleo;
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+struct UsedStruct:
+    a as u32;
+
+mapping balances:
+    key as address.public;
+    value as u128.public;
+
+function main:
+    input r0 as u32.private;
+    add r0 2u32 into r1;
+    add r1 r0 into r2;
+    add r2 r0 into r3;
+    add r3 r0 into r4;
+    add r0 1u32 into r5;
+    add r4 r5 into r6;
+    output r6 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

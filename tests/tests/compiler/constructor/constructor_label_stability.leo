@@ -9,7 +9,7 @@ program test.aleo {
     constructor() {
         let current_edition: u16 = self.edition;
         if current_edition > 0u16 {
-            let current_checksum: [u8; 32] = self.checksum;
+            let _current_checksum: [u8; 32] = self.checksum;
         } else {
             admin.set(true, self.program_owner);
         }

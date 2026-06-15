@@ -19,7 +19,7 @@ program all_module_features.aleo {
         let result = gamma::consume_inner(g);
 
         // Struct with field type from another module
-        let composed = Nested { a: s1, b: s2, c: g };
+        let _composed = Nested { a: s1, b: s2, c: g };
         // Inline function call that takes struct from another module
         return x1 + x2 + x3 + s2.val[1] + result;
     }
@@ -39,7 +39,7 @@ struct SharedName {
 }
 
 // Inline returning its own struct
-fn make() -> SharedName {
+fn _make() -> SharedName {
     return SharedName { val: 99 };
 }
 
@@ -54,7 +54,7 @@ struct SharedName::[N: u32] {
 }
 
 // Inline using generic struct
-fn make() -> SharedName::[X] {
+fn _make() -> SharedName::[X] {
     return SharedName::[X] { val: [5; X] };
 }
 

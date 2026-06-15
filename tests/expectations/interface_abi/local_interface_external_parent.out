@@ -1,3 +1,8 @@
+[WUNU03714003] Warning: unused import: `lib.aleo`
+   ╭─[ compiler-test:2:1 ]
+   │
+ 2 │ import lib.aleo;
+───╯
 // owner: local
 {
   "name": "Extended",

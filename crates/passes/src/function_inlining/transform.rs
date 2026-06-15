@@ -294,6 +294,12 @@ impl AstReconstructor for TransformVisitor<'_> {
                     self.always_inline.contains(&vec![callee.identifier.name]),
                     "this function has been called from another function",
                 ) ||
+                // A leading `_` marks the function intentionally unused; force-inline so the
+                // name never reaches the VM as a closure identifier.
+                mandatory_cond(
+                    crate::unused_items::name_starts_with_underscore(callee.identifier.name),
+                    "this function name starts with `_`",
+                ) ||
                 // Called only once
                 optional_cond(*call_count_ref == 1) ||
                 // Has no arguments

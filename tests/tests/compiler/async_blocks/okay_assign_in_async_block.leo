@@ -35,7 +35,7 @@ program test.aleo {
                     c = 1;
                 }
             }
-            for i in 0u32..2u32 {
+            for _i in 0u32..2u32 {
                 let d = 0u32;
                 d = 1;
             }
