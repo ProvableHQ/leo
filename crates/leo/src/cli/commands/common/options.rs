@@ -366,8 +366,7 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<
 
 /// Validates a vector of heights as consensus heights.
 pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
-    // There must be exactly one height per consensus version. snarkVM parses the heights into a
-    // fixed-size array and panics on a mismatch, so reject the wrong count here with a clear error.
+    // There must be exactly one height per consensus version.
     let expected = ConsensusVersion::latest() as usize;
     ensure!(
         heights.len() == expected,

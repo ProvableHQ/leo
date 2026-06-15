@@ -145,7 +145,6 @@ commands:
               choco install llvm --no-progress -y
             }
             $llvmBin = "C:\Program Files\LLVM\bin"
-            # clang-sys `dlopen`s libclang via LIBCLANG_PATH (Machine scope persists); no loader PATH needed.
             [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Process")
             [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $llvmBin, "Machine")
       - save_cache:
