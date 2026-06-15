@@ -4,7 +4,6 @@
        Leo 🔨 Compiling 'persistent_counter.aleo'
        Leo     10 statements before dead code elimination.
        Leo     12 statements after dead code elimination.
-       Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
        Leo     Program size: 0.40 KB / 2000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
@@ -82,7 +81,6 @@ Transaction accepted.
        Leo 🔨 Compiling 'persistent_counter.aleo'
        Leo     10 statements before dead code elimination.
        Leo     12 statements after dead code elimination.
-       Leo     The program checksum is: '[157u8, 110u8, 134u8, 241u8, 199u8, 123u8, 101u8, 60u8, 76u8, 81u8, 214u8, 240u8, 161u8, 15u8, 182u8, 89u8, 168u8, 174u8, 52u8, 164u8, 13u8, 189u8, 147u8, 8u8, 177u8, 156u8, 172u8, 39u8, 150u8, 195u8, 225u8, 113u8]'.
        Leo     Program size: 0.40 KB / 2000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.

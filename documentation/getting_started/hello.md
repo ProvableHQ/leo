@@ -111,7 +111,6 @@ leo run main 1u32 2u32
 ```bash title="console output:"
        Leo     2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
-       Leo     The program checksum is: '[212u8, 91u8, ... , 107u8]'.
        Leo ✅ Compiled 'hello.aleo' into Aleo instructions.
 
 ⛓  Constraints

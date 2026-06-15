@@ -5,7 +5,6 @@
        Leo 🔨 Compiling 'test_run_view_rejected.aleo'
        Leo     6 statements before dead code elimination.
        Leo     7 statements after dead code elimination.
-       Leo     The program checksum is: '[1u8, 43u8, 21u8, 138u8, 213u8, 227u8, 250u8, 18u8, 2u8, 90u8, 97u8, 212u8, 0u8, 159u8, 18u8, 119u8, 199u8, 226u8, 137u8, 197u8, 2u8, 164u8, 98u8, 134u8, 100u8, 134u8, 88u8, 242u8, 18u8, 177u8, 87u8, 118u8]'.
        Leo     Program size: 0.34 KB / 2000.00 KB
        Leo ✅ Compiled 'test_run_view_rejected.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_run_view_rejected.aleo'.

@@ -82,9 +82,11 @@ Specifies the path to the `.aleo` program registry. This is where programs downl
 Saves structured JSON output to disk.
 
 - **Default location**: `build/json-outputs/<command>.json`
-- **Custom path**: `--json-output=my-results.json`
+- **Custom file**: `--json-output=my-results.json`
 
-Supported commands: `deploy`, `upgrade`, `run`, `execute`, `test`, `query`, `synthesize`.
+The value must be attached with `=` (e.g. `--json-output=my-results.json`); with no value, the default location is used.
+
+Supported commands: `build`, `deploy`, `upgrade`, `run`, `execute`, `test`, `query`, `synthesize`. For `build`, the JSON contains the program checksum and each entry/view function checksum (see [`leo build --checksums`](./build.md#checksums)).
 
 ```bash title="Examples"
 # Save to default location (build/json-outputs/run.json)
@@ -92,6 +94,9 @@ leo run --json-output main 1u32 2u32
 
 # Save to custom path
 leo execute main --json-output=my-results.json
+
+# Write the program and function checksums to build/json-outputs/build.json
+leo build --json-output
 ```
 
 ### `--package <NAME>`

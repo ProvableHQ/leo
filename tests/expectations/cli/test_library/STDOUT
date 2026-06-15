@@ -47,7 +47,6 @@ upgrade exit code: 213
        Leo 🔨 Compiling 'program_using_lib.aleo'
        Leo     5 statements before dead code elimination.
        Leo     6 statements after dead code elimination.
-       Leo     The program checksum is: '[86u8, 217u8, 255u8, 231u8, 41u8, 239u8, 85u8, 168u8, 115u8, 159u8, 206u8, 101u8, 87u8, 132u8, 55u8, 19u8, 88u8, 121u8, 28u8, 27u8, 19u8, 151u8, 169u8, 2u8, 26u8, 92u8, 58u8, 254u8, 31u8, 190u8, 12u8, 24u8]'.
        Leo     Program size: 0.17 KB / 2000.00 KB
        Leo ✅ Compiled 'program_using_lib.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'program_using_lib.aleo'.

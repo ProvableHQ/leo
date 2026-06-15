@@ -17,8 +17,18 @@
 //! JSON-serializable output types and helpers for CLI commands.
 
 use serde::Serialize;
+
+use indexmap::IndexMap;
 use snarkvm::prelude::{Network, ProgramID, block::Transaction};
 use std::fmt;
+
+/// Output for `leo build`: the program checksum and each entry/view function checksum, as 32 bytes each.
+#[derive(Serialize, Default)]
+pub struct BuildOutput {
+    pub program: String,
+    pub program_checksum: Vec<u8>,
+    pub function_checksums: IndexMap<String, Vec<u8>>,
+}
 
 /// Convert microcredits to credits for display.
 pub(crate) fn microcredits_to_credits(microcredits: u64) -> f64 {

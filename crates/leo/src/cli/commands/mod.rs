@@ -24,7 +24,7 @@ mod account;
 pub use account::Account;
 
 mod build;
-pub use build::LeoBuild;
+pub use build::{LeoBuild, build_output};
 
 mod clean;
 pub use clean::LeoClean;

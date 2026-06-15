@@ -253,3 +253,4 @@ Loaded the following programs into the VM:
 Explored XXXXXX blocks.
 Could not find the transaction.
 ❌ Failed to upgrade program test_json_program.aleo: could not find the transaction on the network.
+

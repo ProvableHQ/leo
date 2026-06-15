@@ -49,6 +49,11 @@ pub struct BuildOptions {
     pub no_local: bool,
     #[clap(long, help = "Resolve git dependencies from the lock file and local cache only; don't fetch from remotes.")]
     pub offline: bool,
+    #[clap(
+        long,
+        help = "Print the program checksum and the checksum of each entry and view function (the `Program::function_checksum` targets)."
+    )]
+    pub checksums: bool,
     #[clap(skip)]
     pub no_std: bool,
 }

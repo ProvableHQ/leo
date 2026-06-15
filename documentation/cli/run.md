@@ -25,7 +25,6 @@ This command does not synthesize the program circuit or generate proving and ver
 ```bash title="sample output:"
        Leo     ... statements before dead code elimination.
        Leo     ... statements after dead code elimination.
-       Leo     The program checksum is: '[...]'.
        Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
 
 ⛓  Constraints

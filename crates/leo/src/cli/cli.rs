@@ -30,7 +30,7 @@ pub struct CLI {
     #[clap(short, global = true, help = "Suppress CLI output")]
     quiet: bool,
 
-    #[clap(long, global = true, help = "Write results as JSON to a file. Defaults to build/json-outputs/<command>.json if no path specified.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
+    #[clap(long, global = true, help = "Write command results as JSON. Pass `--json-output=<FILE>` for a custom path; with no value it defaults to build/json-outputs/<command>.json.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
     json_output: Option<String>,
 
     #[clap(long, global = true, help = "Disable Leo's daily check for version updates")]
@@ -185,6 +185,7 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 #[serde(untagged)]
 #[allow(clippy::large_enum_variant)]
 enum Output {
+    Build(BuildOutput),
     Deploy(DeployOutput),
     Run(RunOutput),
     Execute(ExecuteOutput),
@@ -240,7 +241,14 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Add { command } => command.try_execute(context)?,
         Commands::Account { command } => command.try_execute(context)?,
         Commands::New { command } => command.try_execute(context)?,
-        Commands::Build { command } => command.try_execute(context)?,
+        Commands::Build { command } => {
+            // `NetworkName` is `Copy`, so read it out before `command` is consumed by `execute`.
+            let network = command.env_override.network;
+            let package = command.execute(context)?;
+            if cli.json_output.is_some() {
+                command_output = Some(Output::Build(build_output(&package, network)?));
+            }
+        }
         Commands::Abi { command } => command.try_execute(context)?,
         Commands::Query { command } => {
             let result = command.execute(context)?;
@@ -271,7 +279,6 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     {
         let json = serde_json::to_string_pretty(output).expect("JSON serialization failed");
 
-        // Use provided path or default to build/json-outputs/<command>.json
         let path = if json_output_arg.is_empty() {
             cli.path
                 .unwrap_or_else(|| PathBuf::from("."))

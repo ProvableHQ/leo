@@ -21,12 +21,27 @@ On invoking the build command, Leo automatically creates a `build/`⁠ folder in
 ```bash title="console output:"
   Leo     2 statements before dead code elimination.
   Leo     2 statements after dead code elimination.
-  Leo     The program checksum is: '[...]'.
   Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
   Leo ✅ Generated ABI for program '{PROGRAM_NAME}.aleo'.
 ```
 
 The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/abi.md) for details on the format and type lowering specification.
+
+## Checksums
+
+The program checksum and the checksum of each entry and view function are the values that the [`Program::function_checksum`](../language/programs_in_practice/intrinsics.md) intrinsic targets, so they are useful when writing a [constructor](../language/structure.md#constructor) that pins specific functions across upgrades. To print them, pass `--checksums`:
+
+```bash
+leo build --checksums
+```
+
+```bash title="console output:"
+  Leo     The program checksum is: '[141u8, 87u8, ...]'.
+  Leo       `main` function checksum is: '[140u8, 56u8, ...]'.
+  Leo       `peek` function checksum is: '[239u8, 16u8, ...]'.
+```
+
+Each checksum is the SHA3-256 of the component's Aleo source, as 32 bytes. The same checksums are written to the [`--json-output`](./overview.md#--json-outputpath) build JSON (as integer arrays under `program_checksum` and `function_checksums`), so `leo build --json-output` is a convenient way to consume them programmatically.
 
 ## Flags
 
@@ -41,6 +56,9 @@ The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` desc
     Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
+--checksums
+    Print the program checksum and the checksum of each entry and view function
+    (the `Program::function_checksum` targets).
 --no-cache
     Don't use the dependency cache.
 --no-local
