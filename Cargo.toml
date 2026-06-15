@@ -74,16 +74,15 @@ serial_test        = "3.1"
 sha2               = "0.11"
 similar            = "3.1"
 # We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-# Pinned to the snarkVM `testnet` branch (PR ProvableHQ/snarkVM#3300), which ships V16: the
-# `ComponentChecksum` operand and the 1024 kB program size limit. Not yet published to crates.io,
-# so all three crates track the same commit.
+# Pinned to the snarkVM `v4.8.0` release tag, which ships V16: the `ComponentChecksum` operand and
+# the 2048 kB program size limit. Not yet published to crates.io, so all three crates track the same tag.
 # `history` is required to compile `Process::evaluate_view_with_history`, the public-facing view entry point.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM", rev = "cdf5338f9019dcf024841bab4497fa1c1c5d39a1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
-# Wasm-friendly snarkVM subsets pinned at the same commit as the umbrella crate; used by
+snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+# Wasm-friendly snarkVM subsets pinned at the same tag as the umbrella crate; used by
 # `leo-ast` and `leo-disassembler` on `wasm32-unknown-unknown` where the full `snarkvm`
 # crate pulls in native-only ledger/package code.
-snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM", rev = "cdf5338f9019dcf024841bab4497fa1c1c5d39a1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM", rev = "cdf5338f9019dcf024841bab4497fa1c1c5d39a1", features = [ "wasm" ] }
+snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.0", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.0", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.20"
 thiserror          = "2.0"

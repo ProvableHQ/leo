@@ -74,7 +74,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for test_json_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.37 KB / 1000.00 KB
+  Program Size:         0.37 KB / 2000.00 KB
   Total Variables:      17,276
   Total Constraints:    12,927
   Max Variables:        XXXXXX
@@ -222,7 +222,7 @@ Loaded the following programs into the VM:
 
 📊 Deployment Summary for test_json_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.37 KB / 1000.00 KB
+  Program Size:         0.37 KB / 2000.00 KB
   Total Variables:      17,276
   Total Constraints:    12,927
   Max Variables:        XXXXXX

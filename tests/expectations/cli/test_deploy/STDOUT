@@ -3,7 +3,7 @@
        Leo     10 statements before dead code elimination.
        Leo     11 statements after dead code elimination.
        Leo     The program checksum is: '[109u8, 115u8, 37u8, 36u8, 104u8, 211u8, 71u8, 47u8, 167u8, 121u8, 76u8, 58u8, 12u8, 161u8, 114u8, 2u8, 167u8, 69u8, 23u8, 209u8, 243u8, 251u8, 90u8, 233u8, 85u8, 135u8, 145u8, 25u8, 18u8, 86u8, 72u8, 144u8]'.
-       Leo     Program size: 0.68 KB / 1000.00 KB
+       Leo     Program size: 0.68 KB / 2000.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.
 
@@ -43,7 +43,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.68 KB / 1000.00 KB
+  Program Size:         0.68 KB / 2000.00 KB
   Total Variables:      99,771
   Total Constraints:    76,101
   Max Variables:        XXXXXX

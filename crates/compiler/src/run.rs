@@ -426,6 +426,7 @@ fn handle_view(
         0,
         0,
         Default::default(),
+        None,
     ) {
         Ok(s) => s,
         Err(e) => return failed(format!("Failed to build FinalizeGlobalState: {e}")),

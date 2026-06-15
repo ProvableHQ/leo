@@ -3,7 +3,7 @@
        Leo     4 statements before dead code elimination.
        Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
-       Leo     Program size: 0.26 KB / 1000.00 KB
+       Leo     Program size: 0.26 KB / 2000.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
@@ -43,7 +43,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for broadcast_error.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.26 KB / 1000.00 KB
+  Program Size:         0.26 KB / 2000.00 KB
   Total Variables:      17,191
   Total Constraints:    12,927
   Max Variables:        XXXXXX
@@ -80,7 +80,7 @@ Transaction accepted.
        Leo     4 statements before dead code elimination.
        Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[65u8, 89u8, 187u8, 94u8, 189u8, 162u8, 9u8, 5u8, 82u8, 113u8, 145u8, 228u8, 159u8, 225u8, 53u8, 52u8, 194u8, 213u8, 69u8, 110u8, 78u8, 244u8, 159u8, 99u8, 80u8, 151u8, 122u8, 38u8, 220u8, 73u8, 200u8, 114u8]'.
-       Leo     Program size: 0.26 KB / 1000.00 KB
+       Leo     Program size: 0.26 KB / 2000.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
@@ -123,7 +123,7 @@ Once it is deployed, it CANNOT be changed.
 
 📊 Deployment Summary for broadcast_error.aleo
 ──────────────────────────────────────────────
-  Program Size:         0.26 KB / 1000.00 KB
+  Program Size:         0.26 KB / 2000.00 KB
   Total Variables:      17,191
   Total Constraints:    12,927
   Max Variables:        XXXXXX
