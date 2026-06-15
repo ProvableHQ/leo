@@ -347,10 +347,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-
-            - cargo-v3-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v3-test-linux-{{ arch }}-master-
+            - cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-
+            - cargo-v4-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v4-test-linux-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -359,7 +359,7 @@ jobs:
             command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources
