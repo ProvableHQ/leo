@@ -74,7 +74,6 @@ pub enum Intrinsic {
     ProgramEdition,
     ProgramOwner,
 
-    // Checksum of a named program component (a function, closure, or view).
     FunctionChecksum,
 
     Serialize(SerializeVariant),

@@ -1431,10 +1431,9 @@ impl TypeCheckingVisitor<'_> {
                     }
                 };
                 self.assert_type(component_type, &Type::Identifier, component_span);
-                // The checksum is only defined for the externally-callable components: entry functions
-                // and view functions. Closures and `final fn`s are inlining artifacts with no stable
-                // identity, so reject anything that does not resolve to an entry or view function of the
-                // named program. The lookup also rejects components of programs that are not imported.
+                // Checksums exist only for externally-callable components — entry and view functions.
+                // Closures and `final fn`s are inlining artifacts with no stable identity, so reject
+                // anything that does not resolve to an entry or view function of the named (imported) program.
                 if let (Some(program_id), Some(component)) = (program_id, component) {
                     let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(&component)]);
                     let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
