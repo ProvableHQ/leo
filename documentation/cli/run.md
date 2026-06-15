@@ -56,14 +56,6 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
     remote program to fetch (with its transitive dependencies) from the network
     endpoint. Local files must be listed in topological order (dependencies
     before the programs that depend on them).
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache
