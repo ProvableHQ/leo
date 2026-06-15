@@ -1,0 +1,382 @@
+{
+  "name": "ast_library",
+  "modules": {
+    "helpers": {
+      "unit_name": "ast_library",
+      "path": [
+        "helpers"
+      ],
+      "consts": [
+        [
+          "UNIT",
+          {
+            "place": {
+              "name": "UNIT",
+              "id": 40
+            },
+            "type_": {
+              "Integer": "U32"
+            },
+            "value": {
+              "Literal": {
+                "id": 41,
+                "variant": {
+                  "Integer": [
+                    "U32",
+                    "1"
+                  ]
+                }
+              }
+            },
+            "id": 39
+          }
+        ]
+      ],
+      "composites": [],
+      "functions": [
+        [
+          "increment",
+          {
+            "annotations": [],
+            "variant": "Fn",
+            "identifier": {
+              "name": "increment",
+              "id": 43
+            },
+            "const_parameters": [],
+            "input": [
+              {
+                "identifier": {
+                  "name": "x",
+                  "id": 45
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "id": 44
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "id": 46
+              }
+            ],
+            "output_type": {
+              "Integer": "U32"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "Binary": {
+                        "left": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "x",
+                              "id": 51
+                            },
+                            "target": {
+                              "Local": "x"
+                            },
+                            "id": 52
+                          }
+                        },
+                        "right": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "UNIT",
+                              "id": 54
+                            },
+                            "target": {
+                              "Global": {
+                                "program": "ast_library",
+                                "path": [
+                                  "helpers",
+                                  "UNIT"
+                                ]
+                              }
+                            },
+                            "id": 55
+                          }
+                        },
+                        "op": "Add",
+                        "id": 50
+                      }
+                    },
+                    "id": 49
+                  }
+                }
+              ],
+              "id": 47
+            },
+            "id": 42
+          }
+        ]
+      ],
+      "interfaces": []
+    }
+  },
+  "consts": [],
+  "structs": [],
+  "functions": [
+    [
+      "scale",
+      {
+        "annotations": [],
+        "variant": "Fn",
+        "identifier": {
+          "name": "scale",
+          "id": 23
+        },
+        "const_parameters": [],
+        "input": [
+          {
+            "identifier": {
+              "name": "x",
+              "id": 25
+            },
+            "mode": "None",
+            "type_": {
+              "Integer": "U32"
+            },
+            "id": 24
+          },
+          {
+            "identifier": {
+              "name": "factor",
+              "id": 27
+            },
+            "mode": "None",
+            "type_": {
+              "Integer": "U32"
+            },
+            "id": 26
+          }
+        ],
+        "output": [
+          {
+            "mode": "None",
+            "type_": {
+              "Integer": "U32"
+            },
+            "id": 28
+          }
+        ],
+        "output_type": {
+          "Integer": "U32"
+        },
+        "block": {
+          "statements": [
+            {
+              "Return": {
+                "expression": {
+                  "Binary": {
+                    "left": {
+                      "Path": {
+                        "user_program": null,
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "x",
+                          "id": 33
+                        },
+                        "target": {
+                          "Local": "x"
+                        },
+                        "id": 34
+                      }
+                    },
+                    "right": {
+                      "Path": {
+                        "user_program": null,
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "factor",
+                          "id": 36
+                        },
+                        "target": {
+                          "Local": "factor"
+                        },
+                        "id": 37
+                      }
+                    },
+                    "op": "Mul",
+                    "id": 32
+                  }
+                },
+                "id": 31
+              }
+            }
+          ],
+          "id": 29
+        },
+        "id": 22
+      }
+    ]
+  ],
+  "interfaces": [],
+  "stubs": {
+    "std": {
+      "FromLibrary": {
+        "library": {
+          "name": "std",
+          "modules": {
+            "dummy": {
+              "unit_name": "std",
+              "path": [
+                "dummy"
+              ],
+              "consts": [],
+              "composites": [],
+              "functions": [
+                [
+                  "dummy_u32",
+                  {
+                    "annotations": [],
+                    "variant": "Fn",
+                    "identifier": {
+                      "name": "dummy_u32",
+                      "id": 12
+                    },
+                    "const_parameters": [],
+                    "input": [
+                      {
+                        "identifier": {
+                          "name": "x",
+                          "id": 14
+                        },
+                        "mode": "None",
+                        "type_": {
+                          "Integer": "U32"
+                        },
+                        "id": 13
+                      }
+                    ],
+                    "output": [
+                      {
+                        "mode": "None",
+                        "type_": {
+                          "Integer": "U32"
+                        },
+                        "id": 15
+                      }
+                    ],
+                    "output_type": {
+                      "Integer": "U32"
+                    },
+                    "block": {
+                      "statements": [
+                        {
+                          "Return": {
+                            "expression": {
+                              "Path": {
+                                "user_program": null,
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "x",
+                                  "id": 19
+                                },
+                                "target": {
+                                  "Local": "x"
+                                },
+                                "id": 20
+                              }
+                            },
+                            "id": 18
+                          }
+                        }
+                      ],
+                      "id": 16
+                    },
+                    "id": 11
+                  }
+                ]
+              ],
+              "interfaces": []
+            }
+          },
+          "consts": [],
+          "structs": [],
+          "functions": [
+            [
+              "identity_u32",
+              {
+                "annotations": [],
+                "variant": "Fn",
+                "identifier": {
+                  "name": "identity_u32",
+                  "id": 1
+                },
+                "const_parameters": [],
+                "input": [
+                  {
+                    "identifier": {
+                      "name": "x",
+                      "id": 3
+                    },
+                    "mode": "None",
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "id": 2
+                  }
+                ],
+                "output": [
+                  {
+                    "mode": "None",
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "id": 4
+                  }
+                ],
+                "output_type": {
+                  "Integer": "U32"
+                },
+                "block": {
+                  "statements": [
+                    {
+                      "Return": {
+                        "expression": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "x",
+                              "id": 8
+                            },
+                            "target": {
+                              "Local": "x"
+                            },
+                            "id": 9
+                          }
+                        },
+                        "id": 7
+                      }
+                    }
+                  ],
+                  "id": 5
+                },
+                "id": 0
+              }
+            ]
+          ],
+          "interfaces": [],
+          "stubs": {}
+        },
+        "parents": [
+          "ast_library"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# Exercises the (hidden) AST-snapshot build flags on a program package.
+#
+# Targeted flags (`--enable-initial-ast-snapshot`, `--ast-snapshots <passes>`) produce a small,
+# stable set of files, so their CONTENTS are copied to `expected_snapshots/` and byte-compared
+# against the committed expectation. `--enable-all-ast-snapshots` is checked at the behavior
+# level only (files produced + exit code): its full per-phase set embeds the std stub and is too
+# large/volatile to pin. The build directory itself is cleaned away between steps.
+# Run with `UPDATE_EXPECT=1` to regenerate after intentional compiler/std changes.
+
+LEO_BIN=${1}
+
+SNAP_DIR="build/ast_program/snapshots"
+
+list_snapshots() {
+    if [ -d "${SNAP_DIR}" ]; then
+        ls "${SNAP_DIR}" | sort
+    else
+        echo "(no snapshots directory)"
+    fi
+}
+
+echo "--- initial snapshot only (contents compared under expected_snapshots/) ---"
+${LEO_BIN} --disable-update-check build --enable-initial-ast-snapshot >/dev/null
+echo "build exit: $?"
+list_snapshots
+mkdir -p expected_snapshots
+cp "${SNAP_DIR}"/* expected_snapshots/
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- specific passes: TypeChecking,Flattening (contents compared under expected_snapshots/) ---"
+${LEO_BIN} --disable-update-check build --ast-snapshots TypeChecking,Flattening >/dev/null
+echo "build exit: $?"
+list_snapshots
+cp "${SNAP_DIR}"/* expected_snapshots/
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- all snapshots (behavior only; contents not pinned) ---"
+${LEO_BIN} --disable-update-check build --enable-all-ast-snapshots >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- all snapshots with spans enabled (behavior only) ---"
+${LEO_BIN} --disable-update-check build --enable-all-ast-snapshots --enable-ast-spans >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- unknown pass name writes no snapshots ---"
+${LEO_BIN} --disable-update-check build --ast-snapshots NoSuchPass >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- snapshot flags are hidden from --help ---"
+HIDDEN=$(${LEO_BIN} --disable-update-check build --help | grep -c -e "--enable-ast-spans" -e "--enable-initial-ast-snapshot" -e "--enable-all-ast-snapshots" -e "--ast-snapshots")
+echo "snapshot flags shown in --help: ${HIDDEN}"

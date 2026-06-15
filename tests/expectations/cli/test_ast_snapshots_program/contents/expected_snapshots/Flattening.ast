@@ -1,0 +1,29 @@
+library std {
+    fn identity_u32(x$$1: u32) -> u32 {
+        {
+        }
+        return x$$1;
+    }
+module dummy {
+    fn dummy_u32(x$$0: u32) -> u32 {
+        {
+        }
+        return x$$0;
+    }
+}
+
+}
+
+program ast_program.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    fn main(public a$$2: u32, b$$3: u32) -> u32 {
+        let c$#4 = a$$2 + b$$3;
+        {
+        }
+        return c$#4;
+    }
+}
+

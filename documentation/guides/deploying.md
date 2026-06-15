@@ -61,18 +61,10 @@ Options:
           Number of blocks to look at when searching for a transaction. [default: 12]
       --skip <SKIP>...
           Skips deployment of any program that contains one of the given substrings.
-      --enable-ast-spans
-          Enable spans in AST snapshots.
       --path <PATH>
           Path to Leo program root folder
       --home <HOME>
           Path to aleo program registry
-      --enable-initial-ast-snapshot
-          Write an AST snapshot immediately after parsing.
-      --enable-all-ast-snapshots
-          Writes all AST snapshots for the different compiler phases.
-      --ast-snapshots <AST_SNAPSHOTS>...
-          Comma separated list of passes whose AST snapshots to capture.
       --build-tests
           Build tests along with the main program and dependencies.
       --no-cache

@@ -116,14 +116,6 @@ Options:
   [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --skip <SKIP>...
   Skips the upgrade of any program that contains one of the given substrings.
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache

@@ -33,13 +33,13 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(long, help = "Enable spans in AST snapshots.")]
+    #[clap(long, help = "Enable spans in AST snapshots.", hide = true)]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
+    #[clap(long, help = "Write an AST snapshot immediately after parsing.", hide = true)]
     pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.", hide = true)]
     pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
+    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1.., hide = true)]
     pub ast_snapshots: Vec<String>,
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,

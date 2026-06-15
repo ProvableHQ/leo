@@ -30,6 +30,7 @@ use std::fmt;
 pub struct Library {
     pub name: Symbol,
     /// Submodules of this library, keyed by their path (e.g., `[utils]` for `src/utils.leo`).
+    #[serde(with = "crate::program::module_map")]
     pub modules: IndexMap<Vec<Symbol>, Module>,
     /// The constants defined in this library.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
