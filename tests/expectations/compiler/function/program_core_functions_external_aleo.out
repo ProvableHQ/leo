@@ -1,0 +1,12 @@
+import child.aleo;
+program parent.aleo;
+
+function bar:
+    async bar into r0;
+    output r0 as parent.aleo/bar.future;
+
+finalize bar:
+    assert.neq child.aleo/entry/checksum child.aleo/peek/checksum;
+
+constructor:
+    assert.eq edition 0u16;
