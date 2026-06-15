@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, Type};
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -334,7 +334,7 @@ impl Expression {
                 use BinaryOperation::*;
                 match expr.op {
                     // These can halt for any of their operand types.
-                    Div | Mod | Rem | Shl | Shr => false,
+                    Div | DivWrapped | Mod | Rem | RemWrapped | Shl | Shr => false,
                     // These can only halt for integers.
                     Add | Mul | Pow | Sub => !matches!(get_type(expr.id()), Type::Integer(..)),
                     _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
@@ -356,7 +356,11 @@ impl Expression {
 
             // Recurse
             Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
-            Expression::MemberAccess(expr) => expr.inner.is_pure(get_type),
+            Expression::MemberAccess(expr) => {
+                let is_dynamic_record_read =
+                    matches!(get_type(expr.inner.id()), Type::DynRecord) && expr.name.name != sym::owner;
+                !is_dynamic_record_read && expr.inner.is_pure(get_type)
+            }
             Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
             Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
             Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
