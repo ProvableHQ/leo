@@ -316,7 +316,7 @@ impl Expression {
             // Discriminate intrinsics
             Expression::Intrinsic(intr) => {
                 if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
-                    intrinsic.is_pure()
+                    intrinsic.is_pure() && intr.arguments.iter().all(|arg| arg.is_pure(get_type))
                 } else {
                     false
                 }
