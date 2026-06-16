@@ -26,6 +26,35 @@ pub const LIBRARY_NAME: &str = "std";
 const LIB_LEO: &str = include_str!("leo/lib.leo");
 const DUMMY_LEO: &str = include_str!("leo/dummy.leo");
 
+const HASH_BHP256_LEO: &str = include_str!("leo/hash/bhp256.leo");
+const HASH_BHP512_LEO: &str = include_str!("leo/hash/bhp512.leo");
+const HASH_BHP768_LEO: &str = include_str!("leo/hash/bhp768.leo");
+const HASH_BHP1024_LEO: &str = include_str!("leo/hash/bhp1024.leo");
+const HASH_KECCAK256_LEO: &str = include_str!("leo/hash/keccak256.leo");
+const HASH_KECCAK384_LEO: &str = include_str!("leo/hash/keccak384.leo");
+const HASH_KECCAK512_LEO: &str = include_str!("leo/hash/keccak512.leo");
+const HASH_PEDERSEN64_LEO: &str = include_str!("leo/hash/pedersen64.leo");
+const HASH_PEDERSEN128_LEO: &str = include_str!("leo/hash/pedersen128.leo");
+const HASH_POSEIDON2_LEO: &str = include_str!("leo/hash/poseidon2.leo");
+const HASH_POSEIDON4_LEO: &str = include_str!("leo/hash/poseidon4.leo");
+const HASH_POSEIDON8_LEO: &str = include_str!("leo/hash/poseidon8.leo");
+const HASH_SHA3_256_LEO: &str = include_str!("leo/hash/sha3_256.leo");
+const HASH_SHA3_384_LEO: &str = include_str!("leo/hash/sha3_384.leo");
+const HASH_SHA3_512_LEO: &str = include_str!("leo/hash/sha3_512.leo");
+
+const COMMIT_BHP256_LEO: &str = include_str!("leo/commit/bhp256.leo");
+const COMMIT_BHP512_LEO: &str = include_str!("leo/commit/bhp512.leo");
+const COMMIT_BHP768_LEO: &str = include_str!("leo/commit/bhp768.leo");
+const COMMIT_BHP1024_LEO: &str = include_str!("leo/commit/bhp1024.leo");
+const COMMIT_PEDERSEN64_LEO: &str = include_str!("leo/commit/pedersen64.leo");
+const COMMIT_PEDERSEN128_LEO: &str = include_str!("leo/commit/pedersen128.leo");
+
+const RAND_LEO: &str = include_str!("leo/rand.leo");
+const SIG_LEO: &str = include_str!("leo/sig.leo");
+const SERIALIZE_LEO: &str = include_str!("leo/serialize.leo");
+const GRP_LEO: &str = include_str!("leo/grp.leo");
+const CTX_LEO: &str = include_str!("leo/ctx.leo");
+
 /// Entry source of the standard library (contents of `lib.leo`).
 pub fn entry_source() -> &'static str {
     LIB_LEO
@@ -33,11 +62,39 @@ pub fn entry_source() -> &'static str {
 
 /// Submodule sources, returned as `(virtual_path, source)` pairs.
 ///
-/// The format matches what `leo_compiler::Compiler::build_library` expects:
-/// the first element of each tuple is a label used in span/error reporting,
-/// and the second is the Leo source for that submodule.
+/// The first element of each tuple is a label used in span/error reporting AND
+/// drives the module key: `hash/bhp256.leo` → module `std::hash::bhp256`. Use
+/// forward slashes for nested paths.
 pub fn modules() -> &'static [(&'static str, &'static str)] {
-    &[("dummy.leo", DUMMY_LEO)]
+    &[
+        ("dummy.leo", DUMMY_LEO),
+        ("hash/bhp256.leo", HASH_BHP256_LEO),
+        ("hash/bhp512.leo", HASH_BHP512_LEO),
+        ("hash/bhp768.leo", HASH_BHP768_LEO),
+        ("hash/bhp1024.leo", HASH_BHP1024_LEO),
+        ("hash/keccak256.leo", HASH_KECCAK256_LEO),
+        ("hash/keccak384.leo", HASH_KECCAK384_LEO),
+        ("hash/keccak512.leo", HASH_KECCAK512_LEO),
+        ("hash/pedersen64.leo", HASH_PEDERSEN64_LEO),
+        ("hash/pedersen128.leo", HASH_PEDERSEN128_LEO),
+        ("hash/poseidon2.leo", HASH_POSEIDON2_LEO),
+        ("hash/poseidon4.leo", HASH_POSEIDON4_LEO),
+        ("hash/poseidon8.leo", HASH_POSEIDON8_LEO),
+        ("hash/sha3_256.leo", HASH_SHA3_256_LEO),
+        ("hash/sha3_384.leo", HASH_SHA3_384_LEO),
+        ("hash/sha3_512.leo", HASH_SHA3_512_LEO),
+        ("commit/bhp256.leo", COMMIT_BHP256_LEO),
+        ("commit/bhp512.leo", COMMIT_BHP512_LEO),
+        ("commit/bhp768.leo", COMMIT_BHP768_LEO),
+        ("commit/bhp1024.leo", COMMIT_BHP1024_LEO),
+        ("commit/pedersen64.leo", COMMIT_PEDERSEN64_LEO),
+        ("commit/pedersen128.leo", COMMIT_PEDERSEN128_LEO),
+        ("rand.leo", RAND_LEO),
+        ("sig.leo", SIG_LEO),
+        ("serialize.leo", SERIALIZE_LEO),
+        ("grp.leo", GRP_LEO),
+        ("ctx.leo", CTX_LEO),
+    ]
 }
 
 /// The Leo identifier under which the standard library is exposed.

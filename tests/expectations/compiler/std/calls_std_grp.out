@@ -1,0 +1,8 @@
+program main.aleo;
+
+function exercise:
+    assert.eq aleo::GENERATOR aleo::GENERATOR;
+    assert.eq aleo::GENERATOR_POWERS aleo::GENERATOR_POWERS;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,0 +1,20 @@
+program main.aleo;
+
+function exercise_async:
+    async exercise_async into r0;
+    output r0 as main.aleo/exercise_async.future;
+
+finalize exercise_async:
+    sign.verify sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj aleo1az8p9vlllyqwtj0c2g9svkd0e5v0p3zzdflwwrpa7kpe8xrfxgfqqpru7m 1field into r0;
+    assert.eq r0 r0;
+    cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r1 as [u8; 65u32];
+    cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r2 as [u8; 33u32];
+    cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r3 as [u8; 32u32];
+    ecdsa.verify.digest r1 r2 r3 into r4;
+    assert.eq r4 r4;
+    cast 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 1u8 into r5 as [u8; 20u32];
+    ecdsa.verify.digest.eth r1 r5 r3 into r6;
+    assert.eq r6 r6;
+
+constructor:
+    assert.eq edition 0u16;
