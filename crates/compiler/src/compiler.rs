@@ -706,7 +706,6 @@ impl Compiler {
         fs::create_dir_all(&self.output_directory)
             .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
         let dir = self.output_directory.clone();
-        // Spans are stripped from the JSON unless explicitly enabled.
         if self.compiler_options.ast_spans_enabled {
             match &self.state.ast {
                 Ast::Program(program) => leo_ast::write_ast_json(program, dir, filename)?,
