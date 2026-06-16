@@ -53,7 +53,7 @@ pub enum Account {
         #[clap(
             short = 'e',
             long,
-            help = "Endpoint to retrieve network state from.",
+            help = "Endpoint to record in the generated `.env` file. Only used with `--write`.",
             default_value = "https://api.explorer.provable.com/v1"
         )]
         endpoint: String,
@@ -73,7 +73,7 @@ pub enum Account {
         #[clap(
             short = 'e',
             long,
-            help = "Endpoint to retrieve network state from.",
+            help = "Endpoint to record in the generated `.env` file. Only used with `--write`.",
             default_value = "https://api.explorer.provable.com/v1"
         )]
         endpoint: String,

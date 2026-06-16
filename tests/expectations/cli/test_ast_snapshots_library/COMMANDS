@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Exercises the (hidden) AST-snapshot build flags on a library package (with a submodule).
+# Libraries run only the frontend passes (no code generation).
+#
+# Targeted flags (`--enable-initial-ast-snapshot`, `--ast-snapshots <passes>`) produce a small,
+# stable set of files, so their CONTENTS are copied to `expected_snapshots/` and byte-compared
+# against the committed expectation. This also pins the `modules` map serialization: the
+# `helpers` submodule path becomes a string key. `--enable-all-ast-snapshots` is checked at the
+# behavior level only (files produced + exit code). The build directory is cleaned between steps.
+# Run with `UPDATE_EXPECT=1` to regenerate after intentional compiler/std changes.
+
+LEO_BIN=${1}
+
+SNAP_DIR="build/ast_library/snapshots"
+
+list_snapshots() {
+    if [ -d "${SNAP_DIR}" ]; then
+        ls "${SNAP_DIR}" | sort
+    else
+        echo "(no snapshots directory)"
+    fi
+}
+
+echo "--- initial snapshot only (contents compared under expected_snapshots/) ---"
+${LEO_BIN} --disable-update-check build --enable-initial-ast-snapshot >/dev/null
+echo "build exit: $?"
+list_snapshots
+mkdir -p expected_snapshots
+cp "${SNAP_DIR}"/* expected_snapshots/
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- specific frontend pass: TypeChecking (contents compared under expected_snapshots/) ---"
+${LEO_BIN} --disable-update-check build --ast-snapshots TypeChecking >/dev/null
+echo "build exit: $?"
+list_snapshots
+cp "${SNAP_DIR}"/* expected_snapshots/
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- all snapshots (frontend passes only for a library; behavior only) ---"
+${LEO_BIN} --disable-update-check build --enable-all-ast-snapshots >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- all snapshots with spans enabled (behavior only) ---"
+${LEO_BIN} --disable-update-check build --enable-all-ast-snapshots --enable-ast-spans >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null
+
+echo "--- a code-generation pass writes no snapshot (libraries skip codegen) ---"
+${LEO_BIN} --disable-update-check build --ast-snapshots CodeGenerating >/dev/null
+echo "build exit: $?"
+list_snapshots
+${LEO_BIN} --disable-update-check clean >/dev/null

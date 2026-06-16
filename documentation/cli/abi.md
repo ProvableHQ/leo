@@ -46,7 +46,7 @@ leo abi credits.aleo --output ./abis
 
 For a program with imports, one `<DIR>/<program>.abi.json` file is written for the main program and one for each dependency.
 
-By default `leo abi` resolves imported `.aleo` files from a sibling `imports/` directory next to the input file. Use `--imports-dir <DIR>` to point at a different location. Network builtins such as `credits.aleo` do not need to be present on disk.
+By default `leo abi` resolves imported `.aleo` files relative to the input file: for the per-unit build layout (`<root>/<unit>/<unit>.aleo`) it uses `<root>`, otherwise it falls back to a sibling `imports/` directory. Use `--imports-dir <DIR>` to point at a different location. Network builtins such as `credits.aleo` do not need to be present on disk.
 
 The output is the same JSON shape that `leo build` produces in `build/abi.json`. See the [ABI Generation guide](../guides/abi.md) for the format reference and type-lowering specification.
 

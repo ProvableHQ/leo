@@ -1,0 +1,115 @@
+--- initial snapshot only (contents compared under expected_snapshots/) ---
+build exit: 0
+initial.ast
+initial.json
+--- specific passes: TypeChecking,Flattening (contents compared under expected_snapshots/) ---
+build exit: 0
+Flattening.ast
+Flattening.json
+TypeChecking.ast
+TypeChecking.json
+--- all snapshots (behavior only; contents not pinned) ---
+build exit: 0
+CeiAnalyzing.ast
+CeiAnalyzing.json
+CheckInterfaces.ast
+CheckInterfaces.json
+CodeGenerating.ast
+CodeGenerating.json
+CommonSubexpressionEliminating.ast
+CommonSubexpressionEliminating.json
+ConstantPropogation+LoopUnrolling+Monomorphization.ast
+ConstantPropogation+LoopUnrolling+Monomorphization.json
+DeadCodeEliminating.ast
+DeadCodeEliminating.json
+Destructuring.ast
+Destructuring.json
+Disambiguate.ast
+Disambiguate.json
+Flattening.ast
+Flattening.json
+FunctionInlining.ast
+FunctionInlining.json
+GlobalItemsCollection.ast
+GlobalItemsCollection.json
+GlobalVarsCollection.ast
+GlobalVarsCollection.json
+initial.ast
+initial.json
+NameValidation.ast
+NameValidation.json
+OptionLowering.ast
+OptionLowering.json
+PathResolution.ast
+PathResolution.json
+PeepholeOptimizing.ast
+PeepholeOptimizing.json
+ProcessingAsync.ast
+ProcessingAsync.json
+SsaConstPropagation.ast
+SsaConstPropagation.json
+SsaForming.ast
+SsaForming.json
+StaticAnalyzing.ast
+StaticAnalyzing.json
+StorageLowering.ast
+StorageLowering.json
+TypeChecking.ast
+TypeChecking.json
+WriteTransforming.ast
+WriteTransforming.json
+--- all snapshots with spans enabled (behavior only) ---
+build exit: 0
+CeiAnalyzing.ast
+CeiAnalyzing.json
+CheckInterfaces.ast
+CheckInterfaces.json
+CodeGenerating.ast
+CodeGenerating.json
+CommonSubexpressionEliminating.ast
+CommonSubexpressionEliminating.json
+ConstantPropogation+LoopUnrolling+Monomorphization.ast
+ConstantPropogation+LoopUnrolling+Monomorphization.json
+DeadCodeEliminating.ast
+DeadCodeEliminating.json
+Destructuring.ast
+Destructuring.json
+Disambiguate.ast
+Disambiguate.json
+Flattening.ast
+Flattening.json
+FunctionInlining.ast
+FunctionInlining.json
+GlobalItemsCollection.ast
+GlobalItemsCollection.json
+GlobalVarsCollection.ast
+GlobalVarsCollection.json
+initial.ast
+initial.json
+NameValidation.ast
+NameValidation.json
+OptionLowering.ast
+OptionLowering.json
+PathResolution.ast
+PathResolution.json
+PeepholeOptimizing.ast
+PeepholeOptimizing.json
+ProcessingAsync.ast
+ProcessingAsync.json
+SsaConstPropagation.ast
+SsaConstPropagation.json
+SsaForming.ast
+SsaForming.json
+StaticAnalyzing.ast
+StaticAnalyzing.json
+StorageLowering.ast
+StorageLowering.json
+TypeChecking.ast
+TypeChecking.json
+WriteTransforming.ast
+WriteTransforming.json
+--- unknown pass name writes no snapshots ---
+build exit: 0
+(no snapshots directory)
+--- snapshot flags are hidden from --help ---
+snapshot flags shown in --help: 0

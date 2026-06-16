@@ -53,6 +53,8 @@ pub struct LeoRun {
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
+    pub(crate) key_override: PrivateKeyOptions,
+    #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
     #[clap(
         long = "with",
@@ -141,7 +143,7 @@ fn handle_run<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoRun as Command>::Output> {
     // Get the private key, defaulting to a test key.
-    let private_key = match get_private_key::<A::Network>(&command.env_override.private_key) {
+    let private_key = match get_private_key::<A::Network>(&command.key_override.private_key) {
         Ok(private_key) => private_key,
         Err(_) => {
             println!("⚠️ No valid private key specified, defaulting to '{TEST_PRIVATE_KEY}'.");

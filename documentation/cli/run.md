@@ -55,14 +55,6 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
     remote program to fetch (with its transitive dependencies) from the network
     endpoint. Local files must be listed in topological order (dependencies
     before the programs that depend on them).
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache
@@ -70,18 +62,14 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
 --no-local
     Don't use the local source code.
 --private-key <PRIVATE_KEY>
-    The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable.
+    The private key to run with. Overrides the `PRIVATE_KEY` environment variable.
 --network <NETWORK>
-    The network to deploy to. Overrides the `NETWORK` environment variable.
+    The network to run for. Overrides the `NETWORK` environment variable.
 --endpoint <ENDPOINT>
-    The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.
+    The endpoint to resolve network dependencies from. Overrides the `ENDPOINT` environment variable.
 --network-retries <N>
     Number of times to retry a network request on transient transport failure, with
     exponential backoff (1 s, 2 s, 4 s, … capped at 64 s). Overrides the
     NETWORK_RETRIES environment variable. Defaults to 2. HTTP errors and broadcast
     calls are not retried.
---devnet
-    Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.
---consensus-heights <CONSENSUS_HEIGHTS>
-    Optional consensus heights to use. This should only be set if you are using a custom devnet.
 ```

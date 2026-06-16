@@ -1,0 +1,24 @@
+library std {
+    fn identity_u32(x: u32) -> u32 {
+        return x;
+    }
+module dummy {
+    fn dummy_u32(x: u32) -> u32 {
+        return x;
+    }
+}
+
+}
+
+library ast_library {
+    fn scale(x: u32, factor: u32) -> u32 {
+        return x * factor;
+    }
+module helpers {
+    const UNIT: u32 = 1u32;
+    fn increment(x: u32) -> u32 {
+        return x + UNIT;
+    }
+}
+
+}

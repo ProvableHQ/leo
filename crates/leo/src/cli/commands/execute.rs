@@ -79,6 +79,10 @@ pub struct LeoExecute {
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
+    pub(crate) key_override: PrivateKeyOptions,
+    #[clap(flatten)]
+    pub(crate) consensus_override: ConsensusOptions,
+    #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
     #[clap(flatten)]
     build_options: BuildOptions,
@@ -175,7 +179,7 @@ fn handle_execute<A: Aleo>(
     package: Option<Package>,
 ) -> Result<<LeoExecute as Command>::Output> {
     // Get the private key and associated address, accounting for overrides.
-    let private_key = get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.key_override.private_key)?;
     let address = Address::<A::Network>::try_from(&private_key)
         .map_err(|e| crate::errors::custom(format!("Failed to parse address: {e}")))?;
 
@@ -183,11 +187,14 @@ fn handle_execute<A: Aleo>(
     let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.consensus_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
-    let consensus_heights =
-        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    let consensus_heights = command
+        .consensus_override
+        .consensus_heights
+        .clone()
+        .unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
         .map_err(|e| crate::errors::custom(format!("Invalid consensus heights: {e}")))?;
@@ -316,8 +323,8 @@ fn handle_execute<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (base_fee, priority_fee, record) =
-        parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
+    let (priority_fee, record) =
+        parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None));
 
     // Get the consensus version.
     let consensus_version = get_consensus_version(
@@ -446,15 +453,8 @@ fn handle_execute<A: Aleo>(
 
         // Generate the fee authorization.
         let id = authorization.to_execution_id()?;
-        let fee_authorization = authorize_fee::<A, _>(
-            &vm,
-            &private_key,
-            record,
-            base_fee.unwrap_or(cost),
-            priority_fee.unwrap_or(0),
-            id,
-            rng,
-        )?;
+        let fee_authorization =
+            authorize_fee::<A, _>(&vm, &private_key, record, cost, priority_fee.unwrap_or(0), id, rng)?;
 
         // Create a fee transition without a proof.
         let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
@@ -478,7 +478,7 @@ fn handle_execute<A: Aleo>(
                 &vm,
                 &private_key,
                 record,
-                base_fee.unwrap_or(estimated_cost),
+                estimated_cost,
                 priority_fee.unwrap_or(0),
                 execution_id,
                 rng,

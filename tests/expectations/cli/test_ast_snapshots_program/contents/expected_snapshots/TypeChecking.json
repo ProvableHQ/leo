@@ -1,0 +1,319 @@
+{
+  "modules": {},
+  "imports": {},
+  "stubs": {
+    "std": {
+      "FromLibrary": {
+        "library": {
+          "name": "std",
+          "modules": {
+            "dummy": {
+              "unit_name": "std",
+              "path": [
+                "dummy"
+              ],
+              "consts": [],
+              "composites": [],
+              "functions": [
+                [
+                  "dummy_u32",
+                  {
+                    "annotations": [],
+                    "variant": "Fn",
+                    "identifier": {
+                      "name": "dummy_u32",
+                      "id": 12
+                    },
+                    "const_parameters": [],
+                    "input": [
+                      {
+                        "identifier": {
+                          "name": "x",
+                          "id": 14
+                        },
+                        "mode": "None",
+                        "type_": {
+                          "Integer": "U32"
+                        },
+                        "id": 13
+                      }
+                    ],
+                    "output": [
+                      {
+                        "mode": "None",
+                        "type_": {
+                          "Integer": "U32"
+                        },
+                        "id": 15
+                      }
+                    ],
+                    "output_type": {
+                      "Integer": "U32"
+                    },
+                    "block": {
+                      "statements": [
+                        {
+                          "Return": {
+                            "expression": {
+                              "Path": {
+                                "user_program": null,
+                                "qualifier": [],
+                                "identifier": {
+                                  "name": "x",
+                                  "id": 19
+                                },
+                                "target": {
+                                  "Local": "x"
+                                },
+                                "id": 20
+                              }
+                            },
+                            "id": 18
+                          }
+                        }
+                      ],
+                      "id": 16
+                    },
+                    "id": 11
+                  }
+                ]
+              ],
+              "interfaces": []
+            }
+          },
+          "consts": [],
+          "structs": [],
+          "functions": [
+            [
+              "identity_u32",
+              {
+                "annotations": [],
+                "variant": "Fn",
+                "identifier": {
+                  "name": "identity_u32",
+                  "id": 1
+                },
+                "const_parameters": [],
+                "input": [
+                  {
+                    "identifier": {
+                      "name": "x",
+                      "id": 3
+                    },
+                    "mode": "None",
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "id": 2
+                  }
+                ],
+                "output": [
+                  {
+                    "mode": "None",
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "id": 4
+                  }
+                ],
+                "output_type": {
+                  "Integer": "U32"
+                },
+                "block": {
+                  "statements": [
+                    {
+                      "Return": {
+                        "expression": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "x",
+                              "id": 8
+                            },
+                            "target": {
+                              "Local": "x"
+                            },
+                            "id": 9
+                          }
+                        },
+                        "id": 7
+                      }
+                    }
+                  ],
+                  "id": 5
+                },
+                "id": 0
+              }
+            ]
+          ],
+          "interfaces": [],
+          "stubs": {}
+        },
+        "parents": [
+          "ast_program.aleo"
+        ]
+      }
+    }
+  },
+  "program_scopes": {
+    "ast_program.aleo": {
+      "program_id": {
+        "name": {
+          "name": "ast_program",
+          "id": 22
+        },
+        "network": {
+          "name": "aleo",
+          "id": 23
+        }
+      },
+      "parents": [],
+      "consts": [],
+      "composites": [],
+      "mappings": [],
+      "storage_variables": [],
+      "functions": [
+        [
+          "main",
+          {
+            "annotations": [],
+            "variant": "EntryPoint",
+            "identifier": {
+              "name": "main",
+              "id": 25
+            },
+            "const_parameters": [],
+            "input": [
+              {
+                "identifier": {
+                  "name": "a",
+                  "id": 27
+                },
+                "mode": "Public",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "id": 26
+              },
+              {
+                "identifier": {
+                  "name": "b",
+                  "id": 29
+                },
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "id": 28
+              }
+            ],
+            "output": [
+              {
+                "mode": "None",
+                "type_": {
+                  "Integer": "U32"
+                },
+                "id": 30
+              }
+            ],
+            "output_type": {
+              "Integer": "U32"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "place": {
+                      "Single": {
+                        "name": "c",
+                        "id": 34
+                      }
+                    },
+                    "type_": {
+                      "Integer": "U32"
+                    },
+                    "value": {
+                      "Binary": {
+                        "left": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "a",
+                              "id": 36
+                            },
+                            "target": {
+                              "Local": "a"
+                            },
+                            "id": 37
+                          }
+                        },
+                        "right": {
+                          "Path": {
+                            "user_program": null,
+                            "qualifier": [],
+                            "identifier": {
+                              "name": "b",
+                              "id": 39
+                            },
+                            "target": {
+                              "Local": "b"
+                            },
+                            "id": 40
+                          }
+                        },
+                        "op": "Add",
+                        "id": 35
+                      }
+                    },
+                    "id": 33
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Path": {
+                        "user_program": null,
+                        "qualifier": [],
+                        "identifier": {
+                          "name": "c",
+                          "id": 44
+                        },
+                        "target": {
+                          "Local": "c"
+                        },
+                        "id": 45
+                      }
+                    },
+                    "id": 43
+                  }
+                }
+              ],
+              "id": 31
+            },
+            "id": 24
+          }
+        ]
+      ],
+      "interfaces": [],
+      "constructor": {
+        "annotations": [
+          {
+            "identifier": {
+              "name": "noupgrade",
+              "id": 49
+            },
+            "map": {},
+            "id": 48
+          }
+        ],
+        "block": {
+          "statements": [],
+          "id": 50
+        },
+        "id": 47
+      }
+    }
+  }
+}

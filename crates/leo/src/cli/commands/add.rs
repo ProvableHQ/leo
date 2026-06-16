@@ -31,15 +31,6 @@ pub struct LeoAdd {
     #[clap(flatten)]
     pub(crate) git_ref: GitRef,
 
-    #[clap(
-        short = 'c',
-        long,
-        hide = true,
-        help = "[UNUSED] Clear all previous dependencies.",
-        default_value = "false"
-    )]
-    pub(crate) clear: bool,
-
     #[clap(long, help = "This is a development dependency.", default_value = "false")]
     pub(crate) dev: bool,
 }
