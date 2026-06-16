@@ -6,6 +6,15 @@ final fn foo() {
     let e: u16 = Program::edition(d);
     let f: u8 = Program::edition(credits.aleo);
     assert_neq(e, f);
+
+    // The first argument must be a program ID.
+    let g: [u8; 32] = Program::function_checksum(d, 'bar');
+    // The function name must be an identifier literal, not a string.
+    let h: [u8; 32] = Program::function_checksum(test.aleo, "bar");
+    // The function must resolve to an entry or view function; `missing` is neither.
+    let i: [u8; 32] = Program::function_checksum(test.aleo, 'missing');
+    assert_neq(g, h);
+    assert_neq(g, i);
 }
 
 program test.aleo {

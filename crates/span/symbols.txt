@@ -549,6 +549,7 @@ _group_to_y_coordinate
 _program_checksum
 _program_edition
 _program_owner
+_function_checksum
 _signature_verify
 _snark_verify
 _snark_verify_batch
@@ -789,3 +790,4 @@ id
 checksum
 edition
 program_owner
+function_checksum

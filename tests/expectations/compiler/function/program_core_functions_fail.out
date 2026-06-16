@@ -38,3 +38,32 @@
    │ 
    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
+[ETYC0372156] Error: `Program::function_checksum` must be called on a program ID, e.g. `foo.aleo`
+    ╭─[ compiler-test:11:50 ]
+    │
+ 11 │     let g: [u8; 32] = Program::function_checksum(d, 'bar');
+────╯
+[ETYC0372117] Error: expected type `address`, but type `[u8; 31]` was found
+    ╭─[ compiler-test:11:50 ]
+    │
+ 11 │     let g: [u8; 32] = Program::function_checksum(d, 'bar');
+    │ 
+    │ Help: Change the expression to produce type `address`.
+────╯
+[ETYC0372156] Error: the function name must be an identifier literal, e.g. `'foo'`
+    ╭─[ compiler-test:13:61 ]
+    │
+ 13 │     let h: [u8; 32] = Program::function_checksum(test.aleo, "bar");
+────╯
+[ETYC0372117] Error: expected type `identifier`, but type `string` was found
+    ╭─[ compiler-test:13:61 ]
+    │
+ 13 │     let h: [u8; 32] = Program::function_checksum(test.aleo, "bar");
+    │ 
+    │ Help: Change the expression to produce type `identifier`.
+────╯
+[ETYC0372156] Error: `missing` must be an entry function or a view function of `test.aleo`
+    ╭─[ compiler-test:15:61 ]
+    │
+ 15 │     let i: [u8; 32] = Program::function_checksum(test.aleo, 'missing');
+────╯

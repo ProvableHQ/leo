@@ -608,6 +608,10 @@ fn check_tasks_for_warnings<N: Network>(
         if consensus_version < ConsensusVersion::V15 && program.contains_v15_syntax() {
             warnings.push(format!("The program '{id}' uses V15 features (e.g., `view fn`) but the consensus version is less than V15. The upgrade will likely fail"));
         }
+        // Check if the program uses V16 features (e.g., `Program::function_checksum`).
+        if consensus_version < ConsensusVersion::V16 && program.contains_v16_syntax() {
+            warnings.push(format!("The program '{id}' uses V16 features (e.g., `Program::function_checksum`) but the consensus version is less than V16. The upgrade will likely fail"));
+        }
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));

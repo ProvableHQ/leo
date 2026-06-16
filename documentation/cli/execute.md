@@ -29,7 +29,6 @@ Under the hood, this command synthesizes the program circuit and generates provi
 ```bash title="sample output:"
        Leo     ... statements before dead code elimination.
        Leo     ... statements after dead code elimination.
-       Leo     The program checksum is: '[...]'.
        Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
 
 📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000

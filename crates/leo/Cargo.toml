@@ -119,3 +119,8 @@ signal-hook = { version = "0.4", features = [ "iterator" ] }
 winapi      = "0.3"
 ansi_term   = "0.12"
 windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
+
+# Forces RocksDB's `bindgen-runtime`; see the workspace dependency. Not used directly. Excluded on
+# musl, which snarkVM builds with `bindgen-static` — the two clang-sys modes are mutually exclusive.
+[target.'cfg(not(target_env = "musl"))'.dependencies]
+rocksdb = { workspace = true }
