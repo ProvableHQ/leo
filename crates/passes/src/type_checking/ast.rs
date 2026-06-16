@@ -1756,6 +1756,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
+        // Ternary arms cannot introduce bindings, so marking the scope as conditional is sufficient.
         // We try to coerce one side to another in the ternary operator whenever possible and/or needed.
         let (t1, t2) = if expected.is_some() {
             (
