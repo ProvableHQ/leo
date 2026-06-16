@@ -239,6 +239,9 @@ jobs:
             --rm \
             -t docker.io/blackdex/rust-musl:x86_64-musl-stable \
             bash -lc "
+              apt-get update &&
+              apt-get install -y clang libclang-dev &&
+              export LIBCLANG_PATH=\$(dirname \$(find /usr/lib -name 'libclang.so*' | head -1)) &&
               rustup target add x86_64-unknown-linux-musl &&
               cd /home/rust/src &&
               cargo build \
