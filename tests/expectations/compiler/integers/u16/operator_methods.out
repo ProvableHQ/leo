@@ -5,20 +5,22 @@ function main:
     input r1 as u16.private;
     add r0 r1 into r2;
     div r0 r1 into r3;
-    is.eq r0 r1 into r4;
-    mul r0 r1 into r5;
-    pow r0 2u8 into r6;
-    pow r0 r1 into r7;
-    pow r0 2u32 into r8;
-    shl r0 2u8 into r9;
-    shl r0 r1 into r10;
-    shl r0 2u32 into r11;
-    shr r0 2u8 into r12;
-    shr r0 r1 into r13;
-    shr r0 2u32 into r14;
-    mod r0 r1 into r15;
-    rem r0 r1 into r16;
-    output r4 as boolean.private;
+    div.w r0 r1 into r4;
+    is.eq r0 r1 into r5;
+    mul r0 r1 into r6;
+    pow r0 2u8 into r7;
+    pow r0 r1 into r8;
+    pow r0 2u32 into r9;
+    shl r0 2u8 into r10;
+    shl r0 r1 into r11;
+    shl r0 2u32 into r12;
+    shr r0 2u8 into r13;
+    shr r0 r1 into r14;
+    shr r0 2u32 into r15;
+    mod r0 r1 into r16;
+    rem r0 r1 into r17;
+    rem.w r0 r1 into r18;
+    output r5 as boolean.private;
 
 constructor:
     assert.eq edition 0u16;

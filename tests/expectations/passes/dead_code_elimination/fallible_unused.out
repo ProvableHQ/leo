@@ -1,0 +1,17 @@
+program test.aleo {
+    record Token {
+        owner: address,
+        balance: field,
+    }
+
+    transition main(t: Token, x: u8) -> u8 {
+        let unused_div: u8 = x.div_wrapped(0u8);
+        let unused_rem: u8 = x.rem_wrapped(0u8);
+        let r: dyn record = t as dyn record;
+        let unused_balance: field = r.balance;
+        let unused_balance_add: field = r.balance + 0field;
+        let unused_balance_negate: field = -r.balance;
+        let unused_hash: field = BHP256::hash_to_field(r.balance);
+        return x;
+    }
+}

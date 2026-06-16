@@ -1,0 +1,7 @@
+[ETYC0372184] Error: dynamic calls cannot be used inside a conditional branch
+   ╭─[ compiler-test:4:23 ]
+   │
+ 4 │         return pick ? _dynamic_call::[u64](target, net, func, x) : x;
+   │ 
+   │ Help: Move the dynamic call outside the surrounding `if`/`else` block.
+───╯

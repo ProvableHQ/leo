@@ -119,9 +119,10 @@ commands:
     steps:
       - run:
           name: Install Rust (Windows)
+          no_output_timeout: 30m
           command: |
             $ProgressPreference = "SilentlyContinue"
-            choco uninstall rust
+            choco uninstall rust -y --no-progress
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"

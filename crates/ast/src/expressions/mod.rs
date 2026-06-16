@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, Type};
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, sym};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -316,7 +316,7 @@ impl Expression {
             // Discriminate intrinsics
             Expression::Intrinsic(intr) => {
                 if let Some(intrinsic) = Intrinsic::from_symbol(intr.name, &intr.type_parameters) {
-                    intrinsic.is_pure()
+                    intrinsic.is_pure() && intr.arguments.iter().all(|arg| arg.is_pure(get_type))
                 } else {
                     false
                 }
@@ -334,9 +334,13 @@ impl Expression {
                 use BinaryOperation::*;
                 match expr.op {
                     // These can halt for any of their operand types.
-                    Div | Mod | Rem | Shl | Shr => false,
+                    Div | DivWrapped | Mod | Rem | RemWrapped | Shl | Shr => false,
                     // These can only halt for integers.
-                    Add | Mul | Pow | Sub => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Add | Mul | Pow | Sub => {
+                        !matches!(get_type(expr.id()), Type::Integer(..))
+                            && expr.left.is_pure(get_type)
+                            && expr.right.is_pure(get_type)
+                    }
                     _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
                 }
             }
@@ -346,7 +350,7 @@ impl Expression {
                     // These can halt for any of their operand types.
                     Abs | Inverse | SquareRoot => false,
                     // Negate can only halt for integers.
-                    Negate => !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Negate => expr.receiver.is_pure(get_type) && !matches!(get_type(expr.id()), Type::Integer(..)),
                     _ => expr.receiver.is_pure(get_type),
                 }
             }
@@ -356,7 +360,12 @@ impl Expression {
 
             // Recurse
             Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
-            Expression::MemberAccess(expr) => expr.inner.is_pure(get_type),
+            Expression::MemberAccess(expr) => {
+                // Keep dyn record owner handling in sync with type checking and code generation.
+                let is_dynamic_record_read =
+                    matches!(get_type(expr.inner.id()), Type::DynRecord) && expr.name.name != sym::owner;
+                !is_dynamic_record_read && expr.inner.is_pure(get_type)
+            }
             Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
             Expression::TupleAccess(expr) => expr.tuple.is_pure(get_type),
             Expression::Array(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
