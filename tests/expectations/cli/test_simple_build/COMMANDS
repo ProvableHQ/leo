@@ -2,4 +2,4 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} --disable-update-check build --checksums

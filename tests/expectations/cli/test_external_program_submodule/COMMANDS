@@ -8,4 +8,4 @@ LEO_BIN=${1}
 cd consumer || exit 1
 
 echo "--- leo build (access provider.aleo submodule items) ---"
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} --disable-update-check build --checksums
