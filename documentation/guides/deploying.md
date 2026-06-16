@@ -25,8 +25,6 @@ Deploy a program
 Usage: leo deploy [OPTIONS]
 
 Options:
-      --base-fees <BASE_FEES>
-          [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
   -d
           Print additional information for debugging
       --priority-fees <PRIORITY_FEES>

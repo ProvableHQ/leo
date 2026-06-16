@@ -58,6 +58,18 @@ Writes the generated private key to a `.env` file in the current working directo
 
 Print sensitive information (such as private key) discreetly to an alternate screen
 
+#### `--network <NETWORK>`
+
+#### `-n <NETWORK>`
+
+Name of the network to use. Defaults to `testnet`. Recorded in the generated `.env` when `--write` is set.
+
+#### `--endpoint <ENDPOINT>`
+
+#### `-e <ENDPOINT>`
+
+Endpoint to record in the generated `.env` file. Only used when `--write` is set.
+
 ---
 
 ## `leo account import`
@@ -85,6 +97,18 @@ Writes the generated private key to a `.env` file in the current working directo
 #### `--discreet`
 
 Print sensitive information (such as private key) discreetly to an alternate screen
+
+#### `--network <NETWORK>`
+
+#### `-n <NETWORK>`
+
+Name of the network to use. Defaults to `testnet`. Recorded in the generated `.env` when `--write` is set.
+
+#### `--endpoint <ENDPOINT>`
+
+#### `-e <ENDPOINT>`
+
+Endpoint to record in the generated `.env` file. Only used when `--write` is set.
 
 ---
 
@@ -127,6 +151,12 @@ Alternative way to explicitly specify the private key by reading from a text fil
 #### `-r`
 
 Parses the message as bytes instead of Aleo literals.
+
+#### `--network <NETWORK>`
+
+#### `-n <NETWORK>`
+
+Name of the network to use. Defaults to `testnet`.
 
 ---
 
@@ -181,6 +211,12 @@ Specifies the message that was signed.
 #### `-r`
 
 Parses the message as bytes instead of Aleo literals.
+
+#### `--network <NETWORK>`
+
+#### `-n <NETWORK>`
+
+Name of the network to use. Defaults to `testnet`.
 
 ## `leo account decrypt`
 

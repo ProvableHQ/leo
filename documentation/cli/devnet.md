@@ -97,3 +97,29 @@ Number of clients to use in snarkOS. Defaults to 2.
 ### `--verbosity <VERBOSITY>`
 
 Specifies the verbosity of snarkOS (0-4). Defaults to 1.
+
+### `--yes`
+
+### `-y`
+
+Skips confirmation prompts and proceeds with the devnet startup.
+
+### `--rest-port <REST_PORT>`
+
+Base REST port; each node uses `base + dev_index`.
+
+### `--node-port <NODE_PORT>`
+
+Base node port; each node uses `base + dev_index`.
+
+### `--bft-port <BFT_PORT>`
+
+Base BFT port; each node uses `base + dev_index`.
+
+### `--metrics-port <METRICS_PORT>`
+
+Base metrics port; each validator uses `base + dev_index`.
+
+### `--clean-only`
+
+Only cleans devnet storage (ledgers, node data, logs) without starting the devnet.

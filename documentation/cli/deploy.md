@@ -163,11 +163,11 @@ Specifies whether the network being deployed to is a devnet. If not set, default
 This flag requires a devnet to be running locally. See INSERT DEVNET GUIDE HERE for more information
 :::
 
-### `-print`
+### `--print`
 
 Prints the transaction to the terminal/stdout in JSON format.
 
-### `-broadcast`
+### `--broadcast`
 
 Broadcasts the transaction to the network upon successful execution. Without passing this flag, the transaction will just be generated locally.
 
@@ -228,6 +228,10 @@ The CLI will ask for manual confirmation on several steps throughout the deploym
 :::warning
 Do not use this feature unless you know what you are doing!
 :::
+
+### `--skip-deploy-certificate`
+
+Uses placeholder certificate and verifying keys instead of synthesizing them during deployment. Intended for testing; the resulting deployment is not valid for production use.
 
 ### `--priority-fees <PRIORITY_FEES>`
 

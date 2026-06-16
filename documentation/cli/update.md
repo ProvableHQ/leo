@@ -45,3 +45,9 @@ Lists all available versions of Leo.
 ### `-n`
 
 An optional release name if you wish to install a specific version of Leo. By default, the command will look for the latest release.
+
+### `--quiet`
+
+### `-q`
+
+Suppresses download logs while updating.
