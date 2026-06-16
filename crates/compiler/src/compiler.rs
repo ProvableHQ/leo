@@ -698,8 +698,7 @@ impl Compiler {
 
     /// Writes the AST to a JSON file under the unit's snapshots directory.
     fn write_ast_to_json(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (e.g. a parse-only preflight or the LSP), so there is
-        // nowhere to write; bail rather than dump artifacts into the working directory.
+        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
         if self.output_directory.as_os_str().is_empty() {
             return Ok(());
         }
@@ -724,8 +723,7 @@ impl Compiler {
 
     /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
     fn write_ast(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (e.g. a parse-only preflight or the LSP), so there is
-        // nowhere to write; bail rather than dump artifacts into the working directory.
+        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
         if self.output_directory.as_os_str().is_empty() {
             return Ok(());
         }
