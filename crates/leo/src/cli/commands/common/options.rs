@@ -58,15 +58,10 @@ pub struct BuildOptions {
     pub no_std: bool,
 }
 
-/// Overrides for the `.env` file.
+/// Network connection overrides for the `.env` file. Flattened by every command that talks to a
+/// network endpoint.
 #[derive(Parser, Clone, Debug)]
 pub struct EnvOptions {
-    #[clap(
-        long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
-        global = true
-    )]
-    pub(crate) private_key: Option<String>,
     #[clap(
         long,
         help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
@@ -81,19 +76,6 @@ pub struct EnvOptions {
     pub(crate) endpoint: Option<String>,
     #[clap(
         long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
-        global = true
-    )]
-    pub(crate) devnet: bool,
-    #[clap(
-        long,
-        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
-        value_delimiter = ',',
-        global = true
-    )]
-    pub(crate) consensus_heights: Option<Vec<u32>>,
-    #[clap(
-        long,
         env = "NETWORK_RETRIES",
         help = "Number of times to retry a failed network request before giving up.",
         default_value = "2"
@@ -103,15 +85,37 @@ pub struct EnvOptions {
 
 impl Default for EnvOptions {
     fn default() -> Self {
-        Self {
-            private_key: None,
-            network: None,
-            endpoint: None,
-            devnet: false,
-            consensus_heights: None,
-            network_retries: 2,
-        }
+        Self { network: None, endpoint: None, network_retries: 2 }
     }
+}
+
+/// Private-key override, flattened by commands that sign or identify an account
+/// (`run`, `devnode`, `deploy`, `execute`, `upgrade`).
+#[derive(Parser, Clone, Debug, Default)]
+pub struct PrivateKeyOptions {
+    #[clap(
+        long,
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
+        global = true
+    )]
+    pub(crate) private_key: Option<String>,
+}
+
+/// Consensus overrides, flattened only by transaction-producing commands (`deploy`, `execute`,
+/// `upgrade`).
+#[derive(Parser, Clone, Debug, Default)]
+pub struct ConsensusOptions {
+    #[clap(
+        long,
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell."
+    )]
+    pub(crate) devnet: bool,
+    #[clap(
+        long,
+        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
+        value_delimiter = ','
+    )]
+    pub(crate) consensus_heights: Option<Vec<u32>>,
 }
 
 /// The fee options for the transactions.

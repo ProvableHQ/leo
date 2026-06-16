@@ -348,6 +348,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override,
                     build_options: Default::default(),
+                    key_override: Default::default(),
                     with: vec![],
                 },
             },
@@ -397,6 +398,7 @@ mod tests {
                     ],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    key_override: Default::default(),
                     with: vec![],
                 },
             },
@@ -441,6 +443,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     build_options: Default::default(),
                     env_override: Default::default(),
+                    key_override: Default::default(),
                     with: vec![],
                 },
             },
@@ -482,6 +485,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    key_override: Default::default(),
                     with: vec![],
                 },
             },
@@ -1019,8 +1023,13 @@ mod tests {
                     action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
-                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
                         endpoint: Some("http://localhost:1".to_string()),
+                        ..Default::default()
+                    },
+                    key_override: crate::cli::commands::PrivateKeyOptions {
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                    },
+                    consensus_override: crate::cli::commands::ConsensusOptions {
                         consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
                         ..Default::default()
                     },
@@ -1067,8 +1076,13 @@ mod tests {
                     action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
-                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
                         endpoint: Some("http://localhost:1".to_string()),
+                        ..Default::default()
+                    },
+                    key_override: crate::cli::commands::PrivateKeyOptions {
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                    },
+                    consensus_override: crate::cli::commands::ConsensusOptions {
                         consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
                         ..Default::default()
                     },
@@ -1115,8 +1129,13 @@ mod tests {
                     action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
-                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
                         endpoint: Some("http://localhost:1".to_string()),
+                        ..Default::default()
+                    },
+                    key_override: crate::cli::commands::PrivateKeyOptions {
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                    },
+                    consensus_override: crate::cli::commands::ConsensusOptions {
                         consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
                         ..Default::default()
                     },
@@ -1164,8 +1183,13 @@ mod tests {
                     action: crate::cli::commands::TransactionAction { print: false, broadcast: false, save: None },
                     env_override: crate::cli::commands::EnvOptions {
                         network: Some(NetworkName::TestnetV0),
-                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
                         endpoint: Some("http://localhost:1".to_string()),
+                        ..Default::default()
+                    },
+                    key_override: crate::cli::commands::PrivateKeyOptions {
+                        private_key: Some("APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH".to_string()),
+                    },
+                    consensus_override: crate::cli::commands::ConsensusOptions {
                         consensus_heights: Some(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]),
                         ..Default::default()
                     },

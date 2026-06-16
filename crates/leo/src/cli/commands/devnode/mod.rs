@@ -22,7 +22,7 @@ mod start;
 use super::*;
 use crate::cli::{
     Command,
-    EnvOptions,
+    PrivateKeyOptions,
     commands::{Context, Span},
 };
 use clap::Parser;
@@ -45,7 +45,7 @@ pub enum DevnodeCommands {
 #[derive(Parser, Debug)]
 pub struct LeoDevnode {
     #[clap(flatten)]
-    pub(crate) env_override: EnvOptions,
+    pub(crate) key_override: PrivateKeyOptions,
     #[clap(subcommand)]
     pub command: DevnodeCommands,
 }
@@ -69,7 +69,7 @@ impl Command for LeoDevnode {
 
 // A helper function to handle the Devnode command based on the subcommand provided.
 fn handle_devnode(devnode_command: LeoDevnode, context: Context) -> Result<<LeoDevnode as Command>::Output> {
-    let private_key = devnode_command.env_override.private_key;
+    let private_key = devnode_command.key_override.private_key;
     match devnode_command.command {
         DevnodeCommands::Start { command } => {
             tracing::info!("Starting the Devnode server...");

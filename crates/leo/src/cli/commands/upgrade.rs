@@ -57,6 +57,10 @@ pub struct LeoUpgrade {
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
+    pub(crate) key_override: PrivateKeyOptions,
+    #[clap(flatten)]
+    pub(crate) consensus_override: ConsensusOptions,
+    #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
     #[clap(long, help = "Skips the upgrade of any program that contains one of the given substrings.", value_delimiter = ',', num_args = 1..)]
     pub(crate) skip: Vec<String>,
@@ -121,7 +125,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     }
 
     // Get the private key and associated address, accounting for overrides.
-    let private_key = get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.key_override.private_key)?;
     let address =
         Address::try_from(&private_key).map_err(|e| crate::errors::custom(format!("Failed to parse address: {e}")))?;
 
@@ -129,11 +133,14 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.consensus_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
-    let consensus_heights =
-        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    let consensus_heights = command
+        .consensus_override
+        .consensus_heights
+        .clone()
+        .unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
         .map_err(|e| crate::errors::custom(format!("Invalid consensus heights: {e}")))?;
@@ -652,6 +659,8 @@ impl From<&LeoUpgrade> for LeoDeploy {
             fee_options: upgrade.fee_options.clone(),
             action: upgrade.action.clone(),
             env_override: upgrade.env_override.clone(),
+            key_override: upgrade.key_override.clone(),
+            consensus_override: upgrade.consensus_override.clone(),
             extra: upgrade.extra.clone(),
             skip: upgrade.skip.clone(),
             rename: None,
