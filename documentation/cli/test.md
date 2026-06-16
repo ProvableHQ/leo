@@ -33,6 +33,8 @@ Check out the [**Testing**](./../guides/testing.md) guide for more information.
     Don't use the dependency cache.
 --no-local
     Don't use the local source code.
+--offline
+    Resolve git dependencies from the lock file and local cache only; don't fetch from remotes.
 ```
 
 ## Workspace Behavior

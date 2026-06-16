@@ -116,11 +116,11 @@ Specifies whether the network being deployed to is a devnet. If not set, default
 This flag requires a devnet to be running locally. See INSERT DEVNET GUIDE HERE for more information
 :::
 
-### `-print`
+### `--print`
 
 Prints the transaction to the terminal/stdout in JSON format.
 
-### `-broadcast`
+### `--broadcast`
 
 Broadcasts the transaction to the network upon successful execution. Without passing this flag, the transaction will just be generated locally.
 
@@ -194,10 +194,12 @@ Specifies the number of seconds to wait for a block to appear when searching for
 
 Specifies the number of blocks to look at when searching for a transaction. Defaults to 12 blocks
 
+### `--skip-execute-proof`
+
+Builds the transaction without generating an execution proof. Useful for quickly producing an unproven transaction.
+
 ```text
 Options:
---base-fees <BASE_FEES>
-  [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache

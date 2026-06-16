@@ -29,7 +29,7 @@ The `leo query` command is used to get data from a network supporting the canoni
 To fetch blocks from a given network, run the following command
 
 ```bash
-leo query <ID>
+leo query block <ID>
 ```
 
 where `<ID>` is either a specific block height or block hash. The block will be returned in JSON format.
@@ -288,7 +288,7 @@ Queries the transactions in the memory pool.
 
 #### `--transmissions`
 
-Queries the transactions in the memory pool.
+Queries the transmissions in the memory pool.
 
 #### `--network <NETWORK>`
 

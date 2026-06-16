@@ -26,6 +26,6 @@ See the **[Dependency Management](./../guides/dependencies.md)** guide for more 
 
 Removes all dependencies (or dev dependencies, if used with --dev).
 
-### `-dev`
+### `--dev`
 
 Removes dev dependencies.

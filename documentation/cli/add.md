@@ -91,13 +91,3 @@ Do not use this feature unless you know what you are doing!
 ### `--dev`
 
 Specifies that the imported program is a development dependency and should not be used in production
-
-### `--clear`
-
-### `-c`
-
-Clears all previous dependencies.
-
-:::warning
-This feature is currently bugged and is non-functional.
-:::
