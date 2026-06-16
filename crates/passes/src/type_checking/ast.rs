@@ -667,7 +667,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
             if t1 == &Type::Err || t2 == &Type::Err {
                 Type::Err
-            } else if !t1.eq_user(t2) {
+            } else if !t1.types_equivalent(t2) {
                 slf.emit_err(crate::errors::type_checker::operation_types_mismatch(input.op, t1, t2, input.span()));
                 Type::Err
             } else {
@@ -2068,7 +2068,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                if t1 != Type::Err && t2 != Type::Err && !t1.eq_user(&t2) {
+                if t1 != Type::Err && t2 != Type::Err && !t1.types_equivalent(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
                     self.emit_err(crate::errors::type_checker::operation_types_mismatch(op, &t1, &t2, input.span()));

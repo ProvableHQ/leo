@@ -211,7 +211,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                                     return None;
                                 }
                                 Some(cm)
-                                    if !cm.type_.eq_user(&parent_member.type_)
+                                    if !cm.type_.types_equivalent(&parent_member.type_)
                                         || !cm.mode.eq_user(&parent_member.mode) =>
                                 {
                                     self.state.handler.emit_err(
@@ -254,8 +254,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     flattened.mappings.iter().find(|m| m.identifier.name == parent_mapping.identifier.name)
                 {
                     // Same name exists - check if types are compatible.
-                    if !existing_mapping.key_type.eq_user(&parent_mapping.key_type)
-                        || !existing_mapping.value_type.eq_user(&parent_mapping.value_type)
+                    if !existing_mapping.key_type.types_equivalent(&parent_mapping.key_type)
+                        || !existing_mapping.value_type.types_equivalent(&parent_mapping.value_type)
                     {
                         self.state.handler.emit_err(crate::errors::check_interfaces::conflicting_interface_member(
                             parent_mapping.identifier.name,
@@ -278,7 +278,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                     flattened.storages.iter().find(|s| s.identifier.name == parent_storage.identifier.name)
                 {
                     // Same name exists - check if types are compatible.
-                    if !existing_storage.type_.eq_user(&parent_storage.type_) {
+                    if !existing_storage.type_.types_equivalent(&parent_storage.type_) {
                         self.state.handler.emit_err(crate::errors::check_interfaces::conflicting_interface_member(
                             parent_storage.identifier.name,
                             interface_name,
@@ -428,8 +428,8 @@ impl<'a> CheckInterfacesVisitor<'a> {
             match program_scope.mappings.iter().find(|(name, _)| *name == mapping_name) {
                 Some((_, program_mapping)) => {
                     // Mapping exists - check types match.
-                    if !program_mapping.key_type.eq_user(&required_mapping.key_type)
-                        || !program_mapping.value_type.eq_user(&required_mapping.value_type)
+                    if !program_mapping.key_type.types_equivalent(&required_mapping.key_type)
+                        || !program_mapping.value_type.types_equivalent(&required_mapping.value_type)
                     {
                         self.state.handler.emit_err(crate::errors::check_interfaces::mapping_type_mismatch(
                             mapping_name,
@@ -459,7 +459,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             match program_scope.storage_variables.iter().find(|(name, _)| *name == storage_name) {
                 Some((_, program_storage)) => {
                     // Storage exists - check type matches.
-                    if !program_storage.type_.eq_user(&required_storage.type_) {
+                    if !program_storage.type_.types_equivalent(&required_storage.type_) {
                         self.state.handler.emit_err(crate::errors::check_interfaces::storage_type_mismatch(
                             storage_name,
                             interface_location,
@@ -503,7 +503,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
         // Const parameters must match.
         a.const_parameters.len() == b.const_parameters.len() &&
-        a.const_parameters.iter().zip(b.const_parameters.iter()).all(|(const_a, const_b)| const_a.type_.eq_user(&const_b.type_)) &&
+        a.const_parameters.iter().zip(b.const_parameters.iter()).all(|(const_a, const_b)| const_a.type_.types_equivalent(&const_b.type_)) &&
 
         //TODO: we may want to check certain annotations, but they are not significant yet
         // // Annotations must match.
@@ -570,7 +570,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         None => name_match && prototype_record_locations.contains(lhs_loc),
                     };
                 }
-                lhs.eq_user(rhs)
+                lhs.types_equivalent(rhs)
             }
             (Type::Tuple(lt), Type::Tuple(rt)) => {
                 lt.elements.len() == rt.elements.len()
@@ -580,7 +580,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
                         .zip(rt.elements.iter())
                         .all(|(le, re)| Self::record_type_eq(le, re, prototype_record_locations, concrete_program))
             }
-            _ => lhs.eq_user(rhs),
+            _ => lhs.types_equivalent(rhs),
         }
     }
 
@@ -612,7 +612,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
 
         // Const parameters must match.
         func.const_parameters.len() == proto.const_parameters.len() &&
-        func.const_parameters.iter().zip(proto.const_parameters.iter()).all(|(func_const, proto_const)| func_const.type_.eq_user(&proto_const.type_)) &&
+        func.const_parameters.iter().zip(proto.const_parameters.iter()).all(|(func_const, proto_const)| func_const.type_.types_equivalent(&proto_const.type_)) &&
 
         //TODO: we may want to check certain annotations, but they are not significant yet
         // // Annotations must match.
@@ -656,7 +656,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
         parent.members.iter().all(|parent_member| {
             child.members.iter().any(|child_member| {
                 child_member.identifier.name == parent_member.identifier.name
-                    && child_member.type_.eq_user(&parent_member.type_)
+                    && child_member.type_.types_equivalent(&parent_member.type_)
                     && child_member.mode.eq_user(&parent_member.mode)
             })
         })
@@ -677,7 +677,7 @@ impl<'a> CheckInterfacesVisitor<'a> {
             match found {
                 None => return Some((required_member.identifier.name, required_member, None)),
                 Some(actual_member) => {
-                    if !actual_member.type_.eq_user(&required_member.type_)
+                    if !actual_member.type_.types_equivalent(&required_member.type_)
                         || !actual_member.mode.eq_user(&required_member.mode)
                     {
                         return Some((required_member.identifier.name, required_member, Some(actual_member)));

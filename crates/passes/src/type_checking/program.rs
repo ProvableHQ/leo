@@ -338,7 +338,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 .iter()
                 .find_map(|Member { identifier, type_, .. }| (identifier.name == need).then_some((identifier, type_)))
             {
-                Some((_, actual_ty)) if expected_ty.eq_flat_relaxed(actual_ty) => {} // All good, found + right type!
+                Some((_, actual_ty)) if expected_ty.types_equivalent(actual_ty) => {} // All good, found + right type!
                 Some((field, _)) => {
                     self.emit_err(crate::errors::type_checker::record_var_wrong_type(field, expected_ty, input.span()));
                 }
