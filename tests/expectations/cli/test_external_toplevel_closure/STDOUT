@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'parent.aleo'
-       Leo     6 statements before dead code elimination.
-       Leo     8 statements after dead code elimination.
        Leo     The program checksum is: '[222u8, 3u8, 196u8, 87u8, 184u8, 192u8, 111u8, 151u8, 134u8, 128u8, 255u8, 10u8, 60u8, 187u8, 32u8, 83u8, 93u8, 218u8, 173u8, 214u8, 123u8, 88u8, 83u8, 83u8, 224u8, 167u8, 54u8, 208u8, 36u8, 210u8, 109u8, 69u8]'.
        Leo     Program size: 0.13 KB / 500.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.

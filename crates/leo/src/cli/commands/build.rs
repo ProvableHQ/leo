@@ -590,8 +590,6 @@ fn compile_leo_source_directory(
         NetworkName::CanaryV0 => SvmProgram::<CanaryV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
     };
 
-    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
-    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
     tracing::info!("    The program checksum is: '[{checksum}]'.");
 
     let (size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);

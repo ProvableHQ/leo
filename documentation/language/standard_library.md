@@ -198,8 +198,8 @@ should hash the value into a field first (e.g. with
 
 Two digest-style verifiers are provided:
 
-| Function                                          | Inputs                                                                                                                 |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Function                                               | Inputs                                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `verify_ecdsa_digest(sig, verifying_key, prehash)`     | `sig: [u8; 65]`, `verifying_key: [u8; 33]` (compressed secp256k1 public key), `prehash: [u8; 32]` |
 | `verify_ecdsa_digest_eth(sig, eth_address, prehash)`   | `sig: [u8; 65]`, `eth_address: [u8; 20]`, `prehash: [u8; 32]`                                     |
 
@@ -305,11 +305,11 @@ wrappers (`final fn`).
 ```leo file=../code_snippets/standard_library/src/main.leo#std_ctx_offchain
 ```
 
-| Function    | Returns    | Description                                                                                                              |
-| ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `addr()`    | `address`  | The Aleo address of the program this transition belongs to.                                                              |
+| Function    | Returns    | Description                                                                                                                 |
+| ----------- | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `addr()`    | `address`  | The Aleo address of the program this transition belongs to.                                                                 |
 | `caller()`  | `address`  | The immediate caller. Equal to `signer()` when invoked directly; equal to another program's address on cross-program calls. |
-| `signer()`  | `address`  | The address that signed the outer transaction; unchanged across cross-program calls.                                     |
+| `signer()`  | `address`  | The address that signed the outer transaction; unchanged across cross-program calls.                                        |
 
 Use `caller()` for trust decisions about who is asking for the current
 operation. Use `signer()` when the decision should track the originator

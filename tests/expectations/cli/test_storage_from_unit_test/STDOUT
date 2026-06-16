@@ -2,16 +2,12 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'storage_demo.aleo'
-       Leo     121 statements before dead code elimination.
-       Leo     132 statements after dead code elimination.
        Leo     The program checksum is: '[226u8, 104u8, 115u8, 137u8, 3u8, 83u8, 131u8, 89u8, 56u8, 167u8, 125u8, 100u8, 155u8, 220u8, 210u8, 53u8, 15u8, 25u8, 15u8, 152u8, 34u8, 88u8, 82u8, 31u8, 208u8, 157u8, 23u8, 145u8, 128u8, 36u8, 118u8, 40u8]'.
        Leo     Program size: 5.43 KB / 500.00 KB
        Leo ✅ Compiled 'storage_demo.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'storage_demo.aleo'.
 
        Leo 🔨 Compiling 'test_storage_demo.aleo'
-       Leo     902 statements before dead code elimination.
-       Leo     849 statements after dead code elimination.
        Leo     The program checksum is: '[218u8, 54u8, 178u8, 205u8, 225u8, 177u8, 179u8, 66u8, 11u8, 152u8, 142u8, 198u8, 190u8, 231u8, 167u8, 122u8, 210u8, 173u8, 88u8, 199u8, 221u8, 138u8, 248u8, 107u8, 188u8, 165u8, 151u8, 55u8, 17u8, 168u8, 73u8, 134u8]'.
        Leo     Program size: 20.35 KB / 500.00 KB
        Leo ✅ Compiled 'test_storage_demo.aleo' into Aleo instructions.

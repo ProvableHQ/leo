@@ -3,16 +3,12 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[215u8, 237u8, 253u8, 108u8, 136u8, 39u8, 197u8, 198u8, 22u8, 58u8, 121u8, 144u8, 239u8, 208u8, 11u8, 155u8, 109u8, 158u8, 38u8, 205u8, 115u8, 199u8, 64u8, 207u8, 87u8, 73u8, 72u8, 94u8, 199u8, 13u8, 92u8, 2u8]'.
        Leo     Program size: 0.22 KB / 500.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[215u8, 237u8, 253u8, 108u8, 136u8, 39u8, 197u8, 198u8, 22u8, 58u8, 121u8, 144u8, 239u8, 208u8, 11u8, 155u8, 109u8, 158u8, 38u8, 205u8, 115u8, 199u8, 64u8, 207u8, 87u8, 73u8, 72u8, 94u8, 199u8, 13u8, 92u8, 2u8]'.
        Leo     Program size: 0.22 KB / 500.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
@@ -71,8 +67,6 @@ Attempting to determine the consensus version from the latest block height at ht
 
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[215u8, 237u8, 253u8, 108u8, 136u8, 39u8, 197u8, 198u8, 22u8, 58u8, 121u8, 144u8, 239u8, 208u8, 11u8, 155u8, 109u8, 158u8, 38u8, 205u8, 115u8, 199u8, 64u8, 207u8, 87u8, 73u8, 72u8, 94u8, 199u8, 13u8, 92u8, 2u8]'.
        Leo     Program size: 0.22 KB / 500.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
