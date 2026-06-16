@@ -119,9 +119,10 @@ commands:
     steps:
       - run:
           name: Install Rust (Windows)
+          no_output_timeout: 30m
           command: |
             $ProgressPreference = "SilentlyContinue"
-            choco uninstall rust
+            choco uninstall rust -y --no-progress
             Invoke-WebRequest -Uri "https://win.rustup.rs/" -OutFile "C:\\rustup-init.exe"
             Start-Process "C:\\rustup-init.exe" -ArgumentList '-y' -Wait
             $Env:Path += ";$Env:USERPROFILE\.cargo\bin"
@@ -347,10 +348,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
-            - cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-
-            - cargo-v4-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
-            - cargo-v4-test-linux-{{ arch }}-master-
+            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-
+            - cargo-v3-test-linux-{{ arch }}-master-{{ checksum "Cargo.lock" }}-
+            - cargo-v3-test-linux-{{ arch }}-master-
       - install-rust
       - install-libclang
       - install-snarkos
@@ -359,7 +360,7 @@ jobs:
             command: git submodule update --init --recursive
       - build-and-test
       - save_cache:
-          key: cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
+          key: cargo-v3-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
           paths:
             - ~/.cargo
             - ~/.aleo/resources

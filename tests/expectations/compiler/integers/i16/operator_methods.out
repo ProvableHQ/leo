@@ -7,19 +7,21 @@ function main:
     neg r0 into r3;
     add r0 r1 into r4;
     div r0 r1 into r5;
-    is.eq r0 r1 into r6;
-    mul r0 r1 into r7;
-    pow r0 2u8 into r8;
-    pow r0 2u16 into r9;
-    pow r0 2u32 into r10;
-    shl r0 2u8 into r11;
-    shl r0 2u16 into r12;
-    shl r0 2u32 into r13;
-    shr r0 2u8 into r14;
-    shr r0 2u16 into r15;
-    shr r0 2u32 into r16;
-    rem r0 r1 into r17;
-    output r6 as boolean.private;
+    div.w r0 r1 into r6;
+    is.eq r0 r1 into r7;
+    mul r0 r1 into r8;
+    pow r0 2u8 into r9;
+    pow r0 2u16 into r10;
+    pow r0 2u32 into r11;
+    shl r0 2u8 into r12;
+    shl r0 2u16 into r13;
+    shl r0 2u32 into r14;
+    shr r0 2u8 into r15;
+    shr r0 2u16 into r16;
+    shr r0 2u32 into r17;
+    rem r0 r1 into r18;
+    rem.w r0 r1 into r19;
+    output r7 as boolean.private;
 
 constructor:
     assert.eq edition 0u16;
