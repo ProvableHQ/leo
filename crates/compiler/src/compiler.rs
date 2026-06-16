@@ -105,10 +105,6 @@ pub struct Compiler {
     state: CompilerState,
     /// The stubs for imported programs.
     import_stubs: IndexMap<Symbol, Stub>,
-    /// How many statements were in the AST before DCE?
-    pub statements_before_dce: u32,
-    /// How many statements were in the AST after DCE?
-    pub statements_after_dce: u32,
 }
 
 impl Compiler {
@@ -351,8 +347,6 @@ impl Compiler {
             rename: None,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
-            statements_before_dce: 0,
-            statements_after_dce: 0,
         }
     }
 
@@ -459,9 +453,7 @@ impl Compiler {
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
-        let output = self.do_pass::<DeadCodeEliminating>(())?;
-        self.statements_before_dce = output.statements_before;
-        self.statements_after_dce = output.statements_after;
+        self.do_pass::<DeadCodeEliminating>(())?;
 
         Ok(abis)
     }

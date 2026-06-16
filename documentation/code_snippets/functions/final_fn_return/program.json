@@ -1,9 +1,8 @@
 {
-  "program": "base_lib",
+  "program": "final_fn_return_demo.aleo",
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "leo": "4.3.0",
   "dependencies": null,
   "dev_dependencies": null
 }

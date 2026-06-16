@@ -1,7 +1,5 @@
 
        Leo 🔨 Compiling 'broadcast_error.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.26 KB / 2000.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
@@ -76,8 +74,6 @@ Transaction accepted.
 ✅ Deployment confirmed!
 
        Leo 🔨 Compiling 'broadcast_error.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.26 KB / 2000.00 KB
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.

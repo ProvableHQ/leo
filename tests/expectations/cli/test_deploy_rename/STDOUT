@@ -1,7 +1,5 @@
 
        Leo 🔨 Compiling 'renamed_prog.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'renamed_prog.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'renamed_prog.aleo'.
@@ -90,8 +88,6 @@ constructor:
 
 
        Leo 🔨 Compiling 'original_prog.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'original_prog.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'original_prog.aleo'.

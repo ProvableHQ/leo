@@ -11,7 +11,7 @@ sidebar_label: Data Types
 ### Addresses
 
 Addresses are defined to enable compiler-optimized routines for parsing and operating over addresses.
-These semantics will be accompanied by a standard library in a future sprint.
+These semantics will be accompanied by a standard library in a future release.
 
 ```leo file=../code_snippets/data_types/demo/src/main.leo#addresses
 ```

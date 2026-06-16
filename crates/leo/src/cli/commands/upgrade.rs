@@ -371,6 +371,9 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
             // Print the deployment summary and save the transaction and stats.
             print_deployment_summary(&id.to_string(), &stats);
+            if command.action.broadcast {
+                warn_if_transaction_oversized(&id, &transaction, consensus_version, "upgrade");
+            }
             transactions.push((id, transaction));
             all_stats.push(stats);
         }
@@ -569,7 +572,7 @@ fn check_tasks_for_warnings<N: Network>(
     command: &LeoUpgrade,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, program, is_local, .. } in tasks {
+    for Task { id, program, is_local, bytecode_size, .. } in tasks {
         if !is_local || !command.action.broadcast {
             continue;
         }
@@ -622,6 +625,18 @@ fn check_tasks_for_warnings<N: Network>(
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
+        }
+        // An upgrade redeploys bytecode, so it must fit the target version's size limit.
+        let max_size = max_program_size_for_consensus_version::<N>(consensus_version);
+        if *bytecode_size > max_size {
+            warnings.push(format!(
+                "The program '{id}' is {:.2} KB, exceeding the {:.2} KB limit for consensus version {}. The upgrade will likely fail.",
+                *bytecode_size as f64 / 1024.0,
+                max_size as f64 / 1024.0,
+                consensus_version as u8,
+            ));
+        } else if let (_, _, Some(msg)) = format_program_size(*bytecode_size, max_size) {
+            warnings.push(format!("The program '{id}' is {msg}."));
         }
         // Check for a consensus version mismatch.
         if let Err(e) =

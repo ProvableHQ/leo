@@ -3,15 +3,11 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.22 KB / 2000.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.22 KB / 2000.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.
@@ -69,8 +65,6 @@ Attempting to determine the consensus version from the latest block height at ht
 
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.22 KB / 2000.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.

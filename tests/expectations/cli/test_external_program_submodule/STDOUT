@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'consumer.aleo'
-       Leo     81 statements before dead code elimination.
-       Leo     83 statements after dead code elimination.
        Leo     The program checksum is: '[180u8, 223u8, 5u8, 182u8, 121u8, 236u8, 70u8, 205u8, 63u8, 169u8, 165u8, 193u8, 163u8, 145u8, 151u8, 8u8, 17u8, 113u8, 67u8, 189u8, 228u8, 154u8, 198u8, 1u8, 132u8, 217u8, 135u8, 148u8, 97u8, 216u8, 215u8, 171u8]'.
        Leo       `identity` function checksum is: '[170u8, 157u8, 157u8, 245u8, 252u8, 78u8, 220u8, 128u8, 37u8, 138u8, 27u8, 16u8, 46u8, 243u8, 235u8, 127u8, 229u8, 131u8, 38u8, 221u8, 155u8, 32u8, 49u8, 132u8, 170u8, 51u8, 204u8, 86u8, 172u8, 62u8, 54u8, 93u8]'.
        Leo       `make_white` function checksum is: '[18u8, 89u8, 241u8, 223u8, 59u8, 216u8, 151u8, 241u8, 116u8, 66u8, 1u8, 70u8, 96u8, 207u8, 27u8, 219u8, 148u8, 78u8, 121u8, 203u8, 67u8, 33u8, 241u8, 188u8, 61u8, 249u8, 169u8, 186u8, 43u8, 215u8, 156u8, 83u8]'.

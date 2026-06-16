@@ -6,8 +6,6 @@
        Leo ✅ Validated 'my_lib'.
 
        Leo 🔨 Compiling 'test_my_lib.aleo'
-       Leo     16 statements before dead code elimination.
-       Leo     17 statements after dead code elimination.
        Leo     Program size: 0.22 KB / 2000.00 KB
        Leo ✅ Compiled 'test_my_lib.aleo' into Aleo instructions.
        Leo Loading the ledger from storage...

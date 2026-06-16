@@ -49,6 +49,7 @@
 (group_literal) @number
 (scalar_literal) @number
 (string_literal) @string
+(identifier_literal) @string.special
 (address_literal) @string.special
 
 (line_comment) @comment

@@ -623,9 +623,6 @@ fn compile_leo_source_directory(
         return Err(crate::errors::program_size_limit_exceeded(program_name, program_size, MAX_PROGRAM_SIZE).into());
     }
 
-    tracing::info!("    {} statements before dead code elimination.", compiler.statements_before_dce);
-    tracing::info!("    {} statements after dead code elimination.", compiler.statements_after_dce);
-
     if print_checksums {
         let checksums = program_checksums(network, primary_bytecode)?;
         let format = |bytes: &[u8]| bytes.iter().map(|b| format!("{b}u8")).join(", ");

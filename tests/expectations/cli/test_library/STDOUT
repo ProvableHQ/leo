@@ -45,8 +45,6 @@ upgrade exit code: 213
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'program_using_lib.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.17 KB / 2000.00 KB
        Leo ✅ Compiled 'program_using_lib.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'program_using_lib.aleo'.
