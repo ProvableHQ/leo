@@ -20,7 +20,7 @@ use leo_errors::{LeoError, Result};
 pub fn is_valid_hash(hash: &str) -> Result<(), LeoError> {
     if hash.len() != 61 {
         Err(crate::errors::invalid_input_id_len(hash, "hash").into())
-    } else if !hash.starts_with("ab1") && hash.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()) {
+    } else if !(hash.starts_with("ab1") && hash.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())) {
         Err(crate::errors::invalid_input_id(hash, "hash", "ab1").into())
     } else {
         Ok(())
@@ -31,8 +31,8 @@ pub fn is_valid_hash(hash: &str) -> Result<(), LeoError> {
 pub fn is_valid_transaction_id(transaction: &str) -> Result<(), LeoError> {
     if transaction.len() != 61 {
         Err(crate::errors::invalid_input_id_len(transaction, "transaction").into())
-    } else if !transaction.starts_with("at1")
-        && transaction.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+    } else if !(transaction.starts_with("at1")
+        && transaction.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()))
     {
         Err(crate::errors::invalid_input_id(transaction, "transaction", "at1").into())
     } else {
@@ -44,7 +44,8 @@ pub fn is_valid_transaction_id(transaction: &str) -> Result<(), LeoError> {
 pub fn is_valid_transition_id(transition: &str) -> Result<(), LeoError> {
     if transition.len() != 61 {
         Err(crate::errors::invalid_input_id_len(transition, "transition").into())
-    } else if !transition.starts_with("au1") && transition.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+    } else if !(transition.starts_with("au1")
+        && transition.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()))
     {
         Err(crate::errors::invalid_input_id(transition, "transition", "au1").into())
     } else {
@@ -75,5 +76,45 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
         Ok(field.to_string())
     } else {
         Err(crate::errors::invalid_field(field).into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Builds a 61-character id from `prefix` padded with `pad` to the right length.
+    fn id(prefix: &str, pad: char) -> String {
+        let mut s = prefix.to_string();
+        s.extend(std::iter::repeat_n(pad, 61 - prefix.len()));
+        s
+    }
+
+    #[test]
+    fn id_validators_accept_well_formed_ids() {
+        assert!(is_valid_hash(&id("ab1", '0')).is_ok());
+        assert!(is_valid_transaction_id(&id("at1", '0')).is_ok());
+        assert!(is_valid_transition_id(&id("au1", '0')).is_ok());
+    }
+
+    #[test]
+    fn id_validators_reject_wrong_length() {
+        assert!(is_valid_hash("ab1").is_err());
+        assert!(is_valid_transaction_id(&format!("{}x", id("at1", '0'))).is_err());
+    }
+
+    #[test]
+    fn id_validators_reject_wrong_prefix() {
+        assert!(is_valid_hash(&id("xy1", '0')).is_err());
+        assert!(is_valid_transaction_id(&id("ab1", '0')).is_err());
+        assert!(is_valid_transition_id(&id("at1", '0')).is_err());
+    }
+
+    #[test]
+    fn id_validators_reject_invalid_chars() {
+        // Correct prefix and length but a non-lowercase/digit char: previously slipped through.
+        assert!(is_valid_hash(&id("ab1", 'A')).is_err());
+        assert!(is_valid_transaction_id(&id("at1", '!')).is_err());
+        assert!(is_valid_transition_id(&id("au1", 'Z')).is_err());
     }
 }
