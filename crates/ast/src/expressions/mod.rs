@@ -337,9 +337,9 @@ impl Expression {
                     Div | DivWrapped | Mod | Rem | RemWrapped | Shl | Shr => false,
                     // These can only halt for integers.
                     Add | Mul | Pow | Sub => {
-                        expr.left.is_pure(get_type)
+                        !matches!(get_type(expr.id()), Type::Integer(..))
+                            && expr.left.is_pure(get_type)
                             && expr.right.is_pure(get_type)
-                            && !matches!(get_type(expr.id()), Type::Integer(..))
                     }
                     _ => expr.left.is_pure(get_type) && expr.right.is_pure(get_type),
                 }
@@ -361,6 +361,7 @@ impl Expression {
             // Recurse
             Expression::ArrayAccess(expr) => expr.array.is_pure(get_type) && expr.index.is_pure(get_type),
             Expression::MemberAccess(expr) => {
+                // Keep dyn record owner handling in sync with type checking and code generation.
                 let is_dynamic_record_read =
                     matches!(get_type(expr.inner.id()), Type::DynRecord) && expr.name.name != sym::owner;
                 !is_dynamic_record_read && expr.inner.is_pure(get_type)
