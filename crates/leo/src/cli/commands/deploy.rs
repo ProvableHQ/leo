@@ -284,7 +284,7 @@ fn prepare_package_tasks<N: Network>(
     let tasks: Vec<Task<N>> = programs_and_bytecode
         .into_iter()
         .zip(fee_options)
-        .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
+        .map(|((program, bytecode), (priority_fee, record))| {
             let id_str = format!("{}", program.name);
             let id = id_str
                 .parse()

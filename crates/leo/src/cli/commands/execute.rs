@@ -323,8 +323,8 @@ fn handle_execute<A: Aleo>(
         command.inputs.into_iter().map(|string| parse_input(&string, &private_key)).collect::<Result<Vec<_>>>()?;
 
     // Get the first fee option.
-    let (base_fee, priority_fee, record) =
-        parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None, None));
+    let (priority_fee, record) =
+        parse_fee_options(&private_key, &command.fee_options, 1)?.into_iter().next().unwrap_or((None, None));
 
     // Get the consensus version.
     let consensus_version = get_consensus_version(
@@ -453,15 +453,8 @@ fn handle_execute<A: Aleo>(
 
         // Generate the fee authorization.
         let id = authorization.to_execution_id()?;
-        let fee_authorization = authorize_fee::<A, _>(
-            &vm,
-            &private_key,
-            record,
-            base_fee.unwrap_or(cost),
-            priority_fee.unwrap_or(0),
-            id,
-            rng,
-        )?;
+        let fee_authorization =
+            authorize_fee::<A, _>(&vm, &private_key, record, cost, priority_fee.unwrap_or(0), id, rng)?;
 
         // Create a fee transition without a proof.
         let fee = Fee::from(fee_authorization.transitions().into_iter().next().unwrap().1, state_root, None)?;
@@ -485,7 +478,7 @@ fn handle_execute<A: Aleo>(
                 &vm,
                 &private_key,
                 record,
-                base_fee.unwrap_or(estimated_cost),
+                estimated_cost,
                 priority_fee.unwrap_or(0),
                 execution_id,
                 rng,

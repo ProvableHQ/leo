@@ -123,14 +123,6 @@ pub struct ConsensusOptions {
 pub struct FeeOptions {
     #[clap(
         long,
-        help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
-        hide = true,
-        value_delimiter = '|',
-        value_parser = parse_amount
-    )]
-    pub(crate) base_fees: Vec<Option<u64>>,
-    #[clap(
-        long,
         help = "Priority fee in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to 0.",
         value_delimiter = '|',
         value_parser = parse_amount
@@ -179,9 +171,7 @@ pub fn parse_fee_options<N: Network>(
     private_key: &PrivateKey<N>,
     fee_options: &FeeOptions,
     k: usize,
-) -> Result<Vec<(Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
-    // Parse the base fees.
-    let base_fees = fee_options.base_fees.clone();
+) -> Result<Vec<(Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
     // Parse the priority fees.
     let priority_fees = fee_options.priority_fees.clone();
     // Parse the fee records.
@@ -189,11 +179,10 @@ pub fn parse_fee_options<N: Network>(
     let fee_records = fee_options.fee_records.iter().map(parse_record).collect::<Result<Vec<_>>>()?;
 
     // Pad the vectors to length `k`.
-    let base_fees = base_fees.into_iter().chain(iter::repeat(None)).take(k);
     let priority_fees = priority_fees.into_iter().chain(iter::repeat(None)).take(k);
     let fee_records = fee_records.into_iter().chain(iter::repeat(None)).take(k);
 
-    Ok(base_fees.zip(priority_fees).zip(fee_records).map(|((x, y), z)| (x, y, z)).collect())
+    Ok(priority_fees.zip(fee_records).collect())
 }
 
 /// Additional options that are common across a number of commands.

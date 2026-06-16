@@ -270,8 +270,6 @@ Specifies the number of blocks to look at when searching for a transaction. Defa
 
 ```text
 Options:
---base-fees <BASE_FEES>
-  [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --skip <SKIP>...
   Skips deployment of any program that contains one of the given substrings.
 --rename <NAME>
