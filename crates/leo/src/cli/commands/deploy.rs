@@ -40,6 +40,8 @@ use snarkvm::{
         ProgramOwner,
         Rng,
         TestnetV0,
+        ToBytes,
+        Transaction,
         VM,
         VerifyingKey,
         deployment_cost,
@@ -422,6 +424,9 @@ Once it is deployed, it CANNOT be changed.
 
             // Print the deployment summary and save the transaction and stats.
             print_deployment_summary(&id.to_string(), &stats);
+            if command.action.broadcast {
+                warn_if_transaction_oversized(&id, &transaction, setup.consensus_version, "deployment");
+            }
             transactions.push((id, transaction));
             all_stats.push(stats);
             already_deployed.insert(id);
@@ -876,13 +881,54 @@ fn print_workspace_deployment_plan<N: Network>(
 
 // ── Unchanged helpers ───────────────────────────────────────────────────────
 
+/// Returns the value in effect at `consensus_version` from a `[(version, value)]` table ordered by
+/// ascending version: the last entry whose version does not exceed it.
+///
+/// Older networks (e.g. mainnet before V16) enforce smaller limits than the latest, so deploys must
+/// check against the version-specific value rather than `LATEST_*`.
+fn consensus_limit(table: &[(ConsensusVersion, usize)], consensus_version: ConsensusVersion, latest: usize) -> usize {
+    table
+        .iter()
+        .take_while(|(version, _)| *version <= consensus_version)
+        .last()
+        .map(|(_, size)| *size)
+        .unwrap_or(latest)
+}
+
+pub(crate) fn max_program_size_for_consensus_version<N: Network>(consensus_version: ConsensusVersion) -> usize {
+    consensus_limit(&N::MAX_PROGRAM_SIZE, consensus_version, N::LATEST_MAX_PROGRAM_SIZE())
+}
+
+pub(crate) fn max_transaction_size_for_consensus_version<N: Network>(consensus_version: ConsensusVersion) -> usize {
+    consensus_limit(&N::MAX_TRANSACTION_SIZE, consensus_version, N::LATEST_MAX_TRANSACTION_SIZE())
+}
+
+/// Warns when a built transaction exceeds the size limit for the target consensus version.
+pub(crate) fn warn_if_transaction_oversized<N: Network>(
+    id: &ProgramID<N>,
+    transaction: &Transaction<N>,
+    consensus_version: ConsensusVersion,
+    action: &str,
+) {
+    let Ok(size) = transaction.to_bytes_le().map(|bytes| bytes.len()) else { return };
+    let max_size = max_transaction_size_for_consensus_version::<N>(consensus_version);
+    if size > max_size {
+        println!(
+            "⚠️  The '{id}' transaction is {:.2} KB, exceeding the {:.2} KB limit for consensus version {}. The {action} will likely fail.",
+            size as f64 / 1024.0,
+            max_size as f64 / 1024.0,
+            consensus_version as u8,
+        );
+    }
+}
+
 /// Check the tasks to warn the user about any potential issues.
 /// The following properties are checked:
 /// - If the transaction is to be broadcast:
 ///     - The program does not exist on the network.
 ///     - If the consensus version is less than V9, the program does not use V9 features.
 ///     - If the consensus version is V9 or greater, the program contains a constructor.
-///     - The program size is approaching the limit.
+///     - The program size is within the limit for the target consensus version.
 fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
@@ -934,8 +980,17 @@ fn check_tasks_for_warnings<N: Network>(
             warnings
                 .push(format!("The program '{id}' does not contain a constructor. The deployment will likely fail",));
         }
-        // Check if the program size is approaching the limit.
-        if let (_, _, Some(msg)) = format_program_size(*bytecode_size, N::LATEST_MAX_PROGRAM_SIZE()) {
+        // The limit grows at later versions, so a program within the latest limit can still exceed
+        // an older network's.
+        let max_size = max_program_size_for_consensus_version::<N>(consensus_version);
+        if *bytecode_size > max_size {
+            warnings.push(format!(
+                "The program '{id}' is {:.2} KB, exceeding the {:.2} KB limit for consensus version {}. The deployment will likely fail.",
+                *bytecode_size as f64 / 1024.0,
+                max_size as f64 / 1024.0,
+                consensus_version as u8,
+            ));
+        } else if let (_, _, Some(msg)) = format_program_size(*bytecode_size, max_size) {
             warnings.push(format!("The program '{id}' is {msg}."));
         }
     }
@@ -1090,7 +1145,7 @@ pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
 
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
+        max_program_size_bytes: max_program_size_for_consensus_version::<N>(consensus_version),
         total_variables: Some(variables),
         total_constraints: Some(constraints),
         max_variables: Some(N::MAX_DEPLOYMENT_VARIABLES),
@@ -1192,7 +1247,7 @@ pub(crate) fn deploy_with_placeholder_certificate<N: Network, A: Aleo<Network = 
     let function_costs = calculate_function_costs(vm, &deployment, consensus_version, rng)?;
     let stats = DeploymentStats {
         program_size_bytes: bytecode_size,
-        max_program_size_bytes: N::LATEST_MAX_PROGRAM_SIZE(),
+        max_program_size_bytes: max_program_size_for_consensus_version::<N>(consensus_version),
         total_variables: None,
         total_constraints: None,
         max_variables: None,
@@ -1337,5 +1392,20 @@ mod tests {
         ));
 
         enforce_local_deploy_constructor_requirements(&[task], &HashSet::new(), ConsensusVersion::V8).unwrap();
+    }
+
+    #[test]
+    fn program_size_limit_tracks_consensus_version() {
+        // A pre-V16 network must report the smaller limit, not the latest (2048 kB) one.
+        assert_eq!(max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::V1), 100_000);
+        assert_eq!(max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::V13), 100_000);
+        assert_eq!(max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::V14), 512_000);
+        assert_eq!(max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::V15), 512_000);
+        assert_eq!(max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::V16), 2_048_000);
+        // The latest version always matches snarkVM's own `LATEST_MAX_PROGRAM_SIZE`.
+        assert_eq!(
+            max_program_size_for_consensus_version::<TestnetV0>(ConsensusVersion::latest()),
+            TestnetV0::LATEST_MAX_PROGRAM_SIZE()
+        );
     }
 }

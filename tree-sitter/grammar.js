@@ -771,6 +771,7 @@ module.exports = grammar({
       $.group_literal,
       $.scalar_literal,
       $.string_literal,
+      $.identifier_literal,
       $.address_literal,
       $.boolean_literal,
       $.none_literal,
@@ -790,6 +791,9 @@ module.exports = grammar({
     scalar_literal: _ => token(prec(2, /[0-9][0-9_]*scalar/)),
 
     string_literal: _ => token(/"[^"]*"/),
+
+    // Single-quoted identifier literals (e.g. `'aleo'`), used as intrinsic arguments like `Program::function_checksum`.
+    identifier_literal: _ => token(/'[a-zA-Z][a-zA-Z0-9_]*'/),
 
     address_literal: _ => token(/aleo1[a-z0-9]+/),
 

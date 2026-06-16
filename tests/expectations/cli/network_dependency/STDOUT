@@ -1,8 +1,6 @@
 DEPLOYMENT 1
 
        Leo 🔨 Compiling 'test_program1.aleo'
-       Leo     3 statements before dead code elimination.
-       Leo     4 statements after dead code elimination.
        Leo     Program size: 0.14 KB / 2000.00 KB
        Leo ✅ Compiled 'test_program1.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_program1.aleo'.
@@ -78,8 +76,6 @@ Transaction accepted.
 DEPLOYMENT 2
 
        Leo 🔨 Compiling 'test_program2.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_program2.aleo'.
@@ -159,8 +155,6 @@ Transaction accepted.
 EXECUTION
 
        Leo 🔨 Compiling 'test_program2.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_program2.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_program2.aleo'.

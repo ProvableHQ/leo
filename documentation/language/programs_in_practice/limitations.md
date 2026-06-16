@@ -8,7 +8,7 @@ toc_max_heading_level: 3
 
 snarkVM imposes the following limits on Aleo programs:
 
-- the maximum size of the compiled program is **512 KB** by character count (was 100 KB before consensus version V14).
+- the maximum size of the compiled program is **2048 KB** by character count. This limit is raised by consensus version: 100 KB (V1), 512 KB (V14), and 2048 KB (V16).
 - the maximum number of mappings is **31**. Each `storage` singleton consumes one mapping slot, and each `storage` vector consumes two (one for values, one for length), so storage declarations share this budget with explicit `mapping` declarations.
 - the maximum number of imports is **64**.
 - the maximum length of a program name is **30 characters** (excluding the `.aleo` suffix). Identifiers (including struct, record, mapping, and function names) are limited to **31 ASCII alphanumeric or underscore characters** by the Aleo identifier rules.
@@ -24,7 +24,7 @@ snarkVM imposes the following limits on Aleo programs:
 
 Some other protocol-level limits to be aware of are:
 
-- **the maximum transaction size is 768 KB** (was 128 KB before consensus version V14). If your program exceeds this — for example by requiring large inputs or producing large outputs — consider optimizing the data types in your Leo code.
+- **the maximum transaction size is 2304 KB**, also raised by consensus version: 128 KB (V1), 768 KB (V14), and 2304 KB (V16). If your program exceeds this — for example by requiring large inputs or producing large outputs — consider optimizing the data types in your Leo code.
 - **the maximum number of micro-credits your transaction can consume for on-chain execution is `100_000_000`.** If your program exceeds this, consider optimizing on-chain components of your Leo code.
 
 As with the above restrictions, these limits can only be increased via the governance process. Authoritative values live in `snarkvm-console-network` (`MAX_PROGRAM_SIZE`, `MAX_MAPPINGS`, `MAX_FUNCTIONS`, etc.).

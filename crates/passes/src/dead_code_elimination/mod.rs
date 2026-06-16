@@ -61,29 +61,19 @@ mod program;
 mod visitor;
 use visitor::*;
 
-pub struct DeadCodeEliminatingOutput {
-    pub statements_before: u32,
-    pub statements_after: u32,
-}
-
 pub struct DeadCodeEliminating;
 
 impl Pass for DeadCodeEliminating {
     type Input = ();
-    type Output = DeadCodeEliminatingOutput;
+    type Output = ();
 
     const NAME: &str = "DeadCodeEliminating";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
 
-        let mut visitor = DeadCodeEliminatingVisitor {
-            state,
-            used_variables: Default::default(),
-            unit_name: Default::default(),
-            statements_before: 0,
-            statements_after: 0,
-        };
+        let mut visitor =
+            DeadCodeEliminatingVisitor { state, used_variables: Default::default(), unit_name: Default::default() };
 
         let ast = ast.map(
             |program| visitor.reconstruct_program(program),
@@ -93,9 +83,6 @@ impl Pass for DeadCodeEliminating {
         visitor.state.handler.last_err()?;
         visitor.state.ast = ast;
 
-        Ok(DeadCodeEliminatingOutput {
-            statements_before: visitor.statements_before,
-            statements_after: visitor.statements_after,
-        })
+        Ok(())
     }
 }

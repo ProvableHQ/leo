@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_identifier_input.aleo'
-       Leo     3 statements before dead code elimination.
-       Leo     4 statements after dead code elimination.
        Leo     Program size: 0.16 KB / 2000.00 KB
        Leo ✅ Compiled 'test_identifier_input.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_identifier_input.aleo'.
@@ -20,8 +18,6 @@
 --- leo execute with identifier input ---
 
        Leo 🔨 Compiling 'test_identifier_input.aleo'
-       Leo     3 statements before dead code elimination.
-       Leo     4 statements after dead code elimination.
        Leo     Program size: 0.16 KB / 2000.00 KB
        Leo ✅ Compiled 'test_identifier_input.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_identifier_input.aleo'.

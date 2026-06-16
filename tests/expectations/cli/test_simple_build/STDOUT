@@ -2,8 +2,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     The program checksum is: '[95u8, 99u8, 136u8, 243u8, 82u8, 169u8, 200u8, 72u8, 133u8, 227u8, 122u8, 161u8, 195u8, 178u8, 69u8, 37u8, 167u8, 114u8, 104u8, 192u8, 161u8, 175u8, 195u8, 180u8, 120u8, 4u8, 192u8, 16u8, 86u8, 199u8, 76u8, 235u8]'.
        Leo       `main` function checksum is: '[140u8, 56u8, 138u8, 209u8, 194u8, 103u8, 111u8, 19u8, 214u8, 69u8, 197u8, 23u8, 36u8, 181u8, 158u8, 71u8, 139u8, 32u8, 84u8, 44u8, 124u8, 142u8, 14u8, 165u8, 45u8, 179u8, 57u8, 83u8, 241u8, 41u8, 96u8, 245u8]'.
        Leo     Program size: 0.20 KB / 2000.00 KB

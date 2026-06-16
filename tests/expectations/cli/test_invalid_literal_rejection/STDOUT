@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_invalid_literal_rejection.aleo'.
@@ -22,8 +20,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_invalid_literal_rejection.aleo'.
@@ -34,8 +30,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_invalid_literal_rejection.aleo'.
@@ -46,8 +40,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_invalid_literal_rejection.aleo'.
@@ -58,8 +50,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_invalid_literal_rejection.aleo'
-       Leo     5 statements before dead code elimination.
-       Leo     6 statements after dead code elimination.
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'test_invalid_literal_rejection.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_invalid_literal_rejection.aleo'.

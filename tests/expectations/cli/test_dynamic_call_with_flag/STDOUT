@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
-       Leo     7 statements before dead code elimination.
-       Leo     8 statements after dead code elimination.
        Leo     Program size: 0.42 KB / 2000.00 KB
        Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_dynamic_call_with_flag.aleo'.
@@ -20,8 +18,6 @@ Error [ECLI0377045]: Failed to authorize execution: Process authorization failed
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
-       Leo     7 statements before dead code elimination.
-       Leo     8 statements after dead code elimination.
        Leo     Program size: 0.42 KB / 2000.00 KB
        Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_dynamic_call_with_flag.aleo'.

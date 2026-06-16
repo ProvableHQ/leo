@@ -5,8 +5,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'my_program.aleo'
-       Leo     4 statements before dead code elimination.
-       Leo     5 statements after dead code elimination.
        Leo     Program size: 0.15 KB / 2000.00 KB
        Leo ✅ Compiled 'my_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'my_program.aleo'.

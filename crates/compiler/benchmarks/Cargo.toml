@@ -19,7 +19,7 @@ snarkvm = { workspace = true }
 walkdir = { workspace = true }
 
 [dev-dependencies]
-criterion = { package = "codspeed-criterion-compat", version = "4.1.0" }
+criterion = { workspace = true }
 
 [[bench]]
 name = "compiler_benchmarks"

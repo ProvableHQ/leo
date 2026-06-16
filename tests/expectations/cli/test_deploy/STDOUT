@@ -1,7 +1,5 @@
 
        Leo 🔨 Compiling 'some_sample_leo_program.aleo'
-       Leo     10 statements before dead code elimination.
-       Leo     11 statements after dead code elimination.
        Leo     Program size: 0.68 KB / 2000.00 KB
        Leo ✅ Compiled 'some_sample_leo_program.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'some_sample_leo_program.aleo'.

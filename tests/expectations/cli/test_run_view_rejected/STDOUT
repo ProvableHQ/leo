@@ -3,8 +3,6 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_run_view_rejected.aleo'
-       Leo     6 statements before dead code elimination.
-       Leo     7 statements after dead code elimination.
        Leo     Program size: 0.34 KB / 2000.00 KB
        Leo ✅ Compiled 'test_run_view_rejected.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_run_view_rejected.aleo'.

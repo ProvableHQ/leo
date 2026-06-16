@@ -1,6 +1,6 @@
 [package]
 name = "leo-aleo-abi-wasm"
-version = "4.2.0"
+version = "4.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "WASM bindings for ABI generation from Aleo bytecode"
 homepage = "https://leo-lang.org"
@@ -21,8 +21,5 @@ leo-ast = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = "0.2"
-# Enable the `wasm_js` backend on `getrandom 0.4`. snarkVM's `rand 0.10` chain pulls
-# `getrandom 0.4` in transitively, and on `wasm32-unknown-unknown` that crate
-# refuses to compile unless this feature is opted in.
-getrandom = { version = "0.4", default-features = false, features = [ "wasm_js" ] }
+wasm-bindgen = { workspace = true }
+getrandom = { workspace = true }

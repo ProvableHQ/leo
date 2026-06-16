@@ -1,9 +1,8 @@
 {
-  "program": "base_lib",
+  "program": "function_checksum_demo.aleo",
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "leo": "4.3.0",
   "dependencies": null,
   "dev_dependencies": null
 }

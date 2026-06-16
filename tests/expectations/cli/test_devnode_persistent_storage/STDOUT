@@ -2,8 +2,6 @@
 --- leo deploy ---
 
        Leo 🔨 Compiling 'persistent_counter.aleo'
-       Leo     10 statements before dead code elimination.
-       Leo     12 statements after dead code elimination.
        Leo     Program size: 0.40 KB / 2000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
@@ -79,8 +77,6 @@ Transaction accepted.
 --- leo execute ---
 
        Leo 🔨 Compiling 'persistent_counter.aleo'
-       Leo     10 statements before dead code elimination.
-       Leo     12 statements after dead code elimination.
        Leo     Program size: 0.40 KB / 2000.00 KB
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
