@@ -1754,6 +1754,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
+        let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
+
+        // Ternary arms cannot introduce bindings, so marking the scope as conditional is sufficient.
         // We try to coerce one side to another in the ternary operator whenever possible and/or needed.
         let (t1, t2) = if expected.is_some() {
             (
@@ -1792,6 +1795,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 self.visit_expression_reject_numeric(&input.if_false, &None),
             )
         };
+
+        self.scope_state.is_conditional = previous_is_conditional;
 
         let typ = if t1 == Type::Err || t2 == Type::Err {
             Type::Err
