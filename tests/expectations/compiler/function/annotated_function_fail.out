@@ -1,35 +1,7 @@
-[ETYC0372129] Error: invalid annotation: Test annotation @test appears outside of tests
-   ╭─[ compiler-test:3:1 ]
-   │
- 3 │ @test
-   │ 
-   │ Help: Check the annotation syntax against the Leo documentation.
-───╯
-[ETYC0372129] Error: invalid annotation: Annotation @test may appear only on transitions
-   ╭─[ compiler-test:3:1 ]
-   │
- 3 │ @test
-   │ 
-   │ Help: Check the annotation syntax against the Leo documentation.
-───╯
-[ETYC0372129] Error: invalid annotation: A test procedure cannot have inputs
-   ╭─[ compiler-test:4:8 ]
-   │
- 4 │ fn foo(a: u8, b: u8) -> u8 {
-   │ 
-   │ Help: Check the annotation syntax against the Leo documentation.
-───╯
-[ETYC0372027] Error: unknown annotation `@program`
-   ╭─[ compiler-test:8:1 ]
-   │
- 8 │ @program
-   │ 
-   │ Help: Check the annotation name for typos. See the Leo documentation for the list of supported annotations.
-───╯
-[ETYC0372083] Error: a program must have at least one entry point fn
-   ╭─[ compiler-test:1:9 ]
-   │
- 1 │ program test.aleo {}
-   │ 
-   │ Help: Define at least one function inside the `program` block.
-───╯
+[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `@`
+    ╭─[ compiler-test:15:5 ]
+    │
+ 15 │     @noupgrade
+    │ 
+    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
+────╯

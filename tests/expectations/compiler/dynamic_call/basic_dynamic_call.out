@@ -12,3 +12,6 @@ function main:
     input r2 as u32.private;
     call.dynamic r0 'aleo' 'sum' with r1 r2 (as u32.private u32.private) into r3 (as u32.private);
     output r3 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

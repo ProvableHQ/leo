@@ -13,3 +13,6 @@ function main:
     input r0 as field.private;
     call.dynamic r0 'aleo' 'get_value' into r1 (as u64.private);
     output r1 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

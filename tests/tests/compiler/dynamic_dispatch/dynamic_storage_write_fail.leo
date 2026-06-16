@@ -8,6 +8,9 @@ program test.aleo {
     fn update(target: field) -> Final {
         return final { finalize_update(target); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_update(target: field) {

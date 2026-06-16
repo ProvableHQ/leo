@@ -126,3 +126,6 @@ mapping thirtyone:
 
 function foo:
     output 2u8 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

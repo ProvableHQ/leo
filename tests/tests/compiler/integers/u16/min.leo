@@ -3,4 +3,7 @@ program test.aleo {
         let a: u16 = 0u16;
         return y == true;
     }
+
+    @noupgrade
+    constructor() {}
 }

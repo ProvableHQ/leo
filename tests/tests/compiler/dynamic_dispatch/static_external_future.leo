@@ -9,6 +9,9 @@ program credits.aleo {
         let f: Final = final { finalize(); };
         return (cred, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() {

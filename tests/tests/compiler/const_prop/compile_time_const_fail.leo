@@ -8,4 +8,7 @@ program test.aleo {
     fn main() -> i32 {
         return 0i32;
     }
+
+    @noupgrade
+    constructor() {}
 }

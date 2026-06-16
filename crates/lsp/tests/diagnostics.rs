@@ -35,7 +35,7 @@ use tempfile::{TempDir, tempdir};
 const WAIT_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// Source guaranteed to trigger a compiler error.
-const ERROR_SOURCE: &str = "program demo.aleo {\n    fn main() -> u32 {\n        return undefined_symbol;\n    }\n}\n";
+const ERROR_SOURCE: &str = "program demo.aleo {\n    fn main() -> u32 {\n        return undefined_symbol;\n    }\n    @noupgrade constructor() {}\n}\n";
 
 /// Source that emits a labeled compiler error (duplicate function name).
 ///
@@ -53,7 +53,7 @@ const LABELED_ERROR_SOURCE: &str = concat!(
 );
 
 /// Source that compiles cleanly.
-const CLEAN_SOURCE: &str = "program demo.aleo { fn main() {} }\n";
+const CLEAN_SOURCE: &str = "program demo.aleo { @noupgrade constructor() {} fn main() {} }\n";
 
 /// Send `initialize` followed by `initialized` with the maximal capability set.
 fn initialize(server: &mut TestServer) {
@@ -443,7 +443,8 @@ fn save_publish_carries_open_document_version() {
 /// that sibling's URI and version, not the saved trigger's.
 #[test]
 fn save_publishes_diagnostics_for_open_sibling_file() {
-    let main_source = "program demo.aleo {\n    fn main() -> u32 { return helper::go(); }\n}\n";
+    let main_source =
+        "program demo.aleo {\n    fn main() -> u32 { return helper::go(); }\n    @noupgrade constructor() {}\n}\n";
     let bad_helper = concat!("module helper {\n", "    pub fn go() -> u32 { return undefined_symbol; }\n", "}\n",);
     let (_tempdir, main_uri, helper_uri) = write_two_file_package(main_source, bad_helper);
 

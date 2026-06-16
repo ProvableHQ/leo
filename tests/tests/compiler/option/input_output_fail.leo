@@ -14,6 +14,9 @@ program test.aleo {
     fn bar(x: u8?, f: Foo) {
         return final {};
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 @no_inline

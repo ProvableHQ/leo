@@ -16,4 +16,7 @@ program test.aleo {
         let b0: u8 = (y & 1431655765u32 != 0u32) ? 0u8 : 1u8;
         return bz + b4 + b3 + b2 + b1 + b0;
     }
+
+    @noupgrade
+    constructor() {}
 }

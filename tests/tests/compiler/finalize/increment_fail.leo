@@ -5,6 +5,9 @@ program test.aleo {
         let caller = self.caller;
         return final { finalize_increase_self(caller, amount); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_increase_self(addr: address, amount: u128) {

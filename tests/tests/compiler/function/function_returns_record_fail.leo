@@ -16,4 +16,7 @@ program test.aleo {
         bar(board);
         return foo(board, 1u8);
     }
+
+    @noupgrade
+    constructor() {}
 }

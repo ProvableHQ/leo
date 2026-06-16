@@ -12,6 +12,9 @@ program test_dep.aleo {
         let l: yeets = yeets { owner: self.signer, val: 1u32 };
         return (l, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main_dep(a: u32, b: u32) {
@@ -33,6 +36,9 @@ program test.aleo {
         let f3: Final = final { finalize_main(f, f2, 1u32); };
         return (a, f3);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f: Final, f2: Final, a: u32) {
@@ -61,6 +67,9 @@ program wrapper.aleo {
         let f4: Final = final { finalize_main(f, f2, f3); };
         return (val, f4);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f: Final, f2: Final, f3: Final) {
@@ -79,6 +88,9 @@ program big_wrapper.aleo {
         let f2: Final = final { finalize_main(f); };
         return (b, f2);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f: Final) {

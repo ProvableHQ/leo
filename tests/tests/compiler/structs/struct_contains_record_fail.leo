@@ -10,4 +10,7 @@ program test.aleo {
         // The token amount.
         foo: Foo,
     }
+
+    @noupgrade
+    constructor() {}
 }

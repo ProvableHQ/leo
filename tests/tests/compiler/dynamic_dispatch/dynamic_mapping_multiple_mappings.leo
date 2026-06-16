@@ -8,6 +8,9 @@ program test.aleo {
     fn check(target: field, key: address) -> Final {
         return final { finalize_check(target, key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_check(target: field, key: address) {

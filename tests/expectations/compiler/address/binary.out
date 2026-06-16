@@ -4,3 +4,6 @@ function main:
     input r0 as address.private;
     is.neq r0 aleo1fj982yqchhy973kz7e9jk6er7t6qd6jm9anplnlprem507w6lv9spwvfxx into r1;
     output r1 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

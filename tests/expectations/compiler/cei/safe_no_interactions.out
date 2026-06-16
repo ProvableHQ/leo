@@ -17,3 +17,6 @@ finalize do_work:
     get.or_use balances[1u32] 0u32 into r3;
     add r3 1u32 into r4;
     set r4 into balances[1u32];
+
+constructor:
+    assert.eq edition 0u16;

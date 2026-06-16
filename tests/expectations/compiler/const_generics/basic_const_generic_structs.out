@@ -44,3 +44,6 @@ function main:
     add r9 r4.arr[5u32] into r10;
     add r10 r8.f.arr[8u32] into r11;
     output r11 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

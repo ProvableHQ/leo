@@ -4,4 +4,7 @@ program test.aleo {
         let negnegnegOneField: field = 0field - --1field;
         return negOneField + a == 0field;
     }
+
+    @noupgrade
+    constructor() {}
 }

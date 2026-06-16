@@ -11,4 +11,7 @@ program test.aleo {
         let x: [dyn record; 2] = [token_1, token_2];
         return x;
     }
+
+    @noupgrade
+    constructor() {}
 }

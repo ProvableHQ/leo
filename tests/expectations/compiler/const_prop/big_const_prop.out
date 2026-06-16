@@ -2,3 +2,6 @@ program test.aleo;
 
 function main:
     output 33554424i32 as i32.private;
+
+constructor:
+    assert.eq edition 0u16;

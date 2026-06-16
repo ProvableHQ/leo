@@ -7,3 +7,6 @@ function foo:
     input r0 as R.record;
     cast r0.owner into r1 as R.record;
     output r1 as R.record;
+
+constructor:
+    assert.eq edition 0u16;

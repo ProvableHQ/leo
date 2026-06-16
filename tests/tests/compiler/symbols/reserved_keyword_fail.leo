@@ -21,6 +21,9 @@ program finalize.aleo {
     fn main(f: Foo) -> Foo {
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize() {}

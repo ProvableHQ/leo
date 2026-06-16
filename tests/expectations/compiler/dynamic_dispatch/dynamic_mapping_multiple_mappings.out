@@ -14,3 +14,6 @@ finalize check:
     add r2 r3 into r4;
     gte r4 0u64 into r5;
     assert.eq r5 true;
+
+constructor:
+    assert.eq edition 0u16;

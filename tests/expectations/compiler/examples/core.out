@@ -6,3 +6,6 @@ function main:
     hash.psd2 r1 into r2 as field;
     commit.bhp256 r2 1scalar into r3 as field;
     output r3 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

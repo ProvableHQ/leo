@@ -38,6 +38,9 @@ function create:
     cast self.signer 10u32 into r14 as Boo.record;
     output r13 as Foo.private;
     output r14 as Boo.record;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 program parent.aleo;
@@ -66,6 +69,9 @@ function create_wrapper:
     call child.aleo/create into r2 r3;
     output r2 as child.aleo/Foo.private;
     output r3 as child.aleo/Boo.record;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 import parent.aleo;
@@ -83,6 +89,9 @@ function omega_wrapper:
     output r5 as child.aleo/Boo.record;
     output r6 as parent.aleo/BooHoo.record;
     output r7 as parent.aleo/Woo.private;
+
+constructor:
+    assert.eq edition 0u16;
 status: success
 output: ({bar: [
   {

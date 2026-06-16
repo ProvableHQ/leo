@@ -19,4 +19,7 @@ program scratch.aleo: AbstractFoo {
     fn foobar() -> Foo {
         return Foo { owner: self.signer, num: 42 };
     }
+
+    @noupgrade
+    constructor() {}
 }

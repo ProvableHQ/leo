@@ -7,6 +7,8 @@ struct Outer {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
     // Nested composites: SSA lowers `o.inner.v` into a pair of accesses
     // (`$t = o.inner; $t.v`). The first access forwards to the tracked
     // atom for `o.inner` (`Path(i)`), but the second access sits on the

@@ -14,6 +14,9 @@ fn compute_remaining(
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn transfer(
         public sender_amount: u64,
         public receiver_amount: u64,

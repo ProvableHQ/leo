@@ -1,4 +1,7 @@
 program tuple_pass_tests.aleo {
+    @noupgrade
+    constructor() {}
+
     // --------------------------------------------
     // 1. Tuple construction + member access
     // --------------------------------------------

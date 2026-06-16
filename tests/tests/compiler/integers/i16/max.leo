@@ -3,4 +3,7 @@ program test.aleo {
         let b: i16 = 32767i16;
         return b - a;
     }
+
+    @noupgrade
+    constructor() {}
 }

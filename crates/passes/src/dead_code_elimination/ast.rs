@@ -66,7 +66,7 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
         let mut statements: Vec<Statement> =
             block.statements.into_iter().rev().map(|statement| self.reconstruct_statement(statement).0).collect();
 
-        statements.retain(|stmt| !stmt.is_empty());
+        statements.retain(|stmt| !stmt.is_removable());
 
         // Reverse the direction of `statements`.
         statements.reverse();

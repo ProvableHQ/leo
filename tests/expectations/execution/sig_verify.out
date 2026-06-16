@@ -45,6 +45,9 @@ function literal_test:
     output r1 as boolean.private;
     output r2 as boolean.private;
     output r0 as signature.private;
+
+constructor:
+    assert.eq edition 0u16;
 status: success
 output: true
 status: success

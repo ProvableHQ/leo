@@ -23,3 +23,6 @@ function get_memo_typed:
     input r0 as dynamic.record;
     get.record.dynamic r0.memo into r1 as field;
     output r1 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

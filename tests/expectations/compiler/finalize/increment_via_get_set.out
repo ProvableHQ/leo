@@ -15,3 +15,6 @@ finalize increase_self:
     get.or_use amounts[r0] 0u128 into r2;
     add r2 r1 into r3;
     set r3 into amounts[r0];
+
+constructor:
+    assert.eq edition 0u16;

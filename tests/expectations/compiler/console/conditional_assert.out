@@ -10,3 +10,6 @@ function main:
     or r5 r1 into r6;
     assert.eq r6 true;
     output r1 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

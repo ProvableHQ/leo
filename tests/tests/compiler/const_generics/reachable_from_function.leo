@@ -1,5 +1,8 @@
 program const_generics.aleo {
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 fn bar(x: field) -> field {

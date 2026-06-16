@@ -1412,6 +1412,8 @@ mod tests {
                 "        owner: address,\n",
                 "        x: bool,\n",
                 "    }\n",
+                "    @noupgrade\n",
+                "    constructor() {}\n",
                 "    fn foo() -> R {\n",
                 "        return R { owner: self.signer, x: true };\n",
                 "    }\n",

@@ -7,4 +7,7 @@ program test.aleo {
         let a: Foo = Foo { x: x };
         return a.x;
     }
+
+    @noupgrade
+    constructor() {}
 }

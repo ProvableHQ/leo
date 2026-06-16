@@ -6,4 +6,7 @@ program bar.aleo {
     fn foo() {}
 
     fn bar() {}
+
+    @noupgrade
+    constructor() {}
 }

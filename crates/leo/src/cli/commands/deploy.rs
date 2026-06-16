@@ -558,6 +558,24 @@ fn output_and_broadcast<N: Network>(
     Ok(build_deploy_output(config, transactions, all_stats, &all_broadcasts))
 }
 
+fn enforce_local_deploy_constructor_requirements<N: Network>(
+    tasks: &[Task<N>],
+    skipped: &HashSet<ProgramID<N>>,
+    consensus_version: ConsensusVersion,
+) -> Result<()> {
+    if consensus_version < ConsensusVersion::V9 {
+        return Ok(());
+    }
+
+    for Task { id, program, .. } in tasks {
+        if !skipped.contains(id) && !program.contains_constructor() {
+            return Err(crate::errors::missing_constructor(id).into());
+        }
+    }
+
+    Ok(())
+}
+
 // ── Single-package deploy ───────────────────────────────────────────────────
 
 // Handle deployment for a single package (non-workspace mode).
@@ -576,6 +594,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
     });
 
     let (local, remote, skipped) = prepare_package_tasks::<N>(command, &setup, &package)?;
+    enforce_local_deploy_constructor_requirements(&local, &skipped, setup.consensus_version)?;
 
     // Print a summary of the deployment plan.
     print_deployment_plan(
@@ -712,6 +731,10 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
             }
         }
         member_tasks.push((name.clone(), local, skipped));
+    }
+
+    for (_, local, skipped) in &member_tasks {
+        enforce_local_deploy_constructor_requirements(local, skipped, setup.consensus_version)?;
     }
 
     // Collect warnings across all members.
@@ -1246,4 +1269,62 @@ pub(crate) fn calculate_function_costs<N: Network, R: Rng + CryptoRng>(
     }
 
     Ok(function_costs)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str::FromStr;
+
+    fn task_from_source(source: &str) -> Task<TestnetV0> {
+        let program = Program::<TestnetV0>::from_str(source).unwrap();
+        Task {
+            id: *program.id(),
+            program,
+            edition: None,
+            is_local: true,
+            priority_fee: None,
+            record: None,
+            bytecode_size: source.len(),
+        }
+    }
+
+    #[test]
+    fn rejects_unskipped_local_deploy_without_constructor() {
+        let task = task_from_source(concat!(
+            "program missing_constructor.aleo;\n",
+            "function main:\n",
+            "    input r0 as u32.public;\n",
+            "    output r0 as u32.public;\n",
+        ));
+
+        let result = enforce_local_deploy_constructor_requirements(&[task], &HashSet::new(), ConsensusVersion::V9);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn allows_skipped_local_deploy_without_constructor() {
+        let task = task_from_source(concat!(
+            "program skipped_constructor.aleo;\n",
+            "function main:\n",
+            "    input r0 as u32.public;\n",
+            "    output r0 as u32.public;\n",
+        ));
+        let skipped = HashSet::from([task.id]);
+
+        enforce_local_deploy_constructor_requirements(&[task], &skipped, ConsensusVersion::V9).unwrap();
+    }
+
+    #[test]
+    fn allows_local_deploy_without_constructor_before_v9() {
+        let task = task_from_source(concat!(
+            "program pre_constructor_gate.aleo;\n",
+            "function main:\n",
+            "    input r0 as u32.public;\n",
+            "    output r0 as u32.public;\n",
+        ));
+
+        enforce_local_deploy_constructor_requirements(&[task], &HashSet::new(), ConsensusVersion::V8).unwrap();
+    }
 }

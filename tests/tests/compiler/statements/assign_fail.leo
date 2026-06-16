@@ -20,4 +20,7 @@ program test.aleo {
 
         4u8 = y;
     }
+
+    @noupgrade
+    constructor() {}
 }

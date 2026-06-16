@@ -1,27 +1,27 @@
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:25:9 ]
+    ╭─[ compiler-test:28:9 ]
     │
- 25 │         Mapping::set(ayo, 1u32, 1u32);
+ 28 │         Mapping::set(ayo, 1u32, 1u32);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:27:5 ]
+    ╭─[ compiler-test:30:5 ]
     │
- 27 │     Mapping::set(ayo, 1u32, a);
+ 30 │     Mapping::set(ayo, 1u32, a);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 [WSAZ0374000] Warning: not all paths through the function run every `Final` (2/4 paths leave at least one `Final` un-run)
-    ╭─[ compiler-test:17:1 ]
+    ╭─[ compiler-test:20:1 ]
     │
- 17 │ ╭─▶ final fn finalize_main(f: Final, f2: Final, a: u32) {
+ 20 │ ╭─▶ final fn finalize_main(f: Final, f2: Final, a: u32) {
     ┆ ┆   
- 28 │ ├─▶ }
+ 31 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     
@@ -48,6 +48,9 @@ finalize main_dep:
     input r0 as u32.public;
     set 1u32 into Yo[r0];
     add r0 1u32 into r1;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test_dep.aleo;
 program test.aleo;
@@ -67,18 +70,12 @@ function main:
 finalize main:
     input r0 as test_dep.aleo/main_dep.future;
     input r1 as test_dep.aleo/main_dep.future;
-    branch.eq true false to end_then_0_0;
     await r0;
     await r1;
-    branch.eq true true to end_otherwise_0_1;
-    position end_then_0_0;
-    position end_otherwise_0_1;
-    branch.eq false false to end_then_0_2;
     set 1u32 into ayo[1u32];
-    branch.eq true true to end_otherwise_0_3;
-    position end_then_0_2;
-    position end_otherwise_0_3;
-    set 1u32 into ayo[1u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 import test_dep.aleo;
@@ -101,6 +98,9 @@ finalize main:
     await r0;
     await r1;
     await r2;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import test.aleo;
 import test_dep.aleo;
@@ -118,3 +118,6 @@ function main:
 finalize main:
     input r0 as wrapper.aleo/main.future;
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

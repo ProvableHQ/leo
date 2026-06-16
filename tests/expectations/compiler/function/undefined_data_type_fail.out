@@ -1,35 +1,35 @@
 [ETYC0372017] Error: the type `test.aleo::Board` is not found in the current scope
-   ╭─[ compiler-test:3:25 ]
+   ╭─[ compiler-test:6:25 ]
    │
- 3 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372017] Error: the type `test.aleo::Board` is not found in the current scope
-   ╭─[ compiler-test:3:25 ]
+   ╭─[ compiler-test:6:25 ]
    │
- 3 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372017] Error: the type `test.aleo::u128bool` is not found in the current scope
-   ╭─[ compiler-test:3:45 ]
+   ╭─[ compiler-test:6:45 ]
    │
- 3 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372139] Error: expected type `test.aleo::u128bool`, but an unsuffixed numeral was found
-   ╭─[ compiler-test:4:12 ]
+   ╭─[ compiler-test:7:12 ]
    │
- 4 │     return 0;
+ 7 │     return 0;
    │ 
    │ Help: Add a type suffix to the literal, e.g. `1u32` or `1field`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

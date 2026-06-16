@@ -2,6 +2,9 @@ program child.aleo {
     mapping foo: u32 => u32;
 
     fn bar() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -35,4 +38,7 @@ program parent.aleo {
             }
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

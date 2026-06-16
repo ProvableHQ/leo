@@ -1,14 +1,14 @@
 [ETYC0372008] Error: the value `2147483648` is not a valid `i32`
-   ╭─[ compiler-test:4:18 ]
+   ╭─[ compiler-test:7:18 ]
    │
- 4 │     let a: i32 = 2147483648i32;
+ 7 │     let a: i32 = 2147483648i32;
    │ 
    │ Help: Use a literal that fits within the range of `i32`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

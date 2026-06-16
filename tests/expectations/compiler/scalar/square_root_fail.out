@@ -1,14 +1,14 @@
 [ETYC0372117] Error: expected type `field`, but type `scalar` was found
-   ╭─[ compiler-test:4:12 ]
+   ╭─[ compiler-test:7:12 ]
    │
- 4 │     return a.square_root(); // square root not supported for scalar types.
+ 7 │     return a.square_root(); // square root not supported for scalar types.
    │ 
    │ Help: Change the expression to produce type `field`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

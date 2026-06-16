@@ -4,6 +4,9 @@ struct Point {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() -> u64 {
         let arr: [u64; 3] = [1u64, 2u64, 3u64];
         let first: u64 = arr[0u32];

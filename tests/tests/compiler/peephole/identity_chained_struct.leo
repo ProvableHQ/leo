@@ -8,4 +8,7 @@ program test.aleo {
         let b: u32 = a * 1u32;
         return Foo { f: b };
     }
+
+    @noupgrade
+    constructor() {}
 }

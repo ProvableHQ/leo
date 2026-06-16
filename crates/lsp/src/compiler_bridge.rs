@@ -2395,7 +2395,16 @@ mod tests {
         let tempdir = tempdir().expect("tempdir");
         let root = tempdir.path().join("root");
         write_manifest(&root, "root.aleo", "null");
-        let source = "const LIMIT: u32 = 1u32;\n\n    program root.aleo {\n    fn main() -> u32 {\n        return LIMIT;\n    }\n}\n";
+        let source = concat!(
+            "const LIMIT: u32 = 1u32;\n\n",
+            "program root.aleo {\n",
+            "    @noupgrade\n",
+            "    constructor() {}\n\n",
+            "    fn main() -> u32 {\n",
+            "        return LIMIT;\n",
+            "    }\n",
+            "}\n",
+        );
         fs::write(root.join("src").join("main.leo"), source).expect("write root source");
         let main_path = root.join("src").join("main.leo").canonicalize().expect("canonical main path");
 
@@ -2427,7 +2436,13 @@ mod tests {
         let tempdir = tempdir().expect("tempdir");
         let helper_root = tempdir.path().join("helper");
         write_manifest(&helper_root, "helper.aleo", "null");
-        let helper_source = "program helper.aleo {\n    fn double(x: u32) -> u32 { return x + x; }\n}\n";
+        let helper_source = concat!(
+            "program helper.aleo {\n",
+            "    @noupgrade\n",
+            "    constructor() {}\n\n",
+            "    fn double(x: u32) -> u32 { return x + x; }\n",
+            "}\n",
+        );
         fs::write(helper_root.join("src").join("main.leo"), helper_source).expect("write helper source");
         let helper_main_path = helper_root.join("src").join("main.leo").canonicalize().expect("canonical helper path");
         let helper_root = helper_root.canonicalize().expect("canonical helper root");
@@ -2435,7 +2450,14 @@ mod tests {
         let root = tempdir.path().join("root");
         let dependencies = json!([{ "name": "helper.aleo", "location": "local", "path": helper_root }]).to_string();
         write_manifest(&root, "root.aleo", dependencies.as_str());
-        let source = "import helper.aleo;\n\nprogram root.aleo {\n    fn main() -> u32 { return helper.aleo::double(1u32); }\n}\n";
+        let source = concat!(
+            "import helper.aleo;\n\n",
+            "program root.aleo {\n",
+            "    @noupgrade\n",
+            "    constructor() {}\n\n",
+            "    fn main() -> u32 { return helper.aleo::double(1u32); }\n",
+            "}\n",
+        );
         fs::write(root.join("src").join("main.leo"), source).expect("write root source");
         let main_path = root.join("src").join("main.leo").canonicalize().expect("canonical main path");
 
@@ -2471,6 +2493,8 @@ mod tests {
         let source = concat!(
             "struct Point { x: u32, }\n\n",
             "program root.aleo {\n",
+            "    @noupgrade\n",
+            "    constructor() {}\n\n",
             "    fn main() {\n",
             "        let point: Point = Point { x: 1u32 };\n",
             "        let value = point.x;\n",
@@ -2517,6 +2541,8 @@ mod tests {
             "    fn shared() -> u32;\n",
             "}\n\n",
             "program root.aleo {\n",
+            "    @noupgrade\n",
+            "    constructor() {}\n\n",
             "    fn main() {}\n",
             "}\n",
         );

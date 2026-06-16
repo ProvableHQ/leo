@@ -26,6 +26,9 @@ program test.aleo {
     ) -> Final {
         return final { finalize_boundary(vks32, batch_inputs32, proof, v); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(

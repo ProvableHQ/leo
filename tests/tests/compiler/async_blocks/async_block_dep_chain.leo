@@ -11,6 +11,9 @@ program dependent.aleo {
         };
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,6 +24,9 @@ program dependent2.aleo {
         let f: Final = dependent.aleo::t1();
         return final { f.run(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -31,4 +37,7 @@ program test.aleo {
         let f: Final = dependent2.aleo::t1();
         return final { f.run(); };
     }
+
+    @noupgrade
+    constructor() {}
 }

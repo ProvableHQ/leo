@@ -7,6 +7,9 @@ program child.aleo {
         let c = Bar::[4] { arr: [b.arr[0]; 4] };
         return Bar::[3] { arr: [c.arr[1]; 3] };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -14,4 +17,7 @@ import child.aleo;
 
 program parent.aleo {
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

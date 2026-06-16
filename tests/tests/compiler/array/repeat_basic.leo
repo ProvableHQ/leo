@@ -10,4 +10,7 @@ program test.aleo {
         arr3 = [0; N + M];
         return arr3[0] as u32 + [42u32; 3][2];
     }
+
+    @noupgrade
+    constructor() {}
 }

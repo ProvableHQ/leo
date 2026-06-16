@@ -14,3 +14,6 @@ function main:
     call sum_of r1 r2 into r4;
     output r3 as u32.private;
     output r4 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

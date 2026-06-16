@@ -27,9 +27,9 @@
     │ Help: Change the expression to produce an integer, bool, field, group, scalar, address, or identifier.
 ────╯
 [ETYC0372117] Error: expected an integer, bool, field, group, scalar, address, or identifier, but type `(field => field)` was found
-    ╭─[ compiler-test:23:20 ]
+    ╭─[ compiler-test:26:20 ]
     │
- 23 │     let b: field = balances as field;
+ 26 │     let b: field = balances as field;
     │ 
     │ Help: Change the expression to produce an integer, bool, field, group, scalar, address, or identifier.
 ────╯

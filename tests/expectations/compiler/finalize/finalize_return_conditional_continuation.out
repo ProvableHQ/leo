@@ -1,0 +1,65 @@
+program test.aleo;
+
+mapping account:
+    key as address.public;
+    value as u64.public;
+
+mapping audit:
+    key as u8.public;
+    value as u64.public;
+
+function classify:
+    input r0 as address.public;
+    input r1 as u64.public;
+    async classify r0 r1 into r2;
+    output r2 as test.aleo/classify.future;
+
+finalize classify:
+    input r0 as address.public;
+    input r1 as u64.public;
+    get.or_use account[r0] 0u64 into r2;
+    add r2 r1 into r3;
+    gt r3 1000u64 into r4;
+    branch.eq r4 false to end_then_0_0;
+    set 1000u64 into audit[1u8];
+    set 1000u64 into account[r0];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    is.eq r3 1000u64 into r5;
+    branch.eq r5 false to end_then_1_2;
+    set r3 into audit[1u8];
+    branch.eq true true to end_otherwise_1_3;
+    position end_then_1_2;
+    set r3 into audit[0u8];
+    position end_otherwise_1_3;
+    set r3 into account[r0];
+    position end_otherwise_0_1;
+
+function guarded:
+    input r0 as address.public;
+    input r1 as u64.public;
+    input r2 as boolean.public;
+    async guarded r2 r0 r1 into r3;
+    output r3 as test.aleo/guarded.future;
+
+finalize guarded:
+    input r0 as boolean.public;
+    input r1 as address.public;
+    input r2 as u64.public;
+    branch.eq r0 false to end_then_0_0;
+    get.or_use account[r1] 0u64 into r3;
+    add r3 r2 into r4;
+    gt r4 1000u64 into r5;
+    branch.eq r5 false to end_then_1_2;
+    set 1000u64 into account[r1];
+    branch.eq true true to end_otherwise_1_3;
+    position end_then_1_2;
+    set r4 into account[r1];
+    position end_otherwise_1_3;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    set r2 into audit[2u8];
+
+constructor:
+    assert.eq edition 0u16;

@@ -9,4 +9,7 @@ program test.aleo {
         let d: field = BHP256::commit_to_field(c, 1scalar);
         return d;
     }
+
+    @noupgrade
+    constructor() {}
 }

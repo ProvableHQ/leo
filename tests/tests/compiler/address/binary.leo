@@ -5,4 +5,7 @@ program test.aleo {
         let c: bool = x.neq(a);
         return c;
     }
+
+    @noupgrade
+    constructor() {}
 }

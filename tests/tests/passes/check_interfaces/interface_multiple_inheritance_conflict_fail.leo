@@ -11,4 +11,7 @@ interface B {
 interface C: A + B {
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}

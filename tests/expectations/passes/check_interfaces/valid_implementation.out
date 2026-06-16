@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn increment(amount: u64) -> u64 {
         return amount + 1u64;
     }

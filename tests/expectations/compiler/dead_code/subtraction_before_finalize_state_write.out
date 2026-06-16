@@ -1,0 +1,18 @@
+program test.aleo;
+
+mapping observed:
+    key as u8.public;
+    value as u8.public;
+
+function store_after_sub_check:
+    input r0 as u8.private;
+    async store_after_sub_check r0 into r1;
+    output r1 as test.aleo/store_after_sub_check.future;
+
+finalize store_after_sub_check:
+    input r0 as u8.public;
+    sub 0u8 r0 into r1;
+    set r0 into observed[0u8];
+
+constructor:
+    assert.eq edition 0u16;

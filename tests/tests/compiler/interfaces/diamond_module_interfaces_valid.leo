@@ -22,6 +22,9 @@ program test.aleo: imod1::ILeft + imod2::IRight {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: imod1.leo --- //

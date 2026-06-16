@@ -11,4 +11,7 @@ program test.aleo: Adder {
         let target: identifier = 'foo';
         return Adder@(target)::sum(x, y);
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -51,3 +51,6 @@ function main:
     output r31 as boolean.private;
     output r32 as boolean.private;
     output r33 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

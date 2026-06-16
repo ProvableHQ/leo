@@ -10,4 +10,7 @@ program foo.aleo {
         let (a1, b1): u32 = (x, y);
         let (a2, b2): (u32, u8) = (x, y);
     }
+
+    @noupgrade
+    constructor() {}
 }

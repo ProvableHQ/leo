@@ -16,6 +16,9 @@ interface Diamond: Left + Right {
 }
 
 program test.aleo: Diamond {
+    @noupgrade
+    constructor() {}
+
     fn get_value() -> u64 {
         return 0u64;
     }

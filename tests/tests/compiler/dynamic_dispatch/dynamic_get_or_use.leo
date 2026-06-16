@@ -5,6 +5,9 @@ program test.aleo {
     fn get_balance(prog: field, net: field, m: field, key: address) -> Final {
         return final { finalize_get_balance(prog, net, m, key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_balance(prog: field, net: field, m: field, key: address) {

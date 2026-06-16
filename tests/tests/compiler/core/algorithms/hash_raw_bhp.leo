@@ -54,4 +54,7 @@ program test.aleo {
             bhp768_field_raw != bhp768_field_normal,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

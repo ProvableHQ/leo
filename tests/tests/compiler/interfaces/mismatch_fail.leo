@@ -14,4 +14,7 @@ program test.aleo: AbstractProgram {
     }
 
     fn baz(a: u32, b: u8, c: u32) {}
+
+    @noupgrade
+    constructor() {}
 }

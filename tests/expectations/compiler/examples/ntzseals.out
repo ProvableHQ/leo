@@ -323,3 +323,6 @@ function main:
     ternary r8 0u8 r318 into r319;
     ternary r5 32u8 r319 into r320;
     output r320 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

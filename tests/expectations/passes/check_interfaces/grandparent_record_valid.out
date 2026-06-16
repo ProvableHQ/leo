@@ -10,6 +10,9 @@
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     record Token {
         owner: address,
         amount: u64,

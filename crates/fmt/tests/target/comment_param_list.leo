@@ -15,6 +15,9 @@ fn bar(
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public a: u64, public b: u64) -> u64 {
         return add(a, b);
     }

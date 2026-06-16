@@ -34,4 +34,7 @@ program test.aleo {
     fn eight(n: u8) -> u8 {
         return five(n);
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -9,4 +9,7 @@ program test.aleo {
         let result: u8 = a + b + c + d;
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

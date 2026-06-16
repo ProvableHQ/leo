@@ -1,4 +1,7 @@
 program singleton_storage.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn push() -> Final<Fn()> {
         return async {
             _vector_push(singleton_storage.aleo::vec, 42u8);

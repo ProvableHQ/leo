@@ -8,3 +8,6 @@ function main:
     add r3 r2 into r4;
     add r4 1540945439182663264862696551825005342995406165131907382295858612069623286213group into r5;
     output r5 as group.private;
+
+constructor:
+    assert.eq edition 0u16;

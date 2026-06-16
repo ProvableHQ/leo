@@ -4,6 +4,9 @@ final fn do_mapping(addr: address, item: u64) {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     mapping balances: address => u64;
 
     fn main(public item: u64) {}

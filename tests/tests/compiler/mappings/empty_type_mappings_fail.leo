@@ -5,6 +5,9 @@ program empty_type_mappings.aleo {
     fn prepare(a: [u32; 0]) -> Final {
         return final { finalize(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize(a: [u32; 0]) {

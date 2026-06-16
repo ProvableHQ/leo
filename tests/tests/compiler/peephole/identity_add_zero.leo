@@ -3,4 +3,7 @@ program test.aleo {
         let y: field = x + 0field;
         return y;
     }
+
+    @noupgrade
+    constructor() {}
 }

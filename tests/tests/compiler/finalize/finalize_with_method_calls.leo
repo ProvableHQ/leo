@@ -10,6 +10,9 @@ program test.aleo {
         let caller = self.caller;
         return final { finalize_finalize_self_caller(caller); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_mint_public(receiver: address, amount: u64) {

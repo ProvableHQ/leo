@@ -1,0 +1,16 @@
+{
+  "program": "git_dep.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "helloworld.aleo",
+      "location": "git",
+      "git": {
+        "url": "https://github.com/ProvableHQ/leo-examples",
+        "rev": "e8d20b8690f42ae0c12c8626aa5dbcbb282a98e3"
+      }
+    }
+  ]
+}

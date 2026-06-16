@@ -40,3 +40,6 @@ function main:
     output r21 as u32.private;
     output r22 as u32.private;
     output 769985454u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

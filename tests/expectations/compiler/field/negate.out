@@ -7,3 +7,6 @@ function main:
     neg r1 into r3;
     is.eq r2 r3 into r4;
     output r4 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

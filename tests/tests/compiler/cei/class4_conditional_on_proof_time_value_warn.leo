@@ -7,6 +7,9 @@ program oracle.aleo {
         // Proof-time snapshot of price
         return (500u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_price(id: u32) {
@@ -25,6 +28,9 @@ program trader.aleo {
         let (price, f): (u64, Final) = oracle.aleo::get_price(id);
         return final { finalize_trade(f, price, id); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_trade(f: Final, price: u64, id: u32) {

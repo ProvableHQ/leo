@@ -6,3 +6,6 @@ function main:
     input r2 as address.private;
     call.dynamic r0 'aleo' 'transfer_private' with r1 r2 (as dynamic.record address.private) into r3 (as dynamic.record);
     output r3 as dynamic.record;
+
+constructor:
+    assert.eq edition 0u16;

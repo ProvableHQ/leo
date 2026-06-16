@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main() -> u32 {
         let x: u32 = 8u32;
         let y: u32 = x * 2u32;

@@ -139,4 +139,7 @@ program opt_bug.aleo {
         return r1 + r2.unwrap() + r3 + r4 + r5.unwrap();
         // 10 + 15 + 30 + 11 + 11 = 77
     }
+
+    @noupgrade
+    constructor() {}
 }

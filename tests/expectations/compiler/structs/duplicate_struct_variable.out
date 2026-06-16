@@ -1,82 +1,82 @@
 [ETYC0372015] Error: struct field `x` is already declared
-   ╭─[ compiler-test:6:5 ]
+   ╭─[ compiler-test:9:5 ]
    │
- 6 │     x: u32,
+ 9 │     x: u32,
    │
-   ├─[ compiler-test:6:5 ]
+   ├─[ compiler-test:9:5 ]
    │
- 5 │     x: u32,
+ 8 │     x: u32,
    │     ───┬──  
    │        ╰──── `x` first declared here
- 6 │     x: u32,
+ 9 │     x: u32,
    │     ───┬──  
    │        ╰──── struct field already declared
    │ 
    │ Help: Remove or rename the duplicate `x` field.
 ───╯
 [ETYC0372015] Error: struct field `name` is already declared
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:17:5 ]
+    │
+ 17 │     name: field,
+    │
+    ├─[ compiler-test:17:5 ]
     │
  14 │     name: field,
-    │
-    ├─[ compiler-test:14:5 ]
-    │
- 11 │     name: field,
     │     ─────┬─────  
     │          ╰─────── `name` first declared here
     │ 
- 14 │     name: field,
+ 17 │     name: field,
     │     ─────┬─────  
     │          ╰─────── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `name` field.
 ────╯
 [ETYC0372015] Error: struct field `id` is already declared
-    ╭─[ compiler-test:21:5 ]
+    ╭─[ compiler-test:24:5 ]
     │
- 21 │     id: u32,
+ 24 │     id: u32,
     │
-    ├─[ compiler-test:21:5 ]
+    ├─[ compiler-test:24:5 ]
     │
- 19 │     id: u32,
+ 22 │     id: u32,
     │     ───┬───  
     │        ╰───── `id` first declared here
     │ 
- 21 │     id: u32,
+ 24 │     id: u32,
     │     ───┬───  
     │        ╰───── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `id` field.
 ────╯
 [ETYC0372015] Error: struct field `val` is already declared
-    ╭─[ compiler-test:22:5 ]
+    ╭─[ compiler-test:25:5 ]
     │
- 22 │     val: u64,
+ 25 │     val: u64,
     │
-    ├─[ compiler-test:22:5 ]
+    ├─[ compiler-test:25:5 ]
     │
- 20 │     val: u64,
+ 23 │     val: u64,
     │     ────┬───  
     │         ╰───── `val` first declared here
     │ 
- 22 │     val: u64,
+ 25 │     val: u64,
     │     ────┬───  
     │         ╰───── struct field already declared
     │ 
     │ Help: Remove or rename the duplicate `val` field.
 ────╯
 [ETYC0372015] Error: struct field `host` is already declared
-    ╭─[ compiler-test:36:5 ]
+    ╭─[ compiler-test:39:5 ]
     │
- 36 │     host: field,
+ 39 │     host: field,
     │
-    ├─[ compiler-test:36:5 ]
+    ├─[ compiler-test:39:5 ]
     │
- 27 │     host: field,
+ 30 │     host: field,
     │     ─────┬─────  
     │          ╰─────── `host` first declared here
     │ 
- 36 │     host: field,
+ 39 │     host: field,
     │     ─────┬─────  
     │          ╰─────── struct field already declared
     │ 
@@ -85,7 +85,7 @@
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

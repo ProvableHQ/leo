@@ -7,4 +7,7 @@ program test.aleo {
         foo(a, b);
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }

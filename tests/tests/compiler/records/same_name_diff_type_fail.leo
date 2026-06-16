@@ -7,6 +7,9 @@ program child.aleo {
     fn create() -> R {
         return R { owner: self.signer, x: 1u8 };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -22,4 +25,7 @@ program parent.aleo {
         let r1: R = R { owner: self.signer, x: 1u16 };
         return r1 == child.aleo::create();
     }
+
+    @noupgrade
+    constructor() {}
 }

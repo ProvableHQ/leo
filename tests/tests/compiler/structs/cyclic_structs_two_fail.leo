@@ -6,4 +6,7 @@ struct Baz {
     bar: Bar,
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}

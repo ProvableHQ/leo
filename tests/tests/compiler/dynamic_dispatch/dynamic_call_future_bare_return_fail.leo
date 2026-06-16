@@ -4,4 +4,7 @@ program test.aleo {
         let f: Final = _dynamic_call::[Final](prog, net, func, arg);
         return f;
     }
+
+    @noupgrade
+    constructor() {}
 }

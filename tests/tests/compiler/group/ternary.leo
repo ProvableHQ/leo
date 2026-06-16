@@ -5,4 +5,7 @@ program test.aleo {
         assert(r == c);
         return r == c;
     }
+
+    @noupgrade
+    constructor() {}
 }

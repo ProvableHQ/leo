@@ -21,6 +21,8 @@ use crate::{
     common::{items_at_path, program_functions, stub_functions},
     static_single_assignment::visitor::SsaFormingVisitor,
 };
+
+use super::iterative::PendingIterativeInline;
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_ast::{Function, Location, *};
@@ -38,6 +40,9 @@ pub struct TransformVisitor<'a> {
     pub function_map: IndexMap<Location, Function>,
     /// Whether or not we are currently traversing a block that's executed onchain (either final block or final fn block).
     pub is_finalize_context: bool,
+    /// An inlined callee body that cannot be reduced to a single value at its call expression;
+    /// see the [`super::iterative`] module.
+    pub pending_iterative_inline: Option<PendingIterativeInline>,
 }
 
 impl<'a> TransformVisitor<'a> {
@@ -51,6 +56,30 @@ impl<'a> TransformVisitor<'a> {
             Type::Array(array) => Self::names_optional_type(array.element_type()),
             _ => false,
         }
+    }
+
+    /// Reconstructs the statements of a block. When a statement inlines an iterative callee, the
+    /// rest of the block becomes that callee's continuation.
+    fn reconstruct_statements(&mut self, statements: Vec<Statement>) -> Vec<Statement> {
+        let mut out = Vec::new();
+        let mut iter = statements.into_iter();
+        while let Some(statement) = iter.next() {
+            let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
+            out.extend(additional_statements);
+            if let Some(pending) = self.pending_iterative_inline.take() {
+                // SSA hoists calls to statement level (a definition RHS or an expression
+                // statement), and both forms dissolve themselves when they stash a pending inline.
+                assert!(
+                    matches!(&reconstructed_statement, Statement::Block(b) if b.statements.is_empty()),
+                    "an iterative inline must be consumed by the statement that produced it"
+                );
+                let continuation = self.reconstruct_statements(iter.collect());
+                out.extend(self.lower_iterative_inline(pending, continuation));
+                return out;
+            }
+            out.push(reconstructed_statement);
+        }
+        out
     }
 }
 
@@ -302,9 +331,22 @@ impl AstReconstructor for TransformVisitor<'_> {
                 .0;
 
             // Run SSA formation on the inlined block and rename definitions. Renaming is necessary to avoid shadowing variables.
-            let mut inlined_statements =
+            let inlined_statements =
                 SsaFormingVisitor::new(self.state, SsaFormingInput { rename_defs: true }, self.program)
                     .consume_block(reconstructed_block);
+
+            // A body with a `return` under live control flow has no single value to substitute
+            // here; only the enclosing block, which owns the continuation, can lower it (see
+            // the `iterative` module).
+            let mut inlined_statements = match PendingIterativeInline::try_from_body(inlined_statements) {
+                Ok(pending) => {
+                    self.pending_iterative_inline = Some(pending);
+                    let id = self.state.node_builder.next_id();
+                    self.state.type_table.insert(id, Type::Unit);
+                    return (UnitExpression { span: Default::default(), id }.into(), Vec::new());
+                }
+                Err(statements) => statements,
+            };
 
             // If the inlined block returns a value, then use the value in place of the call expression; otherwise, use the unit expression.
             let result = match inlined_statements.last() {
@@ -335,14 +377,8 @@ impl AstReconstructor for TransformVisitor<'_> {
 
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
-        let mut statements = Vec::with_capacity(block.statements.len());
-
-        for statement in block.statements {
-            let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
-            statements.extend(additional_statements);
-            statements.push(reconstructed_statement);
-        }
-
+        let statements = self.reconstruct_statements(block.statements);
+        debug_assert!(self.pending_iterative_inline.is_none(), "a pending iterative inline must not escape its block");
         (Block { span: block.span, statements, id: block.id }, Default::default())
     }
 
@@ -369,6 +405,13 @@ impl AstReconstructor for TransformVisitor<'_> {
     /// This function also segments tuple assignment statements into multiple assignment statements.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         let (value, mut statements) = self.reconstruct_expression(input.value, &());
+
+        // An iterative inline takes over the binding: every return site binds this place itself.
+        if let Some(pending) = self.pending_iterative_inline.as_mut() {
+            pending.bind_to(input.place);
+            return (Statement::dummy(), statements);
+        }
+
         match (input.place, value) {
             // If we just inlined the production of a tuple literal, we need multiple definition statements.
             (DefinitionPlace::Multiple(left), Expression::Tuple(right)) => {
@@ -401,6 +444,11 @@ impl AstReconstructor for TransformVisitor<'_> {
         // Reconstruct the expression.
         // Note that type checking guarantees that the expression is a function call.
         let (expression, additional_statements) = self.reconstruct_expression(input.expression, &());
+
+        // An iterative inline replaces this statement entirely; its result was discarded anyway.
+        if self.pending_iterative_inline.is_some() {
+            return (Statement::dummy(), additional_statements);
+        }
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {

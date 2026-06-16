@@ -17,4 +17,7 @@ program test.aleo {
         let second: u32 = sum_of(y, z);
         return (first, second);
     }
+
+    @noupgrade
+    constructor() {}
 }

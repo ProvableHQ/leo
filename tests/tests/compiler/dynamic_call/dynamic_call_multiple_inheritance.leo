@@ -23,4 +23,7 @@ program test.aleo: Calculator {
         let p: u32 = Multiplier@(target)::product(x, y);
         return s + p;
     }
+
+    @noupgrade
+    constructor() {}
 }

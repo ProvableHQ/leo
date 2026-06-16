@@ -193,3 +193,6 @@ function complex_array_access:
     assert.eq r25.val[1u32].arr[0u32].is_some true;
     assert.eq r25.val[1u32].arr[0u32].val.x.is_some true;
     output r25.val[1u32].arr[0u32].val.x.val as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

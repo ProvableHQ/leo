@@ -45,4 +45,7 @@ program test.aleo {
 
         return a == b;
     }
+
+    @noupgrade
+    constructor() {}
 }

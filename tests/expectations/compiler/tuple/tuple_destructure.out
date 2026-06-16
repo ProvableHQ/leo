@@ -9,3 +9,6 @@ function baz:
     add r4 r2 into r5;
     add r5 r3 into r6;
     output r6 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,14 +1,14 @@
 [ETYC0372008] Error: the value `4294967296` is not a valid `u32`
-   ╭─[ compiler-test:4:18 ]
+   ╭─[ compiler-test:7:18 ]
    │
- 4 │     let a: u32 = 4294967296u32;
+ 7 │     let a: u32 = 4294967296u32;
    │ 
    │ Help: Use a literal that fits within the range of `u32`.
 ───╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

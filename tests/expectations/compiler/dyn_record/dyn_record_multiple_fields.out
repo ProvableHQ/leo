@@ -9,5 +9,9 @@ function main:
     input r0 as Token.record;
     cast r0 into r1 as dynamic.record;
     get.record.dynamic r1.balance into r2 as u64;
-    is.eq r2 0u64 into r3;
-    output r3 as boolean.private;
+    get.record.dynamic r1.memo into r3 as field;
+    is.eq r2 0u64 into r4;
+    output r4 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

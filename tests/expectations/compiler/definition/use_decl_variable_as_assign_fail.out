@@ -1,7 +1,7 @@
 [ETYC0372005] Error: unknown variable `b`
-   ╭─[ compiler-test:4:17 ]
+   ╭─[ compiler-test:7:17 ]
    │
- 4 │     let b: u8 = b;
+ 7 │     let b: u8 = b;
    │ 
    │ Help: Check `b` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ───╯

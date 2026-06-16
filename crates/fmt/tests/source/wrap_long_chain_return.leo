@@ -19,6 +19,8 @@ fn unwrap_value(top:Top)->u8{
 }
 
 program test.aleo{
+    @noupgrade constructor() {}
+
     fn main()->u8{
         let top:Top=Top{
             container:Container{

@@ -4,4 +4,7 @@ program test.aleo {
             a = 0u8;
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

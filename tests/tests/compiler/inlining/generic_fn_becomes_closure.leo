@@ -14,4 +14,7 @@ program test.aleo {
         let b: u32 = scale::[5u32](y);
         return (a, b);
     }
+
+    @noupgrade
+    constructor() {}
 }

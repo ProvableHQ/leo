@@ -13,6 +13,9 @@ interface C: A + B {
 }
 
 program test.aleo: C {
+    @noupgrade
+    constructor() {}
+
     fn foo() -> u64 {
         return 1u64;
     }

@@ -12,4 +12,7 @@ program test.aleo {
     fn main() -> u32 {
         return 0u32;
     }
+
+    @noupgrade
+    constructor() {}
 }

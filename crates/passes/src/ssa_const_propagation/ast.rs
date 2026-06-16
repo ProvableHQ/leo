@@ -580,4 +580,34 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     fn reconstruct_assign(&mut self, _input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         panic!("there should be no assignments at this stage");
     }
+
+    /// Reconstruct a conditional statement and fold it if the condition is a constant.
+    ///
+    /// Constant conditions reach this pass when inlining substitutes literal arguments into a
+    /// finalize-context body, or when the iterative-inline weave const-specializes a duplicated
+    /// continuation. Both after the pre-flattening const propagation has already run. The
+    /// condition is an SSA atom at this point, so dropping it is side-effect-free, and the
+    /// untaken branch is statically dead.
+    fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
+        let (condition, condition_value) = self.reconstruct_expression(conditional.condition, &());
+
+        match condition_value.and_then(|v| v.try_into().ok()) {
+            Some(true) => {
+                self.changed = true;
+                (Statement::Block(self.reconstruct_block(conditional.then).0), None)
+            }
+            Some(false) => {
+                self.changed = true;
+                match conditional.otherwise {
+                    Some(otherwise) => self.reconstruct_statement(*otherwise),
+                    None => (Statement::dummy(), None),
+                }
+            }
+            _ => {
+                let then = self.reconstruct_block(conditional.then).0;
+                let otherwise = conditional.otherwise.map(|s| Box::new(self.reconstruct_statement(*s).0));
+                (ConditionalStatement { condition, then, otherwise, ..conditional }.into(), None)
+            }
+        }
+    }
 }

@@ -18,4 +18,7 @@ program test.aleo {
         // See bug #28711 - the write was not being captured.
         return S { x: array };
     }
+
+    @noupgrade
+    constructor() {}
 }

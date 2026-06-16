@@ -19,6 +19,9 @@ program test.aleo: Greeter {
             },
         );
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(f: Final) {

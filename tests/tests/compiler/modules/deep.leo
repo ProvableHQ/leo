@@ -22,6 +22,9 @@ program module_resolution_corner.aleo {
             + base::nested::compute()
             + base::nested::deeper::compute();
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: base.leo --- //

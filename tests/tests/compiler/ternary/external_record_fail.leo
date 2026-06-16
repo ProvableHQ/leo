@@ -7,6 +7,9 @@ program test0.aleo {
     fn foo() -> R {
         return R { owner: self.signer, x: true };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,4 +24,7 @@ program test1.aleo {
         let r2: test0.aleo::R = test0.aleo::foo();
         return x ? r1 : r2;
     }
+
+    @noupgrade
+    constructor() {}
 }

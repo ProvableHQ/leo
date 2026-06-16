@@ -405,6 +405,12 @@ pub(crate) fn no_entry_points(span: Span) -> Formatted {
         .with_help("Define at least one function inside the `program` block.")
 }
 
+pub(crate) fn missing_constructor(span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 84, "a program must declare a constructor", span)
+        .with_primary_span_underline()
+        .with_help("Add a constructor such as `@noupgrade constructor() {}` inside the `program` block.")
+}
+
 pub(crate) fn entry_point_fn_final_invalid_output(span: Span) -> Formatted {
     Formatted::error(
         CODE_PREFIX,
@@ -455,12 +461,6 @@ pub(crate) fn not_all_finals_consumed(unconsumed: impl Display, span: Span) -> F
 pub(crate) fn entry_point_missing_final_to_return(span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 105, "an entry point fn returning `Final` must return a `Final`", span)
         .with_help("Add a `final { … }` block inside the entry point fn body and return its result.")
-}
-
-pub(crate) fn final_fn_cannot_return_value(span: Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 106, "a `final fn` is not allowed to return a value", span).with_help(
-        "Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.",
-    )
 }
 
 pub(crate) fn cannot_modify_external_container(operation: impl Display, kind: impl Display, span: Span) -> Formatted {

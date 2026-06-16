@@ -23,4 +23,7 @@ program test.aleo {
         let memo: field = r.memo;
         return memo;
     }
+
+    @noupgrade
+    constructor() {}
 }

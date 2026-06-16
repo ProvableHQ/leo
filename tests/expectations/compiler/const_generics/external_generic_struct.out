@@ -15,8 +15,14 @@ function main:
     cast r1[1u32] r1[1u32] r1[1u32] into r2 as [u32; 3u32];
     cast r2 into r3 as Bar__5Qh5JlRc8cY;
     output r3 as Bar__5Qh5JlRc8cY.private;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 program parent.aleo;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;

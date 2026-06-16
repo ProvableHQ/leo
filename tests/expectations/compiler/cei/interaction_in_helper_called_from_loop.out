@@ -1,14 +1,14 @@
 [WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
-    ╭─[ compiler-test:18:9 ]
+    ╭─[ compiler-test:21:9 ]
     │
- 18 │     for i: u32 in 0u32..3u32 {
+ 21 │     for i: u32 in 0u32..3u32 {
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:22:9 ]
+    ╭─[ compiler-test:25:9 ]
     │
- 22 │         Mapping::set(counters, i, a + i);
+ 25 │         Mapping::set(counters, i, a + i);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -28,6 +28,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -53,3 +56,6 @@ finalize do_work:
     await r0;
     add r1 2u32 into r3;
     set r3 into counters[2u32];
+
+constructor:
+    assert.eq edition 0u16;

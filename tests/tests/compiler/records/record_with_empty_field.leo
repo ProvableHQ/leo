@@ -8,4 +8,7 @@ program test.aleo {
     fn main(o: address, a: u64) -> Token {
         return Token { owner: o, amount: a, foobar: [] };
     }
+
+    @noupgrade
+    constructor() {}
 }

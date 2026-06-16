@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+# End-to-end git-dependency coverage across all three content types from one local repository:
+#   repo/lib/          a Leo library  (program "gitlib")
+#   repo/prog/         a Leo program  (program "gitprog.aleo")
+#   repo/gitbytes.aleo an Aleo bytecode file at the root
+# A `file://` repo avoids the network (see SKIP_DEVNODE); per-run URLs/commits are `redact`ed and
+# artifacts are cleaned up so the compared `contents/` is deterministic.
+
+LEO_BIN=${1}
+
+GIT="git -c user.name=Test -c user.email=test@example.com -c init.defaultBranch=main -c commit.gpgsign=false"
+
+# Isolate the Leo home so git checkouts land in a throwaway dir instead of the real `~/.aleo`.
+HOMEDIR=$(mktemp -d)
+
+# Assemble one repository containing all three kinds of dependency.
+REPO=$(mktemp -d)
+mkdir -p "${REPO}/lib/src" "${REPO}/prog/src"
+
+# A Leo library.
+printf '{\n  "program": "gitlib",\n  "version": "0.1.0",\n  "description": "",\n  "license": "MIT"\n}\n' > "${REPO}/lib/program.json"
+printf 'fn example(x: u32) -> u32 {\n    return x;\n}\n' > "${REPO}/lib/src/lib.leo"
+
+# A Leo program.
+printf '{\n  "program": "gitprog.aleo",\n  "version": "0.1.0",\n  "description": "",\n  "license": "MIT"\n}\n' > "${REPO}/prog/program.json"
+printf 'program gitprog.aleo {\n    @noupgrade\n    constructor() {}\n    fn run(a: u32) -> u32 {\n        return a;\n    }\n}\n' > "${REPO}/prog/src/main.leo"
+
+# An Aleo bytecode file at the root: compile a throwaway program so the bytecode is valid for the
+# current compiler, then place its `.aleo` at the repository root.
+GEN=$(mktemp -d)
+( cd "${GEN}" && ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" new gitbytes > /dev/null 2>&1 && cd gitbytes && ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" build > /dev/null 2>&1 )
+cp "$(find "${GEN}/gitbytes/build" -name 'gitbytes.aleo' | head -1)" "${REPO}/gitbytes.aleo"
+
+${GIT} -C "${REPO}" init -q
+${GIT} -C "${REPO}" add .
+${GIT} -C "${REPO}" commit -q -m "init"
+${GIT} -C "${REPO}" tag v1
+URL="file://${REPO}"
+
+# Stable placeholders for the run-specific URL and commit hashes.
+# Redact the run-specific git URL and commits, plus the Leo version (so a version bump doesn't
+# break this test, which is about git dependencies, not the compiler version).
+redact() {
+    sed -e "s#${URL}#REPO_URL#g" \
+        -e 's#"commit": "[0-9a-f]*"#"commit": "COMMIT"#g' \
+        -e 's#"leo": "[0-9.]*"#"leo": "LEO_VERSION"#g'
+}
+
+OUT=$(mktemp)
+ERR=$(mktemp)
+# Run `leo`, redacting the git URL/commits from both its stdout and stderr while preserving order.
+leo_redacted() {
+    ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" "$@" >"${OUT}" 2>"${ERR}"
+    local rc=$?
+    redact <"${OUT}"
+    redact <"${ERR}" >&2
+    return ${rc}
+}
+
+cd consumer || exit 1
+cp program.json program.json.bak
+
+echo "--- 1. add a git LIBRARY dependency (repo/lib, found by name) ---" | tee /dev/stderr
+leo_redacted add gitlib --git "${URL}"
+echo "exit: $?"
+cat program.json | redact
+
+echo "--- 2. add a git PROGRAM dependency pinned to a tag (repo/prog, found by name) ---" | tee /dev/stderr
+leo_redacted add gitprog.aleo --git "${URL}" --tag v1
+echo "exit: $?"
+cat program.json | redact
+
+echo "--- 3. add a git ALEO BYTECODE dependency (repo/gitbytes.aleo) ---" | tee /dev/stderr
+leo_redacted add gitbytes.aleo --git "${URL}"
+echo "exit: $?"
+cat program.json | redact
+
+echo "--- 4. build: resolve + compile all three kinds from the one repository ---" | tee /dev/stderr
+leo_redacted build > /dev/null 2>&1
+echo "build exit: $?"
+echo "leo.lock:"
+cat leo.lock | redact
+
+echo "--- 4b. build --offline reuses the lock and cache ---" | tee /dev/stderr
+leo_redacted build --offline > /dev/null 2>&1
+echo "offline build exit: $?"
+
+echo "--- 5. --branch without --git (should fail) ---" | tee /dev/stderr
+leo_redacted add gitlib --branch main
+echo "exit: $?"
+
+echo "--- 6. multiple git references (should fail) ---" | tee /dev/stderr
+leo_redacted add gitlib --git "${URL}" --branch main --tag v1
+echo "exit: $?"
+
+echo "--- 7. --git combined with --network (should fail) ---" | tee /dev/stderr
+leo_redacted add gitlib --git "${URL}" --network
+echo "exit: $?"
+
+echo "--- 8. add a library under a name ending in .aleo (should fail) ---" | tee /dev/stderr
+leo_redacted add gitlib.aleo --git "${URL}"
+echo "exit: $?"
+
+echo "--- 9. remove a git dependency (its lock pin is pruned) ---" | tee /dev/stderr
+leo_redacted remove gitprog.aleo
+echo "exit: $?"
+echo "leo.lock after remove:"
+cat leo.lock | redact
+
+echo "--- 10. a path-traversal dependency name is rejected before fetching ---" | tee /dev/stderr
+leo_redacted add "../escape" --git "${URL}"
+echo "exit: $?"
+
+# Restore the manifest and remove generated artifacts so the compared contents are deterministic.
+mv program.json.bak program.json
+rm -rf build leo.lock "${REPO}" "${GEN}" "${HOMEDIR}" "${OUT}" "${ERR}"
+exit 0

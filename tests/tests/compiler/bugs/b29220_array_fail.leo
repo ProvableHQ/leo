@@ -9,4 +9,7 @@ program test.aleo {
         let x: [u32; COUNT * 9223372036854775807] = [0u32; COUNT * 9223372036854775807];
         return x[0u32];
     }
+
+    @noupgrade
+    constructor() {}
 }

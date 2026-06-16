@@ -25,4 +25,7 @@ program test.aleo {
         let m: token.aleo::Metadata = d.meta;
         return m.amount;
     }
+
+    @noupgrade
+    constructor() {}
 }

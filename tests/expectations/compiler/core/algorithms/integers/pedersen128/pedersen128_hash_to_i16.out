@@ -37,3 +37,6 @@ function main:
     output r19 as i16.private;
     output r20 as i16.private;
     output r21 as i16.private;
+
+constructor:
+    assert.eq edition 0u16;

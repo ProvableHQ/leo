@@ -1,14 +1,14 @@
 [ETYC0372126] Error: records cannot be instantiated in a final context
-    ╭─[ compiler-test:13:20 ]
+    ╭─[ compiler-test:16:20 ]
     │
- 13 │     let t: Token = Token { owner: addr };
+ 16 │     let t: Token = Token { owner: addr };
     │ 
     │ Help: Records exist only off-chain. Construct them inside an entry point fn body before any `final` block.
 ────╯
 [ETYC0372126] Error: records cannot be instantiated in a final context
-    ╭─[ compiler-test:14:12 ]
+    ╭─[ compiler-test:17:12 ]
     │
- 14 │     assert(Token { owner: addr }.owner == addr);
+ 17 │     assert(Token { owner: addr }.owner == addr);
     │ 
     │ Help: Records exist only off-chain. Construct them inside an entry point fn body before any `final` block.
 ────╯

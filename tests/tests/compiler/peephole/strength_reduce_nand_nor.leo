@@ -4,4 +4,7 @@ program test.aleo {
         let y: bool = b.nor(false);
         return (x, y);
     }
+
+    @noupgrade
+    constructor() {}
 }

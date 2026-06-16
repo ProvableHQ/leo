@@ -40,3 +40,6 @@ function main:
     output r21 as i64.private;
     output r22 as i64.private;
     output -2525901972821367575i64 as i64.private;
+
+constructor:
+    assert.eq edition 0u16;

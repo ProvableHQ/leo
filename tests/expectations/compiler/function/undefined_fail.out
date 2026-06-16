@@ -8,7 +8,7 @@
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:6:9 ]
    │
- 6 │ program test.aleo {}
+ 6 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

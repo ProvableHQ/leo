@@ -7,6 +7,9 @@ program child.aleo {
     fn mint(owner: address, val: u32) -> A {
         return A { owner: owner, val: val };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -21,6 +24,9 @@ program parent.aleo {
     fn wrapper_mint(owner: address, val: u32) -> (child.aleo::A, B) {
         return (child.aleo::mint(self.caller, 1u32), B { owner: self.signer, val: val });
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -37,4 +43,7 @@ program grandparent.aleo {
         let (a, b): (child.aleo::A, parent.aleo::B) = parent.aleo::wrapper_mint(owner, val);
         return (a, b, C { owner: owner, val: val });
     }
+
+    @noupgrade
+    constructor() {}
 }

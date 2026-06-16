@@ -12,4 +12,7 @@ program test.aleo {
         let o: address = d.owner;
         return b == 0u64;
     }
+
+    @noupgrade
+    constructor() {}
 }

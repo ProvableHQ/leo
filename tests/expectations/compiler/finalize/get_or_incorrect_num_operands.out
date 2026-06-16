@@ -13,44 +13,44 @@
     │ Help: Bind `self.caller` to a variable before the `final` block: `let val = self.caller;`.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 4 were supplied
-    ╭─[ compiler-test:16:5 ]
+    ╭─[ compiler-test:19:5 ]
     │
- 16 │     Mapping::get_or_use(tokens, addr, amount, 1u128);
+ 19 │     Mapping::get_or_use(tokens, addr, amount, 1u128);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 4 were supplied
-    ╭─[ compiler-test:17:5 ]
-    │
- 17 │     tokens.get_or_use(addr, amount, 1u128);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
-    ╭─[ compiler-test:18:5 ]
-    │
- 18 │     Mapping::get_or_use(amounts, 1u8);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
-    ╭─[ compiler-test:19:5 ]
-    │
- 19 │     amounts.get_or_use(1u8);
-    │ 
-    │ Help: Pass exactly the number of arguments the function's signature declares.
-────╯
-[ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
     ╭─[ compiler-test:20:5 ]
     │
- 20 │     Mapping::get_or_use(amounts);
+ 20 │     tokens.get_or_use(addr, amount, 1u128);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
+    ╭─[ compiler-test:21:5 ]
+    │
+ 21 │     Mapping::get_or_use(amounts, 1u8);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 2 were supplied
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     amounts.get_or_use(1u8);
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
-    ╭─[ compiler-test:21:5 ]
+    ╭─[ compiler-test:23:5 ]
     │
- 21 │     amounts.get_or_use();
+ 23 │     Mapping::get_or_use(amounts);
+    │ 
+    │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372006] Error: this call expected 3 argument(s), but 1 were supplied
+    ╭─[ compiler-test:24:5 ]
+    │
+ 24 │     amounts.get_or_use();
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
 ────╯

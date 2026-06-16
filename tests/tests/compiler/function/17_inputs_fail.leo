@@ -45,6 +45,9 @@ program test.aleo {
         // The maximum number of captures by a final block is 16.
         return final { baz_finalize(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn baz_finalize(

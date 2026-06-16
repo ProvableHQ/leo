@@ -11,4 +11,7 @@ program test.aleo: Counter + Resettable {
         return 1u64;
     }
     // Missing reset from Resettable
+
+    @noupgrade
+    constructor() {}
 }

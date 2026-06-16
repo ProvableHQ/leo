@@ -17,6 +17,9 @@ struct Token {
 }
 
 program test.aleo: IToken {
+    @noupgrade
+    constructor() {}
+
     fn mint(owner: address) -> Token {
         return Token { owner: owner, amount: 0u64 };
     }

@@ -3,4 +3,7 @@ program test.aleo {
         let c: u8 = a + b;
         return c;
     }
+
+    @noupgrade
+    constructor() {}
 }

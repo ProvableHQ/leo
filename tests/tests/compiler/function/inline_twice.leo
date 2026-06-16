@@ -11,4 +11,7 @@ program test.aleo {
     fn make_move(board: u32, i: u8) -> u8 {
         return get_cell_occupant(board, i);
     }
+
+    @noupgrade
+    constructor() {}
 }

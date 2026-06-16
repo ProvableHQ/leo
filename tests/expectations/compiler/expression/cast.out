@@ -185,3 +185,6 @@ function main:
     cast r12 into r181 as u128;
     is.eq r156 r169 into r182;
     output r182 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

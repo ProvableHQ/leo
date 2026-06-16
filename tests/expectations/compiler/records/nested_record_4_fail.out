@@ -6,23 +6,23 @@
    │ Help: Flatten the tuple into separate fields, or wrap it in a `struct` before storing it in the record.
 ───╯
 [ETYC0372050] Error: a struct cannot contain a tuple
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:17:5 ]
     │
- 14 │     bar: (Token2, Token2),
+ 17 │     bar: (Token2, Token2),
     │ 
     │ Help: Flatten the tuple into separate fields, or wrap it in a `struct` before storing it in the struct.
 ────╯
 [ETYC0372030] Error: a struct or record cannot contain another record
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:17:5 ]
     │
- 14 │     bar: (Token2, Token2),
+ 17 │     bar: (Token2, Token2),
     │ 
     │ Help: Remove the record field of type `test.aleo::Token2` from `Bar`, or store its individual fields instead.
 ────╯
 [ETYC0372030] Error: a struct or record cannot contain another record
-    ╭─[ compiler-test:14:5 ]
+    ╭─[ compiler-test:17:5 ]
     │
- 14 │     bar: (Token2, Token2),
+ 17 │     bar: (Token2, Token2),
     │ 
     │ Help: Remove the record field of type `test.aleo::Token2` from `Bar`, or store its individual fields instead.
 ────╯

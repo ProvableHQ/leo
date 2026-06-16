@@ -1,7 +1,7 @@
 
        Leo 🔨 Compiling 'renamed_token.aleo'
        Leo     3 statements before dead code elimination.
-       Leo     3 statements after dead code elimination.
+       Leo     4 statements after dead code elimination.
        Leo     The program checksum is: '[99u8, 159u8, 227u8, 233u8, 157u8, 86u8, 229u8, 246u8, 229u8, 17u8, 237u8, 30u8, 146u8, 88u8, 44u8, 89u8, 211u8, 124u8, 225u8, 53u8, 78u8, 39u8, 73u8, 65u8, 105u8, 35u8, 209u8, 104u8, 16u8, 146u8, 198u8, 241u8]'.
        Leo     Program size: 0.17 KB / 500.00 KB
        Leo ✅ Compiled 'renamed_token.aleo' into Aleo instructions.

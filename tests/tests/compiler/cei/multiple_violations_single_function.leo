@@ -6,6 +6,9 @@ program dep_a.aleo {
     fn do_a(a: u32) -> Final {
         return final { finalize_do_a(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_a(a: u32) {
@@ -19,6 +22,9 @@ program dep_b.aleo {
     fn do_b(a: u32) -> Final {
         return final { finalize_do_b(a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_b(a: u32) {
@@ -37,6 +43,9 @@ program caller.aleo {
         let f2: Final = dep_b.aleo::do_b(a);
         return final { finalize_do_work(f1, f2, a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_do_work(f1: Final, f2: Final, a: u32) {

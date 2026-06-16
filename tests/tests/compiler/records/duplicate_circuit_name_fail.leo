@@ -5,6 +5,9 @@ program test.aleo {
         // The token amount.
         amount: u64,
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 struct Token { // This struct cannot have the same name as the record defined above it.

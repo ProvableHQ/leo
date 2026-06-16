@@ -52,4 +52,7 @@ program test.aleo {
             psd8_u64_raw,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

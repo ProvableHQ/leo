@@ -11,4 +11,7 @@ program test0.aleo {
         let t: Token = Token { owner: self.caller };
         return t;
     }
+
+    @noupgrade
+    constructor() {}
 }

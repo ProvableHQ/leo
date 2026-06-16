@@ -7,4 +7,7 @@ program test.aleo {
     fn main(target: field, net: field, func: field) -> (u32, u32) {
         return _dynamic_call::[(u32, Unknown)](target, net, func);
     }
+
+    @noupgrade
+    constructor() {}
 }

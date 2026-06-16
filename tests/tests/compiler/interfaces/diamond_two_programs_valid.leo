@@ -17,6 +17,9 @@ interface ILeft {
 
 program lib1.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -31,6 +34,9 @@ interface IRight {
 
 program lib2.aleo {
     fn dummy() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -51,4 +57,7 @@ program test.aleo: lib1.aleo::ILeft + lib2.aleo::IRight {
     }
 
     fn main() {}
+
+    @noupgrade
+    constructor() {}
 }

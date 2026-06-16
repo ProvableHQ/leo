@@ -14,3 +14,6 @@ function prepare:
 finalize prepare:
     cast 0u32 into r0 as Baz;
     set 3u64 into baz[r0];
+
+constructor:
+    assert.eq edition 0u16;

@@ -9,3 +9,6 @@ function aggregates:
 function function_calls:
     input r0 as signature.private;
     input r1 as address.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,7 +1,7 @@
 [ETYC0372117] Error: expected type `address`, but type `u64` was found
-    ╭─[ compiler-test:13:48 ]
+    ╭─[ compiler-test:16:48 ]
     │
- 13 │     let val: u64 = Bank@(target)::balances.get(42u64);
+ 16 │     let val: u64 = Bank@(target)::balances.get(42u64);
     │ 
     │ Help: Change the expression to produce type `address`.
 ────╯

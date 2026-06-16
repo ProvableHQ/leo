@@ -1,7 +1,7 @@
 [ETYC0372181] Error: `_dynamic_get_or_use` requires 5 argument(s), but 4 were supplied
-    ╭─[ compiler-test:11:20 ]
+    ╭─[ compiler-test:14:20 ]
     │
- 11 │     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key);
+ 14 │     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key);
     │ 
     │ Help: Pass exactly 5 argument(s) to `_dynamic_get_or_use`.
 ────╯

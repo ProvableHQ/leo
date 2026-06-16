@@ -17,23 +17,23 @@
     │ Help: Move the `final` block outside of the surrounding `if`/`else`.
 ────╯
 [ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function
-    ╭─[ compiler-test:20:13 ]
+    ╭─[ compiler-test:23:13 ]
     │
- 20 │     let f = final {};
+ 23 │     let f = final {};
     │ 
     │ Help: Move this `final` block into an entry point fn or a script function.
 ────╯
 [ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function
-    ╭─[ compiler-test:24:13 ]
+    ╭─[ compiler-test:27:13 ]
     │
- 24 │     let f = final {};
+ 27 │     let f = final {};
     │ 
     │ Help: Move this `final` block into an entry point fn or a script function.
 ────╯
 [ETYC0372148] Error: `final` blocks are only allowed inside an entry point fn returning `Final` or a script function
-    ╭─[ compiler-test:28:13 ]
+    ╭─[ compiler-test:31:13 ]
     │
- 28 │     let f = final {};
+ 31 │     let f = final {};
     │ 
     │ Help: Move this `final` block into an entry point fn or a script function.
 ────╯

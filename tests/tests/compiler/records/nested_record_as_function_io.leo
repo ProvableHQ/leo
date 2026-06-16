@@ -7,6 +7,9 @@ program program_a.aleo {
     fn mint2(input: u32) -> X {
         return X { owner: self.signer, val: input };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -20,6 +23,9 @@ program program_b.aleo {
     fn boofar(input: program_a.aleo::X) -> program_a.aleo::X {
         return input;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -29,4 +35,7 @@ program program_c.aleo {
     fn main() {
         assert_eq(1u32, 1u32);
     }
+
+    @noupgrade
+    constructor() {}
 }

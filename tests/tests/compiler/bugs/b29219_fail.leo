@@ -5,4 +5,7 @@ program test.aleo {
     fn main(bits: [bool; 8]) -> [u8; 1] {
         return Deserialize::from_bits::[[u8; 4294967300]](bits);
     }
+
+    @noupgrade
+    constructor() {}
 }

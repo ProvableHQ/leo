@@ -46,6 +46,9 @@ program child.aleo {
             ],
         };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -100,4 +103,7 @@ program parent.aleo {
         };
         return child.aleo::create();
     }
+
+    @noupgrade
+    constructor() {}
 }

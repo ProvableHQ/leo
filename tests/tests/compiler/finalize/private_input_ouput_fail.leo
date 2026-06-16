@@ -8,6 +8,9 @@ program test.aleo {
         final finalize_bar(a);
         return a + a;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_foo(private a: u8) -> u8 {

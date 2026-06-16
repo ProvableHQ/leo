@@ -10,4 +10,7 @@ program test.aleo {
         let result: [u32; N] = Deserialize::from_bits_raw::[[u32; N]](bits);
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

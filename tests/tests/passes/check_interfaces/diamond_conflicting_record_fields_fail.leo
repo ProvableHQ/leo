@@ -21,9 +21,13 @@ interface IRight {
     fn balance(t: Token) -> u128;
 }
 
-interface ICombined: ILeft + IRight {}
+interface ICombined: ILeft + IRight {
+}
 
 program test.aleo: ICombined {
+    @noupgrade
+    constructor() {}
+
     record Token {
         owner: address,
         amount: u64,

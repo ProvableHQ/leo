@@ -40,3 +40,6 @@ function main:
     output r21 as group.private;
     output r22 as group.private;
     output 8235392299299900933441562085750793758488771170558795291957509698613566551574group as group.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -16,4 +16,7 @@ program parent.aleo {
     fn main(addr: address) {
         let r = child1.aleo::R { owner: addr };
     }
+
+    @noupgrade
+    constructor() {}
 }

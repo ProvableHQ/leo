@@ -6,4 +6,7 @@ program test.aleo {
         let (a, b) = 42u32;
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }

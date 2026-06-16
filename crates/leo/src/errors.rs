@@ -330,3 +330,8 @@ pub(crate) fn not_compatible(program: impl Display, abi: impl Display, unsatisfi
     )
     .with_help("Review the unsatisfied items listed above. The program must declare every function, view, mapping, storage variable, record, and struct the ABI requires, with matching signatures.")
 }
+
+pub(crate) fn missing_constructor(program: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 70, format!("program `{program}` must declare a constructor"))
+        .with_help("Add a constructor such as `@noupgrade constructor() {}` before deploying the program.")
+}

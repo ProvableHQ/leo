@@ -6,4 +6,7 @@ program b28676.aleo {
         let d = [1u32; 2049u128]; // passes limits
         let e = [1u32; 2049]; // passes limits
     }
+
+    @noupgrade
+    constructor() {}
 }

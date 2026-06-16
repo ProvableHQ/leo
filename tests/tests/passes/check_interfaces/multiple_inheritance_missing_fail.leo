@@ -9,6 +9,9 @@ interface Calculator {
 }
 
 program test.aleo: Counter + Calculator {
+    @noupgrade
+    constructor() {}
+
     fn increment() -> u64 {
         return 1u64;
     }

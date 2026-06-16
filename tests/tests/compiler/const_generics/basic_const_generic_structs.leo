@@ -32,4 +32,7 @@ program test.aleo {
         };
         return g.f.arr[6] + s.arr[7] + g2.f.arr[5] + boo.g.f.arr[8];
     }
+
+    @noupgrade
+    constructor() {}
 }

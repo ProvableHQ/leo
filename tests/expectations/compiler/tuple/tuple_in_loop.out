@@ -86,3 +86,6 @@ function foo:
     ternary r2 r80 r79 into r82;
     add r81 r82 into r83;
     output r83 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

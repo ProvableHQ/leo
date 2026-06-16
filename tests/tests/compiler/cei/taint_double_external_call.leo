@@ -8,6 +8,9 @@ program dep_a.aleo {
         let f: Final = final { finalize_get_value(id); };
         return (10u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_value(id: u32) {
@@ -22,6 +25,9 @@ program dep_b.aleo {
         let f: Final = final { finalize_get_value(id); };
         return (20u64, f);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_get_value(id: u32) {
@@ -47,4 +53,7 @@ program caller.aleo {
             fb.run();
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

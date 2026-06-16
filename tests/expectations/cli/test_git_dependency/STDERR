@@ -1,0 +1,33 @@
+--- 1. add a git LIBRARY dependency (repo/lib, found by name) ---
+--- 2. add a git PROGRAM dependency pinned to a tag (repo/prog, found by name) ---
+--- 3. add a git ALEO BYTECODE dependency (repo/gitbytes.aleo) ---
+--- 4. build: resolve + compile all three kinds from the one repository ---
+--- 4b. build --offline reuses the lock and cache ---
+--- 5. --branch without --git (should fail) ---
+error: the following required arguments were not provided:
+  <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>>
+
+Usage: leo add --branch <BRANCH> <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+
+For more information, try '--help'.
+--- 6. multiple git references (should fail) ---
+error: the argument '--branch <BRANCH>' cannot be used with '--tag <TAG>'
+
+Usage: leo add --branch <BRANCH> <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+
+For more information, try '--help'.
+--- 7. --git combined with --network (should fail) ---
+error: the argument '--git <GIT>' cannot be used with '--network'
+
+Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+
+For more information, try '--help'.
+--- 8. add a library under a name ending in .aleo (should fail) ---
+Error [ECLI0377045]: `gitlib.aleo` ends with `.aleo` but the package at `REPO_URL` is a library, not a program.
+
+--- 9. remove a git dependency (its lock pin is pruned) ---
+       Leo ✅ Successfully removed the git dependency gitprog.aleo.
+--- 10. a path-traversal dependency name is rejected before fetching ---
+       Leo Aleo names can only contain ASCII alphanumeric characters and underscores.
+Error [ECLI0377045]: `../escape` is not a valid dependency name.
+

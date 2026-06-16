@@ -6,4 +6,7 @@ program test.aleo {
     fn foo(a: bool, b: bool) -> (bool) {
         return (b,);
     }
+
+    @noupgrade
+    constructor() {}
 }

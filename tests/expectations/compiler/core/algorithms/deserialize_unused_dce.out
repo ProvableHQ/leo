@@ -42,3 +42,6 @@ function used_deserialize:
     input r0 as [boolean; 253u32].private;
     deserialize.bits.raw r0 ([boolean; 253u32]) into r1 (field);
     output r1 as field.private;
+
+constructor:
+    assert.eq edition 0u16;

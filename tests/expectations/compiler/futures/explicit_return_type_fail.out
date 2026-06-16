@@ -1,27 +1,16 @@
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:11:1 ]
-    │
- 11 │ ╭─▶ final fn finalize() -> Final {
-    ┆ ┆   
- 13 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
-────╯
 [ETYC0372110] Error: only entry point fns can return a `Final`
-    ╭─[ compiler-test:11:24 ]
+    ╭─[ compiler-test:14:24 ]
     │
- 11 │ final fn finalize() -> Final {
+ 14 │ final fn finalize() -> Final {
     │ 
     │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ────╯
 [ETYC0372036] Error: function must return a value
-    ╭─[ compiler-test:11:1 ]
+    ╭─[ compiler-test:14:1 ]
     │
- 11 │ ╭─▶ final fn finalize() -> Final {
+ 14 │ ╭─▶ final fn finalize() -> Final {
     ┆ ┆   
- 13 │ ├─▶ }
+ 16 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     

@@ -4,5 +4,8 @@ struct Point {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public x: u64) {}
 }

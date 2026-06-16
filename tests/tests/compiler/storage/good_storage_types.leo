@@ -36,4 +36,7 @@ program good_storage_tests.aleo {
     storage vec_struct: [MyStruct];
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

@@ -10,3 +10,6 @@ finalize main:
     assert.eq 1u16 network.id;
     assert.eq r0 network.id;
     assert.eq network.id network.id;
+
+constructor:
+    assert.eq edition 0u16;

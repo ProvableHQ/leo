@@ -9,6 +9,9 @@ interface Extended: Base {
 }
 
 program test.aleo: Extended {
+    @noupgrade
+    constructor() {}
+
     fn get_value() -> u64 {
         return 0u64;
     }

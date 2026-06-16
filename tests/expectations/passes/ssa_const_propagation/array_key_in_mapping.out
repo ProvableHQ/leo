@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     mapping allowances: [address; 2] => u128;
     fn foo() {
     }

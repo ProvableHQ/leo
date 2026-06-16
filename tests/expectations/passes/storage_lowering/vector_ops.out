@@ -1,4 +1,7 @@
 program singleton_storage.aleo {
+    @noupgrade
+    async constructor() {
+    }
     mapping counter__: bool => u8;
     mapping vec__: u32 => u8;
     mapping vec__len__: bool => u32;

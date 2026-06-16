@@ -1,10 +1,16 @@
 program lib_a.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 program lib_b.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib_a.aleo;
 import lib_b.aleo;
@@ -19,6 +25,9 @@ function fn_b:
 function main:
     input r0 as u64.private;
     output 0u64 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

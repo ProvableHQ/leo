@@ -1,7 +1,7 @@
 [ETYC0372117] Error: expected type `u64`, but type `bool` was found
-    ╭─[ compiler-test:11:66 ]
+    ╭─[ compiler-test:14:66 ]
     │
- 11 │     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key, true);
+ 14 │     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key, true);
     │ 
     │ Help: Change the expression to produce type `u64`.
 ────╯

@@ -8,4 +8,7 @@ program test.aleo {
         assert(b);
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }

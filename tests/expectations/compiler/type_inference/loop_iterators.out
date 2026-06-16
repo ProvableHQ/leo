@@ -15,3 +15,6 @@ finalize main:
     set 4u32 into m[2u32];
     set 5u32 into m[2u32];
     set 5u32 into m[3u32];
+
+constructor:
+    assert.eq edition 0u16;

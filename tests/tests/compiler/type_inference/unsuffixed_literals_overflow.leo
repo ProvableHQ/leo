@@ -39,4 +39,7 @@ program test.aleo {
         // Overflow in loop bounds
         for i: u8 in 1..256 {}
     }
+
+    @noupgrade
+    constructor() {}
 }

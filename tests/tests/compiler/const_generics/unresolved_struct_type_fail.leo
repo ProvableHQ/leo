@@ -13,4 +13,7 @@ program b28668.aleo {
         };
         return g.z.x;
     }
+
+    @noupgrade
+    constructor() {}
 }

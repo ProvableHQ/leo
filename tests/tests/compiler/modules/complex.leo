@@ -23,6 +23,9 @@ program all_module_features.aleo {
         // Inline function call that takes struct from another module
         return x1 + x2 + x3 + s2.val[1] + result;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: alpha.leo --- //

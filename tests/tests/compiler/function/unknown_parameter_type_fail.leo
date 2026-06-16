@@ -6,4 +6,7 @@ program test.aleo {
     fn returns_foo(a: u8) -> Foo {
         return a;
     }
+
+    @noupgrade
+    constructor() {}
 }

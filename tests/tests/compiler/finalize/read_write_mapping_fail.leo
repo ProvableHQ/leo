@@ -14,4 +14,7 @@ program test.aleo {
     fn assign(addr: address, public amount: u128) {
         balances = misc;
     }
+
+    @noupgrade
+    constructor() {}
 }

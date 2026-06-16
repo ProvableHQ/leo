@@ -3,11 +3,11 @@ Expected:
 fn split(t: test.aleo::Token) -> (test.aleo::Token, test.aleo::Token)
 Found:
 fn split(t: test.aleo::Token) -> (test.aleo::Token, u64)
-    ╭─[ test:19:5 ]
+    ╭─[ test:22:5 ]
     │
- 19 │ ╭─▶     fn split(t: Token) -> (Token, u64) {
+ 22 │ ╭─▶     fn split(t: Token) -> (Token, u64) {
     ┆ ┆   
- 21 │ ├─▶     }
+ 24 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     

@@ -1,30 +1,30 @@
 [WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
-    ╭─[ compiler-test:14:9 ]
+    ╭─[ compiler-test:17:9 ]
     │
- 14 │     for i: u32 in 0u32..2u32 {
+ 17 │     for i: u32 in 0u32..2u32 {
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
 [WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
-    ╭─[ compiler-test:16:13 ]
+    ╭─[ compiler-test:19:13 ]
     │
- 16 │         for j: u32 in 0u32..2u32 {
+ 19 │         for j: u32 in 0u32..2u32 {
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:18:13 ]
+    ╭─[ compiler-test:21:13 ]
     │
- 18 │             Mapping::set(counters, j, a);
+ 21 │             Mapping::set(counters, j, a);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
     │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
 ────╯
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:21:9 ]
+    ╭─[ compiler-test:24:9 ]
     │
- 21 │         Mapping::set(counters, i, a);
+ 24 │         Mapping::set(counters, i, a);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -44,6 +44,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into dep_data[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep.aleo;
 program caller.aleo;
@@ -71,3 +74,6 @@ finalize do_work:
     await r0;
     set r1 into counters[1u32];
     set r1 into counters[1u32];
+
+constructor:
+    assert.eq edition 0u16;

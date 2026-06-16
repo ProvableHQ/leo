@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
     fn bubble(a:u32,b:u32)->u32{
         // compare first pair
         if a < b {

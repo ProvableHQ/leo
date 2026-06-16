@@ -2,6 +2,9 @@ program parent.aleo {
     fn foo() -> u32 {
         return dep::X + dep::inner::Y;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: dep.leo --- //

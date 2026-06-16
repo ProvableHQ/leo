@@ -3,11 +3,11 @@ Expected:
 fn process(value: u64, multiplier: u64) -> u64
 Found:
 fn process(value: u64, multiplier: u32) -> u64
-    ╭─[ test:9:5 ]
+    ╭─[ test:12:5 ]
     │
-  9 │ ╭─▶     fn process(value: u64, multiplier: u32) -> u64 {
+ 12 │ ╭─▶     fn process(value: u64, multiplier: u32) -> u64 {
     ┆ ┆   
- 11 │ ├─▶     }
+ 14 │ ├─▶     }
     │ │           
     │ ╰─────────── here
     │     

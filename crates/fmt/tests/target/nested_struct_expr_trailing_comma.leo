@@ -11,6 +11,9 @@ struct Board {
 }
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() -> Board {
         return Board {
             r1: Row { c1: 0u8, c2: 0u8, c3: 0u8 },

@@ -1,47 +1,32 @@
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:13:1 ]
-    │
- 13 │ ╭─▶ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
-    ┆ ┆   
- 15 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
-────╯
 [ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-    ╭─[ compiler-test:13:50 ]
+    ╭─[ compiler-test:16:50 ]
     │
- 13 │ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
+ 16 │ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
     │ 
     │ Help: Remove the `public`, `private`, or `constant` modifier.
 ────╯
 [ETYC0372038] Error: a returned value cannot have `constant` visibility
-    ╭─[ compiler-test:13:75 ]
+    ╭─[ compiler-test:16:75 ]
     │
- 13 │ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
+ 16 │ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
     │ 
     │ Help: Remove the `constant` modifier from the output, or return a non-`constant` value.
 ────╯
-[ETYC0372036] Error: function must return a value
-    ╭─[ compiler-test:13:1 ]
+[ETYC0372032] Error: `final fn` outputs cannot have visibility modes
+    ╭─[ compiler-test:16:75 ]
     │
- 13 │ ╭─▶ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
+ 16 │ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
+    │ 
+    │ Help: Remove the `public`, `private`, or `constant` modifier.
+────╯
+[ETYC0372036] Error: function must return a value
+    ╭─[ compiler-test:16:1 ]
+    │
+ 16 │ ╭─▶ final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
     ┆ ┆   
- 15 │ ├─▶ }
+ 18 │ ├─▶ }
     │ │       
     │ ╰─────── here
     │     
     │     Help: Ensure every path through the function ends in a `return` expression matching the declared output type.
-────╯
-[ETYC0372106] Error: a `final fn` is not allowed to return a value
-    ╭─[ compiler-test:17:1 ]
-    │
- 17 │ ╭─▶ final fn finalize_mint_public2(receiver: address, amount: u64) -> u64 {
-    ┆ ┆   
- 20 │ ├─▶ }
-    │ │       
-    │ ╰─────── here
-    │     
-    │     Help: Remove the output type and the `return` statement. The `Final` returned by a `final fn` is inferred automatically and must not be written explicitly.
 ────╯

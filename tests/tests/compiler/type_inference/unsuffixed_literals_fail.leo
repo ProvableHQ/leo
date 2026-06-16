@@ -45,4 +45,7 @@ program test.aleo {
         let b4 = -2;
         let b5 = !2;
     }
+
+    @noupgrade
+    constructor() {}
 }

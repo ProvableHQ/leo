@@ -11,4 +11,7 @@ program test.aleo {
     fn foo2(a: u8, public b: u8) -> public u8 {
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }

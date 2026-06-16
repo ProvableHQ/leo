@@ -7,3 +7,6 @@ function main:
     input r3 as u64.private;
     call.dynamic r0 r1 r2 with r3 (as u64.private) into r4 (as u64.private);
     output r4 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -45,4 +45,7 @@ program test.aleo {
         let f: dummy = dummy { owner: self.signer, data: e };
         return a + b;
     }
+
+    @noupgrade
+    constructor() {}
 }

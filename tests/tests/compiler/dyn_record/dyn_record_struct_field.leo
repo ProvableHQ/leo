@@ -13,4 +13,7 @@ program test.aleo {
         let info: Info = d.data;
         return info.inner;
     }
+
+    @noupgrade
+    constructor() {}
 }

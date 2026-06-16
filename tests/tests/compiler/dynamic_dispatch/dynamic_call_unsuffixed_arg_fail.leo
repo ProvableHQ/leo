@@ -5,4 +5,7 @@ program test.aleo {
     fn main() -> u64 {
         return _dynamic_call::[u64]('a', 'aleo', 'b', 1);
     }
+
+    @noupgrade
+    constructor() {}
 }

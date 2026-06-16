@@ -1,12 +1,18 @@
 program lib.aleo;
 
 function unused:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib.aleo;
 program test.aleo;
 
 function do_something:
     output 1u64 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

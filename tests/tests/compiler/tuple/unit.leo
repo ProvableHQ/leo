@@ -20,4 +20,7 @@ program test.aleo {
         assert_eq(a, b);
         assert_eq(b, a);
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -220,6 +220,7 @@ fn references_returns_local_variable_occurrences() {
         "        let next: u32 = total + 1u32;\n",
         "        return total + next;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -314,6 +315,7 @@ fn references_cover_core_compiler_symbol_families() {
         "        let first_value: u32 = combine(1u32, LIMIT);\n",
         "        return first_value + combine(2u32, LIMIT);\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let (_tempdir, document_uri, canonical_uri) = write_test_package(source);
@@ -378,6 +380,7 @@ fn references_cover_syntax_fallback_program_type_and_function_occurrences() {
         "        let one: u64 = auth_digest(first);\n",
         "        return one + auth_digest(second);\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n\n",
         "// TransferAuth in comments is not a semantic reference.\n",
         "fn auth_digest(amount: u64) -> u64 {\n",
@@ -454,7 +457,8 @@ fn references_return_source_dependency_program_namespace_occurrences() {
         r#"{ "program": "helper.aleo", "version": "0.1.0", "description": "", "license": "MIT", "leo": "4.0.0" }"#,
     )
     .expect("write helper manifest");
-    let helper_source = "program helper.aleo {\n    fn double(x: u32) -> u32 { return x + x; }\n}\n";
+    let helper_source =
+        "program helper.aleo {\n    fn double(x: u32) -> u32 { return x + x; }\n    @noupgrade constructor() {}\n}\n";
     let helper_main = helper_root.join("src").join("main.leo");
     fs::write(&helper_main, helper_source).expect("write helper source");
     let helper_root = helper_root.canonicalize().expect("canonical helper root");
@@ -483,6 +487,7 @@ fn references_return_source_dependency_program_namespace_occurrences() {
         "    fn main() -> u32 {\n",
         "        return helper.aleo::double(1u32);\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = root.join("src").join("main.leo");
@@ -531,6 +536,7 @@ fn definition_returns_local_variable_declaration() {
         "        let total: u32 = 1u32;\n",
         "        return total;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -609,6 +615,7 @@ fn definition_resolves_function_type_and_member_targets() {
         "        let local: Point = Point { x: 1u32 };\n",
         "        return helper(local);\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -689,6 +696,7 @@ fn definition_resolves_unmanaged_struct_field_targets() {
         "        };\n",
         "        return p.x + info.sender_amount;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let file_path = tempdir.path().join("wrap_struct_expr.leo");
@@ -756,6 +764,7 @@ fn definition_resolves_saved_local_source_dependency_target() {
         "    fn double(x: u32) -> u32 {\n",
         "        return x + x;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let helper_path = helper_src.join("main.leo");
@@ -792,6 +801,7 @@ fn definition_resolves_saved_local_source_dependency_target() {
         "    fn main(x: u32) -> u32 {\n",
         "        return helper.aleo::double(x);\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -858,6 +868,7 @@ fn definition_resolves_imported_program_target() {
         "    fn double(x: u32) -> u32 {\n",
         "        return x + x;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let helper_path = helper_src.join("main.leo");
@@ -894,6 +905,7 @@ fn definition_resolves_imported_program_target() {
         "    fn main() -> u32 {\n",
         "        return 1u32;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -1057,6 +1069,7 @@ fn semantic_tokens_full_returns_tokens_and_reuses_cached_snapshot() {
         "        let local: Point = Point { x: 1u32 };\n",
         "        return point.x + local.x;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let main_path = source_dir.join("main.leo");
@@ -1228,6 +1241,7 @@ fn prepare_rename_returns_local_range() {
         "        let next: u32 = total + 1u32;\n",
         "        return total + next;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let (_tempdir, document_uri, _canonical) = write_test_package(source);
@@ -1261,6 +1275,7 @@ fn rename_returns_workspace_edit_for_local() {
         "        let next: u32 = total + 1u32;\n",
         "        return total + next;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let (_tempdir, document_uri, canonical_uri) = write_test_package(source);
@@ -1306,6 +1321,7 @@ fn rename_rejects_keyword_new_name() {
         "        let total: u32 = 1u32;\n",
         "        return total;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let (_tempdir, document_uri, _canonical) = write_test_package(source);
@@ -1340,6 +1356,7 @@ fn rename_returns_null_on_non_renameable_cursor() {
         "        let total: u32 = 1u32;\n",
         "        return total;\n",
         "    }\n",
+        "    @noupgrade constructor() {}\n",
         "}\n",
     );
     let (_tempdir, document_uri, _canonical) = write_test_package(source);

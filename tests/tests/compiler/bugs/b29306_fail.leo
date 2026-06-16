@@ -6,4 +6,7 @@ program test.aleo {
         let (v, f) = _dynamic_call::[(u32, Unknown)](a, b, c);
         return (v, final { f.run(); });
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -8,4 +8,7 @@ program test.aleo {
             Mapping::set(result, 0u32, val);
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

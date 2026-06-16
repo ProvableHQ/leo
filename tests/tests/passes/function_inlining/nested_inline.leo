@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(input: u32) -> u32 {
         let var1 = wrapper(input);
         return var1;

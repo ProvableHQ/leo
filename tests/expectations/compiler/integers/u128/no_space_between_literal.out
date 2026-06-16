@@ -1,7 +1,7 @@
 [EPAR0370005] Error: expected ';', found `u128`
-   ╭─[ compiler-test:4:15 ]
+   ╭─[ compiler-test:7:15 ]
    │
- 4 │     let i = 1 u128;
+ 7 │     let i = 1 u128;
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯

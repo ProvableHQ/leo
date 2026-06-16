@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
 	fn main(  )  ->  u64  {
             let sum  :  u64
                 =  0u64

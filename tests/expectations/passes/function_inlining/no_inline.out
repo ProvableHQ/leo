@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main(x: u32, y: u32) -> (u32, u32) {
         let $var$0 = x + y;
         let result_inline: u32 = $var$0;

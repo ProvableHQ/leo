@@ -22,4 +22,7 @@ program test.aleo {
             return x / y;
         }
     }
+
+    @noupgrade
+    constructor() {}
 }

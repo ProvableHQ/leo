@@ -18,4 +18,7 @@ program test.aleo {
     fn vector_len(target: field) -> u32 {
         return Counter@(target)::entries.len();
     }
+
+    @noupgrade
+    constructor() {}
 }

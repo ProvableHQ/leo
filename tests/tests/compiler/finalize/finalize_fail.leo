@@ -13,6 +13,9 @@ program test.aleo {
     fn finalize_no_params() -> Final {
         return final { finalize_no_params(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_mint_public(receiver: address, amount: u64) {

@@ -1,4 +1,6 @@
 program test.aleo {
+    @noupgrade constructor() {}
+
     fn main(a: u32, b: u32) -> u32 {
         let sum = a + b;
         let diff = a - b;

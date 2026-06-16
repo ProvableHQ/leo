@@ -20,4 +20,7 @@ program test.aleo {
         // `struct_name.member`
         return m1.first + m1.second;
     }
+
+    @noupgrade
+    constructor() {}
 }

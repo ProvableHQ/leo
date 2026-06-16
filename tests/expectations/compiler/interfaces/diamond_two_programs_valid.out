@@ -23,10 +23,16 @@
 program lib1.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 program lib2.aleo;
 
 function dummy:
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import lib1.aleo;
 import lib2.aleo;
@@ -46,6 +52,9 @@ function stake:
     output r1 as Token.record;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;
 
 
 ---

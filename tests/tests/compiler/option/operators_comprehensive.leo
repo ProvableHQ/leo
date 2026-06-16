@@ -106,4 +106,7 @@ program operators_comprehensive.aleo {
     fn test_logical_operators() -> bool {
         return true && false;
     }
+
+    @noupgrade
+    constructor() {}
 }

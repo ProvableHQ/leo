@@ -5,3 +5,6 @@ mapping counter__:
     value as u32.public;
 
 function main:
+
+constructor:
+    assert.eq edition 0u16;

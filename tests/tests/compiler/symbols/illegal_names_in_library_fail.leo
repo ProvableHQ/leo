@@ -19,6 +19,9 @@ program childaleo.aleo {
     }
 
     fn bar() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //
@@ -26,4 +29,7 @@ import childaleo.aleo;
 
 program foo.aleo {
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }

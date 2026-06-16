@@ -4,4 +4,7 @@ program test.aleo {
 
         return x == sender;
     }
+
+    @noupgrade
+    constructor() {}
 }

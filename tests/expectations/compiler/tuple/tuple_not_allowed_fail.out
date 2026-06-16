@@ -1,56 +1,56 @@
 [ETYC0372050] Error: a struct cannot contain a tuple
-    ╭─[ compiler-test:21:5 ]
+    ╭─[ compiler-test:24:5 ]
     │
- 21 │     mem: (u8, u16),
+ 24 │     mem: (u8, u16),
     │ 
     │ Help: Flatten the tuple into separate fields, or wrap it in a `struct` before storing it in the struct.
 ────╯
 [ETYC0372051] Error: a function cannot take a tuple as input
-   ╭─[ compiler-test:7:8 ]
-   │
- 7 │ fn foo(a: (u8, u16)) -> (u8, u16) {
-   │ 
-   │ Help: Pass the tuple's elements as separate parameters, or wrap them in a `struct`.
-───╯
-[ETYC0372049] Error: a tuple type cannot contain a tuple
-    ╭─[ compiler-test:11:26 ]
+    ╭─[ compiler-test:10:8 ]
     │
- 11 │ fn bar(zz: bool) -> (u8, (u16, u32)) {
+ 10 │ fn foo(a: (u8, u16)) -> (u8, u16) {
+    │ 
+    │ Help: Pass the tuple's elements as separate parameters, or wrap them in a `struct`.
+────╯
+[ETYC0372049] Error: a tuple type cannot contain a tuple
+    ╭─[ compiler-test:14:26 ]
+    │
+ 14 │ fn bar(zz: bool) -> (u8, (u16, u32)) {
     │ 
     │ Help: Flatten the nested tuple into a single tuple, or wrap the inner tuple in a `struct`.
 ────╯
 [ETYC0372052] Error: a tuple expression cannot contain another tuple expression
-    ╭─[ compiler-test:12:18 ]
+    ╭─[ compiler-test:15:18 ]
     │
- 12 │     return (1u8, (2u16, 3u32));
+ 15 │     return (1u8, (2u16, 3u32));
     │ 
     │ Help: Flatten the expression into a single tuple, or assign the inner tuple to a `let` binding first.
 ────╯
 [ETYC0372117] Error: expected an integer, but type `(u8, u16)` was found
-    ╭─[ compiler-test:16:9 ]
+    ╭─[ compiler-test:19:9 ]
     │
- 16 │     for i: (u8, u16) in 0u8..2u8 {}
+ 19 │     for i: (u8, u16) in 0u8..2u8 {}
     │ 
     │ Help: Change the expression to produce an integer.
 ────╯
 [ETYC0372117] Error: expected type `(u8, u16)`, but type `u8` was found
-    ╭─[ compiler-test:16:25 ]
+    ╭─[ compiler-test:19:25 ]
     │
- 16 │     for i: (u8, u16) in 0u8..2u8 {}
+ 19 │     for i: (u8, u16) in 0u8..2u8 {}
     │ 
     │ Help: Change the expression to produce type `(u8, u16)`.
 ────╯
 [ETYC0372117] Error: expected type `(u8, u16)`, but type `u8` was found
-    ╭─[ compiler-test:16:30 ]
+    ╭─[ compiler-test:19:30 ]
     │
- 16 │     for i: (u8, u16) in 0u8..2u8 {}
+ 19 │     for i: (u8, u16) in 0u8..2u8 {}
     │ 
     │ Help: Change the expression to produce type `(u8, u16)`.
 ────╯
 [ETYC0372083] Error: a program must have at least one entry point fn
    ╭─[ compiler-test:1:9 ]
    │
- 1 │ program test.aleo {}
+ 1 │ program test.aleo {
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯

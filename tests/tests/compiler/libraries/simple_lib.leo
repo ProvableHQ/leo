@@ -19,6 +19,9 @@ program simple.aleo {
     fn foo() -> u32 {
         return lib1::X + lib1::P + lib2::XX + lib2::PP + X + P + dep::P + dep::X;
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Module: dep.leo --- //

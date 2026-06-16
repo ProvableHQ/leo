@@ -5,6 +5,7 @@
             y  :  u64,
     }
 program test.aleo{
+    @noupgrade constructor() {}
 
 
             // A fn that uses the struct

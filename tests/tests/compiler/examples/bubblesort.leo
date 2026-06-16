@@ -253,4 +253,7 @@ program test.aleo {
         }
         return (arr0, arr1, arr2, arr3, arr4, arr5, arr6, arr7);
     }
+
+    @noupgrade
+    constructor() {}
 }

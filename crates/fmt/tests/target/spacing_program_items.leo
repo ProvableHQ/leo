@@ -9,6 +9,9 @@ struct B {
 const VALUE: u64 = 42u64;
 
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn foo(a: u64) -> u64 {
         return a;
     }

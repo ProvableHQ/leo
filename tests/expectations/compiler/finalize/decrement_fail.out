@@ -1,7 +1,7 @@
 [ETYC0372005] Error: unknown function `test.aleo::decrement`
-    ╭─[ compiler-test:11:5 ]
+    ╭─[ compiler-test:14:5 ]
     │
- 11 │     decrement(amounts, addr, amount);
+ 14 │     decrement(amounts, addr, amount);
     │ 
     │ Help: Check `test.aleo::decrement` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
 ────╯

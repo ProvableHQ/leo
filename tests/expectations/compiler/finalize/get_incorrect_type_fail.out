@@ -6,30 +6,30 @@
    │ Help: Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.
 ───╯
 [ETYC0372117] Error: expected type `address`, but type `bool` was found
-    ╭─[ compiler-test:17:26 ]
+    ╭─[ compiler-test:20:26 ]
     │
- 17 │     Mapping::get(tokens, true);
+ 20 │     Mapping::get(tokens, true);
     │ 
     │ Help: Change the expression to produce type `address`.
 ────╯
 [ETYC0372117] Error: expected type `address`, but type `bool` was found
-    ╭─[ compiler-test:18:16 ]
+    ╭─[ compiler-test:21:16 ]
     │
- 18 │     tokens.get(true);
+ 21 │     tokens.get(true);
     │ 
     │ Help: Change the expression to produce type `address`.
 ────╯
 [ETYC0372117] Error: expected type `address`, but type `u8` was found
-    ╭─[ compiler-test:19:27 ]
+    ╭─[ compiler-test:22:27 ]
     │
- 19 │     Mapping::get(amounts, 1u8);
+ 22 │     Mapping::get(amounts, 1u8);
     │ 
     │ Help: Change the expression to produce type `address`.
 ────╯
 [ETYC0372117] Error: expected type `address`, but type `u8` was found
-    ╭─[ compiler-test:20:17 ]
+    ╭─[ compiler-test:23:17 ]
     │
- 20 │     amounts.get(1u8);
+ 23 │     amounts.get(1u8);
     │ 
     │ Help: Change the expression to produce type `address`.
 ────╯

@@ -6,4 +6,7 @@ program some_sample_leo_program.aleo {
         let c: u32 = a + b;
         return c;
     }
+
+    @noupgrade
+    constructor() {}
 }

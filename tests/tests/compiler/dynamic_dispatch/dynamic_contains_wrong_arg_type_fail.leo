@@ -5,6 +5,9 @@ program test.aleo {
     fn check(key: address) -> Final {
         return final { finalize_check(key); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_check(key: address) {

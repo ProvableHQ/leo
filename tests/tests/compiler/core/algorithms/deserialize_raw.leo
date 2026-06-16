@@ -54,4 +54,7 @@ program test.aleo {
             scalar_raw != scalar_normal, addr_raw != addr_normal,
         );
     }
+
+    @noupgrade
+    constructor() {}
 }

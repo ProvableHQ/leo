@@ -350,7 +350,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         for statement in block.statements {
             let (reconstructed_statement, additional_statements) = self.reconstruct_statement(statement);
             statements.extend(additional_statements);
-            if !reconstructed_statement.is_empty() {
+            if !reconstructed_statement.is_removable() {
                 statements.push(reconstructed_statement);
             }
         }

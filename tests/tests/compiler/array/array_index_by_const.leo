@@ -10,4 +10,7 @@ program test.aleo {
         let arr: [u32; 6] = [1, 2, 3, 4, 5, 6];
         return arr[N1] + arr[N2] + arr[N3] + arr[N4] + arr[N5] + arr[N6];
     }
+
+    @noupgrade
+    constructor() {}
 }

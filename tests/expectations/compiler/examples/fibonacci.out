@@ -211,3 +211,6 @@ function fibonacci:
     shr r192 1u8 into r206;
     ternary r193 r204 r189 into r207;
     output r207 as u128.private;
+
+constructor:
+    assert.eq edition 0u16;

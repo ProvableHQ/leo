@@ -6,3 +6,6 @@ function foo:
     assert.eq r0[1u32] true;
     assert.eq r0[2u32] true;
     assert.eq r0[3u32] true;
+
+constructor:
+    assert.eq edition 0u16;

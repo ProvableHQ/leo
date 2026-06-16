@@ -1,7 +1,7 @@
 [WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:19:5 ]
+    ╭─[ compiler-test:22:5 ]
     │
- 19 │     Mapping::set(results, 0u32, a);
+ 22 │     Mapping::set(results, 0u32, a);
     │ 
     │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
     │ 
@@ -21,6 +21,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into data_a[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 program dep_b.aleo;
 
@@ -36,6 +39,9 @@ function update:
 finalize update:
     input r0 as u32.public;
     set r0 into data_b[0u32];
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dep_a.aleo;
 import dep_b.aleo;
@@ -60,3 +66,6 @@ finalize do_work:
     await r0;
     set r2 into results[0u32];
     await r1;
+
+constructor:
+    assert.eq edition 0u16;

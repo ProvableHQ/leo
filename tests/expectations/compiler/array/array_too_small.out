@@ -2,3 +2,6 @@ program test.aleo;
 
 function foo:
     output true as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -50,6 +50,8 @@ let b  :  u64
 
 program test.aleo
   {
+    @noupgrade constructor() {}
+
 	mapping balances  :  address
 	    =>  u64;
 

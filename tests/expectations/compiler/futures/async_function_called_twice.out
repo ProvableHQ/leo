@@ -13,6 +13,9 @@ function t2:
 
 finalize t2:
     assert.eq 1u8 1u8;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import dependent.aleo;
 program test.aleo;
@@ -34,3 +37,6 @@ function t2:
 finalize t2:
     input r0 as dependent.aleo/t2.future;
     await r0;
+
+constructor:
+    assert.eq edition 0u16;

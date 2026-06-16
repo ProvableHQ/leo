@@ -9,4 +9,7 @@ program test.aleo {
 
         return a * g == d;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
     fn main(input: u32) -> u32 {
         let var3$#0$#2 = 1u32;
         let var4$#1$#3 = input + var3$#0$#2;

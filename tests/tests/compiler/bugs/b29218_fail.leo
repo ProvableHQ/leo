@@ -18,4 +18,7 @@ program test.aleo {
     fn from_bits_raw_two(bits: [bool; 234]) -> [u8; 4] {
         return Deserialize::from_bits_raw::[[u8; 4], [u16; 2]](bits);
     }
+
+    @noupgrade
+    constructor() {}
 }

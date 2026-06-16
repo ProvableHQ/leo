@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main() {
         let x = 5u64;
         let y = 10u64;

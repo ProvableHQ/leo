@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(public a: u64, public b: u64) {
         assert_eq(a, b);
         let expected_first_balance: u64 = a + b;

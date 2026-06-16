@@ -28,3 +28,6 @@ function main:
     output r6[511u32] as boolean.private;
     output r9 as boolean.private;
     output r10 as boolean.private;
+
+constructor:
+    assert.eq edition 0u16;

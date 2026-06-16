@@ -36,3 +36,6 @@ function foo:
     add r1 r0.b.d.e.data into r2;
     add r2 r0.g.i.h.data into r3;
     output r3 as u8.private;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,5 +1,5 @@
 [ETYC0372156] Error: Unknown vector operation `push`. Expected `get` or `len`.
-    ╭─[ compiler-test:13:28 ]
+    ╭─[ compiler-test:16:28 ]
     │
- 13 │     Logs@(target)::entries.push(v);
+ 16 │     Logs@(target)::entries.push(v);
 ────╯

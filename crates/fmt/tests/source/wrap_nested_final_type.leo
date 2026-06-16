@@ -1,4 +1,6 @@
 program test.aleo{
+    @noupgrade constructor() {}
+
     fn main(public a:u32)->Final<Fn(u32)>{
         return final { finalize_value(a); };
     }

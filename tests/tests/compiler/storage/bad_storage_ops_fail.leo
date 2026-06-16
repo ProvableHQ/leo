@@ -50,4 +50,7 @@ program st.aleo {
             s_field.get(0u32); // ❌ not a vector or mapping
         };
     }
+
+    @noupgrade
+    constructor() {}
 }

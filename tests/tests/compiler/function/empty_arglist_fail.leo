@@ -8,4 +8,7 @@ fn y(a: [u8; 0]) -> [u8; 0] {
     return a;
 }
 
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}

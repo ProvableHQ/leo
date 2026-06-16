@@ -5,6 +5,9 @@ program test.aleo {
         let caller = self.caller;
         return final { fin_foo(caller, a); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn fin_foo(caller: address, a: [bool; 8]) {

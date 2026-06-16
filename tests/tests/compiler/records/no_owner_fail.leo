@@ -8,4 +8,7 @@ program test.aleo {
     fn main(zz: bool) -> bool {
         return true;
     }
+
+    @noupgrade
+    constructor() {}
 }

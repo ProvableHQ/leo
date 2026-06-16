@@ -3,4 +3,7 @@ program test.aleo {
         assert_eq(timestamp, block.timestamp);
         return;
     }
+
+    @noupgrade
+    constructor() {}
 }

@@ -7,4 +7,7 @@ program test.aleo {
     fn main(y: bool) -> bool {
         return y;
     }
+
+    @noupgrade
+    constructor() {}
 }

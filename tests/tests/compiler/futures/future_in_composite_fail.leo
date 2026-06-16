@@ -10,6 +10,9 @@ program test.aleo {
         let an_array: [Final; 1] = [future];
         return an_array[0u32];
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finish() {

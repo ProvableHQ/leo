@@ -4,4 +4,7 @@ program test.aleo {
         let result: dyn record = _dynamic_call::[dyn record, dyn record](prog, net, func, token);
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

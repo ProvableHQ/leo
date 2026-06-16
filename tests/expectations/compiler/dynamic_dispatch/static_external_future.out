@@ -14,6 +14,9 @@ function transfer_public_to_private:
 
 finalize transfer_public_to_private:
     assert.eq 1u8 1u8;
+
+constructor:
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import credits.aleo;
 program test_static.aleo;

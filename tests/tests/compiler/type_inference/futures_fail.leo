@@ -6,6 +6,9 @@ program child.aleo {
     fn bar() -> Final {
         return final { bar_(); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn foo_() {}
@@ -27,6 +30,9 @@ program type_inference.aleo {
         let r: bool = final { foo(f); };
         return (99u64, r);
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn foo(fut: Final) {

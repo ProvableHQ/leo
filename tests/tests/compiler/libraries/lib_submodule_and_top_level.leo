@@ -19,4 +19,7 @@ program submodule_and_top_level.aleo {
         let shifted: u32 = mixed_lib::ops::offset(mixed_lib::BASE);
         return scaled + shifted;
     }
+
+    @noupgrade
+    constructor() {}
 }

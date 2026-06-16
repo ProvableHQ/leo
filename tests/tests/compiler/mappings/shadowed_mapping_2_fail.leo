@@ -9,4 +9,7 @@ program test.aleo {
         let one: u8 = 1u8;
         return one + 1u8;
     }
+
+    @noupgrade
+    constructor() {}
 }

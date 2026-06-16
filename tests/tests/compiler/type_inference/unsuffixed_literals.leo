@@ -319,4 +319,7 @@ program test.aleo {
         let b14 = 2.to_y_coordinate(); // 2 must be group
         let b15: field = 2.to_y_coordinate(); // 2 must be group
     }
+
+    @noupgrade
+    constructor() {}
 }

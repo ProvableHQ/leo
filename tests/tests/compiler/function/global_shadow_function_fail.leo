@@ -16,4 +16,7 @@ program test.aleo {
         y = f1(y);
         return s;
     }
+
+    @noupgrade
+    constructor() {}
 }

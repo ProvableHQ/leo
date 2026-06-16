@@ -21,3 +21,6 @@ finalize foo:
     rand.chacha into r13 as u64;
     rand.chacha into r14 as u128;
     assert.eq r1 true;
+
+constructor:
+    assert.eq edition 0u16;

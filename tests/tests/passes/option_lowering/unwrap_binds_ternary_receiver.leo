@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     // A ternary that produces `Optional<T>` is itself non-trivial; binding it
     // to a temp before `.is_some` / `.val` accesses avoids re-emitting both
     // ternary branches at the use-site.

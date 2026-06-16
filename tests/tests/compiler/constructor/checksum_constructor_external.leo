@@ -2,6 +2,9 @@ program dependent.aleo {
     mapping floo: field => [u8; 32];
 
     fn foo() {}
+
+    @noupgrade
+    constructor() {}
 }
 
 // --- Next Program --- //

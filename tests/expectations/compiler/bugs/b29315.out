@@ -11,3 +11,6 @@ function foo:
 finalize foo:
     set 0u32 into m[0u32];
     set 0u32 into m[0u32];
+
+constructor:
+    assert.eq edition 0u16;

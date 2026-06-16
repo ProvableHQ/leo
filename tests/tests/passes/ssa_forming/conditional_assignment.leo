@@ -1,4 +1,7 @@
 program test.aleo {
+    @noupgrade
+    constructor() {}
+
     fn main(x: u32, condition: bool) -> u32 {
         let result: u32 = 0u32;
         if condition {

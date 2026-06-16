@@ -9,4 +9,7 @@ program test.aleo {
         let result: dyn record = _dynamic_call::[Token, Token](prog, net, func, t);
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }

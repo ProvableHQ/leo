@@ -3,4 +3,7 @@ program test.aleo {
     fn main(prog: field, net: field, m: field, key: address) -> bool {
         return _dynamic_contains(prog, net, m, key);
     }
+
+    @noupgrade
+    constructor() {}
 }

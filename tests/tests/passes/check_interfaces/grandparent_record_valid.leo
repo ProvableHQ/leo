@@ -21,6 +21,9 @@ interface IFull: ITransfer {
 }
 
 program test.aleo: IFull {
+    @noupgrade
+    constructor() {}
+
     record Token {
         owner: address,
         amount: u64,

@@ -4,3 +4,6 @@ function main:
     input r0 as u32.private;
     assert.eq r0 r0;
     output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

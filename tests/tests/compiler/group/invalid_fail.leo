@@ -3,4 +3,7 @@ program test.aleo {
         // This should fail - not a valid group element.
         return 1group;
     }
+
+    @noupgrade
+    constructor() {}
 }

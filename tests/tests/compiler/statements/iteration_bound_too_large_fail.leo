@@ -1,4 +1,7 @@
-program test.aleo {}
+program test.aleo {
+    @noupgrade
+    constructor() {}
+}
 
 fn calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
     let amount: u64 = principal;

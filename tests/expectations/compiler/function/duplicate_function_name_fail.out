@@ -1,15 +1,15 @@
 [EAST0372017] Error: the name `foo` is defined multiple times
-    ╭─[ compiler-test:11:4 ]
+    ╭─[ compiler-test:14:4 ]
     │
- 11 │ fn foo() -> u32 {
+ 14 │ fn foo() -> u32 {
     │
-    ├─[ compiler-test:11:4 ]
+    ├─[ compiler-test:14:4 ]
     │
-  7 │ fn foo() -> u32 {
+ 10 │ fn foo() -> u32 {
     │    ─┬─  
     │     ╰─── previous definition of `foo` here
     │ 
- 11 │ fn foo() -> u32 {
+ 14 │ fn foo() -> u32 {
     │    ─┬─  
     │     ╰─── `foo` redefined here
     │ 

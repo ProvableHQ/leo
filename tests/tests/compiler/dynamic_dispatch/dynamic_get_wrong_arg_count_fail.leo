@@ -5,6 +5,9 @@ program test.aleo {
     fn read(prog: field, net: field, m: field) -> Final {
         return final { finalize_read(prog, net, m); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_read(prog: field, net: field, m: field) {

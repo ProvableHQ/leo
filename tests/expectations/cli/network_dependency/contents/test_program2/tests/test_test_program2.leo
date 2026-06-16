@@ -2,6 +2,9 @@
 import test_program2.aleo;
 
 program test_test_program2.aleo {
+    @noupgrade
+    constructor() {}
+
     @test
     @should_fail
     fn do_nothing() {

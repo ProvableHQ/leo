@@ -3,6 +3,9 @@ program test.aleo {
     fn main(target: field) -> Final {
         return final { finalize_main(target); };
     }
+
+    @noupgrade
+    constructor() {}
 }
 
 final fn finalize_main(target: field) {

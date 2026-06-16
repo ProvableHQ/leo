@@ -33,4 +33,7 @@ program test.aleo {
         let result: (field, field) = z ? tupl1 : tupl2;
         return result;
     }
+
+    @noupgrade
+    constructor() {}
 }
