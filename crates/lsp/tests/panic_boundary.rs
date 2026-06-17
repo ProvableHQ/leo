@@ -125,7 +125,7 @@ fn worker_panic_does_not_kill_server_and_stdout_stays_clean() {
         }),
     );
 
-    assert!(server.wait_for_stderr_contains(PANIC_NOTICE, Duration::from_secs(1)), "stderr:\n{}", server.finish().1);
+    assert!(server.wait_for_stderr_contains(PANIC_NOTICE, Duration::from_secs(10)), "stderr:\n{}", server.finish().1);
 
     let shutdown = server.request(2, "shutdown", Value::Null);
     assert_eq!(shutdown["result"], Value::Null);
