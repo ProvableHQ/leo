@@ -121,7 +121,7 @@ impl TypeCheckingVisitor<'_> {
     /// Emits an error if the two given types are not equal.
     pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !t1.eq_user(t2) => {
+            (Some(t1), Some(t2)) if !t1.types_equivalent(t2) => {
                 self.emit_err(crate::errors::type_checker::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {
@@ -1577,7 +1577,7 @@ impl TypeCheckingVisitor<'_> {
 
                     // Check that the input type is an array of the correct size.
                     let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
-                    if !input_type.eq_flat_relaxed(&expected_type) {
+                    if !input_type.types_equivalent(&expected_type) {
                         self.emit_err(crate::errors::type_checker::type_should_be2(
                             input_type,
                             format!("an array of {size_in_bits} bits"),
@@ -2520,7 +2520,7 @@ impl TypeCheckingVisitor<'_> {
             } else {
                 *lhs = Type::Err;
             }
-        } else if !lhs.eq_user(rhs) {
+        } else if !lhs.types_equivalent(rhs) {
             *lhs = Type::Err;
         }
     }

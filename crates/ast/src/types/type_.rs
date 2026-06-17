@@ -101,7 +101,7 @@ impl Type {
     /// Composite types are considered equal if their names and resolved program names match. If either side still has
     /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
     /// type-checking will handle mismatches later.
-    pub fn eq_user(&self, other: &Type) -> bool {
+    pub fn types_equivalent(&self, other: &Type) -> bool {
         match (self, other) {
             (Type::Err, _)
             | (_, Type::Err)
@@ -123,20 +123,20 @@ impl Type {
                         // equal to other arrays because their lengths _may_ eventually be proven equal.
                         true
                     }
-                }) && left.element_type().eq_user(right.element_type())
+                }) && left.element_type().types_equivalent(right.element_type())
             }
             (Type::Ident(left), Type::Ident(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left == right,
             (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_user(&right.key) && left.value.eq_user(&right.value)
+                left.key.types_equivalent(&right.key) && left.value.types_equivalent(&right.value)
             }
-            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_user(&right.inner),
+            (Type::Optional(left), Type::Optional(right)) => left.inner.types_equivalent(&right.inner),
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
-            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_user(&right.element_type),
+                .all(|(left_type, right_type)| left_type.types_equivalent(right_type)),
+            (Type::Vector(left), Type::Vector(right)) => left.element_type.types_equivalent(&right.element_type),
             (Type::Composite(left), Type::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal;
                 // monomorphization and a subsequent type-checking pass will handle mismatches.
@@ -156,78 +156,7 @@ impl Type {
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_user(right_type)),
-            _ => false,
-        }
-    }
-
-    /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
-    ///
-    /// In the case of futures, it also makes sure that if both are not explicit, they are equal.
-    ///
-    /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
-    ///
-    /// Composite types are considered equal if their names match. If either side still has const generic arguments,
-    /// they are treated as equal unconditionally since monomorphization and other passes of type-checking will handle
-    /// mismatches later.
-    pub fn eq_flat_relaxed(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Type::Address, Type::Address)
-            | (Type::Boolean, Type::Boolean)
-            | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar)
-            | (Type::Signature, Type::Signature)
-            | (Type::String, Type::String)
-            | (Type::Identifier, Type::Identifier)
-            | (Type::DynRecord, Type::DynRecord)
-            | (Type::Unit, Type::Unit) => true,
-            (Type::Array(left), Type::Array(right)) => {
-                // Two arrays are equal if their element types are the same and if their lengths
-                // are the same, assuming the lengths can be extracted as `u32`.
-                (match (left.length.as_u32(), right.length.as_u32()) {
-                    (Some(l1), Some(l2)) => l1 == l2,
-                    _ => {
-                        // An array with an undetermined length (e.g., one that depends on a `const`) is considered
-                        // equal to other arrays because their lengths _may_ eventually be proven equal.
-                        true
-                    }
-                }) && left.element_type().eq_flat_relaxed(right.element_type())
-            }
-            (Type::Ident(left), Type::Ident(right)) => left.matches(right),
-            (Type::Integer(left), Type::Integer(right)) => left.eq(right),
-            (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_flat_relaxed(&right.key) && left.value.eq_flat_relaxed(&right.value)
-            }
-            (Type::Optional(left), Type::Optional(right)) => left.inner.eq_flat_relaxed(&right.inner),
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
-                .elements()
-                .iter()
-                .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
-            (Type::Vector(left), Type::Vector(right)) => left.element_type.eq_flat_relaxed(&right.element_type),
-            (Type::Composite(left), Type::Composite(right)) => {
-                // If either composite still has const generic arguments, treat them as equal.
-                // Type checking will run again after monomorphization.
-                if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
-                    return true;
-                }
-
-                // Two composite types are the same if their global paths match.
-                // If the absolute paths are not available, then we really can't compare the two
-                // types and we just return `false` to be conservative.
-                match (&left.path.try_global_location(), &right.path.try_global_location()) {
-                    (Some(l), Some(r)) => l.path == r.path,
-                    _ => false,
-                }
-            }
-            // Don't type check when type hasn't been explicitly defined.
-            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
-                .inputs()
-                .iter()
-                .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relaxed(right_type)),
+                .all(|(left_type, right_type)| left_type.types_equivalent(right_type)),
             _ => false,
         }
     }
@@ -335,7 +264,7 @@ impl Type {
             }
 
             // Fallback: check for exact match
-            _ => self.eq_user(expected),
+            _ => self.types_equivalent(expected),
         }
     }
 
