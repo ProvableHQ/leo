@@ -1,0 +1,40 @@
+program main.aleo;
+
+function exercise_async:
+    async exercise_async into r0;
+    output r0 as main.aleo/exercise_async.future;
+
+finalize exercise_async:
+    rand.chacha into r0 as address;
+    assert.eq r0 r0;
+    rand.chacha into r1 as boolean;
+    assert.eq r1 r1;
+    rand.chacha into r2 as field;
+    assert.eq r2 r2;
+    rand.chacha into r3 as group;
+    assert.eq r3 r3;
+    rand.chacha into r4 as scalar;
+    assert.eq r4 r4;
+    rand.chacha into r5 as u8;
+    assert.eq r5 r5;
+    rand.chacha into r6 as u16;
+    assert.eq r6 r6;
+    rand.chacha into r7 as u32;
+    assert.eq r7 r7;
+    rand.chacha into r8 as u64;
+    assert.eq r8 r8;
+    rand.chacha into r9 as u128;
+    assert.eq r9 r9;
+    rand.chacha into r10 as i8;
+    assert.eq r10 r10;
+    rand.chacha into r11 as i16;
+    assert.eq r11 r11;
+    rand.chacha into r12 as i32;
+    assert.eq r12 r12;
+    rand.chacha into r13 as i64;
+    assert.eq r13 r13;
+    rand.chacha into r14 as i128;
+    assert.eq r14 r14;
+
+constructor:
+    assert.eq edition 0u16;

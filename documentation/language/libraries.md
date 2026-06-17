@@ -8,6 +8,10 @@ sidebar_label: Libraries
 
 A **library** is a Leo project that contains reusable code — structs, constants, and helper functions — intended to be shared across multiple programs. Unlike a regular Leo program, a library has no on-chain footprint: it declares no program ID, no mappings, no records, and no entry functions. All library code is inlined into the programs that use it at compile time.
 
+:::note
+Every Leo program implicitly depends on one built-in library: `std`. See the [Standard Library reference](./standard_library.md) for the full catalog of hash, commit, signature, randomness, serialization, group, and execution-context functions available without any declaration.
+:::
+
 ## Creating a Library
 
 Use `leo new` with the `--library` flag to create a library project:

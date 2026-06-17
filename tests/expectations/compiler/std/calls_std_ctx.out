@@ -1,0 +1,22 @@
+program main.aleo;
+
+function exercise:
+    assert.eq main.aleo main.aleo;
+    assert.eq self.caller self.caller;
+    assert.eq self.signer self.signer;
+
+function exercise_async:
+    async exercise_async into r0;
+    output r0 as main.aleo/exercise_async.future;
+
+finalize exercise_async:
+    assert.eq main.aleo main.aleo;
+    assert.eq checksum checksum;
+    assert.eq edition edition;
+    assert.eq program_owner program_owner;
+    assert.eq block.height block.height;
+    assert.eq block.timestamp block.timestamp;
+    assert.eq network.id network.id;
+
+constructor:
+    assert.eq edition 0u16;
