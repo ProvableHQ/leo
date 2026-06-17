@@ -25,14 +25,6 @@ Check out the [**Testing**](./../guides/testing.md) guide for more information.
 ## Flags
 
 ```text
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --prove
@@ -41,6 +33,8 @@ Check out the [**Testing**](./../guides/testing.md) guide for more information.
     Don't use the dependency cache.
 --no-local
     Don't use the local source code.
+--offline
+    Resolve git dependencies from the lock file and local cache only; don't fetch from remotes.
 ```
 
 ## Workspace Behavior

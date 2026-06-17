@@ -44,6 +44,7 @@ tests/mismatches/
 
 # tree-sitter grammar artifacts
 tree-sitter/node_modules/
+tree-sitter/package-lock.json
 tree-sitter/build/
 tree-sitter/result
 

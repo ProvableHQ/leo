@@ -63,12 +63,7 @@ pub fn get_latest_block_height(
 ) -> Result<u32> {
     // Query the latest block height.
     let height = LeoQuery {
-        env_override: EnvOptions {
-            endpoint: Some(endpoint.to_string()),
-            network: Some(network),
-            network_retries,
-            ..Default::default()
-        },
+        env_override: EnvOptions { endpoint: Some(endpoint.to_string()), network: Some(network), network_retries },
         command: QueryCommands::Block {
             command: LeoBlock {
                 id: None,

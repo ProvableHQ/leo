@@ -33,13 +33,13 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(long, help = "Enable spans in AST snapshots.")]
+    #[clap(long, help = "Enable spans in AST snapshots.", hide = true)]
     pub enable_ast_spans: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.")]
+    #[clap(long, help = "Write an AST snapshot immediately after parsing.", hide = true)]
     pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.", hide = true)]
     pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1..)]
+    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1.., hide = true)]
     pub ast_snapshots: Vec<String>,
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,
@@ -49,19 +49,19 @@ pub struct BuildOptions {
     pub no_local: bool,
     #[clap(long, help = "Resolve git dependencies from the lock file and local cache only; don't fetch from remotes.")]
     pub offline: bool,
+    #[clap(
+        long,
+        help = "Print the program checksum and the checksum of each entry and view function (the `Program::function_checksum` targets)."
+    )]
+    pub checksums: bool,
     #[clap(skip)]
     pub no_std: bool,
 }
 
-/// Overrides for the `.env` file.
+/// Network connection overrides for the `.env` file. Flattened by every command that talks to a
+/// network endpoint.
 #[derive(Parser, Clone, Debug)]
 pub struct EnvOptions {
-    #[clap(
-        long,
-        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
-        global = true
-    )]
-    pub(crate) private_key: Option<String>,
     #[clap(
         long,
         help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
@@ -76,19 +76,6 @@ pub struct EnvOptions {
     pub(crate) endpoint: Option<String>,
     #[clap(
         long,
-        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell.",
-        global = true
-    )]
-    pub(crate) devnet: bool,
-    #[clap(
-        long,
-        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
-        value_delimiter = ',',
-        global = true
-    )]
-    pub(crate) consensus_heights: Option<Vec<u32>>,
-    #[clap(
-        long,
         env = "NETWORK_RETRIES",
         help = "Number of times to retry a failed network request before giving up.",
         default_value = "2"
@@ -98,28 +85,42 @@ pub struct EnvOptions {
 
 impl Default for EnvOptions {
     fn default() -> Self {
-        Self {
-            private_key: None,
-            network: None,
-            endpoint: None,
-            devnet: false,
-            consensus_heights: None,
-            network_retries: 2,
-        }
+        Self { network: None, endpoint: None, network_retries: 2 }
     }
+}
+
+/// Private-key override, flattened by commands that sign or identify an account
+/// (`run`, `devnode`, `deploy`, `execute`, `upgrade`).
+#[derive(Parser, Clone, Debug, Default)]
+pub struct PrivateKeyOptions {
+    #[clap(
+        long,
+        help = "The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable in your shell or `.env` file. We recommend using `APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH` for local devnets. This key should NEVER be used in production.",
+        global = true
+    )]
+    pub(crate) private_key: Option<String>,
+}
+
+/// Consensus overrides, flattened only by transaction-producing commands (`deploy`, `execute`,
+/// `upgrade`).
+#[derive(Parser, Clone, Debug, Default)]
+pub struct ConsensusOptions {
+    #[clap(
+        long,
+        help = "Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable in your shell."
+    )]
+    pub(crate) devnet: bool,
+    #[clap(
+        long,
+        help = "Optional consensus heights to use. This should only be set if you are using a custom devnet.",
+        value_delimiter = ','
+    )]
+    pub(crate) consensus_heights: Option<Vec<u32>>,
 }
 
 /// The fee options for the transactions.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
-    #[clap(
-        long,
-        help = "[UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.",
-        hide = true,
-        value_delimiter = '|',
-        value_parser = parse_amount
-    )]
-    pub(crate) base_fees: Vec<Option<u64>>,
     #[clap(
         long,
         help = "Priority fee in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to 0.",
@@ -170,9 +171,7 @@ pub fn parse_fee_options<N: Network>(
     private_key: &PrivateKey<N>,
     fee_options: &FeeOptions,
     k: usize,
-) -> Result<Vec<(Option<u64>, Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
-    // Parse the base fees.
-    let base_fees = fee_options.base_fees.clone();
+) -> Result<Vec<(Option<u64>, Option<Record<N, Plaintext<N>>>)>> {
     // Parse the priority fees.
     let priority_fees = fee_options.priority_fees.clone();
     // Parse the fee records.
@@ -180,11 +179,10 @@ pub fn parse_fee_options<N: Network>(
     let fee_records = fee_options.fee_records.iter().map(parse_record).collect::<Result<Vec<_>>>()?;
 
     // Pad the vectors to length `k`.
-    let base_fees = base_fees.into_iter().chain(iter::repeat(None)).take(k);
     let priority_fees = priority_fees.into_iter().chain(iter::repeat(None)).take(k);
     let fee_records = fee_records.into_iter().chain(iter::repeat(None)).take(k);
 
-    Ok(base_fees.zip(priority_fees).zip(fee_records).map(|((x, y), z)| (x, y, z)).collect())
+    Ok(priority_fees.zip(fee_records).collect())
 }
 
 /// Additional options that are common across a number of commands.
@@ -239,6 +237,7 @@ pub fn get_consensus_version(
         Some(13) => Ok(ConsensusVersion::V13),
         Some(14) => Ok(ConsensusVersion::V14),
         Some(15) => Ok(ConsensusVersion::V15),
+        Some(16) => Ok(ConsensusVersion::V16),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -324,6 +323,7 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         13 => Ok(ConsensusVersion::V13),
         14 => Ok(ConsensusVersion::V14),
         15 => Ok(ConsensusVersion::V15),
+        16 => Ok(ConsensusVersion::V16),
         _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
@@ -364,6 +364,13 @@ pub fn get_consensus_heights(network_name: NetworkName, is_devnet: bool) -> Vec<
 
 /// Validates a vector of heights as consensus heights.
 pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
+    // There must be exactly one height per consensus version.
+    let expected = ConsensusVersion::latest() as usize;
+    ensure!(
+        heights.len() == expected,
+        "expected exactly {expected} consensus heights (one per consensus version), but found {}",
+        heights.len()
+    );
     // Assert that the genesis height is 0.
     ensure!(heights[0] == 0, "Genesis height must be 0.");
     // Assert that the consensus heights are strictly increasing.
@@ -445,6 +452,18 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V15); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V16); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+    }
+
+    #[test]
+    fn test_validate_consensus_heights() {
+        let n = ConsensusVersion::latest() as u32;
+        // Exactly one height per version, genesis 0, strictly increasing: ok.
+        let valid: Vec<u32> = (0..n).collect();
+        assert!(super::validate_consensus_heights(&valid).is_ok());
+        // Wrong count is a graceful error, not a panic.
+        assert!(super::validate_consensus_heights(&(0..n - 1).collect::<Vec<_>>()).is_err());
+        // Empty input is a graceful error, not an index-out-of-bounds panic.
+        assert!(super::validate_consensus_heights(&[]).is_err());
     }
 }

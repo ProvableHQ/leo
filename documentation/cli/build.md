@@ -21,45 +21,49 @@ On invoking the build command, Leo automatically creates a `build/`⁠ folder in
 ```bash title="console output:"
   Leo     2 statements before dead code elimination.
   Leo     2 statements after dead code elimination.
-  Leo     The program checksum is: '[...]'.
   Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
   Leo ✅ Generated ABI for program '{PROGRAM_NAME}.aleo'.
 ```
 
 The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/abi.md) for details on the format and type lowering specification.
 
+## Checksums
+
+The program checksum and the checksum of each entry and view function are the values that the [`Program::function_checksum`](../language/programs_in_practice/intrinsics.md) intrinsic targets, so they are useful when writing a [constructor](../language/structure.md#constructor) that pins specific functions across upgrades. To print them, pass `--checksums`:
+
+```bash
+leo build --checksums
+```
+
+```bash title="console output:"
+  Leo     The program checksum is: '[141u8, 87u8, ...]'.
+  Leo       `main` function checksum is: '[140u8, 56u8, ...]'.
+  Leo       `peek` function checksum is: '[239u8, 16u8, ...]'.
+```
+
+Each checksum is the SHA3-256 of the component's Aleo source, as 32 bytes. The same checksums are written to the [`--json-output`](./overview.md#--json-outputpath) build JSON (as integer arrays under `program_checksum` and `function_checksums`), so `leo build --json-output` is a convenient way to consume them programmatically.
+
 ## Flags
 
 ```text
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
+--checksums
+    Print the program checksum and the checksum of each entry and view function
+    (the `Program::function_checksum` targets).
 --no-cache
     Don't use the dependency cache.
 --no-local
     Don't use the local source code.
---private-key <PRIVATE_KEY>
-    The private key to use for the deployment. Overrides the `PRIVATE_KEY` environment variable.
 --network <NETWORK>
-    The network to deploy to. Overrides the `NETWORK` environment variable.
+    The network to build for. Overrides the `NETWORK` environment variable.
 --endpoint <ENDPOINT>
-    The endpoint to deploy to. Overrides the `ENDPOINT` environment variable.
+    The endpoint to resolve network dependencies from. Overrides the `ENDPOINT` environment variable.
 --network-retries <N>
     Number of times to retry a network request on transient transport failure, with
     exponential backoff (1 s, 2 s, 4 s, … capped at 64 s). Overrides the
     NETWORK_RETRIES environment variable. Defaults to 2. HTTP errors and broadcast
     calls are not retried.
---devnet
-    Whether the network is a devnet. If not set, defaults to the `DEVNET` environment variable.
---consensus-heights <CONSENSUS_HEIGHTS>
-    Optional consensus heights to use. This should only be set if you are using a custom devnet.
 ```
 
 ## Workspace Behavior

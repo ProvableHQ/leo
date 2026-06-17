@@ -16,6 +16,7 @@ fn literals() {
     let k = true;
     let l = false;
     let m = none;
+    let n = 'audit';
 }
 
 ---
@@ -76,4 +77,8 @@ fn literals() {
       (let_statement
         (identifier_pattern
           (identifier))
-        (none_literal)))))
+        (none_literal))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (identifier_literal)))))

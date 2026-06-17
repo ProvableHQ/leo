@@ -23,7 +23,6 @@ leo deploy # Defaults to using the private key, network, and endpoint in .env or
 ```bash title="sample output:"
        Leo     ... statements before dead code elimination.
        Leo     ... statements after dead code elimination.
-       Leo     The program checksum is: '[...]'.
        Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
 
 📢 Using the following consensus heights: 0,2950000,4800000,6625000,6765000,7600000,8365000,9173000,9800000
@@ -163,11 +162,11 @@ Specifies whether the network being deployed to is a devnet. If not set, default
 This flag requires a devnet to be running locally. See INSERT DEVNET GUIDE HERE for more information
 :::
 
-### `-print`
+### `--print`
 
 Prints the transaction to the terminal/stdout in JSON format.
 
-### `-broadcast`
+### `--broadcast`
 
 Broadcasts the transaction to the network upon successful execution. Without passing this flag, the transaction will just be generated locally.
 
@@ -229,6 +228,10 @@ The CLI will ask for manual confirmation on several steps throughout the deploym
 Do not use this feature unless you know what you are doing!
 :::
 
+### `--skip-deploy-certificate`
+
+Uses placeholder certificate and verifying keys instead of synthesizing them during deployment. Intended for testing; the resulting deployment is not valid for production use.
+
 ### `--priority-fees <PRIORITY_FEES>`
 
 Specifies the priority fee for the deployment transaction(s) delimited by `|` and used in order. The fees are in microcredits and must either be valid `u64` or `default`. Defaults to 0.
@@ -267,20 +270,10 @@ Specifies the number of blocks to look at when searching for a transaction. Defa
 
 ```text
 Options:
---base-fees <BASE_FEES>
-  [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --skip <SKIP>...
   Skips deployment of any program that contains one of the given substrings.
 --rename <NAME>
   Deploy the program under a different name, producing a genuinely distinct on-chain deployment. Programs importing the original name are not redirected to the renamed copy.
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache

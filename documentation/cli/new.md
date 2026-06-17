@@ -21,6 +21,7 @@ leo new --library <NAME>
 ```
 
 Valid project and library names are snake_case: lowercase letters and numbers separated by underscores.
+A name may not be a Leo keyword (for example `program`, `function`, `mapping`, `let`, or `constructor`).
 This command will create a new directory with the given name.
 
 See [Project Layout](./../language/layout.md) for more details.

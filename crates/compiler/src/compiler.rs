@@ -105,10 +105,6 @@ pub struct Compiler {
     state: CompilerState,
     /// The stubs for imported programs.
     import_stubs: IndexMap<Symbol, Stub>,
-    /// How many statements were in the AST before DCE?
-    pub statements_before_dce: u32,
-    /// How many statements were in the AST after DCE?
-    pub statements_after_dce: u32,
 }
 
 impl Compiler {
@@ -257,6 +253,11 @@ impl Compiler {
             self.unit_name = Some(library_name.to_string());
         }
 
+        if self.compiler_options.initial_ast {
+            self.write_ast_to_json("initial.json")?;
+            self.write_ast("initial.ast")?;
+        }
+
         Ok(())
     }
 
@@ -346,8 +347,6 @@ impl Compiler {
             rename: None,
             compiler_options: compiler_options.unwrap_or_default(),
             import_stubs,
-            statements_before_dce: 0,
-            statements_after_dce: 0,
         }
     }
 
@@ -454,9 +453,7 @@ impl Compiler {
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
-        let output = self.do_pass::<DeadCodeEliminating>(())?;
-        self.statements_before_dce = output.statements_before;
-        self.statements_after_dce = output.statements_after;
+        self.do_pass::<DeadCodeEliminating>(())?;
 
         Ok(abis)
     }
@@ -693,20 +690,23 @@ impl Compiler {
 
     /// Writes the AST to a JSON file under the unit's snapshots directory.
     fn write_ast_to_json(&self, filename: &str) -> Result<()> {
-        match &self.state.ast {
-            Ast::Program(program) => {
-                // Snapshots are opt-in; create the directory lazily on first write.
-                fs::create_dir_all(&self.output_directory)
-                    .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-                // Remove `Span`s if they are not enabled.
-                if self.compiler_options.ast_spans_enabled {
-                    program.to_json_file(self.output_directory.clone(), filename)?;
-                } else {
-                    program.to_json_file_without_keys(self.output_directory.clone(), filename, &["_span", "span"])?;
-                }
+        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
+        if self.output_directory.as_os_str().is_empty() {
+            return Ok(());
+        }
+        // Snapshots are opt-in; create the directory lazily on first write.
+        fs::create_dir_all(&self.output_directory)
+            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
+        let dir = self.output_directory.clone();
+        if self.compiler_options.ast_spans_enabled {
+            match &self.state.ast {
+                Ast::Program(program) => leo_ast::write_ast_json(program, dir, filename)?,
+                Ast::Library(library) => leo_ast::write_ast_json(library, dir, filename)?,
             }
-            Ast::Library(_) => {
-                // no-op for libraries
+        } else {
+            match &self.state.ast {
+                Ast::Program(program) => leo_ast::write_ast_json_filtered(program, dir, filename, &["_span", "span"])?,
+                Ast::Library(library) => leo_ast::write_ast_json_filtered(library, dir, filename, &["_span", "span"])?,
             }
         }
         Ok(())
@@ -714,15 +714,16 @@ impl Compiler {
 
     /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
     fn write_ast(&self, filename: &str) -> Result<()> {
+        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
+        if self.output_directory.as_os_str().is_empty() {
+            return Ok(());
+        }
         // Snapshots are opt-in; create the directory lazily on first write.
         fs::create_dir_all(&self.output_directory)
             .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
         let full_filename = self.output_directory.join(filename);
 
-        let contents = match &self.state.ast {
-            Ast::Program(program) => program.to_string(),
-            Ast::Library(_) => String::new(), // empty for libraries
-        };
+        let contents = self.state.ast.to_string();
 
         fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
 

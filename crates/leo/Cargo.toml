@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "4.2.0"
+version = "4.3.0"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
@@ -111,11 +111,16 @@ which = { workspace = true }
 walkdir = { workspace = true }
 
 [target."cfg(unix)".dependencies]
-libc        = "0.2"
-nix         = { version = "0.30", features = [ "process", "term", "fs", "poll" ] }
-signal-hook = { version = "0.4", features = [ "iterator" ] }
+libc        = { workspace = true }
+nix         = { workspace = true }
+signal-hook = { workspace = true }
 
 [target."cfg(windows)".dependencies]
-winapi      = "0.3"
-ansi_term   = "0.12"
-windows-sys = { version = "0.61", features = [ "Win32_Foundation", "Win32_System_Threading", "Win32_System_JobObjects" ] }
+winapi      = { workspace = true }
+ansi_term   = { workspace = true }
+windows-sys = { workspace = true }
+
+# Forces RocksDB's `bindgen-runtime`; see the workspace dependency. Not used directly. Excluded on
+# musl, which snarkVM builds with `bindgen-static` — the two clang-sys modes are mutually exclusive.
+[target.'cfg(not(target_env = "musl"))'.dependencies]
+rocksdb = { workspace = true }

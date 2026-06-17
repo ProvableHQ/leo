@@ -4029,6 +4029,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "identifier_literal"
+        },
+        {
+          "type": "SYMBOL",
           "name": "address_literal"
         },
         {
@@ -4103,6 +4107,13 @@
       "content": {
         "type": "PATTERN",
         "value": "\"[^\"]*\""
+      }
+    },
+    "identifier_literal": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PATTERN",
+        "value": "'[a-zA-Z][a-zA-Z0-9_]*'"
       }
     },
     "address_literal": {

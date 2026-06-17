@@ -58,10 +58,6 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
 
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
-        // Don't count empty blocks as statements, as that would be a bit misleading to the user as
-        // to how much the code is being transformed.
-        self.statements_before += block.statements.iter().filter(|stmt| !stmt.is_empty()).count() as u32;
-
         // Reconstruct each of the statements in reverse.
         let mut statements: Vec<Statement> =
             block.statements.into_iter().rev().map(|statement| self.reconstruct_statement(statement).0).collect();
@@ -70,8 +66,6 @@ impl AstReconstructor for DeadCodeEliminatingVisitor<'_> {
 
         // Reverse the direction of `statements`.
         statements.reverse();
-
-        self.statements_after += statements.len() as u32;
 
         (Block { statements, span: block.span, id: block.id }, Default::default())
     }

@@ -16,7 +16,7 @@ To remove a dependency from your project, run the following command:
 leo remove <NAME>
 ```
 
-where `<NAME>` is the name of the imported program.
+where `<NAME>` is the name of the imported program. `<NAME>` is optional when `--all` is passed.
 
 See the **[Dependency Management](./../guides/dependencies.md)** guide for more details.
 
@@ -26,6 +26,6 @@ See the **[Dependency Management](./../guides/dependencies.md)** guide for more 
 
 Removes all dependencies (or dev dependencies, if used with --dev).
 
-### `-dev`
+### `--dev`
 
 Removes dev dependencies.

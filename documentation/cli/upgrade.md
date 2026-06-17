@@ -52,11 +52,11 @@ Specifies whether the network being deployed to is a devnet. If not set, default
 This flag requires a devnet to be running locally. See INSERT DEVNET GUIDE HERE for more information
 :::
 
-### `-print`
+### `--print`
 
 Prints the transaction to the terminal/stdout in JSON format.
 
-### `-broadcast`
+### `--broadcast`
 
 Broadcasts the transaction to the network upon successful execution. Without passing this flag, the transaction will just be generated locally.
 
@@ -73,6 +73,10 @@ The CLI will ask for manual confirmation on several steps throughout the deploym
 :::warning
 Do not use this feature unless you know what you are doing!
 :::
+
+### `--skip-deploy-certificate`
+
+Skips deployment certificate generation, using placeholder certificate and verifying keys. Intended for testing; bumps the program edition by one and is not valid for production use.
 
 ### `--priority-fees <PRIORITY_FEES>`
 
@@ -112,18 +116,8 @@ Specifies the number of blocks to look at when searching for a transaction. Defa
 
 ```text
 Options:
---base-fees <BASE_FEES>
-  [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
 --skip <SKIP>...
   Skips the upgrade of any program that contains one of the given substrings.
---enable-ast-spans
-    Enable spans in AST snapshots.
---enable-initial-ast-snapshot
-    Write an AST snapshot immediately after parsing.
---enable-all-ast-snapshots
-    Writes all AST snapshots for the different compiler phases.
---ast-snapshots <AST_SNAPSHOTS>...
-    Comma separated list of passes whose AST snapshots to capture.
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache

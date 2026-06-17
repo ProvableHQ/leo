@@ -118,6 +118,10 @@
         "named": true
       },
       {
+        "type": "identifier_literal",
+        "named": true
+      },
+      {
         "type": "integer_literal",
         "named": true
       },
@@ -3633,6 +3637,10 @@
   },
   {
     "type": "identifier",
+    "named": true
+  },
+  {
+    "type": "identifier_literal",
     "named": true
   },
   {

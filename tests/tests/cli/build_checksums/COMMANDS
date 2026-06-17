@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LEO_BIN=${1}
+TMP_DIR=$(mktemp -d)
+trap 'rm -rf "${TMP_DIR}"' EXIT
+
+# `--checksums` prints the program checksum and the checksum of each entry and view function
+# (the `Program::function_checksum` targets) to stdout.
+${LEO_BIN} --disable-update-check build --checksums >"${TMP_DIR}/stdout" 2>"${TMP_DIR}/stderr"
+
+grep -qF "The program checksum is:" "${TMP_DIR}/stdout"
+grep -qF '`main` function checksum is:' "${TMP_DIR}/stdout"
+grep -qF '`peek` function checksum is:' "${TMP_DIR}/stdout"
+
+# Without the flag, no checksum lines are printed.
+${LEO_BIN} --disable-update-check build >"${TMP_DIR}/stdout2" 2>"${TMP_DIR}/stderr2"
+if grep -qF "checksum is:" "${TMP_DIR}/stdout2"; then
+    echo "checksums printed without the --checksums flag"
+    exit 1
+fi
+
+rm -rf build
+echo "checksums printed"

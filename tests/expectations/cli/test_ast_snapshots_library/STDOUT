@@ -1,0 +1,59 @@
+--- initial snapshot only (contents compared under expected_snapshots/) ---
+build exit: 0
+initial.ast
+initial.json
+--- specific frontend pass: TypeChecking (contents compared under expected_snapshots/) ---
+build exit: 0
+TypeChecking.ast
+TypeChecking.json
+--- all snapshots (frontend passes only for a library; behavior only) ---
+build exit: 0
+CeiAnalyzing.ast
+CeiAnalyzing.json
+CheckInterfaces.ast
+CheckInterfaces.json
+Disambiguate.ast
+Disambiguate.json
+GlobalItemsCollection.ast
+GlobalItemsCollection.json
+GlobalVarsCollection.ast
+GlobalVarsCollection.json
+initial.ast
+initial.json
+NameValidation.ast
+NameValidation.json
+PathResolution.ast
+PathResolution.json
+ProcessingAsync.ast
+ProcessingAsync.json
+StaticAnalyzing.ast
+StaticAnalyzing.json
+TypeChecking.ast
+TypeChecking.json
+--- all snapshots with spans enabled (behavior only) ---
+build exit: 0
+CeiAnalyzing.ast
+CeiAnalyzing.json
+CheckInterfaces.ast
+CheckInterfaces.json
+Disambiguate.ast
+Disambiguate.json
+GlobalItemsCollection.ast
+GlobalItemsCollection.json
+GlobalVarsCollection.ast
+GlobalVarsCollection.json
+initial.ast
+initial.json
+NameValidation.ast
+NameValidation.json
+PathResolution.ast
+PathResolution.json
+ProcessingAsync.ast
+ProcessingAsync.json
+StaticAnalyzing.ast
+StaticAnalyzing.json
+TypeChecking.ast
+TypeChecking.json
+--- a code-generation pass writes no snapshot (libraries skip codegen) ---
+build exit: 0
+(no snapshots directory)

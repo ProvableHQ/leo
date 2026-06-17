@@ -25,8 +25,6 @@ Deploy a program
 Usage: leo deploy [OPTIONS]
 
 Options:
-      --base-fees <BASE_FEES>
-          [UNUSED] Base fees in microcredits, delimited by `|`, and used in order. The fees must either be valid `u64` or `default`. Defaults to automatic calculation.
   -d
           Print additional information for debugging
       --priority-fees <PRIORITY_FEES>
@@ -61,18 +59,10 @@ Options:
           Number of blocks to look at when searching for a transaction. [default: 12]
       --skip <SKIP>...
           Skips deployment of any program that contains one of the given substrings.
-      --enable-ast-spans
-          Enable spans in AST snapshots.
       --path <PATH>
           Path to Leo program root folder
       --home <HOME>
           Path to aleo program registry
-      --enable-initial-ast-snapshot
-          Write an AST snapshot immediately after parsing.
-      --enable-all-ast-snapshots
-          Writes all AST snapshots for the different compiler phases.
-      --ast-snapshots <AST_SNAPSHOTS>...
-          Comma separated list of passes whose AST snapshots to capture.
       --build-tests
           Build tests along with the main program and dependencies.
       --no-cache
@@ -96,7 +86,6 @@ To test the deployment, run a devnet via `leo devnet` (you'll need to configure 
        Leo
 2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
-       Leo     The program checksum is: '[96u8, 221u8, 32u8, 227u8, 44u8, 46u8, 93u8, 242u8, 17u8, 214u8, 17u8, 134u8, 170u8, 250u8, 59u8, 72u8, 48u8, 182u8, 210u8, 153u8, 135u8, 38u8, 214u8, 209u8, 12u8, 135u8, 252u8, 74u8, 132u8, 140u8, 123u8, 209u8]'.
        Leo ✅ Compiled 'helloworld.aleo' into Aleo instructions.
 
 📢 Using the following consensus heights: 0,10,11,12,13,14,15,16,17
@@ -127,7 +116,6 @@ Attempting to determine the consensus version from the latest block height at ht
        Leo
 2 statements before dead code elimination.
        Leo     2 statements after dead code elimination.
-       Leo     The program checksum is: '[96u8, 221u8, 32u8, 227u8, 44u8, 46u8, 93u8, 242u8, 17u8, 214u8, 17u8, 134u8, 170u8, 250u8, 59u8, 72u8, 48u8, 182u8, 210u8, 153u8, 135u8, 38u8, 214u8, 209u8, 12u8, 135u8, 252u8, 74u8, 132u8, 140u8, 123u8, 209u8]'.
        Leo ✅ Compiled 'helloworld.aleo' into Aleo instructions.
 
 📢 Using the following consensus heights: 0,10,11,12,13,14,15,16,17

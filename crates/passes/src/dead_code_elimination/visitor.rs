@@ -29,12 +29,6 @@ pub struct DeadCodeEliminatingVisitor<'a> {
 
     /// The name of the program currently being processed.
     pub unit_name: Symbol,
-
-    /// How many statements were in the AST before DCE?
-    pub statements_before: u32,
-
-    /// How many statements were in the AST after DCE?
-    pub statements_after: u32,
 }
 
 impl DeadCodeEliminatingVisitor<'_> {

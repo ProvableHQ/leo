@@ -57,6 +57,10 @@ pub struct LeoUpgrade {
     #[clap(flatten)]
     pub(crate) env_override: EnvOptions,
     #[clap(flatten)]
+    pub(crate) key_override: PrivateKeyOptions,
+    #[clap(flatten)]
+    pub(crate) consensus_override: ConsensusOptions,
+    #[clap(flatten)]
     pub(crate) extra: ExtraOptions,
     #[clap(long, help = "Skips the upgrade of any program that contains one of the given substrings.", value_delimiter = ',', num_args = 1..)]
     pub(crate) skip: Vec<String>,
@@ -121,7 +125,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     }
 
     // Get the private key and associated address, accounting for overrides.
-    let private_key = get_private_key(&command.env_override.private_key)?;
+    let private_key = get_private_key(&command.key_override.private_key)?;
     let address =
         Address::try_from(&private_key).map_err(|e| crate::errors::custom(format!("Failed to parse address: {e}")))?;
 
@@ -129,11 +133,14 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let endpoint = get_endpoint(&command.env_override.endpoint)?;
 
     // Get whether the network is a devnet, accounting for overrides.
-    let is_devnet = get_is_devnet(command.env_override.devnet);
+    let is_devnet = get_is_devnet(command.consensus_override.devnet);
 
     // If the consensus heights are provided, use them; otherwise, use the default heights for the network.
-    let consensus_heights =
-        command.env_override.consensus_heights.clone().unwrap_or_else(|| get_consensus_heights(network, is_devnet));
+    let consensus_heights = command
+        .consensus_override
+        .consensus_heights
+        .clone()
+        .unwrap_or_else(|| get_consensus_heights(network, is_devnet));
     // Validate the provided consensus heights.
     validate_consensus_heights(&consensus_heights)
         .map_err(|e| crate::errors::custom(format!("Invalid consensus heights: {e}")))?;
@@ -182,7 +189,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     let tasks: Vec<Task<N>> = programs_and_bytecode
         .into_iter()
         .zip(fee_options)
-        .map(|((program, bytecode), (_base_fee, priority_fee, record))| {
+        .map(|((program, bytecode), (priority_fee, record))| {
             let id_str = format!("{}", program.name);
             let id = id_str
                 .parse()
@@ -364,6 +371,9 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
             // Print the deployment summary and save the transaction and stats.
             print_deployment_summary(&id.to_string(), &stats);
+            if command.action.broadcast {
+                warn_if_transaction_oversized(&id, &transaction, consensus_version, "upgrade");
+            }
             transactions.push((id, transaction));
             all_stats.push(stats);
         }
@@ -562,7 +572,7 @@ fn check_tasks_for_warnings<N: Network>(
     command: &LeoUpgrade,
 ) -> Vec<String> {
     let mut warnings = Vec::new();
-    for Task { id, program, is_local, .. } in tasks {
+    for Task { id, program, is_local, bytecode_size, .. } in tasks {
         if !is_local || !command.action.broadcast {
             continue;
         }
@@ -608,9 +618,25 @@ fn check_tasks_for_warnings<N: Network>(
         if consensus_version < ConsensusVersion::V15 && program.contains_v15_syntax() {
             warnings.push(format!("The program '{id}' uses V15 features (e.g., `view fn`) but the consensus version is less than V15. The upgrade will likely fail"));
         }
+        // Check if the program uses V16 features (e.g., `Program::function_checksum`).
+        if consensus_version < ConsensusVersion::V16 && program.contains_v16_syntax() {
+            warnings.push(format!("The program '{id}' uses V16 features (e.g., `Program::function_checksum`) but the consensus version is less than V16. The upgrade will likely fail"));
+        }
         // Check if the program contains a constructor.
         if consensus_version >= ConsensusVersion::V9 && !program.contains_constructor() {
             warnings.push(format!("The program '{id}' does not contain a constructor. The upgrade will likely fail",));
+        }
+        // An upgrade redeploys bytecode, so it must fit the target version's size limit.
+        let max_size = max_program_size_for_consensus_version::<N>(consensus_version);
+        if *bytecode_size > max_size {
+            warnings.push(format!(
+                "The program '{id}' is {:.2} KB, exceeding the {:.2} KB limit for consensus version {}. The upgrade will likely fail.",
+                *bytecode_size as f64 / 1024.0,
+                max_size as f64 / 1024.0,
+                consensus_version as u8,
+            ));
+        } else if let (_, _, Some(msg)) = format_program_size(*bytecode_size, max_size) {
+            warnings.push(format!("The program '{id}' is {msg}."));
         }
         // Check for a consensus version mismatch.
         if let Err(e) =
@@ -648,6 +674,8 @@ impl From<&LeoUpgrade> for LeoDeploy {
             fee_options: upgrade.fee_options.clone(),
             action: upgrade.action.clone(),
             env_override: upgrade.env_override.clone(),
+            key_override: upgrade.key_override.clone(),
+            consensus_override: upgrade.consensus_override.clone(),
             extra: upgrade.extra.clone(),
             skip: upgrade.skip.clone(),
             rename: None,

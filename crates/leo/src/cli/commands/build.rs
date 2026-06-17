@@ -539,6 +539,44 @@ fn apply_rename(command: &LeoBuild, package: &mut Package, primary_name: Option<
     Ok(Some(renamed))
 }
 
+/// Collects the program checksum and each entry/view function checksum (the `Program::function_checksum` targets).
+fn collect_checksums<N: snarkvm::prelude::Network>(program: &SvmProgram<N>) -> BuildOutput {
+    let mut function_checksums = IndexMap::with_capacity(program.functions().len() + program.views().len());
+    for (name, function) in program.functions() {
+        function_checksums.insert(name.to_string(), function.to_checksum().iter().map(|b| **b).collect());
+    }
+    for (name, view) in program.views() {
+        function_checksums.insert(name.to_string(), view.to_checksum().iter().map(|b| **b).collect());
+    }
+    BuildOutput {
+        program: program.id().to_string(),
+        program_checksum: program.to_checksum().iter().map(|b| **b).collect(),
+        function_checksums,
+    }
+}
+
+/// Computes the checksums for compiled bytecode. Checksums are network-independent, so `network` only
+/// selects the `Program` type to parse into.
+fn program_checksums(network: NetworkName, bytecode: &str) -> Result<BuildOutput> {
+    Ok(match network {
+        NetworkName::MainnetV0 => collect_checksums(&SvmProgram::<MainnetV0>::from_str(bytecode)?),
+        NetworkName::TestnetV0 => collect_checksums(&SvmProgram::<TestnetV0>::from_str(bytecode)?),
+        NetworkName::CanaryV0 => collect_checksums(&SvmProgram::<CanaryV0>::from_str(bytecode)?),
+    })
+}
+
+/// Builds the `leo build` JSON output from the primary program's compiled bytecode on disk.
+pub fn build_output(package: &Package, network: Option<NetworkName>) -> Result<BuildOutput> {
+    let network = get_network(&network).unwrap_or(NetworkName::TestnetV0);
+    let unit =
+        package.primary_unit().ok_or_else(|| crate::errors::custom("No primary program found in the package."))?;
+    let name = unit.name.to_string();
+    let bytecode = std::fs::read_to_string(package.unit_bytecode_path(&name)).map_err(|err| {
+        crate::errors::util_file_io_error(format_args!("Trying to read compiled bytecode for `{name}`"), err)
+    })?;
+    program_checksums(network, &bytecode)
+}
+
 /// Compiles a Leo file. Writes and returns the compiled bytecode and ABI.
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_source_directory(
@@ -557,6 +595,8 @@ fn compile_leo_source_directory(
     // Print a newline for better formatting.
     println!();
     tracing::info!("🔨 Compiling '{program_name}'");
+    // Capture before `options` is consumed by the conversion below.
+    let print_checksums = options.checksums;
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
         Some(program_name.to_string()),
@@ -583,14 +623,14 @@ fn compile_leo_source_directory(
         return Err(crate::errors::program_size_limit_exceeded(program_name, program_size, MAX_PROGRAM_SIZE).into());
     }
 
-    // Get the AVM bytecode.
-    let checksum: String = match network {
-        NetworkName::MainnetV0 => SvmProgram::<MainnetV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
-        NetworkName::TestnetV0 => SvmProgram::<TestnetV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
-        NetworkName::CanaryV0 => SvmProgram::<CanaryV0>::from_str(primary_bytecode)?.to_checksum().iter().join(", "),
-    };
-
-    tracing::info!("    The program checksum is: '[{checksum}]'.");
+    if print_checksums {
+        let checksums = program_checksums(network, primary_bytecode)?;
+        let format = |bytes: &[u8]| bytes.iter().map(|b| format!("{b}u8")).join(", ");
+        tracing::info!("    The program checksum is: '[{}]'.", format(&checksums.program_checksum));
+        for (name, function_checksum) in &checksums.function_checksums {
+            tracing::info!("      `{name}` function checksum is: '[{}]'.", format(function_checksum));
+        }
+    }
 
     let (size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);
     tracing::info!("    Program size: {size_kb:.2} KB / {max_kb:.2} KB");

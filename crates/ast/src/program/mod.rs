@@ -30,6 +30,7 @@ use std::fmt;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     /// A map from module paths to module definitions.
+    #[serde(with = "module_map")]
     pub modules: IndexMap<Vec<Symbol>, Module>,
     /// A map from import names (including the `.aleo` if present) to import definitions.
     pub imports: IndexMap<Symbol, ProgramId>,
@@ -84,35 +85,18 @@ impl Program {
     }
 
     /// Serializes the ast into a JSON file.
-    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
-        path.push(file_name);
-        let file =
-            std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
-        let writer = std::io::BufWriter::new(file);
-        Ok(serde_json::to_writer_pretty(writer, &self)
-            .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
+    pub fn to_json_file(&self, path: std::path::PathBuf, file_name: &str) -> Result<()> {
+        write_ast_json(self, path, file_name)
     }
 
     /// Serializes the ast into a JSON value and removes keys from object mappings before writing to a file.
     pub fn to_json_file_without_keys(
         &self,
-        mut path: std::path::PathBuf,
+        path: std::path::PathBuf,
         file_name: &str,
         excluded_keys: &[&str],
     ) -> Result<()> {
-        path.push(file_name);
-        let file =
-            std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
-        let writer = std::io::BufWriter::new(file);
-
-        let mut value = self.to_json_value().unwrap();
-        for key in excluded_keys {
-            value = remove_key_from_json(value, key);
-        }
-        value = normalize_json_value(value);
-
-        Ok(serde_json::to_writer_pretty(writer, &value)
-            .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
+        write_ast_json_filtered(self, path, file_name, excluded_keys)
     }
 
     /// Deserializes the JSON string into a ast.
@@ -170,5 +154,98 @@ pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
             serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
         }
         _ => value,
+    }
+}
+
+/// Serializes an AST node (`Program` or `Library`) into a pretty JSON file, spans included.
+pub fn write_ast_json<T: Serialize>(value: &T, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+    path.push(file_name);
+    let file = std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
+    let writer = std::io::BufWriter::new(file);
+    Ok(serde_json::to_writer_pretty(writer, value)
+        .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
+}
+
+/// Serializes an AST node to a JSON file, stripping `excluded_keys` and normalizing first.
+pub fn write_ast_json_filtered<T: Serialize>(
+    value: &T,
+    mut path: std::path::PathBuf,
+    file_name: &str,
+    excluded_keys: &[&str],
+) -> Result<()> {
+    path.push(file_name);
+    let file = std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
+    let writer = std::io::BufWriter::new(file);
+
+    let mut value = serde_json::to_value(value).map_err(|e| crate::errors::failed_to_convert_ast_to_json_value(&e))?;
+    for key in excluded_keys {
+        value = remove_key_from_json(value, key);
+    }
+    value = normalize_json_value(value);
+
+    Ok(serde_json::to_writer_pretty(writer, &value)
+        .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
+}
+
+/// Serde helpers for `IndexMap<Vec<Symbol>, V>` maps keyed by module paths.
+///
+/// JSON object keys must be strings, so the `Vec<Symbol>` path is joined into a single
+/// `::`-separated string when serializing and split back when deserializing.
+pub(crate) mod module_map {
+    use leo_span::{Symbol, with_session_globals};
+
+    use indexmap::IndexMap;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    pub fn serialize<S, V>(map: &IndexMap<Vec<Symbol>, V>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+        V: Serialize,
+    {
+        let joined: IndexMap<String, &V> = with_session_globals(|globals| {
+            map.iter()
+                .map(|(path, value)| {
+                    let key = path.iter().map(|sym| sym.as_str(globals, str::to_owned)).collect::<Vec<_>>().join("::");
+                    (key, value)
+                })
+                .collect()
+        });
+        joined.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D, V>(deserializer: D) -> Result<IndexMap<Vec<Symbol>, V>, D::Error>
+    where
+        D: Deserializer<'de>,
+        V: Deserialize<'de>,
+    {
+        Ok(IndexMap::<String, V>::deserialize(deserializer)?
+            .into_iter()
+            .map(|(path, value)| (path.split("::").map(Symbol::intern).collect(), value))
+            .collect())
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use leo_span::create_session_if_not_set_then;
+
+        #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+        struct Wrapper(#[serde(with = "super")] IndexMap<Vec<Symbol>, u32>);
+
+        #[test]
+        fn round_trips_single_and_multi_segment_keys() {
+            create_session_if_not_set_then(|_| {
+                let mut map = IndexMap::new();
+                map.insert(vec![Symbol::intern("utils")], 1);
+                map.insert(vec![Symbol::intern("utils"), Symbol::intern("math")], 2);
+                let wrapper = Wrapper(map);
+
+                let json = serde_json::to_value(&wrapper).unwrap();
+                assert_eq!(json, serde_json::json!({ "utils": 1, "utils::math": 2 }));
+
+                let restored: Wrapper = serde_json::from_value(json).unwrap();
+                assert_eq!(restored, wrapper);
+            });
+        }
     }
 }

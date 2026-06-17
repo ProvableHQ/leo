@@ -4,7 +4,13 @@
 
        Leo 🔨 Compiling 'consumer.aleo'
        Leo     The program checksum is: '[180u8, 223u8, 5u8, 182u8, 121u8, 236u8, 70u8, 205u8, 63u8, 169u8, 165u8, 193u8, 163u8, 145u8, 151u8, 8u8, 17u8, 113u8, 67u8, 189u8, 228u8, 154u8, 198u8, 1u8, 132u8, 217u8, 135u8, 148u8, 97u8, 216u8, 215u8, 171u8]'.
-       Leo     Program size: 1.69 KB / 500.00 KB
+       Leo       `identity` function checksum is: '[170u8, 157u8, 157u8, 245u8, 252u8, 78u8, 220u8, 128u8, 37u8, 138u8, 27u8, 16u8, 46u8, 243u8, 235u8, 127u8, 229u8, 131u8, 38u8, 221u8, 155u8, 32u8, 49u8, 132u8, 170u8, 51u8, 204u8, 86u8, 172u8, 62u8, 54u8, 93u8]'.
+       Leo       `make_white` function checksum is: '[18u8, 89u8, 241u8, 223u8, 59u8, 216u8, 151u8, 241u8, 116u8, 66u8, 1u8, 70u8, 96u8, 207u8, 27u8, 219u8, 148u8, 78u8, 121u8, 203u8, 67u8, 33u8, 241u8, 188u8, 61u8, 249u8, 169u8, 186u8, 43u8, 215u8, 156u8, 83u8]'.
+       Leo       `sum_of_white` function checksum is: '[156u8, 217u8, 238u8, 187u8, 192u8, 165u8, 81u8, 123u8, 234u8, 49u8, 13u8, 250u8, 73u8, 24u8, 226u8, 148u8, 222u8, 29u8, 205u8, 243u8, 19u8, 145u8, 189u8, 181u8, 101u8, 1u8, 62u8, 85u8, 136u8, 185u8, 124u8, 131u8]'.
+       Leo       `average` function checksum is: '[23u8, 229u8, 222u8, 134u8, 204u8, 67u8, 108u8, 113u8, 65u8, 142u8, 210u8, 220u8, 59u8, 69u8, 161u8, 193u8, 172u8, 154u8, 76u8, 163u8, 20u8, 113u8, 179u8, 67u8, 164u8, 9u8, 125u8, 82u8, 114u8, 208u8, 126u8, 63u8]'.
+       Leo       `blend_twice` function checksum is: '[189u8, 127u8, 116u8, 233u8, 28u8, 144u8, 89u8, 118u8, 98u8, 227u8, 74u8, 19u8, 78u8, 26u8, 110u8, 33u8, 238u8, 30u8, 58u8, 163u8, 169u8, 50u8, 16u8, 180u8, 140u8, 107u8, 77u8, 116u8, 31u8, 0u8, 175u8, 39u8]'.
+       Leo       `channel_count` function checksum is: '[156u8, 188u8, 52u8, 11u8, 86u8, 4u8, 86u8, 79u8, 104u8, 198u8, 54u8, 168u8, 91u8, 18u8, 245u8, 214u8, 75u8, 247u8, 234u8, 65u8, 28u8, 117u8, 161u8, 54u8, 216u8, 120u8, 65u8, 42u8, 53u8, 163u8, 120u8, 10u8]'.
+       Leo     Program size: 1.69 KB / 2000.00 KB
        Leo ✅ Compiled 'consumer.aleo' into Aleo instructions.
        Leo     Import 'provider.aleo': checksum = '[65u8, 143u8, 101u8, 10u8, 122u8, 113u8, 65u8, 0u8, 200u8, 13u8, 10u8, 147u8, 182u8, 18u8, 16u8, 101u8, 135u8, 136u8, 47u8, 202u8, 209u8, 17u8, 150u8, 249u8, 134u8, 116u8, 3u8, 5u8, 53u8, 167u8, 16u8, 6u8]'
        Leo ✅ Generated ABI for program 'consumer.aleo'.

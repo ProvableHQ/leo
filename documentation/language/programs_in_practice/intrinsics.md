@@ -150,3 +150,27 @@ Reads a value from a mapping belonging to another program, determined at runtime
 
 ```leo file=../../code_snippets/intrinsics/dynamic_get_or_use/src/main.leo showLineNumbers
 ```
+
+---
+
+## `Program::function_checksum`
+
+Returns the 32-byte checksum (`[u8; 32]`) of a single named program component — an **entry function** or a **view function**. On-chain logic (a `final {}` block, a `final fn`, or a `constructor`) can use it to assert that a specific function's compiled bytecode matches an expected value, for example to pin a critical function across a program upgrade.
+
+Available from consensus version V16.
+
+### Syntax
+
+```text
+Program::function_checksum(<program-id>, '<function-name>')
+```
+
+- `<program-id>` — a program ID literal (e.g. `token.aleo`): the current program's own ID for a local function, or an imported program's ID for an external one.
+- `'<function-name>'` — an identifier literal naming the target component. It must resolve to an **entry function** or a **view function** of that program. Closures (uninlined helpers), `final fn` helpers, and names that do not resolve are rejected at compile time.
+
+### Example
+
+```leo file=../../code_snippets/intrinsics/function_checksum/src/main.leo#file
+```
+
+To checksum a function in another program, pass that program's ID — the program must be imported.
