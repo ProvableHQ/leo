@@ -22,7 +22,8 @@
 // - `signer` is the Aleo address whose signing key produced `sig`.
 // - `message` is the value that was signed. This wrapper accepts a `field`;
 //   callers signing other primitive types should hash the value into a
-//   `field` first (e.g. via `std::hash::bhp256::hash_to_field`).
+//   `field` first (e.g. via one of the `std::hash::bhp256::hash_*_to_field`
+//   wrappers).
 //
 // Returns `true` iff the signature verifies under `signer`'s public key.
 final fn verify_schnorr(sig: signature, signer: address, message: field) -> bool {

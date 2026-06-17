@@ -1,10 +1,13 @@
 // Pseudo-random value generation in the finalize context.
 //
 // Every function in this module produces a fresh value drawn from a ChaCha
-// stream cipher seeded by the current block's pre-finalize state. The
-// randomness is **deterministic for a given block**: two transactions that
-// execute the same finalize logic against the same input will observe the
-// same sequence of values, so all validators reach consensus on the result.
+// stream cipher whose seed is derived from the current block's pre-finalize
+// state, the executing transition's identifier, and a per-call nonce. The
+// randomness is **deterministic across re-executions of the same
+// transition**: every validator finalizing the same transition observes
+// the same sequence of values, so all validators reach consensus on the
+// result. Distinct transitions, even when they run the same finalize
+// logic against the same inputs, see independent streams.
 //
 // All functions here are `final fn`s and can only be called from inside a
 // `final fn` body or a `final { ... }` async block. They are appropriate

@@ -10,9 +10,10 @@
 // on them (`+`, `*` by a `scalar`, `.double()`, `.neg()`, `==`, ...) are
 // available via Leo's built-in syntax and don't need to be wrapped here.
 
-// The Ed25519 base point `G`, the canonical generator of the curve's
-// prime-order subgroup. Use this to construct group elements from scratch
-// or when implementing protocols that scalar-multiply a known generator.
+// The base point `G` of Aleo's Edwards BLS12-377 curve, the canonical
+// generator of its prime-order subgroup. Use this to construct group
+// elements from scratch or when implementing protocols that
+// scalar-multiply a known generator.
 fn generator() -> group {
     return _group_gen();
 }
