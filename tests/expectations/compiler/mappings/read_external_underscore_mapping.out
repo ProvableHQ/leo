@@ -1,0 +1,17 @@
+import optprod.aleo;
+program optconsumer.aleo;
+
+function peek:
+    async peek into r0;
+    output r0 as optconsumer.aleo/peek.future;
+
+finalize peek:
+    contains optprod.aleo/maybe__[true] into r0;
+    get optprod.aleo/maybe__[true] into r1;
+    get.or_use optprod.aleo/maybe__[false] 0u32 into r2;
+    assert.eq r0 r0;
+    assert.eq r1 r1;
+    assert.eq r2 r2;
+
+constructor:
+    assert.eq edition 0u16;

@@ -1,0 +1,9 @@
+import optprod.aleo;
+program optconsumer.aleo;
+
+function build:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
