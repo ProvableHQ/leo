@@ -100,8 +100,33 @@ multiple flags exit code: 2
   ],
   "dev_dependencies": null
 }
---- 7. leo add --dev (should succeed) ---
-       Leo ✅ Added network dependency `dev_dep.aleo`.
+--- 7. leo add --dev for a program not on the network (should fail) ---
+missing network dep exit code: 213
+{
+  "program": "my_program.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.3.0",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "path": null,
+      "edition": null
+    },
+    {
+      "name": "my_lib",
+      "location": "local",
+      "path": "../my_lib",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}
+--- 8. leo add --dev for a program on the network (should succeed) ---
+       Leo ✅ Added network dependency `credits.aleo`.
+network dev dep exit code: 0
 {
   "program": "my_program.aleo",
   "version": "0.1.0",
@@ -124,14 +149,14 @@ multiple flags exit code: 2
   ],
   "dev_dependencies": [
     {
-      "name": "dev_dep.aleo",
+      "name": "credits.aleo",
       "location": "network",
       "path": null,
       "edition": null
     }
   ]
 }
---- 8. leo remove library dep by bare name (should succeed) ---
+--- 9. leo remove library dep by bare name (should succeed) ---
 {
   "program": "my_program.aleo",
   "version": "0.1.0",
@@ -148,14 +173,14 @@ multiple flags exit code: 2
   ],
   "dev_dependencies": [
     {
-      "name": "dev_dep.aleo",
+      "name": "credits.aleo",
       "location": "network",
       "path": null,
       "edition": null
     }
   ]
 }
---- 9. leo remove program dep by bare name (should succeed) ---
+--- 10. leo remove program dep by bare name (should succeed) ---
 {
   "program": "my_program.aleo",
   "version": "0.1.0",
@@ -172,11 +197,11 @@ multiple flags exit code: 2
   ],
   "dev_dependencies": [
     {
-      "name": "dev_dep.aleo",
+      "name": "credits.aleo",
       "location": "network",
       "path": null,
       "edition": null
     }
   ]
 }
---- 10. leo remove non-existent dep (should fail) ---
+--- 11. leo remove non-existent dep (should fail) ---

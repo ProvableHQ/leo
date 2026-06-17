@@ -14,7 +14,7 @@
   ],
   "dev_dependencies": [
     {
-      "name": "dev_dep.aleo",
+      "name": "credits.aleo",
       "location": "network",
       "path": null,
       "edition": null
