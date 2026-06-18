@@ -1,0 +1,38 @@
+library math_lib {
+    fn used(a: u32) -> u32 {
+        return helper(a);
+    }
+    fn helper(a: u32) -> u32 {
+        return deep(a);
+    }
+    fn deep(a: u32) -> u32 {
+        return a + 1u32;
+    }
+module ops {
+    fn used_mod(a: u32) -> u32 {
+        return mod_helper(a);
+    }
+    fn mod_helper(a: u32) -> u32 {
+        return math_lib::extra::scale(a);
+    }
+}
+
+module extra {
+    fn scale(a: u32) -> u32 {
+        return a * 2u32;
+    }
+}
+
+}
+
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn main(x: u32) -> u32 {
+        let a: u32 = math_lib::used(x);
+        let b: u32 = math_lib::ops::used_mod(a);
+        return b;
+    }
+}
+

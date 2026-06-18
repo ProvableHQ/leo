@@ -36,6 +36,8 @@ GlobalVarsCollection.ast
 GlobalVarsCollection.json
 initial.ast
 initial.json
+LibraryPruning.ast
+LibraryPruning.json
 NameValidation.ast
 NameValidation.json
 OptionLowering.ast
@@ -86,6 +88,8 @@ GlobalVarsCollection.ast
 GlobalVarsCollection.json
 initial.ast
 initial.json
+LibraryPruning.ast
+LibraryPruning.json
 NameValidation.ast
 NameValidation.json
 OptionLowering.ast
