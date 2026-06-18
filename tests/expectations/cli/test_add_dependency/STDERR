@@ -12,6 +12,7 @@ Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git 
 
 For more information, try '--help'.
 --- 3. leo add --network (should succeed) ---
+       Leo ⚠️ No network specified, defaulting to 'testnet'.
 --- 4. leo add --local (should succeed) ---
 Error [ECLI0377045]: Could not read `../some_local/program.json` — is `../some_local` a valid Leo package?
 
@@ -19,14 +20,21 @@ Error [ECLI0377045]: Could not read `../some_local/program.json` — is `../some
 --- 6. leo add overwrite existing dep (should succeed) ---
 Error [ECLI0377045]: Could not read `../credits/program.json` — is `../credits` a valid Leo package?
 
---- 7. leo add --dev (should succeed) ---
---- 8. leo remove library dep by bare name (should succeed) ---
+--- 7. leo add --dev for a program not on the network (should fail) ---
+       Leo ⚠️ No network specified, defaulting to 'testnet'.
+Error [ECLI0377045]: Could not find program `dev_dep.aleo` on network `testnet` at `http://localhost:3030`: Error [EPAK0375067]: network request to `http://localhost:3030/testnet/program/dev_dep.aleo/latest_edition` failed with status `500 Internal Server Error`
+     |
+     = Verify that `--network` and `--endpoint` point to a running node and that you have connectivity.
+
+--- 8. leo add --dev for a program on the network (should succeed) ---
+       Leo ⚠️ No network specified, defaulting to 'testnet'.
+--- 9. leo remove library dep by bare name (should succeed) ---
        Leo ✅ Successfully removed the local dependency my_lib with path ../my_lib.
---- 9. leo remove program dep by bare name (should succeed) ---
+--- 10. leo remove program dep by bare name (should succeed) ---
 Error [ECLI0377050]: dependency program `some_local.aleo` was not found among the manifest's dependencies
      |
      = Add `some_local.aleo` to `program.json` (e.g. with `leo add some_local.aleo`), then retry.
---- 10. leo remove non-existent dep (should fail) ---
+--- 11. leo remove non-existent dep (should fail) ---
 Error [ECLI0377050]: dependency program `nonexistent.aleo` was not found among the manifest's dependencies
      |
      = Add `nonexistent.aleo` to `program.json` (e.g. with `leo add nonexistent.aleo`), then retry.

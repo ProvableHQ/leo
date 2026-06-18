@@ -15,7 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_package::{Dependency, GitReference, GitSource, Location, Lock, Manifest, Workspace};
+use leo_ast::NetworkName;
+use leo_package::{CompilationUnit, Dependency, GitReference, GitSource, Location, Lock, Manifest, Workspace};
+use leo_span::Symbol;
 use std::path::{Path, PathBuf};
 
 /// Add a new on-chain, local, or git dependency to the current package.
@@ -30,6 +32,20 @@ pub struct LeoAdd {
 
     #[clap(flatten)]
     pub(crate) git_ref: GitRef,
+
+    #[clap(
+        long,
+        help = "Endpoint used to verify a network dependency exists. Overrides the `ENDPOINT` environment variable."
+    )]
+    pub(crate) endpoint: Option<String>,
+
+    #[clap(
+        long,
+        env = "NETWORK_RETRIES",
+        help = "Number of times to retry a failed network request when verifying a network dependency.",
+        default_value = "2"
+    )]
+    pub(crate) network_retries: u32,
 
     #[clap(long, help = "This is a development dependency.", default_value = "false")]
     pub(crate) dev: bool,
@@ -219,7 +235,36 @@ impl Command for LeoAdd {
                 )
                 .into());
             }
-            (normalize_program_name(&self.name)?, Location::Network, None)
+            let name = normalize_program_name(&self.name)?;
+
+            // Verify the program exists before recording it, reusing the build's fetch path.
+            // Network/endpoint default like `build`; the name comes from the env because
+            // `--network` here selects the source rather than a network name.
+            let network = get_network(&None).unwrap_or_else(|_| {
+                tracing::warn!("⚠️ No network specified, defaulting to 'testnet'.");
+                NetworkName::TestnetV0
+            });
+            let endpoint = get_endpoint(&self.endpoint).unwrap_or_else(|_| {
+                tracing::warn!("⚠️ No endpoint specified, defaulting to '{DEFAULT_ENDPOINT}'.");
+                DEFAULT_ENDPOINT.to_string()
+            });
+            let home = context.home()?;
+            CompilationUnit::fetch(
+                Symbol::intern(&name),
+                self.source.edition,
+                &home,
+                network,
+                &endpoint,
+                false,
+                self.network_retries,
+            )
+            .map_err(|err| {
+                crate::errors::custom(format!(
+                    "Could not find program `{name}` on network `{network}` at `{endpoint}`: {err}",
+                ))
+            })?;
+
+            (name, Location::Network, None)
         };
 
         let new_dependency = Dependency {
