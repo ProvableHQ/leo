@@ -420,6 +420,9 @@ impl Compiler {
 
         self.frontend_passes()?;
 
+        // Drop unreachable library functions
+        self.do_pass::<LibraryPruning>(())?;
+
         self.do_pass::<ConstPropUnrollAndMorphing>(type_checking_config.clone())?;
 
         // Generate ABIs after monomorphization to capture concrete types.
@@ -877,11 +880,13 @@ impl Compiler {
         let module_refs: Vec<(&str, FileName)> =
             leo_std::modules().iter().map(|(path, source)| (*source, FileName::Custom((*path).to_string()))).collect();
 
-        let library = sub_compiler.build_library(
+        // Skip the frontend here; every consuming compile re-runs it on the injected `FromLibrary` stub.
+        let library = sub_compiler.build_library_inner(
             std_name,
             leo_std::entry_source(),
             FileName::Custom(format!("<{}>", leo_std::library_name())),
             &module_refs,
+            false,
         )?;
 
         Ok(library.into())
@@ -922,9 +927,26 @@ impl Compiler {
         filename: FileName,
         modules: &[(&str, FileName)],
     ) -> Result<Library> {
+        self.build_library_inner(library_name, source, filename, modules, true)
+    }
+
+    /// Shared implementation of [`Self::build_library`] and [`Self::build_std_stub`].
+    ///
+    /// Parses the library, resolves its import stubs, and extracts the resulting [`Library`] AST.
+    /// When `run_frontend` is `true` the frontend passes also validate it.
+    fn build_library_inner(
+        &mut self,
+        library_name: Symbol,
+        source: &str,
+        filename: FileName,
+        modules: &[(&str, FileName)],
+        run_frontend: bool,
+    ) -> Result<Library> {
         self.parse_library(library_name, source, filename, modules)?;
         self.add_import_stubs()?;
-        self.frontend_passes()?;
+        if run_frontend {
+            self.frontend_passes()?;
+        }
 
         match &self.state.ast {
             Ast::Library(library) => Ok(library.clone()),
@@ -1430,6 +1452,46 @@ mod tests {
             let bytecode = &compiled.primary.bytecode;
             assert!(bytecode.contains("program bar.aleo;"), "expected renamed header, got:\n{bytecode}");
             assert!(!bytecode.contains("program foo.aleo;"), "old name leaked into bytecode:\n{bytecode}");
+        });
+    }
+
+    /// Smoke test: `std` passes the full frontend on its own.
+    ///
+    /// `build_std_stub` no longer runs the frontend (consuming compiles re-run it), so this keeps a
+    /// standalone validation of `std`, catching errors in the library rather than in every build.
+    #[test]
+    fn std_library_passes_frontend() {
+        create_session_if_not_set_then(|_| {
+            let emitter = BufferEmitter::new();
+            let handler = Handler::new(emitter.clone());
+            let node_builder = Rc::new(NodeBuilder::default());
+            let mut compiler = Compiler::new(
+                Some(leo_std::library_name().to_string()),
+                false,
+                handler,
+                node_builder,
+                PathBuf::new(),
+                // `no_std` avoids injecting `std` into itself.
+                Some(crate::CompilerOptions { no_std: true, ..Default::default() }),
+                IndexMap::new(),
+                NetworkName::TestnetV0,
+            );
+
+            let module_refs: Vec<(&str, FileName)> = leo_std::modules()
+                .iter()
+                .map(|(path, source)| (*source, FileName::Custom((*path).to_string())))
+                .collect();
+
+            let result = compiler.build_library(
+                Symbol::intern(leo_std::library_name()),
+                leo_std::entry_source(),
+                FileName::Custom(format!("<{}>", leo_std::library_name())),
+                &module_refs,
+            );
+
+            assert!(result.is_ok(), "std failed to build: {:?}", result.err());
+            let errors = emitter.extract_errs().to_string();
+            assert!(errors.is_empty(), "std produced diagnostics:\n{errors}");
         });
     }
 }

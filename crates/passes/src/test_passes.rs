@@ -171,6 +171,14 @@ macro_rules! compiler_passes {
                 (Disambiguate, ()),
                 (FunctionInlining, ())
             ]),
+            (library_pruning_runner, [
+                (GlobalVarsCollection, ()),
+                (PathResolution, ()),
+                (GlobalItemsCollection, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (Disambiguate, ()),
+                (LibraryPruning, ())
+            ]),
             (option_lowering_runner, [
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),

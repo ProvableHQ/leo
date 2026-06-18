@@ -61,6 +61,9 @@ pub use global_items_collection::*;
 mod global_vars_collection;
 pub use global_vars_collection::*;
 
+mod library_pruning;
+pub use library_pruning::*;
+
 mod loop_unrolling;
 pub use loop_unrolling::*;
 
