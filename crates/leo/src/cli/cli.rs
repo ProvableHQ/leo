@@ -310,7 +310,11 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 mod tests {
     use crate::cli::{
         CLI,
+        DependencySource,
+        GitRef,
+        LeoAdd,
         cli::{Commands, test_helpers},
+        commands::LeoNew,
         run_with_args,
     };
     use clap::Parser;
@@ -318,6 +322,63 @@ mod tests {
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::env::temp_dir;
+
+    // An unreachable endpoint with no retries stands in for a program that isn't on the network.
+    #[test]
+    #[serial]
+    fn add_network_dependency_rejects_missing_program() {
+        let temp_dir = temp_dir();
+        let project_directory = temp_dir.join("add_missing_network_dep");
+        if project_directory.exists() {
+            std::fs::remove_dir_all(&project_directory).unwrap();
+        }
+
+        let new = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::New {
+                command: LeoNew { name: "add_missing_network_dep".to_string(), library: false, workspace: false },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+            package: None,
+        };
+
+        let add = CLI {
+            debug: false,
+            quiet: false,
+            json_output: None,
+            disable_update_check: false,
+            command: Commands::Add {
+                command: LeoAdd {
+                    name: "nonexistent_program".to_string(),
+                    source: DependencySource { local: None, network: true, edition: None, workspace: false, git: None },
+                    git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: Some("http://localhost:1".to_string()),
+                    network_retries: 0,
+                    dev: false,
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: Some(temp_dir.join(".aleo_add_missing")),
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new).expect("Failed to execute `leo new`");
+
+            assert!(run_with_args(add).is_err(), "`leo add` should reject an unverifiable network dependency");
+
+            let manifest_path = project_directory.join(leo_package::MANIFEST_FILENAME);
+            let manifest = leo_package::Manifest::read_from_file(&manifest_path).unwrap();
+            assert!(
+                manifest.dependencies.is_none(),
+                "manifest should not record a dependency that failed verification"
+            );
+        });
+    }
 
     #[test]
     #[serial]
@@ -1814,6 +1875,23 @@ function external_nested_function:
         // Overwrite `src/main.leo` file
         std::fs::write(project_directory.join("src").join("main.leo"), program_str).unwrap();
 
+        // Cache the program before the add: `leo add --network` verifies existence by fetching,
+        // and a cached copy satisfies that check offline.
+        let registry = temp_dir.join(".aleo").join("registry").join("testnet");
+        std::fs::create_dir_all(&registry).unwrap();
+
+        let dir = registry.join("nested_example_layer_0").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
+
+        let dir = registry.join("nested_example_layer_1").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
+
+        let dir = registry.join("nested_example_layer_2").join("0");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
+
         // Add dependencies
         let add = CLI {
             debug: false,
@@ -1831,33 +1909,19 @@ function external_nested_function:
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
             path: Some(project_directory.clone()),
-            home: None,
+            home: Some(temp_dir.join(".aleo")),
             package: None,
         };
 
         create_session_if_not_set_then(|_| {
             run_with_args(add).expect("Failed to execute `leo add`");
         });
-
-        // Add custom `.aleo` directory with the appropriate cache entries.
-        let registry = temp_dir.join(".aleo").join("registry").join("testnet");
-        std::fs::create_dir_all(&registry).unwrap();
-
-        let dir = registry.join("nested_example_layer_0").join("0");
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
-
-        let dir = registry.join("nested_example_layer_1").join("0");
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
-
-        let dir = registry.join("nested_example_layer_2").join("0");
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
     }
 
     pub(crate) fn sample_grandparent_package(temp_dir: &Path) {
@@ -1963,6 +2027,8 @@ program child.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -1987,6 +2053,8 @@ program child.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -2011,6 +2079,8 @@ program child.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -2166,6 +2236,8 @@ program inner_2.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -2190,6 +2262,8 @@ program inner_2.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -2380,6 +2454,8 @@ program inner_2.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },
@@ -2404,6 +2480,8 @@ program inner_2.aleo {
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
+                    endpoint: None,
+                    network_retries: 2,
                     dev: false,
                 },
             },

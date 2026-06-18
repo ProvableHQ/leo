@@ -2,7 +2,7 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} --disable-update-check add --network credits.aleo
+${LEO_BIN} --disable-update-check add --network credits.aleo --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 
 ${LEO_BIN} --disable-update-check build
 

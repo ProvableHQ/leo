@@ -15,7 +15,7 @@ echo "multiple flags exit code: $?"
 cat program.json
 
 echo "--- 3. leo add --network (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --network credits
+${LEO_BIN} --disable-update-check add --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 cat program.json
 
 echo "--- 4. leo add --local (should succeed) ---" | tee /dev/stderr
@@ -30,17 +30,23 @@ echo "--- 6. leo add overwrite existing dep (should succeed) ---" | tee /dev/std
 ${LEO_BIN} --disable-update-check add credits --local ../credits
 cat program.json
 
-echo "--- 7. leo add --dev (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --dev --network dev_dep
+echo "--- 7. leo add --dev for a program not on the network (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --dev --network dev_dep --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+echo "missing network dep exit code: $?"
 cat program.json
 
-echo "--- 8. leo remove library dep by bare name (should succeed) ---" | tee /dev/stderr
+echo "--- 8. leo add --dev for a program on the network (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --dev --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+echo "network dev dep exit code: $?"
+cat program.json
+
+echo "--- 9. leo remove library dep by bare name (should succeed) ---" | tee /dev/stderr
 ${LEO_BIN} --disable-update-check remove my_lib
 cat program.json
 
-echo "--- 9. leo remove program dep by bare name (should succeed) ---" | tee /dev/stderr
+echo "--- 10. leo remove program dep by bare name (should succeed) ---" | tee /dev/stderr
 ${LEO_BIN} --disable-update-check remove some_local
 cat program.json
 
-echo "--- 10. leo remove non-existent dep (should fail) ---" | tee /dev/stderr
+echo "--- 11. leo remove non-existent dep (should fail) ---" | tee /dev/stderr
 ${LEO_BIN} --disable-update-check remove nonexistent || true
