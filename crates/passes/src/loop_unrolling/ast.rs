@@ -107,9 +107,15 @@ impl AstReconstructor for UnrollingVisitor<'_> {
 
         self.loop_unrolled = true;
 
+        let empty_range = if input.inclusive {
+            start_value.gt(&stop_value).expect("Type checking guarantees these are the same type")
+        } else {
+            start_value.gte(&stop_value).expect("Type checking guarantees these are the same type")
+        };
+
         // Actually unroll.
         (
-            if start_value.gte(&stop_value).expect("Type checking guarantees these are the same type") {
+            if empty_range {
                 let new_block_id = self.state.node_builder.next_id();
                 self.in_scope(new_block_id, |_| {
                     Statement::from(Block { span: input.span, statements: vec![], id: new_block_id })

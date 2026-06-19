@@ -1,0 +1,25 @@
+program test.aleo;
+
+function inclusive_equal:
+    output 1u32 as u32.private;
+
+function exclusive_equal:
+    output 0u32 as u32.private;
+
+function inclusive_decreasing:
+    output 0u32 as u32.private;
+
+function inclusive_equal_assert:
+    assert.eq false true;
+    output 0u32 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 1u32
+status: success
+output: 0u32
+status: success
+output: 0u32
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq false true;) at index 0 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
+output: ()
