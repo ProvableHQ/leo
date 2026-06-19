@@ -12,7 +12,7 @@ program test.aleo {
     }
     fn preserve_unwrap_arm(x: u8) -> u8 {
         let maybe: u8? = none;
-        let y: u8 = true ? x : maybe.unwrap();
+        let y: u8 = true ? x : _optional_unwrap(maybe);
         return y;
     }
     fn fold_pure_arm(x: u8) -> u8 {
