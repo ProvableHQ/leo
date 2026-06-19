@@ -11,6 +11,8 @@ program test.aleo {
         let unused_add: u8 = x.add_wrapped(1u8);
         let unused_div: u8 = x.div_wrapped(0u8);
         let unused_rem: u8 = x.rem_wrapped(0u8);
+        let missing: u8? = none;
+        let unused_unwrap: u8 = missing.unwrap();
         let r: dyn record = t as dyn record;
         let unused_balance: field = r.balance;
         let unused_balance_add: field = r.balance + 0field;
