@@ -47,8 +47,8 @@ pub use type_table::*;
 /// Returns true if `expr` can be removed without changing eager evaluation.
 ///
 /// This is stricter than [`Expression::is_pure`]: source-level operations that
-/// lower to assertions, storage reads, or non-removable instructions must still
-/// be evaluated even when their result is unused.
+/// can lower to assertions or storage reads must still be evaluated even when
+/// their result is unused.
 pub(crate) fn expression_can_be_discarded(expr: &Expression, state: &CompilerState) -> bool {
     expr.is_pure(&|id| state.type_table.get(&id).expect("Types should be assigned."))
         && !contains_non_discardable_operation(expr, state)
@@ -121,11 +121,5 @@ fn intrinsic_can_be_discarded(intrinsic: &Intrinsic) -> bool {
             // Lower to storage reads before code generation.
             | Intrinsic::VectorGet
             | Intrinsic::VectorLen
-            // Code generation emits instructions that later DCE treats as non-removable.
-            | Intrinsic::Hash(_, _)
-            | Intrinsic::GroupToXCoordinate
-            | Intrinsic::GroupToYCoordinate
-            | Intrinsic::SignatureVerify
-            | Intrinsic::Serialize(_)
     ) && intrinsic.is_pure()
 }
