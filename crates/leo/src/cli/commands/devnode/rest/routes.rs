@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use super::*;
 
-use snarkvm::prelude::{Identifier, LimitedWriter, Plaintext, Program, ToBytes, Transaction, VM};
+use snarkvm::{
+    prelude::{ConsensusVersion, Identifier, LimitedWriter, Plaintext, Program, ToBytes, Transaction, VM, Value},
+    synthesizer::program::{FinalizeGlobalState, StackTrait},
+};
 
 use axum::{Json, extract::rejection::JsonRejection};
 
@@ -33,6 +36,21 @@ where
 {
     let s = String::deserialize(de)?;
     Ok(if s.trim().is_empty() { Vec::new() } else { s.split(',').map(|x| x.trim().to_string()).collect() })
+}
+
+type ViewFunctionRoute<N> = (ProgramID<N>, Identifier<N>, u32);
+
+/// Parses a list of strings into a `Vec<Value<N>>` for use as view function inputs.
+fn parse_view_inputs<N: Network>(inputs: &[String]) -> Result<Vec<Value<N>>, RestError> {
+    inputs
+        .iter()
+        .enumerate()
+        .map(|(index, input)| {
+            input.parse::<Value<N>>().map_err(|err| {
+                RestError::unprocessable_entity(err.context(format!("Invalid input at index {index}: {input}")))
+            })
+        })
+        .collect::<Result<Vec<_>, _>>()
 }
 
 /// The `get_blocks` query object.
@@ -561,6 +579,100 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         }
 
         Ok((StatusCode::OK, ErasedJson::new(tx_id)))
+    }
+
+    /// POST /{network}/program/{id}/view/{functionName}/{height}
+    ///
+    /// Evaluates a view function against the ledger state at the given block `height`.
+    pub(crate) async fn evaluate_view(
+        State(rest): State<Self>,
+        Path((program_id, view_name, height)): Path<ViewFunctionRoute<N>>,
+        json_result: Result<Json<Vec<String>>, JsonRejection>,
+    ) -> Result<ErasedJson, RestError> {
+        let Json(raw_inputs) = match json_result {
+            Ok(json) => json,
+            Err(err) => return Err(RestError::unprocessable_entity(anyhow!("Invalid request body: {err}"))),
+        };
+
+        let inputs = parse_view_inputs(&raw_inputs)?;
+
+        let outputs = match tokio::task::spawn_blocking(move || {
+            rest.ledger.vm().evaluate_view_at_height(program_id, view_name, inputs, height)
+        })
+        .await
+        {
+            Ok(Ok(outputs)) => outputs,
+            Ok(Err(err)) => {
+                return Err(RestError::bad_request(
+                    err.context(format!("Failed to evaluate view '{view_name}' for '{program_id}' at height {height}")),
+                ));
+            }
+            Err(err) => return Err(RestError::internal_server_error(anyhow!("Tokio error: {err}"))),
+        };
+
+        let output_strings: Vec<String> = outputs.iter().map(|v| v.to_string()).collect();
+
+        Ok(ErasedJson::new(output_strings))
+    }
+
+    /// POST /{network}/program/{id}/view/{functionName}
+    ///
+    /// Evaluates a view function against the ledger state at the latest block height.
+    pub(crate) async fn evaluate_view_latest(
+        State(rest): State<Self>,
+        Path((program_id, view_name)): Path<(ProgramID<N>, Identifier<N>)>,
+        metadata: Query<Metadata>,
+        json_result: Result<Json<Vec<String>>, JsonRejection>,
+    ) -> Result<ErasedJson, RestError> {
+        let Json(raw_inputs) = match json_result {
+            Ok(json) => json,
+            Err(err) => return Err(RestError::unprocessable_entity(anyhow!("Invalid request body: {err}"))),
+        };
+
+        let inputs = parse_view_inputs(&raw_inputs)?;
+
+        let (outputs, height) = match tokio::task::spawn_blocking(move || {
+            let block = rest.ledger.latest_block();
+            let height = block.height();
+
+            let block_timestamp =
+                (height >= N::CONSENSUS_HEIGHT(ConsensusVersion::V12).unwrap_or_default()).then_some(block.timestamp());
+            let state = FinalizeGlobalState::new::<N>(
+                block.round(),
+                height,
+                block_timestamp,
+                block.cumulative_weight(),
+                block.cumulative_proof_target(),
+                block.previous_hash(),
+                None,
+            )?;
+
+            let stack = rest.ledger.vm().process().get_stack(program_id)?;
+            let outputs = stack.evaluate_view(state, rest.ledger.vm().finalize_store(), &view_name, inputs)?;
+
+            Ok::<_, anyhow::Error>((outputs, height))
+        })
+        .await
+        {
+            Ok(Ok(result)) => result,
+            Ok(Err(err)) => {
+                return Err(RestError::bad_request(err.context(format!(
+                    "Failed to evaluate view '{view_name}' for '{program_id}' at the latest height"
+                ))));
+            }
+            Err(err) => return Err(RestError::internal_server_error(anyhow!("Tokio error: {err}"))),
+        };
+
+        let output_strings: Vec<String> = outputs.iter().map(|v| v.to_string()).collect();
+
+        if metadata.metadata.unwrap_or(false) {
+            return Ok(ErasedJson::new(json!({
+                "data": output_strings,
+                "height": height,
+            })));
+        }
+
+        Ok(ErasedJson::new(output_strings))
     }
 
     /// POST /{network}/create_block
