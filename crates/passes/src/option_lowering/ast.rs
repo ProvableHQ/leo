@@ -624,7 +624,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
                     Some(Box::new(stmt))
                 } else {
                     // Else-if condition prologues must not run unless the outer else branch is taken.
-                    let span = stmt.span();
+                    let span = stmts_otherwise[0].span() + stmt.span();
                     stmts_otherwise.push(stmt);
                     Some(Box::new(
                         Block { statements: stmts_otherwise, span, id: self.state.node_builder.next_id() }.into(),
