@@ -21,5 +21,5 @@ status: success
 output: 0u32
 status: success
 output: 0u32
-status: failed: Stack evaluation failed: Instruction (assert.eq false true;) at index 0 failed: 'assert.eq' failed: 'false' is not equal to 'true' (should be equal)
+status: failed: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq false true;) at index 0 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1
 output: ()
