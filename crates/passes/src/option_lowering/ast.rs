@@ -615,18 +615,23 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
     fn reconstruct_conditional(&mut self, mut input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let (condition, mut stmts_condition) = self.reconstruct_expression(input.condition, &None);
         let (then_block, mut stmts_then) = self.reconstruct_block(input.then);
+        stmts_condition.append(&mut stmts_then);
 
         let otherwise = match input.otherwise {
             Some(otherwise_stmt) => {
                 let (stmt, mut stmts_otherwise) = self.reconstruct_statement(*otherwise_stmt);
-                stmts_condition.append(&mut stmts_then);
-                stmts_condition.append(&mut stmts_otherwise);
-                Some(Box::new(stmt))
+                if stmts_otherwise.is_empty() {
+                    Some(Box::new(stmt))
+                } else {
+                    // Else-if condition prologues must not run unless the outer else branch is taken.
+                    let span = stmt.span();
+                    stmts_otherwise.push(stmt);
+                    Some(Box::new(
+                        Block { statements: stmts_otherwise, span, id: self.state.node_builder.next_id() }.into(),
+                    ))
+                }
             }
-            None => {
-                stmts_condition.append(&mut stmts_then);
-                None
-            }
+            None => None,
         };
 
         input.condition = condition;
