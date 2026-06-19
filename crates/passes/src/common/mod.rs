@@ -109,7 +109,7 @@ fn path_is_storage_read(path: &leo_ast::Path, state: &CompilerState) -> bool {
         .and_then(|location| state.symbol_table.lookup_global(location.program, location))
         .is_some_and(|var| {
             var.declaration == symbol_table::VariableType::Storage
-                && var.type_.as_ref().is_none_or(|type_| !type_.is_mapping())
+                && var.type_.as_ref().is_none_or(|type_| !type_.is_mapping() && !type_.is_vector())
         })
 }
 
