@@ -36,6 +36,8 @@ pub struct ConstPropagationVisitor<'a> {
     pub array_length_not_evaluated: Option<Span>,
     /// A repeat expression count which was not able to be evaluated.
     pub repeat_count_not_evaluated: Option<Span>,
+    /// Whether const initializers may fold a constant-condition ternary before inspecting the unselected arm.
+    pub fold_const_initializer_ternaries: bool,
 }
 
 impl ConstPropagationVisitor<'_> {
@@ -53,6 +55,15 @@ impl ConstPropagationVisitor<'_> {
         self.module = module.to_vec();
         let result = func(self);
         self.module = parent_module;
+        result
+    }
+
+    /// Reconstruct a const initializer with compile-time ternary selection enabled.
+    pub fn in_const_initializer<T>(&mut self, func: impl FnOnce(&mut Self) -> T) -> T {
+        let previous = self.fold_const_initializer_ternaries;
+        self.fold_const_initializer_ternaries = true;
+        let result = func(self);
+        self.fold_const_initializer_ternaries = previous;
         result
     }
 

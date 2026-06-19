@@ -1,0 +1,20 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn preserve_false_arm(x$$0: u8) -> u8 {
+        let $var$1 = true;
+        let $var$2 = 0u8;
+        let $var$3 = x$$0.div_wrapped(0u8);
+        let $var$4 = x$$0;
+        return $var$4;
+    }
+    fn preserve_true_arm(x$$5: u8) -> u8 {
+        let $var$6 = false;
+        let $var$7 = 0u8;
+        let $var$8 = x$$5.div_wrapped(0u8);
+        let $var$9 = x$$5;
+        return $var$9;
+    }
+}
+

@@ -52,7 +52,7 @@ pub struct ConstPropagationOutput {
 ///
 /// whose arguments are consts or literals will be subject to constant folding.
 /// The ternary conditional operator will also be folded if its condition is
-/// a constant or literal.
+/// a constant or literal and the discarded arm is safe to remove.
 ///
 /// This includes the LHS of assignment statements which include array indices.
 pub struct ConstPropagation;
@@ -75,6 +75,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            fold_const_initializer_ternaries: false,
         };
 
         let ast = ast.map(
@@ -106,6 +107,7 @@ impl<'a> ConstPropagationVisitor<'a> {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            fold_const_initializer_ternaries: false,
         }
     }
 }
