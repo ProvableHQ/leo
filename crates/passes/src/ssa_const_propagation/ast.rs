@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::expression_can_be_discarded;
+
 use super::{
     SsaConstPropagationVisitor,
     visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
@@ -373,7 +375,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         (UnaryExpression { receiver, ..input }.into(), None)
     }
 
-    /// Reconstruct a ternary expression and fold it if the condition is a constant.
+    /// Reconstruct a ternary expression and fold a constant condition only after both arms are reconstructed.
     fn reconstruct_ternary(
         &mut self,
         input: TernaryExpression,
@@ -381,20 +383,19 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     ) -> (Expression, Self::AdditionalOutput) {
         let ternary_span = input.span();
         let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
+        let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
+        let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
 
         match cond_value.and_then(|v| v.try_into().ok()) {
-            Some(true) => {
+            Some(true) if expression_can_be_discarded(&if_false, self.state) => {
                 self.changed = true;
-                self.reconstruct_expression(input.if_true, &())
+                (if_true, if_true_value)
             }
-            Some(false) => {
+            Some(false) if expression_can_be_discarded(&if_true, self.state) => {
                 self.changed = true;
-                self.reconstruct_expression(input.if_false, &())
+                (if_false, if_false_value)
             }
             _ => {
-                let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
-                let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
-
                 // Boolean branch folding: collapse a bool-literal-branched ternary.
                 // Commonly arises after composite forwarding erases an `is_some`-style
                 // flag that was selected across a ternary.

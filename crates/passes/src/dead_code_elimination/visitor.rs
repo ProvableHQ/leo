@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use crate::{CompilerState, expression_can_be_discarded};
 
 use leo_ast::Expression;
 use leo_span::Symbol;
@@ -32,7 +32,7 @@ pub struct DeadCodeEliminatingVisitor<'a> {
 }
 
 impl DeadCodeEliminatingVisitor<'_> {
-    pub fn is_pure(&self, expr: &Expression) -> bool {
-        expr.is_pure(&|id| self.state.type_table.get(&id).expect("Types should be assigned."))
+    pub fn can_discard(&self, expr: &Expression) -> bool {
+        expression_can_be_discarded(expr, self.state)
     }
 }
