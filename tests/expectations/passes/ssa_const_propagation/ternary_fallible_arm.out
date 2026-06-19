@@ -17,3 +17,4 @@ program test.aleo {
         return $var$9;
     }
 }
+
