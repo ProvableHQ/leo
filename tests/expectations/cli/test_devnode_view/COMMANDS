@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+LEO_BIN=${1}
+PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+PORT=${LEO_DEVNODE_PORT:-3030}
+ENDPOINT="http://localhost:${PORT}"
+ADDR="aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px"
+PROG="test_devnode_view.aleo"
+
+# Deploy the program carrying the `view fn` to the framework-managed devnode and
+# block until it is confirmed on-chain.
+$LEO_BIN deploy -y --disable-update-check --broadcast --network testnet \
+    --endpoint $ENDPOINT --private-key $PRIVATE_KEY \
+    --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 >/dev/null 2>&1
+
+# `get_balance` reads an empty mapping, so it returns the `0u64` default.
+echo "--- view at latest height ---"
+curl -s -X POST "${ENDPOINT}/testnet/program/${PROG}/view/get_balance" \
+    -H 'Content-Type: application/json' -d "[\"${ADDR}\"]"
+echo
+
+# The block height is dynamic, so normalize it to a stable placeholder.
+echo "--- view at latest height with metadata ---"
+curl -s -X POST "${ENDPOINT}/testnet/program/${PROG}/view/get_balance?metadata=true" \
+    -H 'Content-Type: application/json' -d "[\"${ADDR}\"]" \
+    | sed 's/"height":[0-9]*/"height":<HEIGHT>/'
+echo
+
+echo "--- view at explicit height ---"
+HEIGHT=$(curl -s "${ENDPOINT}/testnet/block/height/latest")
+curl -s -X POST "${ENDPOINT}/testnet/program/${PROG}/view/get_balance/${HEIGHT}" \
+    -H 'Content-Type: application/json' -d "[\"${ADDR}\"]"
+echo
+
+# The v2 API preserves precise HTTP status codes; the default/v1 API collapses every
+# error to a 500, so assert the intended codes against the v2 routes.
+echo "--- malformed input is rejected (422) ---"
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+    "${ENDPOINT}/v2/testnet/program/${PROG}/view/get_balance" \
+    -H 'Content-Type: application/json' -d '["not_an_address"]'
+
+echo "--- unknown view is rejected (400) ---"
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+    "${ENDPOINT}/v2/testnet/program/${PROG}/view/does_not_exist" \
+    -H 'Content-Type: application/json' -d "[\"${ADDR}\"]"
+
+echo "--- view before deployment height is rejected (400) ---"
+curl -s -o /dev/null -w "%{http_code}\n" -X POST \
+    "${ENDPOINT}/v2/testnet/program/${PROG}/view/get_balance/1" \
+    -H 'Content-Type: application/json' -d "[\"${ADDR}\"]"
+
+exit 0

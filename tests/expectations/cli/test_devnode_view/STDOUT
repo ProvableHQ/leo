@@ -1,0 +1,12 @@
+--- view at latest height ---
+["0u64"]
+--- view at latest height with metadata ---
+{"data":["0u64"],"height":<HEIGHT>}
+--- view at explicit height ---
+["0u64"]
+--- malformed input is rejected (422) ---
+422
+--- unknown view is rejected (400) ---
+400
+--- view before deployment height is rejected (400) ---
+400

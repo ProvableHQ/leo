@@ -168,6 +168,8 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/program/{id}/mappings", get(Self::get_mapping_names))
             .route("/program/{id}/mapping/{name}/{key}", get(Self::get_mapping_value))
             .route("/program/{id}/mapping/{name}", get(Self::get_mapping_values))
+            .route("/program/{id}/view/{function}", post(Self::evaluate_view_latest))
+            .route("/program/{id}/view/{function}/{height}", post(Self::evaluate_view))
 
             // GET misc endpoints.
             .route("/blocks", get(Self::get_blocks))
