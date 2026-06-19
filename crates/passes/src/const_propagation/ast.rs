@@ -115,10 +115,20 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
+        let cond_bool = cond_value.and_then(|v| v.try_into().ok());
+
+        if self.fold_const_initializer_ternaries {
+            match cond_bool {
+                Some(true) => return self.reconstruct_expression(input.if_true, &()),
+                Some(false) => return self.reconstruct_expression(input.if_false, &()),
+                _ => {}
+            }
+        }
+
         let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
         let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
 
-        match cond_value.and_then(|v| v.try_into().ok()) {
+        match cond_bool {
             Some(true) if expression_can_be_discarded(&if_false, self.state) => (if_true, if_true_value),
             Some(false) if expression_can_be_discarded(&if_true, self.state) => (if_false, if_false_value),
             _ => (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None),
@@ -547,7 +557,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let span = input.span();
 
         let type_ = self.reconstruct_type(input.type_).0;
-        let (expr, opt_value) = self.reconstruct_expression(input.value, &());
+        let (expr, opt_value) = self.in_const_initializer(|slf| slf.reconstruct_expression(input.value, &()));
 
         if opt_value.is_some() {
             if self.state.symbol_table.global_scope() {

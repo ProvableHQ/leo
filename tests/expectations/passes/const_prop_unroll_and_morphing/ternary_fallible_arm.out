@@ -19,5 +19,9 @@ program test.aleo {
         let y: u8 = x;
         return y;
     }
+    fn fold_const_initializer(x: u8) -> u8 {
+        const N: u8 = 5u8;
+        return 5u8;
+    }
 }
 

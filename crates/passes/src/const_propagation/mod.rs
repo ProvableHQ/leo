@@ -75,6 +75,7 @@ impl Pass for ConstPropagation {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            fold_const_initializer_ternaries: false,
         };
 
         let ast = ast.map(
@@ -106,6 +107,7 @@ impl<'a> ConstPropagationVisitor<'a> {
             array_index_not_evaluated: None,
             array_length_not_evaluated: None,
             repeat_count_not_evaluated: None,
+            fold_const_initializer_ternaries: false,
         }
     }
 }

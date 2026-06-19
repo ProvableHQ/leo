@@ -22,4 +22,9 @@ program test.aleo {
         let y: u8 = true ? x : x.add_wrapped(1u8);
         return y;
     }
+
+    fn fold_const_initializer(x: u8) -> u8 {
+        const N: u8 = true ? 5u8 : x.div_wrapped(1u8);
+        return N;
+    }
 }
