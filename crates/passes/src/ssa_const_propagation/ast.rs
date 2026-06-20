@@ -18,7 +18,7 @@ use crate::expression_can_be_discarded;
 
 use super::{
     SsaConstPropagationVisitor,
-    visitor::{TrackedTernary, is_atom, is_one_literal, is_optional_field, is_zero_literal, same_ssa_atom},
+    visitor::{TrackedTernary, is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
 };
 
 use leo_ast::{
@@ -71,14 +71,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         if let Expression::Path(path) = &input.inner
             && let Some(original_name) = path.try_local_symbol()
         {
-            let name = self.resolve_composite_alias(original_name);
-            let through_alias = name != original_name;
-            if through_alias && !is_optional_field(input.name.name) {
+            if !self.forward_direct_composites {
                 return (input.into(), None);
             }
-            if !self.forward_direct_composites && !through_alias {
-                return (input.into(), None);
-            }
+            let name = original_name;
             let Some(fields) = self.atom_fielded_composites.get(&name) else {
                 return (input.into(), None);
             };
