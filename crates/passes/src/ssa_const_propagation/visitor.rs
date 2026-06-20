@@ -68,6 +68,10 @@ pub(super) fn is_optional_wrapper_type(ty: &leo_ast::Type) -> bool {
     )
 }
 
+pub(super) fn is_optional_field(name: Symbol) -> bool {
+    name == Symbol::intern("is_some") || name == Symbol::intern("val")
+}
+
 /// Parse a numeric literal string, handling underscores and radix prefixes (0x, 0o, 0b).
 fn parse_literal_value(s: &str) -> Option<i128> {
     let clean = s.replace('_', "");
