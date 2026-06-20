@@ -72,10 +72,8 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             && let Some(original_name) = path.try_local_symbol()
         {
             let name = self.resolve_composite_alias(original_name);
-            if !self.forward_direct_composites {
-                if name == original_name || !is_optional_field(input.name.name) {
-                    return (input.into(), None);
-                }
+            if !self.forward_direct_composites && (name == original_name || !is_optional_field(input.name.name)) {
+                return (input.into(), None);
             }
             let Some(fields) = self.atom_fielded_composites.get(&name) else {
                 return (input.into(), None);
@@ -622,14 +620,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             && is_atom(&ternary.if_true)
             && is_atom(&ternary.if_false)
         {
-            self.ternaries.insert(
-                identifier.name,
-                TrackedTernary {
-                    condition: ternary.condition.clone(),
-                    if_true: ternary.if_true.clone(),
-                    if_false: ternary.if_false.clone(),
-                },
-            );
+            self.ternaries.insert(identifier.name, TrackedTernary {
+                condition: ternary.condition.clone(),
+                if_true: ternary.if_true.clone(),
+                if_false: ternary.if_false.clone(),
+            });
         }
 
         if let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)
