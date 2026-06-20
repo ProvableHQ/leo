@@ -5,6 +5,7 @@ program singleton_storage.aleo {
     storage counter: u8;
 
     storage vec: [u8];
+    storage nums: [u32];
 
     fn push() -> Final {
         return final { vec.push(42u8); };
@@ -37,5 +38,9 @@ program singleton_storage.aleo {
 
     fn set() -> Final {
         return final { vec.set(3u32, 42u8); };
+    }
+
+    fn get_statement_fallible_index(public x: u32) -> Final {
+        return final { nums.get(1u32 / x); };
     }
 }

@@ -5,6 +5,8 @@ program singleton_storage.aleo {
     mapping counter__: bool => u8;
     mapping vec__: u32 => u8;
     mapping vec__len__: bool => u32;
+    mapping nums__: u32 => u32;
+    mapping nums__len__: bool => u32;
     fn push() -> Final<Fn()> {
         return async {
             let $len_var$0 = _mapping_get_or_use(singleton_storage.aleo::vec__len__, false, 0u32);
@@ -50,5 +52,11 @@ program singleton_storage.aleo {
             _mapping_set(singleton_storage.aleo::vec__, 3u32, 42u8);
         };
     }
+    fn get_statement_fallible_index(public x: u32) -> Final<Fn(u32)> {
+        return async {
+            let $index$6 = 1u32 / x;
+            let $len_var$7 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            let $discard$8 = $index$6 < $len_var$7 ? _mapping_get_or_use(singleton_storage.aleo::nums__, $index$6, 0u32) : none;
+        };
+    }
 }
-
