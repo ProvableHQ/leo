@@ -19,7 +19,12 @@ use crate::expression_can_be_discarded;
 use super::{
     SsaConstPropagationVisitor,
     visitor::{
-        TrackedTernary, is_atom, is_one_literal, is_optional_field, is_optional_wrapper_type, is_zero_literal,
+        TrackedTernary,
+        is_atom,
+        is_one_literal,
+        is_optional_field,
+        is_optional_wrapper_type,
+        is_zero_literal,
         same_ssa_atom,
     },
 };
