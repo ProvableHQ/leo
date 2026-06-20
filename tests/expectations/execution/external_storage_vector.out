@@ -102,11 +102,11 @@ finalize combine:
     ternary r13 r14 0u32 into r15;
     cast r13 r15 into r16 as Optional__JzunLORyB8U;
     ternary r16.is_some r16.val 0u32 into r17;
-    get.or_use sum_vec__len__[false] 0u32 into r18;
-    add r18 1u32 into r19;
-    set r19 into sum_vec__len__[false];
-    add r11 r17 into r20;
-    set r20 into sum_vec__[r18];
+    add r11 r17 into r18;
+    get.or_use sum_vec__len__[false] 0u32 into r19;
+    add r19 1u32 into r20;
+    set r20 into sum_vec__len__[false];
+    set r18 into sum_vec__[r19];
     get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r21;
     lt 1u32 r21 into r22;
     get.or_use vec_program_a.aleo/numbers__[1u32] 0u32 into r23;
@@ -119,11 +119,11 @@ finalize combine:
     ternary r28 r29 0u32 into r30;
     cast r28 r30 into r31 as Optional__JzunLORyB8U;
     ternary r31.is_some r31.val 0u32 into r32;
-    get.or_use sum_vec__len__[false] 0u32 into r33;
-    add r33 1u32 into r34;
-    set r34 into sum_vec__len__[false];
-    add r26 r32 into r35;
-    set r35 into sum_vec__[r33];
+    add r26 r32 into r33;
+    get.or_use sum_vec__len__[false] 0u32 into r34;
+    add r34 1u32 into r35;
+    set r35 into sum_vec__len__[false];
+    set r33 into sum_vec__[r34];
     get.or_use vec_program_a.aleo/numbers__len__[false] 0u32 into r36;
     lt 2u32 r36 into r37;
     get.or_use vec_program_a.aleo/numbers__[2u32] 0u32 into r38;
@@ -136,11 +136,11 @@ finalize combine:
     ternary r43 r44 0u32 into r45;
     cast r43 r45 into r46 as Optional__JzunLORyB8U;
     ternary r46.is_some r46.val 0u32 into r47;
-    get.or_use sum_vec__len__[false] 0u32 into r48;
-    add r48 1u32 into r49;
-    set r49 into sum_vec__len__[false];
-    add r41 r47 into r50;
-    set r50 into sum_vec__[r48];
+    add r41 r47 into r48;
+    get.or_use sum_vec__len__[false] 0u32 into r49;
+    add r49 1u32 into r50;
+    set r50 into sum_vec__len__[false];
+    set r48 into sum_vec__[r49];
     get.or_use sum_vec__len__[false] 0u32 into r51;
     lt 0u32 r51 into r52;
     get.or_use sum_vec__[0u32] 0u32 into r53;
@@ -223,4 +223,3 @@ status: accepted
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
 }
-
