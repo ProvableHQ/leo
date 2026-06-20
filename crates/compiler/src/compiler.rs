@@ -450,7 +450,10 @@ impl Compiler {
         // Flattening may produce ternary expressions not in SSA form.
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
-        self.do_pass::<SsaConstPropagation>(SsaConstPropagationInput::default())?;
+        // Avoid broad direct aggregate scalarization here; CSE expects some
+        // materialized aggregates to remain. The issue this pass fixes is the
+        // narrower case where final SSA introduces aliases around those values.
+        self.do_pass::<SsaConstPropagation>(SsaConstPropagationInput { forward_direct_composites: false })?;
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
