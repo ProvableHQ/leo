@@ -72,7 +72,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             && let Some(original_name) = path.try_local_symbol()
         {
             let name = self.resolve_composite_alias(original_name);
-            if !self.forward_direct_composites && (name == original_name || !is_optional_field(input.name.name)) {
+            let through_alias = name != original_name;
+            if through_alias && !is_optional_field(input.name.name) {
+                return (input.into(), None);
+            }
+            if !self.forward_direct_composites && !through_alias {
                 return (input.into(), None);
             }
             let Some(fields) = self.atom_fielded_composites.get(&name) else {
