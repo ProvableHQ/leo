@@ -105,6 +105,10 @@ pub(super) fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
     }
 }
 
+pub(super) fn is_optional_field(name: Symbol) -> bool {
+    name == Symbol::intern("is_some") || name == Symbol::intern("val")
+}
+
 impl SsaConstPropagationVisitor<'_> {
     /// Clear analysis state that is only valid within one SSA function body.
     pub(super) fn clear_tracked_values(&mut self) {
