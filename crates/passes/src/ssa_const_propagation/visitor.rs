@@ -60,6 +60,14 @@ pub(super) fn is_atom(expr: &Expression) -> bool {
     matches!(expr, Expression::Path(_) | Expression::Literal(_))
 }
 
+pub(super) fn is_optional_wrapper_type(ty: &leo_ast::Type) -> bool {
+    matches!(
+        ty,
+        leo_ast::Type::Composite(composite)
+            if composite.path.identifier().name.to_string().starts_with("Optional__")
+    )
+}
+
 /// Parse a numeric literal string, handling underscores and radix prefixes (0x, 0o, 0b).
 fn parse_literal_value(s: &str) -> Option<i128> {
     let clean = s.replace('_', "");

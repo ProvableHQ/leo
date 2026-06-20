@@ -19,8 +19,8 @@
 //!
 //! The pass tracks variables assigned literal values and replaces uses of those
 //! variables with their constant values. It also forwards short-lived atom-only
-//! aggregate fields, including through simple SSA aliases, and atom-only
-//! ternaries that can be forwarded safely.
+//! aggregate fields, optional wrapper fields, and atom-only ternaries that can
+//! be forwarded safely.
 
 use crate::Pass;
 

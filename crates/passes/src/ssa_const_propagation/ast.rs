@@ -18,7 +18,7 @@ use crate::expression_can_be_discarded;
 
 use super::{
     SsaConstPropagationVisitor,
-    visitor::{TrackedTernary, is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
+    visitor::{TrackedTernary, is_atom, is_one_literal, is_optional_wrapper_type, is_zero_literal, same_ssa_atom},
 };
 
 use leo_ast::{
@@ -615,16 +615,29 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             if all_atoms {
                 self.atom_fielded_composites.insert(identifier.name, fields);
             }
+        } else if let (DefinitionPlace::Single(identifier), Expression::Cast(cast)) = (&input.place, &new_value)
+            && is_optional_wrapper_type(&cast.type_)
+            && let Expression::Tuple(tuple) = &cast.expression
+            && let [is_some, val] = tuple.elements.as_slice()
+            && is_atom(is_some)
+            && is_atom(val)
+        {
+            let fields =
+                IndexMap::from([(Symbol::intern("is_some"), is_some.clone()), (Symbol::intern("val"), val.clone())]);
+            self.atom_fielded_composites.insert(identifier.name, fields);
         } else if let (DefinitionPlace::Single(identifier), Expression::Ternary(ternary)) = (&input.place, &new_value)
             && is_atom(&ternary.condition)
             && is_atom(&ternary.if_true)
             && is_atom(&ternary.if_false)
         {
-            self.ternaries.insert(identifier.name, TrackedTernary {
-                condition: ternary.condition.clone(),
-                if_true: ternary.if_true.clone(),
-                if_false: ternary.if_false.clone(),
-            });
+            self.ternaries.insert(
+                identifier.name,
+                TrackedTernary {
+                    condition: ternary.condition.clone(),
+                    if_true: ternary.if_true.clone(),
+                    if_false: ternary.if_false.clone(),
+                },
+            );
         }
 
         if let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)
