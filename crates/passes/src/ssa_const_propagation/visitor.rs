@@ -37,6 +37,8 @@ pub struct SsaConstPropagationVisitor<'a> {
     pub atom_fielded_composites: IndexMap<Symbol, IndexMap<Symbol, Expression>>,
     /// Maps local variables that are simple aliases of atom-fielded composites.
     pub aliases: IndexMap<Symbol, Symbol>,
+    /// Whether direct `x.field` accesses can be forwarded, or only accesses through aliases.
+    pub forward_direct_composites: bool,
     /// Maps local variables bound to atom-only ternaries so later redundant
     /// ternaries over the same condition can be absorbed.
     pub ternaries: IndexMap<Symbol, TrackedTernary>,

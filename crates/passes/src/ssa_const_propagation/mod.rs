@@ -37,13 +37,23 @@ pub use visitor::SsaConstPropagationVisitor;
 
 pub struct SsaConstPropagation;
 
+pub struct SsaConstPropagationInput {
+    pub forward_direct_composites: bool,
+}
+
+impl Default for SsaConstPropagationInput {
+    fn default() -> Self {
+        Self { forward_direct_composites: true }
+    }
+}
+
 impl Pass for SsaConstPropagation {
-    type Input = ();
+    type Input = SsaConstPropagationInput;
     type Output = ();
 
     const NAME: &str = "SsaConstPropagation";
 
-    fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+    fn do_pass(input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
         // Run the pass in a loop until no changes are made.
         for _ in 0..1024 {
             let ast = std::mem::take(&mut state.ast);
@@ -53,6 +63,7 @@ impl Pass for SsaConstPropagation {
                 constants: Default::default(),
                 atom_fielded_composites: Default::default(),
                 aliases: Default::default(),
+                forward_direct_composites: input.forward_direct_composites,
                 ternaries: Default::default(),
                 changed: false,
             };
