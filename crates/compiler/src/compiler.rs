@@ -462,6 +462,8 @@ impl Compiler {
         // atom-valued fields.
         self.do_pass::<SsaConstPropagation>(SsaConstPropagationInput { forward_direct_composites: false })?;
 
+        self.do_pass::<DeadCodeEliminating>(())?;
+
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
         self.do_pass::<DeadCodeEliminating>(())?;
