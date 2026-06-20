@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::StorageLoweringVisitor;
+use crate::expression_can_be_discarded;
 
 use leo_ast::*;
 use leo_span::{Span, Symbol, sym};
@@ -87,17 +88,45 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     panic!("Vector::push can only be called with `Expression::Path`");
                 };
 
-                let (value, stmts) = self.reconstruct_expression(value_expr.clone(), &());
+                let value_type = self
+                    .state
+                    .type_table
+                    .get(&value_expr.id())
+                    .expect("type checking should assign a type to the pushed value");
+                let value_must_be_evaluated_first = !expression_can_be_discarded(value_expr, self.state);
+                let (value, mut stmts) = self.reconstruct_expression(value_expr.clone(), &());
+                self.state.type_table.insert(value.id(), value_type.clone());
 
                 // Input:
-                //   Vector::push(v, 42u32)
+                //   Vector::push(v, value)
                 //
                 // Lowered reconstruction:
+                //   let $push_value = value; // if the value cannot be discarded
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
-                //   Mapping::set(vec_map, $len_var, 42u32);
                 //   Mapping::set(len_map, false, $len_var + 1);
+                //   Mapping::set(vec_map, $len_var, value or $push_value);
+                //
+                // If the pushed value cannot be discarded, bind it before mutating
+                // vector length so source argument evaluation order is preserved.
+                let value = if value_must_be_evaluated_first {
+                    let value_var_sym = self.state.assigner.unique_symbol("$push_value", "$");
+                    let value_var_ident = Identifier {
+                        name: value_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.state.type_table.insert(value_var_ident.id, value_type);
+                    stmts.push(self.state.assigner.simple_definition(
+                        value_var_ident,
+                        value,
+                        self.state.node_builder.next_id(),
+                    ));
+                    value_var_ident.into()
+                } else {
+                    value
+                };
 
-                // Reconstruct value
+                // Reconstruct the backing mappings.
                 let (vec_path_expr, len_path_expr) = self.generate_vector_mapping_exprs(path_to_vector);
 
                 // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
