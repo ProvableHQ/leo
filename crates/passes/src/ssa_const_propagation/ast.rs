@@ -70,13 +70,18 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         if let Expression::Path(path) = &input.inner
             && let Some(name) = path.try_local_symbol()
-            && let Some(fields) = self.atom_fielded_composites.get(&name)
-            && let Some(atom) = fields.get(&input.name.name)
         {
+            let name = self.resolve_composite_alias(name);
+            let Some(fields) = self.atom_fielded_composites.get(&name) else {
+                return (input.into(), None);
+            };
+            let Some(atom) = fields.get(&input.name.name).cloned() else {
+                return (input.into(), None);
+            };
             self.changed = true;
             // Recompute the atom's Value so downstream folding sees the forwarded
             // constant (literals evaluate directly; paths look up tracked constants).
-            let opt_value = match atom {
+            let opt_value = match &atom {
                 Expression::Literal(lit) => {
                     let ty = self.state.type_table.get(&lit.id());
                     const_eval::literal_to_value(lit, &ty).ok()
@@ -87,7 +92,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 // which restricts to `Path`/`Literal`.
                 _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
             };
-            return (atom.clone(), opt_value);
+            return (atom, opt_value);
         }
 
         (input.into(), None)
@@ -532,11 +537,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     }
 
     /* Statements */
-    /// Reconstruct a definition statement. If the RHS evaluates to a constant, track it
-    /// in the constants map for propagation. Additionally, when the RHS is a composite
-    /// literal whose fields are all atoms (paths or literals), record the field-to-atom
-    /// mapping so that subsequent `x.field` accesses can be forwarded without
-    /// rematerializing the struct.
+    /// Reconstruct a definition statement and update the local SSA facts used
+    /// for later rewrites: constants, atom-fielded composites, and simple
+    /// aliases of atom-fielded composites.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Reconstruct the RHS expression first.
         let (new_value, opt_value) = self.reconstruct_expression(input.value, &());
@@ -571,6 +574,13 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             if all_atoms {
                 self.atom_fielded_composites.insert(identifier.name, fields);
             }
+        }
+
+        if let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)
+            && let Some(alias) = path.try_local_symbol().map(|name| self.resolve_composite_alias(name))
+            && self.atom_fielded_composites.contains_key(&alias)
+        {
+            self.aliases.insert(identifier.name, alias);
         }
 
         input.value = new_value;

@@ -35,6 +35,8 @@ pub struct SsaConstPropagationVisitor<'a> {
     /// Used to forward `x.field` to the stored atom without rematerializing
     /// the enclosing struct — effectively scalarizing short-lived aggregates.
     pub atom_fielded_composites: IndexMap<Symbol, IndexMap<Symbol, Expression>>,
+    /// Maps local variables that are simple aliases of atom-fielded composites.
+    pub aliases: IndexMap<Symbol, Symbol>,
     /// Have we actually modified the program at all?
     pub changed: bool,
 }
@@ -42,7 +44,7 @@ pub struct SsaConstPropagationVisitor<'a> {
 /// An "atom" is an expression simple enough to substitute for another use-site
 /// without re-running arbitrary effects or duplicating work. Post-SSA, paths
 /// and literals are the only expression shapes that round-trip freely.
-pub fn is_atom(expr: &Expression) -> bool {
+pub(super) fn is_atom(expr: &Expression) -> bool {
     matches!(expr, Expression::Path(_) | Expression::Literal(_))
 }
 
@@ -53,7 +55,7 @@ fn parse_literal_value(s: &str) -> Option<i128> {
 }
 
 /// Check if a literal represents the zero/identity value for addition.
-pub fn is_zero_literal(lit: &Literal) -> bool {
+pub(super) fn is_zero_literal(lit: &Literal) -> bool {
     match &lit.variant {
         LiteralVariant::Integer(_, s)
         | LiteralVariant::Field(s)
@@ -66,7 +68,7 @@ pub fn is_zero_literal(lit: &Literal) -> bool {
 }
 
 /// Check if a literal represents the one/identity value for multiplication.
-pub fn is_one_literal(lit: &Literal) -> bool {
+pub(super) fn is_one_literal(lit: &Literal) -> bool {
     match &lit.variant {
         LiteralVariant::Integer(_, s)
         | LiteralVariant::Field(s)
@@ -79,7 +81,7 @@ pub fn is_one_literal(lit: &Literal) -> bool {
 
 /// Check if two expressions refer to the same SSA variable.
 /// In SSA form, each variable name is unique, so name equality implies value equality.
-pub fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
+pub(super) fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
     match (a, b) {
         (Expression::Path(pa), Expression::Path(pb)) => {
             let sa = pa.try_local_symbol();
@@ -91,6 +93,23 @@ pub fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
 }
 
 impl SsaConstPropagationVisitor<'_> {
+    /// Clear analysis state that is only valid within one SSA function body.
+    pub(super) fn clear_tracked_values(&mut self) {
+        self.constants.clear();
+        self.atom_fielded_composites.clear();
+        self.aliases.clear();
+    }
+
+    pub(super) fn resolve_composite_alias(&self, mut name: Symbol) -> Symbol {
+        while let Some(alias) = self.aliases.get(&name).copied() {
+            if alias == name {
+                break;
+            }
+            name = alias;
+        }
+        name
+    }
+
     /// Emit a `StaticAnalyzerError`.
     pub fn emit_err(&self, err: Formatted) {
         self.state.handler.emit_err(err);

@@ -454,6 +454,10 @@ impl Compiler {
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
+        // Final SSA can introduce simple aliases around composites. Rerun SRA
+        // before CSE/DCE so those aliases do not hide atom-valued fields.
+        self.do_pass::<SsaConstPropagation>(())?;
+
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
         self.do_pass::<DeadCodeEliminating>(())?;

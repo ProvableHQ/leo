@@ -17,8 +17,10 @@
 //! The SSA Const Propagation pass propagates constant values through the program.
 //! This pass runs after SSA formation, so each variable has a unique name.
 //!
-//! The pass tracks variables that are assigned literal values and replaces
-//! uses of those variables with their constant values.
+//! The pass tracks variables assigned literal values and replaces uses of those
+//! variables with their constant values. It also forwards short-lived atom-only
+//! aggregate fields, including through simple SSA aliases, so later cleanup can
+//! erase temporary composite materialization.
 
 use crate::Pass;
 
@@ -50,6 +52,7 @@ impl Pass for SsaConstPropagation {
                 program: Symbol::intern(""),
                 constants: Default::default(),
                 atom_fielded_composites: Default::default(),
+                aliases: Default::default(),
                 changed: false,
             };
 
