@@ -82,10 +82,9 @@ finalize bump_counter:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    cast r0 r2 into r3 as Optional__DmN5CQ9hzeK;
-    ternary r3.is_some r3.val 0u64 into r4;
-    add r4 1u64 into r5;
-    set r5 into counter__[false];
+    ternary r0 r2 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into counter__[false];
 
 function clear_counter:
     async clear_counter into r0;
