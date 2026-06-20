@@ -25,7 +25,9 @@ impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
     fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // We simply forward every expression to `try_expr` rather than using the individual reconstruct
         // functions from the `AstReconstructor` trait.
-        (self.try_expr(input, None).expect("CSE Error: Error reconstructing expression").0, Default::default())
+        let original = input.clone();
+        let expression = self.try_expr(input, None).map(|(expression, _)| expression).unwrap_or(original);
+        (expression, Default::default())
     }
 
     fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {
@@ -38,23 +40,24 @@ impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         match input.place {
             DefinitionPlace::Single(place) => {
-                let (value, definition_not_needed) = self
-                    .try_expr(input.value, Some(place.name))
-                    .expect("CSE Error: Error reconstructing single definition");
-
-                if definition_not_needed {
-                    // We don't need this definition - everywhere its variable is referred to, we'll map it to some other
-                    // Path.
-                    (Statement::dummy(), Default::default())
+                let original = input.value.clone();
+                if let Some((value, definition_not_needed)) = self.try_expr(input.value, Some(place.name)) {
+                    if definition_not_needed {
+                        // We don't need this definition - everywhere its variable is referred to, we'll map it to some other
+                        // Path.
+                        (Statement::dummy(), Default::default())
+                    } else {
+                        input.value = value;
+                        (input.into(), Default::default())
+                    }
                 } else {
-                    input.value = value;
+                    input.value = original;
                     (input.into(), Default::default())
                 }
             }
             DefinitionPlace::Multiple(_) => {
-                let (value, _) =
-                    self.try_expr(input.value, None).expect("CSE Error: Error reconstructing multiple definitions");
-                input.value = value;
+                let original = input.value.clone();
+                input.value = self.try_expr(input.value, None).map(|(expression, _)| expression).unwrap_or(original);
                 (input.into(), Default::default())
             }
         }
