@@ -19,8 +19,8 @@
 //!
 //! The pass tracks variables assigned literal values and replaces uses of those
 //! variables with their constant values. It also forwards short-lived atom-only
-//! aggregate fields, including through simple SSA aliases, so later cleanup can
-//! erase temporary composite materialization.
+//! aggregate fields, including through simple SSA aliases, and atom-only
+//! ternaries that can be forwarded safely.
 
 use crate::Pass;
 
@@ -53,6 +53,7 @@ impl Pass for SsaConstPropagation {
                 constants: Default::default(),
                 atom_fielded_composites: Default::default(),
                 aliases: Default::default(),
+                ternaries: Default::default(),
                 changed: false,
             };
 

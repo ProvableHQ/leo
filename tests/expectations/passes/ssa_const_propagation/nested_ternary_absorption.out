@@ -1,0 +1,26 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn absorb_true_branch(cond$$0: bool, a$$1: u8, b$$2: u8) -> u8 {
+        let tmp$#3 = cond$$0 ? a$$1 : b$$2;
+        let $var$4 = cond$$0 ? a$$1 : b$$2;
+        return $var$4;
+    }
+    fn absorb_false_branch(cond$$5: bool, a$$6: u8, b$$7: u8) -> u8 {
+        let tmp$#8 = cond$$5 ? a$$6 : b$$7;
+        let $var$9 = cond$$5 ? a$$6 : b$$7;
+        return $var$9;
+    }
+    fn keep_different_false(cond$$10: bool, a$$11: u8, b$$12: u8, c$$13: u8) -> u8 {
+        let tmp$#14 = cond$$10 ? a$$11 : b$$12;
+        let $var$15 = cond$$10 ? tmp$#14 : c$$13;
+        return $var$15;
+    }
+    fn keep_different_condition(cond$$16: bool, other$$17: bool, a$$18: u8, b$$19: u8) -> u8 {
+        let tmp$#20 = cond$$16 ? a$$18 : b$$19;
+        let $var$21 = other$$17 ? tmp$#20 : b$$19;
+        return $var$21;
+    }
+}
+

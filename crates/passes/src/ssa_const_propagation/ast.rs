@@ -18,7 +18,7 @@ use crate::expression_can_be_discarded;
 
 use super::{
     SsaConstPropagationVisitor,
-    visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
+    visitor::{TrackedTernary, is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
 };
 
 use leo_ast::{
@@ -439,6 +439,44 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     return (if_true, if_true_value);
                 }
 
+                // Redundant nested selection after SSA:
+                //   tmp = cond ? a : b
+                //   out = cond ? tmp : b
+                // can be rewritten to `out = cond ? a : b`. The dropped inner
+                // branch is still evaluated by the outer ternary, and tracked
+                // ternaries are atom-only, so this does not discard fallible work.
+                if let Expression::Path(path) = &if_true
+                    && let Some(name) = path.try_local_symbol()
+                    && let Some(tracked) = self.ternaries.get(&name)
+                    && same_ssa_atom(&cond, &tracked.condition)
+                    && same_ssa_atom(&if_false, &tracked.if_false)
+                {
+                    self.changed = true;
+                    return (
+                        TernaryExpression { condition: cond, if_true: tracked.if_true.clone(), if_false, ..input }
+                            .into(),
+                        None,
+                    );
+                }
+
+                // Symmetric case:
+                //   tmp = cond ? a : b
+                //   out = cond ? a : tmp
+                // can be rewritten to `out = cond ? a : b`.
+                if let Expression::Path(path) = &if_false
+                    && let Some(name) = path.try_local_symbol()
+                    && let Some(tracked) = self.ternaries.get(&name)
+                    && same_ssa_atom(&cond, &tracked.condition)
+                    && same_ssa_atom(&if_true, &tracked.if_true)
+                {
+                    self.changed = true;
+                    return (
+                        TernaryExpression { condition: cond, if_true, if_false: tracked.if_false.clone(), ..input }
+                            .into(),
+                        None,
+                    );
+                }
+
                 (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None)
             }
         }
@@ -574,6 +612,19 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             if all_atoms {
                 self.atom_fielded_composites.insert(identifier.name, fields);
             }
+        } else if let (DefinitionPlace::Single(identifier), Expression::Ternary(ternary)) = (&input.place, &new_value)
+            && is_atom(&ternary.condition)
+            && is_atom(&ternary.if_true)
+            && is_atom(&ternary.if_false)
+        {
+            self.ternaries.insert(
+                identifier.name,
+                TrackedTernary {
+                    condition: ternary.condition.clone(),
+                    if_true: ternary.if_true.clone(),
+                    if_false: ternary.if_false.clone(),
+                },
+            );
         }
 
         if let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)
