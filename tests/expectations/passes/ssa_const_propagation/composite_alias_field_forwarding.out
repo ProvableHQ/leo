@@ -15,3 +15,4 @@ program test.aleo {
         return $var$6;
     }
 }
+

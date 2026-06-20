@@ -630,14 +630,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             && is_atom(&ternary.if_true)
             && is_atom(&ternary.if_false)
         {
-            self.ternaries.insert(
-                identifier.name,
-                TrackedTernary {
-                    condition: ternary.condition.clone(),
-                    if_true: ternary.if_true.clone(),
-                    if_false: ternary.if_false.clone(),
-                },
-            );
+            self.ternaries.insert(identifier.name, TrackedTernary {
+                condition: ternary.condition.clone(),
+                if_true: ternary.if_true.clone(),
+                if_false: ternary.if_false.clone(),
+            });
         }
 
         if let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)

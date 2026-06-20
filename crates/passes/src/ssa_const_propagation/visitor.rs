@@ -64,7 +64,7 @@ pub(super) fn is_optional_wrapper_type(ty: &leo_ast::Type) -> bool {
     matches!(
         ty,
         leo_ast::Type::Composite(composite)
-            if composite.path.identifier().name.to_string().starts_with("Optional__")
+            if composite.path.identifier().name.to_string().ends_with('?')
     )
 }
 
