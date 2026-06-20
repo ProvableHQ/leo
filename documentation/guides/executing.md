@@ -8,6 +8,24 @@ sidebar_label: Executing
 
 The `leo execute` command executes the Leo program and outputs a transaction object
 
+## `leo run` vs `leo execute`
+
+Leo offers two commands for running an entry function, and they serve different
+purposes:
+
+- `leo run` evaluates the function and prints its outputs locally. It does not
+  generate a zero-knowledge proof, does not produce a transaction, and nothing
+  touches the network. This makes it fast and ideal for iterating on your logic.
+- `leo execute` compiles the program, synthesizes the circuit, generates an
+  execution proof, and produces a broadcastable [`Transaction`](https://docs.aleo.org/learn/core-concepts/transactions/index.html).
+  Pass `--broadcast` to send that transaction to the network.
+
+A typical development loop is to iterate with `leo run` until the function
+behaves as expected, then switch to `leo execute` to produce the proof and
+transaction.
+
+## Running `leo execute`
+
 ```bash
 leo execute <FUNCTION_NAME> <INPUT_1> <INPUT_2> ...
 ```
