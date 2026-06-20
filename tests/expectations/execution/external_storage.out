@@ -16,10 +16,9 @@ finalize c:
     contains count__[false] into r0;
     get.or_use count__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    cast r0 r2 into r3 as Optional__DmN5CQ9hzeK;
-    ternary r3.is_some r3.val 0u64 into r4;
-    add r4 1u64 into r5;
-    set r5 into count__[false];
+    ternary r0 r2 0u64 into r3;
+    add r3 1u64 into r4;
+    set r4 into count__[false];
 
 constructor:
     assert.eq edition 0u16;
@@ -42,10 +41,9 @@ finalize d:
     contains count__[false] into r0;
     get.or_use count__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    cast r0 r2 into r3 as Optional__DmN5CQ9hzeK;
-    ternary r3.is_some r3.val 0u64 into r4;
-    add r4 2u64 into r5;
-    set r5 into count__[false];
+    ternary r0 r2 0u64 into r3;
+    add r3 2u64 into r4;
+    set r4 into count__[false];
 
 constructor:
     assert.eq edition 0u16;
@@ -76,36 +74,31 @@ finalize b:
     contains zero_program.aleo/count__[false] into r2;
     get.or_use zero_program.aleo/count__[false] 0u64 into r3;
     ternary r2 r3 0u64 into r4;
-    cast r2 r4 into r5 as Optional__DmN5CQ9hzeK;
-    assert.eq r5.is_some true;
-    is.eq r5.val 1u64 into r6;
+    assert.eq r2 true;
+    is.eq r4 1u64 into r5;
+    assert.eq r5 true;
+    contains one_program.aleo/count__[false] into r6;
+    get.or_use one_program.aleo/count__[false] 0u64 into r7;
+    ternary r6 r7 0u64 into r8;
     assert.eq r6 true;
-    contains one_program.aleo/count__[false] into r7;
-    get.or_use one_program.aleo/count__[false] 0u64 into r8;
-    ternary r7 r8 0u64 into r9;
-    cast r7 r9 into r10 as Optional__DmN5CQ9hzeK;
-    assert.eq r10.is_some true;
-    is.eq r10.val 2u64 into r11;
-    assert.eq r11 true;
-    contains zero_program.aleo/count__[false] into r12;
-    get.or_use zero_program.aleo/count__[false] 0u64 into r13;
-    ternary r12 r13 0u64 into r14;
-    cast r12 r14 into r15 as Optional__DmN5CQ9hzeK;
-    assert.eq r15.is_some true;
-    contains one_program.aleo/count__[false] into r16;
-    get.or_use one_program.aleo/count__[false] 0u64 into r17;
-    ternary r16 r17 0u64 into r18;
-    cast r16 r18 into r19 as Optional__DmN5CQ9hzeK;
-    assert.eq r19.is_some true;
-    add r15.val r19.val into r20;
-    set r20 into count__[false];
-    contains count__[false] into r21;
-    get.or_use count__[false] 0u64 into r22;
-    ternary r21 r22 0u64 into r23;
-    cast r21 r23 into r24 as Optional__DmN5CQ9hzeK;
-    assert.eq r24.is_some true;
-    is.eq r24.val 3u64 into r25;
-    assert.eq r25 true;
+    is.eq r8 2u64 into r9;
+    assert.eq r9 true;
+    contains zero_program.aleo/count__[false] into r10;
+    get.or_use zero_program.aleo/count__[false] 0u64 into r11;
+    ternary r10 r11 0u64 into r12;
+    assert.eq r10 true;
+    contains one_program.aleo/count__[false] into r13;
+    get.or_use one_program.aleo/count__[false] 0u64 into r14;
+    ternary r13 r14 0u64 into r15;
+    assert.eq r13 true;
+    add r12 r15 into r16;
+    set r16 into count__[false];
+    contains count__[false] into r17;
+    get.or_use count__[false] 0u64 into r18;
+    ternary r17 r18 0u64 into r19;
+    assert.eq r17 true;
+    is.eq r19 3u64 into r20;
+    assert.eq r20 true;
 
 constructor:
     assert.eq edition 0u16;
