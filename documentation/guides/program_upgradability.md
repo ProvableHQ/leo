@@ -134,6 +134,25 @@ constructor:
     position end;
 ```
 
+### Warning: Keep Compiler Versions Consistent
+
+Checksum-governed upgrades are bytecode-sensitive. Do not assume bytecode is stable across Leo compiler versions: different compiler versions can produce different bytecode for identical source, which can cause a checksum-governed upgrade to fail.
+
+Pin the Leo compiler version used for the initial deployment and all subsequent upgrades. Before deploying or approving an upgrade, check the local toolchain:
+
+```bash
+leo --version
+```
+
+To inspect the source currently deployed on the network, query the program. Use `--edition <N>` when you need to inspect a specific edition:
+
+```bash
+leo query program <NAME>
+leo query program <NAME> --edition <N>
+```
+
+The query returns deployed source; it does not print the compiler version. Use it with your pinned toolchain record and rebuild with the same Leo version to avoid bytecode drift.
+
 ### Pattern 4: Custom Logic (Time-lock Example)
 
 **Goal:** Enforce a time delay before an upgrade is allowed. No pre-defined mode is available for this so we'll have to write our own upgrade policy
