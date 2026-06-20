@@ -46,10 +46,9 @@ finalize main:
     contains local_count__[false] into r2;
     get.or_use local_count__[false] 0u32 into r3;
     ternary r2 r3 0u32 into r4;
-    cast r2 r4 into r5 as Optional__JzunLORyB8U;
-    ternary r5.is_some r5.val 0u32 into r6;
-    add r6 r1 into r7;
-    set r7 into local_count__[false];
+    ternary r2 r4 0u32 into r5;
+    add r5 r1 into r6;
+    set r6 into local_count__[false];
 
 constructor:
     assert.eq edition 0u16;

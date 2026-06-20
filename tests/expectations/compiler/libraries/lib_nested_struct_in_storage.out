@@ -34,9 +34,8 @@ finalize pick:
     ternary r0 r3.size_x r5.size_x into r9;
     ternary r0 r3.size_y r5.size_y into r10;
     cast r8 r9 r10 into r11 as Rect__2UBYikAziAq;
-    cast r0 r11 into r12 as Optional__93SfMrvy3aW;
-    assert.eq r12.is_some true;
-    assert.eq r12.val.top_left.x r12.val.top_left.x;
+    assert.eq r0 true;
+    assert.eq r11.top_left.x r11.top_left.x;
 
 constructor:
     assert.eq edition 0u16;

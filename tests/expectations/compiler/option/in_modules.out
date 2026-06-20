@@ -23,26 +23,21 @@ struct Optional__JhjheGVkhvE:
     val as [Wrapper__6VZ6TvN0ax; 3u32];
 
 function basic_implicit_return:
-    cast true 5u8 into r0 as Optional__3aph2JMPtnA;
-    assert.eq r0.is_some true;
-    output r0.val as u8.private;
+    assert.eq true true;
+    output 5u8 as u8.private;
 
 function basic_implicit_argument:
-    cast true 42u8 into r0 as Optional__3aph2JMPtnA;
-    ternary r0.is_some r0.val 100u8 into r1;
-    output r1 as u8.private;
+    output 42u8 as u8.private;
 
 function basic_implicit_ternary:
     input r0 as boolean.private;
     ternary r0 10u8 0u8 into r1;
-    cast r0 r1 into r2 as Optional__3aph2JMPtnA;
-    assert.eq r2.is_some true;
-    output r2.val as u8.private;
+    assert.eq r0 true;
+    output r1 as u8.private;
 
 function basic_implicit_reassignment:
-    cast true 99u8 into r0 as Optional__3aph2JMPtnA;
-    assert.eq r0.is_some true;
-    output r0.val as u8.private;
+    assert.eq true true;
+    output 99u8 as u8.private;
 
 function complex_implicit_return:
     cast true 8u8 into r0 as Optional__3aph2JMPtnA;
@@ -53,19 +48,16 @@ function complex_implicit_return:
     cast false r4 into r5 as Optional__4x5ZWv8vmos;
     cast r2 r5 into r6 as [Optional__4x5ZWv8vmos; 2u32];
     cast r6 into r7 as Wrapper__6VZ6TvN0ax;
-    cast true r7 into r8 as Optional__7J0YWbeOZxr;
-    assert.eq r8.is_some true;
-    assert.eq r8.val.arr[0u32].is_some true;
-    cast false 0u8 into r9 as Optional__3aph2JMPtnA;
-    ternary r8.val.arr[1u32].is_some r8.val.arr[1u32].val.x.is_some r9.is_some into r10;
-    ternary r8.val.arr[1u32].is_some r8.val.arr[1u32].val.x.val r9.val into r11;
-    cast r10 r11 into r12 as Optional__3aph2JMPtnA;
-    cast r12 into r13 as Foo__JLzIT8VEyGW;
-    cast r8.val.arr[0u32].val.x r13.x into r14 as [Optional__3aph2JMPtnA; 2u32];
-    assert.eq r14[0u32].is_some true;
-    ternary r14[1u32].is_some r14[1u32].val 0u8 into r15;
-    cast r14[0u32].val r15 into r16 as [u8; 2u32];
-    output r16 as [u8; 2u32].private;
+    assert.eq r7.arr[0u32].is_some true;
+    ternary r7.arr[1u32].is_some r7.arr[1u32].val.x.is_some false into r8;
+    ternary r7.arr[1u32].is_some r7.arr[1u32].val.x.val 0u8 into r9;
+    cast r8 r9 into r10 as Optional__3aph2JMPtnA;
+    cast r10 into r11 as Foo__JLzIT8VEyGW;
+    cast r7.arr[0u32].val.x r11.x into r12 as [Optional__3aph2JMPtnA; 2u32];
+    assert.eq r12[0u32].is_some true;
+    ternary r12[1u32].is_some r12[1u32].val 0u8 into r13;
+    cast r12[0u32].val r13 into r14 as [u8; 2u32];
+    output r14 as [u8; 2u32].private;
 
 function complex_implicit_argument:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
@@ -76,11 +68,9 @@ function complex_implicit_argument:
     cast false r4 into r5 as Optional__4x5ZWv8vmos;
     cast r2 r5 into r6 as [Optional__4x5ZWv8vmos; 2u32];
     cast r6 into r7 as Wrapper__6VZ6TvN0ax;
-    cast true r7 into r8 as Optional__7J0YWbeOZxr;
-    assert.eq r8.is_some true;
-    assert.eq r8.val.arr[0u32].is_some true;
-    ternary r8.val.arr[0u32].val.x.is_some r8.val.arr[0u32].val.x.val 0u8 into r9;
-    output r9 as u8.private;
+    assert.eq r7.arr[0u32].is_some true;
+    ternary r7.arr[0u32].val.x.is_some r7.arr[0u32].val.x.val 0u8 into r8;
+    output r8 as u8.private;
 
 function complex_implicit_ternary:
     input r0 as boolean.private;
@@ -111,19 +101,17 @@ function complex_implicit_ternary:
     cast r24 r23 into r25 as Optional__4x5ZWv8vmos;
     cast r19 r25 into r26 as [Optional__4x5ZWv8vmos; 2u32];
     cast r26 into r27 as Wrapper__6VZ6TvN0ax;
-    cast r0 r27 into r28 as Optional__7J0YWbeOZxr;
-    assert.eq r28.is_some true;
-    assert.eq r28.val.arr[0u32].is_some true;
-    cast false 0u8 into r29 as Optional__3aph2JMPtnA;
-    ternary r28.val.arr[1u32].is_some r28.val.arr[1u32].val.x.is_some r29.is_some into r30;
-    ternary r28.val.arr[1u32].is_some r28.val.arr[1u32].val.x.val r29.val into r31;
-    cast r30 r31 into r32 as Optional__3aph2JMPtnA;
-    cast r32 into r33 as Foo__JLzIT8VEyGW;
-    cast r28.val.arr[0u32].val.x r33.x into r34 as [Optional__3aph2JMPtnA; 2u32];
-    ternary r34[0u32].is_some r34[0u32].val 0u8 into r35;
-    ternary r34[1u32].is_some r34[1u32].val 0u8 into r36;
-    cast r35 r36 into r37 as [u8; 2u32];
-    output r37 as [u8; 2u32].private;
+    assert.eq r0 true;
+    assert.eq r27.arr[0u32].is_some true;
+    ternary r27.arr[1u32].is_some r27.arr[1u32].val.x.is_some false into r28;
+    ternary r27.arr[1u32].is_some r27.arr[1u32].val.x.val 0u8 into r29;
+    cast r28 r29 into r30 as Optional__3aph2JMPtnA;
+    cast r30 into r31 as Foo__JLzIT8VEyGW;
+    cast r27.arr[0u32].val.x r31.x into r32 as [Optional__3aph2JMPtnA; 2u32];
+    ternary r32[0u32].is_some r32[0u32].val 0u8 into r33;
+    ternary r32[1u32].is_some r32[1u32].val 0u8 into r34;
+    cast r33 r34 into r35 as [u8; 2u32];
+    output r35 as [u8; 2u32].private;
 
 function complex_implicit_reassignment:
     cast true 7u8 into r0 as Optional__3aph2JMPtnA;
@@ -134,11 +122,9 @@ function complex_implicit_reassignment:
     cast false r4 into r5 as Optional__4x5ZWv8vmos;
     cast r2 r5 into r6 as [Optional__4x5ZWv8vmos; 2u32];
     cast r6 into r7 as Wrapper__6VZ6TvN0ax;
-    cast true r7 into r8 as Optional__7J0YWbeOZxr;
-    assert.eq r8.is_some true;
-    assert.eq r8.val.arr[0u32].is_some true;
-    assert.eq r8.val.arr[0u32].val.x.is_some true;
-    output r8.val.arr[0u32].val.x.val as u8.private;
+    assert.eq r7.arr[0u32].is_some true;
+    assert.eq r7.arr[0u32].val.x.is_some true;
+    output r7.arr[0u32].val.x.val as u8.private;
 
 function complex_array_wrapping:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
@@ -147,36 +133,31 @@ function complex_array_wrapping:
     cast r2 r2 into r3 as [Optional__4x5ZWv8vmos; 2u32];
     cast r3 into r4 as Wrapper__6VZ6TvN0ax;
     cast r4 r4 r4 into r5 as [Wrapper__6VZ6TvN0ax; 3u32];
-    cast false r5 into r6 as Optional__JhjheGVkhvE;
-    assert.eq r6.is_some true;
-    assert.eq r6.val[0u32].arr[0u32].is_some true;
-    assert.eq r6.val[2u32].arr[0u32].is_some true;
-    cast false 0u8 into r7 as Optional__3aph2JMPtnA;
-    ternary r6.val[0u32].arr[1u32].is_some r6.val[0u32].arr[1u32].val.x.is_some r7.is_some into r8;
-    ternary r6.val[0u32].arr[1u32].is_some r6.val[0u32].arr[1u32].val.x.val r7.val into r9;
-    cast r8 r9 into r10 as Optional__3aph2JMPtnA;
-    cast r10 into r11 as Foo__JLzIT8VEyGW;
-    cast r6.val[0u32].arr[0u32].val.x r11.x into r12 as [Optional__3aph2JMPtnA; 2u32];
-    cast false 0u8 into r13 as Optional__3aph2JMPtnA;
-    ternary r6.val[1u32].arr[0u32].is_some r6.val[1u32].arr[0u32].val.x.is_some r13.is_some into r14;
-    ternary r6.val[1u32].arr[0u32].is_some r6.val[1u32].arr[0u32].val.x.val r13.val into r15;
-    cast r14 r15 into r16 as Optional__3aph2JMPtnA;
-    cast r16 into r17 as Foo__JLzIT8VEyGW;
-    cast false 0u8 into r18 as Optional__3aph2JMPtnA;
-    ternary r6.val[1u32].arr[1u32].is_some r6.val[1u32].arr[1u32].val.x.is_some r18.is_some into r19;
-    ternary r6.val[1u32].arr[1u32].is_some r6.val[1u32].arr[1u32].val.x.val r18.val into r20;
-    cast r19 r20 into r21 as Optional__3aph2JMPtnA;
-    cast r21 into r22 as Foo__JLzIT8VEyGW;
-    cast r17.x r22.x into r23 as [Optional__3aph2JMPtnA; 2u32];
-    cast false 0u8 into r24 as Optional__3aph2JMPtnA;
-    ternary r6.val[2u32].arr[1u32].is_some r6.val[2u32].arr[1u32].val.x.is_some r24.is_some into r25;
-    ternary r6.val[2u32].arr[1u32].is_some r6.val[2u32].arr[1u32].val.x.val r24.val into r26;
-    cast r25 r26 into r27 as Optional__3aph2JMPtnA;
-    cast r27 into r28 as Foo__JLzIT8VEyGW;
-    cast r6.val[2u32].arr[0u32].val.x r28.x into r29 as [Optional__3aph2JMPtnA; 2u32];
-    cast r12 r23 r29 into r30 as [[Optional__3aph2JMPtnA; 2u32]; 3u32];
-    ternary r30[0u32][0u32].is_some r30[0u32][0u32].val 0u8 into r31;
-    output r31 as u8.private;
+    assert.eq false true;
+    assert.eq r5[0u32].arr[0u32].is_some true;
+    assert.eq r5[2u32].arr[0u32].is_some true;
+    ternary r5[0u32].arr[1u32].is_some r5[0u32].arr[1u32].val.x.is_some false into r6;
+    ternary r5[0u32].arr[1u32].is_some r5[0u32].arr[1u32].val.x.val 0u8 into r7;
+    cast r6 r7 into r8 as Optional__3aph2JMPtnA;
+    cast r8 into r9 as Foo__JLzIT8VEyGW;
+    cast r5[0u32].arr[0u32].val.x r9.x into r10 as [Optional__3aph2JMPtnA; 2u32];
+    ternary r5[1u32].arr[0u32].is_some r5[1u32].arr[0u32].val.x.is_some false into r11;
+    ternary r5[1u32].arr[0u32].is_some r5[1u32].arr[0u32].val.x.val 0u8 into r12;
+    cast r11 r12 into r13 as Optional__3aph2JMPtnA;
+    cast r13 into r14 as Foo__JLzIT8VEyGW;
+    ternary r5[1u32].arr[1u32].is_some r5[1u32].arr[1u32].val.x.is_some false into r15;
+    ternary r5[1u32].arr[1u32].is_some r5[1u32].arr[1u32].val.x.val 0u8 into r16;
+    cast r15 r16 into r17 as Optional__3aph2JMPtnA;
+    cast r17 into r18 as Foo__JLzIT8VEyGW;
+    cast r14.x r18.x into r19 as [Optional__3aph2JMPtnA; 2u32];
+    ternary r5[2u32].arr[1u32].is_some r5[2u32].arr[1u32].val.x.is_some false into r20;
+    ternary r5[2u32].arr[1u32].is_some r5[2u32].arr[1u32].val.x.val 0u8 into r21;
+    cast r20 r21 into r22 as Optional__3aph2JMPtnA;
+    cast r22 into r23 as Foo__JLzIT8VEyGW;
+    cast r5[2u32].arr[0u32].val.x r23.x into r24 as [Optional__3aph2JMPtnA; 2u32];
+    cast r10 r19 r24 into r25 as [[Optional__3aph2JMPtnA; 2u32]; 3u32];
+    ternary r25[0u32][0u32].is_some r25[0u32][0u32].val 0u8 into r26;
+    output r26 as u8.private;
 
 function complex_array_access:
     cast true 10u8 into r0 as Optional__3aph2JMPtnA;
@@ -204,36 +185,30 @@ function complex_array_access:
     cast r18 r21 into r22 as [Optional__4x5ZWv8vmos; 2u32];
     cast r22 into r23 as Wrapper__6VZ6TvN0ax;
     cast r7 r15 r23 into r24 as [Wrapper__6VZ6TvN0ax; 3u32];
-    cast true r24 into r25 as Optional__JhjheGVkhvE;
-    assert.eq r25.is_some true;
-    assert.eq r25.val[0u32].arr[0u32].is_some true;
-    assert.eq r25.val[1u32].arr[0u32].is_some true;
-    cast false 0u8 into r26 as Optional__3aph2JMPtnA;
-    ternary r25.val[0u32].arr[1u32].is_some r25.val[0u32].arr[1u32].val.x.is_some r26.is_some into r27;
-    ternary r25.val[0u32].arr[1u32].is_some r25.val[0u32].arr[1u32].val.x.val r26.val into r28;
-    cast r27 r28 into r29 as Optional__3aph2JMPtnA;
-    cast r29 into r30 as Foo__JLzIT8VEyGW;
-    cast r25.val[0u32].arr[0u32].val.x r30.x into r31 as [Optional__3aph2JMPtnA; 2u32];
-    cast false 0u8 into r32 as Optional__3aph2JMPtnA;
-    ternary r25.val[1u32].arr[1u32].is_some r25.val[1u32].arr[1u32].val.x.is_some r32.is_some into r33;
-    ternary r25.val[1u32].arr[1u32].is_some r25.val[1u32].arr[1u32].val.x.val r32.val into r34;
-    cast r33 r34 into r35 as Optional__3aph2JMPtnA;
-    cast r35 into r36 as Foo__JLzIT8VEyGW;
-    cast r25.val[1u32].arr[0u32].val.x r36.x into r37 as [Optional__3aph2JMPtnA; 2u32];
-    cast false 0u8 into r38 as Optional__3aph2JMPtnA;
-    ternary r25.val[2u32].arr[0u32].is_some r25.val[2u32].arr[0u32].val.x.is_some r38.is_some into r39;
-    ternary r25.val[2u32].arr[0u32].is_some r25.val[2u32].arr[0u32].val.x.val r38.val into r40;
+    assert.eq r24[0u32].arr[0u32].is_some true;
+    assert.eq r24[1u32].arr[0u32].is_some true;
+    ternary r24[0u32].arr[1u32].is_some r24[0u32].arr[1u32].val.x.is_some false into r25;
+    ternary r24[0u32].arr[1u32].is_some r24[0u32].arr[1u32].val.x.val 0u8 into r26;
+    cast r25 r26 into r27 as Optional__3aph2JMPtnA;
+    cast r27 into r28 as Foo__JLzIT8VEyGW;
+    cast r24[0u32].arr[0u32].val.x r28.x into r29 as [Optional__3aph2JMPtnA; 2u32];
+    ternary r24[1u32].arr[1u32].is_some r24[1u32].arr[1u32].val.x.is_some false into r30;
+    ternary r24[1u32].arr[1u32].is_some r24[1u32].arr[1u32].val.x.val 0u8 into r31;
+    cast r30 r31 into r32 as Optional__3aph2JMPtnA;
+    cast r32 into r33 as Foo__JLzIT8VEyGW;
+    cast r24[1u32].arr[0u32].val.x r33.x into r34 as [Optional__3aph2JMPtnA; 2u32];
+    ternary r24[2u32].arr[0u32].is_some r24[2u32].arr[0u32].val.x.is_some false into r35;
+    ternary r24[2u32].arr[0u32].is_some r24[2u32].arr[0u32].val.x.val 0u8 into r36;
+    cast r35 r36 into r37 as Optional__3aph2JMPtnA;
+    cast r37 into r38 as Foo__JLzIT8VEyGW;
+    ternary r24[2u32].arr[1u32].is_some r24[2u32].arr[1u32].val.x.is_some false into r39;
+    ternary r24[2u32].arr[1u32].is_some r24[2u32].arr[1u32].val.x.val 0u8 into r40;
     cast r39 r40 into r41 as Optional__3aph2JMPtnA;
     cast r41 into r42 as Foo__JLzIT8VEyGW;
-    cast false 0u8 into r43 as Optional__3aph2JMPtnA;
-    ternary r25.val[2u32].arr[1u32].is_some r25.val[2u32].arr[1u32].val.x.is_some r43.is_some into r44;
-    ternary r25.val[2u32].arr[1u32].is_some r25.val[2u32].arr[1u32].val.x.val r43.val into r45;
-    cast r44 r45 into r46 as Optional__3aph2JMPtnA;
-    cast r46 into r47 as Foo__JLzIT8VEyGW;
-    cast r42.x r47.x into r48 as [Optional__3aph2JMPtnA; 2u32];
-    cast r31 r37 r48 into r49 as [[Optional__3aph2JMPtnA; 2u32]; 3u32];
-    assert.eq r49[1u32][0u32].is_some true;
-    output r49[1u32][0u32].val as u8.private;
+    cast r38.x r42.x into r43 as [Optional__3aph2JMPtnA; 2u32];
+    cast r29 r34 r43 into r44 as [[Optional__3aph2JMPtnA; 2u32]; 3u32];
+    assert.eq r44[1u32][0u32].is_some true;
+    output r44[1u32][0u32].val as u8.private;
 
 constructor:
     assert.eq edition 0u16;

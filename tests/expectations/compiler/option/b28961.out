@@ -23,37 +23,16 @@ struct Wrap:
     val as Optional__JzunLORyB8U;
 
 function assign_optional_from_unwrap:
-    cast true 5u32 into r0 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    cast true r0.val into r1 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    add r0.val 7u32 into r2;
-    cast true r2 into r3 as Optional__JzunLORyB8U;
-    ternary r0.is_some r0.val 0u32 into r4;
-    cast true r4 into r5 as Optional__JzunLORyB8U;
-    assert.eq r1.is_some true;
-    assert.eq r3.is_some true;
-    assert.eq r5.is_some true;
-    add r1.val r3.val into r6;
-    add r6 r5.val into r7;
-    output r7 as u32.private;
+    assert.eq true true;
+    output 22u32 as u32.private;
 
 function unwrap_inside_expression:
-    cast true 9u32 into r0 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    mul r0.val 2u32 into r1;
-    add r1 3u32 into r2;
-    output r2 as u32.private;
+    assert.eq true true;
+    output 21u32 as u32.private;
 
 function nested_expression_unwraps:
-    cast true 4u32 into r0 as Optional__JzunLORyB8U;
-    cast true 6u32 into r1 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    assert.eq r0.is_some true;
-    mul r1.val r0.val into r2;
-    add r0.val r2 into r3;
-    output r3 as u32.private;
+    assert.eq true true;
+    output 28u32 as u32.private;
 
 function unwrap_in_arrays:
     cast true 1u32 into r0 as Optional__JzunLORyB8U;
@@ -71,95 +50,49 @@ function optional_array_handling:
     cast true 7u32 into r0 as Optional__JzunLORyB8U;
     cast false 0u32 into r1 as Optional__JzunLORyB8U;
     cast r0 r1 into r2 as [Optional__JzunLORyB8U; 2u32];
-    cast true r2 into r3 as Optional__KLO2TLUX4k3;
-    assert.eq r3.is_some true;
-    assert.eq r3.val[0u32].is_some true;
-    output r3.val[0u32].val as u32.private;
+    assert.eq r2[0u32].is_some true;
+    output r2[0u32].val as u32.private;
 
 function optional_struct_field_expr:
     cast 11u32 into r0 as S;
-    cast true r0 into r1 as Optional__9bKza3QPqox;
-    assert.eq r1.is_some true;
-    add r1.val.x 5u32 into r2;
-    output r2 as u32.private;
+    add r0.x 5u32 into r1;
+    output r1 as u32.private;
 
 function optional_struct_unwrap_assign:
     cast 30u32 into r0 as S;
-    cast true r0 into r1 as Optional__9bKza3QPqox;
-    assert.eq r1.is_some true;
-    add r1.val.x 12u32 into r2;
-    cast true r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    output r3.val as u32.private;
+    add r0.x 12u32 into r1;
+    output r1 as u32.private;
 
 function nested_struct_array_mix:
     cast true 1u32 into r0 as Optional__JzunLORyB8U;
     cast false 0u32 into r1 as Optional__JzunLORyB8U;
     cast r0 r1 into r2 as [Optional__JzunLORyB8U; 2u32];
-    cast true r2 into r3 as Optional__KLO2TLUX4k3;
-    assert.eq r3.is_some true;
-    ternary r3.val[0u32].is_some r3.val[0u32].val 0u32 into r4;
-    ternary r3.val[1u32].is_some r3.val[1u32].val 20u32 into r5;
-    add r4 r5 into r6;
-    output r6 as u32.private;
+    ternary r2[0u32].is_some r2[0u32].val 0u32 into r3;
+    ternary r2[1u32].is_some r2[1u32].val 20u32 into r4;
+    add r3 r4 into r5;
+    output r5 as u32.private;
 
 function tuple_optional_fields:
-    cast true 4u32 into r0 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    add r0.val 9u32 into r1;
-    output r1 as u32.private;
+    assert.eq true true;
+    output 13u32 as u32.private;
 
 function optionals_in_function_context:
-    cast true 6u32 into r0 as Optional__JzunLORyB8U;
-    cast false 0u32 into r1 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    add r0.val 2u32 into r2;
-    ternary r1.is_some r1.val 4u32 into r3;
-    mul r2 r3 into r4;
-    output r4 as u32.private;
+    assert.eq true true;
+    output 32u32 as u32.private;
 
 function stress_compound_unwrap:
-    cast true 2u32 into r0 as Optional__JzunLORyB8U;
-    cast true 3u32 into r1 as Optional__JzunLORyB8U;
-    cast false 0u32 into r2 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    assert.eq r0.is_some true;
-    assert.eq r1.is_some true;
-    add r0.val r1.val into r3;
-    mul r0.val r1.val into r4;
-    add r3 r4 into r5;
-    ternary r2.is_some r2.val 7u32 into r6;
-    add r5 r6 into r7;
-    add r0.val r1.val into r8;
-    add r7 r8 into r9;
-    output r9 as u32.private;
+    assert.eq true true;
+    output 23u32 as u32.private;
 
 function ternary_optional_cases:
-    cast true 10u32 into r0 as Optional__JzunLORyB8U;
+    cast false 0u32 into r0 as Optional__JzunLORyB8U;
+    assert.eq false true;
     cast false 0u32 into r1 as Optional__JzunLORyB8U;
-    assert.eq r0.is_some true;
-    assert.eq r0.is_some true;
-    add r0.val 5u32 into r2;
-    cast true r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    mul r3.val 2u32 into r4;
-    assert.eq r1.is_some true;
-    assert.eq r0.is_some true;
-    cast false 0u32 into r5 as Optional__JzunLORyB8U;
-    is.neq r1 r5 into r6;
-    add r0.val 1u32 into r7;
-    ternary r6 r1.val r7 into r8;
-    cast true r8 into r9 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    assert.eq r9.is_some true;
-    add r0.val r3.val into r10;
-    add r10 r4 into r11;
-    add r11 r8 into r12;
-    add r12 r9.val into r13;
-    output r13 as u32.private;
+    is.neq r0 r1 into r2;
+    ternary r2 0u32 11u32 into r3;
+    add 55u32 r3 into r4;
+    add r4 r3 into r5;
+    output r5 as u32.private;
 
 constructor:
     assert.eq edition 0u16;
