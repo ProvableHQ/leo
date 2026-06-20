@@ -52,7 +52,7 @@ program singleton_storage.aleo {
             _mapping_set(singleton_storage.aleo::vec__, 3u32, 42u8);
         };
     }
-    fn get_statement_fallible_index(public x: u32) -> Final<Fn(u32)> {
+    fn get_statement_fallible_index(public x: u32) -> Final<Fn()> {
         return async {
             let $index$6 = 1u32 / x;
             let $len_var$7 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);

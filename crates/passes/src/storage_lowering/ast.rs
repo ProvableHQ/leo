@@ -985,11 +985,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             // Type checking only permits call-like expression statements, so
             // preserve evaluation by binding the lowered expression to a local.
             let discard_sym = self.state.assigner.unique_symbol("$discard", "$");
-            let discard_ident = Identifier {
-                name: discard_sym,
-                span: Default::default(),
-                id: self.state.node_builder.next_id(),
-            };
+            let discard_ident =
+                Identifier { name: discard_sym, span: Default::default(), id: self.state.node_builder.next_id() };
             (
                 DefinitionStatement {
                     place: DefinitionPlace::Single(discard_ident),
