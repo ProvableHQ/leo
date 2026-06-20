@@ -18,7 +18,7 @@ input = ["5u32"]
 
 // --- library: math_lib --- //
 
-fn add_one(x: u32) -> u32 {
+export fn add_one(x: u32) -> u32 {
     return x + 1u32;
 }
 
@@ -35,7 +35,7 @@ program child.aleo {
 
 // --- Next Module: util.leo --- //
 
-fn bumped(x: u32) -> u32 {
+export fn bumped(x: u32) -> u32 {
     return math_lib::add_one(x) * 2u32;
 }
 

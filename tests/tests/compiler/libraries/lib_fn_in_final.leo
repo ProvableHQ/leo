@@ -2,7 +2,7 @@
 
 // --- library: math_lib --- //
 
-fn add(a: u64, b: u64) -> u64 {
+export fn add(a: u64, b: u64) -> u64 {
     return a + b;
 }
 

@@ -334,6 +334,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         // Visibility & assertion keywords
         "public" => KW_PUBLIC,
         "private" => KW_PRIVATE,
+        "export" => KW_EXPORT,
         "as" => KW_AS,
         "self" => KW_SELF,
         "assert" => KW_ASSERT,

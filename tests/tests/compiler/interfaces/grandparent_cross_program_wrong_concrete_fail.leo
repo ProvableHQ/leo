@@ -8,7 +8,7 @@
 // fix keyed abstract records by their fully-qualified Location, so only
 // test.aleo/[Token] (program == self.current_program) can satisfy the requirement.
 
-interface IGP {
+export interface IGP {
     record Token {
         owner: address,
         ..
@@ -26,7 +26,7 @@ program grandparent.aleo {
 // --- Next Program --- //
 import grandparent.aleo;
 
-interface IP: grandparent.aleo::IGP {
+export interface IP: grandparent.aleo::IGP {
     fn fn2(t: Token) -> Token;
 }
 

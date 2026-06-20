@@ -681,6 +681,7 @@ pub trait UnitReconstructor: AstReconstructor {
 
     fn reconstruct_interface(&mut self, input: Interface) -> Interface {
         Interface {
+            is_exported: input.is_exported,
             identifier: input.identifier,
             parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),
             span: input.span,
@@ -768,6 +769,7 @@ pub trait UnitReconstructor: AstReconstructor {
 
     fn reconstruct_function(&mut self, input: Function) -> Function {
         Function {
+            is_exported: input.is_exported,
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,

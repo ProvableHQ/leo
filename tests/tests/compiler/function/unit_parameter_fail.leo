@@ -1,4 +1,4 @@
-struct S {
+export struct S {
     x: (),
     y: u8,
 }

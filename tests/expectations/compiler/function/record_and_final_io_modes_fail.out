@@ -135,23 +135,23 @@
     │ Help: Remove the `public`, `private`, or `constant` modifier.
 ────╯
 [ETYC0372057] Error: only entry point fns can have a record as input or output
-    ╭─[ compiler-test:50:11 ]
+    ╭─[ compiler-test:50:18 ]
     │
- 50 │ fn helper(public t: Token) -> u8 { return 1u8; }
+ 50 │ export fn helper(public t: Token) -> u8 { return 1u8; }
     │ 
     │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯
 [ETYC0372028] Error: regular `fn` inputs cannot have visibility modes
-    ╭─[ compiler-test:50:11 ]
+    ╭─[ compiler-test:50:18 ]
     │
- 50 │ fn helper(public t: Token) -> u8 { return 1u8; }
+ 50 │ export fn helper(public t: Token) -> u8 { return 1u8; }
     │ 
     │ Help: Remove the `public`, `private`, or `constant` modifier.
 ────╯
 [ETYC0372028] Error: `final fn` inputs cannot have visibility modes
-    ╭─[ compiler-test:59:20 ]
+    ╭─[ compiler-test:59:27 ]
     │
- 59 │ final fn fin_moded(public f: Final) {}
+ 59 │ export final fn fin_moded(public f: Final) {}
     │ 
     │ Help: Remove the `public`, `private`, or `constant` modifier.
 ────╯

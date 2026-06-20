@@ -24,7 +24,7 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
-const SMALL: u64 = 0_1u64;
+export const SMALL: u64 = 0_1u64;
 
 program test.aleo {
     mapping counter: address => u64;

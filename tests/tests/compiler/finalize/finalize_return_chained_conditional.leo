@@ -17,7 +17,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn settle_amount(receiver: address, amount: u64) -> u64 {
+export final fn settle_amount(receiver: address, amount: u64) -> u64 {
     let capped: u64 = capped_amount(receiver, amount);
     if capped == 0u64 {
         return 1u64;
@@ -25,7 +25,7 @@ final fn settle_amount(receiver: address, amount: u64) -> u64 {
     return capped;
 }
 
-final fn capped_amount(receiver: address, amount: u64) -> u64 {
+export final fn capped_amount(receiver: address, amount: u64) -> u64 {
     let current: u64 = Mapping::get_or_use(account, receiver, 0u64);
     if current + amount > 1000u64 {
         return 1000u64;

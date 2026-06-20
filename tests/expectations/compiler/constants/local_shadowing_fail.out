@@ -5,9 +5,9 @@
     │
     ├─[ compiler-test:10:23 ]
     │
-  1 │ const HELLO: u8 = 0u8;
-    │       ──┬──  
-    │         ╰──── previous definition of `HELLO` here
+  1 │ export const HELLO: u8 = 0u8;
+    │              ──┬──  
+    │                ╰──── previous definition of `HELLO` here
     │ 
  10 │                 const HELLO: u8 = 1u8;
     │                       ──┬──  

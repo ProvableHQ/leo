@@ -1,7 +1,7 @@
 // Updates on-chain state by the amount of tokens deposited.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were deposited.
-final fn finalize_deposit(hash: field, amount: u64) {
+export final fn finalize_deposit(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount + amount);
 }
@@ -9,7 +9,7 @@ final fn finalize_deposit(hash: field, amount: u64) {
 // Updates on-chain state by the amount of tokens withdrawn.
 // - `hash`  : The hash of the token owner.
 // - `amount`: The amount of tokens that were withdrawn.
-final fn finalize_withdraw(hash: field, amount: u64) {
+export final fn finalize_withdraw(hash: field, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(balances, hash, 0u64);
     Mapping::set(balances, hash, current_amount - amount);
 }
@@ -18,7 +18,7 @@ final fn finalize_withdraw(hash: field, amount: u64) {
 // - `principal`: The amount of tokens to compound interest over.
 // - `rate`     : The compound interest rate.
 // - `periods`  : The number of periods to compound the interest over.
-fn calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
+export fn calculate_interest(principal: u64, rate: u64, periods: u64) -> u64 {
     let amount: u64 = principal;
     for i: u64 in 0u64..100u64 {
         if i < periods {

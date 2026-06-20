@@ -1,4 +1,4 @@
-interface TokenInterface {
+export interface TokenInterface {
     record Token {
         owner: address,
         private amount: u64,

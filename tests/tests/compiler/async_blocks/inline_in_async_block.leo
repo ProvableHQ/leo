@@ -1,4 +1,4 @@
-fn foo(a: u8, b: u8) -> u8 {
+export fn foo(a: u8, b: u8) -> u8 {
     assert_neq(a, b);
     return a + b;
 }

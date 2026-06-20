@@ -1,7 +1,7 @@
 // Regression: old `/` separator in external struct-init position must not panic.
 // Grammar treats `credits.aleo` as a PROGRAM_REF_EXPR (address literal) and
 // `/Token { ... }` as a division expression — no parse error.
-struct Token {
+export struct Token {
     addr: address,
 }
 

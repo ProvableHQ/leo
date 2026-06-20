@@ -1,7 +1,7 @@
-const START: u32 = 0u32;
-const STOP: u32 = 6u32;
+export const START: u32 = 0u32;
+export const STOP: u32 = 6u32;
 
-final fn foo(a: u32) {
+export final fn foo(a: u32) {
     for i: u32 in START + 1u32..STOP - 2u32 {
         const SOME: u32 = a + 1u32;
         for j: u32 in SOME + 1u32..STOP {

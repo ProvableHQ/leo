@@ -83,6 +83,11 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Set the current program name.
         self.scope_state.unit_name = Some(unit_name);
 
+        // Reject inheriting from interfaces that aren't accessible from this program scope.
+        // Conformance/cycle checks happen later in `check_interfaces`; this is the visibility
+        // policy, which belongs in type-checking.
+        self.check_parent_interface_accessibility(&input.parents);
+
         // Collect a map from record names to their spans
         let record_info: BTreeMap<String, leo_span::Span> = input
             .composites
@@ -232,6 +237,9 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_interface(&mut self, input: &Interface) {
+        // Reject inheriting from interfaces that aren't accessible from this declaration site.
+        self.check_parent_interface_accessibility(&input.parents);
+
         // Entry point functions declared in interfaces cannot have const generic parameters.
         for (_, prototype) in &input.functions {
             if !prototype.const_parameters.is_empty() {

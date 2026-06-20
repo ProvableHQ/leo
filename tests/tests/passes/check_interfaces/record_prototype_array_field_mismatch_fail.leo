@@ -2,7 +2,7 @@
 // the implementing program provides [u8; 16]. The field types differ in array length,
 // so this should fail with a record_field_type_mismatch error.
 
-interface Vault {
+export interface Vault {
     record Entry {
         owner: address,
         data: [u8; 32],

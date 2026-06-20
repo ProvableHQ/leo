@@ -1,9 +1,9 @@
-const N1: u8 = 0;
-const N2: u16 = 1;
-const N3: u32 = 2;
-const N4: u8 = 3u8;
-const N5: u16 = 4u16;
-const N6: u32 = 5u32;
+export const N1: u8 = 0;
+export const N2: u16 = 1;
+export const N3: u32 = 2;
+export const N4: u8 = 3u8;
+export const N5: u16 = 4u16;
+export const N6: u32 = 5u32;
 
 program test.aleo {
     fn main() -> u32 {

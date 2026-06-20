@@ -10,7 +10,7 @@ program empty_type_mappings.aleo {
     constructor() {}
 }
 
-final fn finalize(a: [u32; 0]) {
+export final fn finalize(a: [u32; 0]) {
     Mapping::set(foo, 0, []);
     Mapping::set(bar, [], 0);
 }

@@ -1,4 +1,4 @@
-struct wrapper {
+export struct wrapper {
     data: [token; 2],
 }
 

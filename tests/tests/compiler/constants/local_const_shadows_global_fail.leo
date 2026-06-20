@@ -1,4 +1,4 @@
-const VALUE: u32 = 10;
+export const VALUE: u32 = 10;
 
 program test.aleo {
     fn main() -> u32 {

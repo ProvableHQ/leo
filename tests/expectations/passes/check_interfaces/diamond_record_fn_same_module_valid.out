@@ -1,7 +1,7 @@
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ test:10:18 ]
+    ╭─[ test:10:25 ]
     │
- 10 │ ╭─▶ interface IBase {
+ 10 │ ╭─▶ export interface IBase {
     ┆ ┆   
  14 │ ├─▶     }
     │ │           

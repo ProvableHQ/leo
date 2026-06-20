@@ -4,7 +4,7 @@
 
 // --- library: opt_lib --- //
 
-fn maybe(x: u32) -> u32? {
+export fn maybe(x: u32) -> u32? {
     return x;
 }
 

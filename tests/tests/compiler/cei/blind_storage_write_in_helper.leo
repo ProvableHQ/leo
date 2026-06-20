@@ -12,7 +12,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -31,11 +31,11 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn write_counter(val: u32) {
+export final fn write_counter(val: u32) {
     counter = val;
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [I] Interaction
     f.run();
     // [E] Effect hidden in helper — detected via effect summary

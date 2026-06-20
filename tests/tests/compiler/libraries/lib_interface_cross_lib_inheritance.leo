@@ -2,7 +2,7 @@
 
 // --- library: base_lib --- //
 
-interface Base {
+export interface Base {
     fn fetch() -> u32;
 }
 
@@ -10,7 +10,7 @@ interface Base {
 
 // --- library: ext_lib --- //
 
-interface Extended : base_lib::Base {
+export interface Extended : base_lib::Base {
     fn store(v: u32) -> u32;
 }
 

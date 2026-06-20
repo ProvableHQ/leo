@@ -1,8 +1,8 @@
-interface Adder {
+export interface Adder {
     fn compute_sum(a: u64, b: u64) -> u64;
 }
 
-interface Doubler {
+export interface Doubler {
     fn compute_double(x: u64) -> u64;
 }
 

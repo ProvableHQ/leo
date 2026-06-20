@@ -12,7 +12,7 @@ program child.aleo {
 
 // --- Next Module: utils.leo --- //
 
-fn helper(x: u32) -> u32 {
+export fn helper(x: u32) -> u32 {
     return x * 2u32;
 }
 

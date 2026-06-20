@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(a: u32) {
+export final fn finalize_do_work(a: u32) {
     // No interactions — just local state ops
     let current: u32 = Mapping::get_or_use(balances, 0u32, 0u32);
     Mapping::set(balances, 0u32, current + a);

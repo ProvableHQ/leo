@@ -4,7 +4,7 @@
 // prototype member types without type table entries. TypeChecking would then panic in
 // const propagation when it tried to evaluate those array-length expressions.
 
-interface Vault {
+export interface Vault {
     record Entry {
         owner: address,
         data: [u8; 32],

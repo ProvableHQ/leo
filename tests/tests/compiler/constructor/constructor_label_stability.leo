@@ -16,7 +16,7 @@ program test.aleo {
     }
 }
 
-final fn do_something_(val: u64) {
+export final fn do_something_(val: u64) {
     if val > 0u64 {
         assert(true);
     }

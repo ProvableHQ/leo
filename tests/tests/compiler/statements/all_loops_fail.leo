@@ -3,7 +3,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(k: bool) -> bool {
+export fn main(k: bool) -> bool {
     let reverse: u32 = 0u32;
     for i: u32 in 9u32..0u32 {
         reverse = reverse + i;

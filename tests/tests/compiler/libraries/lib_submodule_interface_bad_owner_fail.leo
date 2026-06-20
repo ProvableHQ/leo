@@ -5,7 +5,7 @@
 
 // --- Next Module: tokens.leo --- //
 
-interface Mintable {
+export interface Mintable {
     record Token {
         owner: u32,  // must be `address`
         ..

@@ -8,7 +8,7 @@ function = "main"
 input = ["131094911852478662314321267field", "1u32", "100u32", "5u32"]
 */
 
-interface Setter {
+export interface Setter {
     fn set_val(key: u32, value: u32) -> (bool, Final);
 }
 

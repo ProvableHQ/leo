@@ -1,5 +1,5 @@
 // FAIL: unknown mapping operation; only get, contains, and get_or_use are valid.
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field, key: address) {
+export final fn finalize_query(target: field, key: address) {
     Bank@(target)::balances.remove(key);
 }

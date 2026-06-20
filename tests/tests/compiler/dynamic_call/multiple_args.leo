@@ -1,4 +1,4 @@
-interface Processor {
+export interface Processor {
     fn process(a: address, amount: u64) -> bool;
 }
 

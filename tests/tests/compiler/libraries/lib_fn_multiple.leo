@@ -2,15 +2,15 @@
 
 // --- library: math_lib --- //
 
-fn add(a: u32, b: u32) -> u32 {
+export fn add(a: u32, b: u32) -> u32 {
     return a + b;
 }
 
-fn mul(a: u32, b: u32) -> u32 {
+export fn mul(a: u32, b: u32) -> u32 {
     return a * b;
 }
 
-fn sub(a: u32, b: u32) -> u32 {
+export fn sub(a: u32, b: u32) -> u32 {
     return a - b;
 }
 

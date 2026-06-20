@@ -1,15 +1,15 @@
-struct S {
+export struct S {
     x: u8,
     y: u32,
 }
 
-struct T {
+export struct T {
     x: u8,
     y: [S; 3],
     z: S,
 }
 
-final fn f_finalize(x: u8) {
+export final fn f_finalize(x: u8) {
     assert_eq(x, x);
 }
 

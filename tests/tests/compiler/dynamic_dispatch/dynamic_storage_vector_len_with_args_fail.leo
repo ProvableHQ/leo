@@ -1,5 +1,5 @@
 // FAIL: vector `.len()` takes zero arguments.
-interface Logs {
+export interface Logs {
     storage entries: [u64];
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field) {
+export final fn finalize_query(target: field) {
     let n: u32 = Logs@(target)::entries.len(0u32);
 }

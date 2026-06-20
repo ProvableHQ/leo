@@ -16,11 +16,11 @@ program child.aleo {
     constructor() {}
 }
 
-final fn finalize_foo(x: u32) {
+export final fn finalize_foo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
-final fn finalize_boo(x: u32) {
+export final fn finalize_boo(x: u32) {
     assert_eq(1u32, 1u32);
 }
 
@@ -42,6 +42,6 @@ program parent.aleo {
     constructor() {}
 }
 
-final fn finalize_foo(f0: Final) {
+export final fn finalize_foo(f0: Final) {
     f0.run();
 }

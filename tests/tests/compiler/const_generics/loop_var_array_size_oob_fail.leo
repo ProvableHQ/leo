@@ -6,7 +6,7 @@ program test.aleo {
     @noupgrade
     constructor() {}
 }
-fn foo::[P: u32]() -> u32 {
+export fn foo::[P: u32]() -> u32 {
     let sum = 0u32;
     for i: u32 in 0u32..P {
         let arr = [0u32; i];

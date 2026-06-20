@@ -1,4 +1,4 @@
-struct Foo {
+export struct Foo {
     // The token amount.
     token: Token,
 }

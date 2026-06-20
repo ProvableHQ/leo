@@ -9,6 +9,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_get(prog: field, net: field, mapping_name: field, key: u64) {
+export final fn finalize_get(prog: field, net: field, mapping_name: field, key: u64) {
     let _: u64 = _dynamic_get_or_use::[u64](prog, net, mapping_name, key, 1);
 }

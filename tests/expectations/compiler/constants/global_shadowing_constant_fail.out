@@ -1,16 +1,16 @@
 [EAST0372017] Error: the name `HELLO` is defined multiple times
-   ╭─[ compiler-test:2:7 ]
+   ╭─[ compiler-test:2:14 ]
    │
- 2 │ const HELLO: u8 = 1u8;
+ 2 │ export const HELLO: u8 = 1u8;
    │
-   ├─[ compiler-test:2:7 ]
+   ├─[ compiler-test:2:14 ]
    │
- 1 │ const HELLO: u8 = 0u8;
-   │       ──┬──  
-   │         ╰──── previous definition of `HELLO` here
- 2 │ const HELLO: u8 = 1u8;
-   │       ──┬──  
-   │         ╰──── `HELLO` redefined here
+ 1 │ export const HELLO: u8 = 0u8;
+   │              ──┬──  
+   │                ╰──── previous definition of `HELLO` here
+ 2 │ export const HELLO: u8 = 1u8;
+   │              ──┬──  
+   │                ╰──── `HELLO` redefined here
    │ 
    │ Help: Rename or remove all but one of the `HELLO` definitions so the name is unique within its scope.
 ───╯

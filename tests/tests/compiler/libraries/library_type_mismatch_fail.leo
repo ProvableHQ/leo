@@ -4,7 +4,7 @@
 
 // --- library: bad_lib --- //
 
-const X: u32 = true;
+export const X: u32 = true;
 
 // --- Next Program --- //
 

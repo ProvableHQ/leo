@@ -3,6 +3,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(a: scalar) -> scalar {
+export fn main(a: scalar) -> scalar {
     return a.square_root(); // square root not supported for scalar types.
 }

@@ -10,6 +10,6 @@ program relay.aleo {
     constructor() {}
 }
 
-final fn finalize_send(addr: address) {
+export final fn finalize_send(addr: address) {
     let a: bool = Mapping::get(relay.aleo::users, addr);
 }

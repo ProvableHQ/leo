@@ -1,14 +1,14 @@
-struct Extra {
+export struct Extra {
     c: u8,
 }
 
-struct Data {
+export struct Data {
     a: u8,
     b: u8,
     c: Extra,
 }
 
-fn foo(a: u8, b: u8) -> (u8, u8, Data) {
+export fn foo(a: u8, b: u8) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {

@@ -19,7 +19,7 @@ input = ["aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9"]
 */
 
 // Views that read multiple mappings and return a struct (or boolean).
-struct AccountSummary {
+export struct AccountSummary {
     addr: address,
     balance: u64,
     nonce: u64,

@@ -3,31 +3,31 @@ program test.aleo {
     constructor() {}
 }
 
-struct Foo {
+export struct Foo {
     foo: [Foo; 1],
 }
 
-struct Bar {
+export struct Bar {
     baz: [Baz, 2],
 }
 
-struct Baz {
+export struct Baz {
     bar: [Bar, 3],
 }
 
-struct One {
+export struct One {
     two: [Two, 2],
 }
 
-struct Two {
+export struct Two {
     three: [Three, 3],
     four: [Four, 4],
 }
 
-struct Three {
+export struct Three {
     one: [One, 1],
 }
 
-struct Four {
+export struct Four {
     one: [One, 1],
 }

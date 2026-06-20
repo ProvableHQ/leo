@@ -1,4 +1,4 @@
-final fn foo() {
+export final fn foo() {
     let c: [u8; 32] = self.checksum;
     let d: [u8; 32] = Program::checksum(test.aleo);
     let e: u16 = self.edition;

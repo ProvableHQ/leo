@@ -11,7 +11,7 @@ program dep_a.aleo {
     constructor() {}
 }
 
-final fn finalize_do_a(a: u32) {
+export final fn finalize_do_a(a: u32) {
     Mapping::set(data, 0u32, a);
 }
 
@@ -27,7 +27,7 @@ program dep_b.aleo {
     constructor() {}
 }
 
-final fn finalize_do_b(a: u32) {
+export final fn finalize_do_b(a: u32) {
     Mapping::set(data, 0u32, a);
 }
 
@@ -48,7 +48,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f1: Final, f2: Final, a: u32) {
+export final fn finalize_do_work(f1: Final, f2: Final, a: u32) {
     f1.run();
     // Effect after interaction — violation 1
     Mapping::set(balances, 0u32, a);

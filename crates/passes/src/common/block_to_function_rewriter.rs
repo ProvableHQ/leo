@@ -312,6 +312,7 @@ impl BlockToFunctionRewriter<'_> {
 
         // Define the new function.
         let function = Function {
+            is_exported: None,
             annotations: vec![],
             variant: function_variant,
             identifier: make_identifier(self, function_name),

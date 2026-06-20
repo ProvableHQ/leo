@@ -7,7 +7,7 @@
 
 // --- Next Module: itoken.leo --- //
 
-interface TokenInterface {
+export interface TokenInterface {
     record Token;
 
     fn transfer(input: Token, recipient: address, amount: u128) -> (Token, Token);

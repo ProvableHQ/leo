@@ -39,6 +39,10 @@ use snarkvm::{
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Composite {
+    /// Whether the `export` keyword was written on this composite. `None` when the
+    /// concept doesn't apply (records, program-block composites, and structs
+    /// imported from another unit, all always reachable).
+    pub is_exported: Option<bool>,
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
     /// The composite's const parameters.
@@ -89,6 +93,7 @@ impl Composite {
             id: Default::default(),
         }));
         Self {
+            is_exported: None,
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
             members,
@@ -100,6 +105,7 @@ impl Composite {
 
     pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: ProgramId) -> Self {
         Self {
+            is_exported: None,
             identifier: Identifier::from(input.name()),
             const_parameters: Vec::new(),
             members: input
@@ -122,6 +128,9 @@ impl Composite {
 
 impl fmt::Display for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.is_exported == Some(true) {
+            f.write_str("export ")?;
+        }
         f.write_str(if self.is_record { "record" } else { "struct" })?;
         write!(f, " {}", self.identifier)?;
         if !self.const_parameters.is_empty() {

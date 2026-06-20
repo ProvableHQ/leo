@@ -1,5 +1,5 @@
 @no_inline
-fn many_args(
+export fn many_args(
     a1: u32,
     a2: u32,
     a3: u32,

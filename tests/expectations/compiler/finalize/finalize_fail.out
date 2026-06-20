@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `finalize_no_params` is defined multiple times
-    ╭─[ compiler-test:29:10 ]
+    ╭─[ compiler-test:29:17 ]
     │
- 29 │ final fn finalize_no_params() {
+ 29 │ export final fn finalize_no_params() {
     │
-    ├─[ compiler-test:29:10 ]
+    ├─[ compiler-test:29:17 ]
     │
  13 │     fn finalize_no_params() -> Final {
     │        ─────────┬────────  
     │                 ╰────────── previous definition of `finalize_no_params` here
     │ 
- 29 │ final fn finalize_no_params() {
-    │          ─────────┬────────  
-    │                   ╰────────── `finalize_no_params` redefined here
+ 29 │ export final fn finalize_no_params() {
+    │                 ─────────┬────────  
+    │                          ╰────────── `finalize_no_params` redefined here
     │ 
     │ Help: Rename or remove all but one of the `finalize_no_params` definitions so the name is unique within its scope.
 ────╯

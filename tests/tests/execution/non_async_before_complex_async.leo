@@ -24,7 +24,7 @@ program inner.aleo {
     constructor() {}
 }
 
-final fn finalize(a: u32) {
+export final fn finalize(a: u32) {
     Mapping::set(foo, 0u32, a);
 }
 
@@ -44,7 +44,7 @@ program middle.aleo {
     constructor() {}
 }
 
-final fn finalize(f1: Final, f2: Final) {
+export final fn finalize(f1: Final, f2: Final) {
     f1.run();
     f2.run();
 }
@@ -72,7 +72,7 @@ program outer.aleo {
     constructor() {}
 }
 
-final fn finalize(f1: Final, f2: Final) {
+export final fn finalize(f1: Final, f2: Final) {
     f1.run();
     f2.run();
 }

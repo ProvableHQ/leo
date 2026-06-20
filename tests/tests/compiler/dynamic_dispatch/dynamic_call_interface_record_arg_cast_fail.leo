@@ -1,6 +1,6 @@
 // FAIL: A non-implementing caller passes a concrete record to a dynamic call.
 // Record arguments to interface dynamic calls must always be dyn record.
-interface TokenOps {
+export interface TokenOps {
     record Token;
     fn transfer(t: Token) -> Token;
 }

@@ -14,7 +14,7 @@ input = []
 */
 
 // === Struct with optional field ===
-struct MaybeValue {
+export struct MaybeValue {
     val: u64?,
 }
 

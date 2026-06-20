@@ -96,6 +96,23 @@ impl TypeCheckingVisitor<'_> {
         self.conditional_scopes.last().map(|set| set.contains(&symbol)).unwrap_or(false)
     }
 
+    /// Emit `inaccessible_item` for each parent interface in `parents` whose declaration is
+    /// not visible to the current scope. Parents that don't resolve to a global location, or
+    /// whose target isn't found in the interface table, are skipped. Those are reported by
+    /// `check_interfaces`.
+    pub fn check_parent_interface_accessibility(&mut self, parents: &[(Span, leo_ast::Type)]) {
+        let current_program = self.scope_state.unit_name.expect("must be inside a compilation unit");
+        for (parent_span, parent_type) in parents {
+            let leo_ast::Type::Composite(leo_ast::CompositeType { path, .. }) = parent_type else { continue };
+            let Some(loc) = path.try_global_location() else { continue };
+            let Some(interface) = self.state.symbol_table.lookup_interface(current_program, loc) else { continue };
+            if !self.scope_state.is_accessible(loc, interface.is_exported) {
+                let name = interface.identifier.name;
+                self.emit_err(crate::errors::type_checker::inaccessible_item("interface", name, *parent_span));
+            }
+        }
+    }
+
     /// Emits a type checker error.
     pub fn emit_err(&self, err: impl Into<LeoError>) {
         self.state.handler.emit_err(err);
@@ -2542,8 +2559,18 @@ impl TypeCheckingVisitor<'_> {
         let current_program = self.scope_state.unit_name.unwrap();
         let record_comp = self.state.symbol_table.lookup_record(current_program, loc);
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(current_program, loc));
-        // Record the usage.
         if let Some(s) = comp {
+            // Enforce source-level `export` visibility on the resolved composite.
+            if !self.scope_state.is_accessible(loc, s.is_exported) {
+                let kind = if s.is_record { "record" } else { "struct" };
+                self.emit_err(crate::errors::type_checker::inaccessible_item(
+                    kind,
+                    s.identifier.name,
+                    s.identifier.span,
+                ));
+                return None;
+            }
+            // Record the usage.
             // If it's a struct or internal record, mark it used.
             if !s.is_record || Some(loc.program) == self.scope_state.unit_name {
                 self.used_composites.insert(loc.clone());

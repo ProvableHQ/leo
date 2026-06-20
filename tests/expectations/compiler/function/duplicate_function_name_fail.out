@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `foo` is defined multiple times
-    ╭─[ compiler-test:14:4 ]
+    ╭─[ compiler-test:14:11 ]
     │
- 14 │ fn foo() -> u32 {
+ 14 │ export fn foo() -> u32 {
     │
-    ├─[ compiler-test:14:4 ]
+    ├─[ compiler-test:14:11 ]
     │
- 10 │ fn foo() -> u32 {
-    │    ─┬─  
-    │     ╰─── previous definition of `foo` here
+ 10 │ export fn foo() -> u32 {
+    │           ─┬─  
+    │            ╰─── previous definition of `foo` here
     │ 
- 14 │ fn foo() -> u32 {
-    │    ─┬─  
-    │     ╰─── `foo` redefined here
+ 14 │ export fn foo() -> u32 {
+    │           ─┬─  
+    │            ╰─── `foo` redefined here
     │ 
     │ Help: Rename or remove all but one of the `foo` definitions so the name is unique within its scope.
 ────╯

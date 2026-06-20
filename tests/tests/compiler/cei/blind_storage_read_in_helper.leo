@@ -11,7 +11,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -31,13 +31,13 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn read_and_use_counter() {
+export final fn read_and_use_counter() {
     // [C] Check: storage variable read, then use it in a mapping write
     let x: u32 = counter.unwrap_or(0u32);
     Mapping::set(balances, 0u32, x);
 }
 
-final fn finalize_do_work(f: Final) {
+export final fn finalize_do_work(f: Final) {
     // [I] Interaction
     f.run();
     // [C+E] Check and effect hidden in helper

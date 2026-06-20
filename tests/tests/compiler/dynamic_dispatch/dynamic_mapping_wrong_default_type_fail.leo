@@ -1,5 +1,5 @@
 // FAIL: default value type does not match the mapping's declared value type.
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field, key: address) {
+export final fn finalize_query(target: field, key: address) {
     let val: u64 = Bank@(target)::balances.get_or_use(key, true);
 }

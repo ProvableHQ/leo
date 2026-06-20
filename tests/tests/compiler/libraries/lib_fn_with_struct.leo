@@ -2,16 +2,16 @@
 
 // --- library: geo_lib --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
 
-fn translate(p: Point, dx: u32, dy: u32) -> Point {
+export fn translate(p: Point, dx: u32, dy: u32) -> Point {
     return Point { x: p.x + dx, y: p.y + dy };
 }
 
-fn distance_sq(p: Point) -> u32 {
+export fn distance_sq(p: Point) -> u32 {
     return p.x * p.x + p.y * p.y;
 }
 

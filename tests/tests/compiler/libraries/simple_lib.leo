@@ -1,19 +1,19 @@
 // --- library: lib2 --- //
 
-const PP: u32 = 52;
-const XX: u32 = PP;
+export const PP: u32 = 52;
+export const XX: u32 = PP;
 
 // --- Next Program --- //
 
 // --- library: lib1 --- //
 
-const P: u32 = 52 + lib2::PP;
-const X: u32 = P + lib2::XX;
+export const P: u32 = 52 + lib2::PP;
+export const X: u32 = P + lib2::XX;
 
 // --- Next Program --- //
 
-const P: u32 = 52;
-const X: u32 = P;
+export const P: u32 = 52;
+export const X: u32 = P;
 
 program simple.aleo {
     fn foo() -> u32 {
@@ -25,5 +25,5 @@ program simple.aleo {
 }
 
 // --- Next Module: dep.leo --- //
-const P: u32 = 52;
-const X: u32 = P;
+export const P: u32 = 52;
+export const X: u32 = P;

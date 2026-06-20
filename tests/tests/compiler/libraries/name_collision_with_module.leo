@@ -3,8 +3,8 @@
 
 // --- library: utils --- //
 
-const VALUE: u32 = 100u32;
-const OTHER: u32 = VALUE + 1u32;
+export const VALUE: u32 = 100u32;
+export const OTHER: u32 = VALUE + 1u32;
 
 // --- Next Program --- //
 
@@ -25,4 +25,4 @@ program collision.aleo {
 // --- Next Module: utils.leo --- //
 // This submodule has the same name as the library.
 // It should be shadowed by the library.
-const VALUE: u32 = 999u32;
+export const VALUE: u32 = 999u32;

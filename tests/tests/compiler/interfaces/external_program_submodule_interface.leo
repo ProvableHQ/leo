@@ -16,7 +16,7 @@ program lib.aleo {
 
 // --- Next Module: contracts.leo --- //
 
-interface Adder {
+export interface Adder {
     fn add(a: u32, b: u32) -> u32;
     fn zero() -> u32;
 }

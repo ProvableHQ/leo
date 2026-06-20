@@ -1,8 +1,8 @@
-interface Base {
+export interface Base {
     fn fetch_value() -> u64;
 }
 
-interface Extended : Base {
+export interface Extended : Base {
     fn store_value(v: u64);
 }
 

@@ -1,5 +1,5 @@
 // Module-level inline; allowed to return `u32?`.
-fn maybe(x: u32) -> u32? {
+export fn maybe(x: u32) -> u32? {
     return x;
 }
 

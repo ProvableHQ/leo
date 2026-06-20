@@ -7,15 +7,15 @@ function = "main"
 input = ["2000349607123751821667field", "3u32", "5u32"]
 */
 
-interface Adder {
+export interface Adder {
     fn sum(a: u32, b: u32) -> u32;
 }
 
-interface Multiplier {
+export interface Multiplier {
     fn product(a: u32, b: u32) -> u32;
 }
 
-interface Calculator: Adder + Multiplier {
+export interface Calculator: Adder + Multiplier {
 }
 
 program calc_impl.aleo: Calculator {
