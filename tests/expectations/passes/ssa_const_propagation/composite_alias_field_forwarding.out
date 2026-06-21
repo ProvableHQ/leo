@@ -9,10 +9,9 @@ program test.aleo {
     fn alias_field(p$$0: u32, q$$1: u32) -> u32 {
         let s$#2 = test.aleo::Pair { a: p$$0, b: q$$1 };
         let alias$#3 = s$#2;
-        let $var$4 = alias$#3.a;
-        let $var$5 = alias$#3.b;
+        let $var$4 = p$$0;
+        let $var$5 = q$$1;
         let $var$6 = $var$4 + $var$5;
         return $var$6;
     }
 }
-

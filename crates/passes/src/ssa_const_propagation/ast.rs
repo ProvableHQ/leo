@@ -22,7 +22,6 @@ use super::{
         TrackedTernary,
         is_atom,
         is_one_literal,
-        is_optional_field,
         is_optional_wrapper_type,
         is_zero_literal,
         same_ssa_atom,
@@ -83,9 +82,6 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 return (input.into(), None);
             }
             let name = self.resolve_composite_alias(original_name);
-            if name != original_name && !is_optional_field(input.name.name) {
-                return (input.into(), None);
-            }
             let Some(fields) = self.atom_fielded_composites.get(&name) else {
                 return (input.into(), None);
             };
