@@ -11,11 +11,10 @@ function compute:
     input r3 as u32.private;
     add r0 r2 into r4;
     add r1 r3 into r5;
-    cast r4 r5 into r6 as Point__7VbTm7beYPk;
-    mul r6.x r6.x into r7;
-    mul r6.y r6.y into r8;
-    add r7 r8 into r9;
-    output r9 as u32.private;
+    mul r4 r4 into r6;
+    mul r5 r5 into r7;
+    add r6 r7 into r8;
+    output r8 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

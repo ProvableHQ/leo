@@ -56,10 +56,9 @@ function complex_implicit_return:
     cast r3 into r4 as Foo;
     cast false r4 into r5 as Optional__DH9PtMwOkLt;
     cast r2 r5 into r6 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r6 into r7 as Wrapper;
-    assert.eq r7.arr[0u32].is_some true;
-    assert.eq r7.arr[0u32].val.x.is_some true;
-    output r7.arr[0u32].val.x.val as u8.private;
+    assert.eq r6[0u32].is_some true;
+    assert.eq r6[0u32].val.x.is_some true;
+    output r6[0u32].val.x.val as u8.private;
 
 function complex_implicit_argument:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
@@ -69,10 +68,9 @@ function complex_implicit_argument:
     cast r3 into r4 as Foo;
     cast false r4 into r5 as Optional__DH9PtMwOkLt;
     cast r2 r5 into r6 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r6 into r7 as Wrapper;
-    assert.eq r7.arr[0u32].is_some true;
-    ternary r7.arr[0u32].val.x.is_some r7.arr[0u32].val.x.val 42u8 into r8;
-    output r8 as u8.private;
+    assert.eq r6[0u32].is_some true;
+    ternary r6[0u32].val.x.is_some r6[0u32].val.x.val 42u8 into r7;
+    output r7 as u8.private;
 
 function complex_implicit_ternary:
     input r0 as boolean.private;
@@ -83,30 +81,27 @@ function complex_implicit_ternary:
     cast r4 into r5 as Foo;
     cast false r5 into r6 as Optional__DH9PtMwOkLt;
     cast r3 r6 into r7 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r7 into r8 as Wrapper;
-    cast false 0u8 into r9 as Optional__3aph2JMPtnA;
-    cast r9 into r10 as Foo;
-    cast false r10 into r11 as Optional__DH9PtMwOkLt;
-    cast r11 r11 into r12 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r12 into r13 as Wrapper;
-    ternary r0 r8.arr[0u32].val.x.is_some r13.arr[0u32].val.x.is_some into r14;
-    ternary r0 r8.arr[0u32].val.x.val r13.arr[0u32].val.x.val into r15;
-    cast r14 r15 into r16 as Optional__3aph2JMPtnA;
-    cast r16 into r17 as Foo;
-    ternary r0 r8.arr[0u32].is_some r13.arr[0u32].is_some into r18;
-    cast r18 r17 into r19 as Optional__DH9PtMwOkLt;
-    ternary r0 r8.arr[1u32].val.x.is_some r13.arr[1u32].val.x.is_some into r20;
-    ternary r0 r8.arr[1u32].val.x.val r13.arr[1u32].val.x.val into r21;
-    cast r20 r21 into r22 as Optional__3aph2JMPtnA;
-    cast r22 into r23 as Foo;
-    ternary r0 r8.arr[1u32].is_some r13.arr[1u32].is_some into r24;
-    cast r24 r23 into r25 as Optional__DH9PtMwOkLt;
-    cast r19 r25 into r26 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r26 into r27 as Wrapper;
+    cast false 0u8 into r8 as Optional__3aph2JMPtnA;
+    cast r8 into r9 as Foo;
+    cast false r9 into r10 as Optional__DH9PtMwOkLt;
+    cast r10 r10 into r11 as [Optional__DH9PtMwOkLt; 2u32];
+    ternary r0 r7[0u32].val.x.is_some r11[0u32].val.x.is_some into r12;
+    ternary r0 r7[0u32].val.x.val r11[0u32].val.x.val into r13;
+    cast r12 r13 into r14 as Optional__3aph2JMPtnA;
+    cast r14 into r15 as Foo;
+    ternary r0 r7[0u32].is_some r11[0u32].is_some into r16;
+    cast r16 r15 into r17 as Optional__DH9PtMwOkLt;
+    ternary r0 r7[1u32].val.x.is_some r11[1u32].val.x.is_some into r18;
+    ternary r0 r7[1u32].val.x.val r11[1u32].val.x.val into r19;
+    cast r18 r19 into r20 as Optional__3aph2JMPtnA;
+    cast r20 into r21 as Foo;
+    ternary r0 r7[1u32].is_some r11[1u32].is_some into r22;
+    cast r22 r21 into r23 as Optional__DH9PtMwOkLt;
+    cast r17 r23 into r24 as [Optional__DH9PtMwOkLt; 2u32];
     assert.eq r0 true;
-    assert.eq r27.arr[0u32].is_some true;
-    ternary r27.arr[0u32].val.x.is_some r27.arr[0u32].val.x.val 69u8 into r28;
-    output r28 as u8.private;
+    assert.eq r24[0u32].is_some true;
+    ternary r24[0u32].val.x.is_some r24[0u32].val.x.val 69u8 into r25;
+    output r25 as u8.private;
 
 function complex_implicit_reassignment:
     cast true 7u8 into r0 as Optional__3aph2JMPtnA;
@@ -116,10 +111,9 @@ function complex_implicit_reassignment:
     cast r3 into r4 as Foo;
     cast false r4 into r5 as Optional__DH9PtMwOkLt;
     cast r2 r5 into r6 as [Optional__DH9PtMwOkLt; 2u32];
-    cast r6 into r7 as Wrapper;
-    assert.eq r7.arr[0u32].is_some true;
-    assert.eq r7.arr[0u32].val.x.is_some true;
-    output r7.arr[0u32].val.x.val as u8.private;
+    assert.eq r6[0u32].is_some true;
+    assert.eq r6[0u32].val.x.is_some true;
+    output r6[0u32].val.x.val as u8.private;
 
 function complex_array_wrapping:
     cast true 1u8 into r0 as Optional__3aph2JMPtnA;
