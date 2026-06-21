@@ -13,8 +13,8 @@ program test.aleo {
         let i$#1 = test.aleo::Inner { v: 42u32 };
         let o$#2 = test.aleo::Outer { inner: i$#1 };
         let $var$3 = i$#1;
-        let $var$4 = $var$3.v;
-        return $var$4;
+        let $var$4 = 42u32;
+        return 42u32;
     }
 }
 
