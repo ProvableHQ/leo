@@ -129,12 +129,3 @@ status: accepted
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
 }
-
-   PASS [  20.201s] ( 78/816) leo-compiler test_execution::execution_tests::execution_counter_leo
-   PASS [  17.598s] ( 79/816) leo-compiler test_execution::execution_tests::execution_dynamic_mapping_interface_external_leo
-   PASS [  17.878s] ( 80/816) leo-compiler test_execution::execution_tests::execution_dynamic_mapping_interface_leo
-   PASS [  18.693s] ( 81/816) leo-compiler test_execution::execution_tests::execution_dynamic_dispatch_intrinsic_mapping_leo
-   FAIL [  19.386s] ( 82/816) leo-compiler test_execution::execution_tests::execution_dynamic_storage_interface_leo
- stdout ───
-   test_execution::execution_tests::execution_dynamic_storage_interface_leo
- stderr ───
