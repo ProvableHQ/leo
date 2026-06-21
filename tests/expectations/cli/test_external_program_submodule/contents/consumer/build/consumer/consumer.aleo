@@ -36,15 +36,14 @@ function blend_twice:
     div r5 2u32 into r6;
     add r0.b r1.b into r7;
     div r7 2u32 into r8;
-    cast r4 r6 r8 into r9 as provider.aleo/Color__F3VqkSOxTDS;
-    add r9.r r2.r into r10;
-    div r10 2u32 into r11;
-    add r9.g r2.g into r12;
-    div r12 2u32 into r13;
-    add r9.b r2.b into r14;
-    div r14 2u32 into r15;
-    cast r11 r13 r15 into r16 as provider.aleo/Color__F3VqkSOxTDS;
-    output r16 as provider.aleo/Color__F3VqkSOxTDS.private;
+    add r4 r2.r into r9;
+    div r9 2u32 into r10;
+    add r6 r2.g into r11;
+    div r11 2u32 into r12;
+    add r8 r2.b into r13;
+    div r13 2u32 into r14;
+    cast r10 r12 r14 into r15 as provider.aleo/Color__F3VqkSOxTDS;
+    output r15 as provider.aleo/Color__F3VqkSOxTDS.private;
 
 function channel_count:
     output 3u32 as u32.private;
