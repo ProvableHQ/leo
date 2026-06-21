@@ -2,14 +2,14 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'storage_demo.aleo'
-       Leo     Program size: 5.37 KB / 2000.00 KB
+       Leo     Program size: 5.34 KB / 2000.00 KB
        Leo ✅ Compiled 'storage_demo.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'storage_demo.aleo'.
 
        Leo 🔨 Compiling 'test_storage_demo.aleo'
-       Leo     Program size: 18.28 KB / 2000.00 KB
+       Leo     Program size: 17.84 KB / 2000.00 KB
        Leo ✅ Compiled 'test_storage_demo.aleo' into Aleo instructions.
-       Leo     Import 'storage_demo.aleo': checksum = '[181u8, 196u8, 11u8, 13u8, 176u8, 224u8, 84u8, 194u8, 122u8, 47u8, 204u8, 224u8, 175u8, 181u8, 20u8, 6u8, 165u8, 4u8, 170u8, 248u8, 93u8, 190u8, 224u8, 136u8, 197u8, 69u8, 42u8, 144u8, 52u8, 166u8, 103u8, 25u8]'
+       Leo     Import 'storage_demo.aleo': checksum = '[22u8, 242u8, 155u8, 40u8, 152u8, 209u8, 122u8, 107u8, 100u8, 5u8, 201u8, 166u8, 116u8, 95u8, 138u8, 5u8, 51u8, 176u8, 77u8, 72u8, 134u8, 244u8, 123u8, 145u8, 4u8, 12u8, 115u8, 110u8, 67u8, 128u8, 201u8, 115u8]'
        Leo Loading the ledger from storage...
        Leo Loading the ledger from storage...
        Leo Loading the ledger from storage...
