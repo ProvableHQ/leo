@@ -25,20 +25,17 @@ view sum_first_three:
     lt 0u32 r0 into r1;
     get.or_use entries__[0u32] 0u64 into r2;
     ternary r1 r2 0u64 into r3;
-    ternary r1 r3 0u64 into r4;
-    get.or_use entries__len__[false] 0u32 into r5;
-    lt 1u32 r5 into r6;
-    get.or_use entries__[1u32] 0u64 into r7;
-    ternary r6 r7 0u64 into r8;
-    ternary r6 r8 0u64 into r9;
-    add r4 r9 into r10;
-    get.or_use entries__len__[false] 0u32 into r11;
-    lt 2u32 r11 into r12;
-    get.or_use entries__[2u32] 0u64 into r13;
-    ternary r12 r13 0u64 into r14;
-    ternary r12 r14 0u64 into r15;
-    add r10 r15 into r16;
-    output r16 as u64.public;
+    get.or_use entries__len__[false] 0u32 into r4;
+    lt 1u32 r4 into r5;
+    get.or_use entries__[1u32] 0u64 into r6;
+    ternary r5 r6 0u64 into r7;
+    add r3 r7 into r8;
+    get.or_use entries__len__[false] 0u32 into r9;
+    lt 2u32 r9 into r10;
+    get.or_use entries__[2u32] 0u64 into r11;
+    ternary r10 r11 0u64 into r12;
+    add r8 r12 into r13;
+    output r13 as u64.public;
 
 view weighted_balance:
     input r0 as address.public;
