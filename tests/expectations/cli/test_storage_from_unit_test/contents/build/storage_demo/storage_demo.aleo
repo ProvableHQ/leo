@@ -82,9 +82,8 @@ finalize bump_counter:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    ternary r0 r2 0u64 into r3;
-    add r3 1u64 into r4;
-    set r4 into counter__[false];
+    add r2 1u64 into r3;
+    set r3 into counter__[false];
 
 function clear_counter:
     async clear_counter into r0;
@@ -140,6 +139,7 @@ finalize set_pivot:
 
 function set_point:
     input r0 as Point.private;
+
     async set_point r0 into r1;
     output r1 as storage_demo.aleo/set_point.future;
 
