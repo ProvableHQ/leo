@@ -16,9 +16,8 @@ finalize c:
     contains count__[false] into r0;
     get.or_use count__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    ternary r0 r2 0u64 into r3;
-    add r3 1u64 into r4;
-    set r4 into count__[false];
+    add r2 1u64 into r3;
+    set r3 into count__[false];
 
 constructor:
     assert.eq edition 0u16;
@@ -41,9 +40,8 @@ finalize d:
     contains count__[false] into r0;
     get.or_use count__[false] 0u64 into r1;
     ternary r0 r1 0u64 into r2;
-    ternary r0 r2 0u64 into r3;
-    add r3 2u64 into r4;
-    set r4 into count__[false];
+    add r2 2u64 into r3;
+    set r3 into count__[false];
 
 constructor:
     assert.eq edition 0u16;
