@@ -22,6 +22,7 @@
 //! - **Identity operation folding**: eliminates `add x 0`, `mul x 1`, `or x false`, etc.
 //! - **Trivial assert elimination**: removes `assert.eq <lit> <lit>` when both sides are equal,
 //!   preserving the dummy assert required for empty closures/finalizes.
+//! - **Ternary absorption**: collapses redundant nested selects over the same condition.
 //! - **Dead register elimination**: removes pure instructions whose destination register is never read.
 //! - **Consecutive cast folding**: merges adjacent casts through the same intermediate register.
 //! - **Register renumbering**: compacts register indices after instruction removal.
@@ -44,6 +45,7 @@ impl Pass for PeepholeOptimizing {
         input.for_each_statement_list(|stmts, num_inputs| {
             fold_identity_operations(stmts);
             eliminate_trivial_asserts(stmts);
+            fold_redundant_ternaries(stmts);
             eliminate_dead_registers(stmts);
             fold_consecutive_casts(stmts);
             renumber_registers(stmts, num_inputs);
@@ -428,6 +430,34 @@ fn eliminate_trivial_asserts(stmts: &mut Vec<AleoStmt>) {
     } else {
         // Real instructions exist — remove all trivial asserts.
         stmts.retain(|stmt| !is_trivial_assert(stmt));
+    }
+}
+
+// Ternary absorption
+
+fn fold_redundant_ternaries(stmts: &mut [AleoStmt]) {
+    let mut ternaries: HashMap<AleoReg, (AleoExpr, AleoExpr, AleoExpr)> = HashMap::new();
+
+    for stmt in stmts {
+        if let AleoStmt::Ternary(condition, if_true, if_false, dest) = stmt {
+            if let AleoExpr::Reg(inner) = if_true.clone()
+                && let Some((inner_condition, inner_true, inner_false)) = ternaries.get(&inner)
+                && condition == inner_condition
+                && if_false == inner_false
+            {
+                *if_true = inner_true.clone();
+            }
+
+            if let AleoExpr::Reg(inner) = if_false.clone()
+                && let Some((inner_condition, inner_true, inner_false)) = ternaries.get(&inner)
+                && condition == inner_condition
+                && if_true == inner_true
+            {
+                *if_false = inner_false.clone();
+            }
+
+            ternaries.insert(dest.clone(), (condition.clone(), if_true.clone(), if_false.clone()));
+        }
     }
 }
 
