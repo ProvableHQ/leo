@@ -49,49 +49,44 @@ finalize unset_singletons_default:
     contains storage_demo.aleo/flag__[false] into r0;
     get.or_use storage_demo.aleo/flag__[false] false into r1;
     ternary r0 r1 false into r2;
-    ternary r0 r2 false into r3;
-    is.eq r3 false into r4;
-    assert.eq r4 true;
-    contains storage_demo.aleo/counter__[false] into r5;
-    get.or_use storage_demo.aleo/counter__[false] 0u64 into r6;
-    ternary r5 r6 0u64 into r7;
-    ternary r5 r7 0u64 into r8;
-    is.eq r8 0u64 into r9;
-    assert.eq r9 true;
-    contains storage_demo.aleo/tiny__[false] into r10;
-    get.or_use storage_demo.aleo/tiny__[false] 0u8 into r11;
-    ternary r10 r11 0u8 into r12;
-    ternary r10 r12 0u8 into r13;
-    is.eq r13 0u8 into r14;
-    assert.eq r14 true;
-    contains storage_demo.aleo/signed__[false] into r15;
-    get.or_use storage_demo.aleo/signed__[false] 0i64 into r16;
-    ternary r15 r16 0i64 into r17;
-    ternary r15 r17 0i64 into r18;
-    is.eq r18 0i64 into r19;
+    is.eq r2 false into r3;
+    assert.eq r3 true;
+    contains storage_demo.aleo/counter__[false] into r4;
+    get.or_use storage_demo.aleo/counter__[false] 0u64 into r5;
+    ternary r4 r5 0u64 into r6;
+    is.eq r6 0u64 into r7;
+    assert.eq r7 true;
+    contains storage_demo.aleo/tiny__[false] into r8;
+    get.or_use storage_demo.aleo/tiny__[false] 0u8 into r9;
+    ternary r8 r9 0u8 into r10;
+    is.eq r10 0u8 into r11;
+    assert.eq r11 true;
+    contains storage_demo.aleo/signed__[false] into r12;
+    get.or_use storage_demo.aleo/signed__[false] 0i64 into r13;
+    ternary r12 r13 0i64 into r14;
+    is.eq r14 0i64 into r15;
+    assert.eq r15 true;
+    contains storage_demo.aleo/marker__[false] into r16;
+    get.or_use storage_demo.aleo/marker__[false] 0field into r17;
+    ternary r16 r17 0field into r18;
+    is.eq r18 0field into r19;
     assert.eq r19 true;
-    contains storage_demo.aleo/marker__[false] into r20;
-    get.or_use storage_demo.aleo/marker__[false] 0field into r21;
-    ternary r20 r21 0field into r22;
-    ternary r20 r22 0field into r23;
-    is.eq r23 0field into r24;
-    assert.eq r24 true;
-    contains storage_demo.aleo/quad__[false] into r25;
-    cast 0u32 0u32 0u32 0u32 into r26 as [u32; 4u32];
-    get.or_use storage_demo.aleo/quad__[false] r26 into r27;
-    ternary r25 r27[0u32] r26[0u32] into r28;
-    ternary r25 r27[1u32] r26[1u32] into r29;
-    ternary r25 r27[2u32] r26[2u32] into r30;
-    ternary r25 r27[3u32] r26[3u32] into r31;
-    cast r28 r29 r30 r31 into r32 as [u32; 4u32];
-    cast 0u32 0u32 0u32 0u32 into r33 as [u32; 4u32];
-    ternary r25 r32[0u32] 0u32 into r34;
-    ternary r25 r32[1u32] 0u32 into r35;
-    ternary r25 r32[2u32] 0u32 into r36;
-    ternary r25 r32[3u32] 0u32 into r37;
-    cast r34 r35 r36 r37 into r38 as [u32; 4u32];
-    is.eq r38 r33 into r39;
-    assert.eq r39 true;
+    contains storage_demo.aleo/quad__[false] into r20;
+    cast 0u32 0u32 0u32 0u32 into r21 as [u32; 4u32];
+    get.or_use storage_demo.aleo/quad__[false] r21 into r22;
+    ternary r20 r22[0u32] r21[0u32] into r23;
+    ternary r20 r22[1u32] r21[1u32] into r24;
+    ternary r20 r22[2u32] r21[2u32] into r25;
+    ternary r20 r22[3u32] r21[3u32] into r26;
+    cast r23 r24 r25 r26 into r27 as [u32; 4u32];
+    cast 0u32 0u32 0u32 0u32 into r28 as [u32; 4u32];
+    ternary r20 r27[0u32] 0u32 into r29;
+    ternary r20 r27[1u32] 0u32 into r30;
+    ternary r20 r27[2u32] 0u32 into r31;
+    ternary r20 r27[3u32] 0u32 into r32;
+    cast r29 r30 r31 r32 into r33 as [u32; 4u32];
+    is.eq r33 r28 into r34;
+    assert.eq r34 true;
 
 function set_and_read_flag:
     call storage_demo.aleo/set_flag true into r0;
@@ -125,9 +120,8 @@ finalize set_and_read_counter:
     contains storage_demo.aleo/counter__[false] into r5;
     get.or_use storage_demo.aleo/counter__[false] 0u64 into r6;
     ternary r5 r6 0u64 into r7;
-    ternary r5 r7 0u64 into r8;
-    is.eq r8 42u64 into r9;
-    assert.eq r9 true;
+    is.eq r7 42u64 into r8;
+    assert.eq r8 true;
 
 function bump_counter_from_unset:
     call storage_demo.aleo/bump_counter into r0;
@@ -176,9 +170,8 @@ finalize clear_counter_resets_default:
     contains storage_demo.aleo/counter__[false] into r2;
     get.or_use storage_demo.aleo/counter__[false] 0u64 into r3;
     ternary r2 r3 0u64 into r4;
-    ternary r2 r4 0u64 into r5;
-    is.eq r5 0u64 into r6;
-    assert.eq r6 true;
+    is.eq r4 0u64 into r5;
+    assert.eq r5 true;
 
 function set_and_read_tiny:
     call storage_demo.aleo/set_tiny 255u8 into r0;
@@ -269,15 +262,13 @@ finalize set_and_read_point:
     contains storage_demo.aleo/point__[false] into r1;
     cast 0i64 0i64 into r2 as storage_demo.aleo/Point;
     get.or_use storage_demo.aleo/point__[false] r2 into r3;
-    cast 0i64 0i64 into r4 as storage_demo.aleo/Point;
-    ternary r1 r3.x r4.x into r5;
-    ternary r1 r3.y r4.y into r6;
-    cast r5 r6 into r7 as storage_demo.aleo/Point;
+    ternary r1 r3.x 0i64 into r4;
+    ternary r1 r3.y 0i64 into r5;
     assert.eq r1 true;
-    is.eq r7.x -5i64 into r8;
-    assert.eq r8 true;
-    is.eq r7.y 9i64 into r9;
-    assert.eq r9 true;
+    is.eq r4 -5i64 into r6;
+    assert.eq r6 true;
+    is.eq r5 9i64 into r7;
+    assert.eq r7 true;
 
 function set_and_read_quad:
     cast 1u32 2u32 3u32 4u32 into r0 as [u32; 4u32];
@@ -318,9 +309,8 @@ finalize vector_starts_empty:
     lt 0u32 r2 into r3;
     get.or_use storage_demo.aleo/history__[0u32] 0u32 into r4;
     ternary r3 r4 0u32 into r5;
-    ternary r3 r5 0u32 into r6;
-    is.eq r6 0u32 into r7;
-    assert.eq r7 true;
+    is.eq r5 0u32 into r6;
+    assert.eq r6 true;
 
 function push_then_len_and_get:
     call storage_demo.aleo/push_history 10u32 into r0;
@@ -364,9 +354,8 @@ finalize push_then_len_and_get:
     lt 3u32 r20 into r21;
     get.or_use storage_demo.aleo/history__[3u32] 0u32 into r22;
     ternary r21 r22 0u32 into r23;
-    ternary r21 r23 0u32 into r24;
-    is.eq r24 0u32 into r25;
-    assert.eq r25 true;
+    is.eq r23 0u32 into r24;
+    assert.eq r24 true;
 
 function pop_drops_last_element:
     call storage_demo.aleo/push_history 7u32 into r0;
@@ -491,9 +480,8 @@ finalize clear_resets_length:
     lt 0u32 r5 into r6;
     get.or_use storage_demo.aleo/history__[0u32] 0u32 into r7;
     ternary r6 r7 0u32 into r8;
-    ternary r6 r8 0u32 into r9;
-    is.eq r9 0u32 into r10;
-    assert.eq r10 true;
+    is.eq r8 0u32 into r9;
+    assert.eq r9 true;
 
 function unwrap_unset_singleton_halts:
     async unwrap_unset_singleton_halts into r0;
