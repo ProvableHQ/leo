@@ -35,15 +35,12 @@ function main:
     input r1 as Baz.private;
     input r2 as u32.private;
     cast 42u32 42u32 42u32 42u32 42u32 42u32 into r3 as [u32; 6u32];
-    cast r3 into r4 as Foo__9mDhqPfVudH;
-    cast 3u32 3u32 3u32 3u32 3u32 3u32 3u32 3u32 into r5 as [u32; 8u32];
-    cast 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 into r6 as [u32; 9u32];
-    cast r6 into r7 as Foo__D1bzlHdvaiB;
-    cast r7 into r8 as Goo__66lvYV7poRf;
-    add r0.f.arr[6u32] r5[7u32] into r9;
-    add r9 r4.arr[5u32] into r10;
-    add r10 r8.f.arr[8u32] into r11;
-    output r11 as u32.private;
+    cast 3u32 3u32 3u32 3u32 3u32 3u32 3u32 3u32 into r4 as [u32; 8u32];
+    cast 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 42u32 into r5 as [u32; 9u32];
+    add r0.f.arr[6u32] r4[7u32] into r6;
+    add r6 r3[5u32] into r7;
+    add r7 r5[8u32] into r8;
+    output r8 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

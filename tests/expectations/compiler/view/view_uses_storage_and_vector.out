@@ -41,8 +41,7 @@ view entry_at:
     lt r0 r1 into r2;
     get.or_use entries__[r0] 0u64 into r3;
     ternary r2 r3 0u64 into r4;
-    ternary r2 r4 0u64 into r5;
-    output r5 as u64.public;
+    output r4 as u64.public;
 
 constructor:
     assert.eq edition 0u16;

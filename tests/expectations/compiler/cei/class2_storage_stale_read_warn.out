@@ -48,10 +48,9 @@ finalize do_work:
     contains counter__[false] into r2;
     get.or_use counter__[false] 0u32 into r3;
     ternary r2 r3 0u32 into r4;
-    ternary r2 r4 0u32 into r5;
     await r0;
-    add r5 r1 into r6;
-    set r6 into counter__[false];
+    add r4 r1 into r5;
+    set r5 into counter__[false];
 
 constructor:
     assert.eq edition 0u16;

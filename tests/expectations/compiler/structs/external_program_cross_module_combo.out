@@ -52,12 +52,10 @@ function make_and_measure:
     input r1 as u32.private;
     input r2 as u32.private;
     input r3 as u32.private;
-    cast r0 r1 into r4 as child.aleo/Point__EQrYLk3V7pa;
-    cast r2 r3 into r5 as child.aleo/Point__EQrYLk3V7pa;
-    sub r5.x r4.x into r6;
-    sub r5.y r4.y into r7;
-    add r6 r7 into r8;
-    output r8 as u32.private;
+    sub r2 r0 into r4;
+    sub r3 r1 into r5;
+    add r4 r5 into r6;
+    output r6 as u32.private;
 
 function full_combo:
     input r0 as child.aleo/Segment__14CrFljlunD.private;

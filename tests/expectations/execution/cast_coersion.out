@@ -8,16 +8,13 @@ function main:
     input r1 as group.private;
     input r2 as address.private;
     cast r1 into r3 as field;
-    cast r3 into r4 as foo;
-    cast 1field into r5 as foo;
-    cast r2 into r6 as field;
-    cast r6 into r7 as foo;
-    ternary r0 r4.data r4.data into r8;
-    cast r8 into r9 as foo;
-    ternary r0 r5.data r7.data into r10;
-    cast r10 into r11 as foo;
-    output r9 as foo.private;
-    output r11 as foo.private;
+    cast r2 into r4 as field;
+    ternary r0 r3 r3 into r5;
+    cast r5 into r6 as foo;
+    ternary r0 1field r4 into r7;
+    cast r7 into r8 as foo;
+    output r6 as foo.private;
+    output r8 as foo.private;
 
 constructor:
     assert.eq edition 0u16;

@@ -23,15 +23,14 @@ finalize increment:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    ternary r0 r2 0u32 into r3;
-    add r3 1u32 into r4;
-    set r4 into counter__[false];
-    contains counter__[false] into r5;
-    get.or_use counter__[false] 0u32 into r6;
-    ternary r5 r6 0u32 into r7;
-    assert.eq r5 true;
-    is.eq r7 r4 into r8;
-    assert.eq r8 true;
+    add r2 1u32 into r3;
+    set r3 into counter__[false];
+    contains counter__[false] into r4;
+    get.or_use counter__[false] 0u32 into r5;
+    ternary r4 r5 0u32 into r6;
+    assert.eq r4 true;
+    is.eq r6 r3 into r7;
+    assert.eq r7 true;
 
 constructor:
     assert.eq edition 0u16;
@@ -131,3 +130,11 @@ status: accepted
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
 }
 
+   PASS [  20.201s] ( 78/816) leo-compiler test_execution::execution_tests::execution_counter_leo
+   PASS [  17.598s] ( 79/816) leo-compiler test_execution::execution_tests::execution_dynamic_mapping_interface_external_leo
+   PASS [  17.878s] ( 80/816) leo-compiler test_execution::execution_tests::execution_dynamic_mapping_interface_leo
+   PASS [  18.693s] ( 81/816) leo-compiler test_execution::execution_tests::execution_dynamic_dispatch_intrinsic_mapping_leo
+   FAIL [  19.386s] ( 82/816) leo-compiler test_execution::execution_tests::execution_dynamic_storage_interface_leo
+ stdout ───
+   test_execution::execution_tests::execution_dynamic_storage_interface_leo
+ stderr ───

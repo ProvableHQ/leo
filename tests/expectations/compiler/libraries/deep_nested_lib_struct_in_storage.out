@@ -29,17 +29,9 @@ finalize make:
     cast r1 0u32 into r2 as Core__6z1xuJtF5OT;
     cast r2 0u32 into r3 as Capsule__CKJ9uYgKLhI;
     get.or_use latest__[false] r3 into r4;
-    cast 0u32 into r5 as Atom__Dnr7ZcA2EXI;
-    cast r5 0u32 into r6 as Core__6z1xuJtF5OT;
-    cast r6 0u32 into r7 as Capsule__CKJ9uYgKLhI;
-    ternary r0 r4.c.a.n r7.c.a.n into r8;
-    cast r8 into r9 as Atom__Dnr7ZcA2EXI;
-    ternary r0 r4.c.tag r7.c.tag into r10;
-    cast r9 r10 into r11 as Core__6z1xuJtF5OT;
-    ternary r0 r4.extra r7.extra into r12;
-    cast r11 r12 into r13 as Capsule__CKJ9uYgKLhI;
+    ternary r0 r4.c.a.n 0u32 into r5;
     assert.eq r0 true;
-    assert.eq r13.c.a.n r13.c.a.n;
+    assert.eq r5 r5;
 
 constructor:
     assert.eq edition 0u16;

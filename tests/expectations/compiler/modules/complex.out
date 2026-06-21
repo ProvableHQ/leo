@@ -16,11 +16,9 @@ struct Nested:
 
 function main:
     cast 2u32 2u32 2u32 into r0 as [u32; 3u32];
-    cast 5u32 into r1 as Inner__1MgmvWKiTkA;
-    add r1.n 4u32 into r2;
-    add 9u32 r0[1u32] into r3;
-    add r3 r2 into r4;
-    output r4 as u32.private;
+    add 9u32 r0[1u32] into r1;
+    add r1 9u32 into r2;
+    output r2 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

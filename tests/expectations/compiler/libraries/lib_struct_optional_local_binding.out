@@ -10,8 +10,7 @@ struct Optional__7G49nMxvEkY:
 
 function maybe_origin:
     input r0 as boolean.private;
-    cast 0u32 0u32 into r1 as Point__7VbTm7beYPk;
-    output r1.x as u32.private;
+    output 0u32 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

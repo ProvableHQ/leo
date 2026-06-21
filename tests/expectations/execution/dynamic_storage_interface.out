@@ -26,13 +26,12 @@ finalize bump:
     contains counter__[false] into r1;
     get.or_use counter__[false] 0u64 into r2;
     ternary r1 r2 0u64 into r3;
-    ternary r1 r3 0u64 into r4;
-    add r4 1u64 into r5;
-    set r5 into counter__[false];
-    get.or_use entries__len__[false] 0u32 into r6;
-    add r6 1u32 into r7;
-    set r7 into entries__len__[false];
-    set r0 into entries__[r6];
+    add r3 1u64 into r4;
+    set r4 into counter__[false];
+    get.or_use entries__len__[false] 0u32 into r5;
+    add r5 1u32 into r6;
+    set r6 into entries__len__[false];
+    set r0 into entries__[r5];
 
 function check_counter:
     input r0 as field.private;

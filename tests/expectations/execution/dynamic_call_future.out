@@ -19,9 +19,8 @@ finalize increment:
     contains count__[false] into r1;
     get.or_use count__[false] 0u32 into r2;
     ternary r1 r2 0u32 into r3;
-    ternary r1 r3 0u32 into r4;
-    add r4 r0 into r5;
-    set r5 into count__[false];
+    add r3 r0 into r4;
+    set r4 into count__[false];
 
 constructor:
     assert.eq edition 0u16;

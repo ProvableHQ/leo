@@ -54,14 +54,12 @@ function optional_array_handling:
     output r2[0u32].val as u32.private;
 
 function optional_struct_field_expr:
-    cast 11u32 into r0 as S;
-    add r0.x 5u32 into r1;
-    output r1 as u32.private;
+    assert.eq true true;
+    output 16u32 as u32.private;
 
 function optional_struct_unwrap_assign:
-    cast 30u32 into r0 as S;
-    add r0.x 12u32 into r1;
-    output r1 as u32.private;
+    assert.eq true true;
+    output 42u32 as u32.private;
 
 function nested_struct_array_mix:
     cast true 1u32 into r0 as Optional__JzunLORyB8U;
