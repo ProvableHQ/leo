@@ -139,7 +139,6 @@ finalize set_pivot:
 
 function set_point:
     input r0 as Point.private;
-
     async set_point r0 into r1;
     output r1 as storage_demo.aleo/set_point.future;
 
