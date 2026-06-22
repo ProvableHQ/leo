@@ -18,7 +18,7 @@ use crate::CompilerState;
 
 use leo_ast::{Expression, FromStrRadix, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
 use leo_errors::Formatted;
-use leo_span::{Span, Symbol};
+use leo_span::{Span, Symbol, with_session_globals};
 
 use indexmap::IndexMap;
 
@@ -64,7 +64,7 @@ pub(super) fn is_optional_wrapper_type(ty: &leo_ast::Type) -> bool {
     matches!(
         ty,
         leo_ast::Type::Composite(composite)
-            if composite.path.identifier().name.to_string().ends_with('?')
+            if with_session_globals(|sg| composite.path.identifier().name.as_str(sg, |s| s.ends_with('?')))
     )
 }
 

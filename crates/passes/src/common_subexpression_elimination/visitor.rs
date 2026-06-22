@@ -134,11 +134,15 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
     ///
     /// - `place` If this expression is the right hand side of a definition, `place` is the left hand side,
     ///
-    /// Returns (transformed expression, place_not_needed). `place_not_needed` is true iff it has been mapped to
+    /// Mutates `expression` in place while probing it. `None` means the whole
+    /// expression is not CSE-trackable, but any rewritten atom operands must be
+    /// preserved so deleted aliases are not reintroduced.
+    ///
+    /// Returns `place_not_needed`, which is true iff `place` has been mapped to
     /// another path, and thus its definition is no longer needed.
-    pub fn try_expr(&mut self, mut expression: Expression, place: Option<Symbol>) -> Option<(Expression, bool)> {
+    pub fn try_expr(&mut self, expression: &mut Expression, place: Option<Symbol>) -> Option<bool> {
         let span = expression.span();
-        let expr: Expr = match &mut expression {
+        let expr: Expr = match expression {
             Expression::ArrayAccess(array_access) => {
                 let array = self.try_atom(&mut array_access.array)?;
                 let index = self.try_atom(&mut array_access.index)?;
@@ -202,7 +206,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 for arg in &mut intrinsic.arguments {
                     self.try_atom(arg)?;
                 }
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::Call(call) => {
@@ -210,17 +214,17 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 for arg in &mut call.arguments {
                     self.try_atom(arg)?;
                 }
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::Cast(cast) => {
                 self.try_atom(&mut cast.expression)?;
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::MemberAccess(member_access) => {
                 self.try_atom(&mut member_access.inner)?;
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::Composite(composite_expression) => {
@@ -229,7 +233,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                         self.try_atom(expr)?;
                     }
                 }
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::Tuple(tuple_expression) => {
@@ -238,9 +242,12 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 tuple_expression.elements = tuple_expression
                     .elements
                     .drain(..)
-                    .map(|expr| self.try_expr(expr, None).map(|x| x.0))
-                    .collect::<Option<Vec<_>>>()?;
-                return Some((expression, false));
+                    .map(|mut expr| {
+                        self.try_expr(&mut expr, None);
+                        expr
+                    })
+                    .collect::<Vec<_>>();
+                return Some(false);
             }
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
@@ -258,11 +265,11 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     }
                     DynamicOpKind::Read { .. } => {}
                 }
-                return Some((expression, false));
+                return Some(false);
             }
 
             Expression::Async(_) | Expression::Err(_) | Expression::Unit(_) => {
-                return Some((expression, false));
+                return Some(false);
             }
         };
 
@@ -278,9 +285,11 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                     // We were defining a new variable, whose right hand side is already defined, so map
                     // this variable to the previous variable.
                     self.scopes.last_mut().unwrap().expressions.insert(Atom::Path(vec![place]).into(), name);
-                    return Some((Path::from(identifier).to_local().into(), true));
+                    *expression = Path::from(identifier).to_local().into();
+                    return Some(true);
                 }
-                return Some((Path::from(identifier).to_local().into(), false));
+                *expression = Path::from(identifier).to_local().into();
+                return Some(false);
             }
         }
 
@@ -289,6 +298,6 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             self.scopes.last_mut().unwrap().expressions.insert(expr, place);
         }
 
-        Some((expression, false))
+        Some(false)
     }
 }

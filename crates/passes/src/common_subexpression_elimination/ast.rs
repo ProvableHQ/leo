@@ -25,9 +25,9 @@ impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
     fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // We simply forward every expression to `try_expr` rather than using the individual reconstruct
         // functions from the `AstReconstructor` trait.
-        let original = input.clone();
-        let expression = self.try_expr(input, None).map(|(expression, _)| expression).unwrap_or(original);
-        (expression, Default::default())
+        let mut input = input;
+        self.try_expr(&mut input, None);
+        (input, Default::default())
     }
 
     fn reconstruct_block(&mut self, mut block: Block) -> (Block, Self::AdditionalOutput) {
@@ -40,24 +40,20 @@ impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         match input.place {
             DefinitionPlace::Single(place) => {
-                let original = input.value.clone();
-                if let Some((value, definition_not_needed)) = self.try_expr(input.value, Some(place.name)) {
+                if let Some(definition_not_needed) = self.try_expr(&mut input.value, Some(place.name)) {
                     if definition_not_needed {
                         // We don't need this definition - everywhere its variable is referred to, we'll map it to some other
                         // Path.
                         (Statement::dummy(), Default::default())
                     } else {
-                        input.value = value;
                         (input.into(), Default::default())
                     }
                 } else {
-                    input.value = original;
                     (input.into(), Default::default())
                 }
             }
             DefinitionPlace::Multiple(_) => {
-                let original = input.value.clone();
-                input.value = self.try_expr(input.value, None).map(|(expression, _)| expression).unwrap_or(original);
+                self.try_expr(&mut input.value, None);
                 (input.into(), Default::default())
             }
         }

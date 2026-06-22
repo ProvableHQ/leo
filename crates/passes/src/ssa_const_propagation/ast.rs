@@ -71,10 +71,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         if let Expression::Path(path) = &input.inner
             && let Some(original_name) = path.try_local_symbol()
         {
-            if !self.forward_direct_composites {
+            let name = self.resolve_composite_alias(original_name);
+            if !self.forward_direct_composites && name == original_name {
                 return (input.into(), None);
             }
-            let name = self.resolve_composite_alias(original_name);
             let Some(fields) = self.atom_fielded_composites.get(&name) else {
                 return (input.into(), None);
             };
