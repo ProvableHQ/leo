@@ -513,6 +513,8 @@ define_syntax_kinds! {
     STRUCT_FIELD_INIT,
     /// Struct field shorthand: `{ x }` (equivalent to `{ x: x }`)
     STRUCT_FIELD_SHORTHAND,
+    /// Struct update base: `..other` in `Foo { a: 1, ..other }`
+    STRUCT_BASE_UPDATE,
     /// Path expression: `foo::bar`
     PATH_EXPR,
     /// Path locator expression: `program.aleo::function`

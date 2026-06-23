@@ -23,6 +23,7 @@ const FIXTURES: &[&str] = &[
     "tests/fixtures/const_generics.leo",
     "tests/fixtures/interfaces.leo",
     "tests/fixtures/locators.leo",
+    "tests/fixtures/struct_update.leo",
     "tests/fixtures/views.leo",
 ];
 
