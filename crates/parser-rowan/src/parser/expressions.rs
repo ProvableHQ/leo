@@ -454,8 +454,11 @@ impl Parser<'_, '_> {
             // Identifier, path, or struct literal
             IDENT | KW_FINAL_UPPER => self.parse_ident_expr(opts),
 
-            // Self access
+            // `self` access
             KW_SELF => self.parse_self_expr(),
+
+            // `Self` is reserved for future use
+            KW_SELF_UPPER => self.parse_self_upper_expr(),
 
             // Block expressions (block, network)
             KW_BLOCK => self.parse_block_access(),
@@ -780,6 +783,13 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // block
         Some(m.complete(self, BLOCK_KW_EXPR))
+    }
+
+    /// Parse a use of the reserved `Self` keyword.
+    fn parse_self_upper_expr(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any(); // Self
+        Some(m.complete(self, SELF_UPPER_EXPR))
     }
 
     /// Parse `network.id` access.

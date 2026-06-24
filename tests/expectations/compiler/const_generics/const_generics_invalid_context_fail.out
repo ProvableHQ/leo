@@ -6,16 +6,16 @@
    │ Help: Remove the const generic parameters from this entry point functions.
 ───╯
 [ETYC0372143] Error: entry point functions cannot have generic const parameters
-    ╭─[ compiler-test:19:8 ]
+    ╭─[ compiler-test:17:8 ]
     │
- 19 │     fn bar1::[N: u32]() {}
+ 17 │     fn bar1::[N: u32]() {}
     │ 
     │ Help: Remove the const generic parameters from this entry point functions.
 ────╯
 [ETYC0372143] Error: entry point functions cannot have generic const parameters
-    ╭─[ compiler-test:21:8 ]
+    ╭─[ compiler-test:19:8 ]
     │
- 21 │     fn bar2::[N: u32]() -> Final {
+ 19 │     fn bar2::[N: u32]() -> Final {
     │ 
     │ Help: Remove the const generic parameters from this entry point functions.
 ────╯
@@ -26,10 +26,3 @@
    │ 
    │ Help: Remove the const generic parameters from this functions annotated with `@no_inline`.
 ───╯
-[ETYC0372143] Error: `final fn` functions cannot have generic const parameters
-    ╭─[ compiler-test:10:10 ]
-    │
- 10 │ final fn foo2::[N: u32](x: u32) {}
-    │ 
-    │ Help: Remove the const generic parameters from this `final fn` functions.
-────╯

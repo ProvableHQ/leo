@@ -284,7 +284,13 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                         // Restrictions for const parameters
                         if !matches!(
                             const_param.type_(),
-                            Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+                            Type::Boolean
+                                | Type::Integer(_)
+                                | Type::Address
+                                | Type::Scalar
+                                | Type::Group
+                                | Type::Field
+                                | Type::Identifier
                         ) {
                             slf.emit_err(crate::errors::type_checker::bad_const_generic_type(
                                 const_param.type_(),
@@ -518,7 +524,17 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
 
         // Check that the function's annotations are valid.
         for annotation in function.annotations.iter() {
-            if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
+            if !matches!(
+                annotation.identifier.name,
+                sym::test
+                    | sym::should_fail
+                    | sym::no_inline
+                    | sym::inline
+                    | sym::offchain
+                    | sym::_caller_annotation
+                    | sym::_program_id_arg
+                    | sym::_callable_function_arg
+            ) {
                 self.emit_err(crate::errors::type_checker::unknown_annotation(annotation, annotation.span))
             }
         }

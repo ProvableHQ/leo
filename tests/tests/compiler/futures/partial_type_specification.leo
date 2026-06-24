@@ -10,13 +10,13 @@ program test_dep.aleo {
 
     fn main_dep(a: u32) -> (yeets, Final<Fn(u32)>) {
         let f: Final<Fn(u32)> = final { finalize_main_dep(a, 1u32); };
-        let l: yeets = yeets { owner: self.signer, val: 1u32 };
+        let l: yeets = yeets { owner: std::ctx::signer(), val: 1u32 };
         return (l, f);
     }
 
     fn main_dep_2(a: u32) -> (yeets, Final<Fn()>) {
         let f: Final<Fn()> = final { finalize_main_dep_2(); };
-        let l: yeets = yeets { owner: self.signer, val: 1u32 };
+        let l: yeets = yeets { owner: std::ctx::signer(), val: 1u32 };
         return (l, f);
     }
 

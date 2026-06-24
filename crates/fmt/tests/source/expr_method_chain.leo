@@ -4,12 +4,12 @@
 
 	final fn use_special(
 	        caller_addr  :  address  )  {
-	    let h  :  u32  =  block.height
+	    let h  :  u32  =  std::ctx::block_height()
 	        ;
             let t  :  i64  =
-        block.timestamp
+        std::ctx::block_timestamp()
             ;
-    let n  :  u16  =  network.id;
+    let n  :  u16  =  std::ctx::network_id();
 }
 
 	final fn do_deposit(
@@ -60,10 +60,10 @@ program test.aleo
                 :  address  ,
     public amount
         :  u64  )  ->  Final  {
-    let caller  :  address  =  self.caller
+    let caller  :  address  =  std::ctx::caller()
         ;
                 let signer  :  address
-    =  self.signer;
+    =  std::ctx::signer();
             return  final  {
     do_deposit(
         sender  ,

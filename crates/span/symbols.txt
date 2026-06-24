@@ -737,6 +737,10 @@ admin
 key
 no_inline
 inline
+offchain
+_caller_annotation
+_program_id_arg
+_callable_function_arg
 
 // annotation keys
 private_key

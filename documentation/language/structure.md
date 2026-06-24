@@ -34,12 +34,12 @@ Two properties set a `constructor` apart from an ordinary function:
 ```leo file=../code_snippets/upgradability/noupgrade/src/main.leo#file
 ```
 
-Inside a `constructor`, you can read on-chain program metadata through `self` — namely `self.address`, `self.edition`, `self.program_owner`, and `self.checksum`. A `@custom` constructor typically branches on `self.edition` to apply different rules at first deployment (`edition == 0`) versus later upgrades:
+Inside a `constructor`, you can read on-chain program metadata through the [`std::ctx`](./standard_library.md#stdctx) module — namely `std::ctx::addr()`, `std::ctx::edition()`, `std::ctx::program_owner()`, and `std::ctx::checksum()`. A `@custom` constructor typically branches on `std::ctx::edition()` to apply different rules at first deployment (`edition == 0`) versus later upgrades:
 
 ```leo file=../code_snippets/upgradability/timelock/src/main.leo#file
 ```
 
-For the annotation argument grammar, the type and meaning of each `self.*` operand, and worked patterns for every upgrade mode, see the [Upgrading Programs guide](../guides/program_upgradability.md).
+For the annotation argument grammar, the meaning of each `std::ctx::*()` accessor, and worked patterns for every upgrade mode, see the [Upgrading Programs guide](../guides/program_upgradability.md).
 
 ### Constant
 

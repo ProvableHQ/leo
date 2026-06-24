@@ -1,14 +1,14 @@
 [ETYC0372117] Error: expected anything but a mapping, tuple, or unit, but type `(u32, u32)` was found
-   ╭─[ compiler-test:7:47 ]
+   ╭─[ compiler-test:7:54 ]
    │
- 7 │         let b: bool = sig.verify(self.caller, t);
+ 7 │         let b: bool = sig.verify(std::ctx::caller(), t);
    │ 
    │ Help: Change the expression to produce anything but a mapping, tuple, or unit.
 ───╯
 [ETYC0372117] Error: expected anything but a mapping, tuple, or unit, but type `(u8 => u8)` was found
-   ╭─[ compiler-test:8:47 ]
+   ╭─[ compiler-test:8:54 ]
    │
- 8 │         let c: bool = sig.verify(self.caller, m);
+ 8 │         let c: bool = sig.verify(std::ctx::caller(), m);
    │ 
    │ Help: Change the expression to produce anything but a mapping, tuple, or unit.
 ───╯

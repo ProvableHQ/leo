@@ -9,7 +9,7 @@ program test_dep.aleo {
 
     fn main_dep(a: u32) -> (yeets, Final) {
         let f: Final = final { finalize_main_dep(a, 1u32); };
-        let l: yeets = yeets { owner: self.signer, val: 1u32 };
+        let l: yeets = yeets { owner: std::ctx::signer(), val: 1u32 };
         return (l, f);
     }
 

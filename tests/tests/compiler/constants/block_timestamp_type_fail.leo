@@ -1,5 +1,5 @@
 final fn bar() {
-    let x: u32 = block.timestamp;
+    let x: u32 = std::ctx::block_timestamp();
 }
 
 program test.aleo {

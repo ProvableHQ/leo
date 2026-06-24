@@ -1,7 +1,7 @@
-[ETYC0372034] Error: `block.timestamp` must be inside a `final fn` or a `final` block
-   ╭─[ compiler-test:8:16 ]
+[ETYC0372042] Error: only regular `fn`s can be called from a view function
+   ╭─[ compiler-test:7:16 ]
    │
- 8 │         return block.timestamp;
+ 7 │         return std::ctx::block_timestamp();
    │ 
-   │ Help: Move the `block.timestamp` call into a `final fn` or wrap it in a `final { … }` block.
+   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
 ───╯

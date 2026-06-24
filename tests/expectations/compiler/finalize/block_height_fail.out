@@ -1,7 +1,7 @@
-[ETYC0372034] Error: `block.height` must be inside a `final fn` or a `final` block
+[ETYC0372042] Error: only regular `fn`s can be called from a transition body outside a `final {}` block
    ╭─[ compiler-test:3:27 ]
    │
- 3 │         assert_eq(height, block.height);
+ 3 │         assert_eq(height, std::ctx::block_height());
    │ 
-   │ Help: Move the `block.height` call into a `final fn` or wrap it in a `final { … }` block.
+   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
 ───╯

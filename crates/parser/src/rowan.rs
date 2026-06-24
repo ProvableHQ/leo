@@ -561,6 +561,10 @@ impl<'a> ConversionContext<'a> {
             SELF_EXPR => self.keyword_expr_to_path(node, sym::SelfLower)?,
             BLOCK_KW_EXPR => self.keyword_expr_to_path(node, sym::block)?,
             NETWORK_KW_EXPR => self.keyword_expr_to_path(node, sym::network)?,
+            SELF_UPPER_EXPR => {
+                self.handler.emit_err(crate::errors::reserved_identifier("Self", self.trimmed_span(node)));
+                self.error_expression(span)
+            }
             PAREN_EXPR => {
                 // Parenthesized expression - just unwrap
                 if let Some(inner) = children(node).find(|n| n.kind().is_expression()) {
@@ -884,6 +888,25 @@ impl<'a> ConversionContext<'a> {
                 }
                 .into());
             }
+            // `Program::*` used to desugar to the program-metadata intrinsics. The replacement
+            // lives in `std::prog::*`; emit a tailored migration error.
+            if module == sym::ProgramCore {
+                let replacement = match name {
+                    sym::checksum => Some("std::prog::checksum::[PROG_ID]()"),
+                    sym::edition => Some("std::prog::edition::[PROG_ID]()"),
+                    sym::program_owner => Some("std::prog::program_owner::[PROG_ID]()"),
+                    sym::function_checksum => Some("std::prog::function_checksum::[PROG_ID, FN_NAME]()"),
+                    _ => None,
+                };
+                if let Some(replacement) = replacement {
+                    self.handler.emit_err(crate::errors::obsolete_context_access(
+                        format!("Program::{}", name),
+                        replacement,
+                        span,
+                    ));
+                    return Ok(self.error_expression(span));
+                }
+            }
         }
 
         // Bare intrinsic calls (e.g. `_dynamic_call::[u64](args)`).
@@ -1122,7 +1145,12 @@ impl<'a> ConversionContext<'a> {
         let (inner, first_child_kind) = match children(node).find(|n| n.kind().is_expression()) {
             Some(n) => {
                 let kind = n.kind();
-                (self.to_expression(&n)?, kind)
+                let lowered = if matches!(kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+                    self.error_expression(self.trimmed_span(&n))
+                } else {
+                    self.to_expression(&n)?
+                };
+                (lowered, kind)
             }
             None => {
                 self.emit_unexpected_str("expression in field access", node.text(), span);
@@ -1131,7 +1159,7 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Get the field name (token after DOT).
-        // Field names can be identifiers or keywords (e.g. `self.address`).
+        // Field names can be identifiers or keywords.
         let field_token = match find_name_after_dot(node) {
             Some(token) => token,
             None => {
@@ -1152,37 +1180,42 @@ impl<'a> ConversionContext<'a> {
             return Ok(leo_ast::Literal::address(full_name, span, id).into());
         }
 
-        // Check for special accesses: self.caller, block.height, etc.
+        // `self.X`, `block.X`, and `network.X` used to be sugar for execution-context
+        // intrinsics. The sugar has been removed; the same values are now reached
+        // through the `std::ctx` module. Emit a targeted migration error that names
+        // the replacement.
         let field_name = Symbol::intern(field_token.text());
-
-        let special = match (first_child_kind, field_name) {
-            (SELF_EXPR, sym::address) => Some(sym::_self_address),
-            (SELF_EXPR, sym::caller) => Some(sym::_self_caller),
-            (SELF_EXPR, sym::checksum) => Some(sym::_self_checksum),
-            (SELF_EXPR, sym::edition) => Some(sym::_self_edition),
-            (SELF_EXPR, sym::id) => Some(sym::_self_id),
-            (SELF_EXPR, sym::program_owner) => Some(sym::_self_program_owner),
-            (SELF_EXPR, sym::signer) => Some(sym::_self_signer),
-            (BLOCK_KW_EXPR, sym::height) => Some(sym::_block_height),
-            (BLOCK_KW_EXPR, sym::timestamp) => Some(sym::_block_timestamp),
-            (NETWORK_KW_EXPR, sym::id) => Some(sym::_network_id),
-            (SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR, _) => {
-                self.handler.emit_err(crate::errors::custom("Unsupported special access", span));
-                return Ok(self.error_expression(span));
-            }
+        let removed_access = match (first_child_kind, field_name) {
+            (SELF_EXPR, sym::address) => Some(("self.address", "std::ctx::addr()")),
+            (SELF_EXPR, sym::caller) => Some(("self.caller", "std::ctx::caller()")),
+            (SELF_EXPR, sym::checksum) => Some(("self.checksum", "std::ctx::checksum()")),
+            (SELF_EXPR, sym::edition) => Some(("self.edition", "std::ctx::edition()")),
+            (SELF_EXPR, sym::id) => Some(("self.id", "std::ctx::id()")),
+            (SELF_EXPR, sym::program_owner) => Some(("self.program_owner", "std::ctx::program_owner()")),
+            (SELF_EXPR, sym::signer) => Some(("self.signer", "std::ctx::signer()")),
+            (BLOCK_KW_EXPR, sym::height) => Some(("block.height", "std::ctx::block_height()")),
+            (BLOCK_KW_EXPR, sym::timestamp) => Some(("block.timestamp", "std::ctx::block_timestamp()")),
+            (NETWORK_KW_EXPR, sym::id) => Some(("network.id", "std::ctx::network_id()")),
             _ => None,
         };
-
-        if let Some(intrinsic_name) = special {
-            return Ok(self.intrinsic_expression(intrinsic_name, Vec::new(), span));
+        if let Some((old, replacement)) = removed_access {
+            self.handler.emit_err(crate::errors::obsolete_context_access(old, replacement, span));
+            return Ok(self.error_expression(span));
+        }
+        if matches!(first_child_kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+            let keyword = match first_child_kind {
+                SELF_EXPR => "self",
+                BLOCK_KW_EXPR => "block",
+                NETWORK_KW_EXPR => "network",
+                _ => unreachable!(),
+            };
+            self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
+            return Ok(self.error_expression(span));
         }
 
-        // Field token may be an identifier or keyword (e.g. `self.address`).
-        let name = leo_ast::Identifier {
-            name: Symbol::intern(field_token.text()),
-            span: self.token_span(&field_token),
-            id: self.builder.next_id(),
-        };
+        // Field token may be an identifier or keyword (e.g. `obj.aleo`).
+        let field_span = self.token_span(&field_token);
+        let name = leo_ast::Identifier { name: field_name, span: field_span, id: self.builder.next_id() };
         Ok(leo_ast::MemberAccess { inner, name, span, id }.into())
     }
 
@@ -1523,12 +1556,19 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Expression::Path(path))
     }
 
-    /// Convert a keyword expression (SELF_EXPR, BLOCK_KW_EXPR, NETWORK_KW_EXPR) to a Path.
+    /// Handle a bare reference to one of the removed context keywords
+    /// (`self`, `block`, `network`). The sugar that turned these into expressions
+    /// has been replaced by the `std::ctx` module, so emit a migration error.
     fn keyword_expr_to_path(&self, node: &SyntaxNode, name: Symbol) -> Result<leo_ast::Expression> {
         let span = self.trimmed_span(node);
-        let ident = leo_ast::Identifier { name, span, id: self.builder.next_id() };
-        let path = leo_ast::Path::new(None, Vec::new(), ident, span, self.builder.next_id());
-        Ok(leo_ast::Expression::Path(path))
+        let keyword = match name {
+            sym::SelfLower => "self",
+            sym::block => "block",
+            sym::network => "network",
+            _ => unreachable!("keyword_expr_to_path called with non-context keyword"),
+        };
+        self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
+        Ok(self.error_expression(span))
     }
 
     /// Convert a FINAL_EXPR node to an Expression.

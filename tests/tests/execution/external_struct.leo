@@ -67,7 +67,7 @@ program child.aleo {
                     },
                 ],
             },
-            Boo { owner: self.signer, val: 10u32 },
+            Boo { owner: std::ctx::signer(), val: 10u32 },
         );
     }
 }
@@ -148,7 +148,7 @@ program parent.aleo {
         return (
             f1, b1,
             BooHoo {
-                owner: self.signer,
+                owner: std::ctx::signer(),
                 val: 10u32,
                 woo: Woo { a: 1u32, b: 2u32 },
             },

@@ -31,7 +31,7 @@ program test.aleo {
 
     fn init(b: bool) -> (address, Final) {
         return (
-            self.caller,
+            std::ctx::caller(),
             final {
                 finalize_init(caller);
             },

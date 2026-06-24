@@ -16,6 +16,8 @@ fn addr() -> address {
 // Use `caller` for trust decisions about who is asking for the current
 // operation. Use `signer` when the decision should track the
 // originator of the entire transaction.
+@offchain
+@_caller_annotation
 fn caller() -> address {
     return _self_caller();
 }
@@ -23,6 +25,7 @@ fn caller() -> address {
 // Returns the address that signed the outer transaction. Unlike `caller`,
 // this never changes during cross-program calls: it always points to the
 // off-chain agent who authorized the whole call graph.
+@offchain
 fn signer() -> address {
     return _self_signer();
 }
@@ -30,7 +33,7 @@ fn signer() -> address {
 // Returns the on-chain identifier of this program. The id is an Aleo address
 // derived from the program's source and is the same value users see in block
 // explorers.
-final fn id() -> address {
+fn id() -> address {
     return _self_id();
 }
 

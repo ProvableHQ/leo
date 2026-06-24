@@ -42,7 +42,7 @@ program test.aleo {
         if (a == b) {
             e = inline_and_eliminate(a, b);
         }
-        let f: dummy = dummy { owner: self.signer, data: e };
+        let f: dummy = dummy { owner: std::ctx::signer(), data: e };
         return a + b;
     }
 

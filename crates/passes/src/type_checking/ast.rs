@@ -1162,8 +1162,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if matches!(func.variant, Variant::EntryPoint) && callee_program == self.scope_state.unit_name.unwrap()
                 {
                     self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
-                } else if matches!(func.variant, Variant::View) && self.async_block_id.is_none() {
-                    // Views are only callable from inside a `final {}` block.
+                } else if matches!(func.variant, Variant::View | Variant::FinalFn) && self.async_block_id.is_none() {
+                    // Views and FinalFns are only callable from inside a `final {}` block when inside an EntryPoint.
                     self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                         "a transition body outside a `final {}` block",
                         input.span,
@@ -1179,6 +1179,64 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return Type::Err;
+        }
+
+        // `@offchain` propagates an off-chain-only restriction from the callee to its caller: the
+        // call is rejected in finalize/view contexts and inside `final {}` async blocks. This is how
+        // wrappers like `std::ctx::caller()` over the `_self_caller` intrinsic regain the access-scope
+        // rule that the parser used to enforce on the desugared `self.caller` syntax.
+        if func.annotations.iter().any(|a| a.identifier.name == sym::offchain) {
+            let name = format!("{}()", input.function);
+            self.check_access_allowed(&name, AccessScope::OffchainCaller, input.span);
+        }
+
+        // `@_program_id_arg` marks a compiler-internal wrapper whose first const generic argument
+        // is the program-ID literal threaded into a program-metadata intrinsic. Validate the
+        // literal shape at the user's call site (the wrapper body never sees the substituted
+        // literal because the relevant TypeChecking pass runs on the un-substituted template).
+        let program_id = if func.annotations.iter().any(|a| a.identifier.name == sym::_program_id_arg) {
+            let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
+            match input.const_arguments.first() {
+                Some(Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. }))
+                    if program_id_regex.is_match(s) =>
+                {
+                    Some(s.clone())
+                }
+                Some(arg) => {
+                    self.emit_err(crate::errors::type_checker::custom(
+                        format!("`{}` must be called on a program ID, e.g. `foo.aleo`", input.function),
+                        arg.span(),
+                    ));
+                    None
+                }
+                None => None,
+            }
+        } else {
+            None
+        };
+
+        // `@_callable_function_arg` marks a wrapper whose second const generic argument names a
+        // function in the program identified by the first const arg. Verify it resolves to an
+        // entry or view function of that program (closures and `final fn`s have no stable
+        // identity in the compiled bytecode).
+        if func.annotations.iter().any(|a| a.identifier.name == sym::_callable_function_arg)
+            && let Some(component_arg) = input.const_arguments.get(1)
+            && let Expression::Literal(Literal { variant: LiteralVariant::Identifier(component), .. }) = component_arg
+            && let Some(program_id) = &program_id
+        {
+            let location = Location::new(Symbol::intern(program_id), vec![Symbol::intern(component.as_str())]);
+            let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
+            let is_entry_or_view = self
+                .state
+                .symbol_table
+                .lookup_function(current_unit, &location)
+                .is_some_and(|symbol| symbol.function.variant.is_externally_callable());
+            if !is_entry_or_view {
+                self.emit_err(crate::errors::type_checker::custom(
+                    format!("`{component}` must be an entry function or a view function of `{program_id}`"),
+                    component_arg.span(),
+                ));
+            }
         }
 
         // Async functions return a single future.
@@ -1614,17 +1672,33 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .emit_err(crate::errors::type_checker::records_not_allowed_inside_final(input.span()));
             }
 
-            // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
-            // address and programs can't spend records. Emit a warning in this case.
+            // Records where the `owner` resolves to the `_self_caller` intrinsic can be problematic:
+            // the caller may be a program address, and programs can't spend records. Emit a warning
+            // when the owner expression is either the raw `_self_caller()` call or a call to a
+            // wrapper function carrying the compiler-internal `@_caller_annotation` (e.g.
+            // `std::ctx::caller()`). Resolving via the annotation keeps the check working even if
+            // the stdlib wrapper is renamed or moved.
             //
             // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
-                if let Some(Expression::Intrinsic(intr)) = &init.expression
-                    && let IntrinsicExpression { name: sym::_self_caller, .. } = &**intr
-                {
+                let Some(expr) = &init.expression else { return };
+                let is_caller_intrinsic = match expr {
+                    Expression::Intrinsic(intr) => intr.name == sym::_self_caller,
+                    Expression::Call(call) => call
+                        .function
+                        .try_global_location()
+                        .and_then(|loc| {
+                            self.state.symbol_table.lookup_function(self.scope_state.unit_name.unwrap(), loc)
+                        })
+                        .is_some_and(|func_sym| {
+                            func_sym.function.annotations.iter().any(|a| a.identifier.name == sym::_caller_annotation)
+                        }),
+                    _ => false,
+                };
+                if is_caller_intrinsic {
                     self.state.handler.emit_warning_once(
-                        intr.span(),
-                        crate::errors::type_checker::caller_as_record_owner(input.path.clone(), intr.span()),
+                        expr.span(),
+                        crate::errors::type_checker::caller_as_record_owner(input.path.clone(), expr.span()),
                     );
                 }
             });

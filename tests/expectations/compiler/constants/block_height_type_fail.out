@@ -1,7 +1,7 @@
-[ETYC0372117] Error: expected type `u64`, but type `u32` was found
+[ETYC0372003] Error: expected type `u64`, found type `u32`
    ╭─[ compiler-test:2:18 ]
    │
- 2 │     let x: u64 = block.height;
+ 2 │     let x: u64 = std::ctx::block_height();
    │ 
-   │ Help: Change the expression to produce type `u64`.
+   │ Help: Change the expression to produce a `u64`, or cast it with `as u64` if a conversion exists.
 ───╯

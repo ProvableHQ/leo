@@ -30,7 +30,7 @@ program test0.aleo {
     }
 
     fn make() -> R {
-        return R { owner: self.signer, x: 0field };
+        return R { owner: std::ctx::signer(), x: 0field };
     }
 
     @noupgrade

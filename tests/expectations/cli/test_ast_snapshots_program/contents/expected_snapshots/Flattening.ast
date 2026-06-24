@@ -80,6 +80,9 @@ module grp {
 module ctx {
 }
 
+module prog {
+}
+
 }
 
 program ast_program.aleo {
