@@ -10,6 +10,7 @@
        Leo     Program size: 0.17 KB / 2000.00 KB
        Leo ✅ Compiled 'test_test_failure_exit_code.aleo' into Aleo instructions.
        Leo     Import 'test_failure_exit_code.aleo': checksum = '[221u8, 98u8, 184u8, 91u8, 106u8, 23u8, 100u8, 225u8, 172u8, 241u8, 136u8, 60u8, 210u8, 232u8, 121u8, 251u8, 30u8, 86u8, 109u8, 166u8, 1u8, 21u8, 133u8, 255u8, 216u8, 171u8, 227u8, 187u8, 160u8, 103u8, 226u8, 24u8]'
+       Leo     Import 'test_failure_exit_code.aleo': program size: 0.20 KB / 2000.00 KB
        Leo Loading the ledger from storage...
 0 / 1 tests passed.
 FAILED: test_test_failure_exit_code.aleo/test_deliberate_failure | none -- "Failed to extract output: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (assert.eq 1u8 2u8;) at index 0 failed: Failed to execute: Constraint unsatisfied: (0 * 1) != 1"
