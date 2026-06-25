@@ -663,6 +663,9 @@ fn compile_leo_source_directory(
         };
 
         tracing::info!("    Import '{}': checksum = '[{dep_checksum}]'", import.name);
+        let import_size = import.bytecode.len();
+        let (size_kb, max_kb, _warning) = format_program_size(import_size, MAX_PROGRAM_SIZE);
+        tracing::info!("    Import '{}': program size: {size_kb:.2} KB / {max_kb:.2} KB", import.name);
     }
 
     Ok(compiled)
