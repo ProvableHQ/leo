@@ -135,9 +135,6 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             continue;
         };
 
-        let source_dir =
-            if unit.kind.is_test() { source.parent().unwrap().to_path_buf() } else { directory.join("src") };
-
         let handler = Handler::default();
         let node_builder = Rc::new(NodeBuilder::default());
 
@@ -152,7 +149,13 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
             network,
         );
 
-        let ast = compiler.parse_program_from_directory(source, &source_dir);
+        // A test is a single standalone file; its `tests/` siblings are independent programs,
+        // so parse only this file rather than scanning the directory for modules.
+        let ast = if unit.kind.is_test() {
+            compiler.parse_program_from_file(source)
+        } else {
+            compiler.parse_program_from_directory(source, directory.join("src"))
+        };
         let ast = match ast {
             Ok(ast) => ast,
             Err(_) => continue,

@@ -402,9 +402,11 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                         }
                     }
                     stubs.insert(unit.name, library_stub);
-                } else {
-                    // Parse the primary program (for its stub) and intermediate dependencies; the
-                    // primary's stub adopts the rename too, or its parse would fail the name check.
+                } else if !unit.kind.is_test() {
+                    // Build a stub for the primary program and intermediate dependencies so other
+                    // programs can resolve their imports; the primary's stub adopts the rename too,
+                    // or its parse would fail the name check. Tests are excluded: nothing imports a
+                    // test, so it needs no stub.
                     let leo_program = parse_leo_source_directory(
                         source,
                         &source_dir,
@@ -611,8 +613,13 @@ fn compile_leo_source_directory(
     // When set, recompile the program scope under this on-chain name (`leo deploy --rename`).
     compiler.rename = rename;
 
-    // Compile the Leo program into Aleo instructions.
-    let compiled = compiler.compile_from_directory(entry_file_path, source_directory)?;
+    // Compile the Leo program into Aleo instructions. A test is a single standalone file:
+    // its siblings in `tests/` are independent test programs, not modules to fold in.
+    let compiled = if is_test {
+        compiler.compile_from_file(entry_file_path)?
+    } else {
+        compiler.compile_from_directory(entry_file_path, source_directory)?
+    };
     let primary_bytecode = &compiled.primary.bytecode;
 
     // Check the program size limit for each bytecode.
