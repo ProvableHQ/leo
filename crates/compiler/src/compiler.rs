@@ -624,6 +624,27 @@ impl Compiler {
         self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
     }
 
+    /// Compiles a single standalone source file, without discovering sibling modules.
+    ///
+    /// Used for tests: each `tests/test_*.leo` is its own program, so its directory must not be
+    /// scanned for modules (the siblings are independent test programs, not submodules).
+    pub fn compile_from_file(&mut self, entry_file_path: impl AsRef<Path>) -> Result<Compiled> {
+        self.compile_from_file_with_file_source(entry_file_path, &DiskFileSource)
+    }
+
+    /// Compiles a single standalone source file using the given file source.
+    pub fn compile_from_file_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Compiled> {
+        let entry_file_path = entry_file_path.as_ref();
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
+        self.compile(&source, FileName::Real(entry_file_path.into()), &Vec::new())
+    }
+
     /// Parses a program from a source file and its associated module files in the same directory tree.
     pub fn parse_program_from_directory(
         &mut self,
@@ -648,6 +669,32 @@ impl Compiler {
 
         // Parse the main source along with all collected modules.
         self.parse_program(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
+
+        match &self.state.ast {
+            Ast::Program(program) => Ok(program.clone()),
+            Ast::Library(_) => unreachable!("expected Program AST"),
+        }
+    }
+
+    /// Parses a single standalone source file, without discovering sibling modules.
+    ///
+    /// Used for tests: each `tests/test_*.leo` is its own program, so its directory must not be
+    /// scanned for modules (the siblings are independent test programs, not submodules).
+    pub fn parse_program_from_file(&mut self, entry_file_path: impl AsRef<Path>) -> Result<Program> {
+        self.parse_program_from_file_with_file_source(entry_file_path, &DiskFileSource)
+    }
+
+    /// Parses a single standalone source file using the given file source.
+    pub fn parse_program_from_file_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Program> {
+        let entry_file_path = entry_file_path.as_ref();
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
+        self.parse_program(&source, FileName::Real(entry_file_path.into()), &[])?;
 
         match &self.state.ast {
             Ast::Program(program) => Ok(program.clone()),
