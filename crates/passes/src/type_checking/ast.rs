@@ -21,9 +21,11 @@ use leo_ast::{
     Type::{Future, Tuple},
     *,
 };
+use leo_errors::Label;
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug)]
 pub struct AssignTargetInfo {
@@ -1553,13 +1555,66 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(CompositeType { path: input.path.clone(), const_arguments: input.const_arguments.clone() });
         self.maybe_assert_type(&type_, additional, input.path.span());
 
-        // Check number of composite members.
-        if composite.members.len() != input.members.len() {
+        // A struct update base must have the composite type; it supplies any field not listed explicitly.
+        if let Some(base) = &input.base {
+            self.visit_expression(base, &Some(type_.clone()));
+        }
+
+        // Reject duplicate fields. With a base they would slip past the count check below, and SSA would
+        // silently keep only the last value.
+        let mut seen: HashMap<Symbol, Span> = HashMap::with_capacity(input.members.len());
+        for member in input.members.iter() {
+            let name = member.identifier.name;
+            if let Some(first_span) = seen.get(&name) {
+                let (err, label) = if composite.is_record {
+                    (
+                        crate::errors::type_checker::duplicate_record_variable(name, member.identifier.span()),
+                        "record variable already declared",
+                    )
+                } else {
+                    (
+                        crate::errors::type_checker::duplicate_struct_member(name, member.identifier.span()),
+                        "struct field already declared",
+                    )
+                };
+                self.emit_err(err.with_labels(vec![
+                    Label::new(*first_span)
+                        .with_message(format!("`{name}` first declared here"))
+                        .with_color(leo_errors::Color::Blue),
+                    Label::new(member.identifier.span()).with_message(label),
+                ]));
+            } else {
+                seen.insert(name, member.identifier.span());
+            }
+        }
+
+        // With a base, the explicit members are a subset, so only reject exceeding the field count.
+        let too_many = if input.base.is_some() {
+            input.members.len() > composite.members.len()
+        } else {
+            composite.members.len() != input.members.len()
+        };
+        if too_many {
             self.emit_err(crate::errors::type_checker::incorrect_num_composite_members(
                 composite.members.len(),
                 input.members.len(),
                 input.span(),
             ));
+        }
+
+        // Without a base an unknown field is caught by the count check above; with one, reject it here.
+        if input.base.is_some() {
+            let composite_field_names: HashSet<Symbol> =
+                composite.members.iter().map(|member| member.identifier.name).collect();
+            for member in input.members.iter() {
+                if !composite_field_names.contains(&member.identifier.name) {
+                    self.emit_err(crate::errors::type_checker::invalid_composite_variable(
+                        member.identifier,
+                        composite.identifier,
+                        member.identifier.span(),
+                    ));
+                }
+            }
         }
 
         for Member { identifier, type_, .. } in composite.members.iter() {
@@ -1597,7 +1652,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         self.visit_expression(expr, &Some(type_.clone()));
                     }
                 };
-            } else {
+            } else if input.base.is_none() {
+                // Without a base, every field must be initialized explicitly.
                 self.emit_err(crate::errors::type_checker::missing_composite_member(
                     composite.identifier,
                     identifier,

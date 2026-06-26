@@ -89,6 +89,7 @@ impl OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 },
             ],
+            base: None,
             span: Span::default(),
             id: self.state.node_builder.next_id(),
         };
@@ -166,6 +167,7 @@ impl OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 },
             ],
+            base: None,
             span: Span::default(),
             id: self.state.node_builder.next_id(),
         };

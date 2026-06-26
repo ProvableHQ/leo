@@ -1,0 +1,5 @@
+[EPAR0370047] Error: expected base expression after `..`
+   ╭─[ compiler-test:9:35 ]
+   │
+ 9 │         let p: Point = Point { .. };
+───╯

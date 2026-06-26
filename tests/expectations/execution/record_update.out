@@ -1,0 +1,44 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+    nonce as u64.private;
+
+function make_and_update:
+    input r0 as u64.private;
+    cast self.signer 100u64 7u64 into r1 as Token.record;
+    cast self.signer r0 7u64 into r2 as Token.record;
+    output r1 as Token.record;
+    output r2 as Token.record;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: ({
+  owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
+  amount: 100u64.private,
+  nonce: 7u64.private,
+  _nonce: 1907396608439134703953816116921774741659360554856884733887072781058644630783group.public,
+  _version: 1u8.public
+}, {
+  owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
+  amount: 50u64.private,
+  nonce: 7u64.private,
+  _nonce: 410004207761698656064567022505358277927889478090929783260492957958732416185group.public,
+  _version: 1u8.public
+})
+status: success
+output: ({
+  owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
+  amount: 100u64.private,
+  nonce: 7u64.private,
+  _nonce: 1907396608439134703953816116921774741659360554856884733887072781058644630783group.public,
+  _version: 1u8.public
+}, {
+  owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
+  amount: 0u64.private,
+  nonce: 7u64.private,
+  _nonce: 410004207761698656064567022505358277927889478090929783260492957958732416185group.public,
+  _version: 1u8.public
+})

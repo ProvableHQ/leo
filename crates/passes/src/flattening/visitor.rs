@@ -517,6 +517,7 @@ impl FlatteningVisitor<'_> {
                 path: composite_path.clone(),
                 const_arguments: Vec::new(), // All const arguments should have been resolved by now
                 members,
+                base: None,
                 span: Default::default(),
                 id: {
                     // Create a new node ID for the comopsite expression.

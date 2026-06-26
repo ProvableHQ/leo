@@ -95,6 +95,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         STRUCT_EXPR | STRUCT_LOCATOR_EXPR => format_struct_expr(node, out),
         STRUCT_FIELD_INIT => format_struct_field_init(node, out),
         STRUCT_FIELD_SHORTHAND => format_struct_field_shorthand(node, out),
+        STRUCT_BASE_UPDATE => format_struct_base_update(node, out),
         FINAL_EXPR => format_final_expr(node, out),
 
         // Patterns
@@ -3034,8 +3035,10 @@ fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
-    let inits: Vec<_> =
-        node.children().filter(|c| matches!(c.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND)).collect();
+    let inits: Vec<_> = node
+        .children()
+        .filter(|c| matches!(c.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND | STRUCT_BASE_UPDATE))
+        .collect();
     let elems = elements(node);
 
     // Write everything before L_BRACE (struct path/name)
@@ -3095,6 +3098,13 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
 fn format_struct_field_shorthand(node: &SyntaxNode, out: &mut Output) {
     if let Some(tok) = node.children_with_tokens().find_map(|e| e.into_token().filter(|t| t.kind() == IDENT)) {
         out.write(tok.text());
+    }
+}
+
+fn format_struct_base_update(node: &SyntaxNode, out: &mut Output) {
+    out.write("..");
+    if let Some(expr) = node.children().find(|n| n.kind().is_expression()) {
+        format_node(&expr, out);
     }
 }
 

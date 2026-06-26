@@ -103,9 +103,11 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                 self.module.clone(),
             );
         }
+        let base = input.base.take().map(|base| Box::new(self.reconstruct_expression(*base, &()).0));
         (
             CompositeExpression {
                 path: input.path,
+                base,
                 const_arguments: input
                     .const_arguments
                     .into_iter()
