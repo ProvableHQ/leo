@@ -58,6 +58,11 @@ pub struct CompositeExpression {
     /// N.B. Any functions or member constants in the composite definition
     /// are excluded from this list.
     pub members: Vec<CompositeFieldInitializer>,
+    /// The base expression of a struct update, e.g. `other` in `Foo { bar: 42, ..other }`.
+    ///
+    /// When `Some`, any field of the composite not present in `members` is copied from `base`.
+    /// This is lowered away during static single assignment, so later passes always see `None`.
+    pub base: Option<Box<Expression>>,
     /// A span from `name` to `}`.
     pub span: Span,
     /// The ID of the node.
@@ -76,7 +81,10 @@ impl fmt::Display for CompositeExpression {
             write!(f, " ")?;
         }
         write!(f, "{}", self.members.iter().format(", "))?;
-        if !self.members.is_empty() {
+        if let Some(base) = &self.base {
+            let separator = if self.members.is_empty() { " " } else { ", " };
+            write!(f, "{separator}..{base} ")?;
+        } else if !self.members.is_empty() {
             write!(f, " ")?;
         }
         write!(f, "}}")

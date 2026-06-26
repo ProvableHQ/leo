@@ -2916,6 +2916,22 @@
     }
   },
   {
+    "type": "struct_base_update",
+    "named": true,
+    "fields": {
+      "base": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "struct_definition",
     "named": true,
     "fields": {
@@ -3047,6 +3063,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "struct_base_update",
+          "named": true
+        },
         {
           "type": "struct_field_init",
           "named": true

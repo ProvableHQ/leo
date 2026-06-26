@@ -291,6 +291,82 @@ fn references_returns_local_variable_occurrences() {
     assert!(status.success(), "stderr:\n{stderr}");
 }
 
+/// A variable used as a struct update base (`..base`) must resolve like any other reference.
+#[test]
+fn references_include_struct_update_base() {
+    let tempdir = tempdir().expect("tempdir");
+    let package_root = tempdir.path().join("example");
+    let source_dir = package_root.join("src");
+    fs::create_dir_all(&source_dir).expect("create source dir");
+    fs::write(
+        package_root.join("program.json"),
+        r#"{ "program": "demo.aleo", "version": "0.1.0", "description": "", "license": "MIT", "leo": "4.0.0" }"#,
+    )
+    .expect("write manifest");
+
+    let source = concat!(
+        "struct Point {\n",
+        "    x: u32,\n",
+        "    y: u32,\n",
+        "}\n\n",
+        "program demo.aleo {\n",
+        "    fn main() -> Point {\n",
+        "        let base: Point = Point { x: 1u32, y: 2u32 };\n",
+        "        let updated: Point = Point { x: 3u32, ..base };\n",
+        "        return updated;\n",
+        "    }\n",
+        "    @noupgrade constructor() {}\n",
+        "}\n",
+    );
+    let main_path = source_dir.join("main.leo");
+    fs::write(&main_path, source).expect("write source");
+    let document_uri = file_uri(&main_path);
+    let canonical_file_uri = file_uri(&main_path.canonicalize().expect("canonical main path"));
+
+    let mut server = TestServer::spawn(&[("RUST_LOG", "debug")]);
+    initialize(&mut server);
+    server.notify("initialized", json!({}));
+
+    server.notify(
+        "textDocument/didOpen",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+                "languageId": "leo",
+                "version": 1,
+                "text": source,
+            }
+        }),
+    );
+
+    // Request references from the `base` declaration; the `..base` occurrence must be reported.
+    let references = server.request(
+        2,
+        "textDocument/references",
+        json!({
+            "textDocument": {
+                "uri": document_uri,
+            },
+            "position": position_json(source, "base", 0),
+            "context": {
+                "includeDeclaration": true,
+            }
+        }),
+    );
+    let results = references["result"].as_array().expect("references array");
+    assert_eq!(results.len(), 2, "struct update base not resolved: {references}");
+    assert!(results.iter().all(|location| location["uri"] == json!(canonical_file_uri.to_string())));
+    assert_eq!(results[0]["range"], range_json(source, "base", 0));
+    assert_eq!(results[1]["range"], range_json(source, "base", 1));
+
+    let shutdown = server.request(3, "shutdown", Value::Null);
+    assert_eq!(shutdown["result"], Value::Null);
+
+    server.notify("exit", json!({}));
+    let (status, stderr) = server.finish();
+    assert!(status.success(), "stderr:\n{stderr}");
+}
+
 /// Verifies references cover compiler-backed parameters, functions, types, and members.
 #[test]
 fn references_cover_core_compiler_symbol_families() {
