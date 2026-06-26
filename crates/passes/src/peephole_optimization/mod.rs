@@ -108,6 +108,10 @@ fn is_literal(expr: &AleoExpr) -> bool {
     )
 }
 
+fn is_ternary_absorption_operand(expr: &AleoExpr) -> bool {
+    matches!(expr, AleoExpr::Reg(_)) || is_literal(expr)
+}
+
 // Identity operation folding
 
 /// If `stmt` is an identity operation, returns references to (dest_register, aliased_expr).
@@ -456,7 +460,12 @@ fn fold_redundant_ternaries(stmts: &mut [AleoStmt]) {
                 *if_false = inner_false.clone();
             }
 
-            ternaries.insert(dest.clone(), (condition.clone(), if_true.clone(), if_false.clone()));
+            if is_ternary_absorption_operand(condition)
+                && is_ternary_absorption_operand(if_true)
+                && is_ternary_absorption_operand(if_false)
+            {
+                ternaries.insert(dest.clone(), (condition.clone(), if_true.clone(), if_false.clone()));
+            }
         }
     }
 }
@@ -1120,5 +1129,43 @@ fn renumber_registers(stmts: &mut [AleoStmt], num_inputs: usize) {
                 remap_reg(d, &mapping);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn reg(index: u64) -> AleoExpr {
+        AleoExpr::Reg(AleoReg::R(index))
+    }
+
+    fn reg_dest(index: u64) -> AleoReg {
+        AleoReg::R(index)
+    }
+
+    #[test]
+    fn redundant_ternary_absorption_uses_atom_operands() {
+        let mut stmts = vec![
+            AleoStmt::Ternary(reg(0), reg(1), reg(2), reg_dest(3)),
+            AleoStmt::Ternary(reg(0), reg(3), reg(2), reg_dest(4)),
+        ];
+
+        fold_redundant_ternaries(&mut stmts);
+
+        assert_eq!(stmts[1], AleoStmt::Ternary(reg(0), reg(1), reg(2), reg_dest(4)));
+    }
+
+    #[test]
+    fn redundant_ternary_absorption_ignores_non_atom_operands() {
+        let member = AleoExpr::MemberAccess(Box::new(reg(1)), "field".to_string());
+        let mut stmts = vec![
+            AleoStmt::Ternary(reg(0), member, reg(2), reg_dest(3)),
+            AleoStmt::Ternary(reg(0), reg(3), reg(2), reg_dest(4)),
+        ];
+
+        fold_redundant_ternaries(&mut stmts);
+
+        assert_eq!(stmts[1], AleoStmt::Ternary(reg(0), reg(3), reg(2), reg_dest(4)));
     }
 }

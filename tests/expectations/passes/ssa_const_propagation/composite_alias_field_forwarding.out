@@ -14,5 +14,22 @@ program test.aleo {
         let $var$6 = $var$4 + $var$5;
         return $var$6;
     }
+    fn alias_chain(p$$7: u32, q$$8: u32) -> u32 {
+        let s$#9 = test.aleo::Pair { a: p$$7, b: q$$8 };
+        let alias1$#10 = s$#9;
+        let alias2$#11 = alias1$#10;
+        let $var$12 = p$$7;
+        let $var$13 = q$$8;
+        let $var$14 = $var$12 + $var$13;
+        return $var$14;
+    }
+    fn fallible_field(p$$15: u32, q$$16: u32) -> u32 {
+        let $var$17 = p$$15 / q$$16;
+        let s$#18 = test.aleo::Pair { a: $var$17, b: q$$16 };
+        let alias$#19 = s$#18;
+        let $var$20 = $var$17;
+        let $var$21 = q$$16;
+        let $var$22 = $var$20 + $var$21;
+        return $var$22;
+    }
 }
-
