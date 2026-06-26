@@ -1,0 +1,54 @@
+program test.aleo;
+
+struct Inner:
+    a as u32;
+    b as u32;
+
+struct Point:
+    x as u32;
+    y as u32;
+    z as u32;
+
+struct Outer:
+    inner as Inner;
+    tag as u32;
+
+function override_one:
+    input r0 as Point.private;
+    input r1 as u32.private;
+    cast r1 r0.y r0.z into r2 as Point;
+    output r2 as Point.private;
+
+function copy_all:
+    input r0 as Point.private;
+    cast r0.x r0.y r0.z into r1 as Point;
+    output r1 as Point.private;
+
+function override_all:
+    input r0 as Point.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    input r3 as u32.private;
+    cast r1 r2 r3 into r4 as Point;
+    output r4 as Point.private;
+
+function nested:
+    input r0 as Outer.private;
+    input r1 as u32.private;
+    cast r1 r0.inner.b into r2 as Inner;
+    cast r2 r0.tag into r3 as Outer;
+    output r3 as Outer.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: {x: 10u32, y: 2u32, z: 3u32}
+status: success
+output: {x: 4u32, y: 5u32, z: 6u32}
+status: success
+output: {x: 7u32, y: 8u32, z: 9u32}
+status: success
+output: {inner: {
+  a: 42u32,
+  b: 2u32
+}, tag: 3u32}
