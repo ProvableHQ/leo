@@ -1384,8 +1384,13 @@ impl<'a> ConversionContext<'a> {
             .filter(|n| matches!(n.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND))
             .map(|n| self.struct_field_init_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
+        let base = children(node)
+            .find(|n| n.kind() == STRUCT_BASE_UPDATE)
+            .and_then(|n| children(&n).find(|c| c.kind().is_expression()))
+            .map(|n| self.to_expression(&n).map(Box::new))
+            .transpose()?;
         let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-        Ok(leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into())
+        Ok(leo_ast::CompositeExpression { path, const_arguments, members, base, span, id }.into())
     }
 
     /// Convert a STRUCT_EXPR node to a CompositeExpression.

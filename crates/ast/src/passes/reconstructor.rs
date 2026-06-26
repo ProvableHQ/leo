@@ -355,6 +355,7 @@ pub trait AstReconstructor {
                         id: member.id,
                     })
                     .collect(),
+                base: input.base.map(|base| Box::new(self.reconstruct_expression(*base, &Default::default()).0)),
                 ..input
             }
             .into(),

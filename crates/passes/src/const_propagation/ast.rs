@@ -98,7 +98,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             }
         }
 
-        if values.len() == input.members.len() && input.const_arguments.is_empty() {
+        input.base = input.base.take().map(|base| Box::new(self.reconstruct_expression(*base, &()).0));
+
+        // A struct update (`..base`) only lists a subset of fields, so it can't fold to a const struct.
+        if input.base.is_none() && values.len() == input.members.len() && input.const_arguments.is_empty() {
             let value = Value::make_struct(
                 input.members.iter().map(|mem| mem.identifier.name).zip(values),
                 input.path.expect_global_location().clone(),
