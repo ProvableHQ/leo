@@ -60,5 +60,12 @@ program singleton_storage.aleo {
             _mapping_set(singleton_storage.aleo::nums__, $len_var$7, $push_value$6);
         };
     }
+    fn push_fallible_value(public x: u32) -> Final<Fn()> {
+        return async {
+            let $push_value$8 = 1u32 / x;
+            let $len_var$9 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$9 + 1u32);
+            _mapping_set(singleton_storage.aleo::nums__, $len_var$9, $push_value$8);
+        };
+    }
 }
-

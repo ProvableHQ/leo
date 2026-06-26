@@ -43,4 +43,8 @@ program singleton_storage.aleo {
     fn push_current_len() -> Final {
         return final { nums.push(nums.len()); };
     }
+
+    fn push_fallible_value(public x: u32) -> Final {
+        return final { nums.push(1u32 / x); };
+    }
 }
