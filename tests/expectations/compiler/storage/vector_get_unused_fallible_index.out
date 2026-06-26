@@ -20,11 +20,7 @@ function unused_get:
 finalize unused_get:
     input r0 as u32.public;
     div 1u32 r0 into r1;
-    get.or_use nums__len__[false] 0u32 into r2;
-    lt r1 r2 into r3;
-    get.or_use nums__[r1] 0u32 into r4;
-    ternary r3 r4 0u32 into r5;
-    cast r3 r5 into r6 as Optional__JzunLORyB8U;
+    get.or_use nums__[r1] 0u32 into r3;
 
 constructor:
     assert.eq edition 0u16;
