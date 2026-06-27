@@ -39,6 +39,8 @@ pub struct SsaConstPropagationVisitor<'a> {
     pub aliases: IndexMap<Symbol, Symbol>,
     /// Whether direct `x.field` accesses can be forwarded, or only accesses through aliases.
     pub forward_direct_composites: bool,
+    /// Whether to perform the general constant and identity propagation rewrites.
+    pub propagate_constants: bool,
     /// Maps local variables bound to atom-only ternaries so later redundant
     /// ternaries over the same condition can be absorbed.
     pub ternaries: IndexMap<Symbol, TrackedTernary>,

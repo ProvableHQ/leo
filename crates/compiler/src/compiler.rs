@@ -457,7 +457,10 @@ impl Compiler {
         // The final SSA pass can introduce local aliases around atom-fielded
         // composites. Run a late cleanup before CSE/DCE, leaving direct
         // composite field forwarding to the earlier pass.
-        self.do_pass::<SsaConstPropagation>(SsaConstPropagationInput { forward_direct_composites: false })?;
+        self.do_pass::<SsaConstPropagation>(SsaConstPropagationInput {
+            forward_direct_composites: false,
+            propagate_constants: false,
+        })?;
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 

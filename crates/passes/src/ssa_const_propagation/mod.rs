@@ -39,11 +39,12 @@ pub struct SsaConstPropagation;
 
 pub struct SsaConstPropagationInput {
     pub forward_direct_composites: bool,
+    pub propagate_constants: bool,
 }
 
 impl Default for SsaConstPropagationInput {
     fn default() -> Self {
-        Self { forward_direct_composites: true }
+        Self { forward_direct_composites: true, propagate_constants: true }
     }
 }
 
@@ -64,6 +65,7 @@ impl Pass for SsaConstPropagation {
                 atom_fielded_composites: Default::default(),
                 aliases: Default::default(),
                 forward_direct_composites: input.forward_direct_composites,
+                propagate_constants: input.propagate_constants,
                 ternaries: Default::default(),
                 changed: false,
             };

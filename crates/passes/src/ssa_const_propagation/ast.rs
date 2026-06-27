@@ -38,6 +38,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// Reconstruct a path expression. If the path refers to a variable that has
     /// a constant value, replace it with that constant.
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        if !self.propagate_constants {
+            return (input.into(), None);
+        }
+
         // In SSA form, paths should refer to local variables (or composite members).
         // Check if this variable has a constant value.
         let identifier_name = input.identifier().name;
@@ -95,6 +99,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 // which restricts to `Path`/`Literal`.
                 _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
             };
+            if !self.propagate_constants {
+                return (atom, None);
+            }
             return (atom, opt_value);
         }
 
@@ -103,6 +110,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
     /// Reconstruct a literal expression and convert it to a Value.
     fn reconstruct_literal(&mut self, mut input: Literal, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        if !self.propagate_constants {
+            return (input.into(), None);
+        }
+
         let type_info = self.state.type_table.get(&input.id());
 
         // If this is an optional, then unwrap it first.
@@ -149,6 +160,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
+
+        if !self.propagate_constants {
+            return (BinaryExpression { left, right, ..input }.into(), None);
+        }
 
         // Full constant folding: both operands are known constants.
         if let (Some(lhs_value), Some(rhs_value)) = (&lhs_opt_value, &rhs_opt_value) {
@@ -350,6 +365,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let span = input.span;
         let (receiver, opt_value) = self.reconstruct_expression(input.receiver, &());
 
+        if !self.propagate_constants {
+            return (UnaryExpression { receiver, ..input }.into(), None);
+        }
+
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
             match const_eval::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
@@ -393,6 +412,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (cond, cond_value) = self.reconstruct_expression(input.condition, &());
         let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
         let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
+
+        if !self.propagate_constants {
+            return (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None);
+        }
 
         match cond_value.and_then(|v| v.try_into().ok()) {
             Some(true) if expression_can_be_discarded(&if_false, self.state) => {
@@ -497,6 +520,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (array, array_opt) = self.reconstruct_expression(input.array, &());
         let (index, index_opt) = self.reconstruct_expression(input.index, &());
 
+        if !self.propagate_constants {
+            return (ArrayAccess { array, index, ..input }.into(), None);
+        }
+
         if let Some(index_value) = index_opt
             && let Some(array_value) = array_opt
         {
@@ -537,6 +564,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             self.changed = true;
         }
 
+        if !self.propagate_constants {
+            return (input.into(), None);
+        }
+
         if values.len() == input.elements.len() {
             (input.into(), Some(Value::make_array(values.into_iter())))
         } else {
@@ -570,6 +601,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         // expression structure doesn't change.
         if elements_changed {
             self.changed = true;
+        }
+
+        if !self.propagate_constants {
+            return (input.into(), None);
         }
 
         let opt_value = if values.len() == input.elements.len() { Some(Value::make_tuple(values)) } else { None };
@@ -662,6 +697,12 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// untaken branch is statically dead.
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let (condition, condition_value) = self.reconstruct_expression(conditional.condition, &());
+
+        if !self.propagate_constants {
+            let then = self.reconstruct_block(conditional.then).0;
+            let otherwise = conditional.otherwise.map(|s| Box::new(self.reconstruct_statement(*s).0));
+            return (ConditionalStatement { condition, then, otherwise, ..conditional }.into(), None);
+        }
 
         match condition_value.and_then(|v| v.try_into().ok()) {
             Some(true) => {
