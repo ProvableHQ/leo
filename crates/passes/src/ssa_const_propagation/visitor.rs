@@ -123,7 +123,10 @@ impl SsaConstPropagationVisitor<'_> {
     }
 
     pub(super) fn resolve_composite_alias(&self, mut name: Symbol) -> Symbol {
-        while let Some(alias) = self.aliases.get(&name).copied() {
+        for _ in 0..self.aliases.len() {
+            let Some(alias) = self.aliases.get(&name).copied() else {
+                break;
+            };
             if alias == name {
                 break;
             }

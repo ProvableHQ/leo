@@ -96,16 +96,33 @@ fn is_true(expr: &AleoExpr) -> bool {
     matches!(expr, AleoExpr::Bool(true))
 }
 
-/// Returns true if the expression is a literal (not a register or composite expression).
+/// Returns true if the expression is a generated-Aleo literal.
 fn is_literal(expr: &AleoExpr) -> bool {
-    !matches!(
-        expr,
+    match expr {
+        AleoExpr::Address(_)
+        | AleoExpr::Identifier(_)
+        | AleoExpr::Bool(_)
+        | AleoExpr::Field(_)
+        | AleoExpr::Group(_)
+        | AleoExpr::Signature(_)
+        | AleoExpr::Scalar(_)
+        | AleoExpr::String(_)
+        | AleoExpr::U8(_)
+        | AleoExpr::U16(_)
+        | AleoExpr::U32(_)
+        | AleoExpr::U64(_)
+        | AleoExpr::U128(_)
+        | AleoExpr::I8(_)
+        | AleoExpr::I16(_)
+        | AleoExpr::I32(_)
+        | AleoExpr::I64(_)
+        | AleoExpr::I128(_) => true,
         AleoExpr::Reg(_)
-            | AleoExpr::Tuple(_)
-            | AleoExpr::ArrayAccess(_, _)
-            | AleoExpr::MemberAccess(_, _)
-            | AleoExpr::RawName(_)
-    )
+        | AleoExpr::Tuple(_)
+        | AleoExpr::ArrayAccess(_, _)
+        | AleoExpr::MemberAccess(_, _)
+        | AleoExpr::RawName(_) => false,
+    }
 }
 
 fn is_ternary_absorption_operand(expr: &AleoExpr) -> bool {
@@ -1154,6 +1171,20 @@ mod tests {
         fold_redundant_ternaries(&mut stmts);
 
         assert_eq!(stmts[1], AleoStmt::Ternary(reg(0), reg(1), reg(2), reg_dest(4)));
+    }
+
+    #[test]
+    fn redundant_ternary_absorption_uses_literal_operands() {
+        let one = AleoExpr::U8(1);
+        let two = AleoExpr::U8(2);
+        let mut stmts = vec![
+            AleoStmt::Ternary(reg(0), one.clone(), two.clone(), reg_dest(3)),
+            AleoStmt::Ternary(reg(0), reg(3), two.clone(), reg_dest(4)),
+        ];
+
+        fold_redundant_ternaries(&mut stmts);
+
+        assert_eq!(stmts[1], AleoStmt::Ternary(reg(0), one, two, reg_dest(4)));
     }
 
     #[test]
