@@ -12,7 +12,7 @@ PROG="test_devnode_view.aleo"
 # block until it is confirmed on-chain.
 $LEO_BIN deploy -y --disable-update-check --broadcast --network testnet \
     --endpoint $ENDPOINT --private-key $PRIVATE_KEY \
-    --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 >/dev/null 2>&1
+    --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 >/dev/null 2>&1
 
 # `get_balance` reads an empty mapping, so it returns the `0u64` default.
 echo "--- view at latest height ---"
