@@ -1,0 +1,19 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping data: u32 => u8;
+    mapping out: bool => u8;
+    fn keep_after_assert(key$$0: u32) -> Final<Fn()> {
+        let $var$1 = async {
+            let a = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            let b = a;
+            assert_eq(a, a);
+            let c = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            _mapping_set(test.aleo::out, false, a + c);
+        };
+        return $var$1;
+    }
+}
+

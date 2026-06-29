@@ -1,0 +1,22 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping data: u32 => u8;
+    mapping out: bool => u8;
+    fn branch_local(key$$0: u32, flag$$1: bool) -> Final<Fn()> {
+        let $var$2 = async {
+            let condition$3 = flag;
+            let a = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            let b = a;
+            _mapping_set(test.aleo::out, false, a + a);
+            {
+            }
+            let c = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            _mapping_set(test.aleo::out, true, c);
+        };
+        return $var$2;
+    }
+}
+

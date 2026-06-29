@@ -456,6 +456,8 @@ impl Compiler {
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
+        self.do_pass::<StorageReadForwarding>(())?;
+
         self.do_pass::<DeadCodeEliminating>(())?;
 
         Ok(abis)

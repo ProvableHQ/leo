@@ -1,0 +1,37 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping data: u32 => u8;
+    mapping out: bool => u8;
+    fn reuse_before_write(key$$0: u32) -> Final<Fn()> {
+        let $var$1 = async {
+            let a = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            let b = a;
+            _mapping_set(test.aleo::out, false, a + a);
+        };
+        return $var$1;
+    }
+    fn keep_after_write(key$$2: u32) -> Final<Fn()> {
+        let $var$3 = async {
+            let a = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            _mapping_set(test.aleo::data, key, 1u8);
+            let b = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            _mapping_set(test.aleo::out, false, a + b);
+        };
+        return $var$3;
+    }
+    fn reuse_contains(key$$4: u32) -> Final<Fn()> {
+        let $var$5 = async {
+            let a = _mapping_contains(test.aleo::data, key);
+            let b = a;
+            let one = 1u8;
+            let zero = 0u8;
+            let value = a ? one : zero;
+            _mapping_set(test.aleo::out, a, value);
+        };
+        return $var$5;
+    }
+}
+

@@ -1,0 +1,54 @@
+program left.aleo;
+
+mapping data:
+    key as u32.public;
+    value as u8.public;
+
+function noop:
+    async noop into r0;
+    output r0 as left.aleo/noop.future;
+
+finalize noop:
+    assert.eq true true;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+program right.aleo;
+
+mapping data:
+    key as u32.public;
+    value as u8.public;
+
+function noop:
+    async noop into r0;
+    output r0 as right.aleo/noop.future;
+
+finalize noop:
+    assert.eq true true;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import left.aleo;
+import right.aleo;
+program caller.aleo;
+
+mapping out:
+    key as boolean.public;
+    value as u8.public;
+
+function read_both:
+    input r0 as u32.private;
+    async read_both r0 into r1;
+    output r1 as caller.aleo/read_both.future;
+
+finalize read_both:
+    input r0 as u32.public;
+    get.or_use left.aleo/data[r0] 1u8 into r1;
+    get.or_use right.aleo/data[r0] 2u8 into r2;
+    add r1 r2 into r3;
+    set r3 into out[false];
+
+constructor:
+    assert.eq edition 0u16;

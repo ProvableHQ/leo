@@ -211,6 +211,18 @@ macro_rules! compiler_passes {
                 (Disambiguate, ()),
                 (StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0)))
             ]),
+            (storage_read_forwarding_runner, [
+                (GlobalVarsCollection, ()),
+                (PathResolution, ()),
+                (GlobalItemsCollection, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (Disambiguate, ()),
+                (StorageLowering, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (SsaForming, (SsaFormingInput { rename_defs: true })),
+                (Flattening, ()),
+                (SsaForming, (SsaFormingInput { rename_defs: false })),
+                (StorageReadForwarding, ())
+            ]),
             (write_transforming_runner, [
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),

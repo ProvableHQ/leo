@@ -1,0 +1,29 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping out: bool => u32;
+    mapping data__: u32 => u8;
+    mapping data__len__: bool => u32;
+    fn reuse_len() -> Final<Fn()> {
+        let $var$1 = async {
+            let a = _mapping_get_or_use(test.aleo::data__len__, false, 0u32);
+            let b = a;
+            _mapping_set(test.aleo::out, false, a + a);
+        };
+        return $var$1;
+    }
+    fn keep_after_push() -> Final<Fn()> {
+        let $var$2 = async {
+            let a = _mapping_get_or_use(test.aleo::data__len__, false, 0u32);
+            let $len_var$0 = a;
+            _mapping_set(test.aleo::data__len__, false, a + 1u32);
+            _mapping_set(test.aleo::data__, a, 1u8);
+            let b = _mapping_get_or_use(test.aleo::data__len__, false, 0u32);
+            _mapping_set(test.aleo::out, false, a + b);
+        };
+        return $var$2;
+    }
+}
+

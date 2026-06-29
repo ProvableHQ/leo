@@ -94,6 +94,9 @@ pub use static_single_assignment::*;
 mod ssa_const_propagation;
 pub use ssa_const_propagation::*;
 
+mod storage_read_forwarding;
+pub use storage_read_forwarding::*;
+
 mod storage_lowering;
 pub use storage_lowering::*;
 
