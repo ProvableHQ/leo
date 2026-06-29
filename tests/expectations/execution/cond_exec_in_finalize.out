@@ -25,42 +25,7 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1ut56qjqpfxtezt2nzskef27dakeavehw4kc5d42mf927jdgq8qrsmrkf8z",
-      "program": "cond_exec_in_finalize.aleo",
-      "function": "f",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "4160938401402483080730923733313194079674741298468288110892575175636489708828field",
-          "value": "ciphertext1qyqytmlcrxauzsyxz26zwqyr4vktgw7033usjg0mu7ce0swysh4lvqq7twa9w"
-        },
-        {
-          "type": "private",
-          "id": "7385918563990504193127137892424591686716674800267507928908626484668280404567field",
-          "value": "ciphertext1qyqz6987ctcdsw3tk5yyxt0pyfhxwhr88rgwxc7pqcvnxhad50aj2qsrjpm45"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "8048088254939423453542005223339843543483701661461904922664738902960161596819field",
-          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    0u64\n  ]\n}"
-        }
-      ],
-      "tpk": "5460101671977983421557592666570386705801849939677836799006538765561915017623group",
-      "tcm": "728412264949564638132993146697805541764296730203779013289928905175905438777field",
-      "scm": "8070038252336801788430955234770168017245981837685970604500139303656345480593field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1pes6vaddwq9ll23kdev54ut7va40gwtzr0jm0paecqv8gel2j5gqw528w9",
+      "id": "au13my3c4l3c5gw7nhgn2deuehkkwplkxt5dwy3y7u7gg6lzqmsqyzqk2yecd",
       "program": "cond_exec_in_finalize.aleo",
       "function": "f",
       "inputs": [
@@ -71,15 +36,15 @@ status: accepted
         },
         {
           "type": "private",
-          "id": "7306858229676968996039054644406489964375028605677806986363554295509972821378field",
-          "value": "ciphertext1qyq9z5s7ex5mxmfzst8fflsvdns8070ceqwn9ae9kez49zc566tnvzcc5gdnp"
+          "id": "636341552951490007825360673530145120085172698478386231737915429601327139630field",
+          "value": "ciphertext1qyq9z5s7ck5mxmfzst8fflsvdns8070ceqwn9ae9kez49zc566tnvzcg25mva"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1680905803924455578726314772700519484611828515010887157394844753127045356862field",
-          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    1u64\n  ]\n}"
+          "id": "7429750955992686558046995078579993495770285547208025786588131205626337741693field",
+          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    0u64\n  ]\n}"
         }
       ],
       "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
@@ -91,11 +56,11 @@ status: accepted
 }
 
 verified: true
-status: rejected
+status: accepted
 {
   "transitions": [
     {
-      "id": "au1xspdnpv783xet0mfuvweafdq3yjuwphvf5h92nzn4hnmkf00q58qf5qmuv",
+      "id": "au1s7ce43n5t24cmy2ls78t33mddyd8qpl7hvsvp6tzvexnrcwdy59sannx5v",
       "program": "cond_exec_in_finalize.aleo",
       "function": "f",
       "inputs": [
@@ -106,20 +71,55 @@ status: rejected
         },
         {
           "type": "private",
-          "id": "241179082431582672684474902248994282647461680583530290119255114243196462080field",
-          "value": "ciphertext1qyq26kqr3mn35kdluy8jdhxgjht4nawxdhvfppsavr6x4q2gelzsjqg7vuqmx"
+          "id": "3115009241741596342895107012347354252762584492044579256796612510056301574014field",
+          "value": "ciphertext1qyq26kqr3tn35kdluy8jdhxgjht4nawxdhvfppsavr6x4q2gelzsjqg7kwkm6"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "6996059530271216129976993731608973067805468847616017017652321933206992192261field",
-          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    2u64\n  ]\n}"
+          "id": "3903374294744079551120152132017997997211125265038324639251160374552051075327field",
+          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    1u64\n  ]\n}"
         }
       ],
       "tpk": "4435182414136183130262225239916202916754973933386625330210643288715243337617group",
       "tcm": "850142209754567944166319722250339409916042600529796761178314418357457776240field",
       "scm": "6880818639492575671344261738303779886148232533224264415621330306086981058639field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: rejected
+{
+  "transitions": [
+    {
+      "id": "au18y2ut57up59svj0n5cetfxq74rmdaxkpd32fa95wc8m4zhy6jqpqwy93yz",
+      "program": "cond_exec_in_finalize.aleo",
+      "function": "f",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "3483266104526283040480488089723635153304413552669032282180403915027162070465field",
+          "value": "ciphertext1qyqfxlldsdr4hscf7msyegnj500y6dt820un9skwj6cl5ql2cvv45rshy8mgl"
+        },
+        {
+          "type": "private",
+          "id": "6875433962382235148613748436870979653174044303645795225771277484122762733717field",
+          "value": "ciphertext1qyqpafj8uhnmew58mfw6r3eq26sj7raa5d5xgq93nyg3mpwkt4fskzgg4ycq6"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7323153852283275827853340058993274942325189400353784021594421936011628904527field",
+          "value": "{\n  program_id: cond_exec_in_finalize.aleo,\n  function_name: f,\n  arguments: [\n    1u64,\n    2u64\n  ]\n}"
+        }
+      ],
+      "tpk": "2522887999940374826698654126645535027810075514268095352773581615775304946572group",
+      "tcm": "1804215531425177261902248378301676324038494384555044966602196492783038681001field",
+      "scm": "3550506856681924294077270970505890072867776518575635158053618611174190675462field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
