@@ -81,6 +81,11 @@ Accessing `struct` Fields:
 
 A struct `ExternalStruct` defined in program `external_program.aleo` can be referred to outside the program using the syntax `external_program.aleo::ExternalStruct`.
 
+Updating a `struct` from an existing value with `..base` (copies any field not listed explicitly; `..base` must come last):
+
+```leo file=../code_snippets/cheatsheet/main/src/main.leo#struct_update
+```
+
 ### Const Generics
 
 ```leo file=../code_snippets/cheatsheet/main/src/main.leo#const_generics_struct

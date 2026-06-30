@@ -653,17 +653,7 @@ impl Parser<'_, '_> {
 
             // Check for struct literal: `child.aleo::Foo::[N] { ... }`
             if !opts.no_struct && self.at(L_BRACE) {
-                self.bump_any(); // {
-                if !self.at(R_BRACE) {
-                    self.parse_struct_field();
-                    while self.eat(COMMA) {
-                        if self.at(R_BRACE) {
-                            break;
-                        }
-                        self.parse_struct_field();
-                    }
-                }
-                self.expect(R_BRACE);
+                self.parse_struct_body();
                 let kind = if is_locator { STRUCT_LOCATOR_EXPR } else { STRUCT_EXPR };
                 return Some(m.complete(self, kind));
             }
@@ -706,20 +696,7 @@ impl Parser<'_, '_> {
 
         // Check for struct literal: `Foo { field: value }`
         if !opts.no_struct && self.at(L_BRACE) {
-            self.bump_any(); // {
-
-            // Parse fields
-            if !self.at(R_BRACE) {
-                self.parse_struct_field();
-                while self.eat(COMMA) {
-                    if self.at(R_BRACE) {
-                        break;
-                    }
-                    self.parse_struct_field();
-                }
-            }
-
-            self.expect(R_BRACE);
+            self.parse_struct_body();
             return Some(m.complete(self, STRUCT_EXPR));
         }
 
@@ -736,6 +713,64 @@ impl Parser<'_, '_> {
         }
 
         Some(m.complete(self, PATH_EXPR))
+    }
+
+    /// Parse the brace-delimited body of a struct literal: `{ a: 1, b, ..base }`.
+    /// Assumes the current token is `{`.
+    fn parse_struct_body(&mut self) {
+        self.bump_any(); // {
+
+        if !self.at(R_BRACE) {
+            // A struct update base `..expr` may appear on its own: `Foo { ..base }`.
+            if self.at(DOT_DOT) {
+                self.parse_struct_base_update();
+            } else {
+                self.parse_struct_field();
+                while self.eat(COMMA) {
+                    if self.at(R_BRACE) {
+                        break;
+                    }
+                    // A trailing `..expr` ends the field list.
+                    if self.at(DOT_DOT) {
+                        self.parse_struct_base_update();
+                        break;
+                    }
+                    self.parse_struct_field();
+                }
+            }
+
+            // The base update must be last; report and consume anything after it once, so a trailing
+            // field doesn't cascade into misleading errors.
+            if self.at(COMMA) {
+                self.error("the base update `..` must be the last entry in a struct initializer");
+                while self.eat(COMMA) {
+                    if self.at(R_BRACE) {
+                        break;
+                    }
+                    if self.at(DOT_DOT) {
+                        self.parse_struct_base_update();
+                    } else {
+                        self.parse_struct_field();
+                    }
+                }
+            }
+        }
+
+        self.expect(R_BRACE);
+    }
+
+    /// Parse a struct update base: `..expr`.
+    fn parse_struct_base_update(&mut self) {
+        let m = self.start();
+        self.bump_any(); // ..
+        if self.at(R_BRACE) {
+            // `..` with no following base expression, e.g. `Foo { .. }`.
+            self.error("expected base expression after `..`");
+        } else {
+            // `parse_expr` reports its own error if the following tokens are not a valid expression.
+            self.parse_expr();
+        }
+        m.complete(self, STRUCT_BASE_UPDATE);
     }
 
     /// Parse a struct field: `name: value` or `name` (shorthand).
@@ -1537,6 +1572,50 @@ mod tests {
                   IDENT@11..12 "y"
                   WHITESPACE@12..13 " "
                 R_BRACE@13..14 "}"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_struct_update_base() {
+        check_expr("Point { x: 1, ..other }", expect![[r#"
+            ROOT@0..23
+              STRUCT_EXPR@0..23
+                IDENT@0..5 "Point"
+                WHITESPACE@5..6 " "
+                L_BRACE@6..7 "{"
+                STRUCT_FIELD_INIT@7..12
+                  WHITESPACE@7..8 " "
+                  IDENT@8..9 "x"
+                  COLON@9..10 ":"
+                  WHITESPACE@10..11 " "
+                  LITERAL_INT@11..12
+                    INTEGER@11..12 "1"
+                COMMA@12..13 ","
+                STRUCT_BASE_UPDATE@13..22
+                  WHITESPACE@13..14 " "
+                  DOT_DOT@14..16 ".."
+                  PATH_EXPR@16..22
+                    IDENT@16..21 "other"
+                    WHITESPACE@21..22 " "
+                R_BRACE@22..23 "}"
+        "#]]);
+    }
+
+    #[test]
+    fn parse_expr_struct_update_base_only() {
+        check_expr("Point { ..other }", expect![[r#"
+            ROOT@0..17
+              STRUCT_EXPR@0..17
+                IDENT@0..5 "Point"
+                WHITESPACE@5..6 " "
+                L_BRACE@6..7 "{"
+                STRUCT_BASE_UPDATE@7..16
+                  WHITESPACE@7..8 " "
+                  DOT_DOT@8..10 ".."
+                  PATH_EXPR@10..16
+                    IDENT@10..15 "other"
+                    WHITESPACE@15..16 " "
+                R_BRACE@16..17 "}"
         "#]]);
     }
 

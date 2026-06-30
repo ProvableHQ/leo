@@ -1,0 +1,5 @@
+Foo { x: 5, ..other }
+
+Foo { ..other }
+
+Foo { x: 5, y: 6, ..other }

@@ -157,6 +157,14 @@ program cheatsheet.aleo {
         return user;
     }
 
+    fn struct_update_demo(base: Point) -> Point {
+        // ANCHOR: struct_update
+        // Override `x`, and copy any field not listed (here `y`) from `base`.
+        let updated: Point = Point { x: 10u32, ..base };
+        // ANCHOR_END: struct_update
+        return updated;
+    }
+
     fn struct_demo() {
         // ANCHOR: struct_creation
         let msg: Message = Message {

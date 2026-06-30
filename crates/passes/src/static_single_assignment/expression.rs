@@ -29,15 +29,18 @@ use leo_ast::{
     DynamicOpKind,
     Expression,
     ExpressionConsumer,
+    Identifier,
     IntrinsicExpression,
     Literal,
     MemberAccess,
+    Node,
     Path,
     RepeatExpression,
     Statement,
     TernaryExpression,
     TupleAccess,
     TupleExpression,
+    Type,
     UnaryExpression,
     UnitExpression,
 };
@@ -189,30 +192,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     }
 
     /// Consumes a composite initialization expression with renamed variables, accumulating any statements that are generated.
+    ///
+    /// A struct update base (`..base`) is lowered away here: it is evaluated once into a temporary,
+    /// and every field not listed explicitly is copied from it via a member access.
     fn consume_composite_init(&mut self, input: CompositeExpression) -> Self::Output {
         let mut statements = Vec::new();
 
-        // Process the members, accumulating any statements produced.
-        let members: Vec<CompositeFieldInitializer> = input
-            .members
-            .into_iter()
-            .map(|arg| {
-                let (expression, mut stmts) = if let Some(expr) = arg.expression {
-                    self.consume_expression_and_define(expr)
-                } else {
-                    self.consume_path(Path::from(arg.identifier).to_local())
-                };
-                // Accumulate any statements produced.
-                statements.append(&mut stmts);
-
-                // Return the new member.
-                CompositeFieldInitializer { expression: Some(expression), ..arg }
-            })
-            .collect();
-
-        // Reorder the members to match that of the composite definition.
-
-        // Lookup the composite definition.
         let composite_location = input.path.expect_global_location();
         let composite_definition: &Composite = self
             .state
@@ -220,33 +205,79 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             .lookup_record(self.program, composite_location)
             .or_else(|| self.state.symbol_table.lookup_struct(self.program, composite_location))
             .expect("Type checking guarantees this definition exists.");
+        let is_record = composite_definition.is_record;
+        // The final member order follows the definition; names are always needed and `Symbol` is `Copy`.
+        let definition_member_names: Vec<Symbol> =
+            composite_definition.members.iter().map(|member| member.identifier.name).collect();
+        // Field types are only needed to synthesize `..base` copies; clone them only when a base is present.
+        let definition_member_types: Vec<(Symbol, Type)> = if input.base.is_some() {
+            composite_definition.members.iter().map(|member| (member.identifier.name, member.type_.clone())).collect()
+        } else {
+            Vec::new()
+        };
 
-        // Initialize the list of reordered members.
-        let mut reordered_members = Vec::with_capacity(members.len());
-
-        // Collect the members of the init expression into a map.
+        // Process the explicitly-listed members, accumulating any statements produced.
         let mut member_map: IndexMap<Symbol, CompositeFieldInitializer> =
-            members.into_iter().map(|member| (member.identifier.name, member)).collect();
+            IndexMap::with_capacity(definition_member_names.len());
+        for arg in input.members {
+            let (expression, mut stmts) = if let Some(expr) = arg.expression {
+                self.consume_expression_and_define(expr)
+            } else {
+                self.consume_path(Path::from(arg.identifier).to_local())
+            };
+            // Accumulate any statements produced.
+            statements.append(&mut stmts);
+            member_map.insert(arg.identifier.name, CompositeFieldInitializer { expression: Some(expression), ..arg });
+        }
+
+        // If there's a struct update base, evaluate it once and copy any field not listed explicitly from it.
+        if let Some(base) = input.base {
+            let (base_expr, mut base_stmts) = self.consume_expression_and_define(*base);
+            statements.append(&mut base_stmts);
+            // Every synthesized `base.field` access reuses the base's node id, which already carries the
+            // composite type, so only the access nodes need fresh types. Keep the base span for diagnostics.
+            let base_span = base_expr.span();
+            for (name, member_type) in &definition_member_types {
+                if member_map.contains_key(name) {
+                    continue;
+                }
+                // Synthesize `base.name`, registering the access type for later passes.
+                let access_id = self.state.node_builder.next_id();
+                self.state.type_table.insert(access_id, member_type.clone());
+                let access = MemberAccess {
+                    inner: base_expr.clone(),
+                    name: Identifier::new(*name, self.state.node_builder.next_id()),
+                    span: base_span,
+                    id: access_id,
+                };
+                member_map.insert(*name, CompositeFieldInitializer {
+                    identifier: Identifier::new(*name, self.state.node_builder.next_id()),
+                    expression: Some(access.into()),
+                    span: base_span,
+                    id: self.state.node_builder.next_id(),
+                });
+            }
+        }
+
+        // Reorder the members to match that of the composite definition.
+        let mut reordered_members = Vec::with_capacity(member_map.len());
 
         // If we are initializing a record, add the `owner` first.
-        // Note that type checking guarantees that the above fields exist.
-        if composite_definition.is_record {
-            // Add the `owner` field.
-            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+        // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+        if is_record {
             reordered_members.push(member_map.shift_remove(&sym::owner).unwrap());
         }
 
         // For each member of the composite definition, push the corresponding member of the init expression.
-        for member in &composite_definition.members {
+        for name in &definition_member_names {
             // If the member is part of a record and it is `owner` then we have already added it.
-            if !(composite_definition.is_record && matches!(member.identifier.name, sym::owner)) {
-                // Lookup and push the member of the init expression.
+            if !(is_record && matches!(*name, sym::owner)) {
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
-                reordered_members.push(member_map.shift_remove(&member.identifier.name).unwrap());
+                reordered_members.push(member_map.shift_remove(name).unwrap());
             }
         }
 
-        (CompositeExpression { members: reordered_members, ..input }.into(), statements)
+        (CompositeExpression { members: reordered_members, base: None, ..input }.into(), statements)
     }
 
     /// Retrieve the new name for this `Identifier`.

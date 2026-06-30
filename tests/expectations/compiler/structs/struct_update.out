@@ -1,0 +1,18 @@
+program test.aleo;
+
+struct Point:
+    x as u32;
+    y as u32;
+    z as u32;
+
+function main:
+    input r0 as u32.private;
+    add r0 2u32 into r1;
+    add r1 3u32 into r2;
+    add r2 1u32 into r3;
+    add r3 2u32 into r4;
+    add r4 3u32 into r5;
+    output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
