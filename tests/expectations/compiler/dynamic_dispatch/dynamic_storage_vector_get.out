@@ -13,8 +13,15 @@ function lookup:
 finalize lookup:
     input r0 as field.public;
     input r1 as u32.public;
-    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r2 as u32;
-    get.or_use.dynamic r0 'aleo' 'entries__'[r1] 0u64 into r3 as u64;
+    div 1u32 r1 into r2;
+    get.or_use.dynamic r0 'aleo' 'entries__len__'[false] 0u32 into r3 as u32;
+    lt r2 r3 into r4;
+    get.or_use.dynamic r0 'aleo' 'entries__'[r2] 0u64 into r5 as u64;
+    ternary r4 r5 0u64 into r6;
+    cast r4 r6 into r7 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r8 as Optional__DmN5CQ9hzeK;
+    is.neq r7 r8 into r9;
+    assert.eq r9 true;
 
 constructor:
     assert.eq edition 0u16;
