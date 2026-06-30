@@ -5,13 +5,13 @@
 
 // --- Next Module: base.leo --- //
 
-interface Base {
+export interface Base {
     fn compute(x: u32) -> u32;
 }
 
 // --- Next Module: derived.leo --- //
 
-interface Derived : conflict_lib::base::Base {
+export interface Derived : conflict_lib::base::Base {
     // Redefines compute with a different return type — should conflict.
     fn compute(x: u32) -> u64;
 }

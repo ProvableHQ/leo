@@ -27,12 +27,12 @@ input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
-struct Point {
+export struct Point {
     x: field,
     y: field,
 }
 
-struct Container {
+export struct Container {
     points: [Point; 2],
     label: u8,
 }

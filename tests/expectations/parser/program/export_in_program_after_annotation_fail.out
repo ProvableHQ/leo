@@ -1,0 +1,5 @@
+[EPAR0370047] Error: `export` is not allowed inside a `program` block; items here are implicitly public
+   ╭─[ test:3:5 ]
+   │
+ 3 │     export fn main(public x: u32) -> u32 {
+───╯

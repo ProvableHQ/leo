@@ -1086,6 +1086,13 @@ pub(crate) fn cannot_have_mode(kind: impl Display, span: Span) -> Formatted {
         )
 }
 
+pub(crate) fn inaccessible_item(kind: impl Display, item: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 193, format!("{kind} `{item}` is not accessible from this module"), span)
+        .with_help(format!(
+            "Add `export` to the declaration of `{item}` in its defining module to make it accessible from other modules."
+        ))
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {

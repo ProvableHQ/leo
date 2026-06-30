@@ -1,24 +1,24 @@
 library math_lib {
-    fn used(a: u32) -> u32 {
+    export fn used(a: u32) -> u32 {
         return helper(a);
     }
-    fn helper(a: u32) -> u32 {
+    export fn helper(a: u32) -> u32 {
         return deep(a);
     }
-    fn deep(a: u32) -> u32 {
+    export fn deep(a: u32) -> u32 {
         return a + 1u32;
     }
 module ops {
-    fn used_mod(a: u32) -> u32 {
+    export fn used_mod(a: u32) -> u32 {
         return mod_helper(a);
     }
-    fn mod_helper(a: u32) -> u32 {
+    export fn mod_helper(a: u32) -> u32 {
         return math_lib::extra::scale(a);
     }
 }
 
 module extra {
-    fn scale(a: u32) -> u32 {
+    export fn scale(a: u32) -> u32 {
         return a * 2u32;
     }
 }

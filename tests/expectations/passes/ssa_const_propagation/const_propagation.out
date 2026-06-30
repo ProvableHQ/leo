@@ -1,5 +1,5 @@
 program test.aleo {
-    const a: u32 = 10u32;
+    export const a: u32 = 10u32;
     @noupgrade
     async constructor() {
     }

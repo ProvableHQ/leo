@@ -9,6 +9,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn fin_mint(receiver: address, amount: u64) -> u64 {
+export final fn fin_mint(receiver: address, amount: u64) -> u64 {
     Mapping::set(account, receiver, amount);
 }

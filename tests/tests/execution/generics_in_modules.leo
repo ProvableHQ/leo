@@ -33,21 +33,21 @@ program test.aleo {
 
 // --- Next Module: common.leo --- //
 
-const R: u32 = 2;
-const C: u32 = 3;
+export const R: u32 = 2;
+export const C: u32 = 3;
 
 // ✅ Generic struct representing a matrix
-struct Matrix::[M: u32, N: u32] {
+export struct Matrix::[M: u32, N: u32] {
     values: [[u32; N]; M],
 }
 
 // ✅ Generic struct wrapping another generic struct (nested generics)
-struct WrappedMatrix::[M: u32, N: u32] {
+export struct WrappedMatrix::[M: u32, N: u32] {
     inner: Matrix::[M, N],
 }
 
 // ✅ Function constructing matrix and modifying it with loop/assignment
-fn use_matrix() -> WrappedMatrix::[R, C] {
+export fn use_matrix() -> WrappedMatrix::[R, C] {
     let base = Matrix::[R, C] { values: [[1; C]; R] };
     // ✅ Modify inner matrix values using loop and assignment
     for i in 0u32..R {
@@ -60,12 +60,12 @@ fn use_matrix() -> WrappedMatrix::[R, C] {
 
 // --- Next Module: outer.leo --- //
 
-struct OuterWrapper::[N: u32] {
+export struct OuterWrapper::[N: u32] {
     nested: inner::InnerGeneric::[N],
 }
 
 // --- Next Module: outer/inner.leo --- //
 
-struct InnerGeneric::[N: u32] {
+export struct InnerGeneric::[N: u32] {
     data: [u32; N],
 }

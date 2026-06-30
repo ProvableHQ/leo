@@ -40,7 +40,7 @@ input = ["125779852095340field", "2u32"]
 
 // Field encoding: logger = 125779852095340field
 
-interface Logger {
+export interface Logger {
     storage counter: u64;
     storage entries: [u64];
 }
@@ -81,22 +81,22 @@ program logger.aleo: Logger {
     constructor() {}
 }
 
-final fn fin_check_counter(target: field, expected: u64) {
+export final fn fin_check_counter(target: field, expected: u64) {
     let val: u64? = Logger@(target)::counter;
     assert_eq(val.unwrap(), expected);
 }
 
-final fn fin_check_entry(target: field, i: u32, expected: u64) {
+export final fn fin_check_entry(target: field, i: u32, expected: u64) {
     let val: u64? = Logger@(target)::entries.get(i);
     assert_eq(val.unwrap(), expected);
 }
 
-final fn fin_check_entry_oob(target: field, i: u32) {
+export final fn fin_check_entry_oob(target: field, i: u32) {
     let val: u64? = Logger@(target)::entries.get(i);
     assert(val == none);
 }
 
-final fn fin_check_len(target: field, expected: u32) {
+export final fn fin_check_len(target: field, expected: u32) {
     let n: u32 = Logger@(target)::entries.len();
     assert_eq(n, expected);
 }

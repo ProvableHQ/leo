@@ -7,10 +7,10 @@ input = ["5u32"]
 
 // --- library: mixed_lib --- //
 
-const BASE: u32 = 10u32;
+export const BASE: u32 = 10u32;
 
 // --- Next Module: ops.leo --- //
-fn add_base(x: u32) -> u32 {
+export fn add_base(x: u32) -> u32 {
     return x + mixed_lib::BASE;
 }
 

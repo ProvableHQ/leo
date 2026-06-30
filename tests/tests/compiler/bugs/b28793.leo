@@ -8,6 +8,6 @@ program b28610.aleo {
     constructor() {}
 }
 
-final fn bar() {
+export final fn bar() {
     assert(true);
 }

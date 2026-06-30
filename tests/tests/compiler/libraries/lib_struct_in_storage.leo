@@ -11,7 +11,7 @@
 
 // --- library: test_lib --- //
 
-struct TokenInfo {
+export struct TokenInfo {
     name: u128,
     symbol: u128,
     decimals: u8,
@@ -19,7 +19,7 @@ struct TokenInfo {
     max_supply: u128,
 }
 
-interface Foo {
+export interface Foo {
     storage token_info: TokenInfo;
 
     fn unwrap_info() -> Final;

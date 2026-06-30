@@ -185,6 +185,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                     type_: None,
                     span: input.place.span,
                     declaration: VariableType::Const,
+                    is_exported: None,
                 })
         {
             self.state.handler.emit_err(err);
@@ -204,6 +205,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                         type_: None,
                         span: identifier.span,
                         declaration: VariableType::Mut,
+                        is_exported: None,
                     })
                 {
                     self.state.handler.emit_err(err);
@@ -217,6 +219,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                             type_: None,
                             span: identifier.span,
                             declaration: VariableType::Mut,
+                            is_exported: None,
                         })
                     {
                         self.state.handler.emit_err(err);
@@ -256,6 +259,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
                     type_: None,
                     span: input.variable.span,
                     declaration: VariableType::Const,
+                    is_exported: None,
                 })
             {
                 slf.state.handler.emit_err(err);

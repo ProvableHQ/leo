@@ -13,6 +13,6 @@ program test.aleo: interfaces::Counter {
 
 // --- Next Module: interfaces.leo --- //
 
-interface Counter {
+export interface Counter {
     fn increment() -> u64;
 }

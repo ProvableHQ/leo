@@ -8,12 +8,12 @@
 
 // --- library: geo_lib --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
 
-struct Rect {
+export struct Rect {
     top_left: Point,
     size_x: u32,
     size_y: u32,

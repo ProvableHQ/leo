@@ -1,5 +1,5 @@
 // FAIL: Only records can be cast to dyn record, not structs.
-struct Foo {
+export struct Foo {
     x: u64,
 }
 

@@ -23,6 +23,9 @@ use std::fmt;
 /// A constant declaration statement.
 #[derive(Clone, Default, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConstDeclaration {
+    /// Whether the `export` keyword was written on this const. `None` when
+    /// visibility doesn't apply (statement-level consts).
+    pub is_exported: Option<bool>,
     /// The place to assign to. As opposed to `DefinitionStatement`, this can only be an identifier
     pub place: Identifier,
     /// The type of the binding, if specified, or inferred otherwise.
@@ -37,6 +40,9 @@ pub struct ConstDeclaration {
 
 impl fmt::Display for ConstDeclaration {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.is_exported == Some(true) {
+            write!(f, "export ")?;
+        }
         write!(f, "const {}: {} = {}", self.place, self.type_, self.value)
     }
 }

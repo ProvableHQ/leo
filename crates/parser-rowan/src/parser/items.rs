@@ -31,7 +31,7 @@ impl Parser<'_, '_> {
     /// Recovery set for struct/record fields.
     const FIELD_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_BRACE, KW_PUBLIC, KW_PRIVATE, KW_CONSTANT];
     /// Tokens that can start a module-level item (for error recovery).
-    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, AT];
+    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_EXPORT, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, AT];
     /// Expected items within a `program { ... }` block.
     const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] = &[
         R_BRACE,
@@ -112,18 +112,7 @@ impl Parser<'_, '_> {
                 }
                 // Module-level items at top level (for module files and
                 // multi-section test files with `// --- Next Module:` separators).
-                KW_CONST | KW_STRUCT | KW_FN | KW_FINAL | AT => {
-                    if self.parse_module_item().is_none() {
-                        self.error_and_bump("expected module item");
-                    }
-                }
-                KW_INTERFACE => {
-                    self.parse_interface_def();
-                }
-                // `view fn ...` at top level. Parse it so we get a clean parse tree; the
-                // rowan→AST converter rejects views outside a `program { ... }` block with a
-                // targeted diagnostic (see `collect_program_item` / `collect_library_item`).
-                KW_VIEW => {
+                KW_EXPORT | KW_CONST | KW_STRUCT | KW_FN | KW_FINAL | AT | KW_INTERFACE | KW_VIEW => {
                     if self.parse_module_item().is_none() {
                         self.error_and_bump("expected module item");
                     }
@@ -133,6 +122,7 @@ impl Parser<'_, '_> {
                     self.recover(&[
                         KW_IMPORT,
                         KW_PROGRAM,
+                        KW_EXPORT,
                         KW_CONST,
                         KW_STRUCT,
                         KW_FN,
@@ -169,14 +159,23 @@ impl Parser<'_, '_> {
 
     /// Parse a single module-level item: `const`, `struct`, `interface` or `fn`.
     ///
+    /// The leading `export` becomes a child token of the resulting item.
     /// Annotations are handled inside each item parser.
     fn parse_module_item(&mut self) -> Option<CompletedMarker> {
-        match self.current() {
+        // Dispatch based on the token following an optional `export`.
+        let head = if self.at(KW_EXPORT) { self.nth(1) } else { self.current() };
+        match head {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
             KW_INTERFACE => self.parse_interface_def(),
-            AT | KW_FN | KW_FINAL | KW_VIEW => self.parse_function_or_constructor(),
-            _ => None,
+            AT | KW_FN | KW_FINAL | KW_VIEW => self.parse_function_or_constructor(false),
+            _ => {
+                if self.at(KW_EXPORT) {
+                    self.error("expected `fn`, `struct`, `const`, or `interface` after `export`");
+                    self.bump_any();
+                }
+                None
+            }
         }
     }
 
@@ -250,17 +249,21 @@ impl Parser<'_, '_> {
     /// Annotations (`@foo`) are parsed as the first step and become children
     /// of the resulting item node rather than siblings.
     fn parse_program_item(&mut self) -> Option<CompletedMarker> {
+        if self.at(KW_EXPORT) {
+            self.error("`export` is not allowed inside a `program` block; items here are implicitly public");
+            self.bump_any();
+        }
         // For annotated items, dispatch to function_or_constructor since
         // annotations are only valid on functions/transitions in program blocks.
         // The function parser handles annotations internally.
         match self.current() {
-            AT => self.parse_function_or_constructor(),
+            AT => self.parse_function_or_constructor(true),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
             KW_RECORD => self.parse_composite_def(RECORD_DEF),
             KW_MAPPING => self.parse_mapping_def(),
             KW_STORAGE => self.parse_storage_def(),
             KW_CONST => self.parse_global_const(),
-            KW_FN | KW_FINAL | KW_VIEW | KW_CONSTRUCTOR => self.parse_function_or_constructor(),
+            KW_FN | KW_FINAL | KW_VIEW | KW_CONSTRUCTOR => self.parse_function_or_constructor(true),
             KW_SCRIPT => {
                 self.error("'script' functions are no longer supported; use @test on entry point functions instead");
                 self.bump_any();
@@ -348,9 +351,10 @@ impl Parser<'_, '_> {
         m.complete(self, ANNOTATION_PAIR);
     }
 
-    /// Parse a struct or record definition: `struct|record Name { field: Type, ... }`
+    /// Parse a struct or record definition: `[export] struct|record Name { field: Type, ... }`.
     fn parse_composite_def(&mut self, kind: SyntaxKind) -> Option<CompletedMarker> {
         let m = self.start();
+        let _ = self.eat(KW_EXPORT);
         let label = if kind == STRUCT_DEF { "struct" } else { "record" };
         self.bump_any(); // struct | record
 
@@ -483,9 +487,10 @@ impl Parser<'_, '_> {
         Some(m.complete(self, STORAGE_DEF))
     }
 
-    /// Parse a global constant: `const NAME: Type = expr;`
+    /// Parse a global constant: `[export] const NAME: Type = expr;`
     fn parse_global_const(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
+        let _ = self.eat(KW_EXPORT);
         self.bump_any(); // const
 
         // Name
@@ -518,12 +523,23 @@ impl Parser<'_, '_> {
     /// Parse a function definition.
     /// Parse fn, final fn, view fn, or constructor variants.
     /// Annotations are parsed as children of the function node.
-    fn parse_function_or_constructor(&mut self) -> Option<CompletedMarker> {
+    ///
+    /// `in_program_block` is `true` when parsing inside a `program` block; an `export` token
+    /// that follows annotations is rejected with the same diagnostic used for the leading-`export`
+    /// case in `parse_program_item`, instead of being silently consumed.
+    fn parse_function_or_constructor(&mut self, in_program_block: bool) -> Option<CompletedMarker> {
         let m = self.start();
 
         // Parse leading annotations as children of this function node.
         while self.at(AT) {
             self.parse_annotation();
+        }
+
+        if self.at(KW_EXPORT) {
+            if in_program_block {
+                self.error("`export` is not allowed inside a `program` block; items here are implicitly public");
+            }
+            self.bump_any();
         }
 
         // `final` and `view` are mutually exclusive function modifiers. Eat the first one we
@@ -712,9 +728,10 @@ impl Parser<'_, '_> {
     // Interface Parsing
     // =========================================================================
 
-    /// Parse an interface definition: `interface Name [: Parent] { fn_prototypes... }`
+    /// Parse an interface definition: `[export] interface Name [: Parent] { fn_prototypes... }`
     fn parse_interface_def(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
+        let _ = self.eat(KW_EXPORT);
         self.bump_any(); // interface
 
         // Name

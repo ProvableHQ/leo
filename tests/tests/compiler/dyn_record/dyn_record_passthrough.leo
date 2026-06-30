@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn inner(r: dyn record) -> address {
+export fn inner(r: dyn record) -> address {
     return r.owner;
 }

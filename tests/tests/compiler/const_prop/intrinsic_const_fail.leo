@@ -1,4 +1,4 @@
-final fn finalize_it() {
+export final fn finalize_it() {
     let v: bool = ECDSA::verify_digest([0u8; 65], [0u8; 33], [0u8; 32]);
     assert_eq(v, v);
 }

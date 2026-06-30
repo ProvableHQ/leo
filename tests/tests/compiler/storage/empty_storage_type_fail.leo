@@ -11,7 +11,7 @@ program empty_storage_type.aleo {
     constructor() {}
 }
 
-final fn finalize(a: [u32; 0]) {
+export final fn finalize(a: [u32; 0]) {
     empty_array = [];
     vector_of_empty_array = [];
     byte = 42u8;

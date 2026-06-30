@@ -1,2 +1,2 @@
 // Intentionally malformed: missing type and semicolon.
-const BROKEN = ;
+export const BROKEN = ;

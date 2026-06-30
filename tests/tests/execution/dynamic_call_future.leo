@@ -8,7 +8,7 @@ function = "main"
 input = ["33560297434234537552366628707field", "42u32"]
 */
 
-interface Counter {
+export interface Counter {
     fn increment(val: u32) -> (u32, Final);
 }
 

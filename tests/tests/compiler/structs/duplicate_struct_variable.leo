@@ -4,13 +4,13 @@ program test.aleo {
 }
 
 // test 1: adjacent duplicate - no gap marker
-struct Bar {
+export struct Bar {
     x: u32,
     x: u32,
 }
 
 // test 2: duplicate with gap marker - "..."
-struct Person {
+export struct Person {
     name: field,
     age: u8,
     city: field,
@@ -18,7 +18,7 @@ struct Person {
 }
 
 // test 3: multiple different duplicates
-struct Data {
+export struct Data {
     id: u32,
     val: u64,
     id: u32,
@@ -26,7 +26,7 @@ struct Data {
 }
 
 // test 4: large gap between duplicates
-struct Config {
+export struct Config {
     host: field,
     port: u16,
     protocol: field,
@@ -39,6 +39,6 @@ struct Config {
     host: field,
 }
 
-fn main(zz: bool) -> bool {
+export fn main(zz: bool) -> bool {
     return true;
 }

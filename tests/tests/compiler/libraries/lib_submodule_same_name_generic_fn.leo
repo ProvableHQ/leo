@@ -5,12 +5,12 @@
 // --- library: arith_lib --- //
 
 // --- Next Module: a.leo --- //
-fn compute::[N: u32](x: u32) -> u32 {
+export fn compute::[N: u32](x: u32) -> u32 {
     return x * N;
 }
 
 // --- Next Module: b.leo --- //
-fn compute::[N: u32](x: u32) -> u32 {
+export fn compute::[N: u32](x: u32) -> u32 {
     return x + N;
 }
 

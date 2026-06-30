@@ -10,6 +10,14 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 +    z: u64,
  }
  
+-export    struct ExportedCoord{
+-      x:u64,
+-  y :u64,
++export struct ExportedCoord {
++    x: u64,
++    y: u64,
+ }
+ 
 -program ugly_program.aleo{
 -
 -fn add(  public a :u32,b:    u32  )->u32{
@@ -35,8 +43,8 @@ Diff in SOURCE_DIRECTORY/main.leo:1:
 --- fmt library ---
 Diff in SOURCE_DIRECTORY/lib.leo:1:
 -const BASE:u32=10u32;
--const DOUBLE :u32=  BASE * 2u32;
--const TRIPLE: u32=BASE  *3u32  ;
+-export const DOUBLE :u32=  BASE * 2u32;
+-export   const TRIPLE: u32=BASE  *3u32  ;
 +const BASE: u32 = 10u32;
-+const DOUBLE: u32 = BASE * 2u32;
-+const TRIPLE: u32 = BASE * 3u32;
++export const DOUBLE: u32 = BASE * 2u32;
++export const TRIPLE: u32 = BASE * 3u32;

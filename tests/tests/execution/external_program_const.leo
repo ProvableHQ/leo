@@ -18,7 +18,7 @@ input = []
 // Test: accessing constants from an imported .aleo program at runtime.
 // child.aleo::MAIN_CONST = 42, child.aleo::sub::SUB_CONST = 10.
 
-const MAIN_CONST: u32 = 42u32;
+export const MAIN_CONST: u32 = 42u32;
 
 program child.aleo {
     fn get_main_const() -> u32 {
@@ -31,7 +31,7 @@ program child.aleo {
 
 // --- Next Module: sub.leo --- //
 
-const SUB_CONST: u32 = 10u32;
+export const SUB_CONST: u32 = 10u32;
 
 // --- Next Program --- //
 

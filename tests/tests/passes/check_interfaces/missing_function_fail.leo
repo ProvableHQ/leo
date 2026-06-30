@@ -1,6 +1,6 @@
 // Test: Program missing a required interface function (should fail)
 
-interface Calculator {
+export interface Calculator {
     fn add(a: u64, b: u64) -> u64;
     fn subtract(a: u64, b: u64) -> u64;
 }

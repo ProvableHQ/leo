@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `Child` has a conflicting definition for `compute` inherited from `Parent`
    ╭─[ compiler-test:6:1 ]
    │
- 6 │ ╭─▶ interface Child : conflict_lib::Parent {
+ 6 │ ╭─▶ export interface Child : conflict_lib::Parent {
    ┆ ┆   
  8 │ ├─▶ }
    │ │       

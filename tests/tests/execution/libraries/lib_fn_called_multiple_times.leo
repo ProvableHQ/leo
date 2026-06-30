@@ -9,7 +9,7 @@ input = ["2u32", "3u32"]
 
 // --- library: math_lib --- //
 
-fn square(x: u32) -> u32 {
+export fn square(x: u32) -> u32 {
     return x * x;
 }
 

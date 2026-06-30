@@ -12,16 +12,16 @@ function = "main_2"
 input = []
 */
 
-const M_: u32 = 2u32; // Rows in A
-const K_: u32 = 3u32; // Columns in A / Rows in B
-const N_: u32 = 2u32; // Columns in B
+export const M_: u32 = 2u32; // Rows in A
+export const K_: u32 = 3u32; // Columns in A / Rows in B
+export const N_: u32 = 2u32; // Columns in B
 
-struct Matrix::[M: u32, N: u32] {
+export struct Matrix::[M: u32, N: u32] {
     data: [[i32; N]; M],
 }
 
 // Multiplies two matrices wrapped in the `Matrix` struct
-fn matmul::[M: u32, K: u32, N: u32](A: Matrix::[M, K], B: Matrix::[K, N]) -> Matrix::[M, N] {
+export fn matmul::[M: u32, K: u32, N: u32](A: Matrix::[M, K], B: Matrix::[K, N]) -> Matrix::[M, N] {
     let C_data: [[i32; N]; M] = [[0i32; N]; M];
     for i in 0u32..M {
         for j in 0u32..N {
@@ -36,7 +36,7 @@ fn matmul::[M: u32, K: u32, N: u32](A: Matrix::[M, K], B: Matrix::[K, N]) -> Mat
 }
 
 // Checks if a square matrix is symmetric
-fn is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
+export fn is_symmetric::[N: u32](A: Matrix::[N, N]) -> bool {
     for i in 0u32..N - 1 {
         for j in (i + 1u32)..N { // Only check upper triangle
             if A.data[i][j] != A.data[j][i] {

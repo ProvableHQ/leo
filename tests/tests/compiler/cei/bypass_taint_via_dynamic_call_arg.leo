@@ -3,7 +3,7 @@
 // Same scenario as bypass_taint_via_external_call_arg.leo, but the tainted
 // value is passed through a dynamic call (interface dispatch) instead of a
 // static external call. Phase 2 detects this via `warn_tainted_call_arguments`.
-interface Oracle {
+export interface Oracle {
     fn get_price(id: u32) -> (u64, Final);
 }
 
@@ -19,12 +19,12 @@ program oracle.aleo: Oracle {
     constructor() {}
 }
 
-final fn finalize_get_price(id: u32) {
+export final fn finalize_get_price(id: u32) {
     Mapping::set(prices, id, 50u64);
 }
 
 // --- Next Program --- //
-interface Exchange {
+export interface Exchange {
     fn execute_trade(id: u32, amount: u64) -> Final;
 }
 
@@ -39,7 +39,7 @@ program exchange.aleo: Exchange {
     constructor() {}
 }
 
-final fn finalize_execute_trade(id: u32, amount: u64) {
+export final fn finalize_execute_trade(id: u32, amount: u64) {
     Mapping::set(trades, id, amount);
 }
 

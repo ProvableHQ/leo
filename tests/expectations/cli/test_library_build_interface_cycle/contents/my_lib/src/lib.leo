@@ -1,8 +1,8 @@
 // A and B inherit from each other, which `CheckInterfaces` must reject.
-interface A: B {
+export interface A: B {
     fn foo() -> u64;
 }
 
-interface B: A {
+export interface B: A {
     fn bar() -> u64;
 }

@@ -1,4 +1,4 @@
-struct Merge {
+export struct Merge {
     a: util::Data::[3],
     b: config::Data,
 }
@@ -21,13 +21,13 @@ program flat_module_corner.aleo {
 
 // --- Next Module: util.leo --- //
 
-const X: u32 = 3;
+export const X: u32 = 3;
 
-struct Data::[N: u32] {
+export struct Data::[N: u32] {
     values: [u32; N],
 }
 
-fn helper() -> u32 {
+export fn helper() -> u32 {
     const LOCAL_CONST_IN_A_MODULE: u32 = 0;
     let d = Data::[X + LOCAL_CONST_IN_A_MODULE] { values: [1, 2, 3] };
     return d.values[0];
@@ -35,20 +35,20 @@ fn helper() -> u32 {
 
 // --- Next Module: config.leo --- //
 
-const X: u32 = 4;
+export const X: u32 = 4;
 
-struct Data {
+export struct Data {
     values: [u32; X],
 }
 
-fn helper() -> u32 {
+export fn helper() -> u32 {
     let d = Data { values: [5; X] };
     return d.values[1];
 }
 
 // --- Next Module: shared.leo --- //
 
-fn boost(n: u32) -> u32 {
+export fn boost(n: u32) -> u32 {
     // Only uses values accessible within this module or passed in
     return n * 2;
 }

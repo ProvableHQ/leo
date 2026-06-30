@@ -1,4 +1,4 @@
-struct NotAnInterface {
+export struct NotAnInterface {
     x: u64,
 }
 

@@ -2,10 +2,10 @@ program test.aleo {
     @noupgrade
     async constructor() {
     }
-    struct Inner {
+    export struct Inner {
         v: u32,
     }
-    struct Outer {
+    export struct Outer {
         inner: test.aleo::Inner,
     }
     fn main() -> u32 {

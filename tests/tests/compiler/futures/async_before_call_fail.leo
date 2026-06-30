@@ -19,4 +19,4 @@ program parent.aleo {
     constructor() {}
 }
 
-final fn finalize_foo() {}
+export final fn finalize_foo() {}

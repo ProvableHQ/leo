@@ -1,7 +1,7 @@
 [ETYC0372110] Error: only entry point fns can return a `Final`
-   ╭─[ compiler-test:8:25 ]
+   ╭─[ compiler-test:8:32 ]
    │
- 8 │ fn foo(a: u8, b: u8) -> Final {
+ 8 │ export fn foo(a: u8, b: u8) -> Final {
    │ 
    │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ───╯
@@ -20,9 +20,9 @@
    │ Help: Change the expression to produce a `Final<Fn()>`, or cast it with `as Final<Fn()>` if a conversion exists.
 ───╯
 [ETYC0372110] Error: only entry point fns can return a `Final`
-    ╭─[ compiler-test:20:51 ]
+    ╭─[ compiler-test:20:58 ]
     │
- 20 │ fn mint_public(receiver: address, amount: u64) -> Final {
+ 20 │ export fn mint_public(receiver: address, amount: u64) -> Final {
     │ 
     │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ────╯

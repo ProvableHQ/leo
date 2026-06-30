@@ -1,7 +1,7 @@
 [ETYC0372112] Error: a struct must have at least one member
    ╭─[ compiler-test:6:1 ]
    │
- 6 │ ╭─▶ struct Bar {
+ 6 │ ╭─▶ export struct Bar {
  7 │ ├─▶ }
    │ │       
    │ ╰─────── here
@@ -11,7 +11,7 @@
 [ETYC0372171] Error: a struct must have at least one member of non-zero size
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ struct Foo {
+  9 │ ╭─▶ export struct Foo {
     ┆ ┆   
  11 │ ├─▶ }
     │ │       

@@ -96,6 +96,7 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
         self.fold_returns(&mut block, expression_returns);
 
         Function {
+            is_exported: function.is_exported,
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,

@@ -12,12 +12,12 @@ program test.aleo {
         return var1;
     }
 }
-    fn helper(x: u32) -> u32 {
+    export fn helper(x: u32) -> u32 {
         let var3 = 1u32;
         let var4 = x + var3;
         return var4;
     }
-    fn wrapper(y: u32) -> u32 {
+    export fn wrapper(y: u32) -> u32 {
         let var3$#0 = 1u32;
         let var4$#1 = y + var3$#0;
         let var6 = var4$#1;

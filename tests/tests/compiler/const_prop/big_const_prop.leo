@@ -1,10 +1,10 @@
-const A: i32 = 1i32 * 3i32;
+export const A: i32 = 1i32 * 3i32;
 
-const B: i32 = A + 2i32;
+export const B: i32 = A + 2i32;
 
-const C: i32 = 0xFFFFFFi32 ^ B;
+export const C: i32 = 0xFFFFFFi32 ^ B;
 
-const D: i32 = A * 7i32 + C;
+export const D: i32 = A * 7i32 + C;
 
 program test.aleo {
     fn main() -> i32 {

@@ -1,4 +1,4 @@
-const BIG_NUMBER: u8 = 1u8;
+export const BIG_NUMBER: u8 = 1u8;
 
 program test.aleo {
     mapping account: address => u64;
@@ -13,7 +13,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_finalize_self_caller(caller: address) -> () {
+export final fn finalize_finalize_self_caller(caller: address) -> () {
     const TINY: u8 = 3u8;
     let current_value: u8 = Mapping::get_or_use(values, 0u8, 0u8) + TINY + BIG_NUMBER;
     Mapping::set(values, 0u8, current_value + 1u8);

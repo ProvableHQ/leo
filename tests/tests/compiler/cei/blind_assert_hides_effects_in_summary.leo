@@ -12,7 +12,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -31,11 +31,11 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn check_balance(key: u32) {
+export final fn check_balance(key: u32) {
     assert(Mapping::get_or_use(balances, key, 0u32) > 0u32);
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [I] Interaction
     f.run();
     // [C] Check hidden in helper behind assert — summary HAS has_checks from assert

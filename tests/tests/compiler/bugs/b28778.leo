@@ -1,6 +1,6 @@
-const x: u32 = 42;
+export const x: u32 = 42;
 
-struct Foo {
+export struct Foo {
     x: u32,
 }
 

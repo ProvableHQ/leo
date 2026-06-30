@@ -1,13 +1,13 @@
-struct S {
+export struct S {
     a: u32,
     b: u32,
 }
 
-fn make_pair(x: u32, y: u32) -> (u32, u32) {
+export fn make_pair(x: u32, y: u32) -> (u32, u32) {
     return (x, y);
 }
 
-fn make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
+export fn make_triple(x: u32, y: u32, z: u32) -> (u32, u32, u32) {
     return (x, y, z);
 }
 

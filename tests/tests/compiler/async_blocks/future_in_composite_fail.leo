@@ -1,4 +1,4 @@
-struct S {
+export struct S {
     member: Final,
 }
 

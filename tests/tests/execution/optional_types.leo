@@ -53,57 +53,57 @@ input = []
 */
 
 // --- Shared Structs ---
-struct OptStruct {
+export struct OptStruct {
     val: u16?,
 }
 
-struct MyStruct {
+export struct MyStruct {
     x: u8,
 }
 
-struct Foo {
+export struct Foo {
     x: u8,
 }
 
-struct Inner {
+export struct Inner {
     val: u8?,
 }
 
-struct Wrapper {
+export struct Wrapper {
     arr: [Inner?; 2]?,
 }
 
-struct Container {
+export struct Container {
     wrappers: [Wrapper?; 2]?,
 }
 
-struct Top {
+export struct Top {
     container: Container?,
 }
 
-struct AddrStruct {
+export struct AddrStruct {
     a: address,
     b: address?,
 }
 
-struct InnerAddr {
+export struct InnerAddr {
     val: address?,
 }
 
-struct WrapperAddr {
+export struct WrapperAddr {
     inner: InnerAddr,
 }
 
-struct SigStruct {
+export struct SigStruct {
     a: signature,
     b: signature?,
 }
 
-struct InnerSig {
+export struct InnerSig {
     val: signature?,
 }
 
-struct WrapperSig {
+export struct WrapperSig {
     inner: InnerSig,
 }
 

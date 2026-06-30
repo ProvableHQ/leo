@@ -5,7 +5,7 @@
 // rejects at deploy. The analysis pass must therefore mark `helper` as `always_inline` once it
 // sees the call from inside a view body, even though it is also reachable from a transition
 // (which is normally enough to keep it as a standalone closure under the optional-inline rules).
-fn helper(raw: u64, cap: u64) -> u64 {
+export fn helper(raw: u64, cap: u64) -> u64 {
     if raw > cap {
         return cap;
     } else {

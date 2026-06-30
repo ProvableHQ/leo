@@ -11,13 +11,13 @@ input = ["42u32"]
 
 // --- library: wrap_lib --- //
 
-struct Wrap::[N: u32] {
+export struct Wrap::[N: u32] {
     val: u32,
 }
 
 // --- Next Program --- //
 
-fn scale(w: wrap_lib::Wrap::[3u32]) -> wrap_lib::Wrap::[3u32] {
+export fn scale(w: wrap_lib::Wrap::[3u32]) -> wrap_lib::Wrap::[3u32] {
     return wrap_lib::Wrap::[3u32] { val: w.val * 2u32 };
 }
 

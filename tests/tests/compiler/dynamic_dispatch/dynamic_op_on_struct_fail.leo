@@ -1,5 +1,5 @@
 // FAIL: dynamic interface access requires an interface type, not a struct.
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
@@ -13,6 +13,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field, key: address) {
+export final fn finalize_query(target: field, key: address) {
     let v: u64? = Point@(target)::balances.get(key);
 }

@@ -13,11 +13,11 @@ program dependent.aleo {
     constructor() {}
 }
 
-final fn finalize1(x: u8) {
+export final fn finalize1(x: u8) {
     assert_eq(1u8, 1u8);
 }
 
-final fn finalize2(x: u8) {
+export final fn finalize2(x: u8) {
     assert_eq(1u8, 1u8);
 }
 
@@ -39,6 +39,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize(f: Final) {
+export final fn finalize(f: Final) {
     f.run();
 }

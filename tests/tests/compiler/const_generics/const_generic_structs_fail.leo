@@ -1,4 +1,4 @@
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     y: u32,
 }
 

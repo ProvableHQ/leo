@@ -1,4 +1,4 @@
-interface Counter {
+export interface Counter {
     fn increment() -> u64;
 }
 

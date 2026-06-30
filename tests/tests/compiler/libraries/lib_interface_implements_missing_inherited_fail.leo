@@ -11,7 +11,7 @@
 
 // --- library: base_lib --- //
 
-interface Base {
+export interface Base {
     fn fetch() -> u32;
     fn reset() -> bool;
 }
@@ -20,7 +20,7 @@ interface Base {
 
 // --- library: mid_lib --- //
 
-interface Mid : base_lib::Base {
+export interface Mid : base_lib::Base {
     fn process(v: u32) -> u32;
 }
 
@@ -28,7 +28,7 @@ interface Mid : base_lib::Base {
 
 // --- library: top_lib --- //
 
-interface Top : mid_lib::Mid {
+export interface Top : mid_lib::Mid {
     fn apply(v: u32) -> u32;
 }
 

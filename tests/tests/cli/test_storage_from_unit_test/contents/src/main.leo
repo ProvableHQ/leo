@@ -1,7 +1,7 @@
 // A program that exercises every supported storage shape and operation, so
 // that the accompanying @test functions can read each one back out.
 
-struct Point {
+export struct Point {
     x: i64,
     y: i64,
 }

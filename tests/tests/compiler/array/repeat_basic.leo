@@ -1,5 +1,5 @@
-const N: u32 = 2u32;
-const M: u32 = 1u32;
+export const N: u32 = 2u32;
+export const M: u32 = 1u32;
 
 program test.aleo {
     fn main() -> u32 {

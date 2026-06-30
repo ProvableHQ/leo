@@ -1,8 +1,8 @@
-struct Foo {
+export struct Foo {
     value: u32,
 }
 
-struct value {
+export struct value {
     owner: u32,
 }
 
@@ -26,9 +26,9 @@ program finalize.aleo {
     constructor() {}
 }
 
-final fn finalize() {}
+export final fn finalize() {}
 
 @no_inline
-fn key() {}
+export fn key() {}
 
-fn value() {}
+export fn value() {}

@@ -16,7 +16,7 @@ program test.aleo {
 //   7, 17, u, 25, 22, 31, 15, 29, 10, 12,
 //   6, u, 21, 14, 9, 5, 20, 8, 19, 18};
 
-fn reisersTableLookup(i: u32) -> u8 {
+export fn reisersTableLookup(i: u32) -> u8 {
     if i == 0u32 {
         return 32u8;
     } else if i == 1u32 {

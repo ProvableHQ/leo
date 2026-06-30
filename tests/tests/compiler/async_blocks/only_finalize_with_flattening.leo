@@ -1,4 +1,4 @@
-struct TokenInfo {
+export struct TokenInfo {
     id: u64,
 }
 

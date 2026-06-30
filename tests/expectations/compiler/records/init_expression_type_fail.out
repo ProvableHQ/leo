@@ -1,7 +1,7 @@
 [ETYC0372057] Error: only entry point fns can have a record as input or output
-    ╭─[ compiler-test:14:34 ]
+    ╭─[ compiler-test:14:41 ]
     │
- 14 │ fn mint(r0: address, r1: u64) -> Token {
+ 14 │ export fn mint(r0: address, r1: u64) -> Token {
     │ 
     │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯

@@ -1,9 +1,9 @@
-struct S {
+export struct S {
     x: u8,
     y: u32,
 }
 
-struct T {
+export struct T {
     x: u8,
     y: [S; 3],
     z: S,

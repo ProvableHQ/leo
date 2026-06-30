@@ -1,16 +1,16 @@
 [EAST0372017] Error: the name `MAX` is defined multiple times
-   ╭─[ compiler-test:2:7 ]
+   ╭─[ compiler-test:2:14 ]
    │
- 2 │ const MAX: u32 = 200;
+ 2 │ export const MAX: u32 = 200;
    │
-   ├─[ compiler-test:2:7 ]
+   ├─[ compiler-test:2:14 ]
    │
- 1 │ const MAX: u32 = 100;
-   │       ─┬─  
-   │        ╰─── previous definition of `MAX` here
- 2 │ const MAX: u32 = 200;
-   │       ─┬─  
-   │        ╰─── `MAX` redefined here
+ 1 │ export const MAX: u32 = 100;
+   │              ─┬─  
+   │               ╰─── previous definition of `MAX` here
+ 2 │ export const MAX: u32 = 200;
+   │              ─┬─  
+   │               ╰─── `MAX` redefined here
    │ 
    │ Help: Rename or remove all but one of the `MAX` definitions so the name is unique within its scope.
 ───╯

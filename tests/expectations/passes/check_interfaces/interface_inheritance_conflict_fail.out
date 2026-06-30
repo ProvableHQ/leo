@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `Derived` has a conflicting definition for `process` inherited from `Base`
     ╭─[ test:7:1 ]
     │
-  7 │ ╭─▶ interface Derived: Base {
+  7 │ ╭─▶ export interface Derived: Base {
     ┆ ┆   
  10 │ ├─▶ }
     │ │       

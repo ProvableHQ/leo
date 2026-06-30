@@ -444,7 +444,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_FINAL | KW_VIEW | KW_FN | KW_SCRIPT => {
+                    KW_EXPORT | KW_FINAL | KW_VIEW | KW_FN | KW_SCRIPT => {
                         out.write(tok.text());
                         out.space();
                     }
@@ -607,7 +607,7 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_STRUCT | KW_RECORD => {
+                    KW_EXPORT | KW_STRUCT | KW_RECORD => {
                         out.write(tok.text());
                         out.space();
                     }
@@ -749,6 +749,10 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
+                    KW_EXPORT => {
+                        out.write("export");
+                        out.space();
+                    }
                     KW_INTERFACE => {
                         out.write("interface");
                         out.space();
@@ -1208,6 +1212,10 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
+                    KW_EXPORT => {
+                        out.write("export");
+                        out.space();
+                    }
                     KW_CONST => {
                         out.write("const");
                         out.space();

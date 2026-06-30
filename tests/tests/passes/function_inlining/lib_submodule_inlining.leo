@@ -3,7 +3,7 @@
 // --- library: math_lib --- //
 
 // --- Next Module: ops.leo --- //
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x + x;
 }
 

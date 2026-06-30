@@ -5,7 +5,7 @@
 // --- library: opt_lib --- //
 
 // --- Next Module: ops.leo --- //
-fn maybe(x: u32) -> u32? {
+export fn maybe(x: u32) -> u32? {
     return x;
 }
 

@@ -1,4 +1,4 @@
 // Returns x doubled.
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x + x;
 }

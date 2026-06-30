@@ -1,4 +1,4 @@
-interface Producer {
+export interface Producer {
     fn produce(a: u32) -> (u32, Final);
 }
 

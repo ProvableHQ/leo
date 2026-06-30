@@ -47,13 +47,13 @@ program test.aleo {
 
 // Non-entry position: a helper `fn` with a moded record input gets the regular-`fn` mode error and
 // the "only entry point fns can have a record" error, not the record/`Final` mode error.
-fn helper(public t: Token) -> u8 { return 1u8; }
+export fn helper(public t: Token) -> u8 { return 1u8; }
 
 // The finalize function invoked by the entry points' `final` blocks above.
-final fn fin(a: u32, b: u32) {
+export final fn fin(a: u32, b: u32) {
     Mapping::set(Yo, a, b);
 }
 
 // Non-entry position: a `final fn` with a moded `Final` input gets the final-fn input-mode error
 // (`Final`s are valid parameters there), not the record/`Final` mode error.
-final fn fin_moded(public f: Final) {}
+export final fn fin_moded(public f: Final) {}

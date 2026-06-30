@@ -1,0 +1,50 @@
+module  {
+    export fn foo() {
+    }
+}
+
+
+module  {
+    export struct Foo {
+        x: u32,
+        y: u32,
+    }
+}
+
+
+module  {
+    export const X: u32 = 5;
+}
+
+
+module  {
+    export final fn finalize_only() {
+    }
+}
+
+
+module  {
+    export const A: u32 = 1;
+    export const B: u32 = 2;
+    export struct Pair {
+        x: u32,
+        y: u32,
+    }
+    export fn add(a: u32, b: u32) -> u32 {
+        return a + b;
+    }
+}
+
+
+module  {
+    const PRIVATE_CONST: u32 = 1;
+    export const PUB_CONST: u32 = 2;
+    fn private_helper() -> u32 {
+        return 0u32;
+    }
+    export fn public_api() -> u32 {
+        return private_helper() + PUB_CONST;
+    }
+}
+
+

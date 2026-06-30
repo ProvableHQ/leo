@@ -1,7 +1,7 @@
 [ESAZ0374001] Error: the following `Final`s were never run: f4
     ╭─[ compiler-test:20:1 ]
     │
- 20 │ ╭─▶ final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
+ 20 │ ╭─▶ export final fn finalize_foo(f0: Final, f1: Final, f2: Final, f3: Final, f4: Final, f5: Final) {
     ┆ ┆   
  26 │ ├─▶ }
     │ │       

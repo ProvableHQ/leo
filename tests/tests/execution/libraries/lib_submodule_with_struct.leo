@@ -8,12 +8,12 @@ input = ["3u32", "4u32"]
 // --- library: geom_lib --- //
 
 // --- Next Module: types.leo --- //
-struct Vec2 {
+export struct Vec2 {
     x: u32,
     y: u32,
 }
 
-fn norm_sq(v: Vec2) -> u32 {
+export fn norm_sq(v: Vec2) -> u32 {
     return v.x * v.x + v.y * v.y;
 }
 

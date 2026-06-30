@@ -1,7 +1,7 @@
 [ETYC0372143] Error: functions annotated with `@no_inline` cannot have generic const parameters
-   ╭─[ compiler-test:6:4 ]
+   ╭─[ compiler-test:6:11 ]
    │
- 6 │ fn scale::[N: u32](x: u32) -> u32 {
+ 6 │ export fn scale::[N: u32](x: u32) -> u32 {
    │ 
    │ Help: Remove the const generic parameters from this functions annotated with `@no_inline`.
 ───╯

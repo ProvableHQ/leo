@@ -40,22 +40,22 @@ program child.aleo {
 // --- Next Module: math.leo --- //
 
 // Called once, twice, and transitively from parent.aleo.
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x * 2u32;
 }
 
 // Called by triple, which is called by parent — tests transitive inline.
-fn add_one(x: u32) -> u32 {
+export fn add_one(x: u32) -> u32 {
     return x + 1u32;
 }
 
 // Calls another submodule helper — tests that chained submodule inlining works.
-fn triple(x: u32) -> u32 {
+export fn triple(x: u32) -> u32 {
     return add_one(add_one(add_one(x - 1u32)));
 }
 
 // Never called by parent — tests that dead external submodule code does not panic.
-fn unused_helper(x: u32) -> u32 {
+export fn unused_helper(x: u32) -> u32 {
     return x + 99u32;
 }
 

@@ -8,7 +8,7 @@ function = "main"
 input = []
 */
 
-fn foo::[M: u32](arr: [u32; 3]) -> u32 {
+export fn foo::[M: u32](arr: [u32; 3]) -> u32 {
     return arr[M - 1];
 }
 

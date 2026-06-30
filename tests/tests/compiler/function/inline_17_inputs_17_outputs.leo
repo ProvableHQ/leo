@@ -1,5 +1,5 @@
 // Inlines can have any number of inputs/outputs.
-fn baz(
+export fn baz(
     a: u8,
     b: u8,
     c: u8,

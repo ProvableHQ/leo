@@ -4,7 +4,7 @@
 // - `c3` : The third entry in the row.
 // A valid entry is either 0, 1, or 2, where 0 is empty, 1 corresponds to player 1, and 2 corresponds to player 2.
 // Any other values are invalid.
-struct Row {
+export struct Row {
     c1: u8,
     c2: u8,
     c3: u8,
@@ -14,7 +14,7 @@ struct Row {
 // - `r1` : The first row in the board.
 // - `r2` : The second row in the board.
 // - `r3` : The third row in the board.
-struct Board {
+export struct Board {
     r1: Row,
     r2: Row,
     r3: Row,
@@ -23,7 +23,7 @@ struct Board {
 // Returns `true` if there exists a row, column, or diagonal with all entries occupied by the same player.
 // - `b` : A tic tac toe board.
 // - `p` : A number corresponding to a player.
-fn check_for_win(b: Board, p: u8) -> bool {
+export fn check_for_win(b: Board, p: u8) -> bool {
     return (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
         (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
         (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3

@@ -1,26 +1,26 @@
 // 1. Return u8? → move to inline, unwrap in transition
-fn basic_implicit_return_() -> u8? {
+export fn basic_implicit_return_() -> u8? {
     return 5u8; // implicitly wrapped
 }
 
 // 2. Optional input (inline is OK)
-fn takes_optional_u8(x: u8?) -> u8 {
+export fn takes_optional_u8(x: u8?) -> u8 {
     return x.unwrap_or(100u8);
 }
 
 // 3. Implicit optional argument → use inline
-fn basic_implicit_argument_() -> u8 {
+export fn basic_implicit_argument_() -> u8 {
     return takes_optional_u8(42u8); // implicitly wrapped
 }
 
 // 4. Return u8? → unwrap
-fn basic_implicit_ternary_(cond: bool) -> u8? {
+export fn basic_implicit_ternary_(cond: bool) -> u8? {
     let result: u8? = cond ? 10u8 : none;
     return result;
 }
 
 // 1. Return dep::Wrapper? → unwrap fully to [u8; 2]
-fn complex_implicit_return_() -> [u8?; 2] {
+export fn complex_implicit_return_() -> [u8?; 2] {
     let wrapper_opt: dep::Wrapper? = dep::Wrapper {
         arr: [dep::inner::Foo { x: 8u8 }, none],
     };
@@ -29,18 +29,18 @@ fn complex_implicit_return_() -> [u8?; 2] {
 }
 
 // 2. Optional arg → already inline
-fn takes_optional_wrapper(w: dep::Wrapper?) -> u8 {
+export fn takes_optional_wrapper(w: dep::Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(0u8);
 }
 
-fn complex_implicit_argument_() -> u8 {
+export fn complex_implicit_argument_() -> u8 {
     return takes_optional_wrapper(dep::Wrapper {
         arr: [dep::inner::Foo { x: none }, none],
     });
 }
 
 // 3. Return dep::Wrapper? → unwrap fully to [u8; 2]
-fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
+export fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
     let wrapper_opt: dep::Wrapper? = cond ? dep::Wrapper {
         arr: [dep::inner::Foo { x: 99u8 }, none],
     } : none;
@@ -49,7 +49,7 @@ fn complex_implicit_ternary_(cond: bool) -> [u8?; 2] {
 }
 
 // 5. [dep::Wrapper; 3]? → unwrap all the way to [[u8; 2]; 3]
-fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
+export fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = none;
     let arr = arr_opt.unwrap();
     return [
@@ -63,7 +63,7 @@ fn complex_array_wrapping_() -> [[u8?; 2]; 3] {
 }
 
 // 6. Deeper access into optional array — unwrap fully
-fn complex_array_access_() -> [[u8?; 2]; 3] {
+export fn complex_array_access_() -> [[u8?; 2]; 3] {
     let arr_opt: [dep::Wrapper; 3]? = [
         dep::Wrapper {
             arr: [dep::inner::Foo { x: 10u8 }, none],
@@ -145,12 +145,12 @@ program in_modules.aleo {
 
 // --- Next Module: dep.leo --- //
 
-struct Wrapper {
+export struct Wrapper {
     arr: [inner::Foo?; 2], // array of optional structs
 }
 
 // --- Next Module: dep/inner.leo --- //
 
-struct Foo {
+export struct Foo {
     x: u8?, // optional field
 }

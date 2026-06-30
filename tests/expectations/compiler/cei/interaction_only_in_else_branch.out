@@ -10,7 +10,7 @@
 [WSAZ0374000] Warning: not all paths through the function run every `Final` (1/2 paths leave at least one `Final` un-run)
     ╭─[ compiler-test:16:1 ]
     │
- 16 │ ╭─▶ final fn finalize_do_work(f: Final, a: u32) {
+ 16 │ ╭─▶ export final fn finalize_do_work(f: Final, a: u32) {
     ┆ ┆   
  26 │ ├─▶ }
     │ │       

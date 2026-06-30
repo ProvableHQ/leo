@@ -9,9 +9,9 @@ input = ["5u32"]
 
 // --- library: math_lib --- //
 
-const OFFSET: u32 = 10u32;
+export const OFFSET: u32 = 10u32;
 
-fn shift(x: u32) -> u32 {
+export fn shift(x: u32) -> u32 {
     return x + OFFSET;
 }
 

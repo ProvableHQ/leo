@@ -1,7 +1,7 @@
 [ETYC0372032] Error: `final fn` outputs cannot have visibility modes
-    ╭─[ compiler-test:10:49 ]
+    ╭─[ compiler-test:10:56 ]
     │
- 10 │ final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+ 10 │ export final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     │ 
     │ Help: Remove the `public`, `private`, or `constant` modifier.
 ────╯

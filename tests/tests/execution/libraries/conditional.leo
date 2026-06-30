@@ -19,17 +19,17 @@ input = ["100u32"]
 
 // --- library: thresholds --- //
 
-const LOW: u32 = 10u32;
-const MID: u32 = 25u32;
-const HIGH: u32 = 75u32;
+export const LOW: u32 = 10u32;
+export const MID: u32 = 25u32;
+export const HIGH: u32 = 75u32;
 
 // --- Next Program --- //
 
 // --- library: scores --- //
 
-const LOW_SCORE: u32 = 1u32;
-const MID_SCORE: u32 = thresholds::LOW + thresholds::MID;
-const HIGH_SCORE: u32 = MID_SCORE + thresholds::HIGH;
+export const LOW_SCORE: u32 = 1u32;
+export const MID_SCORE: u32 = thresholds::LOW + thresholds::MID;
+export const HIGH_SCORE: u32 = MID_SCORE + thresholds::HIGH;
 
 // --- Next Program --- //
 
