@@ -3,7 +3,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(y: bool) -> bool {
+export fn main(y: bool) -> bool {
     let b: u8 = b;
     return y == true;
 }

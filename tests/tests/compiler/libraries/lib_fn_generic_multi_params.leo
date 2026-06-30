@@ -2,7 +2,7 @@
 
 // --- library: math_lib --- //
 
-fn affine::[A: u32, B: u32](x: u32) -> u32 {
+export fn affine::[A: u32, B: u32](x: u32) -> u32 {
     return x * A + B;
 }
 

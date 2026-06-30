@@ -59,34 +59,34 @@ input = []
 
 // === Shared Structs ===
 
-struct Foo {
+export struct Foo {
     x: u8?, // optional field
 }
 
-struct Wrapper {
+export struct Wrapper {
     arr: [Foo?; 2], // array of optional structs
 }
 
-fn foo() -> u8? {
+export fn foo() -> u8? {
     return 5; // implicitly wrapped
 }
 
-fn takes_optional_u8(x: u8?) -> u8 {
+export fn takes_optional_u8(x: u8?) -> u8 {
     return x.unwrap_or(100);
 }
 
-struct Bar {
+export struct Bar {
     x: [u8?; 3],
 }
 
-fn bar() -> Wrapper? {
+export fn bar() -> Wrapper? {
     return Wrapper {
         arr: [Foo { x: 8 }, none], // 8u8 implicitly wrapped into u8?
     };
 }
 
 // 2. Implicit argument: Wrapper → Wrapper?
-fn takes_optional_wrapper(w: Wrapper?) -> u8 {
+export fn takes_optional_wrapper(w: Wrapper?) -> u8 {
     return w.unwrap().arr[0].unwrap().x.unwrap_or(42);
 }
 

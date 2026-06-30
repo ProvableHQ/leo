@@ -1,14 +1,14 @@
 [ETYC0372141] Error: a generic const parameter must be a primitive type, but `(u32, u32)` was found
-   ╭─[ compiler-test:1:14 ]
+   ╭─[ compiler-test:1:21 ]
    │
- 1 │ struct Foo::[N: (u32, u32), A: [u32; 3]] {
+ 1 │ export struct Foo::[N: (u32, u32), A: [u32; 3]] {
    │ 
    │ Help: Use one of: `bool`, an integer type, `scalar`, `group`, `field`, or `address`.
 ───╯
 [ETYC0372141] Error: a generic const parameter must be a primitive type, but `[u32; 3]` was found
-   ╭─[ compiler-test:1:29 ]
+   ╭─[ compiler-test:1:36 ]
    │
- 1 │ struct Foo::[N: (u32, u32), A: [u32; 3]] {
+ 1 │ export struct Foo::[N: (u32, u32), A: [u32; 3]] {
    │ 
    │ Help: Use one of: `bool`, an integer type, `scalar`, `group`, `field`, or `address`.
 ───╯
@@ -27,16 +27,16 @@
    │ Help: Change the expression to produce type `scalar`.
 ───╯
 [ETYC0372141] Error: a generic const parameter must be a primitive type, but `(u32, u32)` was found
-    ╭─[ compiler-test:18:10 ]
+    ╭─[ compiler-test:18:17 ]
     │
- 18 │ fn foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+ 18 │ export fn foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
     │ 
     │ Help: Use one of: `bool`, an integer type, `scalar`, `group`, `field`, or `address`.
 ────╯
 [ETYC0372141] Error: a generic const parameter must be a primitive type, but `[u32; 3]` was found
-    ╭─[ compiler-test:18:25 ]
+    ╭─[ compiler-test:18:32 ]
     │
- 18 │ fn foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
+ 18 │ export fn foo::[N: (u32, u32), A: [u32; 3]]() -> (u32, u32) {
     │ 
     │ Help: Use one of: `bool`, an integer type, `scalar`, `group`, `field`, or `address`.
 ────╯

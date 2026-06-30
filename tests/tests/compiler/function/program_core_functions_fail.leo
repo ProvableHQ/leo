@@ -1,4 +1,4 @@
-final fn foo() {
+export final fn foo() {
     let c: [u8; 32] = std::prog::checksum::[test.aleo]();
     let d: [u8; 31] = std::prog::checksum::[credits.aleo]();
     assert_neq(c, d);

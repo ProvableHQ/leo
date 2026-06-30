@@ -660,7 +660,7 @@ fn lib_template(name: &str) -> String {
         r#"// The '{name}' library.
 
 // Returns the identity of x.
-fn example(x: u32) -> u32 {{
+export fn example(x: u32) -> u32 {{
     return x;
 }}
 "#

@@ -9,7 +9,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_decrease_self(addr: address, amount: u128) {
+export final fn finalize_decrease_self(addr: address, amount: u128) {
     let result: () = Mapping::set(amounts, addr, amount);
     let result: u128 = Mapping::set(amounts, addr, amount);
 }

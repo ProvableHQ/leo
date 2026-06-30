@@ -7,7 +7,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn identity(x: u32) -> u32 {
+export fn identity(x: u32) -> u32 {
     return x;
 }
 

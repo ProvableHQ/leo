@@ -1,4 +1,4 @@
-struct Metadata {
+export struct Metadata {
     amount: u64,
 }
 

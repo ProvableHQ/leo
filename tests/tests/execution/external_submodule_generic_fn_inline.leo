@@ -31,7 +31,7 @@ program child.aleo {
 
 // --- Next Module: math.leo --- //
 
-fn scale::[N: u32](x: u32) -> u32 {
+export fn scale::[N: u32](x: u32) -> u32 {
     return x * N;
 }
 

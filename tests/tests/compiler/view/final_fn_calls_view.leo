@@ -1,7 +1,7 @@
 // A `final fn` helper that calls a same-program `view fn` gets inlined into the
 // `final {}` block that calls the helper. The view call survives inlining and ends
 // up as a real `call` instruction inside the resulting Aleo `finalize:` body.
-final fn cache(addr: address) {
+export final fn cache(addr: address) {
     let bal: u64 = get_balance(addr);
     Mapping::set(totals, addr, bal + 100u64);
 }

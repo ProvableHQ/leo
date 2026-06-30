@@ -2,11 +2,11 @@
 
 // --- library: cyclic_lib --- //
 
-interface A : cyclic_lib::B {
+export interface A : cyclic_lib::B {
     fn a_fn() -> u32;
 }
 
-interface B : cyclic_lib::A {
+export interface B : cyclic_lib::A {
     fn b_fn() -> u32;
 }
 

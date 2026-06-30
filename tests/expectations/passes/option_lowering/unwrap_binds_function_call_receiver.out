@@ -11,7 +11,7 @@ program test.aleo {
         return $opt$0.is_some ? $opt$0.val : d;
     }
 }
-    fn maybe(x: u32) -> test.aleo::u32? {
+    export fn maybe(x: u32) -> test.aleo::u32? {
         return test.aleo::u32? { is_some: true, val: x };
     }
 

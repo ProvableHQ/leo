@@ -4,7 +4,7 @@
 
 // --- library: test_lib --- //
 
-interface Foo {
+export interface Foo {
     record Token {
         owner: address,
         amount: u128,

@@ -1,4 +1,4 @@
-struct Nested {
+export struct Nested {
     a: alpha::SharedName,
     b: beta::SharedName::[beta::X],
     c: gamma::Inner,
@@ -31,48 +31,48 @@ program all_module_features.aleo {
 // --- Next Module: alpha.leo --- //
 
 // Constant named X
-const X: u32 = 2;
+export const X: u32 = 2;
 
 // Struct with same name as in beta (to test shadowing)
-struct SharedName {
+export struct SharedName {
     val: u32,
 }
 
 // Inline returning its own struct
-fn make() -> SharedName {
+export fn make() -> SharedName {
     return SharedName { val: 99 };
 }
 
 // --- Next Module: beta.leo --- //
 
 // Constant shadowing X from alpha
-const X: u32 = 3;
+export const X: u32 = 3;
 
 // Struct with same name but generic
-struct SharedName::[N: u32] {
+export struct SharedName::[N: u32] {
     val: [u32; N],
 }
 
 // Inline using generic struct
-fn make() -> SharedName::[X] {
+export fn make() -> SharedName::[X] {
     return SharedName::[X] { val: [5; X] };
 }
 
 // --- Next Module: gamma.leo --- //
 
 // Constant shadowing again
-const X: u32 = 4;
+export const X: u32 = 4;
 
 // Struct referencing another module’s const and struct in main
-struct Inner {
+export struct Inner {
     n: u32,
 }
 
 // Inline returning struct defined here
-fn make_inner(n: u32) -> Inner {
+export fn make_inner(n: u32) -> Inner {
     return Inner { n };
 }
 
-fn consume_inner(inner: Inner) -> u32 {
+export fn consume_inner(inner: Inner) -> u32 {
     return inner.n + X;
 }

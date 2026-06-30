@@ -1,4 +1,4 @@
-interface Foo {
+export interface Foo {
     fn foo(private a: u8) -> private u8;
 }
 

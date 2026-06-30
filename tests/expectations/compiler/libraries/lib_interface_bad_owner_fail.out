@@ -6,9 +6,9 @@
    │ Help: Change the field's type to `address`. The `owner` field of every record is always `address`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:1:21 ]
+   ╭─[ compiler-test:1:28 ]
    │
- 1 │ ╭─▶ interface HasToken {
+ 1 │ ╭─▶ export interface HasToken {
    ┆ ┆   
  5 │ ├─▶     }
    │ │           

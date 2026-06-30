@@ -2,7 +2,7 @@ program test.aleo {
     @noupgrade
     async constructor() {
     }
-    struct Pair::[4u32] {
+    export struct Pair::[4u32] {
         first: u32,
         second: u32,
     }

@@ -11,7 +11,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -30,7 +30,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [I] Interaction hidden deep in nested conditionals
     if a > 0u32 {
         if a > 10u32 {

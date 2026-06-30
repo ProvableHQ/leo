@@ -5,9 +5,9 @@
     │
     ├─[ compiler-test:11:9 ]
     │
- 10 │ fn foo::[N: u32]() -> u32 {
-    │          ┬  
-    │          ╰── previous definition of `N` here
+ 10 │ export fn foo::[N: u32]() -> u32 {
+    │                 ┬  
+    │                 ╰── previous definition of `N` here
  11 │     let N: u32 = 10u32;
     │         ┬  
     │         ╰── `N` redefined here

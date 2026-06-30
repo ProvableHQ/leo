@@ -219,6 +219,8 @@ define_syntax_kinds! {
     KW_PUBLIC,
     /// `private`
     KW_PRIVATE,
+    /// `export`
+    KW_EXPORT,
     /// `as`
     KW_AS,
     /// `self`
@@ -653,6 +655,7 @@ impl SyntaxKind {
                 | KW_BLOCK
                 | KW_PUBLIC
                 | KW_PRIVATE
+                | KW_EXPORT
                 | KW_AS
                 | KW_SELF
                 | KW_SELF_UPPER
@@ -924,6 +927,7 @@ impl SyntaxKind {
             // Visibility and assertion keywords
             KW_PUBLIC => "'public'",
             KW_PRIVATE => "'private'",
+            KW_EXPORT => "'export'",
             KW_AS => "'as'",
             KW_SELF => "'self'",
             KW_SELF_UPPER => "'Self'",

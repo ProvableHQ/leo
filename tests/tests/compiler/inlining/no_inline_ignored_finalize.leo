@@ -1,5 +1,5 @@
 @no_inline
-fn helper(a: u64, b: u64) -> u64 {
+export fn helper(a: u64, b: u64) -> u64 {
     return a + b;
 }
 
@@ -14,7 +14,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint(receiver: address, amount: u64) {
+export final fn finalize_mint(receiver: address, amount: u64) {
     let sum: u64 = helper(amount, 1u64);
     Mapping::set(account, receiver, sum);
 }

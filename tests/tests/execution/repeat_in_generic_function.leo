@@ -8,9 +8,9 @@ function = "main"
 input = []
 */
 
-const N: u32 = 10;
+export const N: u32 = 10;
 
-fn foo::[P: u32]() -> u32 {
+export fn foo::[P: u32]() -> u32 {
     let arr = [P; P];
     return arr[P - 1];
 }

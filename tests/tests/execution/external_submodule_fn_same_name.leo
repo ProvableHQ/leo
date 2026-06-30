@@ -27,7 +27,7 @@ program a.aleo {
 
 // --- Next Module: math.leo --- //
 
-fn helper(x: u32) -> u32 {
+export fn helper(x: u32) -> u32 {
     return x + 100u32;
 }
 
@@ -44,7 +44,7 @@ program b.aleo {
 
 // --- Next Module: math.leo --- //
 
-fn helper(x: u32) -> u32 {
+export fn helper(x: u32) -> u32 {
     return x * 10u32;
 }
 

@@ -24,7 +24,7 @@ input = ["2000u64"]
 // def-closure duplication (the tag write reads a prefix-defined name), `g` keeps a
 // shared suffix that runs after the rejoin. A wrong cut surfaces as a runtime halt
 // on an unwritten register.
-final fn capped(amount: u64) -> u64 {
+export final fn capped(amount: u64) -> u64 {
     if amount > 1000u64 {
         return 1000u64;
     }

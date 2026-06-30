@@ -1,8 +1,8 @@
-interface Counter {
+export interface Counter {
     fn increment() -> u64;
 }
 
-interface Resettable {
+export interface Resettable {
     fn reset() -> u64;
 }
 

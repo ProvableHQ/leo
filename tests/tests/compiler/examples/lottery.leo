@@ -20,7 +20,7 @@ program lottery.aleo {
     constructor() {}
 }
 
-final fn finalize_play() {
+export final fn finalize_play() {
     // Check that the lottery has not expired.
     assert(std::ctx::block_height() <= 1000u32);
 

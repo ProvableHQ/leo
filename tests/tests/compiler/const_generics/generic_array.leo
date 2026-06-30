@@ -1,4 +1,4 @@
-const Five: u32 = 5;
+export const Five: u32 = 5;
 
 program test.aleo {
     fn main() -> u32 {
@@ -17,7 +17,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
+export fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
     let sum = 0u32;
     for i in 0u32..N {
         sum += arr[i];

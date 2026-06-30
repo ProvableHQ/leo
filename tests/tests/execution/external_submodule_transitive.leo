@@ -32,7 +32,7 @@ program grandchild.aleo {
 
 // --- Next Module: types.leo --- //
 
-struct Pixel {
+export struct Pixel {
     r: u32,
     g: u32,
     b: u32,

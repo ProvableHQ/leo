@@ -17,7 +17,7 @@ program test_dep.aleo {
     constructor() {}
 }
 
-final fn finalize_main_dep(a: u32, b: u32) {
+export final fn finalize_main_dep(a: u32, b: u32) {
     Mapping::set(Yo, a, b);
     let c: u32 = a + b;
 }
@@ -41,7 +41,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_main(f: Final, f2: Final, a: u32) {
+export final fn finalize_main(f: Final, f2: Final, a: u32) {
     // f.run();
     if a == 1u32 {
         Final::run(f);
@@ -72,7 +72,7 @@ program wrapper.aleo {
     constructor() {}
 }
 
-final fn finalize_main(f: Final, f2: Final, f3: Final) {
+export final fn finalize_main(f: Final, f2: Final, f3: Final) {
     f.run();
     f2.run();
     f3.run();
@@ -93,6 +93,6 @@ program big_wrapper.aleo {
     constructor() {}
 }
 
-final fn finalize_main(f: Final) {
+export final fn finalize_main(f: Final) {
     f.run();
 }

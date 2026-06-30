@@ -1,3 +1,3 @@
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x * 2u32;
 }

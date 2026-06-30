@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_check(key: address) {
+export final fn finalize_check(key: address) {
     let exists: bool = _dynamic_contains(42u64, 0field, 0field, key);
     Mapping::set(result, key, exists);
 }

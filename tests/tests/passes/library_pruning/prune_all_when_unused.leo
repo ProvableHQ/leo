@@ -2,11 +2,11 @@
 
 // --- library: math_lib --- //
 
-fn a(x: u32) -> u32 {
+export fn a(x: u32) -> u32 {
     return x + 1u32;
 }
 
-fn b(x: u32) -> u32 {
+export fn b(x: u32) -> u32 {
     return x - 1u32;
 }
 

@@ -3,7 +3,7 @@
 // amount: u128. flatten_interface must detect the conflict via record_fields_compatible
 // and emit conflicting_record_field when building ICombined.
 
-interface ILeft {
+export interface ILeft {
     record Token {
         owner: address,
         amount: u64,
@@ -12,7 +12,7 @@ interface ILeft {
     fn transfer(t: Token) -> Token;
 }
 
-interface IRight {
+export interface IRight {
     record Token {
         owner: address,
         amount: u128,
@@ -21,7 +21,7 @@ interface IRight {
     fn balance(t: Token) -> u128;
 }
 
-interface ICombined: ILeft + IRight {
+export interface ICombined: ILeft + IRight {
 }
 
 program test.aleo: ICombined {

@@ -2,7 +2,7 @@
 // The compiler should emit a diagnostic error, not panic, when an array type's
 // length evaluates to a value that exceeds u32::MAX.
 
-const COUNT: u128 = 2u128;
+export const COUNT: u128 = 2u128;
 
 program test.aleo {
     fn main(public a: u32, b: u32) -> u32 {

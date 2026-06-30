@@ -12,7 +12,7 @@ program exchange.aleo {
     constructor() {}
 }
 
-final fn finalize_get_rate(a: u32) {
+export final fn finalize_get_rate(a: u32) {
     Mapping::set(rates, 0u32, a as u64);
 }
 

@@ -95,4 +95,18 @@ impl ScopeState {
             function_path,
         )
     }
+
+    /// Whether the item at `target_loc`, declared with source-level visibility `target_is_pub`,
+    /// is reachable from the current scope. Same-file references always pass; cross-module
+    /// references require the item to not be explicitly private.
+    ///
+    /// The caller is expected to have looked the item up first (so existence and program-import
+    /// visibility are already established). This is purely the `export` policy check.
+    pub fn is_accessible(&self, target_loc: &Location, target_is_pub: Option<bool>) -> bool {
+        let current_program = self.unit_name.expect("scope must be inside a compilation unit");
+        if current_program == target_loc.program && self.module_name == target_loc.module_path() {
+            return true;
+        }
+        target_is_pub != Some(false)
+    }
 }

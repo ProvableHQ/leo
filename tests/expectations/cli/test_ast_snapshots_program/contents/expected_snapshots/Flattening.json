@@ -342,6 +342,7 @@
         [
           "main",
           {
+            "is_exported": null,
             "annotations": [],
             "variant": "EntryPoint",
             "identifier": {

@@ -1,4 +1,4 @@
-struct Flag {
+export struct Flag {
     active: bool,
     payload: u32,
 }

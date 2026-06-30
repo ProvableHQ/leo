@@ -1,14 +1,14 @@
 [ETYC0372057] Error: only entry point fns can have a record as input or output
-    ╭─[ compiler-test:11:8 ]
+    ╭─[ compiler-test:11:15 ]
     │
- 11 │ fn foo(a: credits) -> u8 {
+ 11 │ export fn foo(a: credits) -> u8 {
     │ 
     │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯
 [ETYC0372057] Error: only entry point fns can have a record as input or output
-    ╭─[ compiler-test:15:31 ]
+    ╭─[ compiler-test:15:38 ]
     │
- 15 │ fn boo(a: address, b: u64) -> credits {
+ 15 │ export fn boo(a: address, b: u64) -> credits {
     │ 
     │ Help: Move the function inside the `program` block to make it an entry point fn, or change its signature to avoid records.
 ────╯

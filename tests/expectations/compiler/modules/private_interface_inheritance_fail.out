@@ -1,0 +1,7 @@
+[ETYC0372193] Error: interface `J` is not accessible from this module
+   ╭─[ parent.leo:2:22 ]
+   │
+ 2 │ export interface I : helpers::J {
+   │ 
+   │ Help: Add `export` to the declaration of `J` in its defining module to make it accessible from other modules.
+───╯

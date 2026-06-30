@@ -3,11 +3,11 @@
 
 // --- library: math_lib --- //
 
-fn add(a: u32, b: u32) -> u32 {
+export fn add(a: u32, b: u32) -> u32 {
     return a + b;
 }
 
-fn scale::[N: u32](x: u32) -> u32 {
+export fn scale::[N: u32](x: u32) -> u32 {
     // Use add to perform x * N via repeated addition (N=2 for simplicity).
     return add(x, x);
 }

@@ -14,7 +14,7 @@ program credits.aleo {
     constructor() {}
 }
 
-final fn finalize() {
+export final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 

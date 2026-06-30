@@ -18,15 +18,15 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint_public(receiver: address, amount: u64) {
+export final fn finalize_mint_public(receiver: address, amount: u64) {
     increment(account, receiver, amount);
 }
 
-final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+export final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     return a + b;
 }
 
-final fn finalize_no_params() {
+export final fn finalize_no_params() {
     increment(values, 0u8, 1u8);
     increment(account, std::ctx::caller(), 1u64);
 }

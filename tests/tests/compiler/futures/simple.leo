@@ -11,7 +11,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize() {
+export final fn finalize() {
     Mapping::set(foo, 1u32, 1u32);
 }
 
@@ -30,7 +30,7 @@ program basic.aleo {
     constructor() {}
 }
 
-final fn finalize(input: u32, f: Final) {
+export final fn finalize(input: u32, f: Final) {
     f.run();
     assert_eq(input, 1u32);
 }

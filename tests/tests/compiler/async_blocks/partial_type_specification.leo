@@ -108,6 +108,6 @@ program big_wrapper.aleo {
     constructor() {}
 }
 
-final fn finalize_main(f: Final) {
+export final fn finalize_main(f: Final) {
     f.run();
 }

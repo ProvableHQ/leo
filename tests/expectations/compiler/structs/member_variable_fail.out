@@ -1,11 +1,11 @@
-[ETYC0372018] Error: `y` is not a member of `struct Foo {
+[ETYC0372018] Error: `y` is not a member of `export struct Foo {
     x: u32,
 }`
    ╭─[ compiler-test:8:21 ]
    │
  8 │         let err = a.y;
    │ 
-   │ Help: Check the field name for typos and confirm `y` is declared on `struct Foo {
+   │ Help: Check the field name for typos and confirm `y` is declared on `export struct Foo {
    │           x: u32,
    │       }`.
 ───╯

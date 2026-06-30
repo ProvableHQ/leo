@@ -10,7 +10,7 @@
 // new bytecode, so two programs with the same source and dependencies
 // will agree on this value.
 @_program_id_arg
-final fn checksum::[PROG: address]() -> [u8; 32] {
+export final fn checksum::[PROG: address]() -> [u8; 32] {
     return _program_checksum(PROG);
 }
 
@@ -19,7 +19,7 @@ final fn checksum::[PROG: address]() -> [u8; 32] {
 // Useful for guarding logic against specific upgrade versions of a
 // dependency.
 @_program_id_arg
-final fn edition::[PROG: address]() -> u16 {
+export final fn edition::[PROG: address]() -> u16 {
     return _program_edition(PROG);
 }
 
@@ -29,7 +29,7 @@ final fn edition::[PROG: address]() -> u16 {
 // Programs deployed before the upgradability feature shipped do not have
 // an owner; reading this value on such a program halts at runtime.
 @_program_id_arg
-final fn program_owner::[PROG: address]() -> address {
+export final fn program_owner::[PROG: address]() -> address {
     return _program_owner(PROG);
 }
 
@@ -38,6 +38,6 @@ final fn program_owner::[PROG: address]() -> address {
 // function of a dependency program has not changed between upgrades.
 @_program_id_arg
 @_callable_function_arg
-final fn function_checksum::[PROG: address, FN_NAME: identifier]() -> [u8; 32] {
+export final fn function_checksum::[PROG: address, FN_NAME: identifier]() -> [u8; 32] {
     return _function_checksum(PROG, FN_NAME);
 }

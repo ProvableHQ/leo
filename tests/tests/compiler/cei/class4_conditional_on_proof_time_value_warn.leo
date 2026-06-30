@@ -12,7 +12,7 @@ program oracle.aleo {
     constructor() {}
 }
 
-final fn finalize_get_price(id: u32) {
+export final fn finalize_get_price(id: u32) {
     let p: u64 = Mapping::get_or_use(prices, id, 0u64);
     Mapping::set(prices, id, p);
 }
@@ -33,7 +33,7 @@ program trader.aleo {
     constructor() {}
 }
 
-final fn finalize_trade(f: Final, price: u64, id: u32) {
+export final fn finalize_trade(f: Final, price: u64, id: u32) {
     // [E] Branch on stale proof-time price
     if price > 400u64 {
         Mapping::set(positions, id, price);

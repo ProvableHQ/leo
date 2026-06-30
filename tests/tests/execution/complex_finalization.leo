@@ -22,7 +22,7 @@ input = []
 //        --> "zero::c"
 // The future (call graph) produced by the top-level finalize should reflect this structure.
 
-final fn finalize_c(addr: address) {
+export final fn finalize_c(addr: address) {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
 }
@@ -41,7 +41,7 @@ program zero_program.aleo {
 
 // --- Next Program --- //
 
-final fn finalize_d(addr: address) {
+export final fn finalize_d(addr: address) {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
 }
@@ -62,7 +62,7 @@ program one_program.aleo {
 import zero_program.aleo;
 import one_program.aleo;
 
-final fn finalize_b(f0: Final, f1: Final, addr: address) {
+export final fn finalize_b(f0: Final, f1: Final, addr: address) {
     f0.run();
     f1.run();
     let count: u64 = counts.get_or_use(addr, 0u64);
@@ -88,7 +88,7 @@ import zero_program.aleo;
 import one_program.aleo;
 import two_program.aleo;
 
-final fn finalize_e(f0: Final, f1: Final, f2: Final, addr: address) {
+export final fn finalize_e(f0: Final, f1: Final, f2: Final, addr: address) {
     f0.run();
     f1.run();
     f2.run();
@@ -115,7 +115,7 @@ program three_program.aleo {
 import two_program.aleo;
 import three_program.aleo;
 
-final fn finalize_a(f0: Final, f1: Final, addr: address) {
+export final fn finalize_a(f0: Final, f1: Final, addr: address) {
     f0.run();
     f1.run();
     let count: u64 = counts.get_or_use(addr, 0u64);

@@ -9,6 +9,6 @@ program test.aleo {
     }
 }
 
-fn square(x: u32) -> u32 {
+export fn square(x: u32) -> u32 {
     return x * x;
 }

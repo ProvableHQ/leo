@@ -1,10 +1,10 @@
 library ast_library {
-    fn scale(x: u32, factor: u32) -> u32 {
+    export fn scale(x: u32, factor: u32) -> u32 {
         return x * factor;
     }
 module helpers {
-    const UNIT: u32 = 1u32;
-    fn increment(x: u32) -> u32 {
+    export const UNIT: u32 = 1u32;
+    export fn increment(x: u32) -> u32 {
         return x + UNIT;
     }
 }

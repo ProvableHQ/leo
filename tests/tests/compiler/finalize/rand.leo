@@ -7,7 +7,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_foo() {
+export final fn finalize_foo() {
     let a: address = ChaCha::rand_address();
     let b: bool = ChaCha::rand_bool();
     let c: field = ChaCha::rand_field();

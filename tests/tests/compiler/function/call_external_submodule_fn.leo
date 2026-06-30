@@ -13,7 +13,7 @@ program child.aleo {
 
 // --- Next Module: helpers.leo --- //
 
-fn bump(x: u32) -> u32 {
+export fn bump(x: u32) -> u32 {
     return x + 1u32;
 }
 

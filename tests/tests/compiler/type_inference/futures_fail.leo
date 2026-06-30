@@ -11,9 +11,9 @@ program child.aleo {
     constructor() {}
 }
 
-final fn foo_() {}
+export final fn foo_() {}
 
-final fn bar_() {}
+export final fn bar_() {}
 
 // --- Next Program --- //
 import child.aleo;
@@ -35,6 +35,6 @@ program type_inference.aleo {
     constructor() {}
 }
 
-final fn foo(fut: Final) {
+export final fn foo(fut: Final) {
     fut.run();
 }

@@ -59,6 +59,7 @@ impl UnitReconstructor for RemoveUnreachableVisitor<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         self.has_return = false;
         let res = Function {
+            is_exported: input.is_exported,
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,

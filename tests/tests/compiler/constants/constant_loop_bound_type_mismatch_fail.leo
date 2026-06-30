@@ -1,4 +1,4 @@
-const START: u32 = 0u32;
+export const START: u32 = 0u32;
 
 program test.aleo {
     fn foo(a: u8, b: u8, flag: bool) -> u8 {

@@ -2,7 +2,7 @@
 // uses the default (private) mode. `None` and `Private` are equivalent to each other
 // but not to `Public`, so this must fail with a signature mismatch.
 
-interface Transferable {
+export interface Transferable {
     fn transfer(public amount: u64) -> u64;
 }
 

@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_matches(height: u32) {
+export final fn finalize_matches(height: u32) {
     assert_eq(height, std::ctx::block_height());
 }

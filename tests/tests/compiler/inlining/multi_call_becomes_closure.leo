@@ -7,7 +7,7 @@
 // with the Aleo `add` instruction, which would cause the Aleo parser to reject
 // `closure add:`.
 
-fn sum_of(a: u32, b: u32) -> u32 {
+export fn sum_of(a: u32, b: u32) -> u32 {
     return a + b;
 }
 

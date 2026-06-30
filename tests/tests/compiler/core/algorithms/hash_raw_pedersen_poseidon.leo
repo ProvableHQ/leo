@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 */
 
-struct Point {
+export struct Point {
     x: u64,
     y: u64,
 }

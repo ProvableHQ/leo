@@ -7,10 +7,10 @@ program test.aleo {
     constructor() {}
 }
 
-fn foo() -> u32 {
+export fn foo() -> u32 {
     return 1u32;
 }
 
-fn foo() -> u32 {
+export fn foo() -> u32 {
     return 2u32;
 }

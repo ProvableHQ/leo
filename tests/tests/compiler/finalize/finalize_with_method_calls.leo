@@ -15,12 +15,12 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint_public(receiver: address, amount: u64) {
+export final fn finalize_mint_public(receiver: address, amount: u64) {
     let current_amount: u64 = account.get_or_use(receiver, 0u64);
     account.set(receiver, current_amount + amount);
 }
 
-final fn finalize_finalize_self_caller(caller: address) {
+export final fn finalize_finalize_self_caller(caller: address) {
     let current_value: u8 = values.get_or_use(0u8, 0u8);
     values.set(0u8, current_value + 1u8);
     let current_amount: u64 = account.get_or_use(caller, 0u64);

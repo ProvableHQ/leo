@@ -10,7 +10,7 @@
 
 // --- library: geo_lib --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }

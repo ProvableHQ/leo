@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `Derived` has a conflicting definition for `compute` inherited from `Base`
    ╭─[ derived.leo:2:1 ]
    │
- 2 │ ╭─▶ interface Derived : conflict_lib::base::Base {
+ 2 │ ╭─▶ export interface Derived : conflict_lib::base::Base {
    ┆ ┆   
  5 │ ├─▶ }
    │ │       

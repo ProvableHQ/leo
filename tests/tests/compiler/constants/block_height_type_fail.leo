@@ -1,4 +1,4 @@
-final fn bar() {
+export final fn bar() {
     let x: u64 = std::ctx::block_height();
 }
 

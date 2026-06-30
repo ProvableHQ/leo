@@ -1,4 +1,4 @@
-final fn foo() {
+export final fn foo() {
     let c: [u8; 32] = std::ctx::checksum();
     let d: [u8; 32] = std::prog::checksum::[test.aleo]();
     let e: u16 = std::ctx::edition();

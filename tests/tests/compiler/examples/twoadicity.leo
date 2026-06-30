@@ -26,6 +26,6 @@ program test.aleo {
    If we add p to both of these negative numbers, we have
    n/2 = (n-p)/2 + p = (n+p)/2 is greater than n and still less than p.
 */
-fn is_even_and_nonzero(n: field) -> bool {
+export fn is_even_and_nonzero(n: field) -> bool {
     return n / 2field < n;
 }

@@ -23,4 +23,4 @@ program test.aleo {
     constructor() {}
 }
 
-final fn foo() {}
+export final fn foo() {}

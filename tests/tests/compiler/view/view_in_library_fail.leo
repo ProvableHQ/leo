@@ -1,7 +1,7 @@
 // --- library: lib --- //
 
 // FAIL: `view fn` is a program-only entry point and cannot appear in a library.
-view fn helper(x: u64) -> u64 {
+export view fn helper(x: u64) -> u64 {
     return x + 1u64;
 }
 

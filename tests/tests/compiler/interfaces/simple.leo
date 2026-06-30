@@ -1,11 +1,11 @@
-interface Bar {
+export interface Bar {
     record Foo;
 }
 
-interface Baz: Bar {
+export interface Baz: Bar {
 }
 
-interface AbstractFoo: Baz {
+export interface AbstractFoo: Baz {
     record Foo;
     fn foobar() -> Foo;
 }

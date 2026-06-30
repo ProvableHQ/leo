@@ -5,7 +5,7 @@
 // transaction, what the current block height and timestamp are, and so on.
 
 // Returns the Aleo program address of this program.
-fn addr() -> address {
+export fn addr() -> address {
     return _self_address();
 }
 
@@ -18,7 +18,7 @@ fn addr() -> address {
 // originator of the entire transaction.
 @offchain
 @_caller_annotation
-fn caller() -> address {
+export fn caller() -> address {
     return _self_caller();
 }
 
@@ -26,53 +26,53 @@ fn caller() -> address {
 // this never changes during cross-program calls: it always points to the
 // off-chain agent who authorized the whole call graph.
 @offchain
-fn signer() -> address {
+export fn signer() -> address {
     return _self_signer();
 }
 
 // Returns the on-chain identifier of this program. The id is an Aleo address
 // derived from the program's source and is the same value users see in block
 // explorers.
-fn id() -> address {
+export fn id() -> address {
     return _self_id();
 }
 
 // Returns the 32-byte deployment checksum of this program. The checksum is
 // fixed at deployment time and changes if (and only if) the program is
 // upgraded with new bytecode.
-final fn checksum() -> [u8; 32] {
+export final fn checksum() -> [u8; 32] {
     return _self_checksum();
 }
 
 // Returns the deployment edition of this program. Edition `0` is the initial
 // deployment; each upgrade increments the edition by one.
-final fn edition() -> u16 {
+export final fn edition() -> u16 {
     return _self_edition();
 }
 
 // Returns the address that owns this program, typically the account that
 // performed the deployment. Owner-only on-chain operations should compare
 // `signer()` against `program_owner()`.
-final fn program_owner() -> address {
+export final fn program_owner() -> address {
     return _self_program_owner();
 }
 
 // Returns the height of the block containing the current transaction. Block
 // height increases by one with every finalized block on the network.
-final fn block_height() -> u32 {
+export final fn block_height() -> u32 {
     return _block_height();
 }
 
 // Returns the Unix timestamp (in seconds) of the block containing the current
 // transaction. The value reflects the block producer's clock at the time the
 // block was proposed.
-final fn block_timestamp() -> i64 {
+export final fn block_timestamp() -> i64 {
     return _block_timestamp();
 }
 
 // Returns the numeric identifier of the network this program is executing on
 // (e.g. mainnet, testnet, canary). Use this to gate behavior that differs
 // between deployment targets.
-final fn network_id() -> u16 {
+export final fn network_id() -> u16 {
     return _network_id();
 }

@@ -8,7 +8,7 @@ function = "main"
 input = ["2000349607123836232045field", "3u32", "5u32"]
 */
 
-interface MathOps {
+export interface MathOps {
     fn compute(a: u32, b: u32) -> (u32, Final);
 }
 

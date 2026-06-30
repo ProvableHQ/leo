@@ -1,5 +1,5 @@
 // Error: dynamic mapping access outside finalize context.
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 

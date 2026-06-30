@@ -7,7 +7,7 @@
 // concrete type belongs to the current program — the alias entry for the second
 // parent's location makes this work correctly.
 
-interface ILeft {
+export interface ILeft {
     record Token {
         owner: address,
         ..
@@ -24,7 +24,7 @@ program lib1.aleo {
 
 // --- Next Program --- //
 
-interface IRight {
+export interface IRight {
     record Token {
         owner: address,
         ..

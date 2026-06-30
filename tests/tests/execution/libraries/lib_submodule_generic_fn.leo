@@ -8,7 +8,7 @@ input = ["7u32"]
 // --- library: math_lib --- //
 
 // --- Next Module: ops.leo --- //
-fn scale::[N: u32](x: u32) -> u32 {
+export fn scale::[N: u32](x: u32) -> u32 {
     return x * N;
 }
 

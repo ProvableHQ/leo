@@ -10,7 +10,7 @@ program registry.aleo {
     constructor() {}
 }
 
-final fn finalize_register(addr: address) {
+export final fn finalize_register(addr: address) {
     Mapping::set(users, addr, true);
 }
 
@@ -28,7 +28,7 @@ program relay.aleo {
     constructor() {}
 }
 
-final fn finalize_send(addr: address) {
+export final fn finalize_send(addr: address) {
     let a: bool = Mapping::get(relay.aleo::users, addr);
     assert_eq(a, true);
 }

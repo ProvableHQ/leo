@@ -23,7 +23,7 @@ program other.aleo {
 // --- Next Program --- //
 import other.aleo;
 
-interface IAbstract {
+export interface IAbstract {
     record Token {
         owner: address,
         ..
@@ -31,12 +31,12 @@ interface IAbstract {
     fn process(t: Token) -> Token;
 }
 
-interface IConcrete {
+export interface IConcrete {
     fn process(t: other.aleo::Token) -> other.aleo::Token;
 }
 
 // ICombined inherits conflicting `process` signatures — should fail.
-interface ICombined: IAbstract + IConcrete {}
+export interface ICombined: IAbstract + IConcrete {}
 
 program lib.aleo {
     fn dummy() {}

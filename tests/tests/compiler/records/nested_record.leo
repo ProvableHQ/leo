@@ -1,4 +1,4 @@
-struct Amount {
+export struct Amount {
     amount: u64,
     amt: u64,
 }

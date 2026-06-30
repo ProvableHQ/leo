@@ -1,4 +1,4 @@
-final fn bar() {
+export final fn bar() {
     let x: u32 = std::ctx::block_timestamp();
 }
 

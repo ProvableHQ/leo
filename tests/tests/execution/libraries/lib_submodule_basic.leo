@@ -8,11 +8,11 @@ input = ["3u32", "4u32"]
 // --- library: math_lib --- //
 
 // --- Next Module: arith.leo --- //
-fn add(a: u32, b: u32) -> u32 {
+export fn add(a: u32, b: u32) -> u32 {
     return a + b;
 }
 
-fn mul(a: u32, b: u32) -> u32 {
+export fn mul(a: u32, b: u32) -> u32 {
     return a * b;
 }
 

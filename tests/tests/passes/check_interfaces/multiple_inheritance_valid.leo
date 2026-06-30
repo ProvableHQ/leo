@@ -1,10 +1,10 @@
 // Test: Valid program implementing multiple interfaces
 
-interface Counter {
+export interface Counter {
     fn increment() -> u64;
 }
 
-interface Calculator {
+export interface Calculator {
     fn add(a: u64, b: u64) -> u64;
 }
 

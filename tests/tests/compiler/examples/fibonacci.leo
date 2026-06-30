@@ -30,7 +30,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn reverse_bits(n: u8) -> u8 {
+export fn reverse_bits(n: u8) -> u8 {
     let reverse: u8 = 0u8;
     for i: u8 in 0u8..8u8 {
         if n > 0u8 {

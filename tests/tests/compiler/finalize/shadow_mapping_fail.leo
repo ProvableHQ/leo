@@ -18,6 +18,6 @@ program test.aleo {
     constructor() {}
 }
 
-struct bar {
+export struct bar {
     a: u64,
 }

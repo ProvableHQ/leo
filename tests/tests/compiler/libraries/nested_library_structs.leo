@@ -15,23 +15,23 @@
 
 // --- library: math_lib --- //
 
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     x: [u32; N + 1],
 }
 
-struct Bar {
+export struct Bar {
     f: Foo::[42],
 }
 
-const OFFSET: u32 = 10u32;
-const SCALE: u32 = OFFSET + OFFSET;
+export const OFFSET: u32 = 10u32;
+export const SCALE: u32 = OFFSET + OFFSET;
 
 // --- Next Program --- //
 
 // --- library: config_lib --- //
 
-const BASE: u32 = math_lib::OFFSET + 5u32;
-const FACTOR: u32 = math_lib::SCALE + BASE;
+export const BASE: u32 = math_lib::OFFSET + 5u32;
+export const FACTOR: u32 = math_lib::SCALE + BASE;
 
 // --- Next Program --- //
 
@@ -49,14 +49,14 @@ program helper.aleo {
 }
 
 // --- Next Module: dep.leo --- //
-struct B::[N: u32] {
+export struct B::[N: u32] {
     z: u32,
 }
 
 // --- Next Program --- //
 import helper.aleo;
 
-struct Foo {
+export struct Foo {
     y: u32,
 }
 

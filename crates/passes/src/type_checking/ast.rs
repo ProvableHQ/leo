@@ -1098,6 +1098,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(crate::errors::type_checker::unknown_sym("interface", &input.interface, interface_path.span));
             return Type::Err;
         };
+        if !self.scope_state.is_accessible(interface_location, interface.is_exported) {
+            self.emit_err(crate::errors::type_checker::inaccessible_item(
+                "interface",
+                &input.interface,
+                interface_path.span,
+            ));
+            return Type::Err;
+        }
         let interface = interface.clone();
 
         // Dispatch to the appropriate checker based on the kind of dynamic op.
@@ -1122,6 +1130,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
             return Type::Err;
         };
+
+        if !self.scope_state.is_accessible(callee_location, func_symbol.function.is_exported) {
+            self.emit_err(crate::errors::type_checker::inaccessible_item(
+                "function",
+                input.function.clone(),
+                input.function.span(),
+            ));
+            return Type::Err;
+        }
 
         let func = func_symbol.function.clone();
 
@@ -1577,6 +1594,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
 
+        if !self.check_composite_accessible(composite_location, &composite, input.path.span()) {
+            return Type::Err;
+        }
+
         // Check the number of const arguments against the number of the composite's const parameters
         if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
@@ -1773,6 +1794,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
+            // Enforce `export` visibility on globally referenced names (locals are scope-bound,
+            // so they never need the check).
+            if let Some(loc) = input.try_global_location()
+                && !self.scope_state.is_accessible(loc, var.is_exported)
+            {
+                self.emit_err(crate::errors::type_checker::inaccessible_item("item", input, input.span()));
+                return Type::Err;
+            }
+
             // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
             // variable's type from being set during `visit_definition`. Return `Type::Err` to
             // signal that an error has already been emitted rather than panicking.

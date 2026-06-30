@@ -23,7 +23,7 @@ program other.aleo {
 // --- Next Program --- //
 import other.aleo;
 
-interface HasMixed {
+export interface HasMixed {
     record Token {
         owner: address,
         ..

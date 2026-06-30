@@ -38,17 +38,17 @@ input = ["false", "false", "2u8", "2u8"]
 
 // In this test, we expect bar and blar to produce the same result for all inputs.
 
-struct Extra {
+export struct Extra {
     c: u8,
 }
 
-struct Data {
+export struct Data {
     a: u8,
     b: u8,
     c: Extra,
 }
 
-fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
+export fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {
@@ -62,7 +62,7 @@ fn foo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     return (c, d, data);
 }
 
-fn floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
+export fn floo(a: u8, b: u8, input: Data) -> (u8, u8, Data) {
     let extra: Extra = Extra { c: a };
     let data: Data = Data { a: a, b: b, c: extra };
     if (a == b) {
