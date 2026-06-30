@@ -20,7 +20,7 @@ program test.aleo {
     }
 }
 
-final fn set_expected_(addr: address, checksum: [u8; 32]) {
+export final fn set_expected_(addr: address, checksum: [u8; 32]) {
     assert_eq(addr, admin.get(true));
     expected.set(true, checksum);
 }

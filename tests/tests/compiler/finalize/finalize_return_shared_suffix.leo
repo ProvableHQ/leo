@@ -17,7 +17,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn capped(receiver: address, amount: u64) -> u64 {
+export final fn capped(receiver: address, amount: u64) -> u64 {
     let current: u64 = Mapping::get_or_use(account, receiver, 0u64);
     if current + amount > 1000u64 {
         return 1000u64;

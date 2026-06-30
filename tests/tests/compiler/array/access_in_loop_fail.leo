@@ -1,4 +1,4 @@
-const N: u32 = 2u32;
+export const N: u32 = 2u32;
 
 program b28676.aleo {
     fn main() -> u32 {

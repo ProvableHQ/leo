@@ -1,5 +1,5 @@
 // Interface-based dynamic mapping access when the interface declares multiple mappings.
-interface DeFi {
+export interface DeFi {
     mapping balances: address => u64;
     mapping stakes: address => u64;
 }
@@ -13,7 +13,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_check(target: field, key: address) {
+export final fn finalize_check(target: field, key: address) {
     let bal: u64 = DeFi@(target)::balances.get_or_use(key, 0u64);
     let stake: u64 = DeFi@(target)::stakes.get_or_use(key, 0u64);
     assert(bal + stake >= 0u64);

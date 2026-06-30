@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 */
 
-struct Message {
+export struct Message {
     data: u64,
     nonce: u32,
 }
@@ -31,7 +31,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize(
+export final fn finalize(
     sig: [u8; 65],
     addr: [u8; 33],
     addr_eth: [u8; 20],

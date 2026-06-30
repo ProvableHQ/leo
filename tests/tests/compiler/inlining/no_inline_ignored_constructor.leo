@@ -1,5 +1,5 @@
 @no_inline
-fn helper(x: u8) -> u8 {
+export fn helper(x: u8) -> u8 {
     return x + 1u8;
 }
 

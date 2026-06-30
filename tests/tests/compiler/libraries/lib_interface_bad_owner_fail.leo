@@ -3,7 +3,7 @@
 
 // --- library: bad_owner_lib --- //
 
-interface HasToken {
+export interface HasToken {
     record Token {
         owner: address,
         ..

@@ -8,12 +8,12 @@ input = ["3u32", "4u32"]
 // --- library: utils_lib --- //
 
 // --- Next Module: transform.leo --- //
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x + x;
 }
 
 // --- Next Module: combine.leo --- //
-fn sum(a: u32, b: u32) -> u32 {
+export fn sum(a: u32, b: u32) -> u32 {
     return a + b;
 }
 

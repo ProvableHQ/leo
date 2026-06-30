@@ -3,21 +3,21 @@
 
 // --- library: libA --- //
 
-const X: u32 = 10u32;
-const Y: u32 = 20u32;
+export const X: u32 = 10u32;
+export const Y: u32 = 20u32;
 
 // --- Next Program --- //
 
 // --- library: libB --- //
 
-const X: u32 = 30u32;
-const Y: u32 = 40u32;
+export const X: u32 = 30u32;
+export const Y: u32 = 40u32;
 
 // --- Next Program --- //
 
 // Program-level consts with the same names.
-const X: u32 = 50u32;
-const Y: u32 = 60u32;
+export const X: u32 = 50u32;
+export const Y: u32 = 60u32;
 
 program consts.aleo {
     fn foo() -> u32 {
@@ -31,5 +31,5 @@ program consts.aleo {
 }
 
 // --- Next Module: mod1.leo --- //
-const X: u32 = 70u32;
-const Y: u32 = 80u32;
+export const X: u32 = 70u32;
+export const Y: u32 = 80u32;

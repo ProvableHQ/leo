@@ -1,4 +1,4 @@
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     x: u32,
 }
 
@@ -19,6 +19,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn foo::[N: u32]() -> u32 {
+export fn foo::[N: u32]() -> u32 {
     return N;
 }

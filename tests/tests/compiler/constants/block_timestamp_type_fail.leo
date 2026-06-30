@@ -1,4 +1,4 @@
-final fn bar() {
+export final fn bar() {
     let x: u32 = block.timestamp;
 }
 

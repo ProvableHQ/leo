@@ -2,11 +2,11 @@
 
 // --- library: utils --- //
 
-interface Measurable {
+export interface Measurable {
     fn size() -> u32;
 }
 
-fn compute(x: u32) -> u32 {
+export fn compute(x: u32) -> u32 {
     return x + 1u32;
 }
 

@@ -10,6 +10,7 @@
         [
           "UNIT",
           {
+            "is_exported": true,
             "place": {
               "name": "UNIT",
               "id": 84210
@@ -37,6 +38,7 @@
         [
           "increment",
           {
+            "is_exported": true,
             "annotations": [],
             "variant": "Fn",
             "identifier": {
@@ -122,6 +124,7 @@
     [
       "scale",
       {
+        "is_exported": true,
         "annotations": [],
         "variant": "Fn",
         "identifier": {

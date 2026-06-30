@@ -1,8 +1,8 @@
-interface Base {
+export interface Base {
     fn get_value() -> u64;
 }
 
-interface Extended: Base {
+export interface Extended: Base {
     fn double_val(x: u64) -> u64;
 }
 

@@ -2,7 +2,7 @@
 // The interface requires split() to return (Token, Token), but the program returns
 // (Token, u64). The second tuple element differs, so signature_mismatch must fire.
 
-interface ISplit {
+export interface ISplit {
     record Token {
         owner: address,
         ..

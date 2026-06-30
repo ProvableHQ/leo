@@ -5,42 +5,42 @@ program labels.aleo {
     constructor() {}
 }
 
-struct Foo0 {
+export struct Foo0 {
     x: u32,
     x: u32,
 }
 
-struct Foo1 {
+export struct Foo1 {
     x: u32,
     x: u32,
 }
 
-struct Foo2 {
+export struct Foo2 {
     x: u32,
     x: u32,
 }
 
-struct Foo3 {
+export struct Foo3 {
     x: u32,
     x: u32,
 }
 
-struct Foo4 {
+export struct Foo4 {
     x: u32,
     x: u32,
 }
 
-struct Foo5 {
+export struct Foo5 {
     x: u32,
     x: u32,
 }
 
-struct Foo6 {
+export struct Foo6 {
     x: u32,
     x: u32,
 }
 
-struct Foo7 {
+export struct Foo7 {
     x: u32,
     x: u32,
 }

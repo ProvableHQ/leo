@@ -4,11 +4,11 @@
 // --- library: math_lib --- //
 
 // --- Next Module: ops.leo --- //
-fn scale::[N: u32](x: u32) -> u32 {
+export fn scale::[N: u32](x: u32) -> u32 {
     return x * N;
 }
 
-fn double_scale::[N: u32](x: u32) -> u32 {
+export fn double_scale::[N: u32](x: u32) -> u32 {
     return scale::[N](x) + scale::[N](x);
 }
 

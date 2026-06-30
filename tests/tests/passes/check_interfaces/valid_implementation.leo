@@ -1,6 +1,6 @@
 // Test: Program correctly implements an interface
 
-interface Counter {
+export interface Counter {
     fn increment(amount: u64) -> u64;
 }
 

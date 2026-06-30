@@ -10,7 +10,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -29,7 +29,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [C] Check: read storage value
     let old_val: u32 = counter.unwrap_or(0u32);
     // [I] Interaction: run external future

@@ -9,7 +9,7 @@
 
 // --- library: math_lib --- //
 
-fn double_default(v: u32) -> u32 {
+export fn double_default(v: u32) -> u32 {
     let maybe: u32? = none;
     return maybe.unwrap_or(v) * 2u32;
 }

@@ -1,4 +1,4 @@
-interface Base {
+export interface Base {
     fn get() -> u64;
 }
 
@@ -12,7 +12,7 @@ program lib.aleo {
 // --- Next Program --- //
 import lib.aleo;
 
-interface Extended: lib.aleo::Base {
+export interface Extended: lib.aleo::Base {
     fn set(v: u64) -> u64;
 }
 

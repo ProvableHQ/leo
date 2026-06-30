@@ -22,10 +22,10 @@ program test.aleo {
     constructor() {}
 }
 
-final fn baz_finalize() {}
+export final fn baz_finalize() {}
 
 // The maximum number of outputs for a `function` is 16.
-fn foo(x: u8) -> (
+export fn foo(x: u8) -> (
     u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8,
 ) {
     return (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);

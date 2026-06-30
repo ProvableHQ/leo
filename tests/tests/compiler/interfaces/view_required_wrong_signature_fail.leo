@@ -2,7 +2,7 @@
 // program implements `view fn balance_of(addr: address) -> u64`. The output
 // type mismatch must be caught by the same signature check that already
 // covers regular `fn`s.
-interface IToken {
+export interface IToken {
     view fn balance_of(account: address) -> u128;
 }
 

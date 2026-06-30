@@ -68,7 +68,7 @@ input = ["{is_some:false, val:[{is_some:false, val:0u8}, {is_some:false, val:0u8
 // This test should pass once that restriction is removed
 
 // === Struct Optionals ===
-struct Foo {
+export struct Foo {
     x: u32?,
 }
 

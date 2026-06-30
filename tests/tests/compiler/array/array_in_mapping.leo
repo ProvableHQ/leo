@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn fin_foo(caller: address, a: [bool; 8]) {
+export final fn fin_foo(caller: address, a: [bool; 8]) {
     data.set(caller, a);
 }

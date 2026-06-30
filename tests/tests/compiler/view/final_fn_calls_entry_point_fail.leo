@@ -13,7 +13,7 @@ program data.aleo {
 // --- Next Program --- //
 import data.aleo;
 
-final fn bad_helper(x: u32) {
+export final fn bad_helper(x: u32) {
     let y: u32 = data.aleo::read(x);
     assert(y == x + 1u32);
 }

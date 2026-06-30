@@ -9,7 +9,7 @@ input = ["10u32", "3u32"]
 
 // --- library: math_lib --- //
 
-fn min(a: u32, b: u32) -> u32 {
+export fn min(a: u32, b: u32) -> u32 {
     return a < b ? a : b;
 }
 

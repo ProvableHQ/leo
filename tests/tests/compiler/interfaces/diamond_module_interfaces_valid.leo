@@ -29,7 +29,7 @@ program test.aleo: imod1::ILeft + imod2::IRight {
 
 // --- Next Module: imod1.leo --- //
 
-interface ILeft {
+export interface ILeft {
     record Token {
         owner: address,
         ..
@@ -39,7 +39,7 @@ interface ILeft {
 
 // --- Next Module: imod2.leo --- //
 
-interface IRight {
+export interface IRight {
     record Token {
         owner: address,
         ..

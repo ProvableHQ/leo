@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `Combined` has a conflicting definition for `counter` inherited from `Counter1`
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ interface Combined: Counter1 + Counter2 {
+  9 │ ╭─▶ export interface Combined: Counter1 + Counter2 {
  10 │ ├─▶ }
     │ │       
     │ ╰─────── here
@@ -11,7 +11,7 @@
 [ECHI03712001] Error: interface `Combined` has a conflicting definition for `counter` inherited from `Counter1`
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ interface Combined: Counter1 + Counter2 {
+  9 │ ╭─▶ export interface Combined: Counter1 + Counter2 {
  10 │ ├─▶ }
     │ │       
     │ ╰─────── here

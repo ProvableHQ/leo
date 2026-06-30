@@ -1,1 +1,1 @@
-const X: u32 = 1u32;
+export const X: u32 = 1u32;

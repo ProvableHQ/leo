@@ -10,9 +10,9 @@
     │     Help: Add a `record Token` definition matching the shape declared by `test.aleo/IToken`.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ test:6:19 ]
+    ╭─[ test:6:26 ]
     │
-  6 │ ╭─▶ interface IToken {
+  6 │ ╭─▶ export interface IToken {
     ┆ ┆   
  10 │ ├─▶     }
     │ │           

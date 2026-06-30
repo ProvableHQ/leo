@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 */
 
-struct Data {
+export struct Data {
     x: u32,
     y: u32,
 }

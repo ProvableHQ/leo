@@ -3,7 +3,7 @@
 // checker never visited interface function prototypes, leaving array-length literals
 // without type table entries.
 
-interface Hasher {
+export interface Hasher {
     fn hash(input: [u8; 32]) -> [u8; 32];
 }
 

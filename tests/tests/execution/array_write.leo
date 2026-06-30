@@ -20,7 +20,7 @@ function = "some_assignments"
 input = ["true", "true"]
 */
 
-struct S {
+export struct S {
     x: u32,
     y: [u32; 3],
 }

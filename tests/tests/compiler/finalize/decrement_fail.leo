@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_dec(addr: address, amount: u128) {
+export final fn finalize_dec(addr: address, amount: u128) {
     decrement(amounts, addr, amount);
 }

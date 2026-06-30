@@ -1,4 +1,4 @@
-struct TestStruct {
+export struct TestStruct {
     data0: u128,
     data1: u128,
 }
@@ -13,7 +13,7 @@ program parent.aleo {
     constructor() {}
 }
 
-final fn finalize_init(test_struct: TestStruct) {
+export final fn finalize_init(test_struct: TestStruct) {
     assert_eq(0u32, 0u32);
 }
 

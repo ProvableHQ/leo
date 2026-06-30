@@ -1,7 +1,7 @@
 // This example demonstrates the definition and initialization of a "struct" in Leo.
 
 // The "Message" struct.
-struct Message {
+export struct Message {
     // A struct member named "first" with type "field".
     first: field,
     // A struct member named "second" with type "field".

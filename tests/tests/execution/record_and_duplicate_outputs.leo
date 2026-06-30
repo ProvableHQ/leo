@@ -40,7 +40,7 @@ program test0.aleo {
 // --- Next Program --- //
 import test0.aleo;
 
-struct S {
+export struct S {
     x: field,
     y: field,
 }

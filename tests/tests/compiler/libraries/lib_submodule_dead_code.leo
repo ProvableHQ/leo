@@ -4,11 +4,11 @@
 // --- library: util_lib --- //
 
 // --- Next Module: math.leo --- //
-fn used(x: u32) -> u32 {
+export fn used(x: u32) -> u32 {
     return x + x;
 }
 
-fn unused(x: u32) -> u32 {
+export fn unused(x: u32) -> u32 {
     return x * x * x;
 }
 

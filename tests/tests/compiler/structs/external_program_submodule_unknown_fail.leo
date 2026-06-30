@@ -12,7 +12,7 @@ program child.aleo {
 
 // --- Next Module: types.leo --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }

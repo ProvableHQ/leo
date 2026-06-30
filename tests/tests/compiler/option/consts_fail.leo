@@ -2,17 +2,17 @@
 
 // === CONSTS ===
 
-const A: u8? = 10u8;
-const B: [u8?; 3] = [1u8, 2u8, 3u8];
-const C: (u8, u8?) = (42u8, 99u8);
-const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
+export const A: u8? = 10u8;
+export const B: [u8?; 3] = [1u8, 2u8, 3u8];
+export const C: (u8, u8?) = (42u8, 99u8);
+export const D: [[u8?; 2]; 2] = [[4u8, 5u8], [6u8, 7u8]];
 
-struct MyStruct {
+export struct MyStruct {
     x: u8?,
 }
 
-const E: MyStruct = MyStruct { x: 88u8 };
-const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
+export const E: MyStruct = MyStruct { x: 88u8 };
+export const F: [MyStruct; 2] = [MyStruct { x: 11u8 }, MyStruct { x: 22u8 }];
 
 program const_optionals.aleo {
     // === TRANSITIONS ===

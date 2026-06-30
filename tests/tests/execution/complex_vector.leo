@@ -26,12 +26,12 @@ private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 // Struct definitions
 // ────────────────────────────────────────────────────────────────
 //
-struct Point {
+export struct Point {
     x: field,
     y: field,
 }
 
-struct Container {
+export struct Container {
     id: u32,
     points: [Point; 2],
 }

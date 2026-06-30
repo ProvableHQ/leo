@@ -7,7 +7,7 @@
 // concrete type's program must equal self.current_program (test.aleo). Since
 // lib1.aleo != test.aleo, both fn signatures are rejected.
 
-interface ILeft {
+export interface ILeft {
     record Token {
         owner: address,
         ..
@@ -24,7 +24,7 @@ program lib1.aleo {
 
 // --- Next Program --- //
 
-interface IRight {
+export interface IRight {
     record Token {
         owner: address,
         ..

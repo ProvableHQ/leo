@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_matches(addr: address) {
+export final fn finalize_matches(addr: address) {
     assert_eq(addr, self.caller);
 }

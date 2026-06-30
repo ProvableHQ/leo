@@ -3,6 +3,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(x: bool) {
+export fn main(x: bool) {
     let a: u8 = 256u8;
 }

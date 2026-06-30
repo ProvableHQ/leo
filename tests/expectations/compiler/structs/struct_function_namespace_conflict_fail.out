@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `Foo` is defined multiple times
-    ╭─[ compiler-test:10:4 ]
+    ╭─[ compiler-test:10:11 ]
     │
- 10 │ fn Foo() {}
+ 10 │ export fn Foo() {}
     │
-    ├─[ compiler-test:10:4 ]
+    ├─[ compiler-test:10:11 ]
     │
-  6 │ struct Foo {
-    │        ─┬─  
-    │         ╰─── previous definition of `Foo` here
+  6 │ export struct Foo {
+    │               ─┬─  
+    │                ╰─── previous definition of `Foo` here
     │ 
- 10 │ fn Foo() {}
-    │    ─┬─  
-    │     ╰─── `Foo` redefined here
+ 10 │ export fn Foo() {}
+    │           ─┬─  
+    │            ╰─── `Foo` redefined here
     │ 
     │ Help: Rename or remove all but one of the `Foo` definitions so the name is unique within its scope.
 ────╯

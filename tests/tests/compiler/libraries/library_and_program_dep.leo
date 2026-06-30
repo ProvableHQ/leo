@@ -4,8 +4,8 @@
 
 // --- library: constants --- //
 
-const MULTIPLIER: u32 = 3u32;
-const ADDEND: u32 = 7u32;
+export const MULTIPLIER: u32 = 3u32;
+export const ADDEND: u32 = 7u32;
 
 // --- Next Program --- //
 

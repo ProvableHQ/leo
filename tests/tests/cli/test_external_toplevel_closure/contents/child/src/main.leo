@@ -11,6 +11,6 @@ program child.aleo {
 // Aleo `call` supports cross-program closure targets, but the inliner's
 // conditional heuristics (single call site, no args) still fire here, so this
 // ends up inlined at the call site.
-fn foo() -> u32 {
+export fn foo() -> u32 {
     return 42u32;
 }

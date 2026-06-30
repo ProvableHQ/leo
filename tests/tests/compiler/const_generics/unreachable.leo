@@ -11,17 +11,17 @@ program const_generics.aleo {
     constructor() {}
 }
 
-final fn foo() {}
+export final fn foo() {}
 
-fn bar(x: field) -> field {
+export fn bar(x: field) -> field {
     return x;
 }
 
 // Ensure we don't error out on functions that are not accessible from program entry points
-fn abc::[C: field]() -> field {
+export fn abc::[C: field]() -> field {
     return def::[C]();
 }
 
-fn def::[C: field]() -> field {
+export fn def::[C: field]() -> field {
     return C;
 }

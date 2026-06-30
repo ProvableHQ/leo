@@ -1,7 +1,7 @@
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ imod1.leo:2:18 ]
+   ╭─[ imod1.leo:2:25 ]
    │
- 2 │ ╭─▶ interface ILeft {
+ 2 │ ╭─▶ export interface ILeft {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -10,9 +10,9 @@
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ imod2.leo:2:19 ]
+   ╭─[ imod2.leo:2:26 ]
    │
- 2 │ ╭─▶ interface IRight {
+ 2 │ ╭─▶ export interface IRight {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -21,9 +21,9 @@
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ imod1.leo:2:18 ]
+   ╭─[ imod1.leo:2:25 ]
    │
- 2 │ ╭─▶ interface ILeft {
+ 2 │ ╭─▶ export interface ILeft {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -32,9 +32,9 @@
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ imod2.leo:2:19 ]
+   ╭─[ imod2.leo:2:26 ]
    │
- 2 │ ╭─▶ interface IRight {
+ 2 │ ╭─▶ export interface IRight {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           

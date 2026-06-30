@@ -18,6 +18,6 @@ program parent.aleo {
     constructor() {}
 }
 
-fn f(x: u8) {
+export fn f(x: u8) {
     assert_eq(x, x);
 }

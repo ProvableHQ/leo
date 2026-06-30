@@ -4,7 +4,7 @@ library opt_lib {
         val: u32,
     }
 module ops {
-    fn maybe(x: u32) -> u32? {
+    export fn maybe(x: u32) -> u32? {
         return u32? { is_some: true, val: x };
     }
 }

@@ -1,21 +1,21 @@
 [ETYC0372163] Error: constants cannot have an optional type or a type that contains an optional
     ╭─[ compiler-test:19:1 ]
     │
- 19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+ 19 │ export const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
     │ 
     │ Help: Provide a concrete value at the declaration site, or move the optionality to a runtime variable.
 ────╯
 [ETYC0372117] Error: expected type `u8?`, but type `i8` was found
-    ╭─[ compiler-test:19:41 ]
+    ╭─[ compiler-test:19:48 ]
     │
- 19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+ 19 │ export const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
     │ 
     │ Help: Change the expression to produce type `u8?`.
 ────╯
 [ETYC0372117] Error: expected type `u8?`, but type `i8` was found
-    ╭─[ compiler-test:19:41 ]
+    ╭─[ compiler-test:19:48 ]
     │
- 19 │ const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
+ 19 │ export const BAD_CONST_ARRAY: [u8?; 2] = [1u8, 2i8]; // ERROR
     │ 
     │ Help: Change the expression to produce type `u8?`.
 ────╯

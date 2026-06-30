@@ -3,7 +3,7 @@
 // parameter must compile successfully — verifying the fix covers both
 // Deserialize variants.
 
-const N: u32 = 2u32;
+export const N: u32 = 2u32;
 
 program test.aleo {
     fn main(bits: [bool; 64]) -> [u32; 2] {

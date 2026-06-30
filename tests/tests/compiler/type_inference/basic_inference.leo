@@ -1,4 +1,4 @@
-struct S {
+export struct S {
     x: u32,
     y: u32,
 }
@@ -26,6 +26,6 @@ program foo.aleo {
     constructor() {}
 }
 
-fn foo(x: u32) -> u32 {
+export fn foo(x: u32) -> u32 {
     return x * x;
 }

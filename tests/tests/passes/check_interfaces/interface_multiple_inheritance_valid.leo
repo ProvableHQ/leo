@@ -1,14 +1,14 @@
 // Test: Interface extending multiple interfaces
 
-interface A {
+export interface A {
     fn foo() -> u64;
 }
 
-interface B {
+export interface B {
     fn bar() -> u64;
 }
 
-interface C: A + B {
+export interface C: A + B {
     fn baz() -> u64;
 }
 

@@ -1,5 +1,5 @@
 // ANCHOR: file
-interface Logger {
+export interface Logger {
     storage counter: u64;
     storage entries: [u64];
 }

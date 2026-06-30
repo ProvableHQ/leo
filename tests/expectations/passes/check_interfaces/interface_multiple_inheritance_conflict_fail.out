@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `C` has a conflicting definition for `process` inherited from `A`
     ╭─[ test:11:1 ]
     │
- 11 │ ╭─▶ interface C: A + B {
+ 11 │ ╭─▶ export interface C: A + B {
  12 │ ├─▶ }
     │ │       
     │ ╰─────── here

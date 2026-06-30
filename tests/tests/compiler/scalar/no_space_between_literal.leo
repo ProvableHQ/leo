@@ -3,6 +3,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(x: bool) {
+export fn main(x: bool) {
     let f = 1 scalar;
 }

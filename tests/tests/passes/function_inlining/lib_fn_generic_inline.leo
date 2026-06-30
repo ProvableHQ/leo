@@ -2,7 +2,7 @@
 
 // --- library: math_lib --- //
 
-fn scale::[N: u32](x: u32) -> u32 {
+export fn scale::[N: u32](x: u32) -> u32 {
     return x * N;
 }
 

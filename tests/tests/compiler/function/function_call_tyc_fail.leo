@@ -1,9 +1,9 @@
-fn f1(a: u8) -> u8 {
+export fn f1(a: u8) -> u8 {
     let b: u8 = a + 1u8;
     return b;
 }
 
-fn f3(u2: u8, u3: i16) -> u8 {
+export fn f3(u2: u8, u3: i16) -> u8 {
     return 0u8;
 }
 

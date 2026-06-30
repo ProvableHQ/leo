@@ -7,4 +7,4 @@ program test.aleo {
     constructor() {}
 }
 
-final fn bar() {}
+export final fn bar() {}

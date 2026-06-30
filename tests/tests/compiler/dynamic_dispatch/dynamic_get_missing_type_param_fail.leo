@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_check(prog: field, net: field, m: field, key: address) {
+export final fn finalize_check(prog: field, net: field, m: field, key: address) {
     let val = _dynamic_get(prog, net, m, key);
     Mapping::set(result, key, val);
 }

@@ -1,5 +1,5 @@
 library math_lib {
-    fn add(a$$0: u32, b$$1: u32) -> u32 {
+    export fn add(a$$0: u32, b$$1: u32) -> u32 {
         let $var$2 = a$$0 + b$$1;
         {
         }

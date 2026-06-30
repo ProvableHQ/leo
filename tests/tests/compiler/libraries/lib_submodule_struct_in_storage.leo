@@ -9,7 +9,7 @@
 // --- library: geo_lib --- //
 
 // --- Next Module: shapes.leo --- //
-struct Rect {
+export struct Rect {
     width: u32,
     height: u32,
 }

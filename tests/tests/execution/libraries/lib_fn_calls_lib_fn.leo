@@ -7,11 +7,11 @@ input = ["5u32"]
 
 // --- library: math_lib --- //
 
-fn double(a: u32) -> u32 {
+export fn double(a: u32) -> u32 {
     return a + a;
 }
 
-fn quadruple(a: u32) -> u32 {
+export fn quadruple(a: u32) -> u32 {
     return double(a) + double(a);
 }
 

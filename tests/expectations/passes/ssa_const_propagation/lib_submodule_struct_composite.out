@@ -1,6 +1,6 @@
 library shape_lib {
 module shapes {
-    struct Pair {
+    export struct Pair {
         a: u32,
         b: u32,
     }

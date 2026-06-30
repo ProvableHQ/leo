@@ -1,4 +1,4 @@
-fn bax(baq: u8) -> (u8, u8) {
+export fn bax(baq: u8) -> (u8, u8) {
     return (baq + baq, baq * baq);
 }
 

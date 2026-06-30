@@ -19,20 +19,20 @@ program child.aleo {
 
 // --- Next Module: shapes.leo --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
 
 // Segment depends on Point — struct field typed as another struct in same submodule.
-struct Segment {
+export struct Segment {
     start: Point,
     end: Point,
 }
 
 // --- Next Module: transforms.leo --- //
 
-struct Scaled {
+export struct Scaled {
     origin: u32,
     factor: u32,
 }

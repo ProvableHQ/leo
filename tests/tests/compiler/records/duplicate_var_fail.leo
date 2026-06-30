@@ -26,6 +26,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(zz: bool) -> bool {
+export fn main(zz: bool) -> bool {
     return true;
 }

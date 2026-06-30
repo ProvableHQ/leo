@@ -13,11 +13,11 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
+export final fn finalize_mint_public(receiver: address, constant amount: u64) -> constant u64 {
     Mapping::set(account, receiver, amount);
 }
 
-final fn finalize_mint_public2(receiver: address, amount: u64) -> u64 {
+export final fn finalize_mint_public2(receiver: address, amount: u64) -> u64 {
     Mapping::set(account, receiver, amount);
     return amount + amount;
 }

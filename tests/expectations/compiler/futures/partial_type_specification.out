@@ -19,7 +19,7 @@
 [WSAZ0374000] Warning: not all paths through the function run every `Final` (2/4 paths leave at least one `Final` un-run)
     ╭─[ compiler-test:20:1 ]
     │
- 20 │ ╭─▶ final fn finalize_main(f: Final, f2: Final, a: u32) {
+ 20 │ ╭─▶ export final fn finalize_main(f: Final, f2: Final, a: u32) {
     ┆ ┆   
  31 │ ├─▶ }
     │ │       

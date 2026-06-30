@@ -4,13 +4,13 @@
 
 // --- Next Module: mod_a.leo --- //
 
-interface A : cyclic::mod_b::B {
+export interface A : cyclic::mod_b::B {
     fn a_fn() -> u32;
 }
 
 // --- Next Module: mod_b.leo --- //
 
-interface B : cyclic::mod_a::A {
+export interface B : cyclic::mod_a::A {
     fn b_fn() -> u32;
 }
 

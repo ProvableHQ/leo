@@ -1,7 +1,7 @@
 [ETYC0372058] Error: cyclic dependency between composites: `test.aleo/Bar` --> `test.aleo/Baz` --> `test.aleo/Bar`
-   ╭─[ compiler-test:1:8 ]
+   ╭─[ compiler-test:1:15 ]
    │
- 1 │ struct Bar {
+ 1 │ export struct Bar {
    │ 
    │ Help: Break the cycle by removing one of the references. Composite types cannot contain themselves transitively.
 ───╯
