@@ -1,0 +1,35 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping data: u32 => u8;
+    mapping out: bool => u8;
+    fn reuse_get(key$$0: u32) -> Final<Fn()> {
+        let $var$1 = async {
+            let a = _mapping_get(test.aleo::data, key);
+            let b = a;
+            _mapping_set(test.aleo::out, false, a + a);
+        };
+        return $var$1;
+    }
+    fn keep_get_after_set(key$$2: u32) -> Final<Fn()> {
+        let $var$3 = async {
+            let a = _mapping_get(test.aleo::data, key);
+            _mapping_set(test.aleo::data, key, 1u8);
+            let b = _mapping_get(test.aleo::data, key);
+            _mapping_set(test.aleo::out, false, a + b);
+        };
+        return $var$3;
+    }
+    fn keep_get_after_remove(key$$4: u32) -> Final<Fn()> {
+        let $var$5 = async {
+            let a = _mapping_get(test.aleo::data, key);
+            _mapping_remove(test.aleo::data, key);
+            let b = _mapping_get(test.aleo::data, key);
+            _mapping_set(test.aleo::out, false, a + b);
+        };
+        return $var$5;
+    }
+}
+

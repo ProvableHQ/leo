@@ -16,15 +16,21 @@
 
 //! Forward repeated local finalize storage reads until a conservative effect boundary.
 //!
+//! This pass assumes the AST has already been storage-lowered, SSA-formed,
+//! flattened, and SSA-formed again, matching its compiler pipeline placement
+//! after common subexpression elimination and before dead code elimination.
+//! Assignments and iterations should not appear at this phase.
+//!
 //! This pass only handles lowered static mapping intrinsics. Dynamic storage
 //! reads carry target program and network operands and are left to a separate
 //! optimization so their invalidation model can be reviewed independently.
 //!
 //! Read facts are always cleared at branch joins. Aliases created inside a
 //! branch are only exposed to the matching arm of same-condition SSA join
-//! ternaries emitted immediately after the branch, so branch-local definitions
-//! are not treated as globally available after the join. Pending branch aliases
-//! are discarded as soon as a non-join statement is encountered.
+//! ternaries in the contiguous join run emitted immediately after the branch,
+//! so branch-local definitions are not treated as globally available after the
+//! join. Pending branch aliases are discarded as soon as a non-join statement
+//! is encountered.
 //!
 //! Duplicate storage reads are rewritten to explicit local copies instead of
 //! removed in this pass. This keeps the transformed AST well-formed even when a

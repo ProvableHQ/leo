@@ -1,0 +1,23 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+        return;
+    }
+    mapping data: u32 => u8;
+    mapping out: bool => u8;
+    fn keep_after_call(key$$1: u32) -> Final<Fn()> {
+        let $var$2 = async {
+            let a = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            let touched = test.aleo::identity(a);
+            let b = _mapping_get_or_use(test.aleo::data, key, 0u8);
+            _mapping_set(test.aleo::out, false, touched + b);
+        };
+        return $var$2;
+    }
+}
+    fn identity(x$$0: u8) -> u8 {
+        {
+        }
+        return x$$0;
+    }
+

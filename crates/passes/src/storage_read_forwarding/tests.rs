@@ -89,6 +89,23 @@ fn dynamic_storage_read(state: &mut CompilerState) -> Expression {
     .into()
 }
 
+fn final_run(state: &mut CompilerState) -> Expression {
+    IntrinsicExpression {
+        name: sym::_final_run,
+        type_parameters: Vec::new(),
+        input_types: Vec::new(),
+        return_types: Vec::new(),
+        arguments: vec![local(state, "future")],
+        span: Default::default(),
+        id: state.node_builder.next_id(),
+    }
+    .into()
+}
+
+fn expression_statement(state: &mut CompilerState, expression: Expression) -> Statement {
+    ExpressionStatement { expression, span: Default::default(), id: state.node_builder.next_id() }.into()
+}
+
 fn output_for(state: &mut CompilerState, block: Block) -> String {
     let mut visitor = StorageReadForwardingVisitor {
         state,
@@ -385,6 +402,36 @@ fn dynamic_storage_read_clears_static_read_facts() {
             output.contains("let external = External@(target)::external_value"),
             "expected the dynamic storage read to remain in the output:\n{output}"
         );
+    });
+}
+
+#[test]
+fn final_run_clears_static_read_facts() {
+    create_session_if_not_set_then(|_| {
+        let mut state = CompilerState { node_builder: Rc::new(NodeBuilder::default()), ..Default::default() };
+
+        let first_read = storage_read(&mut state);
+        let run = final_run(&mut state);
+        let run_statement = expression_statement(&mut state, run);
+        let second_read = storage_read(&mut state);
+        let block = Block {
+            statements: vec![
+                definition(&mut state, "x1", first_read),
+                run_statement,
+                definition(&mut state, "x2", second_read),
+            ],
+            span: Default::default(),
+            id: state.node_builder.next_id(),
+        };
+
+        let output = output_for(&mut state, block);
+
+        assert_eq!(
+            output.matches("_mapping_get_or_use").count(),
+            2,
+            "`Final::run` must prevent forwarding across the boundary:\n{output}"
+        );
+        assert!(output.contains("_final_run(future)"), "expected the final run to remain in the output:\n{output}");
     });
 }
 
