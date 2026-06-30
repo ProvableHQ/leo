@@ -1536,6 +1536,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
 
+        if !self.check_composite_accessible(composite_location, &composite, input.path.span()) {
+            return Type::Err;
+        }
+
         // Check the number of const arguments against the number of the composite's const parameters
         if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(crate::errors::type_checker::incorrect_num_const_args(

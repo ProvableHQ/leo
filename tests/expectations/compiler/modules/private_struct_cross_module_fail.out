@@ -1,63 +1,14 @@
 [ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372017] Error: the type `test.aleo::util::Hidden` is not found in the current scope
    ╭─[ compiler-test:6:32 ]
    │
  6 │     fn make(x: u32, y: u32) -> util::Hidden {
    │ 
-   │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
-───╯
-[ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
    │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
 ───╯
 [ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372193] Error: struct `Hidden` is not accessible from this module
-   ╭─[ util.leo:2:8 ]
-   │
- 2 │ struct Hidden {
-   │ 
-   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
-───╯
-[ETYC0372005] Error: unknown struct or record `test.aleo::util::Hidden`
    ╭─[ compiler-test:7:16 ]
    │
  7 │         return util::Hidden { x, y };
    │ 
-   │ Help: Check `test.aleo::util::Hidden` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+   │ Help: Add `export` to the declaration of `Hidden` in its defining module to make it accessible from other modules.
 ───╯

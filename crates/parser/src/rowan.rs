@@ -2415,7 +2415,7 @@ impl<'a> ConversionContext<'a> {
 
         let block = self.require_block(node, span)?;
 
-        let is_exported = if is_in_program_block { None } else { Some(tokens(node).any(|t| t.kind() == KW_EXPORT)) };
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
 
         Ok(leo_ast::Function {
             is_exported,
@@ -2613,8 +2613,7 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.struct_member_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        let is_exported =
-            if is_record || is_in_program_block { None } else { Some(tokens(node).any(|t| t.kind() == KW_EXPORT)) };
+        let is_exported = if is_record || is_in_program_block { None } else { Some(has_export(node)) };
 
         Ok(leo_ast::Composite { is_exported, identifier, const_parameters, members, is_record, span, id })
     }
@@ -2651,7 +2650,7 @@ impl<'a> ConversionContext<'a> {
 
         let value = self.require_expression(node, "const value")?;
 
-        let is_exported = if is_in_program_block { None } else { Some(tokens(node).any(|t| t.kind() == KW_EXPORT)) };
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
 
         Ok(leo_ast::ConstDeclaration { is_exported, place, type_, value, span, id })
     }
@@ -2776,7 +2775,7 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
-        let is_exported = if is_in_program_block { None } else { Some(tokens(node).any(|t| t.kind() == KW_EXPORT)) };
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
 
         Ok(leo_ast::Interface {
             is_exported,
@@ -3179,6 +3178,11 @@ fn children(node: &SyntaxNode) -> impl Iterator<Item = SyntaxNode> + '_ {
 /// Get non-trivia tokens from a node.
 fn tokens(node: &SyntaxNode) -> impl Iterator<Item = SyntaxToken> + '_ {
     node.children_with_tokens().filter_map(|elem| elem.into_token()).filter(|t| !t.kind().is_trivia())
+}
+
+/// True when `node` carries a direct `export` keyword child.
+fn has_export(node: &SyntaxNode) -> bool {
+    tokens(node).any(|t| t.kind() == KW_EXPORT)
 }
 
 /// Find the first IDENT or keyword token after the DOT in a node.

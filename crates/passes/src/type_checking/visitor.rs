@@ -1874,9 +1874,17 @@ impl TypeCheckingVisitor<'_> {
             Type::String => {
                 self.emit_err(crate::errors::type_checker::strings_are_not_supported(span));
             }
-            // Check that named composite type has been defined.
-            Type::Composite(composite) if self.lookup_composite(composite.path.expect_global_location()).is_none() => {
-                self.emit_err(crate::errors::type_checker::undefined_type(composite.path.clone(), span));
+            // Check that named composite type has been defined and is accessible.
+            Type::Composite(composite) => {
+                let loc = composite.path.expect_global_location();
+                match self.lookup_composite(loc) {
+                    Some(comp) => {
+                        self.check_composite_accessible(loc, &comp, span);
+                    }
+                    None => {
+                        self.emit_err(crate::errors::type_checker::undefined_type(composite.path.clone(), span));
+                    }
+                }
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -1949,7 +1957,6 @@ impl TypeCheckingVisitor<'_> {
 
             Type::Address
             | Type::Boolean
-            | Type::Composite(_)
             | Type::Field
             | Type::Future(_)
             | Type::Group
@@ -2560,16 +2567,6 @@ impl TypeCheckingVisitor<'_> {
         let record_comp = self.state.symbol_table.lookup_record(current_program, loc);
         let comp = record_comp.or_else(|| self.state.symbol_table.lookup_struct(current_program, loc));
         if let Some(s) = comp {
-            // Enforce source-level `export` visibility on the resolved composite.
-            if !self.scope_state.is_accessible(loc, s.is_exported) {
-                let kind = if s.is_record { "record" } else { "struct" };
-                self.emit_err(crate::errors::type_checker::inaccessible_item(
-                    kind,
-                    s.identifier.name,
-                    s.identifier.span,
-                ));
-                return None;
-            }
             // Record the usage.
             // If it's a struct or internal record, mark it used.
             if !s.is_record || Some(loc.program) == self.scope_state.unit_name {
@@ -2577,6 +2574,17 @@ impl TypeCheckingVisitor<'_> {
             }
         }
         comp.cloned()
+    }
+
+    /// Emits `inaccessible_item` if `comp` is not visible from the current scope. `span` is the
+    /// user's reference site, not the declaration. Returns `true` when accessible.
+    pub fn check_composite_accessible(&mut self, loc: &Location, comp: &Composite, span: Span) -> bool {
+        if self.scope_state.is_accessible(loc, comp.is_exported) {
+            return true;
+        }
+        let kind = if comp.is_record { "record" } else { "struct" };
+        self.emit_err(crate::errors::type_checker::inaccessible_item(kind, comp.identifier.name, span));
+        false
     }
 
     /// Replaces interface record types with `Type::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.

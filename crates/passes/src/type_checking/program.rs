@@ -80,8 +80,10 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
         let unit_name = input.program_id.as_symbol();
 
-        // Set the current program name.
+        // Set the current program name. Reset the module path; program scopes are top-level
+        // and must not inherit any leftover nesting from a previously visited module.
         self.scope_state.unit_name = Some(unit_name);
+        self.scope_state.module_name.clear();
 
         // Reject inheriting from interfaces that aren't accessible from this program scope.
         // Conformance/cycle checks happen later in `check_interfaces`; this is the visibility
@@ -223,8 +225,10 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_library(&mut self, input: &Library) {
-        // Set the scope state.
+        // Set the scope state. Reset the module path; libraries are top-level and must not
+        // inherit any leftover nesting from a previously visited module.
         self.scope_state.unit_name = Some(input.name);
+        self.scope_state.module_name.clear();
 
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
