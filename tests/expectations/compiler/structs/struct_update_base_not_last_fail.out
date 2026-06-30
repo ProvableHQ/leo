@@ -1,0 +1,5 @@
+[EPAR0370047] Error: the base update `..` must be the last entry in a struct initializer
+   ╭─[ compiler-test:9:38 ]
+   │
+ 9 │         let p: Point = Point { ..base, x: 1u32 };
+───╯

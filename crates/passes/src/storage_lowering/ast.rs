@@ -750,6 +750,13 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             member.expression = Some(expr);
         }
 
+        // Reconstruct the struct update base, if any.
+        if let Some(base) = input.base.take() {
+            let (expr, statements2) = self.reconstruct_expression(*base, &());
+            statements.extend(statements2);
+            input.base = Some(Box::new(expr));
+        }
+
         (input.into(), statements)
     }
 

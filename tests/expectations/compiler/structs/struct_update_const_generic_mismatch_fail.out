@@ -1,0 +1,7 @@
+[ETYC0372117] Error: expected type `test.aleo::Buffer::[8u32]`, but type `test.aleo::Buffer::[4u32]` was found
+    ╭─[ compiler-test:10:66 ]
+    │
+ 10 │         let updated: Buffer::[8] = Buffer::[8] { len: new_len, ..base };
+    │ 
+    │ Help: Change the expression to produce type `test.aleo::Buffer::[8u32]`.
+────╯

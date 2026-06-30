@@ -228,6 +228,9 @@ pub trait AstVisitor {
                 self.visit_expression(expression, &Default::default());
             }
         }
+        if let Some(base) = &input.base {
+            self.visit_expression(base, &Default::default());
+        }
         Default::default()
     }
 

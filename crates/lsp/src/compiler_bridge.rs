@@ -1396,6 +1396,10 @@ impl<'a> AstVisitor for CompilerSemanticCollector<'a> {
                 self.visit_expression(expression, &());
             }
         }
+        // Visit the base so its symbols resolve for definition, hover, references, and rename.
+        if let Some(base) = &input.base {
+            self.visit_expression(base, &());
+        }
     }
 
     /// Visit a composite type path and any const-generic arguments.

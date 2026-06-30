@@ -494,9 +494,20 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
         input.const_arguments = const_arguments;
         input.members = members;
 
+        // Reconstruct the struct update base, if any.
+        let base_stmts = match input.base.take() {
+            Some(base) => {
+                let (expr, stmts) = self.reconstruct_expression(*base, &None);
+                input.base = Some(Box::new(expr));
+                stmts
+            }
+            None => Vec::new(),
+        };
+
         // Merge all side effect statements
         const_arg_stmts.append(&mut member_stmts);
-        let all_stmts = const_arg_stmts.into_iter().flatten().collect();
+        let mut all_stmts: Vec<_> = const_arg_stmts.into_iter().flatten().collect();
+        all_stmts.extend(base_stmts);
 
         (input.into(), all_stmts)
     }

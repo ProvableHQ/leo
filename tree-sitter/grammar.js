@@ -691,13 +691,27 @@ module.exports = grammar({
 
     struct_field_init_list: $ => seq(
       '{',
-      optional(commaSep1($.struct_field_init)),
+      optional(choice(
+        // A struct update base may stand alone: `Foo { ..base }`.
+        $.struct_base_update,
+        // Otherwise, explicit fields optionally followed by a trailing `..base`.
+        seq(
+          commaSep1($.struct_field_init),
+          optional($.struct_base_update),
+        ),
+      )),
       '}',
     ),
 
     struct_field_init: $ => seq(
       field('name', $.identifier),
       optional(seq(':', field('value', $._expression))),
+    ),
+
+    // A struct update base: `..expr` copies any field not listed explicitly from `expr`.
+    struct_base_update: $ => seq(
+      '..',
+      field('base', $._expression),
     ),
 
     const_arg_list: $ => choice(
