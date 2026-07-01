@@ -23,7 +23,7 @@ program my_token.aleo : Transfer + Pausable {
     }
 
     fn pause() -> (bool, Final) {
-        let caller: address = self.caller;
+        let caller: address = std::ctx::caller();
         return (true, final {
             Mapping::set(paused, caller, true);
         });

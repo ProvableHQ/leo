@@ -13,14 +13,14 @@
             "is_exported": true,
             "place": {
               "name": "UNIT",
-              "id": 84210
+              "id": 84289
             },
             "type_": {
               "Integer": "U32"
             },
             "value": {
               "Literal": {
-                "id": 84211,
+                "id": 84290,
                 "variant": {
                   "Integer": [
                     "U32",
@@ -29,7 +29,7 @@
                 }
               }
             },
-            "id": 84209
+            "id": 84288
           }
         ]
       ],
@@ -43,20 +43,20 @@
             "variant": "Fn",
             "identifier": {
               "name": "increment",
-              "id": 84213
+              "id": 84292
             },
             "const_parameters": [],
             "input": [
               {
                 "identifier": {
                   "name": "x",
-                  "id": 84215
+                  "id": 84294
                 },
                 "mode": "None",
                 "type_": {
                   "Integer": "U32"
                 },
-                "id": 84214
+                "id": 84293
               }
             ],
             "output": [
@@ -65,7 +65,7 @@
                 "type_": {
                   "Integer": "U32"
                 },
-                "id": 84216
+                "id": 84295
               }
             ],
             "output_type": {
@@ -83,10 +83,10 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "x",
-                              "id": 84221
+                              "id": 84300
                             },
                             "target": "Unresolved",
-                            "id": 84222
+                            "id": 84301
                           }
                         },
                         "right": {
@@ -95,23 +95,23 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "UNIT",
-                              "id": 84224
+                              "id": 84303
                             },
                             "target": "Unresolved",
-                            "id": 84225
+                            "id": 84304
                           }
                         },
                         "op": "Add",
-                        "id": 84220
+                        "id": 84299
                       }
                     },
-                    "id": 84219
+                    "id": 84298
                   }
                 }
               ],
-              "id": 84217
+              "id": 84296
             },
-            "id": 84212
+            "id": 84291
           }
         ]
       ],
@@ -129,31 +129,31 @@
         "variant": "Fn",
         "identifier": {
           "name": "scale",
-          "id": 84193
+          "id": 84272
         },
         "const_parameters": [],
         "input": [
           {
             "identifier": {
               "name": "x",
-              "id": 84195
+              "id": 84274
             },
             "mode": "None",
             "type_": {
               "Integer": "U32"
             },
-            "id": 84194
+            "id": 84273
           },
           {
             "identifier": {
               "name": "factor",
-              "id": 84197
+              "id": 84276
             },
             "mode": "None",
             "type_": {
               "Integer": "U32"
             },
-            "id": 84196
+            "id": 84275
           }
         ],
         "output": [
@@ -162,7 +162,7 @@
             "type_": {
               "Integer": "U32"
             },
-            "id": 84198
+            "id": 84277
           }
         ],
         "output_type": {
@@ -180,10 +180,10 @@
                         "qualifier": [],
                         "identifier": {
                           "name": "x",
-                          "id": 84203
+                          "id": 84282
                         },
                         "target": "Unresolved",
-                        "id": 84204
+                        "id": 84283
                       }
                     },
                     "right": {
@@ -192,23 +192,23 @@
                         "qualifier": [],
                         "identifier": {
                           "name": "factor",
-                          "id": 84206
+                          "id": 84285
                         },
                         "target": "Unresolved",
-                        "id": 84207
+                        "id": 84286
                       }
                     },
                     "op": "Mul",
-                    "id": 84202
+                    "id": 84281
                   }
                 },
-                "id": 84201
+                "id": 84280
               }
             }
           ],
-          "id": 84199
+          "id": 84278
         },
-        "id": 84192
+        "id": 84271
       }
     ]
   ],

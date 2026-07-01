@@ -24,7 +24,7 @@ program test_credits.aleo {
     fn send_credits(input: credits.aleo::credits, amount: u64) -> (credits.aleo::credits, Final) {
         let start: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
             input,
-            self.address,
+            std::ctx::addr(),
             amount,
         );
         let after: (u8, credits.aleo::credits) = (1u8, start.0);

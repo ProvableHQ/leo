@@ -3,9 +3,9 @@ struct Wrapper {
 }
 
 final fn use_special(caller_addr: address) {
-    let h: u32 = block.height;
-    let t: i64 = block.timestamp;
-    let n: u16 = network.id;
+    let h: u32 = std::ctx::block_height();
+    let t: i64 = std::ctx::block_timestamp();
+    let n: u16 = std::ctx::network_id();
 }
 
 final fn do_deposit(sender: address, amount: u64) {
@@ -31,8 +31,8 @@ program test.aleo {
     mapping balances: address => u64;
 
     fn deposit(public sender: address, public amount: u64) -> Final {
-        let caller: address = self.caller;
-        let signer: address = self.signer;
+        let caller: address = std::ctx::caller();
+        let signer: address = std::ctx::signer();
         return final { do_deposit(sender, amount); };
     }
 }

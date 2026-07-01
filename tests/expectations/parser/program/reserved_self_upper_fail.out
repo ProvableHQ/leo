@@ -1,0 +1,31 @@
+[EPAR0370005] Error: expected ';', found `::`
+   ╭─[ test:3:20 ]
+   │
+ 3 │         return Self::ctx::caller();
+   │ 
+   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
+───╯
+[EPAR0370047] Error: expected parameter name
+   ╭─[ test:5:20 ]
+   │
+ 5 │     fn binding_use(Self: u32) -> u32 {
+───╯
+[EPAR0370047] Error: expected struct name
+   ╭─[ test:8:12 ]
+   │
+ 8 │     struct Self {
+───╯
+[EPAR0370058] Error: `Self` is reserved for future use
+   ╭─[ test:3:16 ]
+   │
+ 3 │         return Self::ctx::caller();
+   │ 
+   │ Help: Rename this identifier. `Self` is reserved by the language for an upcoming feature.
+───╯
+[EPAR0370058] Error: `Self` is reserved for future use
+   ╭─[ test:6:16 ]
+   │
+ 6 │         return Self;
+   │ 
+   │ Help: Rename this identifier. `Self` is reserved by the language for an upcoming feature.
+───╯

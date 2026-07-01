@@ -2,12 +2,12 @@ program child.aleo {
     mapping count: address => field;
 
     fn foo() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_foo(caller); };
     }
 
     fn boo() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_boo(caller); };
     }
 

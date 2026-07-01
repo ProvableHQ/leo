@@ -1,0 +1,91 @@
+[EPAR0370056] Error: the `self.caller` syntax has been removed
+   ╭─[ test:3:16 ]
+   │
+ 3 │         return self.caller;
+   │ 
+   │ Help: Use `std::ctx::caller()` instead. Execution-context accessors now live in the `std::ctx` module.
+───╯
+[EPAR0370056] Error: the `self.signer` syntax has been removed
+   ╭─[ test:6:16 ]
+   │
+ 6 │         return self.signer;
+   │ 
+   │ Help: Use `std::ctx::signer()` instead. Execution-context accessors now live in the `std::ctx` module.
+───╯
+[EPAR0370056] Error: the `self.address` syntax has been removed
+   ╭─[ test:9:16 ]
+   │
+ 9 │         return self.address;
+   │ 
+   │ Help: Use `std::ctx::addr()` instead. Execution-context accessors now live in the `std::ctx` module.
+───╯
+[EPAR0370056] Error: the `self.id` syntax has been removed
+    ╭─[ test:12:16 ]
+    │
+ 12 │         return self.id;
+    │ 
+    │ Help: Use `std::ctx::id()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `self.checksum` syntax has been removed
+    ╭─[ test:15:16 ]
+    │
+ 15 │         return self.checksum;
+    │ 
+    │ Help: Use `std::ctx::checksum()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `self.edition` syntax has been removed
+    ╭─[ test:18:16 ]
+    │
+ 18 │         return self.edition;
+    │ 
+    │ Help: Use `std::ctx::edition()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `self.program_owner` syntax has been removed
+    ╭─[ test:21:16 ]
+    │
+ 21 │         return self.program_owner;
+    │ 
+    │ Help: Use `std::ctx::program_owner()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `block.height` syntax has been removed
+    ╭─[ test:24:16 ]
+    │
+ 24 │         return block.height;
+    │ 
+    │ Help: Use `std::ctx::block_height()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `block.timestamp` syntax has been removed
+    ╭─[ test:27:16 ]
+    │
+ 27 │         return block.timestamp;
+    │ 
+    │ Help: Use `std::ctx::block_timestamp()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370056] Error: the `network.id` syntax has been removed
+    ╭─[ test:30:16 ]
+    │
+ 30 │         return network.id;
+    │ 
+    │ Help: Use `std::ctx::network_id()` instead. Execution-context accessors now live in the `std::ctx` module.
+────╯
+[EPAR0370057] Error: `self` is no longer a valid expression
+    ╭─[ test:33:17 ]
+    │
+ 33 │         let s = self;
+    │ 
+    │ Help: `self` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information.
+────╯
+[EPAR0370057] Error: `block` is no longer a valid expression
+    ╭─[ test:37:17 ]
+    │
+ 37 │         let b = block;
+    │ 
+    │ Help: `block` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information.
+────╯
+[EPAR0370057] Error: `network` is no longer a valid expression
+    ╭─[ test:41:17 ]
+    │
+ 41 │         let n = network;
+    │ 
+    │ Help: `network` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information.
+────╯

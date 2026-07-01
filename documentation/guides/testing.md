@@ -71,7 +71,7 @@ The `@should_fail` annotation should be added after the `@test` annotation for t
 
 ### Testing as a Specific Account
 
-By default, every `@test` function runs as the same fixed test account. The corresponding address is what [`self.caller`](../language/operators/standard_operators.md#selfcaller) and [`self.signer`](../language/operators/standard_operators.md#selfsigner) resolve to inside the test. The default key is:
+By default, every `@test` function runs as the same fixed test account. The corresponding address is what [`std::ctx::caller()`](../language/standard_library.md#stdctx) and [`std::ctx::signer()`](../language/standard_library.md#stdctx) resolve to inside the test. The default key is:
 
 ```text
 APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH

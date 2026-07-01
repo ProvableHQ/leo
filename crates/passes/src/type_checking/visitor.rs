@@ -585,9 +585,6 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
-        // Define a regex to match valid program IDs.
-        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
-
         fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
             bail!("structs are not supported")
         }
@@ -1345,23 +1342,12 @@ impl TypeCheckingVisitor<'_> {
                 )),
             )),
             Intrinsic::ProgramChecksum => {
-                // Get the argument type, expression, and span.
+                // The compile-time program-ID literal check fires at the `std::prog::*` call
+                // site (via `@_program_id_arg`), so the body of the wrapper only needs the
+                // address-type assertion here.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a program ID.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::checksum` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
                     Expression::Literal(Literal::integer(
@@ -1373,99 +1359,26 @@ impl TypeCheckingVisitor<'_> {
                 ))
             }
             Intrinsic::ProgramEdition => {
-                // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a member access.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::edition` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
                 Type::Integer(IntegerType::U16)
             }
             Intrinsic::ProgramOwner => {
-                // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a member access.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::program_owner` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
                 Type::Address
             }
             Intrinsic::FunctionChecksum => {
                 // The first argument is the program ID, the second the component name.
+                // Shape validation happens at the `std::prog::function_checksum` call site (via
+                // the `@_program_id_arg` annotation); the const-generic type checks already
+                // enforce `address` and `identifier` shapes on the parameters.
                 let (program_type, program_expr) = &arguments[0];
-                let program_span = program_expr.span();
-                // Check that the first argument is a program ID.
-                let program_id = match program_expr {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) =>
-                    {
-                        Some(s.clone())
-                    }
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::function_checksum` must be called on a program ID, e.g. `foo.aleo`",
-                            program_span,
-                        ));
-                        None
-                    }
-                };
-                self.assert_type(program_type, &Type::Address, program_span);
-                // Check that the second argument is an identifier literal naming the component, e.g. `'foo'`.
+                self.assert_type(program_type, &Type::Address, program_expr.span());
                 let (component_type, component_expr) = &arguments[1];
-                let component_span = component_expr.span();
-                let component = match component_expr {
-                    Expression::Literal(Literal { variant: LiteralVariant::Identifier(name), .. }) => {
-                        Some(name.clone())
-                    }
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "the function name must be an identifier literal, e.g. `'foo'`",
-                            component_span,
-                        ));
-                        None
-                    }
-                };
-                self.assert_type(component_type, &Type::Identifier, component_span);
-                // Checksums exist only for externally-callable components — entry and view functions.
-                // Closures and `final fn`s are inlining artifacts with no stable identity, so reject
-                // anything that does not resolve to an entry or view function of the named (imported) program.
-                if let (Some(program_id), Some(component)) = (program_id, component) {
-                    let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(&component)]);
-                    let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
-                    let is_entry_or_view = self
-                        .state
-                        .symbol_table
-                        .lookup_function(current_unit, &location)
-                        .is_some_and(|symbol| symbol.function.variant.is_externally_callable());
-                    if !is_entry_or_view {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            format!("`{component}` must be an entry function or a view function of `{program_id}`"),
-                            component_span,
-                        ));
-                    }
-                }
+                self.assert_type(component_type, &Type::Identifier, component_expr.span());
                 // Return the type.
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
@@ -1609,7 +1522,7 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfAddress => Type::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.caller", AccessScope::OffchainCaller, function_span);
+                self.check_access_allowed("std::ctx::caller()", AccessScope::OffchainCaller, function_span);
                 Type::Address
             }
             Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
@@ -1625,28 +1538,28 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfId => Type::Address,
             Intrinsic::SelfProgramOwner => {
                 // Check that the operation is only invoked in a `finalize` block.
-                self.check_access_allowed("program_owner", AccessScope::FinalizeWrite, function_span);
+                self.check_access_allowed("std::ctx::program_owner()", AccessScope::FinalizeWrite, function_span);
                 Type::Address
             }
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.signer", AccessScope::OffchainCaller, function_span);
+                self.check_access_allowed("std::ctx::signer()", AccessScope::OffchainCaller, function_span);
                 Type::Address
             }
             Intrinsic::BlockHeight => {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // Views see the latest block height via FinalizeGlobalState::for_view.
-                self.check_access_allowed("block.height", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctx::block_height()", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
                 // Check that the operation is invoked in a `finalize` block. Rejected in view fns.
-                self.check_access_allowed("block.timestamp", AccessScope::FinalizeWrite, function_span);
+                self.check_access_allowed("std::ctx::block_timestamp()", AccessScope::FinalizeWrite, function_span);
                 Type::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
                 // Check that the operation is not invoked outside a `finalize` block or a view.
-                self.check_access_allowed("network.id", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctx::network_id()", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U16)
             }
             // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
@@ -2262,7 +2175,9 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Const generic parameters can only be monomorphized at inline call sites.  Reject them on
-        // any function that will never be inlined or that does not support inlining.
+        // any function that will never be inlined or that does not support inlining. `final fn`
+        // helpers are always inlined into their `final {}` callsite, so they support const
+        // generics the same way regular `fn` helpers do.
         if !function.const_parameters.is_empty() {
             if function.annotations.iter().any(|a| a.identifier.name == sym::no_inline) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
@@ -2272,11 +2187,6 @@ impl TypeCheckingVisitor<'_> {
             } else if matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
                     "entry point functions",
-                    function.identifier.span(),
-                ));
-            } else if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
-                self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
-                    "`final fn` functions",
                     function.identifier.span(),
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::View)) {
@@ -2300,7 +2210,13 @@ impl TypeCheckingVisitor<'_> {
             // Restrictions for const parameters
             if !matches!(
                 const_param.type_(),
-                Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+                Type::Boolean
+                    | Type::Integer(_)
+                    | Type::Address
+                    | Type::Scalar
+                    | Type::Group
+                    | Type::Field
+                    | Type::Identifier
             ) {
                 self.emit_err(crate::errors::type_checker::bad_const_generic_type(
                     const_param.type_(),

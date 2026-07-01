@@ -4,7 +4,7 @@ program b28610.aleo {
     }
 
     fn foo() -> Final {
-        let signer = self.signer;
+        let signer = std::ctx::signer();
         return final { bar(signer); };
     }
 

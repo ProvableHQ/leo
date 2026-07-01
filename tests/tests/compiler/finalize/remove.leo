@@ -2,7 +2,7 @@ program test.aleo {
     mapping balances: address => u32;
 
     fn foo() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_foo(caller); };
     }
 

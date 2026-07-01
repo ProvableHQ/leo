@@ -17861,6 +17861,26 @@ module ctx {
     }
 }
 
+module prog {
+    @_program_id_arg
+    final fn checksum::[PROG: address]() -> [u8; 32] {
+        return _program_checksum(PROG);
+    }
+    @_program_id_arg
+    final fn edition::[PROG: address]() -> u16 {
+        return _program_edition(PROG);
+    }
+    @_program_id_arg
+    final fn program_owner::[PROG: address]() -> address {
+        return _program_owner(PROG);
+    }
+    @_program_id_arg
+    @_callable_function_arg
+    final fn function_checksum::[PROG: address, FN_NAME: identifier]() -> [u8; 32] {
+        return _function_checksum(PROG, FN_NAME);
+    }
+}
+
 }
 
 library ast_library {

@@ -401,6 +401,7 @@ mod validate {
 
                 let result = compiler
                     .parse_program(&source, FileName::Custom(name.into()), &[])
+                    .and_then(|_| compiler.add_import_stubs())
                     .and_then(|_| compiler.intermediate_passes().map(|_| ()));
 
                 if let Err(e) = result {

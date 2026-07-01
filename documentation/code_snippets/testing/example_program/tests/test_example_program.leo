@@ -28,7 +28,7 @@ program test_example_program.aleo {
 
     // ANCHOR: test_with_private_key
     // Run this test as a specific account, not the default test account.
-    // `self.caller` and `self.signer` resolve to the address derived from
+    // `std::ctx::caller()` and `std::ctx::signer()` resolve to the address derived from
     // the supplied private key for the duration of this test.
     @test(private_key = "APrivateKey1zkpG9Af9z5Ha4ejVyMCqVFXRKknSm8L1ELEwcc4htk9YhVK")
     fn test_as_specific_account() {

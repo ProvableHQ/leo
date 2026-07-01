@@ -17832,6 +17832,18 @@ module ctx {
     export fn addr() -> address {
         return _self_address();
     }
+<<<<<<< HEAD
+    @offchain
+    @_caller_annotation
+    fn caller() -> address {
+        return _self_caller();
+    }
+    @offchain
+    fn signer() -> address {
+        return _self_signer();
+    }
+    fn id() -> address {
+=======
     export fn caller() -> address {
         return _self_caller();
     }
@@ -17839,6 +17851,7 @@ module ctx {
         return _self_signer();
     }
     export final fn id() -> address {
+>>>>>>> origin/master
         return _self_id();
     }
     export final fn checksum() -> [u8; 32] {
@@ -17858,6 +17871,26 @@ module ctx {
     }
     export final fn network_id() -> u16 {
         return _network_id();
+    }
+}
+
+module prog {
+    @_program_id_arg
+    final fn checksum::[PROG: address]() -> [u8; 32] {
+        return _program_checksum(PROG);
+    }
+    @_program_id_arg
+    final fn edition::[PROG: address]() -> u16 {
+        return _program_edition(PROG);
+    }
+    @_program_id_arg
+    final fn program_owner::[PROG: address]() -> address {
+        return _program_owner(PROG);
+    }
+    @_program_id_arg
+    @_callable_function_arg
+    final fn function_checksum::[PROG: address, FN_NAME: identifier]() -> [u8; 32] {
+        return _function_checksum(PROG, FN_NAME);
     }
 }
 

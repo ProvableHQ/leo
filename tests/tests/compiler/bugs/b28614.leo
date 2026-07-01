@@ -1,13 +1,13 @@
 program test.aleo {
     fn bar() {
-        let x: u32 = self.caller;
-        let y: u8 = self.caller;
+        let x: u32 = std::ctx::caller();
+        let y: u8 = std::ctx::caller();
 
         let z: u8 = 0u8;
-        z = self.caller;
+        z = std::ctx::caller();
 
         let w: field = 0field;
-        w = self.signer;
+        w = std::ctx::signer();
     }
 
     @noupgrade

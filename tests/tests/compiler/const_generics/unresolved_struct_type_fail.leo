@@ -3,13 +3,13 @@ export struct Foo::[N: address] {
 }
 
 export struct Goo::[P: u32] {
-    z: Foo::[self.caller],
+    z: Foo::[_self_caller()],
 }
 
 program b28668.aleo {
     fn main(y: u32) -> u32 {
         let g: Goo::[y] = Goo::[y] {
-            z: Foo::[self.caller] { x: 5 },
+            z: Foo::[_self_caller()] { x: 5 },
         };
         return g.z.x;
     }

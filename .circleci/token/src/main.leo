@@ -28,7 +28,7 @@ program token.aleo {
     /* Transfer */
     fn transfer_public(public receiver: address, public amount: u64) -> Final {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        return final { finalize_transfer_public(self.caller, receiver, amount); };
+        return final { finalize_transfer_public(std::ctx::caller(), receiver, amount); };
     }
 
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
@@ -80,7 +80,7 @@ program token.aleo {
         return (
             transferred,
             final {
-                finalize_transfer_public_to_private(self.caller, amount);
+                finalize_transfer_public_to_private(std::ctx::caller(), amount);
             },
         );
     }

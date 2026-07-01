@@ -5,10 +5,10 @@
     │ 
     │ Help: Pass exactly 4 argument(s) to `_dynamic_get`.
 ────╯
-[ETYC0372066] Error: `self.caller` is not valid in a finalization context
+[ETYC0372066] Error: `std::ctx::caller()` is not valid in a finalization context
     ╭─[ compiler-test:15:26 ]
     │
- 15 │     Mapping::set(result, self.caller, val);
+ 15 │     Mapping::set(result, std::ctx::caller(), val);
     │ 
-    │ Help: Move `self.caller` out of the `final` block. On-chain code cannot perform this operation.
+    │ Help: Move `std::ctx::caller()` out of the `final` block. On-chain code cannot perform this operation.
 ────╯

@@ -1099,10 +1099,10 @@ pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> F
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 4,
-        format!("`self.caller` used as the owner of record `{record_name}`"),
+        format!("`std::ctx::caller()` used as the owner of record `{record_name}`"),
         span,
     )
-    .with_help("`self.caller` may refer to a program address, which cannot spend records. Use `self.signer` if you want the user that initiated the transaction.")
+    .with_help("`std::ctx::caller()` may return a program address, which cannot spend records. Use `std::ctx::signer()` if you want the user that initiated the transaction.")
 }
 
 pub(crate) fn no_inline_ignored(name: impl Display, reason: impl Display, span: Span) -> Formatted {

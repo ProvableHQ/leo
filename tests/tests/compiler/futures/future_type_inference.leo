@@ -27,7 +27,7 @@ program multi_token_support_program.aleo {
 
     fn mint_private() -> (Token, Final) {
         let f: Final = final { finalize(); };
-        return (Token { owner: self.signer, amount: 100u64 }, f);
+        return (Token { owner: std::ctx::signer(), amount: 100u64 }, f);
     }
 
     @noupgrade
@@ -49,7 +49,7 @@ program mtsp_credits.aleo {
     ) -> (credits.aleo::credits, multi_token_support_program.aleo::Token, Final) {
         let transfer_output: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
             input_record,
-            self.address,
+            std::ctx::addr(),
             amount,
         );
         let mint_output: (multi_token_support_program.aleo::Token, Final) = multi_token_support_program.aleo::mint_private();
