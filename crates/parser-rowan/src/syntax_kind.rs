@@ -395,11 +395,11 @@ define_syntax_kinds! {
     RECORD_DEF,
     /// Struct member declaration.
     STRUCT_MEMBER,
-    /// Public struct member: `public name: Type`
+    /// Public struct member: `public name: TypeKind`
     STRUCT_MEMBER_PUBLIC,
-    /// Private struct member: `private name: Type`
+    /// Private struct member: `private name: TypeKind`
     STRUCT_MEMBER_PRIVATE,
-    /// Constant struct member: `constant name: Type`
+    /// Constant struct member: `constant name: TypeKind`
     STRUCT_MEMBER_CONSTANT,
     /// Mapping definition.
     MAPPING_DEF,
@@ -423,11 +423,11 @@ define_syntax_kinds! {
     ANNOTATION_PAIR,
     /// Parameter in a function signature.
     PARAM,
-    /// Public parameter: `public name: Type`
+    /// Public parameter: `public name: TypeKind`
     PARAM_PUBLIC,
-    /// Private parameter: `private name: Type`
+    /// Private parameter: `private name: TypeKind`
     PARAM_PRIVATE,
-    /// Constant parameter: `constant name: Type`
+    /// Constant parameter: `constant name: TypeKind`
     PARAM_CONSTANT,
     /// Parameter list: `(a: u32, b: u32)`
     PARAM_LIST,
@@ -509,7 +509,7 @@ define_syntax_kinds! {
     TUPLE_EXPR,
     /// Struct literal: `Foo { a: 1, b: 2 }`
     STRUCT_EXPR,
-    /// Struct locator literal: `program.aleo::Type { a: 1, b: 2 }`
+    /// Struct locator literal: `program.aleo::TypeKind { a: 1, b: 2 }`
     STRUCT_LOCATOR_EXPR,
     /// Struct field initializer: `a: 1`
     STRUCT_FIELD_INIT,
@@ -521,7 +521,7 @@ define_syntax_kinds! {
     PATH_EXPR,
     /// Path locator expression: `program.aleo::function`
     PATH_LOCATOR_EXPR,
-    /// Program reference expression: `name.aleo` (without `::Type` suffix).
+    /// Program reference expression: `name.aleo` (without `::TypeKind` suffix).
     PROGRAM_REF_EXPR,
     /// Self expression: `self`
     SELF_EXPR,
@@ -568,7 +568,7 @@ define_syntax_kinds! {
     TYPE_PATH,
     /// Primitive type: `u32`, `bool`, `field`, etc.
     TYPE_PRIMITIVE,
-    /// Locator type: `program.aleo::Type`
+    /// Locator type: `program.aleo::TypeKind`
     TYPE_LOCATOR,
     /// Array type: `[u32; 10]`
     TYPE_ARRAY,

@@ -14,25 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::TypeKind;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A vector type.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct VectorType {
-    pub element_type: Box<Type>,
+    pub element_type: Box<TypeKind>,
 }
 
 impl VectorType {
     /// Creates a new vector type.
-    pub fn new(element: Type) -> Self {
+    pub fn new(element: TypeKind) -> Self {
         Self { element_type: Box::new(element) }
     }
 
     /// Returns the element type of the vector.
-    pub fn element_type(&self) -> &Type {
+    pub fn element_type(&self) -> &TypeKind {
         &self.element_type
     }
 }
@@ -43,8 +43,8 @@ impl fmt::Display for VectorType {
     }
 }
 
-impl From<VectorType> for Type {
+impl From<VectorType> for TypeKind {
     fn from(value: VectorType) -> Self {
-        Type::Vector(value)
+        TypeKind::Vector(value)
     }
 }

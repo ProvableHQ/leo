@@ -20,7 +20,7 @@
 
 #![forbid(unsafe_code)]
 
-use leo_ast::{AleoProgram, FunctionStub, Identifier, NetworkName, NodeBuilder, ProgramId, Stub};
+use leo_ast::{AleoProgram, FunctionStub, Identifier, NetworkName, NodeBuilder, ProgramId, Stub, TypeInterner};
 use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::Handler;
 use leo_package::{Package, ProgramData};
@@ -104,18 +104,25 @@ fn parse_interface_stub(program_name: Symbol, source: &Path, source_dir: &Path) 
         .map(|(source, filename)| with_session_globals(|s| s.source_map.new_source(source, filename.clone())))
         .collect::<Vec<_>>();
     let node_builder = NodeBuilder::default();
+    let interner = TypeInterner::default();
 
-    let program =
-        match parse_program(Handler::default(), &node_builder, &source_file, &module_source_files, BENCH_NETWORK) {
-            Ok(ast) => ast,
-            Err(err) => {
-                return Err(format!(
-                    "failed to parse dependency {}.aleo interface source {}: {err}",
-                    program_name,
-                    source.display()
-                ));
-            }
-        };
+    let program = match parse_program(
+        Handler::default(),
+        &node_builder,
+        &interner,
+        &source_file,
+        &module_source_files,
+        BENCH_NETWORK,
+    ) {
+        Ok(ast) => ast,
+        Err(err) => {
+            return Err(format!(
+                "failed to parse dependency {}.aleo interface source {}: {err}",
+                program_name,
+                source.display()
+            ));
+        }
+    };
 
     // Extract the single program scope.
     let scope = match program.program_scopes.values().next() {

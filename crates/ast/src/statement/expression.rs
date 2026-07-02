@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An expression statement, `foo(a);`.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub struct ExpressionStatement {
     /// The expression associated with the statement.
     pub expression: Expression,

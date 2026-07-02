@@ -16,7 +16,9 @@
               "id": 84210
             },
             "type_": {
-              "Integer": "U32"
+              "kind": {
+                "Integer": "U32"
+              }
             },
             "value": {
               "Literal": {
@@ -54,7 +56,9 @@
                 },
                 "mode": "None",
                 "type_": {
-                  "Integer": "U32"
+                  "kind": {
+                    "Integer": "U32"
+                  }
                 },
                 "id": 84214
               }
@@ -63,7 +67,9 @@
               {
                 "mode": "None",
                 "type_": {
-                  "Integer": "U32"
+                  "kind": {
+                    "Integer": "U32"
+                  }
                 },
                 "id": 84216
               }
@@ -140,7 +146,9 @@
             },
             "mode": "None",
             "type_": {
-              "Integer": "U32"
+              "kind": {
+                "Integer": "U32"
+              }
             },
             "id": 84194
           },
@@ -151,7 +159,9 @@
             },
             "mode": "None",
             "type_": {
-              "Integer": "U32"
+              "kind": {
+                "Integer": "U32"
+              }
             },
             "id": 84196
           }
@@ -160,7 +170,9 @@
           {
             "mode": "None",
             "type_": {
-              "Integer": "U32"
+              "kind": {
+                "Integer": "U32"
+              }
             },
             "id": 84198
           }

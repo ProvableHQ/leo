@@ -29,10 +29,17 @@ use crate::{
     Path,
     ProgramId,
     TupleType,
-    Type,
+    TypeKind,
+    TypeNode,
     Variant,
 };
 use leo_span::{Span, Symbol, sym};
+
+/// No interner is in scope during disassembly; the frontend re-interns these when the stub is
+/// merged into the AST.
+fn stub_type(kind: TypeKind) -> TypeNode {
+    TypeNode::unchecked(kind, Span::default())
+}
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -57,7 +64,7 @@ pub struct FunctionStub {
     /// The function's output declarations.
     pub output: Vec<Output>,
     /// The function's output type.
-    pub output_type: Type,
+    pub output_type: TypeKind,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -86,9 +93,9 @@ impl FunctionStub {
         id: NodeID,
     ) -> Self {
         let output_type = match output.len() {
-            0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
+            0 => TypeKind::Unit,
+            1 => output[0].type_.kind().clone(),
+            _ => TypeKind::Tuple(TupleType::new(output.iter().map(|o| o.type_.kind().clone()).collect())),
         };
 
         FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
@@ -106,7 +113,7 @@ impl FunctionStub {
 
     /// Returns `true` if any output of the function is a `Final`
     pub fn has_final_output(&self) -> bool {
-        self.output.iter().any(|o| matches!(o.type_, Type::Future(_)))
+        self.output.iter().any(|o| matches!(o.type_.kind(), TypeKind::Future(_)))
     }
 
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
@@ -139,25 +146,25 @@ impl FunctionStub {
             .map(|output| match output.value_type() {
                 ValueType::Constant(val) => vec![Output {
                     mode: Mode::Constant,
-                    type_: Type::from_snarkvm(val, program_id),
+                    type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Public(val) => vec![Output {
                     mode: Mode::Public,
-                    type_: Type::from_snarkvm(val, program_id),
+                    type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Private(val) => vec![Output {
                     mode: Mode::Private,
-                    type_: Type::from_snarkvm(val, program_id),
+                    type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                     span: Default::default(),
                     id: Default::default(),
                 }],
                 ValueType::Record(id) => vec![Output {
                     mode: Mode::None,
-                    type_: Type::Composite(CompositeType {
+                    type_: stub_type(TypeKind::Composite(CompositeType {
                         path: {
                             let ident = Identifier::from(id);
                             Path::from(ident)
@@ -165,7 +172,7 @@ impl FunctionStub {
                                 .with_user_program(program_id)
                         },
                         const_arguments: Vec::new(),
-                    }),
+                    })),
                     span: Default::default(),
                     id: Default::default(),
                 }],
@@ -175,7 +182,7 @@ impl FunctionStub {
                         mode: Mode::None,
                         span: Default::default(),
                         id: Default::default(),
-                        type_: Type::Composite(CompositeType {
+                        type_: stub_type(TypeKind::Composite(CompositeType {
                             path: {
                                 let ident = Identifier::from(loc.resource());
                                 Path::from(ident)
@@ -183,43 +190,43 @@ impl FunctionStub {
                                     .with_user_program(external_program_id)
                             },
                             const_arguments: Vec::new(),
-                        }),
+                        })),
                     }]
                 }
                 ValueType::Future(_) => vec![Output {
                     mode: Mode::None,
                     span: Default::default(),
                     id: Default::default(),
-                    type_: Type::Future(FutureType::new(
+                    type_: stub_type(TypeKind::Future(FutureType::new(
                         Vec::new(),
                         Some(Location::new(program_id.as_symbol(), vec![Symbol::intern(&function.name().to_string())])),
                         false,
-                    )),
+                    ))),
                 }],
                 ValueType::DynamicRecord => vec![Output {
                     mode: Mode::None,
                     span: Default::default(),
                     id: Default::default(),
-                    type_: Type::DynRecord,
+                    type_: stub_type(TypeKind::DynRecord),
                 }],
                 ValueType::DynamicFuture => vec![Output {
                     mode: Mode::None,
                     span: Default::default(),
                     id: Default::default(),
-                    type_: Type::Future(FutureType::new(
+                    type_: stub_type(TypeKind::Future(FutureType::new(
                         Vec::new(),
                         Some(Location::new(program_id.as_symbol(), vec![Symbol::intern(&function.name().to_string())])),
                         false,
-                    )),
+                    ))),
                 }],
             })
             .collect_vec()
             .concat();
-        let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
+        let output_vec = outputs.iter().map(|output| output.type_.kind().clone()).collect_vec();
         let output_type = match output_vec.len() {
-            0 => Type::Unit,
+            0 => TypeKind::Unit,
             1 => output_vec[0].clone(),
-            _ => Type::Tuple(TupleType::new(output_vec)),
+            _ => TypeKind::Tuple(TupleType::new(output_vec)),
         };
 
         Self {
@@ -236,28 +243,28 @@ impl FunctionStub {
                         ValueType::Constant(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Constant,
-                            type_: Type::from_snarkvm(val, program_id),
+                            type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Public(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Public,
-                            type_: Type::from_snarkvm(val, program_id),
+                            type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Private(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Private,
-                            type_: Type::from_snarkvm(val, program_id),
+                            type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                             span: Default::default(),
                             id: Default::default(),
                         },
                         ValueType::Record(id) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::Composite(CompositeType {
+                            type_: stub_type(TypeKind::Composite(CompositeType {
                                 path: {
                                     let ident = Identifier::from(id);
                                     Path::from(ident)
@@ -265,7 +272,7 @@ impl FunctionStub {
                                         .with_user_program(program_id)
                                 },
                                 const_arguments: Vec::new(),
-                            }),
+                            })),
                             span: Default::default(),
                             id: Default::default(),
                         },
@@ -276,7 +283,7 @@ impl FunctionStub {
                                 mode: Mode::None,
                                 span: Default::default(),
                                 id: Default::default(),
-                                type_: Type::Composite(CompositeType {
+                                type_: stub_type(TypeKind::Composite(CompositeType {
                                     path: {
                                         let ident = Identifier::from(loc.resource());
                                         Path::from(ident)
@@ -284,7 +291,7 @@ impl FunctionStub {
                                             .with_user_program(external_program)
                                     },
                                     const_arguments: Vec::new(),
-                                }),
+                                })),
                             }
                         }
                         ValueType::Future(_) | ValueType::DynamicFuture => {
@@ -296,7 +303,7 @@ impl FunctionStub {
                             mode: Mode::None,
                             span: Default::default(),
                             id: Default::default(),
-                            type_: Type::DynRecord,
+                            type_: stub_type(TypeKind::DynRecord),
                         },
                     }
                 })
@@ -323,22 +330,24 @@ impl FunctionStub {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
                     type_: match input.finalize_type() {
-                        FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program_id),
-                        FinalizeType::Future(val) => Type::Future(FutureType::new(
+                        FinalizeType::Plaintext(val) => stub_type(TypeKind::from_snarkvm(val, program_id)),
+                        FinalizeType::Future(val) => stub_type(TypeKind::Future(FutureType::new(
                             Vec::new(),
                             Some(Location::new(ProgramId::from(val.program_id()).as_symbol(), vec![Symbol::intern(
                                 &format!("finalize/{}", val.resource()),
                             )])),
                             false,
-                        )),
-                        FinalizeType::DynamicFuture => Type::Future(FutureType::new(Vec::new(), None, false)),
+                        ))),
+                        FinalizeType::DynamicFuture => {
+                            stub_type(TypeKind::Future(FutureType::new(Vec::new(), None, false)))
+                        }
                     },
                     span: Default::default(),
                     id: Default::default(),
                 })
                 .collect_vec(),
             output: Vec::new(),
-            output_type: Type::Unit,
+            output_type: TypeKind::Unit,
             span: Default::default(),
             id: 0,
         }
@@ -355,7 +364,7 @@ impl FunctionStub {
     /// bypassed validation entirely.
     pub fn from_view<N: Network>(view: &ViewCore<N>, program_id: ProgramId) -> Self {
         let plaintext_or_panic = |finalize_type: &FinalizeType<N>| match finalize_type {
-            FinalizeType::Plaintext(val) => Type::from_snarkvm(val, program_id),
+            FinalizeType::Plaintext(val) => TypeKind::from_snarkvm(val, program_id),
             FinalizeType::Future(_) | FinalizeType::DynamicFuture => {
                 panic!("Views do not contain futures as inputs or outputs")
             }
@@ -366,16 +375,16 @@ impl FunctionStub {
             .iter()
             .map(|output| Output {
                 mode: Mode::None,
-                type_: plaintext_or_panic(output.finalize_type()),
+                type_: stub_type(plaintext_or_panic(output.finalize_type())),
                 span: Default::default(),
                 id: Default::default(),
             })
             .collect_vec();
-        let output_vec = outputs.iter().map(|o| o.type_.clone()).collect_vec();
+        let output_vec = outputs.iter().map(|o| o.type_.kind().clone()).collect_vec();
         let output_type = match output_vec.len() {
-            0 => Type::Unit,
+            0 => TypeKind::Unit,
             1 => output_vec[0].clone(),
-            _ => Type::Tuple(TupleType::new(output_vec)),
+            _ => TypeKind::Tuple(TupleType::new(output_vec)),
         };
 
         Self {
@@ -389,7 +398,7 @@ impl FunctionStub {
                 .map(|(index, input)| Input {
                     identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                     mode: Mode::None,
-                    type_: plaintext_or_panic(input.finalize_type()),
+                    type_: stub_type(plaintext_or_panic(input.finalize_type())),
                     span: Default::default(),
                     id: Default::default(),
                 })
@@ -408,7 +417,7 @@ impl FunctionStub {
             .map(|output| match output.register_type() {
                 RegisterType::Plaintext(val) => Output {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, program_id),
+                    type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                     span: Default::default(),
                     id: Default::default(),
                 },
@@ -417,11 +426,11 @@ impl FunctionStub {
                 RegisterType::Future(_) | RegisterType::DynamicFuture => panic!("Closures do not return futures"),
             })
             .collect_vec();
-        let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
+        let output_vec = outputs.iter().map(|output| output.type_.kind().clone()).collect_vec();
         let output_type = match output_vec.len() {
-            0 => Type::Unit,
+            0 => TypeKind::Unit,
             1 => output_vec[0].clone(),
-            _ => Type::Tuple(TupleType::new(output_vec)),
+            _ => TypeKind::Tuple(TupleType::new(output_vec)),
         };
         Self {
             annotations: Vec::new(),
@@ -437,7 +446,7 @@ impl FunctionStub {
                         RegisterType::Plaintext(val) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::from_snarkvm(val, program_id),
+                            type_: stub_type(TypeKind::from_snarkvm(val, program_id)),
                             span: Default::default(),
                             id: Default::default(),
                         },

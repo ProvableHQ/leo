@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{NetworkName, NodeBuilder};
+use leo_ast::{NetworkName, NodeBuilder, TypeInterner};
 use leo_errors::{BufferEmitter, Handler, LeoError};
 use leo_span::{Symbol, create_session_if_not_set_then, source_map::FileName, with_session_globals};
 
@@ -25,18 +25,19 @@ fn run_parse_many_test<T: Display>(
     test: &str,
     handler: &Handler,
     test_index: usize,
-    parse: fn(Handler, &NodeBuilder, &str, u32) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &TypeInterner, &str, u32) -> Result<T, LeoError>,
 ) -> Result<String, ()> {
     let source_map =
         with_session_globals(|s| s.source_map.new_source(test, FileName::Custom(format!("test_{test_index}"))));
-    let result = parse(handler.clone(), &Default::default(), &source_map.src, source_map.absolute_start);
+    let interner = TypeInterner::default();
+    let result = parse(handler.clone(), &Default::default(), &interner, &source_map.src, source_map.absolute_start);
     let displayable = handler.extend_if_error(result)?;
     Ok(format!("{displayable}\n"))
 }
 
 fn runner_parse_many_test<'a, T: Display>(
     tests: impl Iterator<Item = &'a str>,
-    parse: fn(Handler, &NodeBuilder, &str, u32) -> Result<T, LeoError>,
+    parse: fn(Handler, &NodeBuilder, &TypeInterner, &str, u32) -> Result<T, LeoError>,
 ) -> String {
     create_session_if_not_set_then(|_| {
         let mut output = String::new();
@@ -72,17 +73,21 @@ fn runner_module_test(test: &str) -> String {
         .filter(|s| !s.trim().is_empty())
         .collect();
 
-    runner_parse_many_test(test_cases.iter().map(|s| s.as_str()), |handler, node_builder, source, start_pos| {
-        crate::parse_module(
-            handler,
-            node_builder,
-            source,
-            start_pos,
-            Symbol::intern("module_test"),
-            Vec::new(),
-            NetworkName::TestnetV0,
-        )
-    })
+    runner_parse_many_test(
+        test_cases.iter().map(|s| s.as_str()),
+        |handler, node_builder, interner, source, start_pos| {
+            crate::parse_module(
+                handler,
+                node_builder,
+                interner,
+                source,
+                start_pos,
+                Symbol::intern("module_test"),
+                Vec::new(),
+                NetworkName::TestnetV0,
+            )
+        },
+    )
 }
 
 // Parse expression tests.
@@ -90,8 +95,8 @@ fn runner_module_test(test: &str) -> String {
 fn runner_expression_test(test: &str) -> String {
     let tests = test.lines().map(|line| line.trim()).filter(|line| !line.is_empty());
 
-    runner_parse_many_test(tests, |handler, node_builder, source, start_pos| {
-        crate::parse_expression(handler, node_builder, source, start_pos, NetworkName::TestnetV0)
+    runner_parse_many_test(tests, |handler, node_builder, interner, source, start_pos| {
+        crate::parse_expression(handler, node_builder, interner, source, start_pos, NetworkName::TestnetV0)
     })
 }
 
@@ -106,8 +111,8 @@ fn parse_expression_tests() {
 fn runner_statement_test(test: &str) -> String {
     let tests = test.split("\n\n").map(|text| text.trim()).filter(|text| !text.is_empty());
 
-    runner_parse_many_test(tests, |handler, node_builder, source, start_pos| {
-        crate::parse_statement(handler, node_builder, source, start_pos, NetworkName::TestnetV0)
+    runner_parse_many_test(tests, |handler, node_builder, interner, source, start_pos| {
+        crate::parse_statement(handler, node_builder, interner, source, start_pos, NetworkName::TestnetV0)
     })
 }
 
@@ -137,9 +142,11 @@ fn runner_library_test(test: &str) -> String {
         for (i, test_case) in test_cases.iter().enumerate() {
             let source_file =
                 with_session_globals(|s| s.source_map.new_source(test_case, FileName::Custom(format!("test_{i}"))));
+            let interner = TypeInterner::default();
             let result = crate::parse_library(
                 handler.clone(),
                 &Default::default(),
+                &interner,
                 Symbol::intern("test_lib"),
                 &source_file,
                 &[],
@@ -165,8 +172,15 @@ fn parse_library_tests() {
 
 fn run_parser_test(test: &str, handler: &Handler) -> Result<String, ()> {
     let source_file = with_session_globals(|s| s.source_map.new_source(test, FileName::Custom("test".into())));
-    let result =
-        crate::parse_program(handler.clone(), &Default::default(), &source_file, &Vec::new(), NetworkName::TestnetV0);
+    let interner = TypeInterner::default();
+    let result = crate::parse_program(
+        handler.clone(),
+        &Default::default(),
+        &interner,
+        &source_file,
+        &Vec::new(),
+        NetworkName::TestnetV0,
+    );
     let ast = handler.extend_if_error(result)?;
     Ok(format!("{}\n", ast))
 }
@@ -202,9 +216,11 @@ fn parser_rejects_keyword_module_names_from_rowan_lexer() {
             let module =
                 with_session_globals(|s| s.source_map.new_source("", FileName::Custom(format!("{keyword}.leo"))));
 
+            let interner = TypeInterner::default();
             let result = crate::parse_program(
                 handler.clone(),
                 &Default::default(),
+                &interner,
                 &source_file,
                 &[module],
                 NetworkName::TestnetV0,

@@ -33,10 +33,10 @@ use itertools::Itertools as _;
 ///   `Interface@(target[, network])::member.op(args)` — performs an operation on
 ///   a mapping (`get`, `get_or_use`, `contains`) or vector (`get`, `len`) storage
 ///   variable declared in the interface.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct DynamicOpExpression {
     /// The interface type.
-    pub interface: Type,
+    pub interface: TypeKind,
     /// The target program expression (`field` or `identifier`).
     pub target_program: Expression,
     /// The optional network expression; defaults to `'aleo'` when `None`.
@@ -50,7 +50,7 @@ pub struct DynamicOpExpression {
 }
 
 /// Distinguishes the three surface forms of [`DynamicOpExpression`].
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DynamicOpKind {
     /// `Interface@(p)::func(args)` — call a function declared in the interface.
     Call { function: Identifier, arguments: Vec<Expression> },

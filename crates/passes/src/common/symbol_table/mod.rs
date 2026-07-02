@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, Type};
+use leo_ast::{Composite, Expression, Function, Interface, Location, NodeBuilder, NodeID, Path, TypeKind};
 use leo_errors::{Color, Label, LeoError, Result};
 use leo_span::{Span, Symbol};
 
@@ -530,7 +530,7 @@ impl SymbolTable {
     }
 
     /// Sets the type of a local using its name. Returns `false` if the local is not found.
-    pub fn set_local_type(&mut self, name: Symbol, ty: Type) -> bool {
+    pub fn set_local_type(&mut self, name: Symbol, ty: TypeKind) -> bool {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
@@ -548,7 +548,7 @@ impl SymbolTable {
     }
 
     /// Sets the type of a global using its location. Returns `false` if the global is not found.
-    pub fn set_global_type(&mut self, location: &Location, ty: Type) -> bool {
+    pub fn set_global_type(&mut self, location: &Location, ty: TypeKind) -> bool {
         if let Some(sym) = self.globals.get_mut(location) {
             sym.type_ = Some(ty);
             return true;
@@ -613,7 +613,7 @@ impl SymbolTable {
         caller: Location,
         callee: Location,
         future_inputs: Vec<Location>,
-        inferred_inputs: Vec<Type>,
+        inferred_inputs: Vec<TypeKind>,
     ) -> Result<()> {
         let callee_location = Location::new(callee.program, callee.path);
 

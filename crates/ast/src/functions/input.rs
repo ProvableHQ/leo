@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, NodeID, Type};
+use crate::{Identifier, Mode, Node, NodeID, TypeNode};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A function parameter.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Input {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,
     /// The mode of the function parameter.
     pub mode: Mode,
     /// What's the parameter's type?
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The parameters span from any annotations to its type.
     pub span: Span,
     /// The ID of the node.
@@ -52,7 +52,7 @@ impl Input {
         self.mode
     }
 
-    pub fn type_(&self) -> &Type {
+    pub fn type_(&self) -> &TypeNode {
         &self.type_
     }
 }

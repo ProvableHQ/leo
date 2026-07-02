@@ -32,7 +32,7 @@ use leo_ast::{
     Program,
     Statement,
     Stub,
-    Type,
+    TypeKind,
 };
 use leo_span::Symbol;
 
@@ -86,14 +86,15 @@ impl<'a> WriteTransformingVisitor<'a> {
                     Default::default(),
                     self.state.node_builder.next_id(),
                 );
-                self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+                self.state.type_table.insert(index.id(), leo_ast::Type::U32);
                 let access = ArrayAccess {
                     array: Path::from(name).to_local().into(),
                     index: index.into(),
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 };
-                self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
+                let member_ty = self.state.type_table.get(&member.id()).unwrap();
+                self.state.type_table.insert(access.id(), member_ty);
                 let def = DefinitionStatement {
                     place: DefinitionPlace::Single(member),
                     type_: None,
@@ -114,7 +115,8 @@ impl<'a> WriteTransformingVisitor<'a> {
                     span: Default::default(),
                     id: self.state.node_builder.next_id(),
                 };
-                self.state.type_table.insert(access.id(), self.state.type_table.get(&member.id()).unwrap().clone());
+                let member_ty = self.state.type_table.get(&member.id()).unwrap();
+                self.state.type_table.insert(access.id(), member_ty);
                 let def = DefinitionStatement {
                     place: DefinitionPlace::Single(member),
                     type_: None,
@@ -289,12 +291,15 @@ impl WriteTransformingFiller<'_> {
                 let array_name = self.access_recurse(&array_access.array);
                 let members = self.0.array_members.entry(array_name.name).or_insert_with(|| {
                     let ty = self.0.state.type_table.get(&array_access.array.id()).unwrap();
-                    let Type::Array(arr) = ty else { panic!("Type checking should have prevented this.") };
+                    let TypeKind::Array(arr) = self.0.state.types.resolve(ty) else {
+                        panic!("Type checking should have prevented this.")
+                    };
+                    let element_ty = self.0.state.types.intern(arr.element_type());
                     (0..arr.length.as_u32().expect("length should be known at this point"))
                         .map(|i| {
                             let id = self.0.state.node_builder.next_id();
                             let symbol = self.0.state.assigner.unique_symbol(format_args!("{array_name}#{i}"), "$");
-                            self.0.state.type_table.insert(id, arr.element_type().clone());
+                            self.0.state.type_table.insert(id, element_ty);
                             Identifier::new(symbol, id)
                         })
                         .collect()
@@ -311,7 +316,7 @@ impl WriteTransformingFiller<'_> {
                 let composite_name = self.access_recurse(&member_access.inner);
                 let members = self.0.composite_members.entry(composite_name.name).or_insert_with(|| {
                     let ty = self.0.state.type_table.get(&member_access.inner.id()).unwrap();
-                    let Type::Composite(comp) = ty else {
+                    let TypeKind::Composite(comp) = self.0.state.types.resolve(ty) else {
                         panic!("Type checking should have prevented this.");
                     };
                     let composite_location = comp.path.expect_global_location();
@@ -330,7 +335,8 @@ impl WriteTransformingFiller<'_> {
                             let id = self.0.state.node_builder.next_id();
                             let symbol =
                                 self.0.state.assigner.unique_symbol(format_args!("{composite_name}#{name}"), "$");
-                            self.0.state.type_table.insert(id, member.type_.clone());
+                            let member_ty = member.type_.ty();
+                            self.0.state.type_table.insert(id, member_ty);
                             (member.name(), Identifier::new(symbol, id))
                         })
                         .collect()

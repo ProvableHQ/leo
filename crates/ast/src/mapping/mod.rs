@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, ProgramId, Type};
+use crate::{Identifier, Node, NodeID, ProgramId, TypeKind};
 
 use leo_span::Span;
 
@@ -23,14 +23,14 @@ use snarkvm::prelude::{Mapping as MappingCore, Network};
 use std::fmt;
 
 /// A mapping declaration, e.g `mapping balances: address => u128`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Mapping {
     /// The name of the mapping.
     pub identifier: Identifier,
     /// The type of the key.
-    pub key_type: Type,
+    pub key_type: TypeKind,
     /// The type of the value.
-    pub value_type: Type,
+    pub value_type: TypeKind,
     /// The entire span of the mapping declaration.
     pub span: Span,
     /// The ID of the node.
@@ -41,8 +41,8 @@ impl Mapping {
     pub fn from_snarkvm<N: Network>(mapping: &MappingCore<N>, program_id: ProgramId) -> Self {
         Self {
             identifier: Identifier::from(mapping.name()),
-            key_type: Type::from_snarkvm(mapping.key().plaintext_type(), program_id),
-            value_type: Type::from_snarkvm(mapping.value().plaintext_type(), program_id),
+            key_type: TypeKind::from_snarkvm(mapping.key().plaintext_type(), program_id),
+            value_type: TypeKind::from_snarkvm(mapping.value().plaintext_type(), program_id),
             span: Default::default(),
             id: Default::default(),
         }

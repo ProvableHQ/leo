@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::TypeKind;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A mapping type of a key and value type.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct MappingType {
-    pub key: Box<Type>,
-    pub value: Box<Type>,
+    pub key: Box<TypeKind>,
+    pub value: Box<TypeKind>,
 }
 
 impl fmt::Display for MappingType {

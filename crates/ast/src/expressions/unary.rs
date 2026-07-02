@@ -84,7 +84,7 @@ impl fmt::Display for UnaryOperation {
 }
 
 /// An unary expression applying an operator to an inner expression.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct UnaryExpression {
     /// The inner expression `op` is applied to.
     pub receiver: Expression,

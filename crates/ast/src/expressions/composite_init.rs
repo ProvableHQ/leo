@@ -21,7 +21,7 @@ use itertools::Itertools as _;
 
 /// An initializer for a single field / variable of a composite initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CompositeFieldInitializer {
     /// The name of the field / variable to be initialized.
     pub identifier: Identifier,
@@ -47,7 +47,7 @@ impl fmt::Display for CompositeFieldInitializer {
 }
 
 /// A composite initialization expression, e.g., `Foo { bar: 42, baz }`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CompositeExpression {
     /// A path to a composite type to initialize.
     pub path: Path,

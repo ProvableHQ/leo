@@ -19,7 +19,7 @@ use leo_ast::{NodeID, Type};
 use indexmap::IndexMap;
 use std::cell::RefCell;
 
-/// A mapping between node IDs and their types.
+/// A mapping between node IDs and their canonical [`Type`] handles.
 #[derive(Debug, Default, Clone)]
 pub struct TypeTable {
     /// The inner table.
@@ -30,7 +30,7 @@ pub struct TypeTable {
 impl TypeTable {
     /// Gets an entry from the table.
     pub fn get(&self, index: &NodeID) -> Option<Type> {
-        self.inner.borrow().get(index).cloned()
+        self.inner.borrow().get(index).copied()
     }
 
     /// Inserts an entry into the table.

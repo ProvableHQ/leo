@@ -60,7 +60,7 @@ pub struct TypeCheckingVisitor<'a> {
     /// The state of the current scope being traversed.
     pub scope_state: ScopeState,
     /// Mapping from async function stub name to the inferred input types.
-    pub async_function_input_types: IndexMap<Location, Vec<Type>>,
+    pub async_function_input_types: IndexMap<Location, Vec<TypeKind>>,
     /// Mapping from async function name to the names of async transition callers.
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
@@ -100,10 +100,10 @@ impl TypeCheckingVisitor<'_> {
     /// not visible to the current scope. Parents that don't resolve to a global location, or
     /// whose target isn't found in the interface table, are skipped. Those are reported by
     /// `check_interfaces`.
-    pub fn check_parent_interface_accessibility(&mut self, parents: &[(Span, leo_ast::Type)]) {
+    pub fn check_parent_interface_accessibility(&mut self, parents: &[(Span, leo_ast::TypeKind)]) {
         let current_program = self.scope_state.unit_name.expect("must be inside a compilation unit");
         for (parent_span, parent_type) in parents {
-            let leo_ast::Type::Composite(leo_ast::CompositeType { path, .. }) = parent_type else { continue };
+            let leo_ast::TypeKind::Composite(leo_ast::CompositeType { path, .. }) = parent_type else { continue };
             let Some(loc) = path.try_global_location() else { continue };
             let Some(interface) = self.state.symbol_table.lookup_interface(current_program, loc) else { continue };
             if !self.scope_state.is_accessible(loc, interface.is_exported) {
@@ -136,7 +136,7 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits an error if the two given types are not equal.
-    pub fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
+    pub fn check_eq_types(&self, t1: &Option<TypeKind>, t2: &Option<TypeKind>, span: Span) {
         match (t1, t2) {
             (Some(t1), Some(t2)) if !t1.types_equivalent(t2) => {
                 self.emit_err(crate::errors::type_checker::type_should_be(t1, t2, span))
@@ -150,22 +150,22 @@ impl TypeCheckingVisitor<'_> {
 
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
-    pub fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
-        // If expected is `Type::Err`, we don't want to actually report a redundant error.
-        if expected.is_some() && !matches!(expected, Some(Type::Err)) {
+    pub fn assert_and_return_type(&mut self, actual: TypeKind, expected: &Option<TypeKind>, span: Span) -> TypeKind {
+        // If expected is `TypeKind::Err`, we don't want to actually report a redundant error.
+        if expected.is_some() && !matches!(expected, Some(TypeKind::Err)) {
             self.check_eq_types(&Some(actual.clone()), expected, span);
         }
         actual
     }
 
-    pub fn maybe_assert_type(&mut self, actual: &Type, expected: &Option<Type>, span: Span) {
+    pub fn maybe_assert_type(&mut self, actual: &TypeKind, expected: &Option<TypeKind>, span: Span) {
         if let Some(expected) = expected {
             self.assert_type(actual, expected, span);
         }
     }
 
-    pub fn assert_type(&mut self, actual: &Type, expected: &Type, span: Span) {
-        if actual != &Type::Err && !actual.can_coerce_to(expected) {
+    pub fn assert_type(&mut self, actual: &TypeKind, expected: &TypeKind, span: Span) {
+        if actual != &TypeKind::Err && !actual.can_coerce_to(expected) {
             // If `actual` is Err, we will have already reported an error.
             self.emit_err(crate::errors::type_checker::type_should_be2(actual, format!("type `{expected}`"), span));
         }
@@ -173,75 +173,75 @@ impl TypeCheckingVisitor<'_> {
 
     /// Unwraps an optional type to its inner type for use with operands.
     /// If the expected type is `T?`, returns `Some(T)`. Otherwise returns the type as-is.
-    pub fn unwrap_optional_type(&self, expected: &Option<Type>) -> Option<Type> {
+    pub fn unwrap_optional_type(&self, expected: &Option<TypeKind>) -> Option<TypeKind> {
         match expected {
-            Some(Type::Optional(opt_type)) => Some(*opt_type.inner.clone()),
+            Some(TypeKind::Optional(opt_type)) => Some(*opt_type.inner.clone()),
             other => other.clone(),
         }
     }
 
-    pub fn assert_int_type(&self, type_: &Type, span: Span) {
-        if !matches!(type_, Type::Err | Type::Integer(_)) {
+    pub fn assert_int_type(&self, type_: &TypeKind, span: Span) {
+        if !matches!(type_, TypeKind::Err | TypeKind::Integer(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "an integer", span));
         }
     }
 
-    pub fn assert_unsigned_type(&self, type_: &Type, span: Span) {
+    pub fn assert_unsigned_type(&self, type_: &TypeKind, span: Span) {
         if !matches!(
             type_,
-            Type::Err
-                | Type::Integer(IntegerType::U8)
-                | Type::Integer(IntegerType::U16)
-                | Type::Integer(IntegerType::U32)
-                | Type::Integer(IntegerType::U64)
-                | Type::Integer(IntegerType::U128)
+            TypeKind::Err
+                | TypeKind::Integer(IntegerType::U8)
+                | TypeKind::Integer(IntegerType::U16)
+                | TypeKind::Integer(IntegerType::U32)
+                | TypeKind::Integer(IntegerType::U64)
+                | TypeKind::Integer(IntegerType::U128)
         ) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "an unsigned integer", span));
         }
     }
 
-    pub fn assert_bool_int_type(&self, type_: &Type, span: Span) {
+    pub fn assert_bool_int_type(&self, type_: &TypeKind, span: Span) {
         if !matches!(
             type_,
-            Type::Err
-                | Type::Boolean
-                | Type::Integer(IntegerType::U8)
-                | Type::Integer(IntegerType::U16)
-                | Type::Integer(IntegerType::U32)
-                | Type::Integer(IntegerType::U64)
-                | Type::Integer(IntegerType::U128)
-                | Type::Integer(IntegerType::I8)
-                | Type::Integer(IntegerType::I16)
-                | Type::Integer(IntegerType::I32)
-                | Type::Integer(IntegerType::I64)
-                | Type::Integer(IntegerType::I128)
+            TypeKind::Err
+                | TypeKind::Boolean
+                | TypeKind::Integer(IntegerType::U8)
+                | TypeKind::Integer(IntegerType::U16)
+                | TypeKind::Integer(IntegerType::U32)
+                | TypeKind::Integer(IntegerType::U64)
+                | TypeKind::Integer(IntegerType::U128)
+                | TypeKind::Integer(IntegerType::I8)
+                | TypeKind::Integer(IntegerType::I16)
+                | TypeKind::Integer(IntegerType::I32)
+                | TypeKind::Integer(IntegerType::I64)
+                | TypeKind::Integer(IntegerType::I128)
         ) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a bool or integer", span));
         }
     }
 
-    pub fn assert_field_int_type(&self, type_: &Type, span: Span) {
+    pub fn assert_field_int_type(&self, type_: &TypeKind, span: Span) {
         if !matches!(
             type_,
-            Type::Err
-                | Type::Field
-                | Type::Integer(IntegerType::U8)
-                | Type::Integer(IntegerType::U16)
-                | Type::Integer(IntegerType::U32)
-                | Type::Integer(IntegerType::U64)
-                | Type::Integer(IntegerType::U128)
-                | Type::Integer(IntegerType::I8)
-                | Type::Integer(IntegerType::I16)
-                | Type::Integer(IntegerType::I32)
-                | Type::Integer(IntegerType::I64)
-                | Type::Integer(IntegerType::I128)
+            TypeKind::Err
+                | TypeKind::Field
+                | TypeKind::Integer(IntegerType::U8)
+                | TypeKind::Integer(IntegerType::U16)
+                | TypeKind::Integer(IntegerType::U32)
+                | TypeKind::Integer(IntegerType::U64)
+                | TypeKind::Integer(IntegerType::U128)
+                | TypeKind::Integer(IntegerType::I8)
+                | TypeKind::Integer(IntegerType::I16)
+                | TypeKind::Integer(IntegerType::I32)
+                | TypeKind::Integer(IntegerType::I64)
+                | TypeKind::Integer(IntegerType::I128)
         ) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a field or integer", span));
         }
     }
 
-    pub fn assert_field_group_int_type(&self, type_: &Type, span: Span) {
-        if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Integer(_)) {
+    pub fn assert_field_group_int_type(&self, type_: &TypeKind, span: Span) {
+        if !matches!(type_, TypeKind::Err | TypeKind::Field | TypeKind::Group | TypeKind::Integer(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a field, group, or integer", span));
         }
     }
@@ -254,8 +254,8 @@ impl TypeCheckingVisitor<'_> {
                 let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
                 self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
                 match ty {
-                    Type::Vector(_) => Some(Intrinsic::VectorGet),
-                    Type::Mapping(_) => Some(Intrinsic::MappingGet),
+                    TypeKind::Vector(_) => Some(Intrinsic::VectorGet),
+                    TypeKind::Mapping(_) => Some(Intrinsic::MappingGet),
                     _ => None,
                 }
             }
@@ -263,8 +263,8 @@ impl TypeCheckingVisitor<'_> {
                 let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
                 self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
                 match ty {
-                    Type::Vector(_) => Some(Intrinsic::VectorSet),
-                    Type::Mapping(_) => Some(Intrinsic::MappingSet),
+                    TypeKind::Vector(_) => Some(Intrinsic::VectorSet),
+                    TypeKind::Mapping(_) => Some(Intrinsic::MappingSet),
                     _ => None,
                 }
             }
@@ -318,9 +318,9 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         intrinsic: Intrinsic,
         arguments: &[Expression],
-        expected: &Option<Type>,
+        expected: &Option<TypeKind>,
         function_span: Span,
-    ) -> Type {
+    ) -> TypeKind {
         // Check that the number of arguments is correct.
         if arguments.len() != intrinsic.num_args() {
             self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(
@@ -328,7 +328,7 @@ impl TypeCheckingVisitor<'_> {
                 arguments.len(),
                 function_span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Type check and reconstructs the arguments for a given intrinsic call.
@@ -339,7 +339,7 @@ impl TypeCheckingVisitor<'_> {
         // - Vector-specific operations (`push`, `swap_remove`)
         // - Default handling for other intrinsics
         //
-        // Returns a `Vec<(Type, &Expression)>` pairing each argument with its inferred type, or `Type::Err` if
+        // Returns a `Vec<(TypeKind, &Expression)>` pairing each argument with its inferred type, or `TypeKind::Err` if
         // type-checking fails. Argument counts are assumed to be already validated
         let arguments = match intrinsic {
             Intrinsic::OptionalUnwrap => {
@@ -350,7 +350,7 @@ impl TypeCheckingVisitor<'_> {
                 let opt_ty = if let Some(expected) = expected {
                     self.visit_expression(
                         opt,
-                        &Some(Type::Optional(OptionalType { inner: Box::new(expected.clone()) })),
+                        &Some(TypeKind::Optional(OptionalType { inner: Box::new(expected.clone()) })),
                     )
                 } else {
                     self.visit_expression(opt, &None)
@@ -367,14 +367,14 @@ impl TypeCheckingVisitor<'_> {
                     // Both arguments are typed based on the expected type
                     let opt_ty = self.visit_expression(
                         opt,
-                        &Some(Type::Optional(OptionalType { inner: Box::new(expected.clone()) })),
+                        &Some(TypeKind::Optional(OptionalType { inner: Box::new(expected.clone()) })),
                     );
                     let fallback_ty = self.visit_expression(fallback, &Some(expected.clone()));
                     vec![(opt_ty, opt), (fallback_ty, fallback)]
                 } else {
                     // Infer type from the optional argument
                     let opt_ty = self.visit_expression(opt, &None);
-                    let fallback_ty = if let Type::Optional(OptionalType { inner }) = &opt_ty {
+                    let fallback_ty = if let TypeKind::Optional(OptionalType { inner }) = &opt_ty {
                         self.visit_expression(fallback, &Some(*inner.clone()))
                     } else {
                         self.visit_expression(fallback, &None)
@@ -390,7 +390,7 @@ impl TypeCheckingVisitor<'_> {
 
                 // Key type is obtained from the mapping type. Otherwise, don't do anything. Error
                 // emission is deferred.
-                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                let key_ty = if let TypeKind::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
                     self.visit_expression(key, &Some(*key_ty.clone()))
                 } else {
                     self.visit_expression(key, &None)
@@ -405,7 +405,7 @@ impl TypeCheckingVisitor<'_> {
                 let container_ty = self.visit_expression(container, &None);
 
                 let (key_ty, val_ty) =
-                    if let Type::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
+                    if let TypeKind::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
                         (
                             self.visit_expression(key, &Some(*key_ty.clone())),
                             self.visit_expression(val, &Some(*value_ty.clone())),
@@ -423,7 +423,7 @@ impl TypeCheckingVisitor<'_> {
                 let container_ty = self.visit_expression(container, &None);
 
                 let (key_ty, default_ty) =
-                    if let Type::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
+                    if let TypeKind::Mapping(MappingType { key: ref key_ty, value: ref value_ty, .. }) = container_ty {
                         (
                             self.visit_expression(key, &Some(*key_ty.clone())),
                             self.visit_expression(default, &Some(*value_ty.clone())),
@@ -440,7 +440,7 @@ impl TypeCheckingVisitor<'_> {
 
                 let container_ty = self.visit_expression(container, &None);
 
-                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                let key_ty = if let TypeKind::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
                     self.visit_expression(key, &Some(*key_ty.clone()))
                 } else {
                     self.visit_expression(key, &None)
@@ -454,7 +454,7 @@ impl TypeCheckingVisitor<'_> {
 
                 let container_ty = self.visit_expression(container, &None);
 
-                let key_ty = if let Type::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
+                let key_ty = if let TypeKind::Mapping(MappingType { key: ref key_ty, .. }) = container_ty {
                     self.visit_expression(key, &Some(*key_ty.clone()))
                 } else {
                     self.visit_expression(key, &None)
@@ -482,7 +482,7 @@ impl TypeCheckingVisitor<'_> {
                 // Indices default to `u32` when numeric.
                 let index_ty = self.visit_expression_infer_default_u32(index);
 
-                let val_ty = if let Type::Vector(VectorType { ref element_type }) = container_ty {
+                let val_ty = if let TypeKind::Vector(VectorType { ref element_type }) = container_ty {
                     self.visit_expression(val, &Some(*element_type.clone()))
                 } else {
                     self.visit_expression(val, &None)
@@ -498,7 +498,7 @@ impl TypeCheckingVisitor<'_> {
                 let vec_ty = self.visit_expression(vec, &None);
 
                 // Type-check value against vector element type
-                let val_ty = if let Type::Vector(VectorType { ref element_type }) = vec_ty {
+                let val_ty = if let TypeKind::Vector(VectorType { ref element_type }) = vec_ty {
                     self.visit_expression(val, &Some(*element_type.clone()))
                 } else {
                     self.visit_expression(val, &None)
@@ -524,8 +524,8 @@ impl TypeCheckingVisitor<'_> {
             }
         };
 
-        let assert_not_mapping_tuple_unit = |type_: &Type, span: Span| {
-            if matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
+        let assert_not_mapping_tuple_unit = |type_: &TypeKind, span: Span| {
+            if matches!(type_, TypeKind::Mapping(_) | TypeKind::Tuple(_) | TypeKind::Unit) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     type_,
                     "anything but a mapping, tuple, or unit",
@@ -537,17 +537,17 @@ impl TypeCheckingVisitor<'_> {
         // Make sure the input is no bigger than 64 bits.
         // Due to overhead in the bitwise representations of types in SnarkVM, 64 bit integers
         // input more than 64 bits to a hash function, as do all composites and arrays.
-        let assert_pedersen_64_bit_input = |type_: &Type, span: Span| {
+        let assert_pedersen_64_bit_input = |type_: &TypeKind, span: Span| {
             if !matches!(
                 type_,
-                Type::Integer(IntegerType::U8)
-                    | Type::Integer(IntegerType::U16)
-                    | Type::Integer(IntegerType::U32)
-                    | Type::Integer(IntegerType::I8)
-                    | Type::Integer(IntegerType::I16)
-                    | Type::Integer(IntegerType::I32)
-                    | Type::Boolean
-                    | Type::Err
+                TypeKind::Integer(IntegerType::U8)
+                    | TypeKind::Integer(IntegerType::U16)
+                    | TypeKind::Integer(IntegerType::U32)
+                    | TypeKind::Integer(IntegerType::I8)
+                    | TypeKind::Integer(IntegerType::I16)
+                    | TypeKind::Integer(IntegerType::I32)
+                    | TypeKind::Boolean
+                    | TypeKind::Err
             ) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     type_,
@@ -563,19 +563,19 @@ impl TypeCheckingVisitor<'_> {
         // input more than 128 bits to a hash function, as do most composites and arrays. We could
         // actually allow arrays with a single element of type smaller than 64 bits, but it
         // seems most understandable to the user to simply disallow composite types entirely.
-        let assert_pedersen_128_bit_input = |type_: &Type, span: Span| {
+        let assert_pedersen_128_bit_input = |type_: &TypeKind, span: Span| {
             if !matches!(
                 type_,
-                Type::Integer(IntegerType::U8)
-                    | Type::Integer(IntegerType::U16)
-                    | Type::Integer(IntegerType::U32)
-                    | Type::Integer(IntegerType::U64)
-                    | Type::Integer(IntegerType::I8)
-                    | Type::Integer(IntegerType::I16)
-                    | Type::Integer(IntegerType::I32)
-                    | Type::Integer(IntegerType::I64)
-                    | Type::Boolean
-                    | Type::Err
+                TypeKind::Integer(IntegerType::U8)
+                    | TypeKind::Integer(IntegerType::U16)
+                    | TypeKind::Integer(IntegerType::U32)
+                    | TypeKind::Integer(IntegerType::U64)
+                    | TypeKind::Integer(IntegerType::I8)
+                    | TypeKind::Integer(IntegerType::I16)
+                    | TypeKind::Integer(IntegerType::I32)
+                    | TypeKind::Integer(IntegerType::I64)
+                    | TypeKind::Boolean
+                    | TypeKind::Err
             ) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     type_,
@@ -613,7 +613,7 @@ impl TypeCheckingVisitor<'_> {
                         assert_not_mapping_tuple_unit(&arguments[0].0, arguments[0].1.span());
                     }
                 }
-                self.assert_type(&arguments[1].0, &Type::Scalar, arguments[1].1.span());
+                self.assert_type(&arguments[1].0, &TypeKind::Scalar, arguments[1].1.span());
                 type_.into()
             }
             Intrinsic::Hash(variant, type_) => {
@@ -647,7 +647,7 @@ impl TypeCheckingVisitor<'_> {
                                 "a type with a size in bits that is a multiple of 8",
                                 arguments[0].1.span(),
                             ));
-                            return Type::Err;
+                            return TypeKind::Err;
                         }
                     };
                 }
@@ -668,15 +668,15 @@ impl TypeCheckingVisitor<'_> {
                 // Get the expected signature size.
                 let signature_size = ECDSASignature::SIGNATURE_SIZE_IN_BYTES;
                 // Check that the first input is a 65-byte array.
-                let Type::Array(array_type) = &arguments[0].0 else {
+                let TypeKind::Array(array_type) = &arguments[0].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         format!("a [u8; {signature_size}]"),
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                self.assert_type(array_type.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[0].1.span());
                 if let Some(length) = array_type.length.as_u32()
                     && length as usize != signature_size
                 {
@@ -685,7 +685,7 @@ impl TypeCheckingVisitor<'_> {
                         format!("a [u8; {signature_size}]"),
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Determine whether the intrinsic is Ethereum-specifc.
@@ -718,15 +718,15 @@ impl TypeCheckingVisitor<'_> {
                     ECDSASignature::VERIFYING_KEY_SIZE_IN_BYTES
                 };
                 // Check that the second input is a byte array of the expected length.
-                let Type::Array(array_type) = &arguments[1].0 else {
+                let TypeKind::Array(array_type) = &arguments[1].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[1].0,
                         format!("a [u8; {expected_length}]"),
                         arguments[1].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                self.assert_type(array_type.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[1].1.span());
                 if let Some(length) = array_type.length.as_u32()
                     && length as usize != expected_length
                 {
@@ -735,11 +735,11 @@ impl TypeCheckingVisitor<'_> {
                         format!("a [u8; {expected_length}]"),
                         arguments[1].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Check that the third input is not a mapping nor a tuple.
-                if matches!(&arguments[2].0, Type::Mapping(_) | Type::Tuple(_) | Type::Unit) {
+                if matches!(&arguments[2].0, TypeKind::Mapping(_) | TypeKind::Tuple(_) | TypeKind::Unit) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "anything but a mapping, tuple, or unit",
@@ -752,15 +752,19 @@ impl TypeCheckingVisitor<'_> {
                     // Get the expected length of the third input.
                     let expected_length = ECDSASignature::PREHASH_SIZE_IN_BYTES;
                     // Check that the third input is a byte array of the expected length.
-                    let Type::Array(array_type) = &arguments[2].0 else {
+                    let TypeKind::Array(array_type) = &arguments[2].0 else {
                         self.emit_err(crate::errors::type_checker::type_should_be2(
                             &arguments[2].0,
                             format!("a [u8; {expected_length}]"),
                             arguments[2].1.span(),
                         ));
-                        return Type::Err;
+                        return TypeKind::Err;
                     };
-                    self.assert_type(array_type.element_type(), &Type::Integer(IntegerType::U8), arguments[2].1.span());
+                    self.assert_type(
+                        array_type.element_type(),
+                        &TypeKind::Integer(IntegerType::U8),
+                        arguments[2].1.span(),
+                    );
                     if let Some(length) = array_type.length.as_u32()
                         && length as usize != expected_length
                     {
@@ -769,7 +773,7 @@ impl TypeCheckingVisitor<'_> {
                             format!("a [u8; {expected_length}]"),
                             arguments[2].1.span(),
                         ));
-                        return Type::Err;
+                        return TypeKind::Err;
                     }
                 }
 
@@ -803,149 +807,149 @@ impl TypeCheckingVisitor<'_> {
                                 "a type with a size in bits that is a multiple of 8",
                                 arguments[2].1.span(),
                             ));
-                            return Type::Err;
+                            return TypeKind::Err;
                         }
                     };
                 }
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             Intrinsic::SnarkVerify => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Snark::verify", AccessScope::FinalizeWrite, function_span);
 
                 // arg0: [u8; N] — verifying key (1D byte array)
-                let Type::Array(vk_arr) = &arguments[0].0 else {
+                let TypeKind::Array(vk_arr) = &arguments[0].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         "a [u8; N]",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                if matches!(vk_arr.element_type(), Type::Array(..)) {
+                if matches!(vk_arr.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         "a [u8; N]",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(vk_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                self.assert_type(vk_arr.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[0].1.span());
 
                 // arg1: u8 — varuna version
-                self.assert_type(&arguments[1].0, &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                self.assert_type(&arguments[1].0, &TypeKind::Integer(IntegerType::U8), arguments[1].1.span());
 
                 // arg2: [field; N] — public inputs (1D field array)
-                let Type::Array(inputs_arr) = &arguments[2].0 else {
+                let TypeKind::Array(inputs_arr) = &arguments[2].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [field; N]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                if matches!(inputs_arr.element_type(), Type::Array(..)) {
+                if matches!(inputs_arr.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [field; N]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(inputs_arr.element_type(), &Type::Field, arguments[2].1.span());
+                self.assert_type(inputs_arr.element_type(), &TypeKind::Field, arguments[2].1.span());
 
                 // arg3: [u8; N] — proof (1D byte array)
-                let Type::Array(proof_arr) = &arguments[3].0 else {
+                let TypeKind::Array(proof_arr) = &arguments[3].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                if matches!(proof_arr.element_type(), Type::Array(..)) {
+                if matches!(proof_arr.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(proof_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[3].1.span());
+                self.assert_type(proof_arr.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[3].1.span());
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             Intrinsic::SnarkVerifyBatch => {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Snark::verify_batch", AccessScope::FinalizeWrite, function_span);
 
                 // arg0: [[u8; N]; M] — verifying keys (2D byte array)
-                let Type::Array(vks_outer) = &arguments[0].0 else {
+                let TypeKind::Array(vks_outer) = &arguments[0].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                let Type::Array(vks_inner) = vks_outer.element_type() else {
+                let TypeKind::Array(vks_inner) = vks_outer.element_type() else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
                 // Reject 3D arrays — the inner dimension must be strictly 1D bytes.
-                if matches!(vks_inner.element_type(), Type::Array(..)) {
+                if matches!(vks_inner.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[0].0,
                         "a [[u8; N]; M]",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(vks_inner.element_type(), &Type::Integer(IntegerType::U8), arguments[0].1.span());
+                self.assert_type(vks_inner.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[0].1.span());
 
                 // arg1: u8 — varuna version
-                self.assert_type(&arguments[1].0, &Type::Integer(IntegerType::U8), arguments[1].1.span());
+                self.assert_type(&arguments[1].0, &TypeKind::Integer(IntegerType::U8), arguments[1].1.span());
 
                 // arg2: [[[field; N]; M]; K] — public inputs (3D field array)
-                let Type::Array(inputs_d1) = &arguments[2].0 else {
+                let TypeKind::Array(inputs_d1) = &arguments[2].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                let Type::Array(inputs_d2) = inputs_d1.element_type() else {
+                let TypeKind::Array(inputs_d2) = inputs_d1.element_type() else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
-                let Type::Array(inputs_d3) = inputs_d2.element_type() else {
+                let TypeKind::Array(inputs_d3) = inputs_d2.element_type() else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
                 // Reject 4D arrays — the innermost dimension must be strictly 1D fields.
-                if matches!(inputs_d3.element_type(), Type::Array(..)) {
+                if matches!(inputs_d3.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[2].0,
                         "a [[[field; N]; M]; K]",
                         arguments[2].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(inputs_d3.element_type(), &Type::Field, arguments[2].1.span());
+                self.assert_type(inputs_d3.element_type(), &TypeKind::Field, arguments[2].1.span());
 
                 // Validate dimension match: num_vks (M) must equal num_circuits (K).
                 // These limits match `MAX_SNARK_VERIFY_CIRCUITS` and `MAX_SNARK_VERIFY_INSTANCES` from snarkVM.
@@ -985,40 +989,40 @@ impl TypeCheckingVisitor<'_> {
                 }
 
                 // arg3: [u8; N] — proof (1D byte array)
-                let Type::Array(proof_arr) = &arguments[3].0 else {
+                let TypeKind::Array(proof_arr) = &arguments[3].0 else {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
                 // Reject nested arrays — proof must be strictly 1D.
-                if matches!(proof_arr.element_type(), Type::Array(..)) {
+                if matches!(proof_arr.element_type(), TypeKind::Array(..)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &arguments[3].0,
                         "a [u8; N]",
                         arguments[3].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.assert_type(proof_arr.element_type(), &Type::Integer(IntegerType::U8), arguments[3].1.span());
+                self.assert_type(proof_arr.element_type(), &TypeKind::Integer(IntegerType::U8), arguments[3].1.span());
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             Intrinsic::MappingGet => {
                 let (map_ty, map_expr) = &arguments[0];
 
-                let Type::Mapping(MappingType { value, .. }) = map_ty else {
+                let TypeKind::Mapping(MappingType { value, .. }) = map_ty else {
                     self.assert_mapping_type(map_ty, map_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
                 self.check_access_allowed("Mapping::get", AccessScope::FinalizeRead, function_span);
 
                 if !self.check_path_receiver("Mapping", "get", "mapping", map_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 *value.clone()
@@ -1026,16 +1030,16 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::MappingSet => {
                 let (map_ty, map_expr) = &arguments[0];
 
-                let Type::Mapping(_) = map_ty else {
+                let TypeKind::Mapping(_) = map_ty else {
                     self.assert_mapping_type(map_ty, map_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Mapping::set", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Mapping", "set", "mapping", map_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external mappings).
@@ -1045,10 +1049,10 @@ impl TypeCheckingVisitor<'_> {
                         "mapping",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Unit
+                TypeKind::Unit
             }
             Intrinsic::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
@@ -1059,13 +1063,13 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(MappingType { value, .. }) = map_ty else {
+                let TypeKind::Mapping(MappingType { value, .. }) = map_ty else {
                     // We already handled the error in the assertion.
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 if !self.check_path_receiver("Mapping", "get_or_use", "mapping", map_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 value.deref().clone()
@@ -1079,13 +1083,13 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(_) = map_ty else {
+                let TypeKind::Mapping(_) = map_ty else {
                     // We already handled the error in the assertion.
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 if !self.check_path_receiver("Mapping", "remove", "mapping", map_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external mappings).
@@ -1095,10 +1099,10 @@ impl TypeCheckingVisitor<'_> {
                         "mapping",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Unit
+                TypeKind::Unit
             }
             Intrinsic::MappingContains => {
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
@@ -1109,24 +1113,24 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the first argument is a mapping.
                 self.assert_mapping_type(map_ty, map_expr.span());
 
-                let Type::Mapping(_) = map_ty else {
+                let TypeKind::Mapping(_) = map_ty else {
                     // We already handled the error in the assertion.
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 if !self.check_path_receiver("Mapping", "contains", "mapping", map_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             Intrinsic::OptionalUnwrap => {
                 // Check that the first argument is an optional.
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
                 match &arguments[0].0 {
-                    Type::Optional(opt) => opt.inner.deref().clone(),
-                    _ => Type::Err,
+                    TypeKind::Optional(opt) => opt.inner.deref().clone(),
+                    _ => TypeKind::Err,
                 }
             }
             Intrinsic::OptionalUnwrapOr => {
@@ -1134,44 +1138,44 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_optional_type(&arguments[0].0, arguments[0].1.span());
 
                 match &arguments[0].0 {
-                    Type::Optional(OptionalType { inner }) => {
+                    TypeKind::Optional(OptionalType { inner }) => {
                         // Ensure that the wrapped type and the fallback type are the same
                         self.assert_type(&arguments[1].0, inner, arguments[1].1.span());
                         inner.deref().clone()
                     }
-                    _ => Type::Err,
+                    _ => TypeKind::Err,
                 }
             }
             Intrinsic::VectorGet => {
                 let (vec_ty, vec_expr) = &arguments[0];
 
-                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                let TypeKind::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Check that the operation is invoked in a `finalize` / `async` block or a view.
                 self.check_access_allowed("Vector::get", AccessScope::FinalizeRead, function_span);
 
                 if !self.check_path_receiver("Vector", "get", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                TypeKind::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
             }
             Intrinsic::VectorSet => {
                 let (vec_ty, vec_expr) = &arguments[0];
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_or_mapping_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::set", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "set", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
@@ -1181,19 +1185,19 @@ impl TypeCheckingVisitor<'_> {
                         "vector",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Unit
+                TypeKind::Unit
             }
             Intrinsic::VectorPush => {
                 let (vec_ty, vec_expr) = &arguments[0];
                 let (val_ty, val_expr) = &arguments[1];
 
                 // First argument must be a vector.
-                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                let TypeKind::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 // Value being pushed must match element type.
@@ -1203,7 +1207,7 @@ impl TypeCheckingVisitor<'_> {
                 self.check_access_allowed("Vector::push", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "push", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
@@ -1213,10 +1217,10 @@ impl TypeCheckingVisitor<'_> {
                         "vector",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Unit
+                TypeKind::Unit
             }
             Intrinsic::VectorLen => {
                 let (vec_ty, vec_expr) = &arguments[0];
@@ -1226,14 +1230,14 @@ impl TypeCheckingVisitor<'_> {
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 if !self.check_path_receiver("Vector", "len", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Integer(IntegerType::U32)
+                TypeKind::Integer(IntegerType::U32)
             }
             Intrinsic::VectorPop => {
                 let (vec_ty, vec_expr) = &arguments[0];
@@ -1241,13 +1245,13 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::pop", AccessScope::FinalizeWrite, function_span);
 
-                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                let TypeKind::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 if !self.check_path_receiver("Vector", "pop", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
@@ -1257,10 +1261,10 @@ impl TypeCheckingVisitor<'_> {
                         "vector",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
+                TypeKind::Optional(OptionalType { inner: Box::new(*element_type.clone()) })
             }
             Intrinsic::VectorSwapRemove => {
                 let (vec_ty, vec_expr) = &arguments[0];
@@ -1268,13 +1272,13 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` or `async` block.
                 self.check_access_allowed("Vector::swap_remove", AccessScope::FinalizeWrite, function_span);
 
-                let Type::Vector(VectorType { element_type }) = vec_ty else {
+                let TypeKind::Vector(VectorType { element_type }) = vec_ty else {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 if !self.check_path_receiver("Vector", "swap_remove", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
@@ -1284,7 +1288,7 @@ impl TypeCheckingVisitor<'_> {
                         "vector",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 *element_type.clone()
@@ -1294,13 +1298,13 @@ impl TypeCheckingVisitor<'_> {
 
                 if !vec_ty.is_vector() {
                     self.assert_vector_type(vec_ty, vec_expr.span());
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 self.check_access_allowed("Vector::clear", AccessScope::FinalizeWrite, function_span);
 
                 if !self.check_path_receiver("Vector", "clear", "storage vector", vec_expr) {
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Argument 0 must be a local path (cannot modify external vectors).
@@ -1310,15 +1314,15 @@ impl TypeCheckingVisitor<'_> {
                         "vector",
                         function_span,
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
-                Type::Unit
+                TypeKind::Unit
             }
             Intrinsic::GroupToXCoordinate | Intrinsic::GroupToYCoordinate => {
                 // Check that the first argument is a group.
-                self.assert_type(&arguments[0].0, &Type::Group, arguments[0].1.span());
-                Type::Field
+                self.assert_type(&arguments[0].0, &TypeKind::Group, arguments[0].1.span());
+                TypeKind::Field
             }
             Intrinsic::ChaChaRand(type_) => type_.into(),
             Intrinsic::SignatureVerify => {
@@ -1327,16 +1331,16 @@ impl TypeCheckingVisitor<'_> {
                 assert_not_mapping_tuple_unit(&arguments[2].0, arguments[2].1.span());
 
                 // Check that the first argument is a signature.
-                self.assert_type(&arguments[0].0, &Type::Signature, arguments[0].1.span());
+                self.assert_type(&arguments[0].0, &TypeKind::Signature, arguments[0].1.span());
                 // Check that the second argument is an address.
-                self.assert_type(&arguments[1].0, &Type::Address, arguments[1].1.span());
-                Type::Boolean
+                self.assert_type(&arguments[1].0, &TypeKind::Address, arguments[1].1.span());
+                TypeKind::Boolean
             }
-            Intrinsic::FinalRun => Type::Unit,
-            Intrinsic::GroupGen => Type::Group,
-            Intrinsic::AleoGenerator => Type::Group,
-            Intrinsic::AleoGeneratorPowers => Type::Array(ArrayType::new(
-                Type::Group,
+            Intrinsic::FinalRun => TypeKind::Unit,
+            Intrinsic::GroupGen => TypeKind::Group,
+            Intrinsic::AleoGenerator => TypeKind::Group,
+            Intrinsic::AleoGeneratorPowers => TypeKind::Array(ArrayType::new(
+                TypeKind::Group,
                 Expression::Literal(Literal::integer(
                     IntegerType::U32,
                     "251".to_string(),
@@ -1359,11 +1363,9 @@ impl TypeCheckingVisitor<'_> {
                         ));
                     }
                 }
-                // Verify that the argument is a string.
-                self.assert_type(type_, &Type::Address, span);
-                // Return the type.
-                Type::Array(ArrayType::new(
-                    Type::Integer(IntegerType::U8),
+                self.assert_type(type_, &TypeKind::Address, span);
+                TypeKind::Array(ArrayType::new(
+                    TypeKind::Integer(IntegerType::U8),
                     Expression::Literal(Literal::integer(
                         IntegerType::U8,
                         "32".to_string(),
@@ -1387,10 +1389,8 @@ impl TypeCheckingVisitor<'_> {
                         ));
                     }
                 }
-                // Verify that the argument is a string.
-                self.assert_type(type_, &Type::Address, span);
-                // Return the type.
-                Type::Integer(IntegerType::U16)
+                self.assert_type(type_, &TypeKind::Address, span);
+                TypeKind::Integer(IntegerType::U16)
             }
             Intrinsic::ProgramOwner => {
                 // Get the argument type, expression, and span.
@@ -1407,10 +1407,8 @@ impl TypeCheckingVisitor<'_> {
                         ));
                     }
                 }
-                // Verify that the argument is a string.
-                self.assert_type(type_, &Type::Address, span);
-                // Return the type.
-                Type::Address
+                self.assert_type(type_, &TypeKind::Address, span);
+                TypeKind::Address
             }
             Intrinsic::FunctionChecksum => {
                 // The first argument is the program ID, the second the component name.
@@ -1431,7 +1429,7 @@ impl TypeCheckingVisitor<'_> {
                         None
                     }
                 };
-                self.assert_type(program_type, &Type::Address, program_span);
+                self.assert_type(program_type, &TypeKind::Address, program_span);
                 // Check that the second argument is an identifier literal naming the component, e.g. `'foo'`.
                 let (component_type, component_expr) = &arguments[1];
                 let component_span = component_expr.span();
@@ -1447,7 +1445,7 @@ impl TypeCheckingVisitor<'_> {
                         None
                     }
                 };
-                self.assert_type(component_type, &Type::Identifier, component_span);
+                self.assert_type(component_type, &TypeKind::Identifier, component_span);
                 // Checksums exist only for externally-callable components — entry and view functions.
                 // Closures and `final fn`s are inlining artifacts with no stable identity, so reject
                 // anything that does not resolve to an entry or view function of the named (imported) program.
@@ -1467,8 +1465,8 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
                 // Return the type.
-                Type::Array(ArrayType::new(
-                    Type::Integer(IntegerType::U8),
+                TypeKind::Array(ArrayType::new(
+                    TypeKind::Integer(IntegerType::U8),
                     Expression::Literal(Literal::integer(
                         IntegerType::U8,
                         "32".to_string(),
@@ -1487,24 +1485,24 @@ impl TypeCheckingVisitor<'_> {
                 let input_type = &arguments[0].0;
 
                 // A helper function to check that a type is an allowed literal type.
-                let is_allowed_literal_type = |type_: &Type| -> bool {
+                let is_allowed_literal_type = |type_: &TypeKind| -> bool {
                     matches!(
                         type_,
-                        Type::Boolean
-                            | Type::Field
-                            | Type::Group
-                            | Type::Scalar
-                            | Type::Signature
-                            | Type::Address
-                            | Type::Integer(_)
-                            | Type::String
-                            | Type::Numeric
+                        TypeKind::Boolean
+                            | TypeKind::Field
+                            | TypeKind::Group
+                            | TypeKind::Scalar
+                            | TypeKind::Signature
+                            | TypeKind::Address
+                            | TypeKind::Integer(_)
+                            | TypeKind::String
+                            | TypeKind::Numeric
                     )
                 };
 
                 // Check that the input type is an allowed literal or a (possibly multi-dimensional) array of literals.
                 let is_allowed = match input_type {
-                    Type::Array(array_type) => is_allowed_literal_type(array_type.base_element_type()),
+                    TypeKind::Array(array_type) => is_allowed_literal_type(array_type.base_element_type()),
                     type_ => is_allowed_literal_type(type_),
                 };
                 if !is_allowed {
@@ -1513,7 +1511,7 @@ impl TypeCheckingVisitor<'_> {
                         "a literal type or an (multi-dimensional) array of literal types",
                         arguments[0].1.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
 
                 // Get the size in bits.
@@ -1535,23 +1533,23 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(crate::errors::type_checker::custom(
                         format!("The input type to `Serialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span()));
-                        return Type::Err;
+                        return TypeKind::Err;
                     } else if size_in_bits == 0 {
                         self.emit_err(crate::errors::type_checker::custom(
                             "The input type to `Serialize::*` is empty.",
                             arguments[0].1.span(),
                         ));
-                        return Type::Err;
+                        return TypeKind::Err;
                     } else {
                         u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
                     };
 
                     // Return the array type.
-                    return Type::Array(ArrayType::bit_array(size_in_bits));
+                    return TypeKind::Array(ArrayType::bit_array(size_in_bits));
                 }
 
                 // Could not resolve the size in bits at this time.
-                Type::Err
+                TypeKind::Err
             }
             Intrinsic::Deserialize(variant, type_) => {
                 // Determine the variant.
@@ -1581,39 +1579,39 @@ impl TypeCheckingVisitor<'_> {
                         self.emit_err(crate::errors::type_checker::custom(
                         format!("The output type of `Deserialize::*` is too large. Found {size_in_bits} bits, but the maximum allowed is {} bits.", self.limits.max_array_elements),
                         arguments[0].1.span()));
-                        return Type::Err;
+                        return TypeKind::Err;
                     } else if size_in_bits == 0 {
                         self.emit_err(crate::errors::type_checker::custom(
                             "The output type of `Deserialize::*` is empty.",
                             arguments[0].1.span(),
                         ));
-                        return Type::Err;
+                        return TypeKind::Err;
                     } else {
                         u32::try_from(size_in_bits).expect("`max_array_elements` should fit in a u32")
                     };
 
                     // Check that the input type is an array of the correct size.
-                    let expected_type = Type::Array(ArrayType::bit_array(size_in_bits));
+                    let expected_type = TypeKind::Array(ArrayType::bit_array(size_in_bits));
                     if !input_type.types_equivalent(&expected_type) {
                         self.emit_err(crate::errors::type_checker::type_should_be2(
                             input_type,
                             format!("an array of {size_in_bits} bits"),
                             arguments[0].1.span(),
                         ));
-                        return Type::Err;
+                        return TypeKind::Err;
                     }
                 };
 
                 type_.clone()
             }
-            Intrinsic::SelfAddress => Type::Address,
+            Intrinsic::SelfAddress => TypeKind::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
                 self.check_access_allowed("self.caller", AccessScope::OffchainCaller, function_span);
-                Type::Address
+                TypeKind::Address
             }
-            Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
-                Type::Integer(IntegerType::U8),
+            Intrinsic::SelfChecksum => TypeKind::Array(ArrayType::new(
+                TypeKind::Integer(IntegerType::U8),
                 Expression::Literal(Literal::integer(
                     IntegerType::U8,
                     "32".to_string(),
@@ -1621,33 +1619,33 @@ impl TypeCheckingVisitor<'_> {
                     Default::default(),
                 )),
             )),
-            Intrinsic::SelfEdition => Type::Integer(IntegerType::U16),
-            Intrinsic::SelfId => Type::Address,
+            Intrinsic::SelfEdition => TypeKind::Integer(IntegerType::U16),
+            Intrinsic::SelfId => TypeKind::Address,
             Intrinsic::SelfProgramOwner => {
                 // Check that the operation is only invoked in a `finalize` block.
                 self.check_access_allowed("program_owner", AccessScope::FinalizeWrite, function_span);
-                Type::Address
+                TypeKind::Address
             }
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
                 self.check_access_allowed("self.signer", AccessScope::OffchainCaller, function_span);
-                Type::Address
+                TypeKind::Address
             }
             Intrinsic::BlockHeight => {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // Views see the latest block height via FinalizeGlobalState::for_view.
                 self.check_access_allowed("block.height", AccessScope::FinalizeRead, function_span);
-                Type::Integer(IntegerType::U32)
+                TypeKind::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
                 // Check that the operation is invoked in a `finalize` block. Rejected in view fns.
                 self.check_access_allowed("block.timestamp", AccessScope::FinalizeWrite, function_span);
-                Type::Integer(IntegerType::I64)
+                TypeKind::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
                 // Check that the operation is not invoked outside a `finalize` block or a view.
                 self.check_access_allowed("network.id", AccessScope::FinalizeRead, function_span);
-                Type::Integer(IntegerType::U16)
+                TypeKind::Integer(IntegerType::U16)
             }
             // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
             Intrinsic::DynamicCall
@@ -1685,7 +1683,11 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn check_dynamic_call_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Option<Type>) -> Type {
+    pub fn check_dynamic_call_intrinsic(
+        &mut self,
+        input: &IntrinsicExpression,
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let span = input.span();
 
         self.validate_dynamic_call_scope(span);
@@ -1693,13 +1695,13 @@ impl TypeCheckingVisitor<'_> {
         // Minimum 3 arguments: program, network, function.
         if input.arguments.len() < 3 {
             self.emit_err(crate::errors::type_checker::dynamic_call_min_args(input.arguments.len(), span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // First 3 arguments must be field or identifier.
         for arg in input.arguments.iter().take(3) {
             let arg_type = self.visit_expression(arg, &None);
-            if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
+            if !matches!(arg_type, TypeKind::Field | TypeKind::Identifier | TypeKind::Err) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     &arg_type,
                     "`field` or `identifier`",
@@ -1733,15 +1735,15 @@ impl TypeCheckingVisitor<'_> {
 
         // Determine return type. Unit `()` is normalized to empty return_types at parse time.
         let return_type = match input.return_types.len() {
-            0 => Type::Unit,
+            0 => TypeKind::Unit,
             1 => input.return_types[0].1.clone(),
-            _ => Type::Tuple(TupleType::new(input.return_types.iter().map(|(_, t, _)| t.clone()).collect())),
+            _ => TypeKind::Tuple(TupleType::new(input.return_types.iter().map(|(_, t, _)| t.clone()).collect())),
         };
 
         // If return type contains Future, mark as dynamic call location.
         let contains_future = match &return_type {
-            Type::Future(..) => true,
-            Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
+            TypeKind::Future(..) => true,
+            TypeKind::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, TypeKind::Future(..))),
             _ => false,
         };
         if contains_future {
@@ -1756,8 +1758,8 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         intrinsic: Intrinsic,
         input: &IntrinsicExpression,
-        expected: &Option<Type>,
-    ) -> Type {
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let span = input.span();
 
         // Must be in finalize context.
@@ -1782,26 +1784,26 @@ impl TypeCheckingVisitor<'_> {
                 input.arguments.len(),
                 span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Check type parameter count.
         if needs_type_param && input.type_parameters.len() != 1 {
             self.emit_err(crate::errors::type_checker::dynamic_intrinsic_missing_type_param(name, span));
-            return Type::Err;
+            return TypeKind::Err;
         }
         if !needs_type_param && !input.type_parameters.is_empty() {
             self.emit_err(crate::errors::type_checker::custom(
                 format!("`{name}` does not accept type parameters."),
                 span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // First 3 arguments: program, network, mapping — must be field or identifier.
         for arg in input.arguments.iter().take(3) {
             let arg_type = self.visit_expression(arg, &None);
-            if !matches!(arg_type, Type::Field | Type::Identifier | Type::Err) {
+            if !matches!(arg_type, TypeKind::Field | TypeKind::Identifier | TypeKind::Err) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     &arg_type,
                     "`field` or `identifier`",
@@ -1817,9 +1819,9 @@ impl TypeCheckingVisitor<'_> {
 
         // Determine return type.
         let return_type = match &intrinsic {
-            Intrinsic::DynamicContains => Type::Boolean,
+            Intrinsic::DynamicContains => TypeKind::Boolean,
             Intrinsic::DynamicGet | Intrinsic::DynamicGetOrUse => {
-                let tp = input.type_parameters.first().map(|(t, _)| t.clone()).unwrap_or(Type::Err);
+                let tp = input.type_parameters.first().map(|(t, _)| t.clone()).unwrap_or(TypeKind::Err);
                 // For get_or_use, check that default value matches the type param.
                 if matches!(intrinsic, Intrinsic::DynamicGetOrUse)
                     && let Some(default_arg) = input.arguments.get(4)
@@ -1838,9 +1840,9 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits an error if the composite member is a record type.
-    pub fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
+    pub fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &TypeKind) {
         match type_ {
-            Type::Composite(composite)
+            TypeKind::Composite(composite)
                 if self
                     .lookup_composite(composite.path.expect_global_location())
                     .is_some_and(|composite| composite.is_record) =>
@@ -1851,10 +1853,10 @@ impl TypeCheckingVisitor<'_> {
                     span,
                 ))
             }
-            Type::DynRecord => {
+            TypeKind::DynRecord => {
                 self.emit_err(crate::errors::type_checker::struct_or_record_cannot_contain_record(parent, type_, span))
             }
-            Type::Tuple(tuple_type) => {
+            TypeKind::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
                     self.assert_member_is_not_record(span, parent, type_)
                 }
@@ -1864,18 +1866,18 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits an error if the type or its constituent types is not valid.
-    pub fn assert_type_is_valid(&mut self, type_: &Type, span: Span) {
+    pub fn assert_type_is_valid(&mut self, type_: &TypeKind, span: Span) {
         match type_ {
             // Unit types may only appear as the return type of a function.
-            Type::Unit => {
+            TypeKind::Unit => {
                 self.emit_err(crate::errors::type_checker::unit_type_only_return(span));
             }
             // String types are temporarily disabled.
-            Type::String => {
+            TypeKind::String => {
                 self.emit_err(crate::errors::type_checker::strings_are_not_supported(span));
             }
             // Check that named composite type has been defined and is accessible.
-            Type::Composite(composite) => {
+            TypeKind::Composite(composite) => {
                 let loc = composite.path.expect_global_location();
                 match self.lookup_composite(loc) {
                     Some(comp) => {
@@ -1887,18 +1889,18 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
             // Check that the constituent types of the tuple are valid.
-            Type::Tuple(tuple_type) => {
+            TypeKind::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
                     self.assert_type_is_valid(type_, span);
                 }
             }
             // Check that the constituent types of mapping are valid.
-            Type::Mapping(mapping_type) => {
+            TypeKind::Mapping(mapping_type) => {
                 self.assert_type_is_valid(&mapping_type.key, span);
                 self.assert_type_is_valid(&mapping_type.value, span);
             }
             // Check that the array element types are valid.
-            Type::Array(array_type) => {
+            TypeKind::Array(array_type) => {
                 // Check that the array length is valid.
 
                 if let Some(length) = array_type.length.as_u32() {
@@ -1918,11 +1920,15 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the array element type is valid.
                 match array_type.element_type() {
                     // Array elements cannot be futures.
-                    Type::Future(_) => self.emit_err(crate::errors::type_checker::array_element_cannot_be_final(span)),
+                    TypeKind::Future(_) => {
+                        self.emit_err(crate::errors::type_checker::array_element_cannot_be_final(span))
+                    }
                     // Array elements cannot be tuples.
-                    Type::Tuple(_) => self.emit_err(crate::errors::type_checker::array_element_cannot_be_tuple(span)),
+                    TypeKind::Tuple(_) => {
+                        self.emit_err(crate::errors::type_checker::array_element_cannot_be_tuple(span))
+                    }
                     // Array elements cannot be records.
-                    Type::Composite(composite_type) => {
+                    TypeKind::Composite(composite_type) => {
                         // Look up the type.
                         if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                             // Check that the type is not a record.
@@ -1932,7 +1938,7 @@ impl TypeCheckingVisitor<'_> {
                         }
                     }
                     // Array elements cannot be `dyn record`.
-                    Type::DynRecord => {
+                    TypeKind::DynRecord => {
                         self.emit_err(crate::errors::type_checker::array_element_cannot_be_record(span));
                     }
                     _ => {} // Do nothing.
@@ -1940,7 +1946,7 @@ impl TypeCheckingVisitor<'_> {
                 self.assert_type_is_valid(array_type.element_type(), span);
             }
 
-            Type::Optional(OptionalType { inner }) => {
+            TypeKind::Optional(OptionalType { inner }) => {
                 // Some types cannot be wrapped in an optional
                 if self.disallowed_inside_optional(inner) {
                     self.emit_err(crate::errors::type_checker::optional_wrapping_unsupported(inner, span));
@@ -1951,53 +1957,53 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Vector types can only be used in storage declarations.
-            Type::Vector(_) => {
+            TypeKind::Vector(_) => {
                 self.emit_err(crate::errors::type_checker::vector_type_only_in_storage(span));
             }
 
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Future(_)
-            | Type::Group
-            | Type::DynRecord
-            | Type::Identifier
-            | Type::Ident(_)
-            | Type::Integer(_)
-            | Type::Scalar
-            | Type::Signature
-            | Type::Numeric
-            | Type::Err => {} // Do nothing.
+            TypeKind::Address
+            | TypeKind::Boolean
+            | TypeKind::Field
+            | TypeKind::Future(_)
+            | TypeKind::Group
+            | TypeKind::DynRecord
+            | TypeKind::Identifier
+            | TypeKind::Ident(_)
+            | TypeKind::Integer(_)
+            | TypeKind::Scalar
+            | TypeKind::Signature
+            | TypeKind::Numeric
+            | TypeKind::Err => {} // Do nothing.
         }
     }
 
     /// Can type `ty` be used inside an optional?
-    fn disallowed_inside_optional(&mut self, ty: &Type) -> bool {
+    fn disallowed_inside_optional(&mut self, ty: &TypeKind) -> bool {
         let mut visited_paths = IndexSet::<Vec<Symbol>>::new();
         self.disallowed_inside_optional_inner(ty, &mut visited_paths)
     }
 
-    fn disallowed_inside_optional_inner(&mut self, ty: &Type, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
+    fn disallowed_inside_optional_inner(&mut self, ty: &TypeKind, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
         match ty {
-            Type::Unit
-            | Type::Err
-            | Type::Future(_)
-            | Type::Ident(_)
-            | Type::Mapping(_)
-            | Type::Optional(_)
-            | Type::String
-            | Type::Identifier
-            | Type::DynRecord
-            | Type::Tuple(_)
-            | Type::Vector(_) => true,
+            TypeKind::Unit
+            | TypeKind::Err
+            | TypeKind::Future(_)
+            | TypeKind::Ident(_)
+            | TypeKind::Mapping(_)
+            | TypeKind::Optional(_)
+            | TypeKind::String
+            | TypeKind::Identifier
+            | TypeKind::DynRecord
+            | TypeKind::Tuple(_)
+            | TypeKind::Vector(_) => true,
 
-            Type::Composite(composite_type) => {
+            TypeKind::Composite(composite_type) => {
                 let composite_location = composite_type.path.expect_global_location();
 
                 // Prevent revisiting the same type. A composite that recurses through `Option<Self>`
                 // (e.g. `struct Node { next: Node? }`) would otherwise drive this walk into an infinite
                 // recursion and overflow the stack — the cycle-graph cycle check does not catch it
-                // because `Type::Optional(Composite(_))` adds no edge to the composite dependency graph.
+                // because `TypeKind::Optional(Composite(_))` adds no edge to the composite dependency graph.
                 if !visited_paths.insert(composite_location.path.clone()) {
                     return false;
                 }
@@ -2009,10 +2015,10 @@ impl TypeCheckingVisitor<'_> {
 
                     // recursively check all fields
                     for field in &composite.members {
-                        let field_ty = &field.type_;
+                        let field_ty = field.type_.kind();
                         // unwrap optional fields for the check
                         let ty_to_check = match field_ty {
-                            Type::Optional(OptionalType { inner }) => inner,
+                            TypeKind::Optional(OptionalType { inner }) => inner.as_ref(),
                             _ => field_ty,
                         };
                         if self.disallowed_inside_optional_inner(ty_to_check, visited_paths) {
@@ -2023,60 +2029,60 @@ impl TypeCheckingVisitor<'_> {
                 false
             }
 
-            Type::Array(array_type) => {
+            TypeKind::Array(array_type) => {
                 let elem_type = match array_type.element_type() {
-                    Type::Optional(OptionalType { inner }) => inner,
+                    TypeKind::Optional(OptionalType { inner }) => inner,
                     other => other,
                 };
                 self.disallowed_inside_optional_inner(elem_type, visited_paths)
             }
 
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Group
-            | Type::Integer(_)
-            | Type::Numeric
-            | Type::Scalar
-            | Type::Signature => false,
+            TypeKind::Address
+            | TypeKind::Boolean
+            | TypeKind::Field
+            | TypeKind::Group
+            | TypeKind::Integer(_)
+            | TypeKind::Numeric
+            | TypeKind::Scalar
+            | TypeKind::Signature => false,
         }
     }
 
     /// Ensures the given type is valid for use in storage.
     /// Emits an error if the type or any of its inner types are invalid.
-    pub fn assert_storage_type_is_valid(&mut self, type_: &Type, span: Span) {
+    pub fn assert_storage_type_is_valid(&mut self, type_: &TypeKind, span: Span) {
         if type_.is_empty() {
             self.emit_err(crate::errors::type_checker::invalid_storage_type("A zero sized type", span));
         }
         match type_ {
             // Prohibited top-level kinds
-            Type::Unit => {
+            TypeKind::Unit => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("unit", span));
             }
-            Type::String => {
+            TypeKind::String => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("string", span));
             }
-            Type::Identifier => {
+            TypeKind::Identifier => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("identifier", span));
             }
-            Type::DynRecord => {
+            TypeKind::DynRecord => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("dyn record", span));
             }
-            Type::Future(_) => {
+            TypeKind::Future(_) => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("future", span));
             }
-            Type::Optional(_) => {
+            TypeKind::Optional(_) => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("optional", span));
             }
-            Type::Mapping(_) => {
+            TypeKind::Mapping(_) => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("mapping", span));
             }
-            Type::Tuple(_) => {
+            TypeKind::Tuple(_) => {
                 self.emit_err(crate::errors::type_checker::invalid_storage_type("tuple", span));
             }
 
             // Composites
-            Type::Composite(composite_type) => {
+            TypeKind::Composite(composite_type) => {
                 if let Some(composite) = self.lookup_composite(composite_type.path.expect_global_location()) {
                     if composite.is_record {
                         self.emit_err(crate::errors::type_checker::invalid_storage_type("record", span));
@@ -2085,7 +2091,7 @@ impl TypeCheckingVisitor<'_> {
 
                     // Recursively check fields.
                     for field in &composite.members {
-                        self.assert_storage_type_is_valid(&field.type_, span);
+                        self.assert_storage_type_is_valid(field.type_.kind(), span);
                     }
                 } else {
                     self.emit_err(crate::errors::type_checker::invalid_storage_type("undefined composite", span));
@@ -2093,7 +2099,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Arrays
-            Type::Array(array_type) => {
+            TypeKind::Array(array_type) => {
                 if let Some(length) = array_type.length.as_u32()
                     && (length == 0 || length > self.limits.max_array_elements as u32)
                 {
@@ -2102,9 +2108,13 @@ impl TypeCheckingVisitor<'_> {
 
                 let element_ty = array_type.element_type();
                 match element_ty {
-                    Type::Future(_) => self.emit_err(crate::errors::type_checker::invalid_storage_type("future", span)),
-                    Type::Tuple(_) => self.emit_err(crate::errors::type_checker::invalid_storage_type("tuple", span)),
-                    Type::Optional(_) => {
+                    TypeKind::Future(_) => {
+                        self.emit_err(crate::errors::type_checker::invalid_storage_type("future", span))
+                    }
+                    TypeKind::Tuple(_) => {
+                        self.emit_err(crate::errors::type_checker::invalid_storage_type("tuple", span))
+                    }
+                    TypeKind::Optional(_) => {
                         self.emit_err(crate::errors::type_checker::invalid_storage_type("optional", span))
                     }
                     _ => {}
@@ -2114,22 +2124,26 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Everything else (integers, bool, group, signature, etc.)
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Group
-            | Type::Ident(_)
-            | Type::Integer(_)
-            | Type::Scalar
-            | Type::Signature
-            | Type::Numeric
-            | Type::Err => {} // valid
-            Type::Vector(vector_type) => {
+            TypeKind::Address
+            | TypeKind::Boolean
+            | TypeKind::Field
+            | TypeKind::Group
+            | TypeKind::Ident(_)
+            | TypeKind::Integer(_)
+            | TypeKind::Scalar
+            | TypeKind::Signature
+            | TypeKind::Numeric
+            | TypeKind::Err => {} // valid
+            TypeKind::Vector(vector_type) => {
                 let element_ty = vector_type.element_type();
                 match element_ty {
-                    Type::Future(_) => self.emit_err(crate::errors::type_checker::invalid_storage_type("future", span)),
-                    Type::Tuple(_) => self.emit_err(crate::errors::type_checker::invalid_storage_type("tuple", span)),
-                    Type::Optional(_) => {
+                    TypeKind::Future(_) => {
+                        self.emit_err(crate::errors::type_checker::invalid_storage_type("future", span))
+                    }
+                    TypeKind::Tuple(_) => {
+                        self.emit_err(crate::errors::type_checker::invalid_storage_type("tuple", span))
+                    }
+                    TypeKind::Optional(_) => {
                         self.emit_err(crate::errors::type_checker::invalid_storage_type("optional", span))
                     }
                     _ => {}
@@ -2140,47 +2154,49 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Emits an error if the type is not a mapping.
-    pub fn assert_mapping_type(&self, type_: &Type, span: Span) {
-        if type_ != &Type::Err && !matches!(type_, Type::Mapping(_)) {
+    pub fn assert_mapping_type(&self, type_: &TypeKind, span: Span) {
+        if type_ != &TypeKind::Err && !matches!(type_, TypeKind::Mapping(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a mapping", span));
         }
     }
 
     /// Emits an error if the type is not an optional.
-    pub fn assert_optional_type(&self, type_: &Type, span: Span) {
-        if type_ != &Type::Err && !matches!(type_, Type::Optional(_)) {
+    pub fn assert_optional_type(&self, type_: &TypeKind, span: Span) {
+        if type_ != &TypeKind::Err && !matches!(type_, TypeKind::Optional(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "an optional", span));
         }
     }
 
     /// Emits an error if the type is not a vector
-    pub fn assert_vector_type(&self, type_: &Type, span: Span) {
-        if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) {
+    pub fn assert_vector_type(&self, type_: &TypeKind, span: Span) {
+        if type_ != &TypeKind::Err && !matches!(type_, TypeKind::Vector(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a vector", span));
         }
     }
 
     /// Emits an error if the type is not a vector or a mapping.
-    pub fn assert_vector_or_mapping_type(&self, type_: &Type, span: Span) {
-        if type_ != &Type::Err && !matches!(type_, Type::Vector(_)) && !matches!(type_, Type::Mapping(_)) {
+    pub fn assert_vector_or_mapping_type(&self, type_: &TypeKind, span: Span) {
+        if type_ != &TypeKind::Err && !matches!(type_, TypeKind::Vector(_)) && !matches!(type_, TypeKind::Mapping(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a vector or a mapping", span));
         }
     }
 
-    pub fn contains_optional_type(&mut self, ty: &Type) -> bool {
+    pub fn contains_optional_type(&mut self, ty: &TypeKind) -> bool {
         let mut visited_paths = IndexSet::<Vec<Symbol>>::new();
         self.contains_optional_type_inner(ty, &mut visited_paths)
     }
 
-    fn contains_optional_type_inner(&mut self, ty: &Type, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
+    fn contains_optional_type_inner(&mut self, ty: &TypeKind, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
         match ty {
-            Type::Optional(_) => true,
+            TypeKind::Optional(_) => true,
 
-            Type::Tuple(tuple) => tuple.elements.iter().any(|e| self.contains_optional_type_inner(e, visited_paths)),
+            TypeKind::Tuple(tuple) => {
+                tuple.elements.iter().any(|e| self.contains_optional_type_inner(e, visited_paths))
+            }
 
-            Type::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
+            TypeKind::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
 
-            Type::Composite(composite_type) => {
+            TypeKind::Composite(composite_type) => {
                 let composite_location = composite_type.path.expect_global_location();
 
                 // Prevent revisiting the same type
@@ -2192,7 +2208,7 @@ impl TypeCheckingVisitor<'_> {
                 if let Some(comp) = self.lookup_composite(composite_location) {
                     comp.members
                         .iter()
-                        .any(|Member { type_, .. }| self.contains_optional_type_inner(type_, visited_paths))
+                        .any(|Member { type_, .. }| self.contains_optional_type_inner(type_.kind(), visited_paths))
                 } else {
                     false
                 }
@@ -2202,8 +2218,8 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn assert_array_type(&self, type_: &Type, span: Span) {
-        if type_ != &Type::Err && !matches!(type_, Type::Array(_)) {
+    pub fn assert_array_type(&self, type_: &TypeKind, span: Span) {
+        if type_ != &TypeKind::Err && !matches!(type_, TypeKind::Array(_)) {
             self.emit_err(crate::errors::type_checker::type_should_be2(type_, "an array", span));
         }
     }
@@ -2220,7 +2236,7 @@ impl TypeCheckingVisitor<'_> {
 
         self.scope_state.variant = Some(function.variant);
 
-        let mut inferred_inputs: Vec<Type> = Vec::new();
+        let mut inferred_inputs: Vec<TypeKind> = Vec::new();
 
         if matches!(self.scope_state.variant, Some(Variant::Finalize)) && !self.scope_state.is_stub {
             // Async functions are not allowed to return values.
@@ -2249,7 +2265,7 @@ impl TypeCheckingVisitor<'_> {
                 inferred_inputs = first.inferred_inputs.clone();
 
                 // If any input is a future that doesn't have the same member type for all
-                // finalizers, set that member to `Type::Err`.
+                // finalizers, set that member to `TypeKind::Err`.
                 for finalizer in caller_finalizers {
                     assert_eq!(inferred_inputs.len(), finalizer.inferred_inputs.len());
                     for (t1, t2) in inferred_inputs.iter_mut().zip(finalizer.inferred_inputs.iter()) {
@@ -2295,24 +2311,30 @@ impl TypeCheckingVisitor<'_> {
         }
 
         for const_param in &function.const_parameters {
-            self.visit_type(const_param.type_());
+            self.visit_type(const_param.type_().kind());
 
             // Restrictions for const parameters
             if !matches!(
-                const_param.type_(),
-                Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
+                const_param.type_().kind(),
+                TypeKind::Boolean
+                    | TypeKind::Integer(_)
+                    | TypeKind::Address
+                    | TypeKind::Scalar
+                    | TypeKind::Group
+                    | TypeKind::Field
             ) {
                 self.emit_err(crate::errors::type_checker::bad_const_generic_type(
-                    const_param.type_(),
+                    const_param.type_().kind(),
                     const_param.span(),
                 ));
             }
 
             // Set the type of the input in the symbol table.
-            self.state.symbol_table.set_local_type(const_param.identifier.name, const_param.type_().clone());
+            self.state.symbol_table.set_local_type(const_param.identifier.name, const_param.type_().kind().clone());
 
             // Add the input to the type table.
-            self.state.type_table.insert(const_param.identifier().id(), const_param.type_().clone());
+            let ty = const_param.type_().ty();
+            self.state.type_table.insert(const_param.identifier().id(), ty);
         }
 
         // Ensure there aren't too many inputs
@@ -2330,16 +2352,16 @@ impl TypeCheckingVisitor<'_> {
 
         // The inputs should have access to the const parameters, so handle them after.
         for (i, input) in function.input.iter().enumerate() {
-            self.visit_type(input.type_());
+            self.visit_type(input.type_().kind());
 
             // No need to check compatibility of these types; that's already been done
-            let table_type = inferred_inputs.get(i).unwrap_or_else(|| input.type_());
+            let table_type = inferred_inputs.get(i).unwrap_or(input.type_().kind());
 
             // Check that the type of input parameter is defined.
             self.assert_type_is_valid(table_type, input.span());
 
             // Check that the type of the input parameter is not a tuple.
-            if matches!(table_type, Type::Tuple(_)) {
+            if matches!(table_type, TypeKind::Tuple(_)) {
                 self.emit_err(crate::errors::type_checker::function_cannot_take_tuple_as_input(input.span()))
             }
 
@@ -2353,7 +2375,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Make sure only transitions can take a record as an input.
-            if let Type::Composite(composite) = table_type {
+            if let TypeKind::Composite(composite) = table_type {
                 // Throw error for undefined type.
                 if !function.variant.is_entry() {
                     if let Some(elem) = self.lookup_composite(composite.path.expect_global_location()) {
@@ -2399,7 +2421,7 @@ impl TypeCheckingVisitor<'_> {
             if function.variant.is_entry() && input.mode() != Mode::None {
                 let kind = if self.type_is_record(table_type) {
                     Some("record")
-                } else if matches!(table_type, Type::Future(_)) {
+                } else if matches!(table_type, TypeKind::Future(_)) {
                     Some("`Final`")
                 } else {
                     None
@@ -2409,7 +2431,7 @@ impl TypeCheckingVisitor<'_> {
                 }
             }
 
-            if matches!(table_type, Type::Future(..)) {
+            if matches!(table_type, TypeKind::Future(..)) {
                 // Future parameters may only appear in onchain functions.
                 // TODO: we may want to relax this
                 if !matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)) {
@@ -2422,7 +2444,8 @@ impl TypeCheckingVisitor<'_> {
                 self.state.symbol_table.set_local_type(input.identifier.name, table_type.clone());
 
                 // Add the input to the type table.
-                self.state.type_table.insert(input.identifier().id(), table_type.clone());
+                let table_ty = self.state.types.intern(table_type);
+                self.state.type_table.insert(input.identifier().id(), table_ty);
             }
         }
 
@@ -2443,11 +2466,11 @@ impl TypeCheckingVisitor<'_> {
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
         function.output.iter().enumerate().for_each(|(index, function_output)| {
-            self.visit_type(&function_output.type_);
+            self.visit_type(function_output.type_.kind());
 
             // If the function is not a transition function, then it cannot output a record.
             // Note that an external output must always be a record.
-            if let Type::Composite(composite) = function_output.type_.clone()
+            if let TypeKind::Composite(composite) = function_output.type_.kind().clone()
                 && let Some(val) = self.lookup_composite(composite.path.expect_global_location())
                 && val.is_record
                 && !function.variant.is_entry()
@@ -2458,17 +2481,19 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the output type is valid.
-            self.assert_type_is_valid(&function_output.type_, function_output.span);
+            self.assert_type_is_valid(function_output.type_.kind(), function_output.span);
 
             // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-            if matches!(&function_output.type_, Type::Tuple(_)) {
+            if matches!(&function_output.type_.kind(), TypeKind::Tuple(_)) {
                 self.emit_err(crate::errors::type_checker::nested_tuple_type(function_output.span))
             }
 
             // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(&function_output.type_) && matches!(function.variant, Variant::EntryPoint) {
+            if self.contains_optional_type(function_output.type_.kind())
+                && matches!(function.variant, Variant::EntryPoint)
+            {
                 self.emit_err(crate::errors::type_checker::function_cannot_return_option_as_output(
-                    &function_output.type_,
+                    function_output.type_.kind(),
                     function_output.span(),
                 ))
             }
@@ -2477,9 +2502,9 @@ impl TypeCheckingVisitor<'_> {
             // Records and `Final`s lower to `.record`/`.future` markers, neither of which carries a
             // visibility, so an explicit mode on such an output is meaningless. These types are only
             // valid as outputs on entry points (other variants already error above).
-            let record_or_final_output = if self.type_is_record(&function_output.type_) {
+            let record_or_final_output = if self.type_is_record(function_output.type_.kind()) {
                 Some("record")
-            } else if matches!(function_output.type_, Type::Future(_)) {
+            } else if matches!(function_output.type_.kind(), TypeKind::Future(_)) {
                 Some("`Final`")
             } else {
                 None
@@ -2510,14 +2535,15 @@ impl TypeCheckingVisitor<'_> {
             // Async transitions must return exactly one future, and it must be in the last position.
             if function.has_final_output()
                 && function.variant.is_entry()
-                && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
-                    || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
+                && ((index < function.output.len() - 1 && matches!(function_output.type_.kind(), TypeKind::Future(_)))
+                    || (index == function.output.len() - 1
+                        && !matches!(function_output.type_.kind(), TypeKind::Future(_))))
             {
                 self.emit_err(crate::errors::type_checker::entry_point_fn_final_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
             if !matches!(self.scope_state.variant, Some(Variant::EntryPoint))
-                && matches!(function_output.type_, Type::Future(_))
+                && matches!(function_output.type_.kind(), TypeKind::Future(_))
             {
                 self.emit_err(crate::errors::type_checker::only_entry_point_can_return_final(function_output.span));
             }
@@ -2528,32 +2554,32 @@ impl TypeCheckingVisitor<'_> {
 
     /// Merge inferred types into `lhs`.
     ///
-    /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to Type::Err;
+    /// That is, if `lhs` and `rhs` aren't equal, set `lhs` to TypeKind::Err;
     /// or, if they're both futures, set any member of `lhs` that isn't
-    /// equal to the equivalent member of `rhs` to `Type::Err`.
-    fn merge_types(&self, lhs: &mut Type, rhs: &Type) {
-        if let Type::Future(f1) = lhs {
-            if let Type::Future(f2) = rhs {
+    /// equal to the equivalent member of `rhs` to `TypeKind::Err`.
+    fn merge_types(&self, lhs: &mut TypeKind, rhs: &TypeKind) {
+        if let TypeKind::Future(f1) = lhs {
+            if let TypeKind::Future(f2) = rhs {
                 for (i, type_) in f2.inputs.iter().enumerate() {
                     if let Some(lhs_type) = f1.inputs.get_mut(i) {
                         self.merge_types(lhs_type, type_);
                     } else {
-                        f1.inputs.push(Type::Err);
+                        f1.inputs.push(TypeKind::Err);
                     }
                 }
             } else {
-                *lhs = Type::Err;
+                *lhs = TypeKind::Err;
             }
         } else if !lhs.types_equivalent(rhs) {
-            *lhs = Type::Err;
+            *lhs = TypeKind::Err;
         }
     }
 
     /// Returns `true` if `type_` resolves to a record, including dynamic interface records.
-    pub fn type_is_record(&mut self, type_: &Type) -> bool {
+    pub fn type_is_record(&mut self, type_: &TypeKind) -> bool {
         match type_ {
-            Type::DynRecord => true,
-            Type::Composite(composite) => {
+            TypeKind::DynRecord => true,
+            TypeKind::Composite(composite) => {
                 self.lookup_composite(composite.path.expect_global_location()).is_some_and(|comp| comp.is_record)
             }
             _ => false,
@@ -2587,16 +2613,16 @@ impl TypeCheckingVisitor<'_> {
         false
     }
 
-    /// Replaces interface record types with `Type::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.
-    pub fn replace_records_with_dyn_record(&mut self, ty: &Type, interface: &Interface) -> Type {
+    /// Replaces interface record types with `TypeKind::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.
+    pub fn replace_records_with_dyn_record(&mut self, ty: &TypeKind, interface: &Interface) -> TypeKind {
         match ty {
-            Type::DynRecord => Type::DynRecord,
-            Type::Tuple(tuple) => Type::Tuple(TupleType::new(
+            TypeKind::DynRecord => TypeKind::DynRecord,
+            TypeKind::Tuple(tuple) => TypeKind::Tuple(TupleType::new(
                 tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t, interface)).collect(),
             )),
             other => {
                 if interface.is_record_type(other) {
-                    Type::DynRecord
+                    TypeKind::DynRecord
                 } else {
                     other.clone()
                 }
@@ -2605,12 +2631,12 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Sets the type of a variable in the symbol table.
-    pub fn set_local_type(&mut self, inferred_type: Option<Type>, name: &Identifier, type_: Type) {
+    pub fn set_local_type(&mut self, inferred_type: Option<TypeKind>, name: &Identifier, type_: TypeKind) {
         self.insert_symbol_conditional_scope(name.name);
 
         let is_future = match &type_ {
-            Type::Future(..) => true,
-            Type::Tuple(tuple_type) if matches!(tuple_type.elements().last(), Some(Type::Future(..))) => true,
+            TypeKind::Future(..) => true,
+            TypeKind::Tuple(tuple_type) if matches!(tuple_type.elements().last(), Some(TypeKind::Future(..))) => true,
             _ => false,
         };
 
@@ -2673,8 +2699,8 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    pub fn is_external_record(&self, ty: &Type) -> bool {
-        if let Type::Composite(typ) = &ty {
+    pub fn is_external_record(&self, ty: &TypeKind) -> bool {
+        if let TypeKind::Composite(typ) = &ty {
             let this_program = self.scope_state.unit_name.unwrap();
             let composite_location = typ.path.expect_global_location();
             composite_location.program != this_program
@@ -2691,17 +2717,17 @@ impl TypeCheckingVisitor<'_> {
         }
     }
 
-    // Emit an error and update `ty` to be `Type::Err` indicating that the type of the expression could not be inferred.
+    // Emit an error and update `ty` to be `TypeKind::Err` indicating that the type of the expression could not be inferred.
     // Also update `type_table` accordingly
-    pub fn emit_inference_failure_error(&self, ty: &mut Type, expr: &Expression) {
+    pub fn emit_inference_failure_error(&self, ty: &mut TypeKind, expr: &Expression) {
         self.emit_err(crate::errors::type_checker::could_not_determine_type(expr.clone(), expr.span()));
-        *ty = Type::Err;
-        self.state.type_table.insert(expr.id(), Type::Err);
+        *ty = TypeKind::Err;
+        self.state.type_table.insert(expr.id(), Type::ERR);
     }
 
     // Given a `Literal` and its type, if the literal is a numeric `Unsuffixed` literal, ensure it's a valid literal
     // given the type. E.g., a `256` is not a valid `u8`.
-    pub fn check_numeric_literal(&self, input: &Literal, ty: &Type) -> bool {
+    pub fn check_numeric_literal(&self, input: &Literal, ty: &TypeKind) -> bool {
         if let Literal { variant: LiteralVariant::Unsuffixed(s), .. } = input {
             let span = input.span();
             let has_nondecimal_prefix =
@@ -2714,7 +2740,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             match ty {
-                Type::Integer(kind) => match kind {
+                TypeKind::Integer(kind) => match kind {
                     IntegerType::U8 => parse_int!(u8, "u8"),
                     IntegerType::U16 => parse_int!(u16, "u16"),
                     IntegerType::U32 => parse_int!(u32, "u32"),
@@ -2726,7 +2752,7 @@ impl TypeCheckingVisitor<'_> {
                     IntegerType::I64 => parse_int!(i64, "i64"),
                     IntegerType::I128 => parse_int!(i128, "i128"),
                 },
-                Type::Group => {
+                TypeKind::Group => {
                     if has_nondecimal_prefix(s) {
                         // This is not checked in the parser for unsuffixed numerals. So do that here.
                         self.emit_err(crate::errors::type_checker::hexbin_literal_nonintegers(span));
@@ -2744,7 +2770,7 @@ impl TypeCheckingVisitor<'_> {
                     }
                 }
                 // This is not checked in the parser for unsuffixed numerals. So do that here.
-                Type::Field | Type::Scalar if has_nondecimal_prefix(s) => {
+                TypeKind::Field | TypeKind::Scalar if has_nondecimal_prefix(s) => {
                     self.emit_err(crate::errors::type_checker::hexbin_literal_nonintegers(span));
                     return false;
                 }
@@ -2768,7 +2794,7 @@ impl TypeCheckingVisitor<'_> {
     /// Checks that `target_program` is a `field` or `identifier` and that the optional `network` is an `identifier`.
     fn check_dynamic_op_target_and_network(&mut self, input: &DynamicOpExpression) {
         let target_type = self.visit_expression(&input.target_program, &None);
-        if !matches!(target_type, Type::Field | Type::Identifier | Type::Err) {
+        if !matches!(target_type, TypeKind::Field | TypeKind::Identifier | TypeKind::Err) {
             self.emit_err(crate::errors::type_checker::type_should_be2(
                 &target_type,
                 "`field` or `identifier`",
@@ -2776,7 +2802,7 @@ impl TypeCheckingVisitor<'_> {
             ));
         }
         if let Some(ref network) = input.network {
-            self.visit_expression(network, &Some(Type::Identifier));
+            self.visit_expression(network, &Some(TypeKind::Identifier));
         }
     }
 
@@ -2788,8 +2814,8 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         input: &DynamicOpExpression,
         interface: &Interface,
-        expected: &Option<Type>,
-    ) -> Type {
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let DynamicOpKind::Op { member, op, arguments } = &input.kind else {
             panic!("check_dynamic_mapping_op expects a DynamicOpKind::Op");
         };
@@ -2807,21 +2833,21 @@ impl TypeCheckingVisitor<'_> {
             let return_type = if op_name == sym::get {
                 if arguments.len() != 1 {
                     self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(1, arguments.len(), span));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
                 value_type
             } else if op_name == sym::contains {
                 if arguments.len() != 1 {
                     self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(1, arguments.len(), span));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
-                Type::Boolean
+                TypeKind::Boolean
             } else if op_name == sym::get_or_use {
                 if arguments.len() != 2 {
                     self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(2, arguments.len(), span));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
                 self.visit_expression_reject_numeric(&arguments[0], &Some(key_type));
                 self.visit_expression(&arguments[1], &Some(value_type.clone()));
@@ -2831,7 +2857,7 @@ impl TypeCheckingVisitor<'_> {
                     format!("Unknown mapping operation `{op_name}`. Expected `get`, `get_or_use`, or `contains`."),
                     op.span,
                 ));
-                return Type::Err;
+                return TypeKind::Err;
             };
 
             return self.assert_and_return_type(return_type, expected, span);
@@ -2839,35 +2865,35 @@ impl TypeCheckingVisitor<'_> {
 
         // Storage variable case: only vectors support `.op(args)`; singletons use the bare read form.
         if let Some(storage_proto) = interface.storages.iter().find(|s| s.identifier.name == member.name) {
-            let Type::Vector(vector_ty) = &storage_proto.type_ else {
+            let TypeKind::Vector(vector_ty) = &storage_proto.type_.kind() else {
                 self.emit_err(crate::errors::type_checker::custom(
                     format!("`{member}` is a singleton storage variable; read it as `Interface@(target)::{member}` without `.` or arguments."),
                     span));
-                return Type::Err;
+                return TypeKind::Err;
             };
             let element_type = (*vector_ty.element_type).clone();
 
             let return_type = if op_name == sym::get {
                 if arguments.len() != 1 {
                     self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(1, arguments.len(), span));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
-                self.visit_expression(&arguments[0], &Some(Type::Integer(IntegerType::U32)));
+                self.visit_expression(&arguments[0], &Some(TypeKind::Integer(IntegerType::U32)));
                 // Vector `.get(i)` on external storage yields `Option<element_type>`.
-                Type::Optional(OptionalType { inner: Box::new(element_type) })
+                TypeKind::Optional(OptionalType { inner: Box::new(element_type) })
             } else if op_name == sym::len {
                 if !arguments.is_empty() {
                     self.emit_err(crate::errors::type_checker::incorrect_num_args_to_call(0, arguments.len(), span));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
                 // Vector `.len()` on external storage yields `u32`.
-                Type::Integer(IntegerType::U32)
+                TypeKind::Integer(IntegerType::U32)
             } else {
                 self.emit_err(crate::errors::type_checker::custom(
                     format!("Unknown vector operation `{op_name}`. Expected `get` or `len`."),
                     op.span,
                 ));
-                return Type::Err;
+                return TypeKind::Err;
             };
 
             return self.assert_and_return_type(return_type, expected, span);
@@ -2878,7 +2904,7 @@ impl TypeCheckingVisitor<'_> {
             format!("{}::{}", input.interface, member),
             member.span,
         ));
-        Type::Err
+        TypeKind::Err
     }
 
     /// Type-checks `Interface@(target)::storage_name` (bare read of a singleton storage variable).
@@ -2886,8 +2912,8 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         input: &DynamicOpExpression,
         interface: &Interface,
-        expected: &Option<Type>,
-    ) -> Type {
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let DynamicOpKind::Read { storage } = &input.kind else {
             panic!("check_dynamic_read expects a DynamicOpKind::Read");
         };
@@ -2912,11 +2938,11 @@ impl TypeCheckingVisitor<'_> {
                     storage.span,
                 ));
             }
-            return Type::Err;
+            return TypeKind::Err;
         };
 
         // Vectors cannot be read with the bare form; they require `.get(i)`.
-        if matches!(storage_proto.type_, Type::Vector(_)) {
+        if matches!(storage_proto.type_.kind(), TypeKind::Vector(_)) {
             self.emit_err(crate::errors::type_checker::custom(
                 format!(
                     "`{}` is a vector storage variable; read an element with `{}::{}.get(index)`.",
@@ -2924,11 +2950,11 @@ impl TypeCheckingVisitor<'_> {
                 ),
                 span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Singleton reads yield `Option<declared_type>`.
-        let return_type = Type::Optional(OptionalType { inner: Box::new(storage_proto.type_.clone()) });
+        let return_type = TypeKind::Optional(OptionalType { inner: Box::new(storage_proto.type_.kind().clone()) });
         self.assert_and_return_type(return_type, expected, span)
     }
 
@@ -2937,8 +2963,8 @@ impl TypeCheckingVisitor<'_> {
         &mut self,
         input: &DynamicOpExpression,
         interface: &Interface,
-        expected: &Option<Type>,
-    ) -> Type {
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let DynamicOpKind::Call { function, arguments } = &input.kind else {
             panic!("check_dynamic_function_call expects a DynamicOpKind::Call");
         };
@@ -2950,7 +2976,7 @@ impl TypeCheckingVisitor<'_> {
                 format!("{}::{}", input.interface, function),
                 function.span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         };
         let func_proto = func_proto.clone();
 
@@ -2969,11 +2995,11 @@ impl TypeCheckingVisitor<'_> {
 
         // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(arguments.iter()) {
-            let proto_type = expected_input.type_().clone();
+            let proto_type = expected_input.type_().kind().clone();
             if interface.is_record_type(&proto_type) {
                 // Visit without an expected type so only the explicit error below fires.
                 let actual_type = self.visit_expression(argument, &None);
-                if !matches!(actual_type, Type::DynRecord | Type::Err) {
+                if !matches!(actual_type, TypeKind::DynRecord | TypeKind::Err) {
                     self.emit_err(crate::errors::type_checker::dynamic_call_record_arg_requires_dyn_record(
                         &proto_type,
                         argument.span(),
@@ -2987,8 +3013,8 @@ impl TypeCheckingVisitor<'_> {
         // Replace interface record types in the output with `dyn record`, then check for futures.
         let output_type = self.replace_records_with_dyn_record(&func_proto.output_type, interface);
         let contains_future = match &output_type {
-            Type::Future(..) => true,
-            Type::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, Type::Future(..))),
+            TypeKind::Future(..) => true,
+            TypeKind::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, TypeKind::Future(..))),
             _ => false,
         };
         if contains_future {

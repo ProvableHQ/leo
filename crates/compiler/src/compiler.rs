@@ -20,7 +20,17 @@
 
 use crate::{AstSnapshots, CompilerOptions, errors};
 
-use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
+use leo_ast::{
+    AleoProgram,
+    FunctionStub,
+    Identifier,
+    Library,
+    NetworkName,
+    NodeBuilder,
+    ProgramId,
+    Stub,
+    TypeInterner,
+};
 pub use leo_ast::{Ast, DiGraph, Program};
 use leo_errors::{Handler, Result};
 use leo_package::{
@@ -60,6 +70,8 @@ pub struct FrontendAnalysis<'a> {
     pub symbol_table: &'a SymbolTable,
     /// Type information produced by semantic frontend passes.
     pub type_table: &'a TypeTable,
+    /// Canonical type interner used to resolve `TypeTable` handles.
+    pub types: &'a leo_ast::TypeInterner,
 }
 
 /// Import stubs together with the filesystem inputs that invalidate them.
@@ -136,6 +148,7 @@ impl Compiler {
         let mut program = leo_parser::parse_program(
             self.state.handler.clone(),
             &self.state.node_builder,
+            &self.state.types,
             &source_file,
             &modules,
             self.state.network,
@@ -240,6 +253,7 @@ impl Compiler {
         self.state.ast = Ast::Library(leo_parser::parse_library(
             self.state.handler.clone(),
             &self.state.node_builder,
+            &self.state.types,
             library_name,
             &source_file,
             &module_files,
@@ -319,10 +333,13 @@ impl Compiler {
             ast: &self.state.ast,
             symbol_table: &self.state.symbol_table,
             type_table: &self.state.type_table,
+            types: &self.state.types,
         })
     }
 
-    /// Returns a new Leo compiler.
+    /// Allocates a fresh [`TypeInterner`]. Use [`Compiler::new_with_types`] when this
+    /// compiler's output will be merged into another compiler's AST — otherwise the
+    /// merged `TypeNode` handles refer to a dropped arena.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         expected_unit_name: Option<String>,
@@ -334,12 +351,40 @@ impl Compiler {
         import_stubs: IndexMap<Symbol, Stub>,
         network: NetworkName,
     ) -> Self {
+        Self::new_with_types(
+            expected_unit_name,
+            is_test,
+            handler,
+            node_builder,
+            output_directory,
+            compiler_options,
+            import_stubs,
+            network,
+            Rc::new(TypeInterner::default()),
+        )
+    }
+
+    /// Constructor for helper compilers whose output must resolve against a parent's interner.
+    /// See [`Compiler::build_std_stub`] and `load_source_dependency_stub` for typical callers.
+    #[allow(clippy::too_many_arguments)]
+    pub fn new_with_types(
+        expected_unit_name: Option<String>,
+        is_test: bool,
+        handler: Handler,
+        node_builder: Rc<NodeBuilder>,
+        output_directory: PathBuf,
+        compiler_options: Option<CompilerOptions>,
+        import_stubs: IndexMap<Symbol, Stub>,
+        network: NetworkName,
+        types: Rc<TypeInterner>,
+    ) -> Self {
         Self {
             state: CompilerState {
                 handler,
                 node_builder: Rc::clone(&node_builder),
                 is_test,
                 network,
+                types,
                 ..Default::default()
             },
             output_directory,
@@ -906,10 +951,15 @@ impl Compiler {
     /// Callers that compile multiple units against a shared `NodeBuilder` can invoke this once
     /// and pass the resulting stub into each per-unit `Compiler` via `import_stubs`, avoiding
     /// re-parsing and re-type-checking `std` for every unit.
-    pub fn build_std_stub(handler: Handler, node_builder: Rc<NodeBuilder>, network: NetworkName) -> Result<Stub> {
+    pub fn build_std_stub(
+        handler: Handler,
+        node_builder: Rc<NodeBuilder>,
+        network: NetworkName,
+        types: Rc<TypeInterner>,
+    ) -> Result<Stub> {
         let std_name = Symbol::intern(leo_std::library_name());
 
-        let mut sub_compiler = Compiler::new(
+        let mut sub_compiler = Compiler::new_with_types(
             Some(leo_std::library_name().to_string()),
             false,
             handler,
@@ -922,6 +972,7 @@ impl Compiler {
             }),
             IndexMap::new(),
             network,
+            types,
         );
 
         let module_refs: Vec<(&str, FileName)> =
@@ -955,8 +1006,12 @@ impl Compiler {
             return Ok(());
         }
 
-        let mut stub =
-            Self::build_std_stub(self.state.handler.clone(), Rc::clone(&self.state.node_builder), self.state.network)?;
+        let mut stub = Self::build_std_stub(
+            self.state.handler.clone(),
+            Rc::clone(&self.state.node_builder),
+            self.state.network,
+            Rc::clone(&self.state.types),
+        )?;
         stub.add_parent(parent);
         self.import_stubs.insert(std_name, stub);
         Ok(())
@@ -1042,8 +1097,12 @@ impl Compiler {
 /// The returned `watch_paths` cover the manifests and source files that can
 /// change the stub set. Editor caches can hash or stat those paths to know when
 /// dependency-backed semantic state must be rebuilt.
-pub fn load_import_stubs_for_package(package_root: &Path, network: NetworkName) -> Result<LoadedImportStubs> {
-    load_import_stubs_for_package_with_file_source(package_root, network, &DiskFileSource)
+pub fn load_import_stubs_for_package(
+    package_root: &Path,
+    network: NetworkName,
+    types: &Rc<TypeInterner>,
+) -> Result<LoadedImportStubs> {
+    load_import_stubs_for_package_with_file_source(package_root, network, &DiskFileSource, types)
 }
 
 /// Load local dependency stubs using an explicit file source for Leo source reads.
@@ -1056,6 +1115,7 @@ pub fn load_import_stubs_for_package_with_file_source(
     package_root: &Path,
     network: NetworkName,
     file_source: &impl FileSource,
+    types: &Rc<TypeInterner>,
 ) -> Result<LoadedImportStubs> {
     create_session_if_not_set_then(|_| {
         let package_root =
@@ -1086,6 +1146,7 @@ pub fn load_import_stubs_for_package_with_file_source(
                     dependency_source_directory(directory, source),
                     network,
                     file_source,
+                    types,
                 )?,
             };
             import_stubs.insert(unit.name, stub);
@@ -1209,10 +1270,11 @@ fn load_source_dependency_stub(
     source_directory: PathBuf,
     network: NetworkName,
     file_source: &impl FileSource,
+    types: &Rc<TypeInterner>,
 ) -> Result<Stub> {
     let handler = Handler::default();
     let node_builder = Rc::new(NodeBuilder::default());
-    let mut compiler = Compiler::new(
+    let mut compiler = Compiler::new_with_types(
         Some(unit.name.to_string()),
         false,
         handler,
@@ -1221,6 +1283,7 @@ fn load_source_dependency_stub(
         Some(CompilerOptions::default()),
         IndexMap::new(),
         network,
+        Rc::clone(types),
     );
 
     match unit.kind {

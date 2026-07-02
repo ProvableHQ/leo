@@ -269,6 +269,7 @@ macro_rules! make_runner {
                     source,
                     &handler,
                     &node_builder,
+                    &state.types,
                     NetworkName::TestnetV0,
                 )) {
                     Ok(ast) => ast,
@@ -359,12 +360,13 @@ fn parse_passes_test_source(
     source: &str,
     handler: &Handler,
     node_builder: &Rc<leo_ast::NodeBuilder>,
+    interner: &leo_ast::TypeInterner,
     network: NetworkName,
 ) -> Result<leo_ast::Ast> {
     if !source.contains(PASSES_PROGRAM_DELIMITER) {
         // Fast path: single-program source, existing behaviour.
         let sf = with_session_globals(|s| s.source_map.new_source(source, FileName::Custom("test".into())));
-        return parse_program(handler.clone(), node_builder, &sf, &[], network).map(leo_ast::Ast::Program);
+        return parse_program(handler.clone(), node_builder, interner, &sf, &[], network).map(leo_ast::Ast::Program);
     }
 
     // Multi-part source: split into sections.
@@ -388,7 +390,7 @@ fn parse_passes_test_source(
                     with_session_globals(|s| s.source_map.new_source(src, FileName::Custom(name.clone())))
                 })
                 .collect();
-            let library = parse_library(handler.clone(), node_builder, lib_name, &sf, &module_sfs, network)?;
+            let library = parse_library(handler.clone(), node_builder, interner, lib_name, &sf, &module_sfs, network)?;
             stubs.insert(lib_name, Stub::FromLibrary { library, parents: IndexSet::new() });
         }
         // Non-library program stubs are not needed for individual-pass tests.
@@ -396,7 +398,7 @@ fn parse_passes_test_source(
 
     // Parse the main program to obtain its declared name.
     let main_sf = with_session_globals(|s| s.source_map.new_source(main_source, FileName::Custom("test".into())));
-    let mut program = parse_program(handler.clone(), node_builder, &main_sf, &[], network)?;
+    let mut program = parse_program(handler.clone(), node_builder, interner, &main_sf, &[], network)?;
 
     let main_symbol = program
         .program_scopes

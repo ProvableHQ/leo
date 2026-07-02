@@ -31,7 +31,7 @@ use leo_ast::{
     Output,
     ReturnStatement,
     Statement,
-    Type,
+    TypeKind,
     Variant,
 };
 
@@ -110,7 +110,7 @@ impl CodeGeneratingVisitor<'_> {
                         // We can't output an internal record we received as input.
                         // We also can't output the same value twice.
                         // Either way, clone it.
-                        let (new_operand, new_instr) = self.clone_register(&operand, &output.type_);
+                        let (new_operand, new_instr) = self.clone_register(&operand, output.type_.kind());
                         instructions.extend(new_instr);
                         operands.insert(new_operand, output);
                     } else {
@@ -143,7 +143,7 @@ impl CodeGeneratingVisitor<'_> {
                 (Variant::View, Mode::None) => Some(AleoVisibility::Public),
                 (_, mode) => AleoVisibility::maybe_from(mode),
             };
-            if let Type::Future(_) = output.type_ {
+            if let TypeKind::Future(_) = output.type_.kind() {
                 instructions.push(AleoStmt::Output(
                     operand.clone(),
                     AleoType::Future {
@@ -152,12 +152,12 @@ impl CodeGeneratingVisitor<'_> {
                     },
                     None,
                 ));
-            } else if matches!(output.type_, Type::DynRecord) {
+            } else if matches!(output.type_.kind(), TypeKind::DynRecord) {
                 instructions.push(AleoStmt::Output(operand.clone(), AleoType::DynamicRecord, None));
-            } else if output.type_.is_empty() {
+            } else if output.type_.kind().is_empty() {
                 // do nothing
             } else {
-                let (output_type, output_viz) = self.visit_type_with_visibility(&output.type_, visibility);
+                let (output_type, output_viz) = self.visit_type_with_visibility(output.type_.kind(), visibility);
                 instructions.push(AleoStmt::Output(operand.clone(), output_type, output_viz));
             }
         }

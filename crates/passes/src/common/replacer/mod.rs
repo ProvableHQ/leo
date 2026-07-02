@@ -14,7 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AstReconstructor, Block, Expression, IterationStatement, Node as _, Statement, UnitReconstructor};
+use leo_ast::{
+    AstReconstructor,
+    Block,
+    Expression,
+    IterationStatement,
+    Node as _,
+    Statement,
+    TypeInterner,
+    UnitReconstructor,
+};
 
 use crate::CompilerState;
 
@@ -60,6 +69,10 @@ where
 {
     type AdditionalInput = ();
     type AdditionalOutput = ();
+
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
 
     fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let opt_old_type = self.state.type_table.get(&input.id());
@@ -118,7 +131,7 @@ where
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         (
             IterationStatement {
-                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                type_: input.type_.map(|ty| self.reconstruct_type_node(ty).0),
                 start: self.reconstruct_expression(input.start, &()).0,
                 stop: self.reconstruct_expression(input.stop, &()).0,
                 block: self.reconstruct_block(input.block).0,

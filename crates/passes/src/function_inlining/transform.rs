@@ -49,11 +49,11 @@ impl<'a> TransformVisitor<'a> {
     /// Check if a names an optional type. We don't need to check the type
     /// recursively with the sumbol table, hiding optionals behind structs is
     /// allowed.
-    fn names_optional_type(ty: &Type) -> bool {
+    fn names_optional_type(ty: &TypeKind) -> bool {
         match ty {
-            Type::Optional(_) => true,
-            Type::Tuple(tuple) => tuple.elements().iter().any(Self::names_optional_type),
-            Type::Array(array) => Self::names_optional_type(array.element_type()),
+            TypeKind::Optional(_) => true,
+            TypeKind::Tuple(tuple) => tuple.elements().iter().any(Self::names_optional_type),
+            TypeKind::Array(array) => Self::names_optional_type(array.element_type()),
             _ => false,
         }
     }
@@ -234,6 +234,10 @@ impl AstReconstructor for TransformVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     /* Expressions */
     fn reconstruct_call(&mut self, input: CallExpression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         let function_location = input.function.expect_global_location();
@@ -288,7 +292,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                     "this function returns a type naming an optional",
                 ) ||
                 mandatory_cond(
-                    callee.input.iter().any(|arg| Self::names_optional_type(&arg.type_)),
+                    callee.input.iter().any(|arg| Self::names_optional_type(arg.type_.kind())),
                     "this function has an argument naming an optional",
                 ) ||
                 mandatory_cond(
@@ -300,7 +304,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                 // Has no arguments
                 optional_cond(callee.input.is_empty()) ||
                 // Has only empty arguments
-                optional_cond(callee.input.iter().all(|arg| arg.type_.is_empty()))
+                optional_cond(callee.input.iter().all(|arg| arg.type_.kind().is_empty()))
                 }
                 Variant::EntryPoint | Variant::Finalize | Variant::View => false,
             };
@@ -343,7 +347,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                 Ok(pending) => {
                     self.pending_iterative_inline = Some(pending);
                     let id = self.state.node_builder.next_id();
-                    self.state.type_table.insert(id, Type::Unit);
+                    self.state.type_table.insert(id, Type::UNIT);
                     return (UnitExpression { span: Default::default(), id }.into(), Vec::new());
                 }
                 Err(statements) => statements,
@@ -360,7 +364,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                 }
                 _ => {
                     let id = self.state.node_builder.next_id();
-                    self.state.type_table.insert(id, Type::Unit);
+                    self.state.type_table.insert(id, Type::UNIT);
                     UnitExpression { span: Default::default(), id }.into()
                 }
             };

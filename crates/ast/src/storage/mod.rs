@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type};
+use crate::{Identifier, Node, NodeID, TypeNode};
 
 use leo_span::Span;
 
@@ -22,12 +22,12 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A storage declaration, e.g `storage x: u32`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct StorageVariable {
     /// The name of the storage variable.
     pub identifier: Identifier,
     /// The type of the variable.
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The entire span of the storage declaration.
     pub span: Span,
     /// The ID of the node.

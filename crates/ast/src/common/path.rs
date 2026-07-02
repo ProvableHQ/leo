@@ -14,9 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
+use crate::{Canonicalize, Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
 
 use leo_span::{Span, Symbol, with_session_globals};
+
+impl Canonicalize for Path {
+    fn canonicalize(self) -> Self {
+        // Full destructure so adding a field triggers a compile error here.
+        let Self { user_program, qualifier, identifier, target, span: _, id: _ } = self;
+        let (user_program, qualifier) = match target {
+            PathTarget::Global(_) | PathTarget::Local(_) => (None, Vec::new()),
+            PathTarget::Unresolved => (user_program.canonicalize(), qualifier.canonicalize()),
+        };
+        Self {
+            user_program,
+            qualifier,
+            identifier: identifier.canonicalize(),
+            target,
+            span: Span::default(),
+            id: NodeID::default(),
+        }
+    }
+}
 
 use indexmap::IndexSet;
 use itertools::Itertools;

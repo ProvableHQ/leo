@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An array access expression, e.g., `foo[index]`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayAccess {
     /// An expression evaluating to some array type, e.g., `[false, true]`.
     pub array: Expression,

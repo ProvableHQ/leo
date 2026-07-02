@@ -22,6 +22,10 @@ impl AstReconstructor for CommonSubexpressionEliminatingVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     fn reconstruct_expression(&mut self, input: Expression, _additional: &()) -> (Expression, Self::AdditionalOutput) {
         // We simply forward every expression to `try_expr` rather than using the individual reconstruct
         // functions from the `AstReconstructor` trait.

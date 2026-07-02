@@ -39,7 +39,9 @@
                 },
                 "mode": "Public",
                 "type_": {
-                  "Integer": "U32"
+                  "kind": {
+                    "Integer": "U32"
+                  }
                 },
                 "id": 84196
               },
@@ -50,7 +52,9 @@
                 },
                 "mode": "None",
                 "type_": {
-                  "Integer": "U32"
+                  "kind": {
+                    "Integer": "U32"
+                  }
                 },
                 "id": 84198
               }
@@ -59,7 +63,9 @@
               {
                 "mode": "None",
                 "type_": {
-                  "Integer": "U32"
+                  "kind": {
+                    "Integer": "U32"
+                  }
                 },
                 "id": 84200
               }
@@ -78,7 +84,9 @@
                       }
                     },
                     "type_": {
-                      "Integer": "U32"
+                      "kind": {
+                        "Integer": "U32"
+                      }
                     },
                     "value": {
                       "Binary": {

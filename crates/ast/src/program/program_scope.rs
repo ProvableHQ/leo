@@ -26,7 +26,7 @@ use crate::{
     Mapping,
     ProgramId,
     StorageVariable,
-    Type,
+    TypeKind,
 };
 
 use leo_span::{Span, Symbol};
@@ -39,7 +39,7 @@ pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
     /// The interfaces this program implements
-    pub parents: Vec<(Span, Type)>,
+    pub parents: Vec<(Span, TypeKind)>,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of composite definitions.

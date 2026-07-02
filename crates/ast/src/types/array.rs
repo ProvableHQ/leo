@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, IntegerType, Literal, LiteralVariant, ProgramId, Type};
+use crate::{Expression, IntegerType, Literal, LiteralVariant, ProgramId, TypeKind};
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
 use leo_span::Span;
@@ -23,22 +23,22 @@ use snarkvm::prelude::Network;
 use std::fmt;
 
 /// An array type.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayType {
-    pub element_type: Box<Type>,
+    pub element_type: Box<TypeKind>,
     pub length: Box<Expression>,
 }
 
 impl ArrayType {
     /// Creates a new array type.
-    pub fn new(element: Type, length: Expression) -> Self {
+    pub fn new(element: TypeKind, length: Expression) -> Self {
         Self { element_type: Box::new(element), length: Box::new(length) }
     }
 
     /// Creates a new bit array type.
     pub fn bit_array(length: u32) -> Self {
         Self {
-            element_type: Box::new(Type::Boolean),
+            element_type: Box::new(TypeKind::Boolean),
             length: Box::new(Expression::Literal(Literal {
                 variant: LiteralVariant::Integer(IntegerType::U32, length.to_string()),
                 id: Default::default(),
@@ -48,21 +48,21 @@ impl ArrayType {
     }
 
     /// Returns the element type of the array.
-    pub fn element_type(&self) -> &Type {
+    pub fn element_type(&self) -> &TypeKind {
         &self.element_type
     }
 
     /// Returns the base element type of the array.
-    pub fn base_element_type(&self) -> &Type {
+    pub fn base_element_type(&self) -> &TypeKind {
         match self.element_type.as_ref() {
-            Type::Array(array_type) => array_type.base_element_type(),
+            TypeKind::Array(array_type) => array_type.base_element_type(),
             type_ => type_,
         }
     }
 
     pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program_id: ProgramId) -> Self {
         Self {
-            element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program_id)),
+            element_type: Box::new(TypeKind::from_snarkvm(array_type.next_element_type(), program_id)),
             length: Box::new(Expression::Literal(Literal {
                 variant: LiteralVariant::Integer(IntegerType::U32, array_type.length().to_string().replace("u32", "")),
                 id: Default::default(),
@@ -103,8 +103,8 @@ impl fmt::Display for ArrayType {
     }
 }
 
-impl From<ArrayType> for Type {
+impl From<ArrayType> for TypeKind {
     fn from(value: ArrayType) -> Self {
-        Type::Array(value)
+        TypeKind::Array(value)
     }
 }

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, Type};
+use crate::{Location, TypeKind};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A future type consisting of the type of the inputs.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FutureType {
     // Optional type specification of inputs.
-    pub inputs: Vec<Type>,
+    pub inputs: Vec<TypeKind>,
     // The location of the function that produced the future.
     pub location: Option<Location>,
     // Whether or not the type has been explicitly specified.
@@ -32,12 +32,12 @@ pub struct FutureType {
 
 impl FutureType {
     /// Initialize a new future type.
-    pub fn new(inputs: Vec<Type>, location: Option<Location>, is_explicit: bool) -> Self {
+    pub fn new(inputs: Vec<TypeKind>, location: Option<Location>, is_explicit: bool) -> Self {
         Self { inputs, location, is_explicit }
     }
 
     /// Returns the inputs of the future type.
-    pub fn inputs(&self) -> &[Type] {
+    pub fn inputs(&self) -> &[TypeKind] {
         &self.inputs
     }
 
@@ -59,8 +59,8 @@ impl fmt::Display for crate::FutureType {
     }
 }
 
-impl From<FutureType> for Type {
+impl From<FutureType> for TypeKind {
     fn from(value: FutureType) -> Self {
-        Type::Future(value)
+        TypeKind::Future(value)
     }
 }
