@@ -310,19 +310,16 @@ impl Parser<'_, '_> {
 
         let m = self.start();
 
-        // A leading `::` anchors the path at the program root: `::foo::Bar`.
-        let absolute = self.eat(COLON_COLON);
-        if absolute && !self.at(IDENT) {
-            self.error("expected identifier after ::");
+        let Some(absolute) = self.eat_absolute_path_prefix() else {
             return Some(m.complete(self, TYPE_PATH));
-        }
+        };
 
         self.bump_any(); // first identifier
 
         // Check for locator: name.aleo::Type
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             if absolute {
-                self.error("a program id cannot follow a leading ::");
+                self.error("a program id cannot follow a leading `::`");
             }
             self.bump_any(); // .
             self.bump_any(); // aleo

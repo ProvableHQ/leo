@@ -1,5 +1,5 @@
 [EPAR0370047] Error: expected identifier after `::`
-   ╭─[ test:3:19 ]
+   ╭─[ test:2:17 ]
    │
- 3 │         let x = ::5u32;
+ 2 │     fn foo(x: ::) -> u32 {
 ───╯

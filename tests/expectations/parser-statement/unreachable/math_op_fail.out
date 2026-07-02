@@ -323,7 +323,7 @@
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370047] Error: expected identifier after ::
+[EPAR0370047] Error: expected identifier after `::`
    ╭─[ test_47:1:5 ]
    │
  1 │ x=::;

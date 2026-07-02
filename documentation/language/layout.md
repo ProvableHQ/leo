@@ -117,6 +117,7 @@ To refer to an item that lives outside the current module's subtree, write an **
 
 - From `outer/inner.leo`, `::common::foo` resolves to the package-level path `common::foo`.
 - From any module, `::outer::inner::foo` resolves to `outer::inner::foo`.
+- From any module, `::mylib::foo` refers to `foo` in an imported library `mylib`, just as `mylib::foo` does from the root module.
 - From `main.leo`, `::common::foo` and `common::foo` are equivalent, since the root module's relative paths are already package-level.
 
 This makes it possible for sibling modules to share a common submodule: both `outer.leo` and `common.leo` can reach items in a third module via its absolute path.

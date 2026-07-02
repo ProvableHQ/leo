@@ -19,6 +19,7 @@ use std::{fs, path::Path};
 use tree_sitter::{Node, Parser};
 
 const FIXTURES: &[&str] = &[
+    "tests/fixtures/absolute_paths.leo",
     "tests/fixtures/annotations.leo",
     "tests/fixtures/const_generics.leo",
     "tests/fixtures/interfaces.leo",

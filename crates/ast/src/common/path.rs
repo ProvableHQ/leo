@@ -30,7 +30,8 @@ pub struct Path {
     user_program: Option<ProgramId>,
 
     /// Whether the user wrote a leading `::`, anchoring the path at the root module (e.g. `::foo::bar`).
-    #[serde(default)]
+    /// Skipped when false so AST snapshots only mention the field on absolute paths.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     absolute: bool,
 
     /// The qualifying namespace segments written by the user, excluding the item itself.
@@ -239,9 +240,9 @@ impl Path {
     ///
     /// Resolution follows three main cases:
     ///
-    /// 1. **Absolute or explicitly-qualified access**
-    ///    If the path has a leading `::` or explicitly specifies a program
-    ///    (`user_program`), it is anchored at the target program's root module.
+    /// 1. **Explicitly-qualified access**
+    ///    If the path explicitly specifies a program (`user_program`, e.g.
+    ///    `foo.aleo::item`), it is anchored at that program's root module.
     ///
     /// 2. **External library access**
     ///    If the first qualifier segment matches a known external library name (or
@@ -256,8 +257,9 @@ impl Path {
     ///      - any user-written qualifier segments, and
     ///      - the final identifier.
     ///
-    /// If the user explicitly wrote a program (via `user_program`), it overrides
-    /// the default `program` parameter. Otherwise, the current program is used.
+    /// An absolute path (leading `::`) resolves exactly like a relative path written
+    /// in the root module: cases 2 and 3 apply unchanged, but the current module
+    /// context is discarded.
     ///
     /// Importantly, this transformation **does not modify the user-written syntax**
     /// (`user_program`, `qualifier`, `identifier`). It only determines the internal
@@ -273,17 +275,14 @@ impl Path {
     {
         let Path { user_program, absolute, qualifier, identifier, span, id, .. } = self;
 
-        // Case 1: Absolute (leading `::`) or explicitly program-qualified paths are anchored
-        // at the target program's root module; the current module context is ignored.
-        if absolute || user_program.is_some() {
+        // Case 1: Explicitly program-qualified paths (`foo.aleo::item`) are anchored
+        // at that program's root module; the current module context is ignored.
+        if let Some(pid) = &user_program {
             let mut path: Vec<Symbol> = Vec::with_capacity(qualifier.len() + 1);
             path.extend(qualifier.iter().map(|id| id.name));
             path.push(identifier.name);
 
-            let target = PathTarget::Global(Location {
-                program: user_program.as_ref().map(|id| id.as_symbol()).unwrap_or(program),
-                path,
-            });
+            let target = PathTarget::Global(Location { program: pid.as_symbol(), path });
 
             return Self { user_program, absolute, qualifier, identifier, target, span, id };
         }
@@ -310,12 +309,15 @@ impl Path {
 
             Self { user_program: None, absolute, qualifier, identifier, target, span, id }
         } else {
-            // Case 3: Resolve relative to the current module.
+            // Case 3: Resolve relative to the current module, or to the root module
+            // if the path is absolute (leading `::`).
             //
             // Construct the path by concatenating:
             //   current_module + user qualifier + identifier.
             let mut path: Vec<Symbol> = Vec::new();
-            path.extend(current_module);
+            if !absolute {
+                path.extend(current_module);
+            }
             path.extend(qualifier.iter().map(|id| id.name));
             path.push(identifier.name);
 

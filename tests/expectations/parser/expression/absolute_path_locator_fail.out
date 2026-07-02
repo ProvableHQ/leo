@@ -1,4 +1,4 @@
-[EPAR0370047] Error: a program id cannot follow a leading ::
+[EPAR0370047] Error: a program id cannot follow a leading `::`
    ╭─[ test:3:22 ]
    │
  3 │         let x = ::foo.aleo::bar;

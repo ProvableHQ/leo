@@ -371,7 +371,11 @@ impl<'a> ConversionContext<'a> {
 
         // The last component is the type name, rest are path segments.
         // Path span covers only the identifier tokens, not the const arg list.
-        let name = path_components.pop().expect("TYPE_PATH should have at least one identifier");
+        let Some(name) = path_components.pop() else {
+            // Error recovery: the rowan parser completes a TYPE_PATH with no identifiers
+            // for a bare `::` in type position, after recording a parse error.
+            return Ok(leo_ast::Type::Err);
+        };
         let path_span =
             if let Some(first) = path_components.first() { Span::new(first.span.lo, name.span.hi) } else { name.span };
         let mut path = leo_ast::Path::new(None, path_components, name, path_span, self.builder.next_id());
@@ -1506,8 +1510,10 @@ impl<'a> ConversionContext<'a> {
         let span = self.trimmed_span(node);
         let id = self.builder.next_id();
 
-        // Detect `group::GEN` → IntrinsicExpression.
+        // Detect `group::GEN` → IntrinsicExpression. Absolute paths always
+        // refer to user items, never intrinsics.
         if path.user_program().is_none()
+            && !path.is_absolute()
             && path.qualifier().len() == 1
             && path.qualifier()[0].name == sym::group
             && path.identifier().name == sym::GEN

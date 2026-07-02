@@ -1,0 +1,107 @@
+================
+Absolute path expressions
+================
+
+fn absolutes() {
+    let a = ::foo::X;
+    let b = ::foo::bar::f(1u32);
+    let e = ::group::GEN;
+    let s = ::foo::S { x: 1u32 };
+    let g = ::foo::Gen::[2] { vals: [1u32, 2u32] };
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (block
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (identifier)
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (call_expression
+          (path_expression
+            (identifier)
+            (identifier)
+            (identifier))
+          (argument_list
+            (integer_literal))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (path_expression
+          (identifier)
+          (identifier)))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_expression
+          (path_expression
+            (identifier)
+            (identifier))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (integer_literal)))))
+      (let_statement
+        (identifier_pattern
+          (identifier))
+        (struct_expression
+          (path_expression
+            (identifier)
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket
+                (const_arg
+                  (integer_literal)))))
+          (struct_field_init_list
+            (struct_field_init
+              (identifier)
+              (array_expression
+                (integer_literal)
+                (integer_literal)))))))))
+
+================
+Absolute path types
+================
+
+fn f(x: ::m::T, y: ::m::Gen::[2]) -> ::m::T {
+    return x;
+}
+
+---
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameter_list
+      (parameter
+        (identifier)
+        (path_type
+          (identifier)
+          (identifier)))
+      (parameter
+        (identifier)
+        (path_type
+          (identifier)
+          (identifier)
+          (const_arg_list
+            (const_arg_list_bracket
+              (const_arg
+                (integer_literal)))))))
+    (return_type
+      (return_type_item
+        (path_type
+          (identifier)
+          (identifier))))
+    (block
+      (return_statement
+        (path_expression
+          (identifier))))))

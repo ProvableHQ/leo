@@ -451,11 +451,8 @@ impl Parser<'_, '_> {
             // Array expression
             L_BRACKET => self.parse_array_expr(),
 
-            // Identifier, path, or struct literal
-            IDENT | KW_FINAL_UPPER => self.parse_ident_expr(opts),
-
-            // Absolute path: `::foo::bar`
-            COLON_COLON => self.parse_ident_expr(opts),
+            // Identifier, path (possibly with a leading `::`), or struct literal
+            IDENT | KW_FINAL_UPPER | COLON_COLON => self.parse_ident_expr(opts),
 
             // Self access
             KW_SELF => self.parse_self_expr(),
@@ -627,19 +624,16 @@ impl Parser<'_, '_> {
     fn parse_ident_expr(&mut self, opts: ExprOpts) -> Option<CompletedMarker> {
         let m = self.start();
 
-        // A leading `::` anchors the path at the program root: `::foo::bar`.
-        let absolute = self.eat(COLON_COLON);
-        if absolute && !self.at(IDENT) {
-            self.error("expected identifier after ::");
+        let Some(absolute) = self.eat_absolute_path_prefix() else {
             return Some(m.complete(self, PATH_EXPR));
-        }
+        };
 
         self.bump_any(); // first identifier
 
         // Check for locator: name.aleo::path
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             if absolute {
-                self.error("a program id cannot follow a leading ::");
+                self.error("a program id cannot follow a leading `::`");
             }
             self.bump_any(); // .
             self.bump_any(); // aleo
