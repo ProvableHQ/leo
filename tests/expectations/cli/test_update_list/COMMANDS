@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# `leo update --list` / `-l`: only `leo-lang` releases with an asset for the current
+# platform are listed; plugin releases and foreign tags are excluded.
+
+. "$LEO_CLI_TESTS_DIR/update_mock.sh"
+
+add_release "leo-lang-v99.2.0" "leo" "fake leo v99.2.0"
+add_release "leo-lang-v99.1.0" "leo" "fake leo v99.1.0"
+# Excluded from the list: no asset for the current platform.
+add_release_foreign "leo-lang-v99.3.0"
+# Excluded from the list: not `leo-lang` releases.
+add_release "leo-fmt-v99.2.0" "leo-fmt" "fake leo-fmt v99.2.0"
+add_release "leo-lsp-v99.2.0" "leo-lsp" "fake leo-lsp v99.2.0"
+add_release "v1.9.0" "leo" "fake legacy leo v1.9.0"
+write_release_list
+
+fresh_leo
+
+echo "--- update --help ---" | tee /dev/stderr
+run_leo update --help
+
+echo "--- update --list ---" | tee /dev/stderr
+run_leo update --list
+
+echo "--- update -l ---" | tee /dev/stderr
+run_leo update -l
+
+echo "--- update -l takes precedence over -n ---" | tee /dev/stderr
+run_leo update -l -n 99.1.0

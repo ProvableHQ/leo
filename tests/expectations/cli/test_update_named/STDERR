@@ -1,0 +1,10 @@
+--- -n 98.0.0 ---
+--- --name v99.1.0 ---
+--- -n leo-lang-v98.0.0 ---
+--- -n leo-fmt-v99.1.0 (plugin tags are rejected) ---
+--- -n v97.0.0 (legacy tag) ---
+       Leo No 'leo-fmt' release found for version 97.0.0; 'leo-fmt' is unchanged
+       Leo No 'leo-lsp' release found for version 97.0.0; 'leo-lsp' is unchanged
+--- -n 97.0.0 (bare legacy version) ---
+       Leo No 'leo-fmt' release found for version 97.0.0; 'leo-fmt' is unchanged
+       Leo No 'leo-lsp' release found for version 97.0.0; 'leo-lsp' is unchanged

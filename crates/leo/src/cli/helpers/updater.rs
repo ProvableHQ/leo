@@ -19,43 +19,138 @@ use leo_errors::{Backtraced, Result};
 use aleo_std;
 
 use colored::Colorize;
-use self_update::{Status, backends::github, get_target, version::bump_is_greater};
+use self_update::{Download, Extract, Status, backends::github, get_target, update::Release, version::bump_is_greater};
 use std::{
+    env::consts::EXE_SUFFIX,
     fmt::Write as _,
     fs,
     path::{Path, PathBuf},
+    process::Command,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 pub struct Updater;
 
-// TODO Add logic for users to easily select release versions.
 impl Updater {
+    /// Bundled plugin binaries and their release tag prefixes.
+    const BUNDLED_PLUGINS: &'static [(&'static str, &'static str)] =
+        &[("leo-fmt", "leo-fmt-v"), ("leo-lsp", "leo-lsp-v")];
     const LEO_BIN_NAME: &'static str = "leo";
     const LEO_CACHE_LAST_CHECK_FILE: &'static str = "leo_cache_last_update_check";
     const LEO_CACHE_VERSION_FILE: &'static str = "leo_cache_latest_version";
+    /// Releases are tagged per crate (e.g. `leo-lang-v4.3.2`); the `leo` binary ships in `leo-lang` releases.
+    const LEO_LANG_TAG_PREFIX: &'static str = "leo-lang-v";
     const LEO_REPO_NAME: &'static str = "leo";
     const LEO_REPO_OWNER: &'static str = "ProvableHQ";
     // 24 hours
     const LEO_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 
-    /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<String> {
-        let releases = github::ReleaseList::configure()
-            .repo_owner(Self::LEO_REPO_OWNER)
-            .repo_name(Self::LEO_REPO_NAME)
-            .with_target(get_target())
+    /// Read a `LEO_UPDATE_*_BASE_URL` override, used by tests to point the updater at a
+    /// local mock server. Only loopback URLs are honored: accepting arbitrary hosts would
+    /// let a poisoned environment silently redirect where binaries are downloaded from.
+    fn base_url_override(var: &str) -> Option<String> {
+        let url = std::env::var(var).ok()?;
+        if url.starts_with("http://localhost:") || url.starts_with("http://127.0.0.1:") {
+            Some(url)
+        } else {
+            tracing::warn!("Ignoring `{var}`: only loopback URLs may override the update endpoints");
+            None
+        }
+    }
+
+    /// Base URL for release archive downloads. Overridable via `LEO_UPDATE_DOWNLOAD_BASE_URL`
+    /// so tests can point the updater at a local mock server.
+    fn download_base_url() -> String {
+        Self::base_url_override("LEO_UPDATE_DOWNLOAD_BASE_URL").unwrap_or_else(|| "https://github.com".to_string())
+    }
+
+    /// Fetch all releases that provide binaries for the current target.
+    pub fn fetch_releases() -> Result<Vec<Release>> {
+        let mut list = github::ReleaseList::configure();
+        list.repo_owner(Self::LEO_REPO_OWNER).repo_name(Self::LEO_REPO_NAME).with_target(get_target());
+        if let Some(url) = Self::base_url_override("LEO_UPDATE_API_BASE_URL") {
+            list.with_url(&url);
+        }
+        let releases = list
             .build()
             .map_err(crate::errors::self_update_error)?
             .fetch()
             .map_err(crate::errors::could_not_fetch_versions)?;
+        Ok(releases)
+    }
+
+    /// Find the newest version among releases whose tag starts with `tag_prefix`,
+    /// returned without the prefix (e.g. `4.3.2` for tag `leo-lang-v4.3.2`).
+    fn latest_version(releases: &[Release], tag_prefix: &str) -> Option<String> {
+        releases
+            .iter()
+            // `Release::version` is the tag with any leading `v` trimmed, so crate tags keep their prefix.
+            .filter_map(|release| release.version.strip_prefix(tag_prefix))
+            // Exclude prereleases (e.g. `5.0.0-rc.1`) so they are never installed implicitly, and
+            // versions that do not parse so one malformed tag cannot poison the result.
+            // A `bump_is_greater` self-comparison doubles as a semver parse check.
+            .filter(|version| !version.contains('-') && bump_is_greater(version, version).is_ok())
+            // On a version parse failure, keep the current best.
+            .reduce(|best, version| if bump_is_greater(best, version).unwrap_or(false) { version } else { best })
+            .map(str::to_string)
+    }
+
+    /// Extract the bare version (e.g. `4.3.2`) from a user-provided release name,
+    /// accepting `4.3.2`, `v4.3.2`, and full tags like `leo-lang-v4.3.2`.
+    fn normalize_version(name: &str) -> &str {
+        let name = name.strip_prefix(Self::LEO_LANG_TAG_PREFIX).unwrap_or(name);
+        name.strip_prefix('v').unwrap_or(name)
+    }
+
+    /// Resolve a user-provided release name to `(tag, version)` for a release that ships
+    /// the `leo` binary, accepting `4.3.2`, `v4.3.2`, and the full `leo-lang-v4.3.2` tag.
+    fn resolve_release_tag(releases: &[Release], name: &str) -> Result<(String, String)> {
+        // A plugin tag names a release without the `leo` binary; reject it rather than
+        // silently reinstalling `leo` itself at that version.
+        if let Some((plugin, _)) = Self::BUNDLED_PLUGINS.iter().find(|(_, prefix)| name.starts_with(prefix)) {
+            return Err(crate::errors::custom(format!(
+                "`{name}` is a `{plugin}` release and does not contain the `leo` binary"
+            ))
+            .into());
+        }
+
+        let version = Self::normalize_version(name);
+        let tag = format!("{}{version}", Self::LEO_LANG_TAG_PREFIX);
+        // `Release::version` is the tag with any leading `v` trimmed, so crate tags keep their prefix.
+        if releases.iter().any(|release| release.version == tag) {
+            return Ok((tag, version.to_string()));
+        }
+
+        // Releases predating per-crate tags are matched by their original tag: `v<version>`
+        // for a bare or `v`-prefixed version (e.g. `v4.0.2`), the name verbatim otherwise
+        // (e.g. `canary-v3.5.0`).
+        if releases.iter().any(|release| release.version == version) {
+            let tag = if version.starts_with(|c: char| c.is_ascii_digit()) {
+                format!("v{version}")
+            } else {
+                name.to_string()
+            };
+            return Ok((tag, version.to_string()));
+        }
+
+        Err(crate::errors::custom(format!(
+            "could not find a `leo` release matching `{name}`; run `leo update --list` to see available versions"
+        ))
+        .into())
+    }
+
+    /// Show all available releases for `leo`.
+    pub fn show_available_releases() -> Result<String> {
+        let releases = Self::fetch_releases()?;
 
         let mut output = format!(
-            "\nList of available versions for: {}.\nUse the quoted name to select specific releases.\n\n",
+            "\nList of available `leo` versions for: {}.\nUse `leo update --name <version>` to install a specific version.\n\n",
             get_target()
         );
-        for release in releases {
-            let _ = writeln!(output, "  * {} | '{}'", release.version, release.name);
+        for release in &releases {
+            if let Some(version) = release.version.strip_prefix(Self::LEO_LANG_TAG_PREFIX) {
+                let _ = writeln!(output, "  * v{version}");
+            }
         }
 
         Ok(output)
@@ -63,20 +158,38 @@ impl Updater {
 
     /// Update `leo`. If a version is provided, then `leo` is updated to the specific version
     /// otherwise the update defaults to the latest version.
-    pub fn update(show_output: bool, version: Option<String>) -> Result<Status> {
+    ///
+    /// The release tag is resolved against `releases` instead of relying on the GitHub
+    /// "latest release", which may belong to another crate such as `leo-fmt` or `leo-lsp`.
+    pub fn update(show_output: bool, version: Option<String>, releases: &[Release]) -> Result<Status> {
+        let current_version = env!("CARGO_PKG_VERSION");
+
+        // Resolve the tag of the release to install.
+        let (tag, version) = match version {
+            Some(name) => Self::resolve_release_tag(releases, &name)?,
+            None => {
+                let latest = Self::latest_version(releases, Self::LEO_LANG_TAG_PREFIX)
+                    .ok_or_else(|| crate::errors::custom("could not find a `leo` release for this platform"))?;
+                // `target_version_tag` installs unconditionally, so check for a newer version first.
+                if !bump_is_greater(current_version, &latest).map_err(crate::errors::self_update_error)? {
+                    return Ok(Status::UpToDate(latest));
+                }
+                (format!("{}{latest}", Self::LEO_LANG_TAG_PREFIX), latest)
+            }
+        };
+
         let mut update = github::Update::configure();
-        // Set the defaults.
         update
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
-            .current_version(env!("CARGO_PKG_VERSION"))
+            .current_version(current_version)
+            .target_version_tag(&tag)
             .show_download_progress(show_output)
             .no_confirm(true)
             .show_output(show_output);
-        // Add the version if provided.
-        if let Some(version) = version {
-            update.target_version_tag(&version);
+        if let Some(url) = Self::base_url_override("LEO_UPDATE_API_BASE_URL") {
+            update.with_url(&url);
         }
         let status = update
             .build()
@@ -84,17 +197,19 @@ impl Updater {
             .update()
             .map_err(crate::errors::self_update_error)?;
 
-        Ok(status)
+        // The crate tag does not parse as a bare version, so report the resolved version instead.
+        Ok(match status {
+            Status::UpToDate(_) => Status::UpToDate(version),
+            Status::Updated(_) => Status::Updated(version),
+        })
     }
 
-    /// Best-effort update of bundled plugin binaries (currently just `leo-fmt`).
+    /// Best-effort update of the bundled plugin binaries (`leo-fmt` and `leo-lsp`).
     ///
-    /// Downloads the release archive a second time and extracts the plugin binary
-    /// into the same directory as the current `leo` executable. Prints a warning
-    /// on failure rather than aborting.
-    pub fn update_bundled_plugins(show_output: bool, version: Option<&str>) {
-        const BUNDLED_PLUGINS: &[&str] = &["leo-fmt"];
-
+    /// Each plugin ships in its own release (e.g. `leo-fmt-v4.3.2`), so its version is
+    /// resolved independently against `releases`. Prints a warning on failure rather
+    /// than aborting.
+    pub fn update_bundled_plugins(show_output: bool, version: Option<&str>, releases: &[Release]) {
         let install_dir = match std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf)) {
             Some(dir) => dir,
             None => {
@@ -103,53 +218,139 @@ impl Updater {
             }
         };
 
-        for plugin in BUNDLED_PLUGINS {
-            if show_output {
-                tracing::info!("Updating bundled plugin '{plugin}'...");
-            }
-            let mut update = github::Update::configure();
-            update
-                .repo_owner(Self::LEO_REPO_OWNER)
-                .repo_name(Self::LEO_REPO_NAME)
-                .bin_name(plugin)
-                .bin_install_path(&install_dir)
-                .current_version(env!("CARGO_PKG_VERSION"))
-                .show_download_progress(show_output)
-                .no_confirm(true)
-                .show_output(show_output);
-            if let Some(ver) = version {
-                update.target_version_tag(ver);
-            }
-            match update.build().and_then(|u| u.update()) {
-                Ok(_) => {
-                    if show_output {
-                        tracing::info!("Successfully updated '{plugin}'");
-                    }
-                }
-                Err(e) => {
-                    tracing::warn!("Failed to update bundled plugin '{plugin}': {e}");
-                }
+        for (plugin, tag_prefix) in Self::BUNDLED_PLUGINS {
+            if let Err(e) = Self::update_plugin(show_output, plugin, tag_prefix, version, releases, &install_dir) {
+                tracing::warn!("Failed to update bundled plugin '{plugin}': {e}");
             }
         }
     }
 
-    /// Check if there is an available update for `leo` and return the newest release.
-    pub fn update_available() -> Result<String> {
-        let updater = github::Update::configure()
-            .repo_owner(Self::LEO_REPO_OWNER)
-            .repo_name(Self::LEO_REPO_NAME)
-            .bin_name(Self::LEO_BIN_NAME)
-            .current_version(env!("CARGO_PKG_VERSION"))
-            .build()
+    /// Best-effort version of an installed plugin binary, read by running `<plugin> --version`
+    /// and extracting the first version-shaped token (e.g. `leo-fmt 4.3.2` -> `4.3.2`).
+    fn installed_plugin_version(plugin_bin: &Path) -> Option<String> {
+        let output = Command::new(plugin_bin).arg("--version").output().ok()?;
+        if !output.status.success() {
+            return None;
+        }
+        let stdout = String::from_utf8(output.stdout).ok()?;
+        stdout
+            .split_whitespace()
+            .map(|token| token.strip_prefix('v').unwrap_or(token))
+            // A `bump_is_greater` self-comparison doubles as a semver parse check.
+            .find(|token| bump_is_greater(token, token).is_ok())
+            .map(str::to_string)
+    }
+
+    /// Download and install a single plugin binary into `install_dir`.
+    ///
+    /// The archive is downloaded and extracted manually because `self_update` can only
+    /// replace the currently running executable reliably: for other binaries it renames
+    /// across filesystems and loses the executable bit set in the archive.
+    fn update_plugin(
+        show_output: bool,
+        plugin: &str,
+        tag_prefix: &str,
+        version: Option<&str>,
+        releases: &[Release],
+        install_dir: &Path,
+    ) -> Result<()> {
+        let plugin_version = match version {
+            Some(version) => {
+                let plugin_version = Self::normalize_version(version).to_string();
+                // Plugin releases are not cut for every `leo` version; leave the installed
+                // plugin unchanged rather than attempting a download that cannot succeed.
+                let plugin_tag = format!("{tag_prefix}{plugin_version}");
+                if !releases.iter().any(|release| release.version == plugin_tag) {
+                    tracing::warn!("No '{plugin}' release found for version {plugin_version}; '{plugin}' is unchanged");
+                    return Ok(());
+                }
+                plugin_version
+            }
+            None => Self::latest_version(releases, tag_prefix).ok_or_else(|| {
+                crate::errors::custom(format!("could not find a `{plugin}` release for this platform"))
+            })?,
+        };
+
+        let bin_name = format!("{plugin}{EXE_SUFFIX}");
+        let dest = install_dir.join(&bin_name);
+
+        // Skip when the installed plugin already reports the newest released version. On a
+        // probe or version parse failure, attempt the install and let it surface any real error.
+        if version.is_none()
+            && let Some(installed) = Self::installed_plugin_version(&dest)
+            && !bump_is_greater(&installed, &plugin_version).unwrap_or(true)
+        {
+            if show_output {
+                tracing::info!("'{plugin}' is already on the latest version");
+            }
+            return Ok(());
+        }
+
+        if show_output {
+            tracing::info!("Updating bundled plugin '{plugin}' to v{plugin_version}...");
+        }
+
+        // Download the release archive into a temporary directory and extract the plugin binary.
+        let tag = format!("{tag_prefix}{plugin_version}");
+        let archive_name = format!("{tag}-{}.zip", get_target());
+        let url = format!(
+            "{}/{}/{}/releases/download/{tag}/{archive_name}",
+            Self::download_base_url(),
+            Self::LEO_REPO_OWNER,
+            Self::LEO_REPO_NAME
+        );
+        let tmp_dir = tempfile::tempdir().map_err(crate::errors::cli_io_error)?;
+        let archive_path = tmp_dir.path().join(&archive_name);
+        let mut archive = fs::File::create(&archive_path).map_err(crate::errors::cli_io_error)?;
+        let mut download = Download::from_url(&url);
+        download.show_progress(show_output);
+        download.download_to(&mut archive).map_err(crate::errors::self_update_error)?;
+        Extract::from_source(&archive_path)
+            .extract_file(tmp_dir.path(), &bin_name)
             .map_err(crate::errors::self_update_error)?;
 
-        let current_version = updater.current_version();
-        let latest_release = updater.get_latest_release().map_err(crate::errors::self_update_error)?;
+        // Stage next to the destination so the final rename is atomic and never crosses filesystems.
+        let staged = install_dir.join(format!(".{bin_name}.tmp"));
+        fs::copy(tmp_dir.path().join(&bin_name), &staged).map_err(crate::errors::cli_io_error)?;
+        // Zip extraction does not preserve the executable bit.
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            fs::set_permissions(&staged, fs::Permissions::from_mode(0o755)).map_err(crate::errors::cli_io_error)?;
+        }
+        if let Err(rename_error) = fs::rename(&staged, &dest) {
+            // A running plugin (e.g. an editor's `leo-lsp`) locks its executable against
+            // replacement on Windows, but a locked executable can still be renamed; move
+            // the old binary aside and retry.
+            let displaced = install_dir.join(format!(".{bin_name}.old"));
+            if fs::rename(&dest, &displaced).and_then(|()| fs::rename(&staged, &dest)).is_err() {
+                // Best-effort cleanup of the staged binary; the original rename error is the
+                // one worth reporting.
+                let _ = fs::remove_file(&staged);
+                return Err(crate::errors::cli_io_error(rename_error).into());
+            }
+            // Deleting the displaced binary fails on Windows while it is still running; it is
+            // then left behind as a hidden `.<bin>.old` file and replaced on the next update.
+            let _ = fs::remove_file(&displaced);
+        }
 
-        if bump_is_greater(&current_version, &latest_release.version).map_err(crate::errors::self_update_error)? {
-            Ok(latest_release.version)
+        if show_output {
+            tracing::info!("Successfully updated '{plugin}' to v{plugin_version}");
+        }
+        Ok(())
+    }
+
+    /// Check if there is an available update for `leo` and return the newest release.
+    pub fn update_available() -> Result<String> {
+        let current_version = env!("CARGO_PKG_VERSION");
+        let releases = Self::fetch_releases()?;
+        let latest_version = Self::latest_version(&releases, Self::LEO_LANG_TAG_PREFIX)
+            .ok_or_else(|| crate::errors::custom("could not find a `leo` release for this platform"))?;
+
+        if bump_is_greater(current_version, &latest_version).map_err(crate::errors::self_update_error)? {
+            Ok(latest_version)
         } else {
-            Err(crate::errors::old_release_version(current_version, latest_release.version).into())
+            Err(crate::errors::old_release_version(current_version, latest_version).into())
         }
     }
 
