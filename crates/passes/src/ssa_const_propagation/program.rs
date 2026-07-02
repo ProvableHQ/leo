@@ -58,10 +58,12 @@ impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
         // In SSA form, each function has its own scope, so we can clear the maps.
         self.constants.clear();
         self.atom_fielded_composites.clear();
+        self.required_eval_roots.clear();
         // Traverse the function body.
         input.block = self.reconstruct_block(input.block).0;
         self.constants.clear();
         self.atom_fielded_composites.clear();
+        self.required_eval_roots.clear();
         input
     }
 
@@ -69,10 +71,12 @@ impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
         // Reset the per-constructor maps.
         self.constants.clear();
         self.atom_fielded_composites.clear();
+        self.required_eval_roots.clear();
         // Traverse the constructor body.
         input.block = self.reconstruct_block(input.block).0;
         self.constants.clear();
         self.atom_fielded_composites.clear();
+        self.required_eval_roots.clear();
         input
     }
 }

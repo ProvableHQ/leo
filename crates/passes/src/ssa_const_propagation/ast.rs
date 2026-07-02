@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::expression_can_be_discarded;
-
 use super::{
     SsaConstPropagationVisitor,
     visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
@@ -42,6 +40,12 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         // Check if this variable has a constant value.
         let identifier_name = input.identifier().name;
 
+        if self.required_eval_roots.contains_key(&identifier_name) {
+            // The path itself is pure, but replacing it can erase the only use
+            // that keeps the defining expression live.
+            return (input.into(), None);
+        }
+
         if let Some(constant_value) = self.constants.get(&identifier_name).cloned() {
             // Replace the path with the constant value.
             let span = input.span();
@@ -58,8 +62,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// Reconstruct a member access. If the inner expression is a local path whose
     /// binding was built from a composite literal with atom-valued fields, forward
     /// the access directly to the stored atom. This is scalar replacement of
-    /// aggregates for short-lived struct values — the struct itself is left for
-    /// dead-code elimination to remove once all field accesses are forwarded.
+    /// aggregates for short-lived struct values. Forwarding is allowed only when
+    /// the selected atom carries every required-evaluation root carried by the
+    /// base aggregate path.
     fn reconstruct_member_access(
         &mut self,
         mut input: MemberAccess,
@@ -72,6 +77,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             && let Some(name) = path.try_local_symbol()
             && let Some(fields) = self.atom_fielded_composites.get(&name)
             && let Some(atom) = fields.get(&input.name.name)
+            && self.can_forward_atom_for_base(&input.inner, atom)
         {
             self.changed = true;
             // Recompute the atom's Value so downstream folding sees the forwarded
@@ -81,7 +87,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     let ty = self.state.type_table.get(&lit.id());
                     const_eval::literal_to_value(lit, &ty).ok()
                 }
-                Expression::Path(p) => p.try_local_symbol().and_then(|s| self.constants.get(&s).cloned()),
+                Expression::Path(p) => p.try_local_symbol().and_then(|s| {
+                    if self.required_eval_roots.contains_key(&s) { None } else { self.constants.get(&s).cloned() }
+                }),
                 // Unreachable: `reconstruct_definition` only populates
                 // `atom_fielded_composites` with fields passing `is_atom`,
                 // which restricts to `Path`/`Literal`.
@@ -204,11 +212,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 // Absorbing element: x * 0 = 0 (only for integers and field, not group or scalar)
                 let result_ty = self.state.type_table.get(&input_id);
                 if matches!(&result_ty, Some(Type::Integer(_) | Type::Field)) {
-                    if right_is_zero {
+                    if right_is_zero && self.can_drop_expression(&left) {
                         self.changed = true;
                         return (right, rhs_opt_value);
                     }
-                    if left_is_zero {
+                    if left_is_zero && self.can_drop_expression(&right) {
                         self.changed = true;
                         return (left, lhs_opt_value);
                     }
@@ -231,11 +239,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if right_is_bool(false) {
+                if right_is_bool(false) && self.can_drop_expression(&left) {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if left_is_bool(false) {
+                if left_is_bool(false) && self.can_drop_expression(&right) {
                     self.changed = true;
                     return (left, lhs_opt_value);
                 }
@@ -251,11 +259,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if right_is_bool(true) {
+                if right_is_bool(true) && self.can_drop_expression(&left) {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if left_is_bool(true) {
+                if left_is_bool(true) && self.can_drop_expression(&right) {
                     self.changed = true;
                     return (left, lhs_opt_value);
                 }
@@ -263,11 +271,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
             BinaryOperation::BitwiseAnd => {
                 // x & false = false (boolean), x & 0 = 0 (integer)
-                if right_is_zero {
+                if right_is_zero && self.can_drop_expression(&left) {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if left_is_zero {
+                if left_is_zero && self.can_drop_expression(&right) {
                     self.changed = true;
                     return (left, lhs_opt_value);
                 }
@@ -292,11 +300,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     return (right, rhs_opt_value);
                 }
                 // x | true = true (boolean)
-                if right_is_bool(true) {
+                if right_is_bool(true) && self.can_drop_expression(&left) {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if left_is_bool(true) {
+                if left_is_bool(true) && self.can_drop_expression(&right) {
                     self.changed = true;
                     return (left, lhs_opt_value);
                 }
@@ -314,14 +322,22 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             }
 
             // Self-comparison: x == x -> true, x != x -> false
-            BinaryOperation::Eq if same_ssa_atom(&left, &right) => {
+            BinaryOperation::Eq
+                if same_ssa_atom(&left, &right)
+                    && self.can_drop_expression(&left)
+                    && self.can_drop_expression(&right) =>
+            {
                 self.changed = true;
                 let id = self.state.node_builder.next_id();
                 self.state.type_table.insert(id, Type::Boolean);
                 let lit = Literal::boolean(true, span, id);
                 return (lit.into(), Some(Value::from(true)));
             }
-            BinaryOperation::Neq if same_ssa_atom(&left, &right) => {
+            BinaryOperation::Neq
+                if same_ssa_atom(&left, &right)
+                    && self.can_drop_expression(&left)
+                    && self.can_drop_expression(&right) =>
+            {
                 self.changed = true;
                 let id = self.state.node_builder.next_id();
                 self.state.type_table.insert(id, Type::Boolean);
@@ -358,6 +374,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         if input.op == UnaryOperation::Not
             && let Expression::Unary(ref inner) = receiver
             && inner.op == UnaryOperation::Not
+            && self.can_replace_expression_with(&receiver, &inner.receiver)
         {
             self.changed = true;
             return (inner.receiver.clone(), None);
@@ -367,6 +384,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         if input.op == UnaryOperation::Negate
             && let Expression::Unary(ref inner) = receiver
             && inner.op == UnaryOperation::Negate
+            && self.can_replace_expression_with(&receiver, &inner.receiver)
         {
             self.changed = true;
             return (inner.receiver.clone(), None);
@@ -387,11 +405,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
 
         match cond_value.and_then(|v| v.try_into().ok()) {
-            Some(true) if expression_can_be_discarded(&if_false, self.state) => {
+            Some(true) if self.can_drop_expression(&if_false) => {
                 self.changed = true;
                 (if_true, if_true_value)
             }
-            Some(false) if expression_can_be_discarded(&if_true, self.state) => {
+            Some(false) if self.can_drop_expression(&if_true) => {
                 self.changed = true;
                 (if_false, if_false_value)
             }
@@ -416,10 +434,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                             UnaryExpression { op: UnaryOperation::Not, receiver: cond, span: ternary_span, id };
                         return (not_cond.into(), None);
                     }
-                    // `cond ? b : b` -> `b` for the same bool literal `b`. The
-                    // condition is an SSA atom at this point, so dropping it is
-                    // side-effect-free.
-                    (Some(a), Some(b)) if a == b => {
+                    // `cond ? b : b` -> `b` for the same bool literal `b` only
+                    // when dropping the condition cannot erase required evaluation.
+                    (Some(a), Some(b)) if a == b && self.can_drop_expression(&cond) => {
                         self.changed = true;
                         return (if_true, if_true_value);
                     }
@@ -427,9 +444,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 }
 
                 // Identical arms: cond ? x : x -> x (for any type, when both
-                // arms are the same SSA variable). Safe because the condition
-                // is side-effect-free in SSA form.
-                if same_ssa_atom(&if_true, &if_false) {
+                // arms are the same SSA variable) only when dropping the condition
+                // cannot erase required evaluation.
+                if same_ssa_atom(&if_true, &if_false) && self.can_drop_expression(&cond) {
                     self.changed = true;
                     return (if_true, if_true_value);
                 }
@@ -533,15 +550,17 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
     /* Statements */
     /// Reconstruct a definition statement. If the RHS evaluates to a constant, track it
-    /// in the constants map for propagation. Additionally, when the RHS is a composite
-    /// literal whose fields are all atoms (paths or literals), record the field-to-atom
-    /// mapping so that subsequent `x.field` accesses can be forwarded without
-    /// rematerializing the struct.
+    /// in the constants map for propagation. Additionally, when the RHS is a base-free
+    /// composite literal whose fields are all atoms (paths or literals), record the
+    /// field-to-atom mapping so that subsequent `x.field` accesses can be forwarded
+    /// without rematerializing the struct.
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Reconstruct the RHS expression first.
         let (new_value, opt_value) = self.reconstruct_expression(input.value, &());
+        let value_can_be_dropped = self.can_drop_expression(&new_value);
+        self.record_required_eval_roots(&input.place, &new_value);
 
-        if let Some(value) = opt_value {
+        if value_can_be_dropped && let Some(value) = opt_value {
             match &input.place {
                 DefinitionPlace::Single(identifier) => {
                     self.constants.insert(identifier.name, value);
@@ -554,11 +573,14 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     }
                 }
             }
-        } else if let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) =
-            (&input.place, &new_value)
+        }
+
+        if let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) = (&input.place, &new_value)
+            && composite.base.is_none()
         {
-            // Only track when every field initializer is an atom, since the field
-            // expression will be cloned into every forwarded use-site.
+            // Only track base-free composites whose every field initializer is an atom.
+            // Forwarding a field can erase the enclosing composite use, and a spread/base
+            // expression would require its own provenance-preserving field model.
             let mut fields: IndexMap<Symbol, Expression> = IndexMap::with_capacity(composite.members.len());
             let all_atoms = composite.members.iter().all(|member| {
                 let Some(expr) = &member.expression else { return false };

@@ -1,0 +1,27 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    export struct Pair {
+        checked: u8,
+        payload: u8,
+    }
+    fn preserve_composite_base(x$$0: u8, y$$1: u8) -> u8 {
+        let diff$#2 = x$$0 - y$$1;
+        let $var$3 = 0u8;
+        let p$#4 = test.aleo::Pair { checked: diff$#2, payload: 0u8 };
+        let $var$5 = p$#4.payload;
+        let $var$6 = 0u8;
+        let $var$7 = $var$5 * 0u8;
+        return $var$7;
+    }
+    fn keep_forwarding_plain_atom(x$$8: u8) -> u8 {
+        let $var$9 = 0u8;
+        let p$#10 = test.aleo::Pair { checked: x$$8, payload: 0u8 };
+        let $var$11 = 0u8;
+        let $var$12 = 0u8;
+        let $var$13 = 0u8;
+        return 0u8;
+    }
+}
+

@@ -14,13 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CompilerState;
+use crate::{CompilerState, expression_can_be_discarded};
 
-use leo_ast::{Expression, FromStrRadix, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
+use leo_ast::{
+    DefinitionPlace,
+    DynamicOpKind,
+    Expression,
+    FromStrRadix,
+    Literal,
+    LiteralVariant,
+    Location,
+    Node,
+    NodeID,
+    const_eval::Value,
+};
 use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 
 /// Visitor that propagates constant values through the program.
 pub struct SsaConstPropagationVisitor<'a> {
@@ -35,6 +46,12 @@ pub struct SsaConstPropagationVisitor<'a> {
     /// Used to forward `x.field` to the stored atom without rematerializing
     /// the enclosing struct — effectively scalarizing short-lived aggregates.
     pub atom_fielded_composites: IndexMap<Symbol, IndexMap<Symbol, Expression>>,
+    /// Local SSA definitions that carry required-evaluation roots.
+    ///
+    /// A root is a definition whose RHS must remain value-live if later rewrites
+    /// would otherwise make the original definition dead. The set for a symbol is
+    /// the required work carried by using that symbol.
+    pub required_eval_roots: IndexMap<Symbol, IndexSet<Symbol>>,
     /// Have we actually modified the program at all?
     pub changed: bool,
 }
@@ -90,7 +107,148 @@ pub fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
     }
 }
 
+fn definition_place_symbols(place: &DefinitionPlace) -> Vec<Symbol> {
+    match place {
+        DefinitionPlace::Single(identifier) => vec![identifier.name],
+        DefinitionPlace::Multiple(identifiers) => identifiers.iter().map(|identifier| identifier.name).collect(),
+    }
+}
+
 impl SsaConstPropagationVisitor<'_> {
+    /// Return whether this expression can disappear without changing required
+    /// evaluation behavior.
+    pub(super) fn can_drop_expression(&self, expr: &Expression) -> bool {
+        expression_can_be_discarded(expr, &*self.state) && self.required_eval_roots_in(expr).is_empty()
+    }
+
+    /// Return whether `original` may be rewritten to `replacement` without losing
+    /// required evaluation carried through SSA paths.
+    pub(super) fn can_replace_expression_with(&self, original: &Expression, replacement: &Expression) -> bool {
+        expression_can_be_discarded(original, &*self.state)
+            && self.required_eval_roots_are_preserved(original, replacement)
+    }
+
+    /// Return whether forwarding `base.field` to `atom` preserves all required
+    /// work that was carried by the base aggregate.
+    pub(super) fn can_forward_atom_for_base(&self, base: &Expression, atom: &Expression) -> bool {
+        self.required_eval_roots_are_preserved(base, atom)
+    }
+
+    /// Record the required-evaluation roots carried by a definition.
+    pub(super) fn record_required_eval_roots(&mut self, place: &DefinitionPlace, value: &Expression) {
+        let symbols = definition_place_symbols(place);
+        let mut roots = self.required_eval_roots_in(value);
+        if !expression_can_be_discarded(value, &*self.state) {
+            roots.extend(symbols.iter().copied());
+        }
+        if roots.is_empty() {
+            return;
+        }
+
+        for symbol in symbols {
+            self.required_eval_roots.insert(symbol, roots.clone());
+        }
+    }
+
+    fn required_eval_roots_are_preserved(&self, original: &Expression, replacement: &Expression) -> bool {
+        let original_roots = self.required_eval_roots_in(original);
+        if original_roots.is_empty() {
+            return true;
+        }
+        let replacement_roots = self.required_eval_roots_in(replacement);
+        original_roots.iter().all(|root| replacement_roots.contains(root))
+    }
+
+    fn required_eval_roots_in(&self, expr: &Expression) -> IndexSet<Symbol> {
+        let mut roots = IndexSet::new();
+        self.extend_required_eval_roots(expr, &mut roots);
+        roots
+    }
+
+    fn extend_required_eval_roots(&self, expr: &Expression, roots: &mut IndexSet<Symbol>) {
+        match expr {
+            Expression::Path(path) => {
+                if let Some(symbol) = path.try_local_symbol()
+                    && let Some(symbol_roots) = self.required_eval_roots.get(&symbol)
+                {
+                    roots.extend(symbol_roots.iter().copied());
+                }
+            }
+            Expression::Array(expr) => {
+                for element in &expr.elements {
+                    self.extend_required_eval_roots(element, roots);
+                }
+            }
+            Expression::ArrayAccess(expr) => {
+                self.extend_required_eval_roots(&expr.array, roots);
+                self.extend_required_eval_roots(&expr.index, roots);
+            }
+            Expression::Binary(expr) => {
+                self.extend_required_eval_roots(&expr.left, roots);
+                self.extend_required_eval_roots(&expr.right, roots);
+            }
+            Expression::Composite(expr) => {
+                for argument in &expr.const_arguments {
+                    self.extend_required_eval_roots(argument, roots);
+                }
+                for member in &expr.members {
+                    if let Some(member) = &member.expression {
+                        self.extend_required_eval_roots(member, roots);
+                    }
+                }
+                if let Some(base) = &expr.base {
+                    self.extend_required_eval_roots(base, roots);
+                }
+            }
+            Expression::Call(expr) => {
+                for argument in &expr.const_arguments {
+                    self.extend_required_eval_roots(argument, roots);
+                }
+                for argument in &expr.arguments {
+                    self.extend_required_eval_roots(argument, roots);
+                }
+            }
+            Expression::Cast(expr) => self.extend_required_eval_roots(&expr.expression, roots),
+            Expression::DynamicOp(expr) => {
+                self.extend_required_eval_roots(&expr.target_program, roots);
+                if let Some(network) = &expr.network {
+                    self.extend_required_eval_roots(network, roots);
+                }
+                match &expr.kind {
+                    DynamicOpKind::Call { arguments, .. } | DynamicOpKind::Op { arguments, .. } => {
+                        for argument in arguments {
+                            self.extend_required_eval_roots(argument, roots);
+                        }
+                    }
+                    DynamicOpKind::Read { .. } => {}
+                }
+            }
+            Expression::Intrinsic(expr) => {
+                for argument in &expr.arguments {
+                    self.extend_required_eval_roots(argument, roots);
+                }
+            }
+            Expression::MemberAccess(expr) => self.extend_required_eval_roots(&expr.inner, roots),
+            Expression::Repeat(expr) => {
+                self.extend_required_eval_roots(&expr.expr, roots);
+                self.extend_required_eval_roots(&expr.count, roots);
+            }
+            Expression::Ternary(expr) => {
+                self.extend_required_eval_roots(&expr.condition, roots);
+                self.extend_required_eval_roots(&expr.if_true, roots);
+                self.extend_required_eval_roots(&expr.if_false, roots);
+            }
+            Expression::Tuple(expr) => {
+                for element in &expr.elements {
+                    self.extend_required_eval_roots(element, roots);
+                }
+            }
+            Expression::TupleAccess(expr) => self.extend_required_eval_roots(&expr.tuple, roots),
+            Expression::Unary(expr) => self.extend_required_eval_roots(&expr.receiver, roots),
+            Expression::Async(_) | Expression::Err(_) | Expression::Literal(_) | Expression::Unit(_) => {}
+        }
+    }
+
     /// Emit a `StaticAnalyzerError`.
     pub fn emit_err(&self, err: Formatted) {
         self.state.handler.emit_err(err);

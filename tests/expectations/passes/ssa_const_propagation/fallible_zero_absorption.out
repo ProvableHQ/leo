@@ -1,0 +1,37 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn preserve_checked_sub_right(x$$0: u8, y$$1: u8) -> u8 {
+        let diff$#2 = x$$0 - y$$1;
+        let $var$3 = 0u8;
+        let $var$4 = diff$#2 * 0u8;
+        return $var$4;
+    }
+    fn preserve_checked_sub_left(x$$5: u8, y$$6: u8) -> u8 {
+        let diff$#7 = x$$5 - y$$6;
+        let $var$8 = 0u8;
+        let $var$9 = 0u8 * diff$#7;
+        return $var$9;
+    }
+    fn preserve_checked_sub_alias(x$$10: u8, y$$11: u8) -> u8 {
+        let diff$#12 = x$$10 - y$$11;
+        let alias$#13 = diff$#12;
+        let $var$14 = 0u8;
+        let $var$15 = alias$#13 * 0u8;
+        return $var$15;
+    }
+    fn fold_plain_parameter_zero(x$$16: u8) -> u8 {
+        let $var$17 = 0u8;
+        let $var$18 = 0u8;
+        return 0u8;
+    }
+    fn keep_checked_sub_ternary(x$$19: u8, y$$20: u8) -> u8 {
+        let diff$#21 = x$$19 - y$$20;
+        let $var$22 = true;
+        let $var$23 = 0u8;
+        let $var$24 = true ? 0u8 : diff$#21;
+        return $var$24;
+    }
+}
+
