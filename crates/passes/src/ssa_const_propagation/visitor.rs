@@ -14,9 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::SsaConstPropagationMode;
+
 use crate::CompilerState;
 
-use leo_ast::{Expression, FromStrRadix, Literal, LiteralVariant, Location, Node, NodeID, const_eval::Value};
+use leo_ast::{
+    Composite,
+    CompositeExpression,
+    Expression,
+    FromStrRadix,
+    Literal,
+    LiteralVariant,
+    Location,
+    Node,
+    NodeID,
+    Type,
+    const_eval::Value,
+};
 use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
@@ -25,16 +39,23 @@ use indexmap::IndexMap;
 /// Visitor that propagates constant values through the program.
 pub struct SsaConstPropagationVisitor<'a> {
     pub state: &'a mut CompilerState,
+    /// Which subset of SSA const-prop rewrites this invocation is allowed to perform.
+    pub mode: SsaConstPropagationMode,
     /// Current program being analyzed.
     pub program: Symbol,
     /// Maps variable names to their constant values.
     /// Only variables assigned constant values are tracked here.
     pub constants: IndexMap<Symbol, Value>,
-    /// Maps variable names bound to a composite RHS — where every field
-    /// initializer is an atom — to the atom each field was initialized with.
+    /// Maps variable names bound to a composite RHS - where every field
+    /// initializer is an atom - to the atom each field was initialized with.
     /// Used to forward `x.field` to the stored atom without rematerializing
-    /// the enclosing struct — effectively scalarizing short-lived aggregates.
+    /// the enclosing struct - effectively scalarizing short-lived aggregates.
     pub atom_fielded_composites: IndexMap<Symbol, IndexMap<Symbol, Expression>>,
+    /// Maps local variables that are simple aliases of atom-fielded composites.
+    pub aliases: IndexMap<Symbol, Symbol>,
+    /// Struct definitions visible in the current program scope, including
+    /// compiler-generated Optional wrappers added after the symbol table.
+    pub composites: IndexMap<Location, Composite>,
     /// Have we actually modified the program at all?
     pub changed: bool,
 }
@@ -44,6 +65,25 @@ pub struct SsaConstPropagationVisitor<'a> {
 /// and literals are the only expression shapes that round-trip freely.
 pub fn is_atom(expr: &Expression) -> bool {
     matches!(expr, Expression::Path(_) | Expression::Literal(_))
+}
+
+pub(super) fn optional_composite_atoms(composite: &CompositeExpression) -> Option<IndexMap<Symbol, Expression>> {
+    if composite.base.is_some() || composite.members.len() != 2 {
+        return None;
+    }
+
+    let mut fields = IndexMap::with_capacity(composite.members.len());
+    for member in &composite.members {
+        let expr = member.expression.as_ref()?;
+        if !is_atom(expr) {
+            return None;
+        }
+        fields.insert(member.identifier.name, expr.clone());
+    }
+
+    fields.get(&Symbol::intern("is_some"))?;
+    fields.get(&Symbol::intern("val"))?;
+    Some(fields)
 }
 
 /// Parse a numeric literal string, handling underscores and radix prefixes (0x, 0o, 0b).
@@ -77,20 +117,75 @@ pub fn is_one_literal(lit: &Literal) -> bool {
     }
 }
 
-/// Check if two expressions refer to the same SSA variable.
-/// In SSA form, each variable name is unique, so name equality implies value equality.
-pub fn same_ssa_atom(a: &Expression, b: &Expression) -> bool {
-    match (a, b) {
-        (Expression::Path(pa), Expression::Path(pb)) => {
-            let sa = pa.try_local_symbol();
-            let sb = pb.try_local_symbol();
-            sa == sb && sa.is_some()
-        }
-        _ => false,
-    }
-}
-
 impl SsaConstPropagationVisitor<'_> {
+    pub(super) fn runs_full_const_prop(&self) -> bool {
+        self.mode == SsaConstPropagationMode::Full
+    }
+
+    pub(super) fn forwards_composite_members(&self) -> bool {
+        self.runs_full_const_prop()
+    }
+
+    pub(super) fn tracks_optional_unwraps(&self) -> bool {
+        self.mode == SsaConstPropagationMode::LateOptionalUnwrap
+    }
+
+    /// Clear analysis state that is only valid within one SSA function body.
+    pub(super) fn clear_tracked_values(&mut self) {
+        self.constants.clear();
+        self.atom_fielded_composites.clear();
+        self.aliases.clear();
+    }
+
+    pub(super) fn is_optional_wrapper_type(&self, ty: &Type) -> bool {
+        let Type::Composite(composite_ty) = ty else {
+            return false;
+        };
+        let location = composite_ty.path.expect_global_location();
+        let Some(composite) =
+            self.state.symbol_table.lookup_struct(self.program, location).or_else(|| self.composites.get(location))
+        else {
+            return false;
+        };
+        let [is_some, val] = composite.members.as_slice() else {
+            return false;
+        };
+        is_some.identifier.name == Symbol::intern("is_some")
+            && matches!(is_some.type_, Type::Boolean)
+            && val.identifier.name == Symbol::intern("val")
+    }
+
+    pub(super) fn is_optional_composite_expression(&self, composite: &CompositeExpression) -> bool {
+        self.state.type_table.get(&composite.id()).is_some_and(|ty| self.is_optional_wrapper_type(&ty))
+    }
+
+    pub(super) fn resolve_composite_alias(&self, mut name: Symbol) -> Symbol {
+        for _ in 0..self.aliases.len() {
+            let Some(alias) = self.aliases.get(&name).copied() else {
+                break;
+            };
+            if alias == name {
+                break;
+            }
+            name = alias;
+        }
+        name
+    }
+
+    pub(super) fn atom_for_composite_member(
+        &self,
+        expression: &Expression,
+        field: Symbol,
+    ) -> Option<(Symbol, Expression)> {
+        let Expression::Path(path) = expression else {
+            return None;
+        };
+        let original_name = path.try_local_symbol()?;
+        let name = self.resolve_composite_alias(original_name);
+        let atom = self.atom_fielded_composites.get(&name)?.get(&field)?.clone();
+        Some((name, atom))
+    }
+
     /// Emit a `StaticAnalyzerError`.
     pub fn emit_err(&self, err: Formatted) {
         self.state.handler.emit_err(err);

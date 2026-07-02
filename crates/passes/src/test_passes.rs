@@ -229,7 +229,7 @@ macro_rules! compiler_passes {
                 (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
                 (Disambiguate, ()),
                 (SsaForming, (SsaFormingInput { rename_defs: true })),
-                (SsaConstPropagation, ()),
+                (SsaConstPropagation, (SsaConstPropagationMode::Full)),
             ]),
             (disambiguate_runner, [
                 (GlobalVarsCollection, ()),

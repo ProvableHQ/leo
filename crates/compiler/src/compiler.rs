@@ -450,7 +450,13 @@ impl Compiler {
         // Flattening may produce ternary expressions not in SSA form.
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
-        self.do_pass::<SsaConstPropagation>(())?;
+        self.do_pass::<SsaConstPropagation>(SsaConstPropagationMode::Full)?;
+
+        self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
+
+        // SSA repair can expose lowered Optional unwraps after const propagation.
+        // Let the existing const-prop owner erase only that late pattern before CSE/DCE.
+        self.do_pass::<SsaConstPropagation>(SsaConstPropagationMode::LateOptionalUnwrap)?;
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 

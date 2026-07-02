@@ -18,7 +18,7 @@ use crate::expression_can_be_discarded;
 
 use super::{
     SsaConstPropagationVisitor,
-    visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
+    visitor::{is_atom, is_one_literal, is_zero_literal, optional_composite_atoms},
 };
 
 use leo_ast::{
@@ -38,6 +38,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// Reconstruct a path expression. If the path refers to a variable that has
     /// a constant value, replace it with that constant.
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        if !self.runs_full_const_prop() {
+            return (input.into(), None);
+        }
+
         // In SSA form, paths should refer to local variables (or composite members).
         // Check if this variable has a constant value.
         let identifier_name = input.identifier().name;
@@ -58,7 +62,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// Reconstruct a member access. If the inner expression is a local path whose
     /// binding was built from a composite literal with atom-valued fields, forward
     /// the access directly to the stored atom. This is scalar replacement of
-    /// aggregates for short-lived struct values — the struct itself is left for
+    /// aggregates for short-lived struct values - the struct itself is left for
     /// dead-code elimination to remove once all field accesses are forwarded.
     fn reconstruct_member_access(
         &mut self,
@@ -68,26 +72,28 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (inner, _) = self.reconstruct_expression(input.inner, &());
         input.inner = inner;
 
-        if let Expression::Path(path) = &input.inner
-            && let Some(name) = path.try_local_symbol()
-            && let Some(fields) = self.atom_fielded_composites.get(&name)
-            && let Some(atom) = fields.get(&input.name.name)
+        if (self.forwards_composite_members() || self.tracks_optional_unwraps())
+            && let Some((_, atom)) = self.atom_for_composite_member(&input.inner, input.name.name)
         {
             self.changed = true;
             // Recompute the atom's Value so downstream folding sees the forwarded
             // constant (literals evaluate directly; paths look up tracked constants).
-            let opt_value = match atom {
-                Expression::Literal(lit) => {
-                    let ty = self.state.type_table.get(&lit.id());
-                    const_eval::literal_to_value(lit, &ty).ok()
+            let opt_value = if self.runs_full_const_prop() {
+                match &atom {
+                    Expression::Literal(lit) => {
+                        let ty = self.state.type_table.get(&lit.id());
+                        const_eval::literal_to_value(lit, &ty).ok()
+                    }
+                    Expression::Path(p) => p.try_local_symbol().and_then(|s| self.constants.get(&s).cloned()),
+                    // Unreachable: `reconstruct_definition` only populates
+                    // `atom_fielded_composites` with fields passing `is_atom`,
+                    // which restricts to `Path`/`Literal`.
+                    _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
                 }
-                Expression::Path(p) => p.try_local_symbol().and_then(|s| self.constants.get(&s).cloned()),
-                // Unreachable: `reconstruct_definition` only populates
-                // `atom_fielded_composites` with fields passing `is_atom`,
-                // which restricts to `Path`/`Literal`.
-                _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
+            } else {
+                None
             };
-            return (atom.clone(), opt_value);
+            return (atom, opt_value);
         }
 
         (input.into(), None)
@@ -95,6 +101,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
     /// Reconstruct a literal expression and convert it to a Value.
     fn reconstruct_literal(&mut self, mut input: Literal, _additional: &()) -> (Expression, Self::AdditionalOutput) {
+        if !self.runs_full_const_prop() {
+            return (input.into(), None);
+        }
+
         let type_info = self.state.type_table.get(&input.id());
 
         // If this is an optional, then unwrap it first.
@@ -129,8 +139,8 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     }
 
     /// Reconstruct a binary expression. First try full constant folding (both
-    /// operands known), then apply algebraic identity / absorbing-element rules
-    /// when only one operand is a known literal.
+    /// operands known), then apply algebraic identities that still preserve the
+    /// dynamic operand's evaluation when only one operand is a known literal.
     fn reconstruct_binary(
         &mut self,
         input: BinaryExpression,
@@ -141,6 +151,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         let (left, lhs_opt_value) = self.reconstruct_expression(input.left, &());
         let (right, rhs_opt_value) = self.reconstruct_expression(input.right, &());
+
+        if !self.runs_full_const_prop() {
+            return (BinaryExpression { left, right, ..input }.into(), None);
+        }
 
         // Full constant folding: both operands are known constants.
         if let (Some(lhs_value), Some(rhs_value)) = (&lhs_opt_value, &rhs_opt_value) {
@@ -191,7 +205,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 return (left, lhs_opt_value);
             }
 
-            // x * 1 = x, x * 0 = 0
+            // x * 1 = x
             BinaryOperation::Mul | BinaryOperation::MulWrapped => {
                 if right_is_one {
                     self.changed = true;
@@ -201,18 +215,6 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                // Absorbing element: x * 0 = 0 (only for integers and field, not group or scalar)
-                let result_ty = self.state.type_table.get(&input_id);
-                if matches!(&result_ty, Some(Type::Integer(_) | Type::Field)) {
-                    if right_is_zero {
-                        self.changed = true;
-                        return (right, rhs_opt_value);
-                    }
-                    if left_is_zero {
-                        self.changed = true;
-                        return (left, lhs_opt_value);
-                    }
-                }
             }
 
             // x / 1 = x
@@ -221,7 +223,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 return (left, lhs_opt_value);
             }
 
-            // x && true = x, x && false = false
+            // x && true = x
             BinaryOperation::And => {
                 if right_is_bool(true) {
                     self.changed = true;
@@ -231,17 +233,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if right_is_bool(false) {
-                    self.changed = true;
-                    return (right, rhs_opt_value);
-                }
-                if left_is_bool(false) {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
             }
 
-            // x || false = x, x || true = true
+            // x || false = x
             BinaryOperation::Or => {
                 if right_is_bool(false) {
                     self.changed = true;
@@ -251,26 +245,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                if right_is_bool(true) {
-                    self.changed = true;
-                    return (right, rhs_opt_value);
-                }
-                if left_is_bool(true) {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
             }
 
             BinaryOperation::BitwiseAnd => {
-                // x & false = false (boolean), x & 0 = 0 (integer)
-                if right_is_zero {
-                    self.changed = true;
-                    return (right, rhs_opt_value);
-                }
-                if left_is_zero {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
                 // x & true = x (boolean)
                 if right_is_bool(true) {
                     self.changed = true;
@@ -291,15 +268,6 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-                // x | true = true (boolean)
-                if right_is_bool(true) {
-                    self.changed = true;
-                    return (right, rhs_opt_value);
-                }
-                if left_is_bool(true) {
-                    self.changed = true;
-                    return (left, lhs_opt_value);
-                }
             }
             BinaryOperation::Xor => {
                 // x ^ 0 = x (integer), x ^ false = x (boolean)
@@ -311,22 +279,6 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     self.changed = true;
                     return (right, rhs_opt_value);
                 }
-            }
-
-            // Self-comparison: x == x -> true, x != x -> false
-            BinaryOperation::Eq if same_ssa_atom(&left, &right) => {
-                self.changed = true;
-                let id = self.state.node_builder.next_id();
-                self.state.type_table.insert(id, Type::Boolean);
-                let lit = Literal::boolean(true, span, id);
-                return (lit.into(), Some(Value::from(true)));
-            }
-            BinaryOperation::Neq if same_ssa_atom(&left, &right) => {
-                self.changed = true;
-                let id = self.state.node_builder.next_id();
-                self.state.type_table.insert(id, Type::Boolean);
-                let lit = Literal::boolean(false, span, id);
-                return (lit.into(), Some(Value::from(false)));
             }
 
             _ => {}
@@ -341,6 +293,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let input_id = input.id();
         let span = input.span;
         let (receiver, opt_value) = self.reconstruct_expression(input.receiver, &());
+
+        if !self.runs_full_const_prop() {
+            return (UnaryExpression { receiver, ..input }.into(), None);
+        }
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
@@ -386,6 +342,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (if_true, if_true_value) = self.reconstruct_expression(input.if_true, &());
         let (if_false, if_false_value) = self.reconstruct_expression(input.if_false, &());
 
+        if !self.runs_full_const_prop() {
+            return (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None);
+        }
+
         match cond_value.and_then(|v| v.try_into().ok()) {
             Some(true) if expression_can_be_discarded(&if_false, self.state) => {
                 self.changed = true;
@@ -416,22 +376,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                             UnaryExpression { op: UnaryOperation::Not, receiver: cond, span: ternary_span, id };
                         return (not_cond.into(), None);
                     }
-                    // `cond ? b : b` -> `b` for the same bool literal `b`. The
-                    // condition is an SSA atom at this point, so dropping it is
-                    // side-effect-free.
-                    (Some(a), Some(b)) if a == b => {
-                        self.changed = true;
-                        return (if_true, if_true_value);
-                    }
                     _ => {}
-                }
-
-                // Identical arms: cond ? x : x -> x (for any type, when both
-                // arms are the same SSA variable). Safe because the condition
-                // is side-effect-free in SSA form.
-                if same_ssa_atom(&if_true, &if_false) {
-                    self.changed = true;
-                    return (if_true, if_true_value);
                 }
 
                 (TernaryExpression { condition: cond, if_true, if_false, ..input }.into(), None)
@@ -450,6 +395,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         let (array, array_opt) = self.reconstruct_expression(input.array, &());
         let (index, index_opt) = self.reconstruct_expression(input.index, &());
+
+        if !self.runs_full_const_prop() {
+            return (ArrayAccess { array, index, ..input }.into(), None);
+        }
 
         if let Some(index_value) = index_opt
             && let Some(array_value) = array_opt
@@ -541,7 +490,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         // Reconstruct the RHS expression first.
         let (new_value, opt_value) = self.reconstruct_expression(input.value, &());
 
-        if let Some(value) = opt_value {
+        if self.runs_full_const_prop()
+            && let Some(value) = opt_value
+        {
             match &input.place {
                 DefinitionPlace::Single(identifier) => {
                     self.constants.insert(identifier.name, value);
@@ -554,8 +505,8 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     }
                 }
             }
-        } else if let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) =
-            (&input.place, &new_value)
+        } else if self.forwards_composite_members()
+            && let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) = (&input.place, &new_value)
         {
             // Only track when every field initializer is an atom, since the field
             // expression will be cloned into every forwarded use-site.
@@ -571,6 +522,32 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             if all_atoms {
                 self.atom_fielded_composites.insert(identifier.name, fields);
             }
+        } else if self.tracks_optional_unwraps()
+            && let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) = (&input.place, &new_value)
+            && self.is_optional_composite_expression(composite)
+            && let Some(fields) = optional_composite_atoms(composite)
+        {
+            self.atom_fielded_composites.insert(identifier.name, fields);
+        } else if self.tracks_optional_unwraps()
+            && let (DefinitionPlace::Single(identifier), Expression::Cast(cast)) = (&input.place, &new_value)
+            && self.is_optional_wrapper_type(&cast.type_)
+            && let Expression::Tuple(tuple) = &cast.expression
+            && let [is_some, val] = tuple.elements.as_slice()
+            && is_atom(is_some)
+            && is_atom(val)
+        {
+            self.atom_fielded_composites.insert(
+                identifier.name,
+                IndexMap::from([(Symbol::intern("is_some"), is_some.clone()), (Symbol::intern("val"), val.clone())]),
+            );
+        }
+
+        if self.tracks_optional_unwraps()
+            && let (DefinitionPlace::Single(identifier), Expression::Path(path)) = (&input.place, &new_value)
+            && let Some(alias) = path.try_local_symbol().map(|name| self.resolve_composite_alias(name))
+            && self.atom_fielded_composites.contains_key(&alias)
+        {
+            self.aliases.insert(identifier.name, alias);
         }
 
         input.value = new_value;
@@ -591,6 +568,12 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     /// untaken branch is statically dead.
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let (condition, condition_value) = self.reconstruct_expression(conditional.condition, &());
+
+        if !self.runs_full_const_prop() {
+            let then = self.reconstruct_block(conditional.then).0;
+            let otherwise = conditional.otherwise.map(|s| Box::new(self.reconstruct_statement(*s).0));
+            return (ConditionalStatement { condition, then, otherwise, ..conditional }.into(), None);
+        }
 
         match condition_value.and_then(|v| v.try_into().ok()) {
             Some(true) => {

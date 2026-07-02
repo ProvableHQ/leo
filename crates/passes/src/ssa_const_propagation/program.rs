@@ -16,7 +16,7 @@
 
 use super::SsaConstPropagationVisitor;
 
-use leo_ast::{AstReconstructor, Constructor, Function, Library, ProgramScope, Statement, UnitReconstructor};
+use leo_ast::{AstReconstructor, Constructor, Function, Library, Location, ProgramScope, Statement, UnitReconstructor};
 
 impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
     fn reconstruct_library(&mut self, input: Library) -> Library {
@@ -27,6 +27,11 @@ impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         self.program = input.program_id.as_symbol();
+        self.composites = input
+            .composites
+            .iter()
+            .map(|(_, composite)| (Location::new(self.program, vec![composite.identifier.name]), composite.clone()))
+            .collect();
 
         ProgramScope {
             program_id: input.program_id,
@@ -54,25 +59,28 @@ impl UnitReconstructor for SsaConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_function(&mut self, mut input: Function) -> Function {
-        // Reset the per-function maps.
-        // In SSA form, each function has its own scope, so we can clear the maps.
-        self.constants.clear();
-        self.atom_fielded_composites.clear();
+        if self.tracks_optional_unwraps() && !input.variant.is_finalize_context() {
+            return input;
+        }
+
+        // In SSA form, each function has its own scope, so analysis facts are local.
+        self.clear_tracked_values();
         // Traverse the function body.
         input.block = self.reconstruct_block(input.block).0;
-        self.constants.clear();
-        self.atom_fielded_composites.clear();
+        self.clear_tracked_values();
         input
     }
 
     fn reconstruct_constructor(&mut self, mut input: Constructor) -> Constructor {
-        // Reset the per-constructor maps.
-        self.constants.clear();
-        self.atom_fielded_composites.clear();
+        if self.tracks_optional_unwraps() {
+            return input;
+        }
+
+        // Constructors also have their own SSA scope.
+        self.clear_tracked_values();
         // Traverse the constructor body.
         input.block = self.reconstruct_block(input.block).0;
-        self.constants.clear();
-        self.atom_fielded_composites.clear();
+        self.clear_tracked_values();
         input
     }
 }

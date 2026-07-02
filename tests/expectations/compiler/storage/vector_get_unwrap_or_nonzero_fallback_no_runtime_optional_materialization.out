@@ -1,0 +1,34 @@
+program test.aleo;
+
+struct Optional__3aph2JMPtnA:
+    is_some as boolean;
+    val as u8;
+
+mapping result:
+    key as boolean.public;
+    value as u8.public;
+
+mapping data__:
+    key as u32.public;
+    value as u8.public;
+
+mapping data__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function read_one:
+    input r0 as u32.private;
+    async read_one r0 into r1;
+    output r1 as test.aleo/read_one.future;
+
+finalize read_one:
+    input r0 as u32.public;
+    get.or_use data__len__[false] 0u32 into r1;
+    lt r0 r1 into r2;
+    get.or_use data__[r0] 0u8 into r3;
+    ternary r2 r3 0u8 into r4;
+    ternary r2 r4 7u8 into r5;
+    set r5 into result[false];
+
+constructor:
+    assert.eq edition 0u16;
