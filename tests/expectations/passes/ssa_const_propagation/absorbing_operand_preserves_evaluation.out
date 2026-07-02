@@ -1,0 +1,12 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn preserve_mul_zero_operand(x$$0: u8, y$$1: u8) -> u8 {
+        let diff$#2 = x$$0 - y$$1;
+        let $var$3 = 0u8;
+        let $var$4 = diff$#2 * 0u8;
+        return $var$4;
+    }
+}
+

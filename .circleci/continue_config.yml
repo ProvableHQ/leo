@@ -495,7 +495,7 @@ jobs:
   cargo-doc:
     docker:
       - image: "cimg/rust:1.96.0"
-    resource_class: large
+    resource_class: xlarge
     steps:
       - only-run-if:
           scope-is: "full"

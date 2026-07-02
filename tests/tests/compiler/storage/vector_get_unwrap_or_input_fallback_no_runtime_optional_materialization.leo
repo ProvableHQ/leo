@@ -1,0 +1,1 @@
+program test.aleo { storage data: [u8]; mapping result: bool => u8; fn read_one(idx: u32, fallback: u8) -> Final { return final { let value: u8 = data.get(idx).unwrap_or(fallback); Mapping::set(result, false, value); }; } @noupgrade constructor() {} }

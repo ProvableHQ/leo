@@ -14,14 +14,14 @@ program test.aleo {
         return cond ? false : true;
     }
 
-    // `cond ? true : true` folds to `true`; the condition is an SSA atom at
-    // this point, so dropping it is side-effect-free.
-    fn fold_both_true(cond: bool) -> bool {
+    // `cond ? true : true` must preserve `cond`; discarding it can erase the
+    // checked expression that produced the SSA atom.
+    fn preserve_both_true(cond: bool) -> bool {
         return cond ? true : true;
     }
 
-    // `cond ? false : false` folds to `false` for the same reason.
-    fn fold_both_false(cond: bool) -> bool {
+    // `cond ? false : false` preserves `cond` for the same reason.
+    fn preserve_both_false(cond: bool) -> bool {
         return cond ? false : false;
     }
 

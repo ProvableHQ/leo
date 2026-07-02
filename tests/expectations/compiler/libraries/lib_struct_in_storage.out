@@ -30,9 +30,8 @@ finalize unwrap_info:
     ternary r0 r2.supply r3.supply into r7;
     ternary r0 r2.max_supply r3.max_supply into r8;
     cast r4 r5 r6 r7 r8 into r9 as TokenInfo__CxbbwT70PGX;
-    cast r0 r9 into r10 as Optional__An66AtVsP75;
-    assert.eq r10.is_some true;
-    assert.eq r10.val.decimals 8u8;
+    assert.eq r0 true;
+    assert.eq r9.decimals 8u8;
 
 constructor:
     assert.eq edition 0u16;
