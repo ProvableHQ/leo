@@ -29,6 +29,10 @@ pub struct Path {
     /// The program this path belongs to, if set by the user
     user_program: Option<ProgramId>,
 
+    /// Whether the user wrote a leading `::`, anchoring the path at the root module (e.g. `::foo::bar`).
+    #[serde(default)]
+    absolute: bool,
+
     /// The qualifying namespace segments written by the user, excluding the item itself.
     /// e.g., in `foo::bar::baz`, this would be `[foo, bar]`.
     qualifier: Vec<Identifier>,
@@ -70,7 +74,7 @@ impl Path {
         span: Span,
         id: NodeID,
     ) -> Self {
-        Self { user_program, qualifier, identifier, target: PathTarget::Unresolved, span, id }
+        Self { user_program, absolute: false, qualifier, identifier, target: PathTarget::Unresolved, span, id }
     }
 
     /// Returns the final identifier of the path (e.g., `baz` in `foo::bar::baz`).
@@ -101,6 +105,17 @@ impl Path {
     /// Returns `self` after setting it `user_program` field to `user_program`.
     pub fn with_user_program(mut self, user_program: ProgramId) -> Self {
         self.user_program = Some(user_program);
+        self
+    }
+
+    /// Returns whether the user wrote a leading `::` (e.g. `::foo::bar`).
+    pub fn is_absolute(&self) -> bool {
+        self.absolute
+    }
+
+    /// Returns `self` after marking it as absolute.
+    pub fn with_absolute(mut self) -> Self {
+        self.absolute = true;
         self
     }
 
@@ -192,7 +207,7 @@ impl Path {
     ///   - `Global(Location)` → same location, but with the final path segment replaced
     ///   - `Unresolved` → unchanged
     pub fn with_updated_last_symbol(self, new_symbol: Symbol) -> Self {
-        let Path { mut identifier, target, user_program, qualifier, span, id } = self;
+        let Path { mut identifier, target, user_program, absolute, qualifier, span, id } = self;
 
         // Update user-visible identifier
         identifier.name = new_symbol;
@@ -213,7 +228,7 @@ impl Path {
             }
         };
 
-        Self { user_program, qualifier, identifier, target, span, id }
+        Self { user_program, absolute, qualifier, identifier, target, span, id }
     }
 
     /// Resolves this path as a global path within the current module context.
@@ -222,15 +237,19 @@ impl Path {
     /// [`PathTarget::Global`] by determining which program the path belongs to
     /// and constructing the corresponding module path.
     ///
-    /// Resolution follows two main cases:
+    /// Resolution follows three main cases:
     ///
-    /// 1. **External library access**
-    ///    If the path does not explicitly specify a program (`user_program` is `None`)
-    ///    and the first qualifier segment matches a known external library name,
-    ///    that segment is interpreted as the target program. The remaining qualifier
-    ///    segments and identifier form the path inside that program.
+    /// 1. **Absolute or explicitly-qualified access**
+    ///    If the path has a leading `::` or explicitly specifies a program
+    ///    (`user_program`), it is anchored at the target program's root module.
     ///
-    /// 2. **Local or explicitly-qualified program access**
+    /// 2. **External library access**
+    ///    If the first qualifier segment matches a known external library name (or
+    ///    the current library's own name), that segment is interpreted as the target
+    ///    program. The remaining qualifier segments and identifier form the path
+    ///    inside that program.
+    ///
+    /// 3. **Module-relative access**
     ///    Otherwise, the path is resolved relative to the current module context.
     ///    The final location is constructed by combining:
     ///      - the current module path,
@@ -252,9 +271,24 @@ impl Path {
     where
         I: IntoIterator<Item = Symbol>,
     {
-        let Path { user_program, qualifier, identifier, span, id, .. } = self;
+        let Path { user_program, absolute, qualifier, identifier, span, id, .. } = self;
 
-        // Case 1: The path starts with a known external library name, or with the name
+        // Case 1: Absolute (leading `::`) or explicitly program-qualified paths are anchored
+        // at the target program's root module; the current module context is ignored.
+        if absolute || user_program.is_some() {
+            let mut path: Vec<Symbol> = Vec::with_capacity(qualifier.len() + 1);
+            path.extend(qualifier.iter().map(|id| id.name));
+            path.push(identifier.name);
+
+            let target = PathTarget::Global(Location {
+                program: user_program.as_ref().map(|id| id.as_symbol()).unwrap_or(program),
+                path,
+            });
+
+            return Self { user_program, absolute, qualifier, identifier, target, span, id };
+        }
+
+        // Case 2: The path starts with a known external library name, or with the name
         // of the current program/library itself (a self-qualified path like `my_lib::module::item`),
         // and the user did not explicitly specify a program. In either situation we interpret
         // the first qualifier segment as the program name.
@@ -265,7 +299,6 @@ impl Path {
         // (e.g., `foo.aleo`), while Leo identifiers cannot contain `.`, so no qualifier can
         // ever equal a program name.
         if let Some(first) = qualifier.first()
-            && user_program.is_none()
             && (external_libs.contains(&first.name) || first.name == program)
         {
             // Build the path within the external library by skipping the
@@ -275,9 +308,9 @@ impl Path {
 
             let target = PathTarget::Global(Location { program: first.name, path });
 
-            Self { user_program: None, qualifier, identifier, target, span, id }
+            Self { user_program: None, absolute, qualifier, identifier, target, span, id }
         } else {
-            // Case 2: Resolve relative to the current module.
+            // Case 3: Resolve relative to the current module.
             //
             // Construct the path by concatenating:
             //   current_module + user qualifier + identifier.
@@ -286,15 +319,9 @@ impl Path {
             path.extend(qualifier.iter().map(|id| id.name));
             path.push(identifier.name);
 
-            // Determine which program this location belongs to:
-            //   - use the explicitly written program if provided
-            //   - otherwise fall back to the current program.
-            let target = PathTarget::Global(Location {
-                program: user_program.map(|id| id.as_symbol()).unwrap_or(program),
-                path,
-            });
+            let target = PathTarget::Global(Location { program, path });
 
-            Self { user_program, qualifier, identifier, target, span, id }
+            Self { user_program, absolute, qualifier, identifier, target, span, id }
         }
     }
 }
@@ -313,7 +340,11 @@ impl fmt::Display for Path {
         //
         // 3. Library programs (no `.aleo` suffix) already have their name as the first qualifier
         //    segment (e.g. `math_lib::Foo`), so adding a prefix here would double-print it.
-        if let Some(pid) = &self.user_program {
+        //
+        // 4. Absolute paths print their leading `::` and never take a program prefix.
+        if self.absolute {
+            write!(f, "::")?;
+        } else if let Some(pid) = &self.user_program {
             write!(f, "{}::", pid.as_symbol())?;
         } else if let Some(loc) = self.try_global_location() {
             // Use the global program as prefix only for .aleo programs.

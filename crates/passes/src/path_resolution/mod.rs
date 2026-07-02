@@ -29,9 +29,10 @@
 //! table contains a complete and accurate representation of all lexical scopes.
 //!
 //! # Key behaviors:
-//! - Paths with qualifiers are always resolved as global paths.
+//! - Paths with qualifiers or a leading `::` are always resolved as global paths.
 //! - Unqualified paths are resolved as global or local based on symbol table lookup.
 //! - Global paths are resolved relative to the current module and program context.
+//! - Absolute paths (leading `::`) and program-qualified paths are anchored at the root module.
 //! - Local scopes are created for functions, blocks, composites, constructors, and loops.
 //! - Local variables are inserted with their declaration kind, but without final types.
 //!

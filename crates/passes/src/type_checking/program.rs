@@ -676,7 +676,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 return;
             };
             // Check that the mapping key type matches the expected key type.
-            if *mapping_type.key != *key_type {
+            if *mapping_type.key != **key_type {
                 self.emit_err(crate::errors::type_checker::custom(
                     format!(
                         "The mapping '{}' key type '{}' does not match the key '{}' in the `@checksum` annotation",

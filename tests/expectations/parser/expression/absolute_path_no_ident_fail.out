@@ -1,0 +1,5 @@
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test:3:19 ]
+   │
+ 3 │         let x = ::5u32;
+───╯

@@ -374,7 +374,10 @@ impl<'a> ConversionContext<'a> {
         let name = path_components.pop().expect("TYPE_PATH should have at least one identifier");
         let path_span =
             if let Some(first) = path_components.first() { Span::new(first.span.lo, name.span.hi) } else { name.span };
-        let path = leo_ast::Path::new(None, path_components, name, path_span, self.builder.next_id());
+        let mut path = leo_ast::Path::new(None, path_components, name, path_span, self.builder.next_id());
+        if starts_with_colon_colon(node) {
+            path = path.with_absolute();
+        }
         Ok(leo_ast::CompositeType { path, const_arguments }.into())
     }
 
@@ -868,8 +871,9 @@ impl<'a> ConversionContext<'a> {
 
         // If the path has exactly one qualifier (e.g. `group::to_x_coordinate`),
         // try to canonicalize to an intrinsic. Non-intrinsic qualified calls
-        // fall through to the normal CallExpression below.
-        if function.user_program().is_none() && function.qualifier().len() == 1 {
+        // fall through to the normal CallExpression below. Absolute paths always
+        // refer to user items, never intrinsics.
+        if function.user_program().is_none() && !function.is_absolute() && function.qualifier().len() == 1 {
             let module = function.qualifier()[0].name;
             let name = function.identifier().name;
             if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, name) {
@@ -888,7 +892,7 @@ impl<'a> ConversionContext<'a> {
 
         // Bare intrinsic calls (e.g. `_dynamic_call::[u64](args)`).
         // These have no qualifier and the identifier starts with `_`.
-        if function.user_program().is_none() && function.qualifier().is_empty() {
+        if function.user_program().is_none() && !function.is_absolute() && function.qualifier().is_empty() {
             let name = function.identifier().name;
             if leo_ast::Intrinsic::from_symbol(name, &type_parameters).is_some() {
                 // For _dynamic_call, split type parameters into input_types and return_types.
@@ -1396,7 +1400,8 @@ impl<'a> ConversionContext<'a> {
                 self.error_identifier(fallback_span)
             }
         };
-        Ok(leo_ast::Path::new(None, path_components, name, path_span, self.builder.next_id()))
+        let path = leo_ast::Path::new(None, path_components, name, path_span, self.builder.next_id());
+        Ok(if starts_with_colon_colon(node) { path.with_absolute() } else { path })
     }
 
     /// Convert a STRUCT_LOCATOR_EXPR node to an Expression.
@@ -1511,8 +1516,9 @@ impl<'a> ConversionContext<'a> {
         }
 
         // Detect signature literals (identifiers starting with `sign1` that
-        // parse as valid `Signature<TestnetV0>`).
-        if path.user_program().is_none() && path.qualifier().is_empty() {
+        // parse as valid `Signature<TestnetV0>`). Absolute paths always refer
+        // to user items, never literals.
+        if path.user_program().is_none() && !path.is_absolute() && path.qualifier().is_empty() {
             let name_text = path.identifier().name.to_string();
             if name_text.starts_with("sign1") && name_text.parse::<Signature<TestnetV0>>().is_ok() {
                 return Ok(leo_ast::Literal::signature(name_text, span, id).into());
@@ -1610,7 +1616,8 @@ impl<'a> ConversionContext<'a> {
                 self.error_identifier(span)
             }
         };
-        Ok(leo_ast::Path::new(None, path_components, name, span, self.builder.next_id()))
+        let path = leo_ast::Path::new(None, path_components, name, span, self.builder.next_id());
+        Ok(if starts_with_colon_colon(node) { path.with_absolute() } else { path })
     }
 
     // =========================================================================
@@ -3183,6 +3190,11 @@ fn tokens(node: &SyntaxNode) -> impl Iterator<Item = SyntaxToken> + '_ {
 /// True when `node` carries a direct `export` keyword child.
 fn has_export(node: &SyntaxNode) -> bool {
     tokens(node).any(|t| t.kind() == KW_EXPORT)
+}
+
+/// True when the node's first non-trivia token is `::` (an absolute path).
+fn starts_with_colon_colon(node: &SyntaxNode) -> bool {
+    tokens(node).next().is_some_and(|t| t.kind() == COLON_COLON)
 }
 
 /// Find the first IDENT or keyword token after the DOT in a node.
