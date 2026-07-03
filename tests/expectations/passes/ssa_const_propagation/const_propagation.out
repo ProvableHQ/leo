@@ -16,7 +16,7 @@ program test.aleo {
         {
             let b$#8 = 42u32;
         }
-        let b$9 = 42u32;
+        let b$9 = true ? 42u32 : b$#6;
         let $var$10 = false;
         {
             let b$#12 = 43u32;
