@@ -171,6 +171,15 @@ macro_rules! compiler_passes {
                 (Disambiguate, ()),
                 (FunctionInlining, ())
             ]),
+            (halt_safe_ternary_runner, [
+                (GlobalVarsCollection, ()),
+                (PathResolution, ()),
+                (GlobalItemsCollection, ()),
+                (TypeChecking, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (Disambiguate, ()),
+                (ConstPropUnrollAndMorphing, (TypeCheckingInput::new(NetworkName::TestnetV0))),
+                (HaltSafeTernary, ())
+            ]),
             (library_pruning_runner, [
                 (GlobalVarsCollection, ()),
                 (PathResolution, ()),

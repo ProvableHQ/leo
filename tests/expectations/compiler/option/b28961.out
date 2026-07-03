@@ -150,16 +150,19 @@ function ternary_optional_cases:
     assert.eq r0.is_some true;
     cast false 0u32 into r5 as Optional__JzunLORyB8U;
     is.neq r1 r5 into r6;
-    add r0.val 1u32 into r7;
-    ternary r6 r1.val r7 into r8;
-    cast true r8 into r9 as Optional__JzunLORyB8U;
+    not r6 into r7;
+    ternary r7 r0.val 0u32 into r8;
+    ternary r7 1u32 0u32 into r9;
+    add r8 r9 into r10;
+    ternary r6 r1.val r10 into r11;
+    cast true r11 into r12 as Optional__JzunLORyB8U;
     assert.eq r3.is_some true;
-    assert.eq r9.is_some true;
-    add r0.val r3.val into r10;
-    add r10 r4 into r11;
-    add r11 r8 into r12;
-    add r12 r9.val into r13;
-    output r13 as u32.private;
+    assert.eq r12.is_some true;
+    add r0.val r3.val into r13;
+    add r13 r4 into r14;
+    add r14 r11 into r15;
+    add r15 r12.val into r16;
+    output r16 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

@@ -1,0 +1,20 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn nested(c1: bool, c2: bool, a: u8, b: u8) -> u8 {
+        let $cond$0 = c1;
+        let $cond$1 = c2;
+        let $guard$2 = $cond$0 && $cond$1;
+        return $cond$0 ? ($cond$1 ? a / ($guard$2 ? b : 1u8) : 1u8) : 2u8;
+    }
+    fn narrow(c: bool, x: u32) -> u8 {
+        let $cond$3 = c;
+        return $cond$3 ? ($cond$3 ? x : 0u32) as u8 : 0u8;
+    }
+    fn compound(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$4 = c;
+        return $cond$4 ? ($cond$4 ? 1u8 : 0u8) + ($cond$4 ? a / ($cond$4 ? b : 1u8) : 0u8) : 0u8;
+    }
+}
+

@@ -433,6 +433,10 @@ impl Compiler {
 
         self.do_pass::<OptionLowering>(type_checking_config)?;
 
+        // Make both arms of every ternary halt-safe before SSA forming hoists the arms into
+        // unconditional temporaries. This must run while ternary arms are still tree-structured.
+        self.do_pass::<HaltSafeTernary>(())?;
+
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: true })?;
 
         self.do_pass::<Destructuring>(())?;

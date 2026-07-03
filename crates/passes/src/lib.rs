@@ -61,6 +61,9 @@ pub use global_items_collection::*;
 mod global_vars_collection;
 pub use global_vars_collection::*;
 
+mod halt_safe_ternary;
+pub use halt_safe_ternary::*;
+
 mod library_pruning;
 pub use library_pruning::*;
 

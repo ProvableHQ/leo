@@ -1,0 +1,15 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn select(c: bool, a: u8, b: u8) -> u8 {
+        return c ? a : b;
+    }
+    fn compare(c: bool, a: u8, b: u8) -> bool {
+        return c ? a < b : false;
+    }
+    fn top_level(a: u8, b: u8) -> u8 {
+        return a / b;
+    }
+}
+

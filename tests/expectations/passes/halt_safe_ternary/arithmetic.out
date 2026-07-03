@@ -1,0 +1,39 @@
+program test.aleo {
+    @noupgrade
+    async constructor() {
+    }
+    fn divide(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$0 = c;
+        return $cond$0 ? a / ($cond$0 ? b : 1u8) : 0u8;
+    }
+    fn remainder(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$1 = c;
+        return $cond$1 ? a % ($cond$1 ? b : 1u8) : 0u8;
+    }
+    fn add(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$2 = c;
+        return $cond$2 ? ($cond$2 ? a : 0u8) + ($cond$2 ? b : 0u8) : 0u8;
+    }
+    fn subtract(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$3 = c;
+        return $cond$3 ? ($cond$3 ? a : 0u8) - ($cond$3 ? b : 0u8) : 0u8;
+    }
+    fn multiply(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$4 = c;
+        return $cond$4 ? ($cond$4 ? a : 0u8) * ($cond$4 ? b : 0u8) : 0u8;
+    }
+    fn power(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$5 = c;
+        return $cond$5 ? a ** ($cond$5 ? b : 0u8) : 0u8;
+    }
+    fn shift_left(c: bool, a: u8, s: u8) -> u8 {
+        let $cond$6 = c;
+        return $cond$6 ? a << ($cond$6 ? s : 0u8) : 0u8;
+    }
+    fn false_arm(c: bool, a: u8, b: u8) -> u8 {
+        let $cond$7 = c;
+        let $guard$8 = $cond$7.not();
+        return $cond$7 ? 0u8 : a / ($guard$8 ? b : 1u8);
+    }
+}
+

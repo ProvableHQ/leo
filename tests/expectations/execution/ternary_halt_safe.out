@@ -1,0 +1,77 @@
+program test.aleo;
+
+function divide:
+    input r0 as boolean.private;
+    input r1 as u8.private;
+    ternary r0 r1 1u8 into r2;
+    div 10u8 r2 into r3;
+    ternary r0 r3 99u8 into r4;
+    output r4 as u8.private;
+
+function add_overflow:
+    input r0 as boolean.private;
+    input r1 as u8.private;
+    ternary r0 r1 0u8 into r2;
+    ternary r0 1u8 0u8 into r3;
+    add r2 r3 into r4;
+    ternary r0 r4 7u8 into r5;
+    output r5 as u8.private;
+
+function shift:
+    input r0 as boolean.private;
+    input r1 as u8.private;
+    ternary r0 r1 0u8 into r2;
+    shl 1u8 r2 into r3;
+    ternary r0 r3 3u8 into r4;
+    output r4 as u8.private;
+
+function narrow_cast:
+    input r0 as boolean.private;
+    input r1 as u32.private;
+    ternary r0 r1 0u32 into r2;
+    cast r2 into r3 as u8;
+    ternary r0 r3 42u8 into r4;
+    output r4 as u8.private;
+
+function nested:
+    input r0 as boolean.private;
+    input r1 as boolean.private;
+    input r2 as u8.private;
+    and r0 r1 into r3;
+    ternary r3 r2 1u8 into r4;
+    div 10u8 r4 into r5;
+    ternary r1 r5 1u8 into r6;
+    ternary r0 r6 2u8 into r7;
+    output r7 as u8.private;
+
+function signed_divide:
+    input r0 as boolean.private;
+    input r1 as i8.private;
+    input r2 as i8.private;
+    ternary r0 r2 1i8 into r3;
+    div r1 r3 into r4;
+    ternary r0 r4 0i8 into r5;
+    output r5 as i8.private;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 99u8
+status: success
+output: 2u8
+status: failed: Any { .. }
+output: ()
+status: success
+output: 7u8
+status: success
+output: 3u8
+status: success
+output: 42u8
+status: success
+output: 2u8
+status: failed: Any { .. }
+output: ()
+status: success
+output: 0i8
+status: failed: Any { .. }
+output: ()
