@@ -5,15 +5,6 @@
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
-[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:25:9 ]
-    │
- 25 │         Mapping::set(counters, i, a + i);
-    │ 
-    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
-    │ 
-    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
-────╯
 program dep.aleo;
 
 mapping dep_data:

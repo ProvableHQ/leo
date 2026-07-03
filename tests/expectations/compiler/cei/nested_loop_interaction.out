@@ -5,31 +5,6 @@
     │ 
     │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
 ────╯
-[WCEI03713003] Warning: loop body contains both interactions (`Final.run()`) and state operations (checks or effects), violating the Checks-Effects-Interactions pattern
-    ╭─[ compiler-test:19:13 ]
-    │
- 19 │         for j: u32 in 0u32..2u32 {
-    │ 
-    │ Help: Restructure the loop so a single iteration does not mix interactions with checks or effects. Split it into two passes if needed.
-────╯
-[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:21:13 ]
-    │
- 21 │             Mapping::set(counters, j, a);
-    │ 
-    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
-    │ 
-    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
-────╯
-[WCEI03713001] Warning: a call to `_mapping_set` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:24:9 ]
-    │
- 24 │         Mapping::set(counters, i, a);
-    │ 
-    │ Help: Move this effect above the `.run()` call to avoid reentrancy issues.
-    │ 
-    │ Note: Under the Checks-Effects-Interactions pattern, all effects (state writes) must precede any `.run()` calls in the same execution path.
-────╯
 program dep.aleo;
 
 mapping dep_data:
