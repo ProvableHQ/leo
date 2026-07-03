@@ -26,17 +26,19 @@ finalize pick:
     cast 0u32 0u32 into r1 as Point__7VbTm7beYPk;
     cast r1 0u32 0u32 into r2 as Rect__2UBYikAziAq;
     get.or_use selection__[false] r2 into r3;
-    cast 0u32 0u32 into r4 as Point__7VbTm7beYPk;
-    cast r4 0u32 0u32 into r5 as Rect__2UBYikAziAq;
-    ternary r0 r3.top_left.x r5.top_left.x into r6;
-    ternary r0 r3.top_left.y r5.top_left.y into r7;
-    cast r6 r7 into r8 as Point__7VbTm7beYPk;
-    ternary r0 r3.size_x r5.size_x into r9;
-    ternary r0 r3.size_y r5.size_y into r10;
-    cast r8 r9 r10 into r11 as Rect__2UBYikAziAq;
-    cast r0 r11 into r12 as Optional__93SfMrvy3aW;
-    assert.eq r12.is_some true;
-    assert.eq r12.val.top_left.x r12.val.top_left.x;
+    cast true r3 into r4 as Optional__93SfMrvy3aW;
+    cast 0u32 0u32 into r5 as Point__7VbTm7beYPk;
+    cast r5 0u32 0u32 into r6 as Rect__2UBYikAziAq;
+    ternary r0 r3.top_left.x r6.top_left.x into r7;
+    ternary r0 r3.top_left.y r6.top_left.y into r8;
+    cast r7 r8 into r9 as Point__7VbTm7beYPk;
+    ternary r0 r3.size_x r6.size_x into r10;
+    ternary r0 r3.size_y r6.size_y into r11;
+    cast r9 r10 r11 into r12 as Rect__2UBYikAziAq;
+    ternary r0 r4.is_some false into r13;
+    cast r13 r12 into r14 as Optional__93SfMrvy3aW;
+    assert.eq r14.is_some true;
+    assert.eq r14.val.top_left.x r14.val.top_left.x;
 
 constructor:
     assert.eq edition 0u16;

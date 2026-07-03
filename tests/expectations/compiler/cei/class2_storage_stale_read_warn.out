@@ -47,12 +47,14 @@ finalize do_work:
     input r1 as u32.public;
     contains counter__[false] into r2;
     get.or_use counter__[false] 0u32 into r3;
-    ternary r2 r3 0u32 into r4;
-    cast r2 r4 into r5 as Optional__JzunLORyB8U;
-    ternary r5.is_some r5.val 0u32 into r6;
+    cast true r3 into r4 as Optional__JzunLORyB8U;
+    ternary r2 r4.is_some false into r5;
+    ternary r2 r3 0u32 into r6;
+    cast r5 r6 into r7 as Optional__JzunLORyB8U;
+    ternary r7.is_some r7.val 0u32 into r8;
     await r0;
-    add r6 r1 into r7;
-    set r7 into counter__[false];
+    add r8 r1 into r9;
+    set r9 into counter__[false];
 
 constructor:
     assert.eq edition 0u16;

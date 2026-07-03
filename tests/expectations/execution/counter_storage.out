@@ -22,18 +22,22 @@ function increment:
 finalize increment:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u32 into r1;
-    ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    ternary r3.is_some r3.val 0u32 into r4;
-    add r4 1u32 into r5;
-    set r5 into counter__[false];
-    contains counter__[false] into r6;
-    get.or_use counter__[false] 0u32 into r7;
-    ternary r6 r7 0u32 into r8;
-    cast r6 r8 into r9 as Optional__JzunLORyB8U;
-    assert.eq r9.is_some true;
-    is.eq r9.val r5 into r10;
-    assert.eq r10 true;
+    cast true r1 into r2 as Optional__JzunLORyB8U;
+    ternary r0 r2.is_some false into r3;
+    ternary r0 r1 0u32 into r4;
+    cast r3 r4 into r5 as Optional__JzunLORyB8U;
+    ternary r5.is_some r5.val 0u32 into r6;
+    add r6 1u32 into r7;
+    set r7 into counter__[false];
+    contains counter__[false] into r8;
+    get.or_use counter__[false] 0u32 into r9;
+    cast true r9 into r10 as Optional__JzunLORyB8U;
+    ternary r8 r10.is_some false into r11;
+    ternary r8 r9 0u32 into r12;
+    cast r11 r12 into r13 as Optional__JzunLORyB8U;
+    assert.eq r13.is_some true;
+    is.eq r13.val r7 into r14;
+    assert.eq r14 true;
 
 constructor:
     assert.eq edition 0u16;

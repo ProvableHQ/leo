@@ -144,22 +144,24 @@ function ternary_optional_cases:
     assert.eq r0.is_some true;
     add r0.val 5u32 into r2;
     cast true r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    mul r3.val 2u32 into r4;
+    cast r3.is_some r2 into r4 as Optional__JzunLORyB8U;
+    assert.eq r4.is_some true;
+    mul r4.val 2u32 into r5;
     assert.eq r1.is_some true;
     assert.eq r0.is_some true;
-    cast false 0u32 into r5 as Optional__JzunLORyB8U;
-    is.neq r1 r5 into r6;
-    add r0.val 1u32 into r7;
-    ternary r6 r1.val r7 into r8;
-    cast true r8 into r9 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    assert.eq r9.is_some true;
-    add r0.val r3.val into r10;
-    add r10 r4 into r11;
-    add r11 r8 into r12;
-    add r12 r9.val into r13;
-    output r13 as u32.private;
+    cast false 0u32 into r6 as Optional__JzunLORyB8U;
+    is.neq r1 r6 into r7;
+    add r0.val 1u32 into r8;
+    ternary r7 r1.val r8 into r9;
+    cast true r9 into r10 as Optional__JzunLORyB8U;
+    cast r10.is_some r9 into r11 as Optional__JzunLORyB8U;
+    assert.eq r4.is_some true;
+    assert.eq r11.is_some true;
+    add r0.val r4.val into r12;
+    add r12 r5 into r13;
+    add r13 r9 into r14;
+    add r14 r11.val into r15;
+    output r15 as u32.private;
 
 constructor:
     assert.eq edition 0u16;

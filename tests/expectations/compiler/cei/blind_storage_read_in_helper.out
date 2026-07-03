@@ -51,10 +51,12 @@ finalize do_work:
     await r0;
     contains counter__[false] into r1;
     get.or_use counter__[false] 0u32 into r2;
-    ternary r1 r2 0u32 into r3;
-    cast r1 r3 into r4 as Optional__JzunLORyB8U;
-    ternary r4.is_some r4.val 0u32 into r5;
-    set r5 into balances[0u32];
+    cast true r2 into r3 as Optional__JzunLORyB8U;
+    ternary r1 r3.is_some false into r4;
+    ternary r1 r2 0u32 into r5;
+    cast r4 r5 into r6 as Optional__JzunLORyB8U;
+    ternary r6.is_some r6.val 0u32 into r7;
+    set r7 into balances[0u32];
 
 constructor:
     assert.eq edition 0u16;
