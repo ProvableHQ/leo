@@ -688,6 +688,54 @@ impl<'a> CheckInterfacesVisitor<'a> {
         None
     }
 
+    /// Emit an error for every duplicated member name within a single interface body.
+    ///
+    /// A single map catches both within-kind duplicates (two `fn foo`) and cross-kind
+    /// clashes (`fn foo` + `mapping foo`); the error names each side's kind so users
+    /// can tell which two declarations collide. Walks kinds in a fixed order so the
+    /// "first seen" report is deterministic across runs.
+    fn check_intra_interface_duplicates<'b>(&mut self, interfaces: impl IntoIterator<Item = &'b Interface>) {
+        for interface in interfaces {
+            let interface_name = interface.identifier.name;
+            let mut seen: IndexMap<Symbol, (&'static str, Span)> = IndexMap::new();
+
+            let entries = interface
+                .functions
+                .iter()
+                .map(|(name, proto)| ("function", *name, proto.identifier.span))
+                .chain(interface.records.iter().map(|(name, proto)| ("record", *name, proto.identifier.span)))
+                .chain(interface.mappings.iter().map(|proto| ("mapping", proto.identifier.name, proto.identifier.span)))
+                .chain(
+                    interface
+                        .storages
+                        .iter()
+                        .map(|proto| ("storage variable", proto.identifier.name, proto.identifier.span)),
+                );
+
+            for (kind, name, span) in entries {
+                if let Some((first_kind, first_span)) = seen.get(&name).copied() {
+                    self.state.handler.emit_err(
+                        crate::errors::check_interfaces::duplicate_interface_member(
+                            kind,
+                            first_kind,
+                            name,
+                            interface_name,
+                            span,
+                        )
+                        .with_labels(vec![
+                            Label::new(first_span)
+                                .with_message(format!("`{name}` first declared here as a {first_kind}"))
+                                .with_color(Color::Blue),
+                            Label::new(span).with_message(format!("`{name}` redeclared here as a {kind}")),
+                        ]),
+                    );
+                } else {
+                    seen.insert(name, (kind, span));
+                }
+            }
+        }
+    }
+
     /// Validate that record prototypes don't specify `owner` with a type other than `address`.
     fn validate_record_prototypes<'b>(&mut self, interfaces: impl IntoIterator<Item = &'b Interface>) {
         for interface in interfaces {
@@ -805,6 +853,10 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
             return;
         }
 
+        // Reject duplicate member names within a single interface before flattening,
+        // so inheritance errors aren't cascaded from an already-malformed interface.
+        self.check_intra_interface_duplicates(prefixed.iter().map(|(_, i)| i));
+
         // Validate record prototypes (e.g. owner must be address).
         self.validate_record_prototypes(prefixed.iter().map(|(_, i)| i));
 
@@ -849,6 +901,10 @@ impl UnitVisitor for CheckInterfacesVisitor<'_> {
             ));
             return;
         }
+
+        // Reject duplicate member names within a single interface before flattening,
+        // so inheritance errors aren't cascaded from an already-malformed interface.
+        self.check_intra_interface_duplicates(input.interfaces.iter().map(|(_, i)| i));
 
         // Validate record prototypes (e.g. owner must be address).
         self.validate_record_prototypes(input.interfaces.iter().map(|(_, i)| i));
