@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, type_checking::scope_state::ScopeState};
+use crate::{CompilerState, SymbolTable, type_checking::scope_state::ScopeState};
 
 use super::*;
 
@@ -2997,5 +2997,96 @@ impl TypeCheckingVisitor<'_> {
 
         // Return the function prototype's output type.
         self.assert_and_return_type(output_type, expected, input.span())
+    }
+
+    /// Returns the name of an on-chain state write (e.g. `Mapping::set`) performed by the
+    /// function at `loc` or by any function it transitively calls, or `None` if the function
+    /// only reads state or is pure.
+    ///
+    /// Used at cross-unit `final fn` call sites: the callee is inlined into the caller's
+    /// finalize context, and a `final fn` can only write its own program's state, so any
+    /// write found here would become an external state write after inlining.
+    pub(crate) fn find_state_write(&self, loc: &Location) -> Option<&'static str> {
+        let mut visited = IndexSet::new();
+        let mut worklist = vec![loc.clone()];
+        while let Some(loc) = worklist.pop() {
+            if !visited.insert(loc.clone()) {
+                continue;
+            }
+            // A callee may be unresolvable here (e.g. a `FromAleo` stub function); an unknown
+            // callee is diagnosed at its own call site, so just skip it.
+            let Some(func_symbol) = self.state.symbol_table.lookup_function(loc.program, &loc) else {
+                continue;
+            };
+            let mut finder = StateWriteFinder {
+                symbol_table: &self.state.symbol_table,
+                unit: loc.program,
+                callees: Vec::new(),
+                write: None,
+            };
+            finder.visit_block(&func_symbol.function.block);
+            if finder.write.is_some() {
+                return finder.write;
+            }
+            worklist.extend(finder.callees);
+        }
+        None
+    }
+}
+
+/// Walks one function body looking for on-chain state writes, collecting callees so
+/// `find_state_write` can continue the search transitively.
+struct StateWriteFinder<'a> {
+    symbol_table: &'a SymbolTable,
+    /// The compilation unit that defines the function being walked.
+    unit: Symbol,
+    /// Global locations of functions called from the body.
+    callees: Vec<Location>,
+    /// The first state-writing operation found, if any.
+    write: Option<&'static str>,
+}
+
+impl AstVisitor for StateWriteFinder<'_> {
+    type AdditionalInput = ();
+    type Output = ();
+
+    fn visit_intrinsic(&mut self, input: &IntrinsicExpression, _additional: &()) {
+        if self.write.is_none() {
+            // The state-writing intrinsics; keep in sync with `CeiCategory::Effect` in `cei_analysis`.
+            self.write = match Intrinsic::from_symbol(input.name, &input.type_parameters) {
+                Some(Intrinsic::MappingSet) => Some("Mapping::set"),
+                Some(Intrinsic::MappingRemove) => Some("Mapping::remove"),
+                Some(Intrinsic::VectorSet) => Some("Vector::set"),
+                Some(Intrinsic::VectorPush) => Some("Vector::push"),
+                Some(Intrinsic::VectorPop) => Some("Vector::pop"),
+                Some(Intrinsic::VectorClear) => Some("Vector::clear"),
+                Some(Intrinsic::VectorSwapRemove) => Some("Vector::swap_remove"),
+                _ => None,
+            };
+        }
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &());
+        });
+    }
+
+    fn visit_call(&mut self, input: &CallExpression, _additional: &()) {
+        if let Some(loc) = input.function.try_global_location() {
+            self.callees.push(loc.clone());
+        }
+        input.const_arguments.iter().chain(input.arguments.iter()).for_each(|arg| {
+            self.visit_expression(arg, &());
+        });
+    }
+
+    fn visit_assign(&mut self, input: &AssignStatement) {
+        // A plain storage variable assignment lowers to a mapping write during storage lowering.
+        if self.write.is_none()
+            && let Some(root) = crate::cei_analysis::effect_summary::peel_assign_root(&input.place)
+            && crate::cei_analysis::effect_summary::is_storage_variable(self.symbol_table, self.unit, root)
+        {
+            self.write = Some("an assignment to a storage variable");
+        }
+        self.visit_expression(&input.place, &());
+        self.visit_expression(&input.value, &());
     }
 }

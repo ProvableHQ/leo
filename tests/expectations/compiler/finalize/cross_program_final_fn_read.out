@@ -1,0 +1,44 @@
+program registry.aleo;
+
+mapping users:
+    key as address.public;
+    value as boolean.public;
+
+function register:
+    async register self.caller into r0;
+    output r0 as registry.aleo/register.future;
+
+finalize register:
+    input r0 as address.public;
+    set true into users[r0];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import registry.aleo;
+program relay.aleo;
+
+function send:
+    input r0 as address.private;
+    async send r0 into r1;
+    output r1 as relay.aleo/send.future;
+
+finalize send:
+    input r0 as address.public;
+    get.or_use registry.aleo/users[r0] false into r1;
+    assert.eq r1 true;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372005] Error: unknown function `registry.aleo::is_registered`
+   ╭─[ compiler-test:7:23 ]
+   │
+ 7 │             assert_eq(registry.aleo::is_registered(addr), true);
+   │ 
+   │ Help: Check `registry.aleo::is_registered` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯
