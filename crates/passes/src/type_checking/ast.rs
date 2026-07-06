@@ -1252,6 +1252,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return TypeKind::Err;
         }
 
+        // Check the declared body so const specialization cannot erase state writes.
+        if matches!(func.variant, Variant::FinalFn)
+            && callee_program != current_program
+            && crate::common::function_writes_state(&self.state.symbol_table, &input.function)
+        {
+            self.emit_err(crate::errors::type_checker::external_final_fn_writes_state(&input.function, input.span));
+        }
+
         // Regular `fn`s are inlined into the caller's scope; if any transitively-called function
         // reaches an off-chain-only intrinsic (`_self_caller` / `_self_signer`), the inlined body
         // would emit e.g. `self.caller` in the caller's context. Record this callsite so a
