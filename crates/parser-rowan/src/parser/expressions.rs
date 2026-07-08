@@ -821,9 +821,46 @@ impl Parser<'_, '_> {
     }
 
     /// Parse a use of the reserved `Self` keyword.
+    ///
+    /// `Self` is reserved and always rejected by the AST layer, but users typically write it in
+    /// path position (`Self::foo::bar(...)`). Consume the trailing `::segment` chain and any
+    /// call parens so a single reserved-keyword error is emitted instead of a cascade of "expected
+    /// `;`, found `::`" recovery errors from the outer parser.
     fn parse_self_upper_expr(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // Self
+
+        while self.eat(COLON_COLON) {
+            if self.at(L_BRACKET) {
+                self.parse_const_generic_args_bracket();
+                break;
+            } else if self.at(LT) {
+                self.parse_const_generic_args_angle();
+                break;
+            } else if self.at(IDENT) {
+                self.bump_any();
+            } else {
+                break;
+            }
+        }
+        if self.at(L_PAREN) {
+            self.bump_any(); // (
+            if !self.at(R_PAREN) {
+                if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                    self.error_recover("expected argument expression", EXPR_RECOVERY);
+                }
+                while self.eat(COMMA) {
+                    if self.at(R_PAREN) {
+                        break;
+                    }
+                    if self.parse_expr().is_none() && !self.at(R_PAREN) && !self.at(COMMA) {
+                        self.error_recover("expected argument expression", EXPR_RECOVERY);
+                    }
+                }
+            }
+            self.expect(R_PAREN);
+        }
+
         Some(m.complete(self, SELF_UPPER_EXPR))
     }
 

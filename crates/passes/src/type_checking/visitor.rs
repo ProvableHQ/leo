@@ -27,13 +27,8 @@ use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
     synthesizer::program::{
-        CommitVariant,
-        DeserializeVariant,
-        ECDSAVerifyVariant,
-        HashVariant,
-        MAX_SNARK_VERIFY_CIRCUITS,
-        MAX_SNARK_VERIFY_INSTANCES,
-        SerializeVariant,
+        CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, MAX_SNARK_VERIFY_CIRCUITS,
+        MAX_SNARK_VERIFY_INSTANCES, SerializeVariant,
     },
 };
 use std::ops::Deref;
@@ -71,6 +66,13 @@ pub struct TypeCheckingVisitor<'a> {
     pub conditional_scopes: Vec<IndexSet<Symbol>>,
     /// If we're inside an async block, this is the node ID of the contained `Block`. Otherwise, this is `None`.
     pub async_block_id: Option<NodeID>,
+    /// Functions whose bodies invoke an offchain intrinsic directly
+    /// (`_self_caller` / `_self_signer`).
+    pub offchain_intrinsic_users: IndexSet<Location>,
+    /// Calls recorded during visit that must be re-checked after the full call graph is built.
+    /// Each entry is a call from a scope that would inline the callee into a finalize context;
+    /// if closure analysis proves the callee reaches an offchain intrinsic, the call must error.
+    pub pending_offchain_checks: Vec<(Span, Location)>,
 }
 
 impl TypeCheckingVisitor<'_> {
@@ -116,6 +118,46 @@ impl TypeCheckingVisitor<'_> {
     /// Emits a type checker error.
     pub fn emit_err(&self, err: impl Into<LeoError>) {
         self.state.handler.emit_err(err);
+    }
+
+    /// After the full program has been visited, propagate the "uses an off-chain-only intrinsic"
+    /// property backwards through the call graph and emit an error at every recorded callsite
+    /// whose callee ends up in the closure.
+    pub fn emit_offchain_transitivity_errors(&mut self) {
+        if self.pending_offchain_checks.is_empty() {
+            return;
+        }
+
+        // Seed with fns that directly invoke an offchain intrinsic.
+        let mut effectively_offchain: IndexSet<Location> = self.offchain_intrinsic_users.clone();
+
+        // Fixpoint over the call graph: a caller is offchain if any callee is offchain.
+        let all_nodes: Vec<Location> = self.state.call_graph.nodes().cloned().collect();
+        loop {
+            let mut changed = false;
+            for node in &all_nodes {
+                if effectively_offchain.contains(node) {
+                    continue;
+                }
+                let reaches_offchain =
+                    self.state.call_graph.neighbors(node).any(|callee| effectively_offchain.contains(callee));
+                if reaches_offchain {
+                    effectively_offchain.insert(node.clone());
+                    changed = true;
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+
+        // Emit at each pending callsite whose callee ends up in the closure.
+        let checks = std::mem::take(&mut self.pending_offchain_checks);
+        for (span, callee) in checks {
+            if effectively_offchain.contains(&callee) {
+                self.emit_err(crate::errors::type_checker::call_reaches_offchain_from_onchain_scope(span));
+            }
+        }
     }
 
     /// Returns `true` if `expr` is a path receiver; otherwise emits a diagnostic and returns `false`.
@@ -1523,6 +1565,9 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
                 self.check_access_allowed("std::ctx::caller()", AccessScope::OffchainCaller, function_span);
+                if self.scope_state.function.is_some() {
+                    self.offchain_intrinsic_users.insert(self.scope_state.location());
+                }
                 Type::Address
             }
             Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
@@ -1544,6 +1589,9 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
                 self.check_access_allowed("std::ctx::signer()", AccessScope::OffchainCaller, function_span);
+                if self.scope_state.function.is_some() {
+                    self.offchain_intrinsic_users.insert(self.scope_state.location());
+                }
                 Type::Address
             }
             Intrinsic::BlockHeight => {
@@ -2207,17 +2255,7 @@ impl TypeCheckingVisitor<'_> {
         for const_param in &function.const_parameters {
             self.visit_type(const_param.type_());
 
-            // Restrictions for const parameters
-            if !matches!(
-                const_param.type_(),
-                Type::Boolean
-                    | Type::Integer(_)
-                    | Type::Address
-                    | Type::Scalar
-                    | Type::Group
-                    | Type::Field
-                    | Type::Identifier
-            ) {
+            if !const_param.type_().is_valid_const_generic_type() {
                 self.emit_err(crate::errors::type_checker::bad_const_generic_type(
                     const_param.type_(),
                     const_param.span(),
@@ -2550,6 +2588,12 @@ impl TypeCheckingVisitor<'_> {
     /// Validates whether an access operation is allowed in the current function or block context.
     /// See [`AccessScope`] for the meaning of each variant.
     pub fn check_access_allowed(&mut self, name: &str, scope: AccessScope, span: Span) {
+        // A `@_onchain_context` wrapper's body invokes a `FinalizeRead` intrinsic in a regular
+        // `fn` scope; propagation at the wrapper's callsites is what enforces the on-chain rule.
+        if matches!(scope, AccessScope::FinalizeRead) && self.scope_state.has_onchain_context {
+            return;
+        }
+
         let in_view = matches!(self.scope_state.variant, Some(Variant::View));
         let in_finalize_ctx = self.scope_state.variant.is_some_and(|v| v.is_finalize_context());
         let in_async_block = self.async_block_id.is_some();

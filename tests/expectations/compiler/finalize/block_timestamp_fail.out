@@ -1,7 +1,7 @@
-[ETYC0372042] Error: only regular `fn`s can be called from a transition body outside a `final {}` block
+[ETYC0372042] Error: a `final fn` can only be called from a finalize context
    ╭─[ compiler-test:3:30 ]
    │
  3 │         assert_eq(timestamp, std::ctx::block_timestamp());
    │ 
-   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
+   │ Help: Wrap the call in a `final { … }` block inside an entry point, or move the calling code into a `final fn`.
 ───╯

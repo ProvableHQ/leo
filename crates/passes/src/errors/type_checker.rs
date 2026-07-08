@@ -208,6 +208,18 @@ pub(crate) fn invalid_operation_outside_finalize(operation: impl Display, span: 
     .with_help(format!("Move the `{operation}` call into a `final fn` or wrap it in a `final {{ … }}` block."))
 }
 
+pub(crate) fn invalid_operation_outside_onchain(operation: impl Display, span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 34,
+        format!("`{operation}` must be inside a `final fn`, a `final` block, or a `view fn`"),
+        span,
+    )
+    .with_help(format!(
+        "Move the `{operation}` call into a `final fn`, a `view fn`, or wrap it in a `final {{ … }}` block."
+    ))
+}
+
 pub(crate) fn loop_body_contains_final(span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 35, "loop body contains a `final` context", span)
         .with_help("Move the `final` block outside of the loop.")
@@ -232,6 +244,21 @@ pub(crate) fn entry_point_fn_inputs_cannot_be_const(span: Span) -> Formatted {
 pub(crate) fn can_only_call_inline_function(kind: impl Display, span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 42, format!("only regular `fn`s can be called from {kind}"), span)
         .with_help("Move the callee out of the `program` block, or call a regular `fn` from this site instead.")
+}
+
+pub(crate) fn call_final_fn_outside_finalize_context(span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 42, "a `final fn` can only be called from a finalize context", span)
+        .with_help(
+            "Wrap the call in a `final { … }` block inside an entry point, or move the calling code into a `final fn`.",
+        )
+}
+
+pub(crate) fn call_reaches_offchain_from_onchain_scope(span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 42, "this call reads off-chain-only values from on-chain code", span)
+        .with_note("The caller and signer only exist while a transition is being proved off-chain")
+        .with_help(
+            "Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.",
+        )
 }
 
 pub(crate) fn cannot_invoke_call_to_local_entry_point_fn(span: Span) -> Formatted {

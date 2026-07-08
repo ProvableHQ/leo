@@ -164,9 +164,8 @@ pub(crate) fn multiple_program_declarations(span: leo_span::Span) -> Formatted {
 }
 
 pub(crate) fn obsolete_context_access(old: impl Display, replacement: impl Display, span: leo_span::Span) -> Formatted {
-    Formatted::error(CODE_PREFIX, CODE_MASK + 56, format!("the `{old}` syntax has been removed"), span).with_help(
-        format!("Use `{replacement}` instead. Execution-context accessors now live in the `std::ctx` module."),
-    )
+    Formatted::error(CODE_PREFIX, CODE_MASK + 56, format!("the `{old}` syntax has been removed"), span)
+        .with_help(format!("Use `{replacement}` instead."))
 }
 
 pub(crate) fn obsolete_context_keyword(keyword: impl Display, span: leo_span::Span) -> Formatted {

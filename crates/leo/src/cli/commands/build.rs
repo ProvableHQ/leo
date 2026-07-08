@@ -541,7 +541,7 @@ fn apply_rename(command: &LeoBuild, package: &mut Package, primary_name: Option<
     Ok(Some(renamed))
 }
 
-/// Collects the program checksum and each entry/view function checksum (the `Program::function_checksum` targets).
+/// Collects the program checksum and each entry/view function checksum (the `std::prog::function_checksum` targets).
 fn collect_checksums<N: snarkvm::prelude::Network>(program: &SvmProgram<N>) -> BuildOutput {
     let mut function_checksums = IndexMap::with_capacity(program.functions().len() + program.views().len());
     for (name, function) in program.functions() {

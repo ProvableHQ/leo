@@ -1,14 +1,18 @@
-[ETYC0372147] Error: `std::ctx::caller()` cannot be used directly inside a `final` block
+[ETYC0372042] Error: this call reads off-chain-only values from on-chain code
    ╭─[ compiler-test:4:21 ]
    │
  4 │             let c = std::ctx::caller();
    │ 
-   │ Help: Bind `std::ctx::caller()` to a variable before the `final` block: `let val = std::ctx::caller();`.
+   │ Help: Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.
+   │ 
+   │ Note: The caller and signer only exist while a transition is being proved off-chain
 ───╯
-[ETYC0372147] Error: `std::ctx::signer()` cannot be used directly inside a `final` block
+[ETYC0372042] Error: this call reads off-chain-only values from on-chain code
    ╭─[ compiler-test:5:21 ]
    │
  5 │             let s = std::ctx::signer();
    │ 
-   │ Help: Bind `std::ctx::signer()` to a variable before the `final` block: `let val = std::ctx::signer();`.
+   │ Help: Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.
+   │ 
+   │ Note: The caller and signer only exist while a transition is being proved off-chain
 ───╯

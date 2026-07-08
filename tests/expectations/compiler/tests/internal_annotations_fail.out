@@ -1,0 +1,28 @@
+[ETYC0372027] Error: unknown annotation `@_caller_annotation`
+   ╭─[ compiler-test:5:5 ]
+   │
+ 5 │     @_caller_annotation
+   │ 
+   │ Help: Check the annotation name for typos. See the Leo documentation for the list of supported annotations.
+───╯
+[ETYC0372027] Error: unknown annotation `@_program_id_arg`
+   ╭─[ compiler-test:8:5 ]
+   │
+ 8 │     @_program_id_arg
+   │ 
+   │ Help: Check the annotation name for typos. See the Leo documentation for the list of supported annotations.
+───╯
+[ETYC0372027] Error: unknown annotation `@_callable_function_arg`
+    ╭─[ compiler-test:11:5 ]
+    │
+ 11 │     @_callable_function_arg
+    │ 
+    │ Help: Check the annotation name for typos. See the Leo documentation for the list of supported annotations.
+────╯
+[ETYC0372027] Error: unknown annotation `@_onchain_context`
+    ╭─[ compiler-test:14:5 ]
+    │
+ 14 │     @_onchain_context
+    │ 
+    │ Help: Check the annotation name for typos. See the Leo documentation for the list of supported annotations.
+────╯

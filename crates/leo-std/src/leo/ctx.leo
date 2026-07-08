@@ -16,7 +16,6 @@ export fn addr() -> address {
 // Use `caller` for trust decisions about who is asking for the current
 // operation. Use `signer` when the decision should track the
 // originator of the entire transaction.
-@offchain
 @_caller_annotation
 export fn caller() -> address {
     return _self_caller();
@@ -25,7 +24,6 @@ export fn caller() -> address {
 // Returns the address that signed the outer transaction. Unlike `caller`,
 // this never changes during cross-program calls: it always points to the
 // off-chain agent who authorized the whole call graph.
-@offchain
 export fn signer() -> address {
     return _self_signer();
 }
@@ -59,7 +57,8 @@ export final fn program_owner() -> address {
 
 // Returns the height of the block containing the current transaction. Block
 // height increases by one with every finalized block on the network.
-export final fn block_height() -> u32 {
+@_onchain_context
+export fn block_height() -> u32 {
     return _block_height();
 }
 
@@ -73,6 +72,7 @@ export final fn block_timestamp() -> i64 {
 // Returns the numeric identifier of the network this program is executing on
 // (e.g. mainnet, testnet, canary). Use this to gate behavior that differs
 // between deployment targets.
-export final fn network_id() -> u16 {
+@_onchain_context
+export fn network_id() -> u16 {
     return _network_id();
 }

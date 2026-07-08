@@ -89,3 +89,21 @@
    │ 
    │ Help: Define at least one function inside the `program` block.
 ───╯
+[ETYC0372042] Error: this call reads off-chain-only values from on-chain code
+    ╭─[ compiler-test:22:5 ]
+    │
+ 22 │     foo();
+    │ 
+    │ Help: Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.
+    │ 
+    │ Note: The caller and signer only exist while a transition is being proved off-chain
+────╯
+[ETYC0372042] Error: this call reads off-chain-only values from on-chain code
+    ╭─[ compiler-test:23:5 ]
+    │
+ 23 │     bar();
+    │ 
+    │ Help: Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.
+    │ 
+    │ Note: The caller and signer only exist while a transition is being proved off-chain
+────╯

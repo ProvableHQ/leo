@@ -5,13 +5,6 @@
    │ 
    │ Help: Mapping keys and values must be primitive or simple composite types. Replace this type with a supported one.
 ───╯
-[ETYC0372147] Error: `std::ctx::caller()` cannot be used directly inside a `final` block
-    ╭─[ compiler-test:11:47 ]
-    │
- 11 │         return final { finalize_decrease_self(std::ctx::caller(), amount); };
-    │ 
-    │ Help: Bind `std::ctx::caller()` to a variable before the `final` block: `let val = std::ctx::caller();`.
-────╯
 [ETYC0372006] Error: this call expected 3 argument(s), but 4 were supplied
     ╭─[ compiler-test:19:5 ]
     │
@@ -53,4 +46,13 @@
  24 │     amounts.get_or_use();
     │ 
     │ Help: Pass exactly the number of arguments the function's signature declares.
+────╯
+[ETYC0372042] Error: this call reads off-chain-only values from on-chain code
+    ╭─[ compiler-test:11:47 ]
+    │
+ 11 │         return final { finalize_decrease_self(std::ctx::caller(), amount); };
+    │ 
+    │ Help: Read the value in an off-chain scope (an entry point body outside its `final` block) and pass it in.
+    │ 
+    │ Note: The caller and signer only exist while a transition is being proved off-chain
 ────╯

@@ -140,26 +140,6 @@ The annotation has no effect on entry `fn` declarations either — the entry-poi
 
 The compiler accepts `@inline` as a recognized annotation name, but **no compiler pass acts on it** — it is a silent no-op carried over from earlier Leo versions, where `inline` was a function-modifier keyword rather than an annotation (see [Migrating from Leo 3.5 to 4.0](../../guides/migration_3_5_to_4_0.md#inline-becomes-fn)). The default inlining behaviour described above is the same whether or not `@inline` is present, so prefer to leave it out of new code.
 
-### The `@offchain` Annotation
-
-Some values — most notably the immediate caller and the transaction signer — are only meaningful while a transition is being authorized off-chain. They have no analogue inside `final {}`, a `final fn`, a `constructor`, or a `view fn`, all of which execute after the transition is already accepted on-chain.
-
-`@offchain` marks a `fn` as carrying that restriction. The compiler rejects every call to an `@offchain`-annotated function from an on-chain context. Because the check fires at the call site, the restriction transparently propagates through wrappers: if your helper calls something `@offchain`, you can apply `@offchain` to your helper and any code that calls *it* will be checked in turn.
-
-The standard library uses this on [`std::ctx::caller()`](../standard_library.md#stdctx) and [`std::ctx::signer()`](../standard_library.md#stdctx). Apply it to your own wrappers when you want the same compile-time enforcement:
-
-```leo file=../../code_snippets/functions/offchain_annotation/src/main.leo#snippet
-```
-
-#### Where `@offchain` callees are rejected
-
-- inside a `final {}` async block,
-- inside a `final fn` body,
-- inside a `constructor` body (the synthesized finalize block),
-- inside a `view fn` body.
-
-They are allowed only inside entry `fn` and helper `fn` bodies.
-
 ## Function Call Rules
 
 - An entry `fn` can call: helper `fn`s, `final fn`s, and external entry `fn`s. Local entry `fn`s and `view fn`s (outside a `final {}` block) are rejected.

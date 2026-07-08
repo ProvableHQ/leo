@@ -650,10 +650,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
-            Location::new(self.scope_state.unit_name.unwrap(), vec![Symbol::intern(&format!(
-                "finalize/{}",
-                self.scope_state.function.unwrap(),
-            ))]),
+            Location::new(
+                self.scope_state.unit_name.unwrap(),
+                vec![Symbol::intern(&format!("finalize/{}", self.scope_state.function.unwrap(),))],
+            ),
             input_types,
         );
 
@@ -1142,6 +1142,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let func = func_symbol.function.clone();
 
+        // A `final fn` callee only makes sense in a finalize context. The generic
+        // "call a regular `fn` instead" hint below is misleading for this case (final fns live
+        // in the program block and cannot be moved out); route to the specific "wrap in
+        // `final { … }`" message before falling into the general match. Views are excluded —
+        // they cannot open a finalize context and the generic message applies.
+        let caller_variant = self.scope_state.variant.unwrap();
+        if matches!(func.variant, Variant::FinalFn)
+            && !matches!(caller_variant, Variant::FinalFn | Variant::View)
+            && !caller_variant.is_finalize_context()
+            && self.async_block_id.is_none()
+        {
+            self.emit_err(crate::errors::type_checker::call_final_fn_outside_finalize_context(input.span));
+            return Type::Err;
+        }
+
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
@@ -1200,13 +1215,32 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         }
 
-        // `@offchain` propagates an off-chain-only restriction from the callee to its caller: the
-        // call is rejected in finalize/view contexts and inside `final {}` async blocks. This is how
-        // wrappers like `std::ctx::caller()` over the `_self_caller` intrinsic regain the access-scope
-        // rule that the parser used to enforce on the desugared `self.caller` syntax.
-        if func.annotations.iter().any(|a| a.identifier.name == sym::offchain) {
-            let name = format!("{}()", input.function);
-            self.check_access_allowed(&name, AccessScope::OffchainCaller, input.span);
+        // Regular `fn`s are inlined into the caller's scope; if any transitively-called function
+        // reaches an off-chain-only intrinsic (`_self_caller` / `_self_signer`), the inlined body
+        // would emit e.g. `self.caller` in the caller's context. Record this callsite so a
+        // post-visit closure pass over the full call graph can reject calls whose callee turns
+        // out to be transitively off-chain.
+        if matches!(func.variant, Variant::Fn)
+            && (self.scope_state.variant.is_some_and(|v| v.is_finalize_context())
+                || self.async_block_id.is_some()
+                || matches!(self.scope_state.variant, Some(Variant::View)))
+        {
+            self.pending_offchain_checks.push((input.span, callee_location.clone()));
+        }
+
+        // `@_onchain_context` propagates the inverse restriction: wrappers over `FinalizeRead`
+        // intrinsics (e.g. `std::ctx::block_height`, `std::ctx::network_id`) must run in a
+        // finalize context, a `final {}` block, or a view fn — same set of scopes where a bare
+        // `Mapping::get` would be legal, plus views. The intrinsic itself no longer needs a
+        // caller-side scope check because the wrapper is a plain `fn` (see check_access_allowed).
+        if func.annotations.iter().any(|a| a.identifier.name == sym::_onchain_context) {
+            let in_view = matches!(self.scope_state.variant, Some(Variant::View));
+            let in_finalize_ctx = self.scope_state.variant.is_some_and(|v| v.is_finalize_context());
+            let in_async_block = self.async_block_id.is_some();
+            if !in_view && !in_finalize_ctx && !in_async_block {
+                let name = format!("{}()", input.function);
+                self.emit_err(crate::errors::type_checker::invalid_operation_outside_onchain(name, input.span));
+            }
         }
 
         // `@_program_id_arg` marks a compiler-internal wrapper whose first const generic argument
@@ -1264,12 +1298,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
         } else if func.variant == Variant::EntryPoint && func.has_final_output() {
             // Fully infer future type.
-            let Some(inputs) =
-                self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
-                    "finalize/{}",
-                    input.function.identifier().name
-                ))]))
-            else {
+            let Some(inputs) = self.async_function_input_types.get(&Location::new(
+                callee_program,
+                vec![Symbol::intern(&format!("finalize/{}", input.function.identifier().name))],
+            )) else {
                 // The `finalize/$name` metadata is registered when the callee's async block is
                 // visited. If we land here without it, the call has either been already
                 // diagnosed as invalid above (e.g. ETYC0372043: a local entry-point calling
@@ -1472,10 +1504,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
 
             self.async_function_input_types.insert(
-                Location::new(callee_program, vec![Symbol::intern(&format!(
-                    "finalize/{}",
-                    caller_path.last().unwrap()
-                ))]),
+                Location::new(
+                    callee_program,
+                    vec![Symbol::intern(&format!("finalize/{}", caller_path.last().unwrap()))],
+                ),
                 inferred_finalize_inputs.clone(),
             );
 

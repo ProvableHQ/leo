@@ -558,9 +558,9 @@ impl<'a> ConversionContext<'a> {
             PATH_EXPR => self.path_expr_to_expression(node)?,
             PATH_LOCATOR_EXPR => self.path_locator_expr_to_expression(node)?,
             PROGRAM_REF_EXPR => self.program_ref_expr_to_expression(node)?,
-            SELF_EXPR => self.keyword_expr_to_path(node, sym::SelfLower)?,
-            BLOCK_KW_EXPR => self.keyword_expr_to_path(node, sym::block)?,
-            NETWORK_KW_EXPR => self.keyword_expr_to_path(node, sym::network)?,
+            SELF_EXPR => self.error_removed_context_keyword(node, sym::SelfLower),
+            BLOCK_KW_EXPR => self.error_removed_context_keyword(node, sym::block),
+            NETWORK_KW_EXPR => self.error_removed_context_keyword(node, sym::network),
             SELF_UPPER_EXPR => {
                 self.handler.emit_err(crate::errors::reserved_identifier("Self", self.trimmed_span(node)));
                 self.error_expression(span)
@@ -1561,19 +1561,19 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Expression::Path(path))
     }
 
-    /// Handle a bare reference to one of the removed context keywords
-    /// (`self`, `block`, `network`). The sugar that turned these into expressions
-    /// has been replaced by the `std::ctx` module, so emit a migration error.
-    fn keyword_expr_to_path(&self, node: &SyntaxNode, name: Symbol) -> Result<leo_ast::Expression> {
+    /// Emit the migration error for a bare reference to one of the removed context keywords
+    /// (`self`, `block`, `network`) and return an error placeholder expression. The sugar that
+    /// turned these into expressions has been replaced by the `std::ctx` module.
+    fn error_removed_context_keyword(&self, node: &SyntaxNode, name: Symbol) -> leo_ast::Expression {
         let span = self.trimmed_span(node);
         let keyword = match name {
             sym::SelfLower => "self",
             sym::block => "block",
             sym::network => "network",
-            _ => unreachable!("keyword_expr_to_path called with non-context keyword"),
+            _ => unreachable!("error_removed_context_keyword called with non-context keyword"),
         };
         self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
-        Ok(self.error_expression(span))
+        self.error_expression(span)
     }
 
     /// Convert a FINAL_EXPR node to an Expression.

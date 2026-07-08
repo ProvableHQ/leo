@@ -82,6 +82,9 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         SELF_EXPR => out.write("self"),
         BLOCK_KW_EXPR => out.write("block"),
         NETWORK_KW_EXPR => out.write("network"),
+        SELF_UPPER_EXPR => {
+            out.write(node.text().to_string().trim());
+        }
         UNARY_EXPR => format_unary(node, out),
         TERNARY_EXPR => format_ternary(node, out),
         FIELD_EXPR => format_field_expr(node, out),

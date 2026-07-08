@@ -10,13 +10,6 @@ foo.aleo::bar
 
 foo / bar
 
-[EPAR0370005] Error: expected '&&', '||', '&', '|', '^', '==', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '**', '%', '<<', '>>', '(', '[', '{', '.', '::', '?', 'as', found `::`
-   ╭─[ test_6:1:5 ]
-   │
- 1 │ Self::pp::qq
-   │ 
-   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
-───╯
 [EPAR0370058] Error: `Self` is reserved for future use
    ╭─[ test_6:1:1 ]
    │

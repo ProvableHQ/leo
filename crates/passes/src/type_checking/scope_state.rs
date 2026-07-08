@@ -44,6 +44,10 @@ pub struct ScopeState {
     pub(crate) call_location: Option<Location>,
     /// Whether we are currently traversing a constructor.
     pub(crate) is_constructor: bool,
+    /// Whether the enclosing function is annotated `@_onchain_context`. Set while visiting
+    /// stdlib wrappers whose body invokes a `FinalizeRead` intrinsic; propagation at each
+    /// callsite enforces that the wrapper's own caller is in a finalize or view scope.
+    pub(crate) has_onchain_context: bool,
 }
 
 impl ScopeState {
@@ -62,6 +66,7 @@ impl ScopeState {
             is_conditional: false,
             call_location: None,
             is_constructor: false,
+            has_onchain_context: false,
         }
     }
 
@@ -77,6 +82,7 @@ impl ScopeState {
         self.is_constructor = false;
         self.already_contains_an_async_block = false;
         self.futures = IndexMap::new();
+        self.has_onchain_context = false;
     }
 
     /// Get the current location.

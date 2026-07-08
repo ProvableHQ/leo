@@ -319,6 +319,15 @@ mod tests {
     }
 
     #[test]
+    fn preserves_self_upper_recovery() {
+        // `Self::…` is reserved; parser recovers by consuming the whole path so it becomes one
+        // SELF_UPPER_EXPR node. Fmt must emit the raw text — a naive `out.write("Self")` arm
+        // would drop everything after `Self`.
+        let source = "program test.aleo {\n    fn f() -> address {\n        return Self::ctx::caller();\n    }\n}\n";
+        assert_eq!(format_source(source), source);
+    }
+
+    #[test]
     fn preserves_dyn_record_type_and_cast() {
         let source = "program test.aleo{record Token{owner:address,balance:u64}fn main(t:Token)->dyn record{let d:dyn record=t as dyn record;return d;}}\n";
         let expected = "program test.aleo {\n    record Token {\n        owner: address,\n        balance: u64,\n    }\n\n    fn main(t: Token) -> dyn record {\n        let d: dyn record = t as dyn record;\n        return d;\n    }\n}\n";

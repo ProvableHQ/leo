@@ -5,19 +5,12 @@
    │ 
    │ Help: Move this function inside the `program` block to make it an entry point fn, or change its return type.
 ───╯
-[ETYC0372042] Error: only regular `fn`s can be called from a regular function or constructor
+[ETYC0372042] Error: a `final fn` can only be called from a finalize context
    ╭─[ compiler-test:9:12 ]
    │
  9 │     return finalize_bar(a, b);
    │ 
-   │ Help: Move the callee out of the `program` block, or call a regular `fn` from this site instead.
-───╯
-[ETYC0372003] Error: expected type `Final<Fn()>`, found type `u8`
-   ╭─[ compiler-test:9:12 ]
-   │
- 9 │     return finalize_bar(a, b);
-   │ 
-   │ Help: Change the expression to produce a `Final<Fn()>`, or cast it with `as Final<Fn()>` if a conversion exists.
+   │ Help: Wrap the call in a `final { … }` block inside an entry point, or move the calling code into a `final fn`.
 ───╯
 [ETYC0372110] Error: only entry point fns can return a `Final`
     ╭─[ compiler-test:20:58 ]
