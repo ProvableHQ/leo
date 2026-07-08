@@ -12,11 +12,6 @@
    │ 
    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
-[ETYC0372156] Error: `std::prog::edition` must be called on a program ID, e.g. `foo.aleo`
-   ╭─[ compiler-test:6:39 ]
-   │
- 6 │     let e: u16 = std::prog::edition::[d]();
-───╯
 [ETYC0372117] Error: expected type `address`, but type `[u8; 31]` was found
    ╭─[ compiler-test:6:39 ]
    │
@@ -38,11 +33,6 @@
    │ 
    │ Help: Make both operands the same type, e.g. by casting one of them with `as`.
 ───╯
-[ETYC0372156] Error: `std::prog::function_checksum` must be called on a program ID, e.g. `foo.aleo`
-    ╭─[ compiler-test:11:54 ]
-    │
- 11 │     let g: [u8; 32] = std::prog::function_checksum::[d, 'bar']();
-────╯
 [ETYC0372117] Error: expected type `address`, but type `[u8; 31]` was found
     ╭─[ compiler-test:11:54 ]
     │

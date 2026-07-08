@@ -27,8 +27,13 @@ use indexmap::{IndexMap, IndexSet};
 use snarkvm::{
     console::algorithms::ECDSASignature,
     synthesizer::program::{
-        CommitVariant, DeserializeVariant, ECDSAVerifyVariant, HashVariant, MAX_SNARK_VERIFY_CIRCUITS,
-        MAX_SNARK_VERIFY_INSTANCES, SerializeVariant,
+        CommitVariant,
+        DeserializeVariant,
+        ECDSAVerifyVariant,
+        HashVariant,
+        MAX_SNARK_VERIFY_CIRCUITS,
+        MAX_SNARK_VERIFY_INSTANCES,
+        SerializeVariant,
     },
 };
 use std::ops::Deref;
@@ -118,6 +123,49 @@ impl TypeCheckingVisitor<'_> {
     /// Emits a type checker error.
     pub fn emit_err(&self, err: impl Into<LeoError>) {
         self.state.handler.emit_err(err);
+    }
+
+    /// Validates a program-metadata intrinsic's first argument. If it's a well-formed
+    /// program-ID literal, returns the id string. Wrong-shaped literals always error. Non-literal
+    /// arguments error unless the enclosing function is a `@_program_id_arg` wrapper (whose
+    /// const generic parameter carries the literal in, resolved at monomorphisation).
+    pub(super) fn check_program_id_intrinsic_arg(&mut self, name: &str, expr: &Expression) -> Option<String> {
+        match expr {
+            Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                if super::ast::PROGRAM_ID_REGEX.is_match(s) =>
+            {
+                Some(s.clone())
+            }
+            Expression::Literal(literal) => {
+                self.emit_err(crate::errors::type_checker::custom(
+                    format!("`{name}` must be called on a program ID, e.g. `foo.aleo`"),
+                    literal.span(),
+                ));
+                None
+            }
+            _ => {
+                if !self.enclosing_function_has_annotation(sym::_program_id_arg) {
+                    self.emit_err(crate::errors::type_checker::custom(
+                        format!("`{name}` must be called on a program ID literal, e.g. `foo.aleo`"),
+                        expr.span(),
+                    ));
+                }
+                None
+            }
+        }
+    }
+
+    /// Whether the function we're currently visiting carries the given annotation.
+    fn enclosing_function_has_annotation(&self, annotation: Symbol) -> bool {
+        if self.scope_state.function.is_none() {
+            return false;
+        }
+        let loc = self.scope_state.location();
+        self.state
+            .symbol_table
+            .iter_functions()
+            .find(|(l, _)| *l == &loc)
+            .is_some_and(|(_, fs)| fs.function.annotations.iter().any(|a| a.identifier.name == annotation))
     }
 
     /// After the full program has been visited, propagate the "uses an off-chain-only intrinsic"
@@ -1384,12 +1432,10 @@ impl TypeCheckingVisitor<'_> {
                 )),
             )),
             Intrinsic::ProgramChecksum => {
-                // The compile-time program-ID literal check fires at the `std::prog::*` call
-                // site (via `@_program_id_arg`), so the body of the wrapper only needs the
-                // address-type assertion here.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
                 self.assert_type(type_, &Type::Address, span);
+                self.check_program_id_intrinsic_arg("_program_checksum", expression);
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
                     Expression::Literal(Literal::integer(
@@ -1404,23 +1450,51 @@ impl TypeCheckingVisitor<'_> {
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
                 self.assert_type(type_, &Type::Address, span);
+                self.check_program_id_intrinsic_arg("_program_edition", expression);
                 Type::Integer(IntegerType::U16)
             }
             Intrinsic::ProgramOwner => {
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
                 self.assert_type(type_, &Type::Address, span);
+                self.check_program_id_intrinsic_arg("_program_owner", expression);
                 Type::Address
             }
             Intrinsic::FunctionChecksum => {
-                // The first argument is the program ID, the second the component name.
-                // Shape validation happens at the `std::prog::function_checksum` call site (via
-                // the `@_program_id_arg` annotation); the const-generic type checks already
-                // enforce `address` and `identifier` shapes on the parameters.
+                // The first argument is the program ID, the second the component name. Type checks
+                // enforce `address` and `identifier` shapes; when both args are concrete literals
+                // we can also verify that the named function actually exists as an entry/view of
+                // that program. Non-literal args (generic-parameter references) are re-checked
+                // after monomorphisation substitutes concrete literals.
                 let (program_type, program_expr) = &arguments[0];
                 self.assert_type(program_type, &Type::Address, program_expr.span());
                 let (component_type, component_expr) = &arguments[1];
                 self.assert_type(component_type, &Type::Identifier, component_expr.span());
+
+                if let Some(program_id) = self.check_program_id_intrinsic_arg("_function_checksum", program_expr)
+                    && let Expression::Literal(Literal { variant: LiteralVariant::Identifier(component), .. }) =
+                        component_expr
+                {
+                    // Use a visibility-free lookup: this intrinsic can be reached from a
+                    // monomorphised stdlib wrapper whose `current_unit` is `std`, from which
+                    // the user's program isn't importable. Presence anywhere in the symbol
+                    // table is enough — the wrapper's own callsite already ran the visibility
+                    // check in the user's scope.
+                    let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(component.as_str())]);
+                    let is_entry_or_view = self
+                        .state
+                        .symbol_table
+                        .iter_functions()
+                        .find(|(loc, _)| *loc == &location)
+                        .is_some_and(|(_, symbol)| symbol.function.variant.is_externally_callable());
+                    if !is_entry_or_view {
+                        self.emit_err(crate::errors::type_checker::custom(
+                            format!("`{component}` must be an entry function or a view function of `{program_id}`"),
+                            component_expr.span(),
+                        ));
+                    }
+                }
+
                 // Return the type.
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
@@ -2600,10 +2674,14 @@ impl TypeCheckingVisitor<'_> {
 
         // In a view: only finalize-read ops are allowed.
         if in_view {
-            if !matches!(scope, AccessScope::FinalizeRead) {
-                self.state
-                    .handler
-                    .emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
+            match scope {
+                AccessScope::FinalizeRead => {}
+                AccessScope::FinalizeWrite => {
+                    self.state.handler.emit_err(crate::errors::type_checker::view_cannot_write_state(name, span));
+                }
+                AccessScope::OffchainCaller => {
+                    self.state.handler.emit_err(crate::errors::type_checker::offchain_op_in_view(name, span));
+                }
             }
             return;
         }

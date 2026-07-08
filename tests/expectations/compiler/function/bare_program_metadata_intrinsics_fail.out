@@ -1,0 +1,20 @@
+[ETYC0372156] Error: `_program_checksum` must be called on a program ID literal, e.g. `foo.aleo`
+    ╭─[ compiler-test:17:41 ]
+    │
+ 17 │     let a: [u8; 32] = _program_checksum(p);
+────╯
+[ETYC0372156] Error: `_program_edition` must be called on a program ID literal, e.g. `foo.aleo`
+    ╭─[ compiler-test:18:35 ]
+    │
+ 18 │     let b: u16 = _program_edition(p);
+────╯
+[ETYC0372156] Error: `_program_owner` must be called on a program ID literal, e.g. `foo.aleo`
+    ╭─[ compiler-test:19:37 ]
+    │
+ 19 │     let c: address = _program_owner(p);
+────╯
+[ETYC0372156] Error: `_function_checksum` must be called on a program ID literal, e.g. `foo.aleo`
+    ╭─[ compiler-test:20:42 ]
+    │
+ 20 │     let d: [u8; 32] = _function_checksum(p, 'bar');
+────╯

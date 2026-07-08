@@ -1,4 +1,4 @@
-[ETYC0372034] Error: `std::ctx::block_height()` must be inside a `final fn`, a `final` block, or a `view fn`
+[ETYC0372194] Error: `std::ctx::block_height()` must be inside a `final fn`, a `final` block, or a `view fn`
    ╭─[ compiler-test:3:27 ]
    │
  3 │         assert_eq(height, std::ctx::block_height());

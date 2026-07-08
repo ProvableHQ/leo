@@ -208,18 +208,6 @@ pub(crate) fn invalid_operation_outside_finalize(operation: impl Display, span: 
     .with_help(format!("Move the `{operation}` call into a `final fn` or wrap it in a `final {{ … }}` block."))
 }
 
-pub(crate) fn invalid_operation_outside_onchain(operation: impl Display, span: Span) -> Formatted {
-    Formatted::error(
-        CODE_PREFIX,
-        CODE_MASK + 34,
-        format!("`{operation}` must be inside a `final fn`, a `final` block, or a `view fn`"),
-        span,
-    )
-    .with_help(format!(
-        "Move the `{operation}` call into a `final fn`, a `view fn`, or wrap it in a `final {{ … }}` block."
-    ))
-}
-
 pub(crate) fn loop_body_contains_final(span: Span) -> Formatted {
     Formatted::error(CODE_PREFIX, CODE_MASK + 35, "loop body contains a `final` context", span)
         .with_help("Move the `final` block outside of the loop.")
@@ -1118,6 +1106,36 @@ pub(crate) fn inaccessible_item(kind: impl Display, item: impl Display, span: Sp
         .with_help(format!(
             "Add `export` to the declaration of `{item}` in its defining module to make it accessible from other modules."
         ))
+}
+
+pub(crate) fn invalid_operation_outside_onchain(operation: impl Display, span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 194,
+        format!("`{operation}` must be inside a `final fn`, a `final` block, or a `view fn`"),
+        span,
+    )
+    .with_help(format!(
+        "Move the `{operation}` call into a `final fn`, a `view fn`, or wrap it in a `final {{ … }}` block."
+    ))
+}
+
+pub(crate) fn view_cannot_write_state(operation: impl Display, span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 195,
+        format!("`{operation}` cannot be used in a `view fn`"),
+        span,
+    )
+    .with_note("views are read only.")
+    .with_help(format!(
+        "Move the `{operation}` call into a `final fn` or a `final {{ … }}` block, where state mutations are allowed."
+    ))
+}
+
+pub(crate) fn offchain_op_in_view(operation: impl Display, span: Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 196, format!("`{operation}` is not available in a `view fn`"), span)
+        .with_help("Read the value in an off-chain scope and pass it in.")
 }
 
 // TypeCheckerWarning builder functions

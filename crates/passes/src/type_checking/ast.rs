@@ -25,7 +25,15 @@ use leo_errors::Label;
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
+
+/// Snark-VM's program-ID grammar: an ASCII identifier of up to 31 chars followed by `.aleo`.
+/// The `unwrap` is safe because the pattern is a literal validated here.
+pub(super) static PROGRAM_ID_REGEX: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap());
 
 #[derive(Clone, Debug)]
 pub struct AssignTargetInfo {
@@ -650,10 +658,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
         self.async_function_input_types.insert(
-            Location::new(
-                self.scope_state.unit_name.unwrap(),
-                vec![Symbol::intern(&format!("finalize/{}", self.scope_state.function.unwrap(),))],
-            ),
+            Location::new(self.scope_state.unit_name.unwrap(), vec![Symbol::intern(&format!(
+                "finalize/{}",
+                self.scope_state.function.unwrap(),
+            ))]),
             input_types,
         );
 
@@ -1248,21 +1256,23 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // literal shape at the user's call site (the wrapper body never sees the substituted
         // literal because the relevant TypeChecking pass runs on the un-substituted template).
         let program_id = if func.annotations.iter().any(|a| a.identifier.name == sym::_program_id_arg) {
-            let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
             match input.const_arguments.first() {
                 Some(Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. }))
-                    if program_id_regex.is_match(s) =>
+                    if PROGRAM_ID_REGEX.is_match(s) =>
                 {
                     Some(s.clone())
                 }
-                Some(arg) => {
+                Some(Expression::Literal(literal)) => {
                     self.emit_err(crate::errors::type_checker::custom(
                         format!("`{}` must be called on a program ID, e.g. `foo.aleo`", input.function),
-                        arg.span(),
+                        literal.span(),
                     ));
                     None
                 }
-                None => None,
+                // A non-literal first argument (e.g. a const generic parameter) can't be validated
+                // here; the check re-fires once monomorphisation substitutes the concrete literal
+                // and TypeChecking runs again inside `ConstPropUnrollAndMorphing`.
+                Some(_) | None => None,
             }
         } else {
             None
@@ -1298,10 +1308,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
         } else if func.variant == Variant::EntryPoint && func.has_final_output() {
             // Fully infer future type.
-            let Some(inputs) = self.async_function_input_types.get(&Location::new(
-                callee_program,
-                vec![Symbol::intern(&format!("finalize/{}", input.function.identifier().name))],
-            )) else {
+            let Some(inputs) =
+                self.async_function_input_types.get(&Location::new(callee_program, vec![Symbol::intern(&format!(
+                    "finalize/{}",
+                    input.function.identifier().name
+                ))]))
+            else {
                 // The `finalize/$name` metadata is registered when the callee's async block is
                 // visited. If we land here without it, the call has either been already
                 // diagnosed as invalid above (e.g. ETYC0372043: a local entry-point calling
@@ -1504,10 +1516,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
 
             self.async_function_input_types.insert(
-                Location::new(
-                    callee_program,
-                    vec![Symbol::intern(&format!("finalize/{}", caller_path.last().unwrap()))],
-                ),
+                Location::new(callee_program, vec![Symbol::intern(&format!(
+                    "finalize/{}",
+                    caller_path.last().unwrap()
+                ))]),
                 inferred_finalize_inputs.clone(),
             );
 
