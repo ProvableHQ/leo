@@ -5,20 +5,12 @@
        Leo     Program size: 0.19 KB / 2000.00 KB
        Leo ✅ Compiled 'multi_test_prog.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'multi_test_prog.aleo'.
-
        Leo 🔨 Compiling 'test_addition.aleo'
-       Leo     Program size: 0.20 KB / 2000.00 KB
-       Leo ✅ Compiled 'test_addition.aleo' into Aleo instructions.
-       Leo     Import 'multi_test_prog.aleo': checksum = '[236u8, 16u8, 16u8, 113u8, 241u8, 197u8, 161u8, 246u8, 83u8, 175u8, 133u8, 88u8, 194u8, 17u8, 181u8, 70u8, 202u8, 247u8, 217u8, 250u8, 12u8, 18u8, 78u8, 33u8, 54u8, 150u8, 81u8, 227u8, 218u8, 70u8, 176u8, 7u8]'
-
        Leo 🔨 Compiling 'test_larger.aleo'
-       Leo     Program size: 0.31 KB / 2000.00 KB
-       Leo ✅ Compiled 'test_larger.aleo' into Aleo instructions.
-       Leo     Import 'multi_test_prog.aleo': checksum = '[236u8, 16u8, 16u8, 113u8, 241u8, 197u8, 161u8, 246u8, 83u8, 175u8, 133u8, 88u8, 194u8, 17u8, 181u8, 70u8, 202u8, 247u8, 217u8, 250u8, 12u8, 18u8, 78u8, 33u8, 54u8, 150u8, 81u8, 227u8, 218u8, 70u8, 176u8, 7u8]'
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-3 / 3 tests passed.
-PASSED: test_addition.aleo/adds_small_numbers
-PASSED: test_larger.aleo/adds_larger_numbers
-PASSED: test_larger.aleo/wrong_expectation
+
+     Running 3 tests
+        PASS test_addition.leo::adds_small_numbers
+        PASS test_larger.leo::adds_larger_numbers
+        PASS test_larger.leo::wrong_expectation
+────────────────────────
+     Summary 3 tests run: 3 passed, 0 failed

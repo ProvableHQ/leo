@@ -1,3 +1,2 @@
 Error [ECLI0377046]: 1 out of 1 tests failed
-     |
-     = Re-run with `leo test -- --nocapture` to see per-test output.
+
