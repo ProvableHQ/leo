@@ -1,0 +1,7 @@
+[ETYC0372005] Error: unknown function `::nope::thing`
+   ╭─[ a.leo:3:12 ]
+   │
+ 3 │     return ::nope::thing();
+   │ 
+   │ Help: Check `::nope::thing` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯

@@ -1,0 +1,7 @@
+[ETYC0372005] Error: unknown variable `::group::GEN`
+   ╭─[ compiler-test:3:24 ]
+   │
+ 3 │         let a: group = ::group::GEN;
+   │ 
+   │ Help: Check `::group::GEN` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯

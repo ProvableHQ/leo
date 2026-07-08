@@ -1,0 +1,26 @@
+program dep.aleo;
+
+struct Pair:
+    a as u64;
+    b as u64;
+
+function make:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    cast r0 r1 into r2 as Pair;
+    output r2 as Pair.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import dep.aleo;
+program external_type_in_module.aleo;
+
+function main:
+    input r0 as u64.private;
+    input r1 as u64.private;
+    add r0 r1 into r2;
+    output r2 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

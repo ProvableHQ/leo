@@ -372,6 +372,20 @@ impl<'t, 's> Parser<'t, 's> {
         self.bump_raw();
     }
 
+    /// Eat an optional leading `::` that anchors a path at the program root (e.g. `::foo::bar`).
+    ///
+    /// Returns `Some(absolute)` when parsing can continue with the first path identifier,
+    /// or `None` when a leading `::` is not followed by an identifier; in that case an
+    /// error has been recorded and the caller should complete its node and stop.
+    pub fn eat_absolute_path_prefix(&mut self) -> Option<bool> {
+        let absolute = self.eat(COLON_COLON);
+        if absolute && !self.at(IDENT) {
+            self.error("expected identifier after `::`");
+            return None;
+        }
+        Some(absolute)
+    }
+
     // =========================================================================
     // Direct Node Building
     // =========================================================================

@@ -131,10 +131,10 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_path(&mut self, mut input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        let has_qualifier = !input.qualifier().is_empty();
+        let has_qualifier = !input.qualifier().is_empty() || input.is_absolute();
 
         if has_qualifier {
-            // paths with qualifiers must refer to a global.
+            // paths with qualifiers (or a leading `::`) must refer to a global.
             input = input.resolve_as_global_in_module(
                 self.program,
                 &self.state.symbol_table.get_imports(&self.program),

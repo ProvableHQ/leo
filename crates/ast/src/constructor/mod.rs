@@ -40,7 +40,7 @@ pub struct Constructor {
 pub enum UpgradeVariant {
     Admin { address: String },
     Custom,
-    Checksum { mapping: Location, key: String, key_type: Type },
+    Checksum { mapping: Location, key: String, key_type: Box<Type> },
     NoUpgrade,
 }
 
@@ -93,7 +93,7 @@ impl Constructor {
                 let key = Literal::<N>::from_str(key_string)
                     .map_err(|e| anyhow!("Invalid key in `@checksum` annotation: `{e}`."))?;
                 // Get the literal type.
-                let key_type = get_type_from_snarkvm_literal(&key);
+                let key_type = Box::new(get_type_from_snarkvm_literal(&key));
                 Ok(UpgradeVariant::Checksum { mapping: mapping.into(), key: key.to_string(), key_type })
             }
             sym::custom => Ok(UpgradeVariant::Custom),

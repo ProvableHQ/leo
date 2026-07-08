@@ -323,12 +323,10 @@
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `::`
-   ╭─[ test_47:1:3 ]
+[EPAR0370047] Error: expected identifier after `::`
+   ╭─[ test_47:1:5 ]
    │
  1 │ x=::;
-   │ 
-   │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
 [EPAR0370005] Error: expected an identifier, a program id, an address literal, an integer literal, a static string, '!', '-', '(', '[', 'true', 'false', 'final', 'block', 'network', 'self', found `=`
    ╭─[ test_48:1:3 ]

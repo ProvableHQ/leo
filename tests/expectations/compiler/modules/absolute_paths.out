@@ -1,0 +1,29 @@
+program absolute_paths.aleo;
+
+struct Shared__CEz66GJQ6dE:
+    val as u32;
+
+struct Gen__9Z0mmuGeJfK:
+    vals as [u32; 2u32];
+
+struct Merge:
+    x as Shared__CEz66GJQ6dE;
+    y as Gen__9Z0mmuGeJfK;
+
+function main:
+    cast 1u32 into r0 as Shared__CEz66GJQ6dE;
+    cast 1u32 into r1 as Shared__CEz66GJQ6dE;
+    cast 10u32 into r2 as Shared__CEz66GJQ6dE;
+    add r2.val 5u32 into r3;
+    cast 20u32 into r4 as Shared__CEz66GJQ6dE;
+    cast 1u32 2u32 into r5 as [u32; 2u32];
+    cast r5 into r6 as Gen__9Z0mmuGeJfK;
+    add r0.val r1.val into r7;
+    add r7 r3 into r8;
+    add r8 r4.val into r9;
+    add r9 r6.vals[1u32] into r10;
+    add r10 5u32 into r11;
+    output r11 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

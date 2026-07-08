@@ -106,8 +106,8 @@ impl Parser<'_, '_> {
             KW_DYN => self.parse_dyn_record_type(),
             // Primitive type keywords
             _ if self.at_primitive_type() => self.parse_primitive_type(),
-            // Named/Composite type: Foo, Foo::[N], program.aleo::Type
-            IDENT => self.parse_named_type(),
+            // Named/Composite type: Foo, Foo::[N], program.aleo::Type, ::foo::Bar
+            IDENT | COLON_COLON => self.parse_named_type(),
             _ => None,
         }
     }
@@ -300,18 +300,27 @@ impl Parser<'_, '_> {
     /// This handles:
     /// - Simple names: `Foo`
     /// - Paths: `Foo::Bar`
+    /// - Absolute paths: `::foo::Bar`
     /// - Const generics: `Foo::[N]` or `Foo::<N>`
     /// - Locators: `program.aleo::Type`
     fn parse_named_type(&mut self) -> Option<CompletedMarker> {
-        if !self.at(IDENT) {
+        if !self.at(IDENT) && !self.at(COLON_COLON) {
             return None;
         }
 
         let m = self.start();
+
+        let Some(absolute) = self.eat_absolute_path_prefix() else {
+            return Some(m.complete(self, TYPE_PATH));
+        };
+
         self.bump_any(); // first identifier
 
         // Check for locator: name.aleo::Type
         if self.at(DOT) && self.nth(1) == KW_ALEO {
+            if absolute {
+                self.error("a program id cannot follow a leading `::`");
+            }
             self.bump_any(); // .
             self.bump_any(); // aleo
 

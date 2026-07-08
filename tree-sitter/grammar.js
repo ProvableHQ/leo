@@ -664,6 +664,8 @@ module.exports = grammar({
     path_expression: $ => choice(
       $.special_path,
       seq(
+        // A leading `::` anchors the path at the program root: `::foo::bar`.
+        optional(token(prec(1, '::'))),
         $.identifier,
         repeat(seq(token(prec(1, '::')), $.identifier)),
         optional($.const_arg_list),
@@ -849,6 +851,8 @@ module.exports = grammar({
     ),
 
     path_type: $ => seq(
+      // A leading `::` anchors the path at the program root: `::foo::Bar`.
+      optional(token(prec(1, '::'))),
       $.identifier,
       repeat(seq(token(prec(1, '::')), $.identifier)),
       optional($.const_arg_list),
