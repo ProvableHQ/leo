@@ -577,8 +577,9 @@ fn compile_leo_source_directory(
     network: NetworkName,
     rename: Option<String>,
 ) -> Result<Compiled> {
-    // Print a newline for better formatting.
-    println!();
+    if !is_test {
+        println!();
+    }
     tracing::info!("🔨 Compiling '{program_name}'");
     // Capture before `options` is consumed by the conversion below.
     let print_checksums = options.checksums;
@@ -622,29 +623,33 @@ fn compile_leo_source_directory(
     }
 
     let (size_kb, max_kb, warning) = format_program_size(program_size, MAX_PROGRAM_SIZE);
-    tracing::info!("    Program size: {size_kb:.2} KB / {max_kb:.2} KB");
     if let Some(msg) = warning {
         tracing::warn!("⚠️  Program '{program_name}' is {msg}.");
     }
 
-    tracing::info!("✅ Compiled '{program_name}' into Aleo instructions.");
+    if !is_test {
+        tracing::info!("    Program size: {size_kb:.2} KB / {max_kb:.2} KB");
+        tracing::info!("✅ Compiled '{program_name}' into Aleo instructions.");
+    }
 
-    // Print checksums for all additional bytecodes (imports).
-    for import in &compiled.imports {
-        // Compute checksum depending on network.
-        let dep_checksum: String = match network {
-            NetworkName::MainnetV0 => {
-                SvmProgram::<MainnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
-            }
-            NetworkName::TestnetV0 => {
-                SvmProgram::<TestnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
-            }
-            NetworkName::CanaryV0 => {
-                SvmProgram::<CanaryV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
-            }
-        };
+    // Print import checksums only when explicitly requested.
+    if print_checksums {
+        for import in &compiled.imports {
+            // Compute checksum depending on network.
+            let dep_checksum: String = match network {
+                NetworkName::MainnetV0 => {
+                    SvmProgram::<MainnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+                }
+                NetworkName::TestnetV0 => {
+                    SvmProgram::<TestnetV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+                }
+                NetworkName::CanaryV0 => {
+                    SvmProgram::<CanaryV0>::from_str(&import.bytecode)?.to_checksum().iter().join(", ")
+                }
+            };
 
-        tracing::info!("    Import '{}': checksum = '[{dep_checksum}]'", import.name);
+            tracing::info!("    Import '{}': checksum = '[{dep_checksum}]'", import.name);
+        }
     }
 
     Ok(compiled)
