@@ -777,6 +777,12 @@ impl UnitVisitor for Scanner<'_> {
     }
 
     fn visit_function(&mut self, input: &Function) {
+        // `@test` transitions are off-chain fixtures; CEI reentrancy
+        // warnings there are noise. Their callees are still analyzed
+        // via `summary_of` when a real finalize context reaches them.
+        if input.is_test() {
+            return;
+        }
         if input.variant.is_finalize_context() {
             let _ = self.scan_block(&input.block, None);
         } else if input.variant == Variant::EntryPoint {

@@ -122,6 +122,11 @@ impl Function {
     pub fn has_final_output(&self) -> bool {
         self.output.iter().any(|o| matches!(o.type_, Type::Future(_)))
     }
+
+    /// Returns `true` if the function carries an `@test` annotation.
+    pub fn is_test(&self) -> bool {
+        self.annotations.iter().any(|a| a.identifier.name == leo_span::sym::test)
+    }
 }
 
 impl From<FunctionStub> for Function {
