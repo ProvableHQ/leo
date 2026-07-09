@@ -22,6 +22,11 @@ use clap::Parser;
 fn set_panic_hook() {
     std::panic::set_hook({
         Box::new(move |e| {
+            // A halt caught during test/view execution is a normal outcome, not an ICE, so the
+            // caller reports it as a failed test instead. Stay silent to avoid spurious backtraces.
+            if leo_compiler::run::halt_expected() {
+                return;
+            }
             eprintln!("thread `{}` {}", std::thread::current().name().unwrap_or("<unnamed>"), e);
             eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
             eprintln!("error: internal compiler error: unexpected panic\n");

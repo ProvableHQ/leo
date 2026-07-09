@@ -112,8 +112,10 @@ fn execution_run_test(
 
     if requires_ledger {
         // Note: We wrap cases in a slice to run them all in one ledger instance.
-        let outcomes =
-            run::run_with_ledger(&ledger_config, &[cases.to_vec()])?.into_iter().flatten().collect::<Vec<_>>();
+        let outcomes = run::run_with_ledger(&ledger_config, &[cases.to_vec()], |_, _| {})?
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>();
 
         assert_eq!(outcomes.len(), cases.len());
 

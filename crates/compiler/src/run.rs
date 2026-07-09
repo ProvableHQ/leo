@@ -63,12 +63,49 @@ use snarkvm::{
     synthesizer::program::{FinalizeStoreTrait, ProgramCore, StackTrait},
 };
 use std::{
+    cell::Cell,
     fmt,
     panic::{AssertUnwindSafe, catch_unwind},
     str::FromStr as _,
 };
 
 type CurrentNetwork = TestnetV0;
+
+thread_local! {
+    /// Set while this thread is running code that may legitimately halt (e.g. a test case).
+    /// A panic caught in such a region is a program halt, not an internal compiler error.
+    static HALT_EXPECTED: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Whether the current thread is inside a region where panics are caught and expected. The CLI
+/// panic hook consults this to stay silent instead of printing a spurious internal-compiler-error
+/// report when a test case halts.
+pub fn halt_expected() -> bool {
+    HALT_EXPECTED.with(Cell::get)
+}
+
+/// Restores the previous `HALT_EXPECTED` value when dropped.
+struct HaltGuard(bool);
+
+impl HaltGuard {
+    fn new() -> Self {
+        HaltGuard(HALT_EXPECTED.with(|f| f.replace(true)))
+    }
+}
+
+impl Drop for HaltGuard {
+    fn drop(&mut self) {
+        HALT_EXPECTED.with(|f| f.set(self.0));
+    }
+}
+
+/// Runs `f`, catching any panic. While `f` runs, the thread is flagged as expecting halts so the
+/// CLI panic hook stays quiet — a caught panic here is a program halt (a normal outcome for tests
+/// and view evaluation), not an internal compiler error.
+fn catch_expected_halt<R>(f: impl FnOnce() -> R) -> std::thread::Result<R> {
+    let _guard = HaltGuard::new();
+    catch_unwind(AssertUnwindSafe(f))
+}
 
 /// Programs and configuration to run.
 #[derive(Debug)]
@@ -436,7 +473,7 @@ fn handle_view(
         Ok(stack) => stack,
         Err(e) => return failed(format!("Failed to load stack for `{program_id}`: {e}")),
     };
-    let response = match catch_unwind(AssertUnwindSafe(|| {
+    let response = match catch_expected_halt(|| {
         snarkvm::synthesizer::process::evaluate_view_with_stack_at_height(
             state,
             vm.finalize_store(),
@@ -445,7 +482,7 @@ fn handle_view(
             parsed_inputs,
             0,
         )
-    })) {
+    }) {
         Ok(Ok(resp)) => resp,
         Ok(Err(e)) => return failed(format!("{e}")),
         Err(e) => return failed(format!("{e:?}")),
@@ -474,15 +511,14 @@ fn handle_transition(
     let inputs = case.input.iter();
 
     // --- catch panics from authorize ---
-    let authorization =
-        match catch_unwind(AssertUnwindSafe(|| vm.authorize(private_key, program_id, function_id, inputs, rng))) {
-            Ok(Ok(auth)) => auth,
-            Ok(Err(e)) => return failed(format!("{e}")),
-            Err(e) => return failed(format!("{e:?}")),
-        };
+    let authorization = match catch_expected_halt(|| vm.authorize(private_key, program_id, function_id, inputs, rng)) {
+        Ok(Ok(auth)) => auth,
+        Ok(Err(e)) => return failed(format!("{e}")),
+        Err(e) => return failed(format!("{e:?}")),
+    };
 
     // --- catch panics from evaluate ---
-    let response = match catch_unwind(AssertUnwindSafe(|| vm.process().evaluate::<AleoTestnetV0>(authorization))) {
+    let response = match catch_expected_halt(|| vm.process().evaluate::<AleoTestnetV0>(authorization)) {
         Ok(Ok(resp)) => resp,
         Ok(Err(e)) => return failed(format!("{e}")),
         Err(e) => return failed(format!("{e:?}")),
@@ -514,7 +550,14 @@ fn failed_evaluation_outcome(case: &Case, e: String) -> EvaluationOutcome {
 }
 
 /// Run the functions indicated by `cases` from the programs in `config`.
-pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<ExecutionOutcome>>> {
+/// Runs `case_sets` against a ledger, invoking `on_case_set_done(index, &outcomes)` as each set
+/// completes so callers can stream progress. Case sets run in input order, so indices arrive
+/// ascending. Pass a no-op closure if progress reporting isn't needed.
+pub fn run_with_ledger(
+    config: &Config,
+    case_sets: &[Vec<Case>],
+    mut on_case_set_done: impl FnMut(usize, &[ExecutionOutcome]),
+) -> Result<Vec<Vec<ExecutionOutcome>>> {
     if case_sets.is_empty() {
         return Ok(Vec::new());
     }
@@ -604,32 +647,29 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         }
     }
 
-    // Initialize ledger instances for each case set.
-    let mut indexed_ledgers = vec![(0, ledger)];
-    indexed_ledgers.extend(
-        (1..case_sets.len())
-            .map(|i| {
-                // Initialize a `Ledger`. This should always succeed.
-                // Use `new_test` to avoid spurious block-tree persistence errors on drop.
+    // Run each case set on its own pristine post-deploy ledger. Ledgers are built lazily, right
+    // before their set runs, rather than all up front — otherwise every ledger is loaded and
+    // replayed in one silent burst before the first test reports any progress.
+    let mut original_ledger = Some(ledger);
+    let results = (0..case_sets.len())
+        .map(|index| {
+            // Ledger 0 is the original (it already holds the deploys); later sets get a fresh
+            // copy with the setup blocks replayed in.
+            // Use `new_test` to avoid spurious block-tree persistence errors on drop.
+            let ledger = if index == 0 {
+                original_ledger.take().expect("ledger 0 is built exactly once")
+            } else {
                 let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
                     genesis_block.clone(),
                     StorageMode::new_test(None),
                 )
                 .expect("Failed to load copy of ledger");
-                // Add the setup blocks.
                 for block in blocks.iter() {
                     l.advance_to_next_block(block).expect("Failed to add setup block to ledger");
                 }
+                l
+            };
 
-                (i, l)
-            })
-            .collect::<Vec<_>>(),
-    );
-
-    // For each of the case sets, run the cases sequentially.
-    let results = indexed_ledgers
-        .into_iter()
-        .map(|(index, ledger)| {
             // Get the cases for this ledger.
             let cases = &case_sets[index];
             // Clone the RNG.
@@ -716,9 +756,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 let mut abort_reason: Option<String> = None;
 
                 // Halts are handled by panics, so we need to catch them.
-                // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
-                // used frequently in SnarkVM anyway.
-                let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                let execute_output = catch_expected_halt(|| {
                     if skip_proving {
                         execute_without_proof(
                             ledger.vm(),
@@ -743,7 +781,7 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                             )
                             .map_err(anyhow::Error::from)
                     }
-                }));
+                });
 
                 if let Err(payload) = execute_output {
                     let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
@@ -821,6 +859,8 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                     execution: serde_json::to_string_pretty(&execution).expect("Serialization failure"),
                 });
             }
+
+            on_case_set_done(index, &case_outcomes);
 
             Ok((index, case_outcomes))
         })

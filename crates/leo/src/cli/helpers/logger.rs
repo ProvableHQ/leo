@@ -20,6 +20,7 @@ use colored::Colorize;
 use std::{fmt, sync::Once};
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
+    EnvFilter,
     FmtSubscriber,
     fmt::{FmtContext, FormattedFields, format::*, time::*},
     registry::LookupSpan,
@@ -181,15 +182,20 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     let stderr = std::io::stderr.with_max_level(tracing::Level::WARN);
     let mk_writer = stderr.or_else(std::io::stdout);
 
+    // All spans/events at or above this level are written out.
+    let base = match verbosity {
+        0 => "warn",
+        1 => "info",
+        2 => "debug",
+        _ => "trace",
+    };
+    // At normal verbosity, silence snarkvm's ledger chatter (e.g. "Loading the ledger from
+    // storage...") which is noise for Leo users; `-d` restores it.
+    let filter =
+        if verbosity >= 2 { EnvFilter::new(base) } else { EnvFilter::new(format!("{base},snarkvm_ledger=warn")) };
+
     let subscriber = FmtSubscriber::builder()
-        // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
-        // will be written to stdout.
-        .with_max_level(match verbosity {
-            0 => tracing::Level::WARN,
-            1 => tracing::Level::INFO,
-            2 => tracing::Level::DEBUG,
-            _ => tracing::Level::TRACE
-        })
+        .with_env_filter(filter)
         .with_writer(mk_writer)
         .without_time()
         .with_target(false)

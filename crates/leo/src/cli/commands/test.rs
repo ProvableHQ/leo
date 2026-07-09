@@ -110,6 +110,8 @@ impl Command for LeoTest {
 }
 
 struct TestFunction {
+    /// Source file the test lives in, e.g. `test_larger.leo`; used as the nextest-style "binary".
+    file: String,
     program: String,
     function: String,
     should_fail: bool,
@@ -134,6 +136,8 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
         let ProgramData::SourcePath { directory, source } = &unit.data else {
             continue;
         };
+
+        let file = source.file_name().map(|f| f.to_string_lossy().into_owned()).unwrap_or_default();
 
         let handler = Handler::default();
         let node_builder = Rc::new(NodeBuilder::default());
@@ -188,6 +192,7 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
                     .and_then(|a| a.map.get(&private_key_symbol).cloned());
 
                 test_functions.push(TestFunction {
+                    file: file.clone(),
                     program: program_name.clone(),
                     function: function.identifier.to_string(),
                     should_fail,
@@ -239,7 +244,12 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
         })
         .collect();
 
+    // Per-test metadata, indexed the same as `cases` / the outcomes streamed back below.
     let should_fails: Vec<bool> = test_functions.iter().map(|tf| tf.should_fail).collect();
+    let display_names: Vec<String> = test_functions.iter().map(|tf| format!("{}::{}", tf.file, tf.function)).collect();
+    let qualified_names: Vec<String> =
+        test_functions.iter().map(|tf| format!("{}.aleo/{}", tf.program, tf.function)).collect();
+
     let cases: Vec<Vec<run::Case>> = test_functions
         .into_iter()
         .map(|tf| {
@@ -253,55 +263,68 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
         })
         .collect();
 
-    let outcomes = run::run_with_ledger(
-        &run::Config { seed: 0, start_height: None, programs, skip_proving: !command.prove },
-        &cases,
-    )?
-    .into_iter()
-    .flatten()
-    .collect::<Vec<_>>();
-
-    let results: Vec<_> = outcomes
-        .into_iter()
-        .zip(should_fails)
-        .map(|(outcome, should_fail)| {
-            let run::ExecutionOutcome { outcome: inner, status, .. } = outcome;
-
-            let message = match (&status, should_fail) {
-                (run::ExecutionStatus::Accepted, false) => None,
-                (run::ExecutionStatus::Accepted, true) => Some("Test succeeded when failure was expected.".to_string()),
-                (_, true) => None,
-                (_, false) => Some(format!("{} -- {}", status, inner.output)),
-            };
-
-            (inner.program_name, inner.function, message)
-        })
-        .collect::<Vec<_>>();
-
-    // Report results.
-    let total = results.len();
-    let total_passed = results.iter().filter(|(_, _, x)| x.is_none()).count();
-
-    let mut tests = Vec::new();
-
+    let total = cases.len();
     if total == 0 {
         println!("No tests run.");
-    } else {
-        println!("{total_passed} / {total} tests passed.");
-        let failed = "FAILED".bold().red();
-        let passed = "PASSED".bold().green();
-
-        for (program, function, case_result) in &results {
-            let str_id = format!("{program}/{function}");
-            if let Some(err_str) = case_result {
-                println!("{failed}: {str_id:<30} | {err_str}");
-                tests.push(TestResult { name: str_id, passed: false, error: Some(err_str.clone()) });
-            } else {
-                println!("{passed}: {str_id}");
-                tests.push(TestResult { name: str_id, passed: true, error: None });
-            }
-        }
+        return Ok(TestOutput::default());
     }
 
-    Ok(TestOutput { passed: total_passed, failed: total - total_passed, tests })
+    // Report results in a nextest-style layout, streaming each test as it finishes.
+    let plural = if total == 1 { "" } else { "s" };
+    println!();
+    println!("{} {total} test{plural}", gutter("Running").green().bold());
+
+    let mut tests = Vec::with_capacity(total);
+    let mut passed = 0usize;
+    let mut failures: Vec<(usize, String)> = Vec::new();
+
+    // Print each test's result as it finishes. We don't show a transient `RUNNING` line: log output
+    // (e.g. under `-d`) can print between a test's start and finish, which would leave a cursor-based
+    // in-place rewrite overwriting the wrong line.
+    run::run_with_ledger(
+        &run::Config { seed: 0, start_height: None, programs, skip_proving: !command.prove },
+        &cases,
+        |index, outcomes| {
+            let outcome = &outcomes[0];
+            let should_fail = should_fails[index];
+            let display = &display_names[index];
+
+            let message = match (&outcome.status, should_fail) {
+                (run::ExecutionStatus::Accepted, false) => None,
+                (run::ExecutionStatus::Accepted, true) => Some("test succeeded when failure was expected".to_string()),
+                (_, true) => None,
+                (_, false) => Some(format!("{} -- {}", outcome.status, outcome.outcome.output)),
+            };
+
+            match message {
+                Some(err) => {
+                    println!("{} {display}", gutter("FAIL").red().bold());
+                    failures.push((index, err.clone()));
+                    tests.push(TestResult { name: qualified_names[index].clone(), passed: false, error: Some(err) });
+                }
+                None => {
+                    passed += 1;
+                    println!("{} {display}", gutter("PASS").green().bold());
+                    tests.push(TestResult { name: qualified_names[index].clone(), passed: true, error: None });
+                }
+            }
+        },
+    )?;
+
+    let failed = total - passed;
+    println!("{}", "─".repeat(24).dimmed());
+    let summary = gutter("Summary");
+    let summary = if failed == 0 { summary.green().bold() } else { summary.red().bold() };
+    println!("{summary} {total} test{plural} run: {passed} passed, {failed} failed");
+    for (index, err) in &failures {
+        println!("{} {}\n{:>14}{}", gutter("FAIL").red().bold(), display_names[*index], "", err.dimmed());
+    }
+
+    Ok(TestOutput { passed, failed, tests })
+}
+
+/// Right-align a status verb into nextest's 12-column gutter. Padding is applied before coloring so
+/// ANSI escapes don't throw off the alignment.
+fn gutter(word: &str) -> String {
+    format!("{word:>12}")
 }

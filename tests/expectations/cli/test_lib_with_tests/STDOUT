@@ -4,14 +4,11 @@
 
        Leo 🔨 Building library 'my_lib'
        Leo ✅ Validated 'my_lib'.
-
        Leo 🔨 Compiling 'test_my_lib.aleo'
-       Leo     Program size: 0.22 KB / 2000.00 KB
-       Leo ✅ Compiled 'test_my_lib.aleo' into Aleo instructions.
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-3 / 3 tests passed.
-PASSED: test_my_lib.aleo/test_double
-PASSED: test_my_lib.aleo/test_square
-PASSED: test_my_lib.aleo/test_square_zero
+
+     Running 3 tests
+        PASS test_my_lib.leo::test_double
+        PASS test_my_lib.leo::test_square
+        PASS test_my_lib.leo::test_square_zero
+────────────────────────
+     Summary 3 tests run: 3 passed, 0 failed
