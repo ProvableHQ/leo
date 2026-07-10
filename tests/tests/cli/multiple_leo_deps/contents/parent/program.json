@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "license": "MIT",
-  "leo": "4.3.2",
+  "leo": "4.3.3",
   "dependencies": [
     {
       "name": "child1.aleo",
