@@ -3,10 +3,10 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(y: bool) -> bool {
+export fn main(y: bool) -> bool {
     return y;
 }
 
-fn main(y: bool) -> bool {
+export fn main(y: bool) -> bool {
     return y;
 }

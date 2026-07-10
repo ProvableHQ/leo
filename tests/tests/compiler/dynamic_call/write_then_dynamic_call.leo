@@ -1,4 +1,4 @@
-interface Sink {
+export interface Sink {
     fn consume(a: [u8; 4]) -> u32;
 }
 

@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn fin_foo(key: [address; 2]) {
+export final fn fin_foo(key: [address; 2]) {
     let val: u128 = allowances.get_or_use(key, 0u128);
 }

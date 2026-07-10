@@ -1,1 +1,1 @@
-const BASE_VALUE: u32 = 42u32;
+export const BASE_VALUE: u32 = 42u32;

@@ -1,15 +1,15 @@
 // A generic struct with a const parameter
-struct Vector::[LEN: u32] {
+export struct Vector::[LEN: u32] {
     values: [u32; LEN],
 }
 
 // A generic function that returns a struct with const-evaluated param
-fn make_vector::[N: u32]() -> Vector::[N + 3] {
+export fn make_vector::[N: u32]() -> Vector::[N + 3] {
     return Vector::[N + 3] { values: [1u32; N + 3] };
 }
 
 // A more complex generic function
-fn make_offset_vector::[A: u32, B: u32]() -> Vector::[(A * 2 + B / 2) - 1] {
+export fn make_offset_vector::[A: u32, B: u32]() -> Vector::[(A * 2 + B / 2) - 1] {
     return Vector::[(A * 2 + B / 2) - 1] { values: [9u32; (A * 2 + B / 2) - 1] };
 }
 
@@ -33,6 +33,6 @@ program complex.aleo {
 }
 
 // Higher complexity with shared computed expression
-fn repeat_value::[COUNT: u32](val: u32) -> [u32; COUNT * 2] {
+export fn repeat_value::[COUNT: u32](val: u32) -> [u32; COUNT * 2] {
     return [val; COUNT * 2];
 }

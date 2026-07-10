@@ -14,9 +14,9 @@ fn transfer(t: lib.aleo::Token) -> lib.aleo::Token
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:12:21 ]
+    ╭─[ compiler-test:12:28 ]
     │
- 12 │ ╭─▶ interface HasToken {
+ 12 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  16 │ ├─▶     }
     │ │           
@@ -37,9 +37,9 @@ Note: Treating dependencies as Aleo produces different results:
    │ Help: Define at least one function inside the `program` block.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:12:21 ]
+    ╭─[ compiler-test:12:28 ]
     │
- 12 │ ╭─▶ interface HasToken {
+ 12 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  16 │ ├─▶     }
     │ │           
@@ -48,9 +48,9 @@ Note: Treating dependencies as Aleo produces different results:
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:12:21 ]
+    ╭─[ compiler-test:12:28 ]
     │
- 12 │ ╭─▶ interface HasToken {
+ 12 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  16 │ ├─▶     }
     │ │           

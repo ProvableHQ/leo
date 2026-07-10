@@ -6,16 +6,16 @@
     │ Help: Flatten the tuple into separate fields, or wrap it in a `struct` before storing it in the struct.
 ────╯
 [ETYC0372051] Error: a function cannot take a tuple as input
-    ╭─[ compiler-test:10:8 ]
+    ╭─[ compiler-test:10:15 ]
     │
- 10 │ fn foo(a: (u8, u16)) -> (u8, u16) {
+ 10 │ export fn foo(a: (u8, u16)) -> (u8, u16) {
     │ 
     │ Help: Pass the tuple's elements as separate parameters, or wrap them in a `struct`.
 ────╯
 [ETYC0372049] Error: a tuple type cannot contain a tuple
-    ╭─[ compiler-test:14:26 ]
+    ╭─[ compiler-test:14:33 ]
     │
- 14 │ fn bar(zz: bool) -> (u8, (u16, u32)) {
+ 14 │ export fn bar(zz: bool) -> (u8, (u16, u32)) {
     │ 
     │ Help: Flatten the nested tuple into a single tuple, or wrap the inner tuple in a `struct`.
 ────╯

@@ -1,4 +1,4 @@
-interface MyInterface {
+export interface MyInterface {
     fn do_something() -> u64;
 }
 

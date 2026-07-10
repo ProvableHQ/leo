@@ -12,7 +12,7 @@ program oracle.aleo {
     constructor() {}
 }
 
-final fn finalize_get_price(id: u32) {
+export final fn finalize_get_price(id: u32) {
     Mapping::set(prices, id, 50u64);
 }
 

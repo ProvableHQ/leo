@@ -13,9 +13,9 @@
    │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
 ───╯
 [ETYC0372116] Error: `Final`s may only appear as parameters to a `final fn`
-    ╭─[ compiler-test:14:10 ]
+    ╭─[ compiler-test:14:17 ]
     │
- 14 │ fn third(x: Final) -> u8 {
+ 14 │ export fn third(x: Final) -> u8 {
     │ 
     │ Help: Remove the `Final` parameter, or change the function to a `final fn` if it is consuming a `Final`.
 ────╯

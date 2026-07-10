@@ -13,7 +13,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -32,11 +32,11 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn run_future(f: Final) {
+export final fn run_future(f: Final) {
     f.run();
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     for i: u32 in 0u32..3u32 {
         // [I] Interaction hidden in helper
         run_future(f);

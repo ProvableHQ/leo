@@ -1,4 +1,4 @@
-const a: u32 = 10u32;
+export const a: u32 = 10u32;
 
 program test.aleo {
     @noupgrade

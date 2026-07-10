@@ -1,0 +1,16 @@
+[ECHI03712015] Error: interface `Foo` declares function `main` more than once
+   ╭─[ test:6:8 ]
+   │
+ 6 │     fn main(public a: u32, b: u32) -> u32;
+   │
+   ├─[ test:6:8 ]
+   │
+ 5 │     fn main(public a: u32, b: u32);
+   │        ──┬─  
+   │          ╰─── `main` first declared here as a function
+ 6 │     fn main(public a: u32, b: u32) -> u32;
+   │        ──┬─  
+   │          ╰─── `main` redeclared here as a function
+   │ 
+   │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+───╯

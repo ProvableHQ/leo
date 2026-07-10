@@ -5,18 +5,18 @@
 
 // This struct is NOT used in any transition, mapping, or storage.
 // It should be pruned from the ABI.
-struct Unused {
+export struct Unused {
     x: u32,
 }
 
 // Simple struct with primitives
-struct Point {
+export struct Point {
     x: i32,
     y: i32,
 }
 
 // Struct with various primitive types
-struct AllPrimitives {
+export struct AllPrimitives {
     f_address: address,
     f_bool: bool,
     f_field: field,
@@ -35,7 +35,7 @@ struct AllPrimitives {
 }
 
 // Nested struct
-struct Rectangle {
+export struct Rectangle {
     top_left: Point,
     bottom_right: Point,
 }

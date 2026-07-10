@@ -14,7 +14,7 @@ input = ["2000u64"]
 
 // Drives a value-returning `final fn` with a conditional return through both branches.
 // The statements after the callsite must execute on each path with the path's value.
-final fn capped(amount: u64) -> u64 {
+export final fn capped(amount: u64) -> u64 {
     if amount > 1000u64 {
         return 1000u64;
     }

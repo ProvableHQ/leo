@@ -7,10 +7,10 @@ program bug.aleo {
     }
 }
 
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     x: u32,
 }
 
-fn foo::[N: u32]() -> Foo::[2 * N] {
+export fn foo::[N: u32]() -> Foo::[2 * N] {
     return Foo::[2 * N] { x: 0 };
 }

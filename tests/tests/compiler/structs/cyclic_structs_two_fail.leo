@@ -1,8 +1,8 @@
-struct Bar {
+export struct Bar {
     baz: Baz,
 }
 
-struct Baz {
+export struct Baz {
     bar: Bar,
 }
 

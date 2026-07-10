@@ -1,4 +1,4 @@
-struct Wrapper {
+export struct Wrapper {
     token: dyn record,
 }
 

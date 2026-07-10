@@ -2,7 +2,7 @@
 
 // --- library: ifaces --- //
 
-interface Adder {
+export interface Adder {
     fn compute(a: u32, b: u32) -> u32;
 }
 

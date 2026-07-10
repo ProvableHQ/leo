@@ -1,0 +1,15 @@
+program test.aleo;
+
+struct Point:
+    x as u32;
+    y as u32;
+
+function main:
+    input r0 as Point.private;
+    input r1 as u32.private;
+    input r2 as u32.private;
+    cast r1 r2 into r3 as Point;
+    output r3 as Point.private;
+
+constructor:
+    assert.eq edition 0u16;

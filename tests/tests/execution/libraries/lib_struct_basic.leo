@@ -11,7 +11,7 @@ input = []
 
 // --- library: vec_lib --- //
 
-struct Slot::[N: u32] {
+export struct Slot::[N: u32] {
     size: u32,
 }
 

@@ -1,0 +1,16 @@
+[ECHI03712015] Error: interface `Clash` declares `bucket` as both a mapping and a storage variable
+   ╭─[ test:6:13 ]
+   │
+ 6 │     storage bucket: u64;
+   │
+   ├─[ test:6:13 ]
+   │
+ 5 │     mapping bucket: address => u64;
+   │             ───┬──  
+   │                ╰──── `bucket` first declared here as a mapping
+ 6 │     storage bucket: u64;
+   │             ───┬──  
+   │                ╰──── `bucket` redeclared here as a storage variable
+   │ 
+   │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+───╯

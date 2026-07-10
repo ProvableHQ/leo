@@ -1,4 +1,4 @@
-interface Foo {
+export interface Foo {
     fn foo();
 }
 

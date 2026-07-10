@@ -9,7 +9,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_main(a: u32) {
+export final fn finalize_main(a: u32) {
     if a == 1u32 {
         let y: u32 = 1u32;
         {

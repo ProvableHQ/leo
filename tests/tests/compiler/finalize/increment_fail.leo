@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_increase_self(addr: address, amount: u128) {
+export final fn finalize_increase_self(addr: address, amount: u128) {
     increment(amounts, addr, amount);
 }

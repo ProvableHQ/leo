@@ -5,7 +5,7 @@
 
 // --- library: lib_a --- //
 
-interface Top : lib_b::sub::Middle {
+export interface Top : lib_b::sub::Middle {
     fn top_fn() -> u32;
 }
 
@@ -15,7 +15,7 @@ interface Top : lib_b::sub::Middle {
 
 // --- Next Module: sub.leo --- //
 
-interface Middle : lib_a::Top {
+export interface Middle : lib_a::Top {
     fn middle_fn() -> u32;
 }
 

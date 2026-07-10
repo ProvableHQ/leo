@@ -55,6 +55,9 @@ pub struct VariableSymbol {
     pub span: Span,
     /// The type of declaration for the variable.
     pub declaration: VariableType,
+    /// Source-level `export` keyword presence for global consts; `None` for local
+    /// variables and any global where visibility doesn't apply.
+    pub is_exported: Option<bool>,
 }
 
 impl Display for VariableSymbol {

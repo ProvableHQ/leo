@@ -4,7 +4,7 @@
 
 // --- library: foo_lib --- //
 
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     x: u32,
 }
 

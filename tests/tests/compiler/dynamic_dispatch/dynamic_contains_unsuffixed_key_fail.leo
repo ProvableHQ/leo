@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_check(prog: field, net: field, mapping_name: field) {
+export final fn finalize_check(prog: field, net: field, mapping_name: field) {
     let _: bool = _dynamic_contains(prog, net, mapping_name, 1);
 }

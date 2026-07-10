@@ -9,16 +9,16 @@
 // --- library: geo_lib --- //
 
 // --- Next Module: shapes.leo --- //
-struct Thing {
+export struct Thing {
     v: u32?,
 }
 
-fn make_thing(n: u32) -> Thing {
+export fn make_thing(n: u32) -> Thing {
     let maybe: u32? = none;
     return Thing { v: maybe.unwrap_or(n) };
 }
 
-fn value_of(t: Thing) -> u32 {
+export fn value_of(t: Thing) -> u32 {
     return t.v.unwrap_or(0u32);
 }
 

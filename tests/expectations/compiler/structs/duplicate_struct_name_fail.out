@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `Point` is defined multiple times
-   ╭─[ compiler-test:6:8 ]
+   ╭─[ compiler-test:6:15 ]
    │
- 6 │ struct Point {
+ 6 │ export struct Point {
    │
-   ├─[ compiler-test:6:8 ]
+   ├─[ compiler-test:6:15 ]
    │
- 1 │ struct Point {
-   │        ──┬──  
-   │          ╰──── previous definition of `Point` here
+ 1 │ export struct Point {
+   │               ──┬──  
+   │                 ╰──── previous definition of `Point` here
    │ 
- 6 │ struct Point {
-   │        ──┬──  
-   │          ╰──── `Point` redefined here
+ 6 │ export struct Point {
+   │               ──┬──  
+   │                 ╰──── `Point` redefined here
    │ 
    │ Help: Rename or remove all but one of the `Point` definitions so the name is unique within its scope.
 ───╯

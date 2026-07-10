@@ -1,0 +1,7 @@
+[ETYC0372193] Error: function `math_lib::private_helper` is not accessible from this module
+   ╭─[ compiler-test:5:16 ]
+   │
+ 5 │         return math_lib::private_helper(x, y);
+   │ 
+   │ Help: Add `export` to the declaration of `math_lib::private_helper` in its defining module to make it accessible from other modules.
+───╯

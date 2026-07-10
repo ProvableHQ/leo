@@ -492,6 +492,7 @@ impl Expression {
                     path: path.clone(),
                     const_arguments: composite_type.const_arguments.clone(),
                     members: composite_members,
+                    base: None,
                 }))
             }
 

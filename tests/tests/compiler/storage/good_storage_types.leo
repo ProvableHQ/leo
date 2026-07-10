@@ -1,5 +1,5 @@
 // --- Structs ---
-struct MyStruct {
+export struct MyStruct {
     a: u32,
     b: bool,
     c: address,

@@ -3,13 +3,13 @@ program test.aleo {
     constructor() {}
 }
 
-struct Bar {
+export struct Bar {
 }
 
-struct Foo {
+export struct Foo {
     a: [u8; 0],
 }
 
-fn main(zz: bool) -> bool {
+export fn main(zz: bool) -> bool {
     return true;
 }

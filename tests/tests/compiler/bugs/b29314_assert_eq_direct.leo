@@ -11,6 +11,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn fin_foo(a: u32) {
+export final fn fin_foo(a: u32) {
     Mapping::set(values, a, a);
 }

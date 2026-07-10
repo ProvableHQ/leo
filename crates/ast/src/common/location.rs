@@ -43,6 +43,16 @@ impl Location {
     pub fn is_dynamic(&self) -> bool {
         self.program == sym::__dynamic__
     }
+
+    /// The portion of the path *above* the item, i.e. the module path the item lives in.
+    /// For program-block items and library top-level items the path has length 1 and
+    /// this returns an empty slice; for module items it returns the module segments.
+    pub fn module_path(&self) -> &[Symbol] {
+        match self.path.split_last() {
+            Some((_, module)) => module,
+            None => &[],
+        }
+    }
 }
 
 impl Display for Location {

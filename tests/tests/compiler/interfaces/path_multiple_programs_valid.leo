@@ -1,4 +1,4 @@
-interface InterfaceA {
+export interface InterfaceA {
     fn fn_a() -> u64;
 }
 
@@ -11,7 +11,7 @@ program lib_a.aleo {
 
 // --- Next Program --- //
 
-interface InterfaceB {
+export interface InterfaceB {
     fn fn_b() -> u64;
 }
 

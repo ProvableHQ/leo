@@ -65,27 +65,27 @@ program dyn_mapping.aleo {
     constructor() {}
 }
 
-final fn finalize_set(key: u64, val: u64) {
+export final fn finalize_set(key: u64, val: u64) {
     Mapping::set(m, key, val);
 }
 
-final fn fin_check_contains(prog: field, net: field, map: field, key: u64) {
+export final fn fin_check_contains(prog: field, net: field, map: field, key: u64) {
     let exists: bool = _dynamic_contains(prog, net, map, key);
     assert(exists);
 }
 
-final fn fin_check_get(prog: field, net: field, map: field, key: u64) {
+export final fn fin_check_get(prog: field, net: field, map: field, key: u64) {
     let val: u64 = _dynamic_get::[u64](prog, net, map, key);
     assert_eq(val, 42u64);
 }
 
-final fn fin_get_use_existing(prog: field, net: field, map: field, key: u64) {
+export final fn fin_get_use_existing(prog: field, net: field, map: field, key: u64) {
     // key 1u64 is in the mapping with value 42u64.
     let val: u64 = _dynamic_get_or_use::[u64](prog, net, map, key, 0u64);
     assert_eq(val, 42u64);
 }
 
-final fn fin_get_use_missing(prog: field, net: field, map: field, key: u64) {
+export final fn fin_get_use_missing(prog: field, net: field, map: field, key: u64) {
     // key 999u64 is absent; expect the default 0u64.
     let val: u64 = _dynamic_get_or_use::[u64](prog, net, map, key, 0u64);
     assert_eq(val, 0u64);

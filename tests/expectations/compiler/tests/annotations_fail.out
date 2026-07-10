@@ -104,9 +104,9 @@
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯
 [ETYC0372129] Error: invalid annotation: A test procedure cannot have inputs
-    ╭─[ compiler-test:30:9 ]
+    ╭─[ compiler-test:30:16 ]
     │
- 30 │ fn foo8(x: u8) -> u8 {
+ 30 │ export fn foo8(x: u8) -> u8 {
     │ 
     │ Help: Check the annotation syntax against the Leo documentation.
 ────╯

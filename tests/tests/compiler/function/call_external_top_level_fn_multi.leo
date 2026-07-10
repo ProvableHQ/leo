@@ -13,7 +13,7 @@ program child.aleo {
     constructor() {}
 }
 
-fn foo(x: u32) -> u32 {
+export fn foo(x: u32) -> u32 {
     return x * x;
 }
 

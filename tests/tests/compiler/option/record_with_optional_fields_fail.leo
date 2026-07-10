@@ -1,5 +1,5 @@
 // Nested struct with optional field
-struct InnerStruct {
+export struct InnerStruct {
     val: u64?,
 }
 

@@ -7,15 +7,15 @@ input = ["5u32"]
 
 // --- library: math_lib --- //
 
-const OFFSET: u32 = 10u32;
-const SCALE: u32 = OFFSET + OFFSET;
+export const OFFSET: u32 = 10u32;
+export const SCALE: u32 = OFFSET + OFFSET;
 
 // --- Next Program --- //
 
 // --- library: config_lib --- //
 
-const BASE: u32 = math_lib::OFFSET + 5u32;
-const FACTOR: u32 = math_lib::SCALE + BASE;
+export const BASE: u32 = math_lib::OFFSET + 5u32;
+export const FACTOR: u32 = math_lib::SCALE + BASE;
 
 // --- Next Program --- //
 

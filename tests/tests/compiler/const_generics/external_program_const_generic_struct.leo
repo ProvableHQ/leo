@@ -14,7 +14,7 @@ program child.aleo {
 }
 
 // Const generic struct at top level of the child program.
-struct Pair::[N: u32] {
+export struct Pair::[N: u32] {
     x: u32,
     y: u32,
     n: u32,
@@ -23,7 +23,7 @@ struct Pair::[N: u32] {
 // --- Next Module: types.leo --- //
 
 // Const generic struct in a submodule.
-struct Vec::[N: u32] {
+export struct Vec::[N: u32] {
     len: u32,
 }
 

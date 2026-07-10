@@ -1,0 +1,7 @@
+[ETYC0372193] Error: item `test.aleo::helpers::HIDDEN` is not accessible from this module
+   ╭─[ parent.leo:3:12 ]
+   │
+ 3 │     return helpers::HIDDEN;
+   │ 
+   │ Help: Add `export` to the declaration of `test.aleo::helpers::HIDDEN` in its defining module to make it accessible from other modules.
+───╯

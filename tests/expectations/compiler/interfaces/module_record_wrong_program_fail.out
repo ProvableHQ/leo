@@ -25,9 +25,9 @@ fn transfer(t: other.aleo::Token) -> other.aleo::Token
     │     Help: Add a `record Token` definition matching the shape declared by `lib.aleo/HasToken`.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:7:21 ]
+    ╭─[ compiler-test:7:28 ]
     │
-  7 │ ╭─▶ interface HasToken {
+  7 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  11 │ ├─▶     }
     │ │           
@@ -48,9 +48,9 @@ Note: Treating dependencies as Aleo produces different results:
    │ Help: Define at least one function inside the `program` block.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:7:21 ]
+    ╭─[ compiler-test:7:28 ]
     │
-  7 │ ╭─▶ interface HasToken {
+  7 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  11 │ ├─▶     }
     │ │           
@@ -59,9 +59,9 @@ Note: Treating dependencies as Aleo produces different results:
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ compiler-test:7:21 ]
+    ╭─[ compiler-test:7:28 ]
     │
-  7 │ ╭─▶ interface HasToken {
+  7 │ ╭─▶ export interface HasToken {
     ┆ ┆   
  11 │ ├─▶     }
     │ │           

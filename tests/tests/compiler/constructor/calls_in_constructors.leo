@@ -1,4 +1,4 @@
-fn check_first_entry_is_zero(entry: u8) {
+export fn check_first_entry_is_zero(entry: u8) {
     assert_eq(entry, 0u8);
 }
 

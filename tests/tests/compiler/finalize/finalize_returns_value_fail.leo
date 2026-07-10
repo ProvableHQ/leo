@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
+export final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
     return a + b;
 }

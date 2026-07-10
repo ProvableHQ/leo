@@ -7,7 +7,7 @@ function = "main"
 input = []
 */
 
-struct Foo {
+export struct Foo {
     x: u64?, // Optional field
 }
 

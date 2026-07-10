@@ -11,7 +11,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -30,15 +30,15 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn deep_run(f: Final) {
+export final fn deep_run(f: Final) {
     f.run();
 }
 
-final fn mid_helper(f: Final) {
+export final fn mid_helper(f: Final) {
     deep_run(f);
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [I] Interaction hidden behind two levels of helpers
     mid_helper(f);
     // [E] Effect after transitive interaction — should be caught

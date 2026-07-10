@@ -27,7 +27,7 @@ program oracle.aleo {
     constructor() {}
 }
 
-final fn finalize_get_price(id: u32) {
+export final fn finalize_get_price(id: u32) {
     // The oracle's finalize might update the price, making the
     // proof-time snapshot stale.
     Mapping::set(prices, id, 50u64);

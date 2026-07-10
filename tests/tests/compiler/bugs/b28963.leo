@@ -8,6 +8,6 @@ program simple.aleo {
     constructor() {}
 }
 
-fn foo(x: u32, y: u32) -> (u32, u32) {
+export fn foo(x: u32, y: u32) -> (u32, u32) {
     return (x, y);
 }

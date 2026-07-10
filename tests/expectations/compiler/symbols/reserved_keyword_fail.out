@@ -13,9 +13,9 @@
    │ Help: Rename the struct member to something other than `value`.
 ───╯
 [ENV03711000] Error: `value` is not a valid struct name: `value` is a reserved keyword
-   ╭─[ compiler-test:5:8 ]
+   ╭─[ compiler-test:5:15 ]
    │
- 5 │ struct value {
+ 5 │ export struct value {
    │ 
    │ Help: Rename the struct to something other than `value`.
 ───╯
@@ -55,16 +55,16 @@
     │ Help: Rename the entry point fn to something other than `output`.
 ────╯
 [ENV03711000] Error: `key` is not a valid regular fn name: `key` is a reserved keyword
-    ╭─[ compiler-test:32:4 ]
+    ╭─[ compiler-test:32:11 ]
     │
- 32 │ fn key() {}
+ 32 │ export fn key() {}
     │ 
     │ Help: Rename the regular fn to something other than `key`.
 ────╯
 [ENV03711000] Error: `value` is not a valid regular fn name: `value` is a reserved keyword
-    ╭─[ compiler-test:34:4 ]
+    ╭─[ compiler-test:34:11 ]
     │
- 34 │ fn value() {}
+ 34 │ export fn value() {}
     │ 
     │ Help: Rename the regular fn to something other than `value`.
 ────╯

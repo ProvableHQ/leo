@@ -2,11 +2,11 @@ program test.aleo {
     @noupgrade
     async constructor() {
     }
-    struct S {
+    export struct S {
         x: u8,
         y: u32,
     }
-    struct T {
+    export struct T {
         x: u8,
         y: [test.aleo::S; 3],
         z: test.aleo::S,

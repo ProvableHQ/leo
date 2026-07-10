@@ -13,18 +13,18 @@
 
 // --- library: shape_lib --- //
 
-const SIDE: u32 = 4u32;
-const DOUBLE_SIDE: u32 = SIDE + SIDE;
+export const SIDE: u32 = 4u32;
+export const DOUBLE_SIDE: u32 = SIDE + SIDE;
 
-struct Grid::[N: u32] {
+export struct Grid::[N: u32] {
     cells: [u32; N],
 }
 
-struct Square {
+export struct Square {
     grid: Grid::[SIDE],
 }
 
-struct BigSquare {
+export struct BigSquare {
     grid: Grid::[DOUBLE_SIDE],
 }
 

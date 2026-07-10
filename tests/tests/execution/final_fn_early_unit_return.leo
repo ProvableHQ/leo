@@ -14,7 +14,7 @@ input = ["5u64"]
 
 // An early bare `return;` in a `final fn` must skip the rest of the helper body
 // but still run the statements after the callsite.
-final fn record_nonzero(amount: u64) {
+export final fn record_nonzero(amount: u64) {
     if amount == 0u64 {
         return;
     }

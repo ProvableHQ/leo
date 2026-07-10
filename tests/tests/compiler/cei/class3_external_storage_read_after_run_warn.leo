@@ -10,7 +10,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_bump() {
+export final fn finalize_bump() {
     let c: u32 = dep_counter.unwrap_or(0u32);
     dep_counter = c + 1u32;
 }
@@ -30,7 +30,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final) {
+export final fn finalize_do_work(f: Final) {
     // [I] Interaction: run external future that modifies dep_counter
     f.run();
     // [C] Check: read external storage after interaction — value changed

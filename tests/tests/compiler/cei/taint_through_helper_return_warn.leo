@@ -13,7 +13,7 @@ program oracle.aleo {
     constructor() {}
 }
 
-final fn finalize_get_price(id: u32) {
+export final fn finalize_get_price(id: u32) {
     Mapping::set(prices, id, 50u64);
 }
 
@@ -37,6 +37,6 @@ program trader.aleo {
     constructor() {}
 }
 
-final fn double(x: u64) -> u64 {
+export final fn double(x: u64) -> u64 {
     return x * 2u64;
 }

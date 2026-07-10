@@ -8,7 +8,7 @@
 // `self.composites` via the `FromLeo` match arm so that `wrap_none`'s
 // zero-synthesis lookup succeeds.
 
-struct Data {
+export struct Data {
     x: u32,
     y: u32,
 }

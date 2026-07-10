@@ -3,10 +3,10 @@
 
 // --- library: calc_lib --- //
 
-const A: u32 = 3u32;
-const B: u32 = 4u32;
-const C: u32 = 5u32;
-const RESULT: u32 = (A + B) * C;
+export const A: u32 = 3u32;
+export const B: u32 = 4u32;
+export const C: u32 = 5u32;
+export const RESULT: u32 = (A + B) * C;
 
 // --- Next Program --- //
 

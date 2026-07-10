@@ -11,7 +11,7 @@ input = []
 
 // --- library: tag_lib --- //
 
-struct Tag::[N: u32] {
+export struct Tag::[N: u32] {
     id: u32,
 }
 

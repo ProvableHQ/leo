@@ -18,7 +18,7 @@ input = []
 // Test: accessing constants from a 2-level deep submodule (3-segment locator path).
 // Also mixes a top-level constant with a 1-level constant and a 2-level constant.
 
-const TOP_CONST: u32 = 5u32;
+export const TOP_CONST: u32 = 5u32;
 
 program child.aleo {
     fn get_top() -> u32 {
@@ -31,11 +31,11 @@ program child.aleo {
 
 // --- Next Module: math.leo --- //
 
-const MID_CONST: u32 = 20u32;
+export const MID_CONST: u32 = 20u32;
 
 // --- Next Module: math/ops.leo --- //
 
-const FACTOR: u32 = 7u32;
+export const FACTOR: u32 = 7u32;
 
 // --- Next Program --- //
 

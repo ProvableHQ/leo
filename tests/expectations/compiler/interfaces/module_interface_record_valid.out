@@ -1,7 +1,7 @@
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ interfaces.leo:2:21 ]
+   ╭─[ interfaces.leo:2:28 ]
    │
- 2 │ ╭─▶ interface HasToken {
+ 2 │ ╭─▶ export interface HasToken {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -10,9 +10,9 @@
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ interfaces.leo:2:21 ]
+   ╭─[ interfaces.leo:2:28 ]
    │
- 2 │ ╭─▶ interface HasToken {
+ 2 │ ╭─▶ export interface HasToken {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           

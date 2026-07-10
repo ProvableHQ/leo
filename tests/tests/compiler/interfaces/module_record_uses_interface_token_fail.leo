@@ -9,7 +9,7 @@
 // too. The mismatch is semantic: `concrete_type_matches_proto` requires the argument to
 // belong to the implementing program (`bad_records.aleo`), not to `lib.aleo`.
 
-interface HasToken {
+export interface HasToken {
     record Token {
         owner: address,
         ..

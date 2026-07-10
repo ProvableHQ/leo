@@ -2,11 +2,11 @@
 
 // --- library: math_lib --- //
 
-fn used(x: u32) -> u32 {
+export fn used(x: u32) -> u32 {
     return x + 1u32;
 }
 
-fn unused(x: u32) -> u32 {
+export fn unused(x: u32) -> u32 {
     return x * 99u32;
 }
 

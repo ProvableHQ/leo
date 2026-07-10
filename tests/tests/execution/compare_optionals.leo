@@ -42,7 +42,7 @@ function = "array_some_neq_some"
 input = []
 */
 
-struct Point {
+export struct Point {
     x: u8,
     y: u8,
 }

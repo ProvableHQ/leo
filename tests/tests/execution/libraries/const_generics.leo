@@ -7,14 +7,14 @@ input = []
 
 // --- library: sizes --- //
 
-const LEN: u32 = 4u32;
-const HALF: u32 = LEN / 2u32;
+export const LEN: u32 = 4u32;
+export const HALF: u32 = LEN / 2u32;
 
 // --- Next Program --- //
 
 // Use library constants as const generic arguments and array sizes.
 
-fn make_array::[N: u32]() -> [u32; N] {
+export fn make_array::[N: u32]() -> [u32; N] {
     let arr: [u32; N] = [0u32; N];
     for i in 0u32..N {
         arr[i] = i + 1u32;
@@ -22,7 +22,7 @@ fn make_array::[N: u32]() -> [u32; N] {
     return arr;
 }
 
-fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
+export fn sum_array::[N: u32](arr: [u32; N]) -> u32 {
     let total: u32 = 0u32;
     for i in 0u32..N {
         total += arr[i];

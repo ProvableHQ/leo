@@ -9,7 +9,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_foo() {
+export final fn finalize_foo() {
     let a: scalar = ChaCha::rand_field();
     let b: group = ChaCha::rand_field();
     values.set(a, b);

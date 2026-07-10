@@ -7,11 +7,11 @@ function = "main"
 input = ["8392569366120525161field", "5u64"]
 */
 
-interface Base {
+export interface Base {
     fn get_value() -> u64;
 }
 
-interface Extended: Base {
+export interface Extended: Base {
     fn double_val(x: u64) -> u64;
 }
 

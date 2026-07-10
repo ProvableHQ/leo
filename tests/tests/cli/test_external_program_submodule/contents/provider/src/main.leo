@@ -1,6 +1,6 @@
 // Provider program: exposes a top-level const and entry functions that
 // accept/return the Color struct defined in the colors submodule.
-const CHANNELS: u32 = 3u32;
+export const CHANNELS: u32 = 3u32;
 
 program provider.aleo {
     // Build a Color from individual channel values.

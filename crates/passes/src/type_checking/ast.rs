@@ -21,9 +21,11 @@ use leo_ast::{
     Type::{Future, Tuple},
     *,
 };
+use leo_errors::Label;
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Clone, Debug)]
 pub struct AssignTargetInfo {
@@ -1096,6 +1098,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(crate::errors::type_checker::unknown_sym("interface", &input.interface, interface_path.span));
             return Type::Err;
         };
+        if !self.scope_state.is_accessible(interface_location, interface.is_exported) {
+            self.emit_err(crate::errors::type_checker::inaccessible_item(
+                "interface",
+                &input.interface,
+                interface_path.span,
+            ));
+            return Type::Err;
+        }
         let interface = interface.clone();
 
         // Dispatch to the appropriate checker based on the kind of dynamic op.
@@ -1120,6 +1130,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ));
             return Type::Err;
         };
+
+        if !self.scope_state.is_accessible(callee_location, func_symbol.function.is_exported) {
+            self.emit_err(crate::errors::type_checker::inaccessible_item(
+                "function",
+                input.function.clone(),
+                input.function.span(),
+            ));
+            return Type::Err;
+        }
 
         let func = func_symbol.function.clone();
 
@@ -1517,6 +1536,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             return Type::Err;
         };
 
+        if !self.check_composite_accessible(composite_location, &composite, input.path.span()) {
+            return Type::Err;
+        }
+
         // Check the number of const arguments against the number of the composite's const parameters
         if composite.const_parameters.len() != input.const_arguments.len() {
             self.emit_err(crate::errors::type_checker::incorrect_num_const_args(
@@ -1536,13 +1559,66 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Type::Composite(CompositeType { path: input.path.clone(), const_arguments: input.const_arguments.clone() });
         self.maybe_assert_type(&type_, additional, input.path.span());
 
-        // Check number of composite members.
-        if composite.members.len() != input.members.len() {
+        // A struct update base must have the composite type; it supplies any field not listed explicitly.
+        if let Some(base) = &input.base {
+            self.visit_expression(base, &Some(type_.clone()));
+        }
+
+        // Reject duplicate fields. With a base they would slip past the count check below, and SSA would
+        // silently keep only the last value.
+        let mut seen: HashMap<Symbol, Span> = HashMap::with_capacity(input.members.len());
+        for member in input.members.iter() {
+            let name = member.identifier.name;
+            if let Some(first_span) = seen.get(&name) {
+                let (err, label) = if composite.is_record {
+                    (
+                        crate::errors::type_checker::duplicate_record_variable(name, member.identifier.span()),
+                        "record variable already declared",
+                    )
+                } else {
+                    (
+                        crate::errors::type_checker::duplicate_struct_member(name, member.identifier.span()),
+                        "struct field already declared",
+                    )
+                };
+                self.emit_err(err.with_labels(vec![
+                    Label::new(*first_span)
+                        .with_message(format!("`{name}` first declared here"))
+                        .with_color(leo_errors::Color::Blue),
+                    Label::new(member.identifier.span()).with_message(label),
+                ]));
+            } else {
+                seen.insert(name, member.identifier.span());
+            }
+        }
+
+        // With a base, the explicit members are a subset, so only reject exceeding the field count.
+        let too_many = if input.base.is_some() {
+            input.members.len() > composite.members.len()
+        } else {
+            composite.members.len() != input.members.len()
+        };
+        if too_many {
             self.emit_err(crate::errors::type_checker::incorrect_num_composite_members(
                 composite.members.len(),
                 input.members.len(),
                 input.span(),
             ));
+        }
+
+        // Without a base an unknown field is caught by the count check above; with one, reject it here.
+        if input.base.is_some() {
+            let composite_field_names: HashSet<Symbol> =
+                composite.members.iter().map(|member| member.identifier.name).collect();
+            for member in input.members.iter() {
+                if !composite_field_names.contains(&member.identifier.name) {
+                    self.emit_err(crate::errors::type_checker::invalid_composite_variable(
+                        member.identifier,
+                        composite.identifier,
+                        member.identifier.span(),
+                    ));
+                }
+            }
         }
 
         for Member { identifier, type_, .. } in composite.members.iter() {
@@ -1580,7 +1656,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         self.visit_expression(expr, &Some(type_.clone()));
                     }
                 };
-            } else {
+            } else if input.base.is_none() {
+                // Without a base, every field must be initialized explicitly.
                 self.emit_err(crate::errors::type_checker::missing_composite_member(
                     composite.identifier,
                     identifier,
@@ -1643,6 +1720,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let var = self.state.symbol_table.lookup_path(current_program, input);
 
         if let Some(var) = var {
+            // Enforce `export` visibility on globally referenced names (locals are scope-bound,
+            // so they never need the check).
+            if let Some(loc) = input.try_global_location()
+                && !self.scope_state.is_accessible(loc, var.is_exported)
+            {
+                self.emit_err(crate::errors::type_checker::inaccessible_item("item", input, input.span()));
+                return Type::Err;
+            }
+
             // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
             // variable's type from being set during `visit_definition`. Return `Type::Err` to
             // signal that an error has already been emitted rather than panicking.

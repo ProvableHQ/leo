@@ -219,6 +219,8 @@ define_syntax_kinds! {
     KW_PUBLIC,
     /// `private`
     KW_PRIVATE,
+    /// `export`
+    KW_EXPORT,
     /// `as`
     KW_AS,
     /// `self`
@@ -513,6 +515,8 @@ define_syntax_kinds! {
     STRUCT_FIELD_INIT,
     /// Struct field shorthand: `{ x }` (equivalent to `{ x: x }`)
     STRUCT_FIELD_SHORTHAND,
+    /// Struct update base: `..other` in `Foo { a: 1, ..other }`
+    STRUCT_BASE_UPDATE,
     /// Path expression: `foo::bar`
     PATH_EXPR,
     /// Path locator expression: `program.aleo::function`
@@ -647,6 +651,7 @@ impl SyntaxKind {
                 | KW_BLOCK
                 | KW_PUBLIC
                 | KW_PRIVATE
+                | KW_EXPORT
                 | KW_AS
                 | KW_SELF
                 | KW_ASSERT
@@ -916,6 +921,7 @@ impl SyntaxKind {
             // Visibility and assertion keywords
             KW_PUBLIC => "'public'",
             KW_PRIVATE => "'private'",
+            KW_EXPORT => "'export'",
             KW_AS => "'as'",
             KW_SELF => "'self'",
             KW_ASSERT => "'assert'",

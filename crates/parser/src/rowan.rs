@@ -1351,8 +1351,13 @@ impl<'a> ConversionContext<'a> {
             .filter(|n| matches!(n.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND))
             .map(|n| self.struct_field_init_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
+        let base = children(node)
+            .find(|n| n.kind() == STRUCT_BASE_UPDATE)
+            .and_then(|n| children(&n).find(|c| c.kind().is_expression()))
+            .map(|n| self.to_expression(&n).map(Box::new))
+            .transpose()?;
         let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-        Ok(leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into())
+        Ok(leo_ast::CompositeExpression { path, const_arguments, members, base, span, id }.into())
     }
 
     /// Convert a STRUCT_EXPR node to a CompositeExpression.
@@ -1770,7 +1775,8 @@ impl<'a> ConversionContext<'a> {
 
         let value = self.require_expression(node, "value in const declaration")?;
 
-        Ok(leo_ast::ConstDeclaration { place, type_, value, span, id }.into())
+        // Visibility doesn't apply to statement-level `const`s.
+        Ok(leo_ast::ConstDeclaration { is_exported: None, place, type_, value, span, id }.into())
     }
 
     /// Convert a RETURN_STMT node to a ReturnStatement.
@@ -1987,7 +1993,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let composite = self.to_composite(item)?;
+                let composite = self.to_composite(item, is_in_program_block)?;
                 composites.push((composite.identifier.name, composite));
             }
             GLOBAL_CONST => {
@@ -2001,7 +2007,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let global_const = self.to_global_const(item)?;
+                let global_const = self.to_global_const(item, is_in_program_block)?;
                 consts.push((global_const.place.name, global_const));
             }
             INTERFACE_DEF => {
@@ -2015,7 +2021,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let interface = self.to_interface(item)?;
+                let interface = self.to_interface(item, is_in_program_block)?;
                 interfaces.push((interface.identifier.name, interface));
             }
             _ => {}
@@ -2035,11 +2041,11 @@ impl<'a> ConversionContext<'a> {
         if is_library_item(item.kind()) {
             match item.kind() {
                 GLOBAL_CONST => {
-                    let global_const = self.to_global_const(item)?;
+                    let global_const = self.to_global_const(item, false)?;
                     consts.push((global_const.place.name, global_const));
                 }
                 STRUCT_DEF => {
-                    let composite = self.to_composite(item)?;
+                    let composite = self.to_composite(item, false)?;
                     structs.push((composite.identifier.name, composite));
                 }
                 FUNCTION_DEF => {
@@ -2048,7 +2054,7 @@ impl<'a> ConversionContext<'a> {
                     functions.push((func.identifier.name, func));
                 }
                 INTERFACE_DEF => {
-                    let interface = self.to_interface(item)?;
+                    let interface = self.to_interface(item, false)?;
                     interfaces.push((interface.identifier.name, interface));
                 }
                 _ => {}
@@ -2409,7 +2415,10 @@ impl<'a> ConversionContext<'a> {
 
         let block = self.require_block(node, span)?;
 
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
         Ok(leo_ast::Function {
+            is_exported,
             annotations,
             variant,
             identifier,
@@ -2581,7 +2590,7 @@ impl<'a> ConversionContext<'a> {
     }
 
     /// Convert a STRUCT_DEF or RECORD_DEF node to a Composite.
-    fn to_composite(&self, node: &SyntaxNode) -> Result<leo_ast::Composite> {
+    fn to_composite(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Composite> {
         debug_assert!(matches!(node.kind(), STRUCT_DEF | RECORD_DEF));
         let span = self.non_trivia_span(node);
         let id = self.builder.next_id();
@@ -2604,7 +2613,9 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.struct_member_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::Composite { identifier, const_parameters, members, is_record, span, id })
+        let is_exported = if is_record || is_in_program_block { None } else { Some(has_export(node)) };
+
+        Ok(leo_ast::Composite { is_exported, identifier, const_parameters, members, is_record, span, id })
     }
 
     /// Convert a STRUCT_MEMBER node to a Member.
@@ -2627,7 +2638,7 @@ impl<'a> ConversionContext<'a> {
     }
 
     /// Convert a GLOBAL_CONST node to a ConstDeclaration.
-    fn to_global_const(&self, node: &SyntaxNode) -> Result<leo_ast::ConstDeclaration> {
+    fn to_global_const(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::ConstDeclaration> {
         debug_assert_eq!(node.kind(), GLOBAL_CONST);
         let span = self.non_trivia_span(node);
         let id = self.builder.next_id();
@@ -2639,7 +2650,9 @@ impl<'a> ConversionContext<'a> {
 
         let value = self.require_expression(node, "const value")?;
 
-        Ok(leo_ast::ConstDeclaration { place, type_, value, span, id })
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
+        Ok(leo_ast::ConstDeclaration { is_exported, place, type_, value, span, id })
     }
 
     /// Parse a MAPPING_DEF node, returning its constituent parts.
@@ -2720,7 +2733,7 @@ impl<'a> ConversionContext<'a> {
     // =========================================================================
 
     /// Convert an INTERFACE_DEF node to an Interface.
-    fn to_interface(&self, node: &SyntaxNode) -> Result<leo_ast::Interface> {
+    fn to_interface(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Interface> {
         debug_assert_eq!(node.kind(), INTERFACE_DEF);
         let span = self.to_span(node);
 
@@ -2762,7 +2775,10 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
         Ok(leo_ast::Interface {
+            is_exported,
             identifier,
             parents,
             span,
@@ -3162,6 +3178,11 @@ fn children(node: &SyntaxNode) -> impl Iterator<Item = SyntaxNode> + '_ {
 /// Get non-trivia tokens from a node.
 fn tokens(node: &SyntaxNode) -> impl Iterator<Item = SyntaxToken> + '_ {
     node.children_with_tokens().filter_map(|elem| elem.into_token()).filter(|t| !t.kind().is_trivia())
+}
+
+/// True when `node` carries a direct `export` keyword child.
+fn has_export(node: &SyntaxNode) -> bool {
+    tokens(node).any(|t| t.kind() == KW_EXPORT)
 }
 
 /// Find the first IDENT or keyword token after the DOT in a node.

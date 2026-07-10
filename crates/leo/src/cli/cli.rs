@@ -1730,7 +1730,7 @@ program swap.aleo {
         std::fs::write(
             utils_dir.join("src/lib.leo"),
             "\
-const FACTOR: u32 = 2u32;
+export const FACTOR: u32 = 2u32;
 ",
         )
         .unwrap();
@@ -2179,7 +2179,7 @@ program outer.aleo {
 }
             ";
         let inner_1_program = "
-struct ex_struct {
+export struct ex_struct {
     arg1: u32,
     arg2: u32,
 }
@@ -2381,12 +2381,12 @@ program outer_2.aleo {
 }
 ";
         let inner_1_program = "
-struct Foo {
+export struct Foo {
     a: u32,
     b: u32,
     c: Boo,
 }
-struct Boo {
+export struct Boo {
     a: u32,
     b: u32,
 }
@@ -2402,16 +2402,16 @@ program inner_1.aleo {
     constructor() {}
 }";
         let inner_2_program = "
-struct Foo {
+export struct Foo {
     a: u32,
     b: u32,
     c: Boo,
 }
-struct Boo {
+export struct Boo {
     a: u32,
     b: u32,
 }
-struct Goo {
+export struct Goo {
     a: u32,
     b: u32,
     c: u32,

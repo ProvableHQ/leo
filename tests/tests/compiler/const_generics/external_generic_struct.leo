@@ -1,4 +1,4 @@
-struct Bar::[N: u32] {
+export struct Bar::[N: u32] {
     arr: [u32; N],
 }
 

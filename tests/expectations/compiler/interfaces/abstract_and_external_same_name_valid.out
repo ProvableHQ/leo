@@ -1,7 +1,7 @@
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:21 ]
+   ╭─[ compiler-test:4:28 ]
    │
- 4 │ ╭─▶ interface HasMixed {
+ 4 │ ╭─▶ export interface HasMixed {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           
@@ -60,9 +60,9 @@ Note: Treating dependencies as Aleo produces different results:
    │ Help: Make sure the interface is defined in the current program or an imported program.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:21 ]
+   ╭─[ compiler-test:4:28 ]
    │
- 4 │ ╭─▶ interface HasMixed {
+ 4 │ ╭─▶ export interface HasMixed {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           
@@ -71,9 +71,9 @@ Note: Treating dependencies as Aleo produces different results:
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:21 ]
+   ╭─[ compiler-test:4:28 ]
    │
- 4 │ ╭─▶ interface HasMixed {
+ 4 │ ╭─▶ export interface HasMixed {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           

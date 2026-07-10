@@ -1,4 +1,4 @@
-final fn finalize(x: u8) {
+export final fn finalize(x: u8) {
     assert_eq(1u8, 1u8);
 }
 
@@ -20,7 +20,7 @@ program dependent.aleo {
 // --- Next Program --- //
 import dependent.aleo;
 
-final fn finalize(f: Final) {
+export final fn finalize(f: Final) {
     f.run();
 }
 

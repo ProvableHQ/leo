@@ -11,7 +11,7 @@
 
 // --- library: leaf_lib --- //
 
-struct Atom {
+export struct Atom {
     n: u32,
 }
 
@@ -19,7 +19,7 @@ struct Atom {
 
 // --- library: middle_lib --- //
 
-struct Core {
+export struct Core {
     a: leaf_lib::Atom,
     tag: u32,
 }
@@ -28,7 +28,7 @@ struct Core {
 
 // --- library: top_lib --- //
 
-struct Capsule {
+export struct Capsule {
     c: middle_lib::Core,
     extra: u32,
 }

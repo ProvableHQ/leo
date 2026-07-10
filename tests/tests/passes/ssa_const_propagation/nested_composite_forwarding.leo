@@ -1,8 +1,8 @@
-struct Inner {
+export struct Inner {
     v: u32,
 }
 
-struct Outer {
+export struct Outer {
     inner: Inner,
 }
 
