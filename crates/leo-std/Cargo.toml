@@ -1,6 +1,6 @@
 [package]
 name = "leo-std"
-version = "4.3.2"
+version = "4.3.3"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Embedded Leo standard library source"
 homepage = "https://leo-lang.org"

@@ -3379,7 +3379,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abi"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -3392,14 +3392,14 @@ dependencies = [
 
 [[package]]
 name = "leo-abi-types"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "leo-aleo-abi-wasm"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "getrandom 0.4.3",
  "leo-abi",
@@ -3410,7 +3410,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "anyhow",
  "getrandom 0.4.3",
@@ -3427,7 +3427,7 @@ dependencies = [
 
 [[package]]
 name = "leo-benchmarks"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "aleo-std",
  "codspeed-criterion-compat",
@@ -3446,7 +3446,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -3475,7 +3475,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "getrandom 0.4.3",
  "leo-ast",
@@ -3488,7 +3488,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "anyhow",
  "ariadne",
@@ -3504,7 +3504,7 @@ dependencies = [
 
 [[package]]
 name = "leo-fmt"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "clap",
  "colored 3.1.1",
@@ -3520,7 +3520,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -3585,7 +3585,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lsp"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "anyhow",
  "clap",
@@ -3610,7 +3610,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "gix",
  "glob",
@@ -3628,7 +3628,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -3643,7 +3643,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-rowan"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "expect-test",
  "leo-errors",
@@ -3654,7 +3654,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "anyhow",
  "base62",
@@ -3679,7 +3679,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "ariadne",
  "fxhash",
@@ -3690,11 +3690,11 @@ dependencies = [
 
 [[package]]
 name = "leo-std"
-version = "4.3.2"
+version = "4.3.3"
 
 [[package]]
 name = "leo-test-framework"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "rayon",
  "similar",
@@ -6748,7 +6748,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 
 [[package]]
 name = "tree-sitter-leo"
-version = "4.3.2"
+version = "4.3.3"
 dependencies = [
  "cc",
  "leo-parser-rowan",
