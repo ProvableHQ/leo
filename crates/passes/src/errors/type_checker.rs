@@ -1093,6 +1093,26 @@ pub(crate) fn inaccessible_item(kind: impl Display, item: impl Display, span: Sp
         ))
 }
 
+pub(crate) fn external_final_fn_writes_state(
+    func: impl Display,
+    program: impl Display,
+    op: impl Display,
+    span: Span,
+) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 194,
+        format!("cannot call `{func}` because it writes on-chain state of program `{program}`"),
+        span,
+    )
+    .with_help(format!(
+        "Only `{program}` can write its own state. Call one of `{program}`'s transitions instead, or restrict the `final fn` to reads."
+    ))
+    .with_note(format!(
+        "`final fn`s are inlined into the caller's finalize context, and the inlined `{op}` would target another program's state, which Aleo bytecode forbids."
+    ))
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {

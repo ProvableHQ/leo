@@ -1,0 +1,37 @@
+[ETYC0372194] Error: cannot call `registry.aleo::finalize_register` because it writes on-chain state of program `registry.aleo`
+   ╭─[ compiler-test:7:13 ]
+   │
+ 7 │             registry.aleo::finalize_register(addr);
+   │ 
+   │ Help: Only `registry.aleo` can write its own state. Call one of `registry.aleo`'s transitions instead, or restrict the `final fn` to reads.
+   │ 
+   │ Note: `final fn`s are inlined into the caller's finalize context, and the inlined `Mapping::set` would target another program's state, which Aleo bytecode forbids.
+───╯
+[ETYC0372194] Error: cannot call `registry.aleo::finalize_register_wrapper` because it writes on-chain state of program `registry.aleo`
+    ╭─[ compiler-test:13:13 ]
+    │
+ 13 │             registry.aleo::finalize_register_wrapper(addr);
+    │ 
+    │ Help: Only `registry.aleo` can write its own state. Call one of `registry.aleo`'s transitions instead, or restrict the `final fn` to reads.
+    │ 
+    │ Note: `final fn`s are inlined into the caller's finalize context, and the inlined `Mapping::set` would target another program's state, which Aleo bytecode forbids.
+────╯
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372005] Error: unknown function `registry.aleo::finalize_register`
+   ╭─[ compiler-test:7:13 ]
+   │
+ 7 │             registry.aleo::finalize_register(addr);
+   │ 
+   │ Help: Check `registry.aleo::finalize_register` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯
+[ETYC0372005] Error: unknown function `registry.aleo::finalize_register_wrapper`
+    ╭─[ compiler-test:13:13 ]
+    │
+ 13 │             registry.aleo::finalize_register_wrapper(addr);
+    │ 
+    │ Help: Check `registry.aleo::finalize_register_wrapper` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+────╯

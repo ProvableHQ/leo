@@ -1181,8 +1181,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if matches!(func.variant, Variant::EntryPoint) && callee_program == self.scope_state.unit_name.unwrap()
                 {
                     self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
-                } else if matches!(func.variant, Variant::View) && self.async_block_id.is_none() {
-                    // Views are only callable from inside a `final {}` block.
+                } else if matches!(func.variant, Variant::View | Variant::FinalFn) && self.async_block_id.is_none() {
+                    // Views and `final fn`s run in on-chain contexts, so they are only callable
+                    // from inside a `final {}` block.
                     self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                         "a transition body outside a `final {}` block",
                         input.span,
@@ -1198,6 +1199,24 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return Type::Err;
+        }
+
+        // A `final fn` from another compilation unit is inlined into this program's finalize
+        // context, so any state it (transitively) writes would become a write to another
+        // program's mapping or storage — which Aleo bytecode forbids. Reads are fine: they
+        // inline to external mapping reads, which finalize scopes support.
+        if matches!(func.variant, Variant::FinalFn)
+            && callee_program != current_program
+            && (self.async_block_id.is_some()
+                || matches!(self.scope_state.variant, Some(Variant::Finalize | Variant::FinalFn)))
+            && let Some(op) = self.find_state_write(callee_location)
+        {
+            self.emit_err(crate::errors::type_checker::external_final_fn_writes_state(
+                &input.function,
+                callee_program,
+                op,
+                input.span,
+            ));
         }
 
         // Async functions return a single future.
