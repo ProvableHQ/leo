@@ -1,0 +1,330 @@
+================================================================================
+Exported module items
+================================================================================
+
+export struct Foo { x: u8 }
+export const MAX: u32 = 10u32;
+export fn make() -> u8 { return 0u8; }
+export final fn step() {}
+export view fn peek() -> u8 { return 0u8; }
+export interface I { fn f(); }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (struct_definition
+    (identifier)
+    (struct_field_list
+      (struct_field
+        (identifier)
+        (primitive_type))))
+  (const_declaration
+    (identifier)
+    (primitive_type)
+    (integer_literal))
+  (function_definition
+    (identifier)
+    (parameter_list)
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (return_statement
+        (integer_literal))))
+  (final_function_definition
+    (identifier)
+    (parameter_list)
+    (block))
+  (view_function_definition
+    (identifier)
+    (parameter_list)
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (return_statement
+        (integer_literal))))
+  (interface_declaration
+    (identifier)
+    (interface_item
+      (function_prototype
+        (identifier)
+        (parameter_list)))))
+
+================================================================================
+Top-level view function
+================================================================================
+
+view fn peek() -> u8 { return 0u8; }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (view_function_definition
+    (identifier)
+    (parameter_list)
+    (return_type
+      (return_type_item
+        (primitive_type)))
+    (block
+      (return_statement
+        (integer_literal)))))
+
+================================================================================
+Dynamic record type and cast
+================================================================================
+
+program p.aleo {
+    fn f(r: dyn record) -> dyn record {
+        return r as dyn record;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (dyn_record_type)))
+      (return_type
+        (return_type_item
+          (dyn_record_type)))
+      (block
+        (return_statement
+          (cast_expression
+            (path_expression
+              (identifier))
+            (dyn_record_type)))))))
+
+================================================================================
+Dynamic interface and storage access
+================================================================================
+
+program p.aleo {
+    fn f() {
+        let a: u8 = Iface@(target)::func(x);
+        let b: u8 = Iface@(target, net)::store.get(k);
+        let c: u8 = Iface@(target)::store;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (parameter_list)
+      (block
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (call_expression
+            (dynamic_op_expression
+              (path_expression
+                (identifier))
+              (path_expression
+                (identifier))
+              (identifier))
+            (argument_list
+              (path_expression
+                (identifier)))))
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (method_call_expression
+            (dynamic_op_expression
+              (path_expression
+                (identifier))
+              (path_expression
+                (identifier))
+              (path_expression
+                (identifier))
+              (identifier))
+            (identifier)
+            (argument_list
+              (path_expression
+                (identifier)))))
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (dynamic_op_expression
+            (path_expression
+              (identifier))
+            (path_expression
+              (identifier))
+            (identifier)))))))
+
+================================================================================
+Record prototype with constrained field body
+================================================================================
+
+interface I {
+    record Token { owner: address, amount: u64, .. }
+    record Empty { .. }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (interface_declaration
+    (identifier)
+    (interface_item
+      (record_prototype
+        (identifier)
+        (struct_field
+          (identifier)
+          (primitive_type))
+        (struct_field
+          (identifier)
+          (primitive_type))))
+    (interface_item
+      (record_prototype
+        (identifier)))))
+
+================================================================================
+Empty const-generic argument and parameter lists
+================================================================================
+
+program p.aleo {
+    fn g::[]() {}
+    fn f(a: Foo::[], b: Foo::[public u64]) {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (const_param_list)
+      (parameter_list)
+      (block))
+    (function_definition
+      (identifier)
+      (parameter_list
+        (parameter
+          (identifier)
+          (path_type
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket))))
+        (parameter
+          (identifier)
+          (path_type
+            (identifier)
+            (const_arg_list
+              (const_arg_list_bracket
+                (const_arg
+                  (dynamic_call_return_type
+                    (visibility)
+                    (primitive_type))))))))
+      (block))))
+
+================================================================================
+Empty annotation argument list
+================================================================================
+
+program p.aleo {
+    @test()
+    fn f() {}
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (annotation
+        (identifier))
+      (identifier)
+      (parameter_list)
+      (block))))
+
+================================================================================
+Multi-segment locators
+================================================================================
+
+program p.aleo {
+    fn f() -> child.aleo::a::b::Token {
+        return other.aleo::mod::item;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (parameter_list)
+      (return_type
+        (return_type_item
+          (locator_type
+            (program_id
+              (identifier))
+            (identifier)
+            (identifier)
+            (identifier))))
+      (block
+        (return_statement
+          (path_locator_expression
+            (program_id
+              (identifier))
+            (identifier)
+            (identifier)))))))
+
+================================================================================
+Suffix literals on non-decimal bases
+================================================================================
+
+program p.aleo {
+    fn f() {
+        let a: field = 0xFFfield;
+        let b: group = 0o7group;
+        let c: scalar = 0b1scalar;
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (program_declaration
+    (program_id
+      (identifier))
+    (function_definition
+      (identifier)
+      (parameter_list)
+      (block
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (field_literal))
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (group_literal))
+        (let_statement
+          (identifier_pattern
+            (identifier))
+          (primitive_type)
+          (scalar_literal))))))

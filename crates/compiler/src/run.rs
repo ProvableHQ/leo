@@ -416,13 +416,14 @@ fn handle_view(
     };
     // For an empty in-memory consensus store there is no block 0, so route directly through
     // `evaluate_view_with_stack_at_height` with a fabricated `FinalizeGlobalState`. Tests are off-consensus
-    // by construction, so the values here only matter for queries that read `block.height` / `network.id`.
-    // `VM::evaluate_view_at_height` cannot be used here: it resolves the program edition from on-chain
-    // deployments, which an empty store does not have.
+    // by construction, so the values here only matter for queries that read `block.height` / `block.timestamp`
+    // / `network.id`; the timestamp is fixed so those reads are deterministic. `VM::evaluate_view_at_height`
+    // cannot be used here: it resolves the program edition from on-chain deployments, which an empty store
+    // does not have.
     let state = match snarkvm::synthesizer::program::FinalizeGlobalState::new::<CurrentNetwork>(
         0,
         0,
-        None,
+        Some(1234567890i64),
         0,
         0,
         Default::default(),
@@ -431,10 +432,22 @@ fn handle_view(
         Ok(s) => s,
         Err(e) => return failed(format!("Failed to build FinalizeGlobalState: {e}")),
     };
-    // Evaluate against the live (latest) stack; off-consensus tests have a single edition.
-    let stack = match vm.process().get_stack(program_id) {
+    // Off-consensus tests deploy nothing, so the registered stack carries no program owner. Rebuild the
+    // stack (the only way to a mutable handle — `get_stack` hands out a shared `Arc`) and set the owner to
+    // the test key's address, mirroring a real deployment, so views can read `self.program_owner`.
+    let registered = match vm.process().get_stack(program_id) {
         Ok(stack) => stack,
         Err(e) => return failed(format!("Failed to load stack for `{program_id}`: {e}")),
+    };
+    let mut stack = match snarkvm::synthesizer::process::Stack::new(vm.process(), registered.program()) {
+        Ok(stack) => stack,
+        Err(e) => return failed(format!("Failed to build stack for `{program_id}`: {e}")),
+    };
+    match PrivateKey::<CurrentNetwork>::from_str(leo_ast::TEST_PRIVATE_KEY)
+        .and_then(|pk| Address::<CurrentNetwork>::try_from(&pk))
+    {
+        Ok(owner) => stack.set_program_owner(Some(owner)),
+        Err(e) => return failed(format!("Failed to derive program owner: {e}")),
     };
     let response = match catch_unwind(AssertUnwindSafe(|| {
         snarkvm::synthesizer::process::evaluate_view_with_stack_at_height(
