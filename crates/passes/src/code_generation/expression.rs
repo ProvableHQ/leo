@@ -383,6 +383,14 @@ impl CodeGeneratingVisitor<'_> {
         // Initialize instruction builder strings.
         let mut instructions = vec![];
 
+        // Workaround for snarkVM bug ProvableHQ/snarkVM#3330 (surfaced by #29586): in a finalize
+        // it validates an external-struct cast against that struct's own program stack and
+        // resolves the operand member accesses there too, rejecting them. Spill member/array-access
+        // operands to plain registers so the cast carries no external member access. The transition
+        // path is unaffected, hence the finalize gate.
+        let spill_operands =
+            matches!(composite_type, AleoType::Location { .. }) && matches!(self.variant, Some(Variant::Finalize));
+
         // Visit each composite member and accumulate instructions from expressions.
         let operands: Vec<AleoExpr> = input
             .members
@@ -393,7 +401,15 @@ impl CodeGeneratingVisitor<'_> {
                     let (variable_operand, variable_instructions) = self.visit_expression(expr);
                     instructions.extend(variable_instructions);
 
-                    variable_operand
+                    let operand = variable_operand?;
+                    if spill_operands {
+                        let type_ = self.state.type_table.get(&expr.id()).expect("member type should be known");
+                        let (spilled, spill_instructions) = self.spill_finalize_operand(operand, &type_);
+                        instructions.extend(spill_instructions);
+                        Some(spilled)
+                    } else {
+                        Some(operand)
+                    }
                 } else {
                     Some(self.visit_path(&Path::from(member.identifier).to_local()))
                 }
@@ -407,6 +423,56 @@ impl CodeGeneratingVisitor<'_> {
 
         instructions.push(composite_init_instruction);
 
+        (AleoExpr::Reg(dest_reg), instructions)
+    }
+
+    /// Workaround for snarkVM bug ProvableHQ/snarkVM#3330: materializes a member/array-access
+    /// `operand` into a fresh register so a cast to an external struct in a finalize carries no
+    /// external member access. Plain registers/literals are returned as-is; a struct is rebuilt
+    /// recursively (a struct field is itself an external access), while an array is rebuilt from
+    /// its elements without recursing (array casts validate locally).
+    fn spill_finalize_operand(&mut self, operand: AleoExpr, type_: &Type) -> (AleoExpr, Vec<AleoStmt>) {
+        if !matches!(operand, AleoExpr::MemberAccess(..) | AleoExpr::ArrayAccess(..)) {
+            return (operand, vec![]);
+        }
+
+        let mut instructions = vec![];
+        let aleo_type = self.visit_type(type_);
+        let dest_reg = self.next_register();
+        match type_ {
+            Type::Composite(composite) => {
+                let location = composite.path.expect_global_location();
+                let fields: Vec<(String, Type)> = self
+                    .state
+                    .symbol_table
+                    .lookup_struct(location.program, location)
+                    .expect("struct definition should exist")
+                    .members
+                    .iter()
+                    .map(|member| (member.identifier.to_string(), member.type_.clone()))
+                    .collect();
+                let field_operands = fields
+                    .into_iter()
+                    .map(|(name, field_type)| {
+                        let field_operand = AleoExpr::MemberAccess(Box::new(operand.clone()), name);
+                        let (spilled, spill_instructions) = self.spill_finalize_operand(field_operand, &field_type);
+                        instructions.extend(spill_instructions);
+                        spilled
+                    })
+                    .collect();
+                instructions.push(AleoStmt::Cast(AleoExpr::Tuple(field_operands), dest_reg.clone(), aleo_type));
+            }
+            Type::Array(array_type) => {
+                let length = array_type.length.as_u32().expect("array length should be known");
+                let element_operands = (0..length)
+                    .map(|i| AleoExpr::ArrayAccess(Box::new(operand.clone()), Box::new(AleoExpr::U32(i))))
+                    .collect();
+                instructions.push(AleoStmt::Cast(AleoExpr::Tuple(element_operands), dest_reg.clone(), aleo_type));
+            }
+            _ => {
+                instructions.push(AleoStmt::Cast(operand, dest_reg.clone(), aleo_type));
+            }
+        }
         (AleoExpr::Reg(dest_reg), instructions)
     }
 

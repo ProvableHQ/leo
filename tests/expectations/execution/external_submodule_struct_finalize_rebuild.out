@@ -1,0 +1,58 @@
+program child.aleo;
+
+struct S__Eqkz1pp1Ejj:
+    hi as u128;
+    lo as u128;
+
+function noop:
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program parent.aleo;
+
+function run:
+    input r0 as child.aleo/S__Eqkz1pp1Ejj.private;
+    async run r0 into r1;
+    output r1 as parent.aleo/run.future;
+
+finalize run:
+    input r0 as child.aleo/S__Eqkz1pp1Ejj.public;
+    cast r0.hi into r1 as u128;
+    cast r0.lo into r2 as u128;
+    cast r1 r2 into r3 as child.aleo/S__Eqkz1pp1Ejj;
+    assert.eq r3.lo r0.lo;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au16leaeyyz2zqkparz0v98ggccjftaz5lvrau6dv9k3cgvwna2jypsdxwyd5",
+      "program": "parent.aleo",
+      "function": "run",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "1502051417082292853619788205127209961533893136745199223406097239817117813912field",
+          "value": "ciphertext1qgqva0g8gw2ej76v30ms7h6l68v53vm9p24rh8fn85gzxrja4l22srnygpn7wsj5gjl68554ncys9hdl7kky0ntej37ltxxkv7a2t5gqq5fvpd98"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7429033492878210775409452479115106334599749928046577624853422349221959643598field",
+          "value": "{\n  program_id: parent.aleo,\n  function_name: run,\n  arguments: [\n    {\n  hi: 0u128,\n  lo: 7u128\n}\n  ]\n}"
+        }
+      ],
+      "tpk": "59517101639069244690218806718172759817774084448733030979634609300207556343group",
+      "tcm": "3439287105411081472002244584104526469221102650797619533190690523741340896533field",
+      "scm": "1816974850713937437026517823493448391070390307098007095178907976258948759676field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
