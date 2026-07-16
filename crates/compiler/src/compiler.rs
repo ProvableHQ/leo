@@ -355,6 +355,19 @@ impl Compiler {
         self.do_pass_with_check::<P, _>(input, &mut || Ok(()))
     }
 
+    fn write_pass_snapshots(&self, pass_name: &str) -> Result<()> {
+        let write = match &self.compiler_options.ast_snapshots {
+            AstSnapshots::All => true,
+            AstSnapshots::Some(passes) => passes.contains(pass_name),
+        };
+
+        if write {
+            self.write_ast_to_json(&format!("{pass_name}.json"))?;
+            self.write_ast(&format!("{pass_name}.ast"))?;
+        }
+        Ok(())
+    }
+
     /// Runs a compiler pass and checks whether the caller still wants the
     /// result once the pass and any requested snapshots have completed.
     fn do_pass_with_check<P: Pass, C>(&mut self, input: P::Input, should_continue: &mut C) -> Result<P::Output>
@@ -363,15 +376,7 @@ impl Compiler {
     {
         let output = P::do_pass(input, &mut self.state)?;
 
-        let write = match &self.compiler_options.ast_snapshots {
-            AstSnapshots::All => true,
-            AstSnapshots::Some(passes) => passes.contains(P::NAME),
-        };
-
-        if write {
-            self.write_ast_to_json(&format!("{}.json", P::NAME))?;
-            self.write_ast(&format!("{}.ast", P::NAME))?;
-        }
+        self.write_pass_snapshots(P::NAME)?;
 
         should_continue()?;
         Ok(output)
@@ -453,6 +458,12 @@ impl Compiler {
         self.do_pass::<SsaConstPropagation>(())?;
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
+
+        // Final SSA can expose lowered Optional composites through local aliases.
+        // Repeat only the owning projection phase; rerunning the full constant
+        // propagation pass here would also reconsider unrelated lowered code.
+        SsaConstPropagation::run_optional_forwarding_after_final_ssa(&mut self.state)?;
+        self.write_pass_snapshots(SsaConstPropagation::NAME)?;
 
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 

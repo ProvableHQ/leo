@@ -126,9 +126,8 @@ impl Pass for OptionLowering {
     }
 }
 
-pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
-    // Step 1: Extract a usable type name
-    fn display_type(ty: &Type) -> String {
+fn try_make_optional_struct_symbol(ty: &Type) -> Option<Symbol> {
+    fn display_type(ty: &Type) -> Option<String> {
         match ty {
             Type::Address
             | Type::Field
@@ -136,12 +135,12 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Scalar
             | Type::Signature
             | Type::Boolean
-            | Type::Integer(..) => format!("{ty}"),
+            | Type::Integer(..) => Some(format!("{ty}")),
             Type::Array(ArrayType { element_type, length }) => {
-                format!("[{}; {length}]", display_type(element_type))
+                Some(format!("[{}; {length}]", display_type(element_type)?))
             }
             Type::Composite(CompositeType { path, .. }) => {
-                format!("::{}", path.expect_global_location().path.iter().format("::"))
+                Some(format!("::{}", path.expect_global_location().path.iter().format("::")))
             }
 
             Type::Tuple(_)
@@ -155,12 +154,17 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Identifier
             | Type::DynRecord
             | Type::Err
-            | Type::Unit => {
-                panic!("unexpected inner type in optional struct name")
-            }
+            | Type::Unit => None,
         }
     }
 
-    // Step 3: Build symbol that ends with `?`.
-    Symbol::intern(&format!("{}?", display_type(ty)))
+    Some(Symbol::intern(&format!("{}?", display_type(ty)?)))
+}
+
+pub(crate) fn is_optional_struct_symbol(symbol: Symbol, inner: &Type) -> bool {
+    try_make_optional_struct_symbol(inner) == Some(symbol)
+}
+
+pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
+    try_make_optional_struct_symbol(ty).expect("unexpected inner type in optional struct name")
 }

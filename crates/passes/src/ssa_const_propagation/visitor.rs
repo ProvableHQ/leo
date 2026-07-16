@@ -39,13 +39,6 @@ pub struct SsaConstPropagationVisitor<'a> {
     pub changed: bool,
 }
 
-/// An "atom" is an expression simple enough to substitute for another use-site
-/// without re-running arbitrary effects or duplicating work. Post-SSA, paths
-/// and literals are the only expression shapes that round-trip freely.
-pub fn is_atom(expr: &Expression) -> bool {
-    matches!(expr, Expression::Path(_) | Expression::Literal(_))
-}
-
 /// Parse a numeric literal string, handling underscores and radix prefixes (0x, 0o, 0b).
 fn parse_literal_value(s: &str) -> Option<i128> {
     let clean = s.replace('_', "");

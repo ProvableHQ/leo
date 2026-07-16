@@ -18,17 +18,14 @@ use crate::expression_can_be_discarded;
 
 use super::{
     SsaConstPropagationVisitor,
-    visitor::{is_atom, is_one_literal, is_zero_literal, same_ssa_atom},
+    composite_sra::{atom_fields_from_composite, atom_for_member},
+    visitor::{is_one_literal, is_zero_literal, same_ssa_atom},
 };
 
 use leo_ast::{
     const_eval::{self, Value},
     *,
 };
-use leo_span::Symbol;
-
-use indexmap::IndexMap;
-
 const VALUE_ERROR: &str = "A non-future value should always be able to be converted into an expression";
 
 impl AstReconstructor for SsaConstPropagationVisitor<'_> {
@@ -68,15 +65,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
         let (inner, _) = self.reconstruct_expression(input.inner, &());
         input.inner = inner;
 
-        if let Expression::Path(path) = &input.inner
-            && let Some(name) = path.try_local_symbol()
-            && let Some(fields) = self.atom_fielded_composites.get(&name)
-            && let Some(atom) = fields.get(&input.name.name)
-        {
+        if let Some(atom) = atom_for_member(&self.atom_fielded_composites, &input.inner, input.name.name) {
             self.changed = true;
             // Recompute the atom's Value so downstream folding sees the forwarded
             // constant (literals evaluate directly; paths look up tracked constants).
-            let opt_value = match atom {
+            let opt_value = match &atom {
                 Expression::Literal(lit) => {
                     let ty = self.state.type_table.get(&lit.id());
                     const_eval::literal_to_value(lit, &ty).ok()
@@ -87,7 +80,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 // which restricts to `Path`/`Literal`.
                 _ => unreachable!("atom_fielded_composites fields must be Path or Literal"),
             };
-            return (atom.clone(), opt_value);
+            return (atom, opt_value);
         }
 
         (input.into(), None)
@@ -556,21 +549,9 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             }
         } else if let (DefinitionPlace::Single(identifier), Expression::Composite(composite)) =
             (&input.place, &new_value)
+            && let Some(fields) = atom_fields_from_composite(composite)
         {
-            // Only track when every field initializer is an atom, since the field
-            // expression will be cloned into every forwarded use-site.
-            let mut fields: IndexMap<Symbol, Expression> = IndexMap::with_capacity(composite.members.len());
-            let all_atoms = composite.members.iter().all(|member| {
-                let Some(expr) = &member.expression else { return false };
-                if !is_atom(expr) {
-                    return false;
-                }
-                fields.insert(member.identifier.name, expr.clone());
-                true
-            });
-            if all_atoms {
-                self.atom_fielded_composites.insert(identifier.name, fields);
-            }
+            self.atom_fielded_composites.insert(identifier.name, fields);
         }
 
         input.value = new_value;
