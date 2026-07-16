@@ -135,7 +135,12 @@ impl Pass for StorageLowering {
 
     fn do_pass(input: TypeCheckingInput, state: &mut crate::CompilerState) -> Result<Self::Output> {
         let ast = std::mem::take(&mut state.ast);
-        let mut visitor = StorageLoweringVisitor { state, program: Symbol::intern(""), new_mappings: IndexMap::new() };
+        let mut visitor = StorageLoweringVisitor {
+            state,
+            program: Symbol::intern(""),
+            new_mappings: IndexMap::new(),
+            ternary_guards: Vec::new(),
+        };
 
         let ast = ast.map(
             |program| visitor.reconstruct_program(program),

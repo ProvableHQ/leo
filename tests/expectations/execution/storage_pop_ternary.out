@@ -1,0 +1,907 @@
+program storage_pop_ternary.aleo;
+
+struct Optional__JzunLORyB8U:
+    is_some as boolean;
+    val as u32;
+
+mapping true_unselected__:
+    key as u32.public;
+    value as u32.public;
+
+mapping true_unselected__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping true_selected__:
+    key as u32.public;
+    value as u32.public;
+
+mapping true_selected__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping false_unselected__:
+    key as u32.public;
+    value as u32.public;
+
+mapping false_unselected__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping false_selected__:
+    key as u32.public;
+    value as u32.public;
+
+mapping false_selected__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping assigned__:
+    key as u32.public;
+    value as u32.public;
+
+mapping assigned__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping nested__:
+    key as u32.public;
+    value as u32.public;
+
+mapping nested__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping nested_selected_values__:
+    key as u32.public;
+    value as u32.public;
+
+mapping nested_selected_values__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping compound__:
+    key as u32.public;
+    value as u32.public;
+
+mapping compound__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping compound_selected_values__:
+    key as u32.public;
+    value as u32.public;
+
+mapping compound_selected_values__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping both_true_values__:
+    key as u32.public;
+    value as u32.public;
+
+mapping both_true_values__len__:
+    key as boolean.public;
+    value as u32.public;
+
+mapping both_false_values__:
+    key as u32.public;
+    value as u32.public;
+
+mapping both_false_values__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function true_arm_unselected:
+    input r0 as boolean.public;
+    async true_arm_unselected r0 into r1;
+    output r1 as storage_pop_ternary.aleo/true_arm_unselected.future;
+
+finalize true_arm_unselected:
+    input r0 as boolean.public;
+    get.or_use true_unselected__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into true_unselected__len__[false];
+    set 1u32 into true_unselected__[r1];
+    get.or_use true_unselected__len__[false] 0u32 into r3;
+    branch.eq r0 false to end_then_0_0;
+    gt r3 0u32 into r4;
+    sub.w r3 1u32 into r5;
+    ternary r4 r5 r3 into r6;
+    set r6 into true_unselected__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r3 0u32 into r7;
+    sub.w r3 1u32 into r8;
+    get.or_use true_unselected__[r8] 0u32 into r9;
+    ternary r7 r9 0u32 into r10;
+    cast r7 r10 into r11 as Optional__JzunLORyB8U;
+    ternary r0 r11.is_some false into r12;
+    ternary r0 r11.val 0u32 into r13;
+    cast r12 r13 into r14 as Optional__JzunLORyB8U;
+    cast false 0u32 into r15 as Optional__JzunLORyB8U;
+    is.eq r14 r15 into r16;
+    assert.eq r16 true;
+    get.or_use true_unselected__len__[false] 0u32 into r17;
+    is.eq r17 1u32 into r18;
+    assert.eq r18 true;
+
+function true_arm_selected:
+    input r0 as boolean.public;
+    async true_arm_selected r0 into r1;
+    output r1 as storage_pop_ternary.aleo/true_arm_selected.future;
+
+finalize true_arm_selected:
+    input r0 as boolean.public;
+    get.or_use true_selected__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into true_selected__len__[false];
+    set 2u32 into true_selected__[r1];
+    get.or_use true_selected__len__[false] 0u32 into r3;
+    branch.eq r0 false to end_then_0_0;
+    gt r3 0u32 into r4;
+    sub.w r3 1u32 into r5;
+    ternary r4 r5 r3 into r6;
+    set r6 into true_selected__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r3 0u32 into r7;
+    sub.w r3 1u32 into r8;
+    get.or_use true_selected__[r8] 0u32 into r9;
+    ternary r7 r9 0u32 into r10;
+    cast r7 r10 into r11 as Optional__JzunLORyB8U;
+    ternary r0 r11.is_some false into r12;
+    ternary r0 r11.val 0u32 into r13;
+    cast r12 r13 into r14 as Optional__JzunLORyB8U;
+    cast false 0u32 into r15 as Optional__JzunLORyB8U;
+    is.neq r14 r15 into r16;
+    assert.eq r16 true;
+    assert.eq r14.is_some true;
+    is.eq r14.val 2u32 into r17;
+    assert.eq r17 true;
+    get.or_use true_selected__len__[false] 0u32 into r18;
+    is.eq r18 0u32 into r19;
+    assert.eq r19 true;
+
+function false_arm_unselected:
+    input r0 as boolean.public;
+    async false_arm_unselected r0 into r1;
+    output r1 as storage_pop_ternary.aleo/false_arm_unselected.future;
+
+finalize false_arm_unselected:
+    input r0 as boolean.public;
+    get.or_use false_unselected__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into false_unselected__len__[false];
+    set 3u32 into false_unselected__[r1];
+    get.or_use false_unselected__len__[false] 0u32 into r3;
+    not r0 into r4;
+    branch.eq r4 false to end_then_0_0;
+    gt r3 0u32 into r5;
+    sub.w r3 1u32 into r6;
+    ternary r5 r6 r3 into r7;
+    set r7 into false_unselected__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r3 0u32 into r8;
+    sub.w r3 1u32 into r9;
+    get.or_use false_unselected__[r9] 0u32 into r10;
+    ternary r8 r10 0u32 into r11;
+    cast r8 r11 into r12 as Optional__JzunLORyB8U;
+    ternary r0 false r12.is_some into r13;
+    ternary r0 0u32 r12.val into r14;
+    cast r13 r14 into r15 as Optional__JzunLORyB8U;
+    cast false 0u32 into r16 as Optional__JzunLORyB8U;
+    is.eq r15 r16 into r17;
+    assert.eq r17 true;
+    get.or_use false_unselected__len__[false] 0u32 into r18;
+    is.eq r18 1u32 into r19;
+    assert.eq r19 true;
+
+function false_arm_selected:
+    input r0 as boolean.public;
+    async false_arm_selected r0 into r1;
+    output r1 as storage_pop_ternary.aleo/false_arm_selected.future;
+
+finalize false_arm_selected:
+    input r0 as boolean.public;
+    get.or_use false_selected__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into false_selected__len__[false];
+    set 7u32 into false_selected__[r1];
+    get.or_use false_selected__len__[false] 0u32 into r3;
+    not r0 into r4;
+    branch.eq r4 false to end_then_0_0;
+    gt r3 0u32 into r5;
+    sub.w r3 1u32 into r6;
+    ternary r5 r6 r3 into r7;
+    set r7 into false_selected__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r3 0u32 into r8;
+    sub.w r3 1u32 into r9;
+    get.or_use false_selected__[r9] 0u32 into r10;
+    ternary r8 r10 0u32 into r11;
+    cast r8 r11 into r12 as Optional__JzunLORyB8U;
+    ternary r0 false r12.is_some into r13;
+    ternary r0 0u32 r12.val into r14;
+    cast r13 r14 into r15 as Optional__JzunLORyB8U;
+    cast false 0u32 into r16 as Optional__JzunLORyB8U;
+    is.neq r15 r16 into r17;
+    assert.eq r17 true;
+    assert.eq r15.is_some true;
+    is.eq r15.val 7u32 into r18;
+    assert.eq r18 true;
+    get.or_use false_selected__len__[false] 0u32 into r19;
+    is.eq r19 0u32 into r20;
+    assert.eq r20 true;
+
+function assigned_unselected:
+    input r0 as boolean.public;
+    async assigned_unselected r0 into r1;
+    output r1 as storage_pop_ternary.aleo/assigned_unselected.future;
+
+finalize assigned_unselected:
+    input r0 as boolean.public;
+    get.or_use assigned__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into assigned__len__[false];
+    set 4u32 into assigned__[r1];
+    get.or_use assigned__len__[false] 0u32 into r3;
+    branch.eq r0 false to end_then_0_0;
+    gt r3 0u32 into r4;
+    sub.w r3 1u32 into r5;
+    ternary r4 r5 r3 into r6;
+    set r6 into assigned__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r3 0u32 into r7;
+    sub.w r3 1u32 into r8;
+    get.or_use assigned__[r8] 0u32 into r9;
+    ternary r7 r9 0u32 into r10;
+    cast r7 r10 into r11 as Optional__JzunLORyB8U;
+    ternary r0 r11.is_some false into r12;
+    ternary r0 r11.val 0u32 into r13;
+    cast r12 r13 into r14 as Optional__JzunLORyB8U;
+    cast false 0u32 into r15 as Optional__JzunLORyB8U;
+    is.eq r14 r15 into r16;
+    assert.eq r16 true;
+    get.or_use assigned__len__[false] 0u32 into r17;
+    is.eq r17 1u32 into r18;
+    assert.eq r18 true;
+
+function nested_unselected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    async nested_unselected r0 r1 into r2;
+    output r2 as storage_pop_ternary.aleo/nested_unselected.future;
+
+finalize nested_unselected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    get.or_use nested__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into nested__len__[false];
+    set 5u32 into nested__[r2];
+    get.or_use nested__len__[false] 0u32 into r4;
+    and r0 r1 into r5;
+    branch.eq r5 false to end_then_0_0;
+    gt r4 0u32 into r6;
+    sub.w r4 1u32 into r7;
+    ternary r6 r7 r4 into r8;
+    set r8 into nested__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r4 0u32 into r9;
+    sub.w r4 1u32 into r10;
+    get.or_use nested__[r10] 0u32 into r11;
+    ternary r9 r11 0u32 into r12;
+    cast r9 r12 into r13 as Optional__JzunLORyB8U;
+    ternary r1 r13.is_some false into r14;
+    ternary r1 r13.val 0u32 into r15;
+    cast r14 r15 into r16 as Optional__JzunLORyB8U;
+    ternary r0 r16.is_some false into r17;
+    ternary r0 r16.val 0u32 into r18;
+    cast r17 r18 into r19 as Optional__JzunLORyB8U;
+    cast false 0u32 into r20 as Optional__JzunLORyB8U;
+    is.eq r19 r20 into r21;
+    assert.eq r21 true;
+    get.or_use nested__len__[false] 0u32 into r22;
+    is.eq r22 1u32 into r23;
+    assert.eq r23 true;
+
+function nested_selected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    async nested_selected r0 r1 into r2;
+    output r2 as storage_pop_ternary.aleo/nested_selected.future;
+
+finalize nested_selected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    get.or_use nested_selected_values__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into nested_selected_values__len__[false];
+    set 8u32 into nested_selected_values__[r2];
+    get.or_use nested_selected_values__len__[false] 0u32 into r4;
+    and r0 r1 into r5;
+    branch.eq r5 false to end_then_0_0;
+    gt r4 0u32 into r6;
+    sub.w r4 1u32 into r7;
+    ternary r6 r7 r4 into r8;
+    set r8 into nested_selected_values__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r4 0u32 into r9;
+    sub.w r4 1u32 into r10;
+    get.or_use nested_selected_values__[r10] 0u32 into r11;
+    ternary r9 r11 0u32 into r12;
+    cast r9 r12 into r13 as Optional__JzunLORyB8U;
+    ternary r1 r13.is_some false into r14;
+    ternary r1 r13.val 0u32 into r15;
+    cast r14 r15 into r16 as Optional__JzunLORyB8U;
+    ternary r0 r16.is_some false into r17;
+    ternary r0 r16.val 0u32 into r18;
+    cast r17 r18 into r19 as Optional__JzunLORyB8U;
+    cast false 0u32 into r20 as Optional__JzunLORyB8U;
+    is.neq r19 r20 into r21;
+    assert.eq r21 true;
+    assert.eq r19.is_some true;
+    is.eq r19.val 8u32 into r22;
+    assert.eq r22 true;
+    get.or_use nested_selected_values__len__[false] 0u32 into r23;
+    is.eq r23 0u32 into r24;
+    assert.eq r24 true;
+
+function compound_unselected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    async compound_unselected r0 r1 into r2;
+    output r2 as storage_pop_ternary.aleo/compound_unselected.future;
+
+finalize compound_unselected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    get.or_use compound__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into compound__len__[false];
+    set 6u32 into compound__[r2];
+    and r0 r1 into r4;
+    get.or_use compound__len__[false] 0u32 into r5;
+    branch.eq r4 false to end_then_0_0;
+    gt r5 0u32 into r6;
+    sub.w r5 1u32 into r7;
+    ternary r6 r7 r5 into r8;
+    set r8 into compound__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r5 0u32 into r9;
+    sub.w r5 1u32 into r10;
+    get.or_use compound__[r10] 0u32 into r11;
+    ternary r9 r11 0u32 into r12;
+    cast r9 r12 into r13 as Optional__JzunLORyB8U;
+    ternary r4 r13.is_some false into r14;
+    ternary r4 r13.val 0u32 into r15;
+    cast r14 r15 into r16 as Optional__JzunLORyB8U;
+    cast false 0u32 into r17 as Optional__JzunLORyB8U;
+    is.eq r16 r17 into r18;
+    assert.eq r18 true;
+    get.or_use compound__len__[false] 0u32 into r19;
+    is.eq r19 1u32 into r20;
+    assert.eq r20 true;
+
+function compound_selected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    async compound_selected r0 r1 into r2;
+    output r2 as storage_pop_ternary.aleo/compound_selected.future;
+
+finalize compound_selected:
+    input r0 as boolean.public;
+    input r1 as boolean.public;
+    get.or_use compound_selected_values__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into compound_selected_values__len__[false];
+    set 9u32 into compound_selected_values__[r2];
+    and r0 r1 into r4;
+    get.or_use compound_selected_values__len__[false] 0u32 into r5;
+    branch.eq r4 false to end_then_0_0;
+    gt r5 0u32 into r6;
+    sub.w r5 1u32 into r7;
+    ternary r6 r7 r5 into r8;
+    set r8 into compound_selected_values__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    gt r5 0u32 into r9;
+    sub.w r5 1u32 into r10;
+    get.or_use compound_selected_values__[r10] 0u32 into r11;
+    ternary r9 r11 0u32 into r12;
+    cast r9 r12 into r13 as Optional__JzunLORyB8U;
+    ternary r4 r13.is_some false into r14;
+    ternary r4 r13.val 0u32 into r15;
+    cast r14 r15 into r16 as Optional__JzunLORyB8U;
+    cast false 0u32 into r17 as Optional__JzunLORyB8U;
+    is.neq r16 r17 into r18;
+    assert.eq r18 true;
+    assert.eq r16.is_some true;
+    is.eq r16.val 9u32 into r19;
+    assert.eq r19 true;
+    get.or_use compound_selected_values__len__[false] 0u32 into r20;
+    is.eq r20 0u32 into r21;
+    assert.eq r21 true;
+
+function both_arms_true:
+    input r0 as boolean.public;
+    async both_arms_true r0 into r1;
+    output r1 as storage_pop_ternary.aleo/both_arms_true.future;
+
+finalize both_arms_true:
+    input r0 as boolean.public;
+    get.or_use both_true_values__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into both_true_values__len__[false];
+    set 10u32 into both_true_values__[r1];
+    get.or_use both_true_values__len__[false] 0u32 into r3;
+    add r3 1u32 into r4;
+    set r4 into both_true_values__len__[false];
+    set 11u32 into both_true_values__[r3];
+    get.or_use both_true_values__len__[false] 0u32 into r5;
+    branch.eq r0 false to end_then_0_0;
+    gt r5 0u32 into r6;
+    sub.w r5 1u32 into r7;
+    ternary r6 r7 r5 into r8;
+    set r8 into both_true_values__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    get.or_use both_true_values__len__[false] 0u32 into r9;
+    not r0 into r10;
+    branch.eq r10 false to end_then_0_2;
+    gt r9 0u32 into r11;
+    sub.w r9 1u32 into r12;
+    ternary r11 r12 r9 into r13;
+    set r13 into both_true_values__len__[false];
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+    gt r5 0u32 into r14;
+    sub.w r5 1u32 into r15;
+    get.or_use both_true_values__[r15] 0u32 into r16;
+    ternary r14 r16 0u32 into r17;
+    cast r14 r17 into r18 as Optional__JzunLORyB8U;
+    gt r9 0u32 into r19;
+    sub.w r9 1u32 into r20;
+    get.or_use both_true_values__[r20] 0u32 into r21;
+    ternary r19 r21 0u32 into r22;
+    cast r19 r22 into r23 as Optional__JzunLORyB8U;
+    ternary r0 r18.is_some r23.is_some into r24;
+    ternary r0 r18.val r23.val into r25;
+    cast r24 r25 into r26 as Optional__JzunLORyB8U;
+    cast false 0u32 into r27 as Optional__JzunLORyB8U;
+    is.neq r26 r27 into r28;
+    assert.eq r28 true;
+    assert.eq r26.is_some true;
+    is.eq r26.val 11u32 into r29;
+    assert.eq r29 true;
+    get.or_use both_true_values__len__[false] 0u32 into r30;
+    is.eq r30 1u32 into r31;
+    assert.eq r31 true;
+
+function both_arms_false:
+    input r0 as boolean.public;
+    async both_arms_false r0 into r1;
+    output r1 as storage_pop_ternary.aleo/both_arms_false.future;
+
+finalize both_arms_false:
+    input r0 as boolean.public;
+    get.or_use both_false_values__len__[false] 0u32 into r1;
+    add r1 1u32 into r2;
+    set r2 into both_false_values__len__[false];
+    set 12u32 into both_false_values__[r1];
+    get.or_use both_false_values__len__[false] 0u32 into r3;
+    add r3 1u32 into r4;
+    set r4 into both_false_values__len__[false];
+    set 13u32 into both_false_values__[r3];
+    get.or_use both_false_values__len__[false] 0u32 into r5;
+    branch.eq r0 false to end_then_0_0;
+    gt r5 0u32 into r6;
+    sub.w r5 1u32 into r7;
+    ternary r6 r7 r5 into r8;
+    set r8 into both_false_values__len__[false];
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    position end_otherwise_0_1;
+    get.or_use both_false_values__len__[false] 0u32 into r9;
+    not r0 into r10;
+    branch.eq r10 false to end_then_0_2;
+    gt r9 0u32 into r11;
+    sub.w r9 1u32 into r12;
+    ternary r11 r12 r9 into r13;
+    set r13 into both_false_values__len__[false];
+    branch.eq true true to end_otherwise_0_3;
+    position end_then_0_2;
+    position end_otherwise_0_3;
+    gt r5 0u32 into r14;
+    sub.w r5 1u32 into r15;
+    get.or_use both_false_values__[r15] 0u32 into r16;
+    ternary r14 r16 0u32 into r17;
+    cast r14 r17 into r18 as Optional__JzunLORyB8U;
+    gt r9 0u32 into r19;
+    sub.w r9 1u32 into r20;
+    get.or_use both_false_values__[r20] 0u32 into r21;
+    ternary r19 r21 0u32 into r22;
+    cast r19 r22 into r23 as Optional__JzunLORyB8U;
+    ternary r0 r18.is_some r23.is_some into r24;
+    ternary r0 r18.val r23.val into r25;
+    cast r24 r25 into r26 as Optional__JzunLORyB8U;
+    cast false 0u32 into r27 as Optional__JzunLORyB8U;
+    is.neq r26 r27 into r28;
+    assert.eq r28 true;
+    assert.eq r26.is_some true;
+    is.eq r26.val 13u32 into r29;
+    assert.eq r29 true;
+    get.or_use both_false_values__len__[false] 0u32 into r30;
+    is.eq r30 1u32 into r31;
+    assert.eq r31 true;
+
+constructor:
+    assert.eq edition 0u16;
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1vmmpnfjlku0vfp35lqkxjw7q796mfrrzj4lks2enwng7vgdztygstutq03",
+      "program": "storage_pop_ternary.aleo",
+      "function": "true_arm_unselected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "3589673701555257345563095101997194284302629830078550798024968582699969569457field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7858674912787746794580598585678817390949957573141700820780522426386227494771field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: true_arm_unselected,\n  arguments: [\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
+      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
+      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1czsweqrhhhuy08pyc8054smye7wt8rmnmxkxscn6zljk2pa35czswslrp0",
+      "program": "storage_pop_ternary.aleo",
+      "function": "true_arm_selected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7240746722439637678325687259139458182149195200370036847908961652073634973182field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "2422217080169170565804157381367661190879166742273698790085969644005155864245field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: true_arm_selected,\n  arguments: [\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "4435182414136183130262225239916202916754973933386625330210643288715243337617group",
+      "tcm": "850142209754567944166319722250339409916042600529796761178314418357457776240field",
+      "scm": "6880818639492575671344261738303779886148232533224264415621330306086981058639field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1t9cvjzuxfn9fsva7wu8tnw6apegklqwv2es9cup30r5s2rkw9ygs92qu5m",
+      "program": "storage_pop_ternary.aleo",
+      "function": "false_arm_unselected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "8301673178003353313050143590325888057179788235370688668260001619462089845972field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6566413050416293332405783178557456795489656744511425437318701382219686867407field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: false_arm_unselected,\n  arguments: [\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "2522887999940374826698654126645535027810075514268095352773581615775304946572group",
+      "tcm": "1804215531425177261902248378301676324038494384555044966602196492783038681001field",
+      "scm": "3550506856681924294077270970505890072867776518575635158053618611174190675462field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1ewf45vj4ss8mhl2qchj23vmakdxs6dpl709l2cw4akucpzxftyrs6le3e5",
+      "program": "storage_pop_ternary.aleo",
+      "function": "false_arm_selected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7769214794172638524523449763060843239616594219938743394067388371073699284502field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "5078286307343463874498203806333315525215011796133927575956919017942454564848field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: false_arm_selected,\n  arguments: [\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "6060197335674172363144850410502281312781694387277365216513387164100734934168group",
+      "tcm": "1584660705981876771993043374418972780034313834621129725205833195234558363129field",
+      "scm": "3947453824222718726231568557530022093561558870139768932707177944233799344247field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1mcns36wrurkx90npzewtuhs3cc3crwwnns0g8hchkds5pwvws5xsr34cj6",
+      "program": "storage_pop_ternary.aleo",
+      "function": "assigned_unselected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "1046242308658211179846110990966362565713999171878710476721347644821303849974field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1731041873872109596386232320528297383302413187409260253880114579188205296768field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: assigned_unselected,\n  arguments: [\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "5501575527267754697309838948653136094413849704757357265871953615905434807714group",
+      "tcm": "3392303923123661994474116113089681841231799041552322339994431473109132331435field",
+      "scm": "117046142058200674656358384736938896580651446460123257837828454048778883036field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1a06f2zhtmx8kyrn0m9a7ejwzhtyhqfmj32zt84tgk8qx39n755zss9ul6e",
+      "program": "storage_pop_ternary.aleo",
+      "function": "nested_unselected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7944143169895638434603821106136339117669383291442608887271812097526599038962field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "7956636626366707118150781099993506336912487411487205000641594400004758037318field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3500641953038135978508600489829023235881590803798231374385061628612696808294field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: nested_unselected,\n  arguments: [\n    true,\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "3532762458625321599141060623467596614319941243060133069432406976651174585051group",
+      "tcm": "5727814722991207302030100971915222233635245413201173967467886521605170678504field",
+      "scm": "8338039324173612187490851717605430230652886096836584967856164246213016910057field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1dxyj427xxu8mnhtz6juywcps7k2t2typjqdrkcmna7d23agk75rs8mlj9t",
+      "program": "storage_pop_ternary.aleo",
+      "function": "nested_selected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "4675369087834537129759943974103167828445966984058473324115280119411761884526field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "2218634092514811300964807614203832934353921324421029632042034171170044972271field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7137141536339459105402736669193180284588541795979506872839460032397063150204field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: nested_selected,\n  arguments: [\n    true,\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "2957572463448044047572302283090774174789875296427157043680251670334182136991group",
+      "tcm": "5310187864470640489792802185373139747670761851167134875372720775567455039533field",
+      "scm": "2731867544474854882155293186906946790245760852362359709206582236422383834612field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1q9x6c8se22rxcm80ntjc5r3jwwvlr9lau64sxyqyk4pdwcdzcqysh8rrpu",
+      "program": "storage_pop_ternary.aleo",
+      "function": "compound_unselected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "2226188877660109926672305397837630796777361484463708273122664619566603528088field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "6892980900141757405166872885909237444097490568086996795380722481293470105307field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "6989212586630992641608643121216621513136614058530975701577475542710568676995field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: compound_unselected,\n  arguments: [\n    true,\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "618463892478179654488510729354955405387729702799953179470949795558026296286group",
+      "tcm": "3222863864947299824058145457944808101658067063756378963401609457144523851515field",
+      "scm": "2751074422296527527690782501411707498196040280129501517996949701994551145022field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au15qnlm7vsvaeg732n2mea7n0r5zk7uy3htsq8uxsnypw3nhagjqrqzsucrj",
+      "program": "storage_pop_ternary.aleo",
+      "function": "compound_selected",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "5149378771811452198839315106420971094515357034700234562992206800524314909006field",
+          "value": "true"
+        },
+        {
+          "type": "public",
+          "id": "4978000171508941130970730039179322913674931520583059104625417791318440565507field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "577068131236903044511719519289663572734141069547837141378598620723762316159field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: compound_selected,\n  arguments: [\n    true,\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "815195102424593916417374359141594621217445601249218084764368770401727960483group",
+      "tcm": "1421878916639865453697563904549639732552805560417271260928563565322854483103field",
+      "scm": "408170323210860108853689046642492181908059222285900838261302998965028646359field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1mrv2yrhan44q9n747p62cxshkx7n53y9zq03d4el6knx5sv3d5qq9uqe08",
+      "program": "storage_pop_ternary.aleo",
+      "function": "both_arms_true",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "1688576455175431369665777655338052122220943076643162694146107613172119871520field",
+          "value": "true"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1286090724686341388279527345350764943121834578559613047319847217889317310118field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: both_arms_true,\n  arguments: [\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "1840734069774437336303859017107059874530126541826241844766981313183875927427group",
+      "tcm": "766150473907920596744464301197327836310710405396405741914935913501358101516field",
+      "scm": "7553217617292192809121103657222466620786891897285404874904287936108483669777field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au16gpg3vd5506rjvq399ssaxmx6vmev6k4z8hjqavgsqy5rfqsuqqsgtxggs",
+      "program": "storage_pop_ternary.aleo",
+      "function": "both_arms_false",
+      "inputs": [
+        {
+          "type": "public",
+          "id": "7015076428714669695065384475762665261507057768590564002744698905978857978539field",
+          "value": "false"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "3259910270499262006861132310611962617364713752107643913083047107618281869849field",
+          "value": "{\n  program_id: storage_pop_ternary.aleo,\n  function_name: both_arms_false,\n  arguments: [\n    false\n  ]\n}"
+        }
+      ],
+      "tpk": "2440227808615340645458179933697758138179922691379505188448300109721058878490group",
+      "tcm": "6356852468974020080065936642162688798163530607307200265587513218342368830312field",
+      "scm": "6995627731347357673200875070497169307134336538526710802923332282319195733051field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
