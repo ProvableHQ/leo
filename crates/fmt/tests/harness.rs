@@ -214,6 +214,7 @@ mod validate {
         "wrap_binary_chain",
         // Regression fixtures use undefined symbols to trigger formatter edge cases.
         "comment_path_field_trailing",
+        "comment_path_field_interior",
         "wrap_postfix_method_comma",
         "wrap_single_field_access",
         "wrap_field_access_blank_line",
