@@ -1,0 +1,9 @@
+{
+  "program": "my_app.aleo",
+  "version": "0.1.0",
+  "description": "Program that depends on mathlib in `dependencies` only.",
+  "license": "MIT",
+  "dependencies": [
+    { "name": "mathlib", "location": "local", "path": "../mathlib", "edition": null }
+  ]
+}
