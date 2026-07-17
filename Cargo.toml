@@ -80,16 +80,13 @@ serial_test        = "3.5"
 sha2               = "0.11"
 signal-hook        = { version = "0.4", features = [ "iterator" ] }
 similar            = "3.1"
-# We enable "test_consensus_heights" to give developers freedom to set custom consensus version upgrade heights and "test_targets" because the devnode's genesis block was created with the same feature flag.
-# Pinned to the snarkVM `v4.8.1` tag, which ships consensus V17 (the latest) on top of V16's
-# `ComponentChecksum` operand and 2048 kB program size limit. Not yet published to crates.io, so all three crates track the same tag.
-# `history` is required to compile `Process::evaluate_view_with_history`, the public-facing view entry point.
-snarkvm            = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
-# Wasm-friendly snarkVM subsets pinned at the same tag as the umbrella crate; used by
-# `leo-ast` and `leo-disassembler` on `wasm32-unknown-unknown` where the full `snarkvm`
-# crate pulls in native-only ledger/package code.
-snarkvm-console = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { git = "https://github.com/ProvableHQ/snarkVM", tag = "v4.8.1", features = [ "wasm" ] }
+# `test_consensus_heights` lets developers set custom consensus version upgrade heights;
+# `test_targets` matches the flag the devnode's genesis block was created with; `history` is
+# needed to compile `Process::evaluate_view_with_history`.
+snarkvm            = { version = "4.8.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+# Wasm-friendly subsets for `leo-ast`/`leo-disassembler` on `wasm32-unknown-unknown`.
+snarkvm-console = { version = "4.8.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { version = "4.8.1", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.27"
 thiserror          = "2.0"
