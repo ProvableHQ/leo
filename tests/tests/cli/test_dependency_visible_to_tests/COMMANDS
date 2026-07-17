@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Regression test for #29592: a library declared only in `dependencies` (needed by `src`) must
+# also be visible to the package's in-package test programs, so the test can name its types.
+
+LEO_BIN=${1}
+
+cd my_app || exit 1
+
+echo "--- leo test with a dependencies-only library named from a test ---"
+${LEO_BIN} --disable-update-check test
