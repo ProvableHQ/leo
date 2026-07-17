@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "4.3.3"
+version = "4.3.4"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://leo-lang.org"
