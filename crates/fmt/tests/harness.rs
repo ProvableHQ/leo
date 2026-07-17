@@ -212,6 +212,12 @@ mod validate {
         "comment_before_program",
         "malformed_missing_program_rbrace",
         "wrap_binary_chain",
+        // Regression fixtures use undefined symbols to trigger formatter edge cases.
+        "comment_path_field_trailing",
+        "comment_path_field_interior",
+        "wrap_postfix_method_comma",
+        "wrap_single_field_access",
+        "wrap_field_access_blank_line",
     ];
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
