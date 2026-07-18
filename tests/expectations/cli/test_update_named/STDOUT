@@ -1,0 +1,107 @@
+--- -n 98.0.0 ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v98.0.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v98.0.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v98.0.0/leo-lang-v98.0.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 98.0.0
+       Leo Updating bundled plugin 'leo-fmt' to v98.0.0...
+       Leo Successfully updated 'leo-fmt' to v98.0.0
+       Leo Updating bundled plugin 'leo-lsp' to v98.0.0...
+       Leo Successfully updated 'leo-lsp' to v98.0.0
+fake leo v98.0.0
+fake leo-fmt v98.0.0
+fake leo-lsp v98.0.0
+--- --name v99.1.0 ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v99.1.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v99.1.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v99.1.0/leo-lang-v99.1.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 99.1.0
+       Leo Updating bundled plugin 'leo-fmt' to v99.1.0...
+       Leo Successfully updated 'leo-fmt' to v99.1.0
+       Leo Updating bundled plugin 'leo-lsp' to v99.1.0...
+       Leo Successfully updated 'leo-lsp' to v99.1.0
+fake leo v99.1.0
+fake leo-fmt v99.1.0
+fake leo-lsp v99.1.0
+--- -n leo-lang-v98.0.0 ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v98.0.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v98.0.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v98.0.0/leo-lang-v98.0.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 98.0.0
+       Leo Updating bundled plugin 'leo-fmt' to v98.0.0...
+       Leo Successfully updated 'leo-fmt' to v98.0.0
+       Leo Updating bundled plugin 'leo-lsp' to v98.0.0...
+       Leo Successfully updated 'leo-lsp' to v98.0.0
+fake leo v98.0.0
+--- -n leo-fmt-v99.1.0 (plugin tags are rejected) ---
+       Leo 
+Failed to update Leo to the latest version
+Error [ECLI0377045]: `leo-fmt-v99.1.0` is a `leo-fmt` release and does not contain the `leo` binary
+
+
+--- -n v97.0.0 (legacy tag) ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: v97.0.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "v97.0.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/v97.0.0/v97.0.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 97.0.0
+fake legacy leo v97.0.0
+--- -n 97.0.0 (bare legacy version) ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: v97.0.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "v97.0.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/v97.0.0/v97.0.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 97.0.0
+fake legacy leo v97.0.0

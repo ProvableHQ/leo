@@ -1,0 +1,48 @@
+--- up to date; missing plugins are installed ---
+       Leo 
+Leo is already on the latest version
+       Leo Updating bundled plugin 'leo-fmt' to v0.1.0...
+       Leo Successfully updated 'leo-fmt' to v0.1.0
+       Leo Updating bundled plugin 'leo-lsp' to v0.1.0...
+       Leo Successfully updated 'leo-lsp' to v0.1.0
+fake leo-fmt v0.1.0
+fake leo-lsp v0.1.0
+--- up to date; installed plugins are skipped ---
+       Leo 
+Leo is already on the latest version
+       Leo 'leo-fmt' is already on the latest version
+       Leo 'leo-lsp' is already on the latest version
+--- newer release; leo and plugins are updated ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v99.1.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v99.1.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v99.1.0/leo-lang-v99.1.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 99.1.0
+       Leo Updating bundled plugin 'leo-fmt' to v99.1.0...
+       Leo Successfully updated 'leo-fmt' to v99.1.0
+       Leo Updating bundled plugin 'leo-lsp' to v99.0.5...
+       Leo Successfully updated 'leo-lsp' to v99.0.5
+fake leo v99.1.0
+fake leo-fmt v99.1.0
+fake leo-lsp v99.0.5
+--- --quiet update prints nothing ---
+fake leo v99.1.0
+--- -q up-to-date prints nothing ---
+--- stale plugin binary is repaired ---
+       Leo 
+Leo is already on the latest version
+       Leo Updating bundled plugin 'leo-fmt' to v0.2.0...
+       Leo Successfully updated 'leo-fmt' to v0.2.0
+       Leo 'leo-lsp' is already on the latest version
+fake leo-fmt v0.2.0
+fake stale leo-lsp v0.1.0

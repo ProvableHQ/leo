@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# `leo update` end-to-end: up-to-date detection, bundled plugin install and skip,
+# updating to a newer release, and the `--quiet` flag.
+
+. "$LEO_CLI_TESTS_DIR/update_mock.sh"
+
+# The latest release is older than the current binary.
+add_release "leo-lang-v0.1.0" "leo" "fake leo v0.1.0"
+add_release "leo-fmt-v0.1.0" "leo-fmt" "fake leo-fmt v0.1.0"
+add_release "leo-lsp-v0.1.0" "leo-lsp" "fake leo-lsp v0.1.0"
+write_release_list
+
+fresh_leo
+
+echo "--- up to date; missing plugins are installed ---" | tee /dev/stderr
+run_leo update
+"$WORK/leo-fmt"
+"$WORK/leo-lsp"
+
+echo "--- up to date; installed plugins are skipped ---" | tee /dev/stderr
+run_leo update
+
+# A newer release is available. The release list is deliberately ordered oldest-first
+# to check that the newest version wins regardless of API order (backfilled releases).
+# A prerelease and a malformed tag are newer still, but must never be picked implicitly.
+reset_releases
+add_release "leo-lang-v99.0.0" "leo" "fake leo v99.0.0"
+add_release "leo-lang-v99.1.0" "leo" "fake leo v99.1.0"
+add_release "leo-lang-v99.5.0-rc.1" "leo" "fake leo v99.5.0-rc.1"
+add_release "leo-lang-v99.6" "leo" "fake leo v99.6"
+add_release "leo-fmt-v99.1.0" "leo-fmt" "fake leo-fmt v99.1.0"
+add_release "leo-lsp-v99.0.5" "leo-lsp" "fake leo-lsp v99.0.5"
+write_release_list
+
+echo "--- newer release; leo and plugins are updated ---" | tee /dev/stderr
+run_leo update
+"$WORK/leo"
+"$WORK/leo-fmt"
+"$WORK/leo-lsp"
+
+echo "--- --quiet update prints nothing ---" | tee /dev/stderr
+fresh_leo
+run_leo update --quiet
+"$WORK/leo"
+
+echo "--- -q up-to-date prints nothing ---" | tee /dev/stderr
+fresh_leo
+reset_releases
+add_release "leo-lang-v0.1.0" "leo" "fake leo v0.1.0"
+add_release "leo-fmt-v0.1.0" "leo-fmt" "fake leo-fmt v0.1.0"
+add_release "leo-lsp-v0.1.0" "leo-lsp" "fake leo-lsp v0.1.0"
+write_release_list
+run_leo update -q
+
+# The installed `leo-fmt` reports an older version than the latest `leo-fmt` release,
+# even though `leo` itself is newer than both; the stale plugin must still be repaired.
+# The installed `leo-lsp` already reports the latest version and is skipped.
+echo "--- stale plugin binary is repaired ---" | tee /dev/stderr
+reset_releases
+add_release "leo-lang-v0.1.0" "leo" "fake leo v0.1.0"
+add_release "leo-fmt-v0.2.0" "leo-fmt" "fake leo-fmt v0.2.0"
+add_release "leo-lsp-v0.1.0" "leo-lsp" "fake leo-lsp v0.1.0"
+write_release_list
+printf '#!/bin/sh\necho fake stale leo-fmt v0.1.0\n' > "$WORK/leo-fmt"
+chmod +x "$WORK/leo-fmt"
+printf '#!/bin/sh\necho fake stale leo-lsp v0.1.0\n' > "$WORK/leo-lsp"
+chmod +x "$WORK/leo-lsp"
+run_leo update
+"$WORK/leo-fmt"
+"$WORK/leo-lsp"

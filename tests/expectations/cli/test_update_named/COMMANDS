@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# `leo update --name/-n`: installs the requested version, accepting a bare version,
+# a `v` prefix, or a full release tag; bundled plugins are pinned to the same version
+# when a matching plugin release exists. Plugin tags are rejected, and legacy tags
+# predating per-crate tagging (e.g. `v97.0.0`) are resolved verbatim.
+
+. "$LEO_CLI_TESTS_DIR/update_mock.sh"
+
+add_release "leo-lang-v99.1.0" "leo" "fake leo v99.1.0"
+add_release "leo-lang-v98.0.0" "leo" "fake leo v98.0.0"
+add_release "leo-fmt-v99.1.0" "leo-fmt" "fake leo-fmt v99.1.0"
+add_release "leo-fmt-v98.0.0" "leo-fmt" "fake leo-fmt v98.0.0"
+add_release "leo-lsp-v99.1.0" "leo-lsp" "fake leo-lsp v99.1.0"
+add_release "leo-lsp-v98.0.0" "leo-lsp" "fake leo-lsp v98.0.0"
+write_release_list
+
+echo "--- -n 98.0.0 ---" | tee /dev/stderr
+fresh_leo
+run_leo update -n 98.0.0
+"$WORK/leo"
+"$WORK/leo-fmt"
+"$WORK/leo-lsp"
+
+echo "--- --name v99.1.0 ---" | tee /dev/stderr
+fresh_leo
+run_leo update --name v99.1.0
+"$WORK/leo"
+"$WORK/leo-fmt"
+"$WORK/leo-lsp"
+
+echo "--- -n leo-lang-v98.0.0 ---" | tee /dev/stderr
+fresh_leo
+run_leo update -n leo-lang-v98.0.0
+"$WORK/leo"
+
+echo "--- -n leo-fmt-v99.1.0 (plugin tags are rejected) ---" | tee /dev/stderr
+fresh_leo
+run_leo update -n leo-fmt-v99.1.0
+
+# Legacy releases predate per-crate tags and have no matching plugin releases;
+# `leo` is installed from the legacy tag and the plugins are left unchanged.
+add_release "v97.0.0" "leo" "fake legacy leo v97.0.0"
+write_release_list
+
+echo "--- -n v97.0.0 (legacy tag) ---" | tee /dev/stderr
+fresh_leo
+run_leo update -n v97.0.0
+"$WORK/leo"
+
+echo "--- -n 97.0.0 (bare legacy version) ---" | tee /dev/stderr
+fresh_leo
+run_leo update -n 97.0.0
+"$WORK/leo"
