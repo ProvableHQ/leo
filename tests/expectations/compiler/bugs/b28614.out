@@ -1,28 +1,28 @@
-[ETYC0372117] Error: expected type `u32`, but type `address` was found
+[ETYC0372003] Error: expected type `u32`, found type `address`
    ╭─[ compiler-test:3:22 ]
    │
- 3 │         let x: u32 = self.caller;
+ 3 │         let x: u32 = std::ctx::caller();
    │ 
-   │ Help: Change the expression to produce type `u32`.
+   │ Help: Change the expression to produce a `u32`, or cast it with `as u32` if a conversion exists.
 ───╯
-[ETYC0372117] Error: expected type `u8`, but type `address` was found
+[ETYC0372003] Error: expected type `u8`, found type `address`
    ╭─[ compiler-test:4:21 ]
    │
- 4 │         let y: u8 = self.caller;
+ 4 │         let y: u8 = std::ctx::caller();
    │ 
-   │ Help: Change the expression to produce type `u8`.
+   │ Help: Change the expression to produce a `u8`, or cast it with `as u8` if a conversion exists.
 ───╯
-[ETYC0372117] Error: expected type `u8`, but type `address` was found
+[ETYC0372003] Error: expected type `u8`, found type `address`
    ╭─[ compiler-test:7:13 ]
    │
- 7 │         z = self.caller;
+ 7 │         z = std::ctx::caller();
    │ 
-   │ Help: Change the expression to produce type `u8`.
+   │ Help: Change the expression to produce a `u8`, or cast it with `as u8` if a conversion exists.
 ───╯
-[ETYC0372117] Error: expected type `field`, but type `address` was found
+[ETYC0372003] Error: expected type `field`, found type `address`
     ╭─[ compiler-test:10:13 ]
     │
- 10 │         w = self.signer;
+ 10 │         w = std::ctx::signer();
     │ 
-    │ Help: Change the expression to produce type `field`.
+    │ Help: Change the expression to produce a `field`, or cast it with `as field` if a conversion exists.
 ────╯

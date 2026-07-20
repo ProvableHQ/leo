@@ -1,0 +1,14 @@
+[ETYC0372196] Error: `std::ctx::caller()` is not available in a `view fn`
+   ╭─[ compiler-test:8:16 ]
+   │
+ 8 │         return _self_caller();
+   │ 
+   │ Help: Read the value in an off-chain scope and pass it in.
+───╯
+[ETYC0372196] Error: `std::ctx::signer()` is not available in a `view fn`
+    ╭─[ compiler-test:12:16 ]
+    │
+ 12 │         return _self_signer();
+    │ 
+    │ Help: Read the value in an off-chain scope and pass it in.
+────╯

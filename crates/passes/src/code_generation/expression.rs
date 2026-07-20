@@ -914,7 +914,7 @@ impl CodeGeneratingVisitor<'_> {
 
             let mut instructions = vec![];
 
-            // A helper function to help with `Program::checksum`, `Program::edition`, and `Program::program_owner`.
+            // A helper function to help with `std::prog::checksum`, `std::prog::edition`, and `std::prog::program_owner`.
             let generate_program_core = |program: &str, name: &str| {
                 // Get the program ID from the first argument.
                 let program_id = ProgramId::from_str_with_network(&program.replace("\"", ""), self.state.network)

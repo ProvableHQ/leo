@@ -30,7 +30,7 @@ program test.aleo {
     mapping counter: address => u64;
 
     fn dubble() -> Final {
-        let addr = self.caller;
+        let addr = std::ctx::caller();
         let f = final {
             const BIG: u64 = 234u64;
             let current_value: u64 = Mapping::get_or_use(counter, addr, 0_0u64 + BIG + SMALL);
@@ -43,7 +43,7 @@ program test.aleo {
     }
 
     fn unsafe_increment() -> Final {
-        let addr = self.caller;
+        let addr = std::ctx::caller();
         return final {
             let current_value: u64 = Mapping::get(counter, addr);
             for i: u64 in SMALL..10u64 {

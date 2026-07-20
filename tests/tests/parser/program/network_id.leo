@@ -1,6 +1,6 @@
 program test.aleo {}
 
 fn main(a: address) {
-    assert_eq(network.id, 1u32);
+    assert_eq(std::ctx::network_id(), 1u32);
     return a;
 }

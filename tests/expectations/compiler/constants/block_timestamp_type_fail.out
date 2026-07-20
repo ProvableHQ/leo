@@ -1,7 +1,7 @@
-[ETYC0372117] Error: expected type `u32`, but type `i64` was found
+[ETYC0372003] Error: expected type `u32`, found type `i64`
    ╭─[ compiler-test:2:18 ]
    │
- 2 │     let x: u32 = block.timestamp;
+ 2 │     let x: u32 = std::ctx::block_timestamp();
    │ 
-   │ Help: Change the expression to produce type `u32`.
+   │ Help: Change the expression to produce a `u32`, or cast it with `as u32` if a conversion exists.
 ───╯

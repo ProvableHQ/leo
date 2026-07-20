@@ -5,9 +5,9 @@ program test.aleo {
 
     @checksum(mapping = "test.aleo::expected_checksum", key = "true")
     constructor() {
-        if self.edition >= 0u16 {
+        if std::ctx::edition() >= 0u16 {
             let expected: [u8; 32] = Mapping::get(expected_checksum, true);
-            assert_eq(self.checksum, expected);
+            assert_eq(std::ctx::checksum(), expected);
         }
     }
 }

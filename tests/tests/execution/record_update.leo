@@ -21,7 +21,7 @@ program test.aleo {
     // Build a base record from the signer, then derive a new record that copies
     // `owner` and `nonce` from the base while overriding only `amount`.
     fn make_and_update(new_amount: u64) -> (Token, Token) {
-        let base: Token = Token { owner: self.signer, amount: 100u64, nonce: 7u64 };
+        let base: Token = Token { owner: std::ctx::signer(), amount: 100u64, nonce: 7u64 };
         let updated: Token = Token { amount: new_amount, ..base };
         return (base, updated);
     }

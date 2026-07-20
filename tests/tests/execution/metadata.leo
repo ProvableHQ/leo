@@ -36,12 +36,12 @@ function = "is_network_id"
 input = ["3u16"]
 */
 
-export final fn finalize_is_block_height(block_height: u32) {
-    assert_eq(block_height, block.height);
+final fn finalize_is_block_height(block_height: u32) {
+    assert_eq(block_height, std::ctx::block_height());
 }
 
-export final fn finalize_is_network_id(network_id: u16) {
-    assert_eq(network_id, network.id);
+final fn finalize_is_network_id(network_id: u16) {
+    assert_eq(network_id, std::ctx::network_id());
 }
 
 program metadata.aleo {

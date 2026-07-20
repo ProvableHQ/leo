@@ -297,6 +297,16 @@
               "composites": [],
               "functions": [],
               "interfaces": []
+            },
+            "prog": {
+              "unit_name": "std",
+              "path": [
+                "prog"
+              ],
+              "consts": [],
+              "composites": [],
+              "functions": [],
+              "interfaces": []
             }
           },
           "consts": [],
@@ -316,11 +326,11 @@
       "program_id": {
         "name": {
           "name": "ast_program",
-          "id": 84192
+          "id": 84279
         },
         "network": {
           "name": "aleo",
-          "id": 84193
+          "id": 84280
         }
       },
       "parents": [],
@@ -337,14 +347,14 @@
             "variant": "EntryPoint",
             "identifier": {
               "name": "main",
-              "id": 84195
+              "id": 84282
             },
             "const_parameters": [],
             "input": [
               {
                 "identifier": {
                   "name": "a$$0",
-                  "id": 84223
+                  "id": 84310
                 },
                 "mode": "Public",
                 "type_": {
@@ -352,12 +362,12 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84196
+                "id": 84283
               },
               {
                 "identifier": {
                   "name": "b$$1",
-                  "id": 84224
+                  "id": 84311
                 },
                 "mode": "None",
                 "type_": {
@@ -365,7 +375,7 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84198
+                "id": 84285
               }
             ],
             "output": [
@@ -376,7 +386,7 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84200
+                "id": 84287
               }
             ],
             "output_type": {
@@ -389,7 +399,7 @@
                     "place": {
                       "Single": {
                         "name": "c$#2",
-                        "id": 84204
+                        "id": 84291
                       }
                     },
                     "type_": null,
@@ -401,12 +411,12 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "a$$0",
-                              "id": 84207
+                              "id": 84294
                             },
                             "target": {
                               "Local": "a$$0"
                             },
-                            "id": 84207
+                            "id": 84294
                           }
                         },
                         "right": {
@@ -415,19 +425,19 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "b$$1",
-                              "id": 84210
+                              "id": 84297
                             },
                             "target": {
                               "Local": "b$$1"
                             },
-                            "id": 84210
+                            "id": 84297
                           }
                         },
                         "op": "Add",
-                        "id": 84205
+                        "id": 84292
                       }
                     },
-                    "id": 84228
+                    "id": 84315
                   }
                 },
                 {
@@ -444,21 +454,21 @@
                         "qualifier": [],
                         "identifier": {
                           "name": "c$#2",
-                          "id": 84215
+                          "id": 84302
                         },
                         "target": {
                           "Local": "c$#2"
                         },
-                        "id": 84215
+                        "id": 84302
                       }
                     },
-                    "id": 84230
+                    "id": 84317
                   }
                 }
               ],
-              "id": 84229
+              "id": 84316
             },
-            "id": 84194
+            "id": 84281
           }
         ]
       ],
@@ -468,10 +478,10 @@
           {
             "identifier": {
               "name": "noupgrade",
-              "id": 84219
+              "id": 84306
             },
             "map": {},
-            "id": 84218
+            "id": 84305
           }
         ],
         "block": {
@@ -480,16 +490,16 @@
               "Return": {
                 "expression": {
                   "Unit": {
-                    "id": 84232
+                    "id": 84319
                   }
                 },
-                "id": 84233
+                "id": 84320
               }
             }
           ],
-          "id": 84231
+          "id": 84318
         },
-        "id": 84217
+        "id": 84304
       }
     }
   }

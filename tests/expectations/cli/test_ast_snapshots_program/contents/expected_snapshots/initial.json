@@ -7,11 +7,11 @@
       "program_id": {
         "name": {
           "name": "ast_program",
-          "id": 84192
+          "id": 84279
         },
         "network": {
           "name": "aleo",
-          "id": 84193
+          "id": 84280
         }
       },
       "parents": [],
@@ -28,14 +28,14 @@
             "variant": "EntryPoint",
             "identifier": {
               "name": "main",
-              "id": 84195
+              "id": 84282
             },
             "const_parameters": [],
             "input": [
               {
                 "identifier": {
                   "name": "a",
-                  "id": 84197
+                  "id": 84284
                 },
                 "mode": "Public",
                 "type_": {
@@ -43,12 +43,12 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84196
+                "id": 84283
               },
               {
                 "identifier": {
                   "name": "b",
-                  "id": 84199
+                  "id": 84286
                 },
                 "mode": "None",
                 "type_": {
@@ -56,7 +56,7 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84198
+                "id": 84285
               }
             ],
             "output": [
@@ -67,7 +67,7 @@
                     "Integer": "U32"
                   }
                 },
-                "id": 84200
+                "id": 84287
               }
             ],
             "output_type": {
@@ -80,7 +80,7 @@
                     "place": {
                       "Single": {
                         "name": "c",
-                        "id": 84204
+                        "id": 84291
                       }
                     },
                     "type_": {
@@ -96,10 +96,10 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "a",
-                              "id": 84206
+                              "id": 84293
                             },
                             "target": "Unresolved",
-                            "id": 84207
+                            "id": 84294
                           }
                         },
                         "right": {
@@ -108,17 +108,17 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "b",
-                              "id": 84209
+                              "id": 84296
                             },
                             "target": "Unresolved",
-                            "id": 84210
+                            "id": 84297
                           }
                         },
                         "op": "Add",
-                        "id": 84205
+                        "id": 84292
                       }
                     },
-                    "id": 84203
+                    "id": 84290
                   }
                 },
                 {
@@ -129,19 +129,19 @@
                         "qualifier": [],
                         "identifier": {
                           "name": "c",
-                          "id": 84214
+                          "id": 84301
                         },
                         "target": "Unresolved",
-                        "id": 84215
+                        "id": 84302
                       }
                     },
-                    "id": 84213
+                    "id": 84300
                   }
                 }
               ],
-              "id": 84201
+              "id": 84288
             },
-            "id": 84194
+            "id": 84281
           }
         ]
       ],
@@ -151,17 +151,17 @@
           {
             "identifier": {
               "name": "noupgrade",
-              "id": 84219
+              "id": 84306
             },
             "map": {},
-            "id": 84218
+            "id": 84305
           }
         ],
         "block": {
           "statements": [],
-          "id": 84220
+          "id": 84307
         },
-        "id": 84217
+        "id": 84304
       }
     }
   }

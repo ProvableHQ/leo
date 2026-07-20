@@ -9,7 +9,7 @@ for x: field in 0field..99u8 {
     return 1u8;
 }
 
-for x: bool in 0u8..Self {
+for x: bool in 0u8..Foo {
     return 1u8;
 }
 
@@ -23,6 +23,6 @@ for x in 0field..99u8 {
     return 1u8;
 }
 
-for x in 0u8..Self {
+for x in 0u8..Foo {
     return 1u8;
 }

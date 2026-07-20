@@ -25,7 +25,15 @@ use leo_errors::Label;
 use leo_span::{Span, Symbol, sym};
 
 use itertools::Itertools as _;
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::LazyLock,
+};
+
+/// Snark-VM's program-ID grammar: an ASCII identifier of up to 31 chars followed by `.aleo`.
+/// The `unwrap` is safe because the pattern is a literal validated here.
+pub(super) static PROGRAM_ID_REGEX: LazyLock<regex::Regex> =
+    LazyLock::new(|| regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap());
 
 #[derive(Clone, Debug)]
 pub struct AssignTargetInfo {
@@ -1171,6 +1179,21 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let func = func_symbol.function.clone();
 
+        // A `final fn` callee only makes sense in a finalize context. The generic
+        // "call a regular `fn` instead" hint below is misleading for this case (final fns live
+        // in the program block and cannot be moved out); route to the specific "wrap in
+        // `final { … }`" message before falling into the general match. Views are excluded —
+        // they cannot open a finalize context and the generic message applies.
+        let caller_variant = self.scope_state.variant.unwrap();
+        if matches!(func.variant, Variant::FinalFn)
+            && !matches!(caller_variant, Variant::FinalFn | Variant::View)
+            && !caller_variant.is_finalize_context()
+            && self.async_block_id.is_none()
+        {
+            self.emit_err(crate::errors::type_checker::call_final_fn_outside_finalize_context(input.span));
+            return TypeKind::Err;
+        }
+
         // Check that the call is valid.
         // We always set the variant before entering the body of a function, so this unwrap works.
         match self.scope_state.variant.unwrap() {
@@ -1210,8 +1233,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 if matches!(func.variant, Variant::EntryPoint) && callee_program == self.scope_state.unit_name.unwrap()
                 {
                     self.emit_err(crate::errors::type_checker::cannot_invoke_call_to_local_entry_point_fn(input.span));
-                } else if matches!(func.variant, Variant::View) && self.async_block_id.is_none() {
-                    // Views are only callable from inside a `final {}` block.
+                } else if matches!(func.variant, Variant::View | Variant::FinalFn) && self.async_block_id.is_none() {
+                    // Views and FinalFns are only callable from inside a `final {}` block when inside an EntryPoint.
                     self.emit_err(crate::errors::type_checker::can_only_call_inline_function(
                         "a transition body outside a `final {}` block",
                         input.span,
@@ -1227,6 +1250,85 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
             return TypeKind::Err;
+        }
+
+        // Regular `fn`s are inlined into the caller's scope; if any transitively-called function
+        // reaches an off-chain-only intrinsic (`_self_caller` / `_self_signer`), the inlined body
+        // would emit e.g. `self.caller` in the caller's context. Record this callsite so a
+        // post-visit closure pass over the full call graph can reject calls whose callee turns
+        // out to be transitively off-chain.
+        if matches!(func.variant, Variant::Fn)
+            && (self.scope_state.variant.is_some_and(|v| v.is_finalize_context())
+                || self.async_block_id.is_some()
+                || matches!(self.scope_state.variant, Some(Variant::View)))
+        {
+            self.pending_offchain_checks.push((input.span, callee_location.clone()));
+        }
+
+        // `@_onchain_context` propagates the inverse restriction: wrappers over `FinalizeRead`
+        // intrinsics (e.g. `std::ctx::block_height`, `std::ctx::network_id`) must run in a
+        // finalize context, a `final {}` block, or a view fn — same set of scopes where a bare
+        // `Mapping::get` would be legal, plus views. The intrinsic itself no longer needs a
+        // caller-side scope check because the wrapper is a plain `fn` (see check_access_allowed).
+        if func.annotations.iter().any(|a| a.identifier.name == sym::_onchain_context) {
+            let in_view = matches!(self.scope_state.variant, Some(Variant::View));
+            let in_finalize_ctx = self.scope_state.variant.is_some_and(|v| v.is_finalize_context());
+            let in_async_block = self.async_block_id.is_some();
+            if !in_view && !in_finalize_ctx && !in_async_block {
+                let name = format!("{}()", input.function);
+                self.emit_err(crate::errors::type_checker::invalid_operation_outside_onchain(name, input.span));
+            }
+        }
+
+        // `@_program_id_arg` marks a compiler-internal wrapper whose first const generic argument
+        // is the program-ID literal threaded into a program-metadata intrinsic. Validate the
+        // literal shape at the user's call site (the wrapper body never sees the substituted
+        // literal because the relevant TypeChecking pass runs on the un-substituted template).
+        let program_id = if func.annotations.iter().any(|a| a.identifier.name == sym::_program_id_arg) {
+            match input.const_arguments.first() {
+                Some(Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. }))
+                    if PROGRAM_ID_REGEX.is_match(s) =>
+                {
+                    Some(s.clone())
+                }
+                Some(Expression::Literal(literal)) => {
+                    self.emit_err(crate::errors::type_checker::custom(
+                        format!("`{}` must be called on a program ID, e.g. `foo.aleo`", input.function),
+                        literal.span(),
+                    ));
+                    None
+                }
+                // A non-literal first argument (e.g. a const generic parameter) can't be validated
+                // here; the check re-fires once monomorphisation substitutes the concrete literal
+                // and TypeChecking runs again inside `ConstPropUnrollAndMorphing`.
+                Some(_) | None => None,
+            }
+        } else {
+            None
+        };
+
+        // `@_callable_function_arg` marks a wrapper whose second const generic argument names a
+        // function in the program identified by the first const arg. Verify it resolves to an
+        // entry or view function of that program (closures and `final fn`s have no stable
+        // identity in the compiled bytecode).
+        if func.annotations.iter().any(|a| a.identifier.name == sym::_callable_function_arg)
+            && let Some(component_arg) = input.const_arguments.get(1)
+            && let Expression::Literal(Literal { variant: LiteralVariant::Identifier(component), .. }) = component_arg
+            && let Some(program_id) = &program_id
+        {
+            let location = Location::new(Symbol::intern(program_id), vec![Symbol::intern(component.as_str())]);
+            let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
+            let is_entry_or_view = self
+                .state
+                .symbol_table
+                .lookup_function(current_unit, &location)
+                .is_some_and(|symbol| symbol.function.variant.is_externally_callable());
+            if !is_entry_or_view {
+                self.emit_err(crate::errors::type_checker::custom(
+                    format!("`{component}` must be an entry function or a view function of `{program_id}`"),
+                    component_arg.span(),
+                ));
+            }
         }
 
         // Async functions return a single future.
@@ -1723,17 +1825,33 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .emit_err(crate::errors::type_checker::records_not_allowed_inside_final(input.span()));
             }
 
-            // Records where the `owner` is `self.caller` can be problematic because `self.caller` can be a program
-            // address and programs can't spend records. Emit a warning in this case.
+            // Records where the `owner` resolves to the `_self_caller` intrinsic can be problematic:
+            // the caller may be a program address, and programs can't spend records. Emit a warning
+            // when the owner expression is either the raw `_self_caller()` call or a call to a
+            // wrapper function carrying the compiler-internal `@_caller_annotation` (e.g.
+            // `std::ctx::caller()`). Resolving via the annotation keeps the check working even if
+            // the stdlib wrapper is renamed or moved.
             //
             // Multiple occurrences of `owner` here is an error but that should be flagged somewhere else.
             input.members.iter().filter(|init| init.identifier.name == sym::owner).for_each(|init| {
-                if let Some(Expression::Intrinsic(intr)) = &init.expression
-                    && let IntrinsicExpression { name: sym::_self_caller, .. } = &**intr
-                {
+                let Some(expr) = &init.expression else { return };
+                let is_caller_intrinsic = match expr {
+                    Expression::Intrinsic(intr) => intr.name == sym::_self_caller,
+                    Expression::Call(call) => call
+                        .function
+                        .try_global_location()
+                        .and_then(|loc| {
+                            self.state.symbol_table.lookup_function(self.scope_state.unit_name.unwrap(), loc)
+                        })
+                        .is_some_and(|func_sym| {
+                            func_sym.function.annotations.iter().any(|a| a.identifier.name == sym::_caller_annotation)
+                        }),
+                    _ => false,
+                };
+                if is_caller_intrinsic {
                     self.state.handler.emit_warning_once(
-                        intr.span(),
-                        crate::errors::type_checker::caller_as_record_owner(input.path.clone(), intr.span()),
+                        expr.span(),
+                        crate::errors::type_checker::caller_as_record_owner(input.path.clone(), expr.span()),
                     );
                 }
             });

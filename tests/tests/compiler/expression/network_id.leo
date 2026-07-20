@@ -8,7 +8,7 @@ program test.aleo {
 }
 
 export final fn finalize_main(a: u16) {
-    assert_eq(1u16, network.id);
-    assert_eq(a, network.id);
-    assert_eq(network.id, network.id);
+    assert_eq(1u16, std::ctx::network_id());
+    assert_eq(a, std::ctx::network_id());
+    assert_eq(std::ctx::network_id(), std::ctx::network_id());
 }

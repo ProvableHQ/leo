@@ -5,7 +5,7 @@ program test.aleo {
     fn dummy(x: u32) -> u32 { return x; }
 
     view fn read_time() -> i64 {
-        return block.timestamp;
+        return std::ctx::block_timestamp();
     }
 
     @noupgrade

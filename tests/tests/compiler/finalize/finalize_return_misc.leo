@@ -17,7 +17,7 @@ program test.aleo {
     @custom
     constructor() {
         let initial: u64 = base_supply();
-        Mapping::set(account, self.address, initial);
+        Mapping::set(account, std::ctx::addr(), initial);
     }
 }
 

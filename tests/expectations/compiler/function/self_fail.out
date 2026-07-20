@@ -1,5 +1,7 @@
-[EPAR0370047] Error: Unsupported special access
+[EPAR0370057] Error: `self` is no longer a valid expression
    ╭─[ compiler-test:3:16 ]
    │
  3 │         return self.foo == addr;
+   │ 
+   │ Help: `self` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information.
 ───╯

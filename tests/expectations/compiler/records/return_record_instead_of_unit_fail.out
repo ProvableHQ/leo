@@ -1,7 +1,7 @@
 [ETYC0372117] Error: expected type `()`, but type `test.aleo::test_credits` was found
    ╭─[ compiler-test:8:16 ]
    │
- 8 │         return test_credits { owner: self.signer, amount };
+ 8 │         return test_credits { owner: std::ctx::signer(), amount };
    │ 
    │ Help: Change the expression to produce type `()`.
 ───╯
