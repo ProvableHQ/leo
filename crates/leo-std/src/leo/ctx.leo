@@ -38,20 +38,23 @@ export fn id() -> address {
 // Returns the 32-byte deployment checksum of this program. The checksum is
 // fixed at deployment time and changes if (and only if) the program is
 // upgraded with new bytecode.
-export final fn checksum() -> [u8; 32] {
+@_onchain_context
+export fn checksum() -> [u8; 32] {
     return _self_checksum();
 }
 
 // Returns the deployment edition of this program. Edition `0` is the initial
 // deployment; each upgrade increments the edition by one.
-export final fn edition() -> u16 {
+@_onchain_context
+export fn edition() -> u16 {
     return _self_edition();
 }
 
 // Returns the address that owns this program, typically the account that
 // performed the deployment. Owner-only on-chain operations should compare
 // `signer()` against `program_owner()`.
-export final fn program_owner() -> address {
+@_onchain_context
+export fn program_owner() -> address {
     return _self_program_owner();
 }
 
@@ -65,7 +68,8 @@ export fn block_height() -> u32 {
 // Returns the Unix timestamp (in seconds) of the block containing the current
 // transaction. The value reflects the block producer's clock at the time the
 // block was proposed.
-export final fn block_timestamp() -> i64 {
+@_onchain_context
+export fn block_timestamp() -> i64 {
     return _block_timestamp();
 }
 

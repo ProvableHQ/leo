@@ -326,11 +326,11 @@
       "program_id": {
         "name": {
           "name": "ast_program",
-          "id": 84271
+          "id": 84279
         },
         "network": {
           "name": "aleo",
-          "id": 84272
+          "id": 84280
         }
       },
       "parents": [],
@@ -347,31 +347,31 @@
             "variant": "EntryPoint",
             "identifier": {
               "name": "main",
-              "id": 84274
+              "id": 84282
             },
             "const_parameters": [],
             "input": [
               {
                 "identifier": {
                   "name": "a$$0",
-                  "id": 84302
+                  "id": 84310
                 },
                 "mode": "Public",
                 "type_": {
                   "Integer": "U32"
                 },
-                "id": 84275
+                "id": 84283
               },
               {
                 "identifier": {
                   "name": "b$$1",
-                  "id": 84303
+                  "id": 84311
                 },
                 "mode": "None",
                 "type_": {
                   "Integer": "U32"
                 },
-                "id": 84277
+                "id": 84285
               }
             ],
             "output": [
@@ -380,7 +380,7 @@
                 "type_": {
                   "Integer": "U32"
                 },
-                "id": 84279
+                "id": 84287
               }
             ],
             "output_type": {
@@ -393,7 +393,7 @@
                     "place": {
                       "Single": {
                         "name": "c$#2",
-                        "id": 84283
+                        "id": 84291
                       }
                     },
                     "type_": null,
@@ -405,12 +405,12 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "a$$0",
-                              "id": 84286
+                              "id": 84294
                             },
                             "target": {
                               "Local": "a$$0"
                             },
-                            "id": 84286
+                            "id": 84294
                           }
                         },
                         "right": {
@@ -419,19 +419,19 @@
                             "qualifier": [],
                             "identifier": {
                               "name": "b$$1",
-                              "id": 84289
+                              "id": 84297
                             },
                             "target": {
                               "Local": "b$$1"
                             },
-                            "id": 84289
+                            "id": 84297
                           }
                         },
                         "op": "Add",
-                        "id": 84284
+                        "id": 84292
                       }
                     },
-                    "id": 84307
+                    "id": 84315
                   }
                 },
                 {
@@ -448,21 +448,21 @@
                         "qualifier": [],
                         "identifier": {
                           "name": "c$#2",
-                          "id": 84294
+                          "id": 84302
                         },
                         "target": {
                           "Local": "c$#2"
                         },
-                        "id": 84294
+                        "id": 84302
                       }
                     },
-                    "id": 84309
+                    "id": 84317
                   }
                 }
               ],
-              "id": 84308
+              "id": 84316
             },
-            "id": 84273
+            "id": 84281
           }
         ]
       ],
@@ -472,10 +472,10 @@
           {
             "identifier": {
               "name": "noupgrade",
-              "id": 84298
+              "id": 84306
             },
             "map": {},
-            "id": 84297
+            "id": 84305
           }
         ],
         "block": {
@@ -484,16 +484,16 @@
               "Return": {
                 "expression": {
                   "Unit": {
-                    "id": 84311
+                    "id": 84319
                   }
                 },
-                "id": 84312
+                "id": 84320
               }
             }
           ],
-          "id": 84310
+          "id": 84318
         },
-        "id": 84296
+        "id": 84304
       }
     }
   }

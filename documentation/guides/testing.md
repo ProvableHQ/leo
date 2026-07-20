@@ -46,6 +46,8 @@ example_program
 
 The test file is a Leo program that imports the program in `main.leo`. The test functions will all be annotated with `@test` above the function declaration.
 
+A test program can also name any library or program listed in the package's `dependencies`, so tests can construct a dependency's types or call its functions directly. See [`dependencies` vs. `dev_dependencies`](./dependencies.md#dependencies-vs-dev_dependencies) for what each dependency list makes visible.
+
 This tutorial will use an example program which can be found in the [example's repository](https://github.com/ProvableHQ/leo-examples/tree/main/example_with_test).
 
 :::info

@@ -1,0 +1,87 @@
+[ECHI03712015] Error: interface `Bag` declares function `ping` more than once
+   ╭─[ test:7:8 ]
+   │
+ 7 │     fn ping() -> u32;
+   │
+   ├─[ test:7:8 ]
+   │
+ 6 │     fn ping();
+   │        ──┬─  
+   │          ╰─── `ping` first declared here as a function
+ 7 │     fn ping() -> u32;
+   │        ──┬─  
+   │          ╰─── `ping` redeclared here as a function
+   │ 
+   │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+───╯
+[ECHI03712015] Error: interface `Bag` declares record `Token` more than once
+    ╭─[ test:13:12 ]
+    │
+ 13 │     record Token {
+    │
+    ├─[ test:13:12 ]
+    │
+  9 │     record Token {
+    │            ──┬──  
+    │              ╰──── `Token` first declared here as a record
+    │ 
+ 13 │     record Token {
+    │            ──┬──  
+    │              ╰──── `Token` redeclared here as a record
+    │ 
+    │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+────╯
+[ECHI03712015] Error: interface `Bag` declares mapping `counts` more than once
+    ╭─[ test:19:13 ]
+    │
+ 19 │     mapping counts: address => u64;
+    │
+    ├─[ test:19:13 ]
+    │
+ 18 │     mapping counts: address => u64;
+    │             ───┬──  
+    │                ╰──── `counts` first declared here as a mapping
+ 19 │     mapping counts: address => u64;
+    │             ───┬──  
+    │                ╰──── `counts` redeclared here as a mapping
+    │ 
+    │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+────╯
+[ECHI03712015] Error: interface `Bag` declares storage variable `total` more than once
+    ╭─[ test:22:13 ]
+    │
+ 22 │     storage total: u64;
+    │
+    ├─[ test:22:13 ]
+    │
+ 21 │     storage total: u64;
+    │             ──┬──  
+    │               ╰──── `total` first declared here as a storage variable
+ 22 │     storage total: u64;
+    │             ──┬──  
+    │               ╰──── `total` redeclared here as a storage variable
+    │ 
+    │ Help: Rename or remove one of the declarations. Member names must be unique within an interface.
+────╯
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
+    ╭─[ test:7:22 ]
+    │
+  7 │ ╭─▶     fn ping() -> u32;
+    ┆ ┆   
+ 12 │ ├─▶     }
+    │ │           
+    │ ╰─────────── here
+    │     
+    │     Help: Simplify the declaration to `record Token;`.
+────╯
+[WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
+    ╭─[ test:12:6 ]
+    │
+ 12 │ ╭─▶     }
+    ┆ ┆   
+ 16 │ ├─▶     }
+    │ │           
+    │ ╰─────────── here
+    │     
+    │     Help: Simplify the declaration to `record Token;`.
+────╯

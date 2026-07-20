@@ -17842,20 +17842,24 @@ module ctx {
     export fn id() -> address {
         return _self_id();
     }
-    export final fn checksum() -> [u8; 32] {
+    @_onchain_context
+    export fn checksum() -> [u8; 32] {
         return _self_checksum();
     }
-    export final fn edition() -> u16 {
+    @_onchain_context
+    export fn edition() -> u16 {
         return _self_edition();
     }
-    export final fn program_owner() -> address {
+    @_onchain_context
+    export fn program_owner() -> address {
         return _self_program_owner();
     }
     @_onchain_context
     export fn block_height() -> u32 {
         return _block_height();
     }
-    export final fn block_timestamp() -> i64 {
+    @_onchain_context
+    export fn block_timestamp() -> i64 {
         return _block_timestamp();
     }
     @_onchain_context

@@ -1,7 +1,7 @@
-[ETYC0372042] Error: a `final fn` can only be called from a finalize context
+[ETYC0372194] Error: `std::ctx::block_timestamp()` must be inside a `final fn`, a `final` block, or a `view fn`
    ╭─[ compiler-test:3:30 ]
    │
  3 │         assert_eq(timestamp, std::ctx::block_timestamp());
    │ 
-   │ Help: Wrap the call in a `final { … }` block inside an entry point, or move the calling code into a `final fn`.
+   │ Help: Move the `std::ctx::block_timestamp()` call into a `final fn`, a `view fn`, or wrap it in a `final { … }` block.
 ───╯

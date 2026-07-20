@@ -40,6 +40,10 @@ program singleton_storage.aleo {
         return final { vec.set(3u32, 42u8); };
     }
 
+    fn get_statement_fallible_index(public x: u32) -> Final {
+        return final { nums.get(1u32 / x); };
+    }
+
     fn push_current_len() -> Final {
         return final { nums.push(nums.len()); };
     }

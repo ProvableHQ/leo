@@ -1,0 +1,6 @@
+{
+  "program": "mathlib",
+  "version": "0.1.0",
+  "description": "Library used by both a program and its tests.",
+  "license": "MIT"
+}
