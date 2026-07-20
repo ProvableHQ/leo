@@ -45,10 +45,11 @@ use std::ops::Deref;
 #[derive(Copy, Clone, Debug)]
 pub enum AccessScope {
     /// Read-only finalize op: permitted inside `final fn` / `final {}` blocks and inside
-    /// `view fn` bodies. Examples: `Mapping::get`, `Vector::len`, `block.height`.
+    /// `view fn` bodies. Examples: `Mapping::get`, `Vector::len`, `block.height`,
+    /// `block.timestamp`, `Snark::verify`, `self.program_owner`.
     FinalizeRead,
     /// Mutating finalize op: permitted inside `final fn` / `final {}` blocks only. Examples:
-    /// `Mapping::set`, `Vector::push`, `Snark::verify`, storage writes.
+    /// `Mapping::set`, `Vector::push`, storage writes.
     FinalizeWrite,
     /// Caller-context op: permitted inside regular `fn` and entry-point `fn` bodies only.
     /// Examples: `self.caller`, `self.signer`.
@@ -815,8 +816,9 @@ impl TypeCheckingVisitor<'_> {
                 TypeKind::Boolean
             }
             Intrinsic::SnarkVerify => {
-                // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify", AccessScope::FinalizeWrite, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                // `snark.verify` is a pure instruction (no state mutation), so views may call it.
+                self.check_access_allowed("Snark::verify", AccessScope::FinalizeRead, function_span);
 
                 // arg0: [u8; N] — verifying key (1D byte array)
                 let TypeKind::Array(vk_arr) = &arguments[0].0 else {
@@ -881,8 +883,9 @@ impl TypeCheckingVisitor<'_> {
                 TypeKind::Boolean
             }
             Intrinsic::SnarkVerifyBatch => {
-                // Check that the operation is invoked in a `finalize` or `async` block.
-                self.check_access_allowed("Snark::verify_batch", AccessScope::FinalizeWrite, function_span);
+                // Check that the operation is invoked in a `finalize` / `async` block or a view.
+                // `snark.verify` is a pure instruction (no state mutation), so views may call it.
+                self.check_access_allowed("Snark::verify_batch", AccessScope::FinalizeRead, function_span);
 
                 // arg0: [[u8; N]; M] — verifying keys (2D byte array)
                 let TypeKind::Array(vks_outer) = &arguments[0].0 else {
@@ -1622,8 +1625,10 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfEdition => TypeKind::Integer(IntegerType::U16),
             Intrinsic::SelfId => TypeKind::Address,
             Intrinsic::SelfProgramOwner => {
-                // Check that the operation is only invoked in a `finalize` block.
-                self.check_access_allowed("program_owner", AccessScope::FinalizeWrite, function_span);
+                // Check that the operation is invoked in a `finalize` block or a view.
+                // The program owner resolves read-only in the finalize register path, so views can read it
+                // (matching the externally-addressed `Program::program_owner` form).
+                self.check_access_allowed("program_owner", AccessScope::FinalizeRead, function_span);
                 TypeKind::Address
             }
             Intrinsic::SelfSigner => {
@@ -1638,8 +1643,9 @@ impl TypeCheckingVisitor<'_> {
                 TypeKind::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
-                // Check that the operation is invoked in a `finalize` block. Rejected in view fns.
-                self.check_access_allowed("block.timestamp", AccessScope::FinalizeWrite, function_span);
+                // Check that the operation is invoked in a `finalize` block or a view.
+                // Views see the block timestamp via FinalizeGlobalState, exactly like `block.height`.
+                self.check_access_allowed("block.timestamp", AccessScope::FinalizeRead, function_span);
                 TypeKind::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
