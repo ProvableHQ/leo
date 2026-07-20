@@ -10,8 +10,8 @@ input = ["23u32"]
 
 // Note the input height is 23, since the test framework creates a few more blocks to set up the VM.
 
-export final fn check_starting_height_(height: u32) {
-    assert(height <= block.height);
+final fn check_starting_height_(height: u32) {
+    assert(height <= std::ctx::block_height());
 }
 
 program test.aleo {

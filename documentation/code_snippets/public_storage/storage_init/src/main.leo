@@ -12,7 +12,7 @@ program storage_init.aleo {
     constructor() {
         // Only initialize on the first deployment (edition 0). On upgrade
         // (edition > 0) the existing storage is preserved.
-        if self.edition == 0u16 {
+        if std::ctx::edition() == 0u16 {
             counter = 0u32;
         }
     }

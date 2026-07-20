@@ -40,6 +40,7 @@ entries.
 - [`std::serialize`](#stdserialize) — bit-level encoding and decoding
 - [`std::grp`](#stdgrp) — group generators and coordinates
 - [`std::ctx`](#stdctx) — execution context
+- [`std::prog`](#stdprog) — on-chain metadata for imported programs
 
 ---
 
@@ -329,3 +330,23 @@ of the entire transaction.
 | `block_height()`   | `u32`       | Height of the block containing the current transaction.                                    |
 | `block_timestamp()`| `i64`       | Unix timestamp (seconds) of the block containing the current transaction.                  |
 | `network_id()`     | `u16`       | Numeric identifier of the network (mainnet, testnet, canary, etc).                         |
+
+---
+
+## `std::prog`
+
+On-chain metadata accessors for **imported** programs. Each function takes the program identifier as a **const generic argument**, so the target program is fixed at compile time — the AVM has no instruction for choosing a target dynamically. Use these to gate logic on a dependency program's deployed version, checksum, or owner.
+
+All functions in this module are `final fn`s, so they can only be called from a `final { ... }` block, a `final fn`, or a `constructor`.
+
+```leo file=../code_snippets/standard_library/src/main.leo#std_prog
+```
+
+| Function                                         | Returns     | Description                                                                                          |
+| ------------------------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------- |
+| `checksum::[PROG]()`                             | `[u8; 32]`  | 32-byte deployment checksum of the program `PROG`; changes only when the program is upgraded.        |
+| `edition::[PROG]()`                              | `u16`       | Deployment edition of the program `PROG`; `0` is the initial deployment, each upgrade increments it. |
+| `program_owner::[PROG]()`                        | `address`   | Address that owns `PROG` (typically the deployer); halts at runtime for pre-upgradability programs.  |
+| `function_checksum::[PROG, FN_NAME]()`           | `[u8; 32]`  | 32-byte checksum of function `FN_NAME` inside `PROG`. Useful for pinning a dependency's function.    |
+
+The `PROG` argument must be a program-ID literal (`foo.aleo`); `FN_NAME` must be an identifier literal (`'bar'`).

@@ -1,0 +1,11 @@
+program test.aleo;
+
+function run:
+    async run into r0;
+    output r0 as test.aleo/run.future;
+
+finalize run:
+    assert.eq 15u32 15u32;
+
+constructor:
+    assert.eq edition 0u16;

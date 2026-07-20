@@ -17,7 +17,7 @@ program scratch.aleo: AbstractFoo {
     }
 
     fn foobar() -> Foo {
-        return Foo { owner: self.signer, num: 42 };
+        return Foo { owner: std::ctx::signer(), num: 42 };
     }
 
     @noupgrade

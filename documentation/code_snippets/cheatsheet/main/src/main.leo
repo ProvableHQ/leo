@@ -357,9 +357,9 @@ program cheatsheet.aleo {
         let root: field = 1field.square_root(); // Square root of the field/group element
 
         // Off-chain context expressions
-        let this: address = self.address; // Address of program
-        let caller: address = self.caller; // Address of function caller
-        let signer: address = self.signer; // Address of tx signer (origin)
+        let this: address = std::ctx::addr(); // Address of program
+        let caller: address = std::ctx::caller(); // Address of function caller
+        let signer: address = std::ctx::signer(); // Address of tx signer (origin)
 
         // Bit Serialization/Deserialization
         let bits: [bool; 90] = Serialize::to_bits(value); // Standard serialization (includes type metadata)
@@ -373,11 +373,11 @@ program cheatsheet.aleo {
 
         return final {
             // On-chain context expressions
-            let height: u32 = block.height; // Height of current block
-            let now: i64 = block.timestamp; // Timestamp of current block
-            let checksum: [u8; 32] = self.checksum; // Checksum of a program
-            let edition: u16 = self.edition; // Edition of a program
-            let owner: address = self.program_owner; // Address that deployed a program
+            let height: u32 = std::ctx::block_height(); // Height of current block
+            let now: i64 = std::ctx::block_timestamp(); // Timestamp of current block
+            let checksum: [u8; 32] = std::ctx::checksum(); // Checksum of a program
+            let edition: u16 = std::ctx::edition(); // Edition of a program
+            let owner: address = std::ctx::program_owner(); // Address that deployed a program
         };
         // ANCHOR_END: standard_operators
     }

@@ -19,8 +19,8 @@ import child.aleo;
 
 program parent.aleo {
     final fn foo() {
-        let i: [u8; 32] = Program::function_checksum(child.aleo, 'entry');
-        let j: [u8; 32] = Program::function_checksum(child.aleo, 'peek');
+        let i: [u8; 32] = std::prog::function_checksum::[child.aleo, 'entry']();
+        let j: [u8; 32] = std::prog::function_checksum::[child.aleo, 'peek']();
         assert_neq(i, j);
     }
 

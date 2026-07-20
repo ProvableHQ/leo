@@ -7,11 +7,11 @@ program test.aleo {
 
     @custom
     constructor() {
-        let current_edition: u16 = self.edition;
+        let current_edition: u16 = std::ctx::edition();
         if current_edition > 0u16 {
-            let current_checksum: [u8; 32] = self.checksum;
+            let current_checksum: [u8; 32] = std::ctx::checksum();
         } else {
-            admin.set(true, self.program_owner);
+            admin.set(true, std::ctx::program_owner());
         }
     }
 }

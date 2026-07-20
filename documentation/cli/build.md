@@ -29,7 +29,7 @@ The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` desc
 
 ## Checksums
 
-The program checksum and the checksum of each entry and view function are the values that the [`Program::function_checksum`](../language/programs_in_practice/intrinsics.md) intrinsic targets, so they are useful when writing a [constructor](../language/structure.md#constructor) that pins specific functions across upgrades. To print them, pass `--checksums`:
+The program checksum and the checksum of each entry and view function are the values that the [`std::prog::function_checksum`](../language/standard_library.md#stdprog) stdlib function returns, so they are useful when writing a [constructor](../language/structure.md#constructor) that pins specific functions across upgrades. To print them, pass `--checksums`:
 
 ```bash
 leo build --checksums
@@ -50,7 +50,7 @@ Each checksum is the SHA3-256 of the component's Aleo source, as 32 bytes. The s
     Build tests along with the main program and dependencies.
 --checksums
     Print the program checksum and the checksum of each entry and view function
-    (the `Program::function_checksum` targets).
+    (the `std::prog::function_checksum` targets).
 --no-cache
     Don't use the dependency cache.
 --no-local

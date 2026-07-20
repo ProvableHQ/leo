@@ -293,11 +293,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                     for const_param in &input.const_parameters {
                         slf.visit_type(const_param.type_());
 
-                        // Restrictions for const parameters
-                        if !matches!(
-                            const_param.type_(),
-                            Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
-                        ) {
+                        if !const_param.type_().is_valid_const_generic_type() {
                             slf.emit_err(crate::errors::type_checker::bad_const_generic_type(
                                 const_param.type_(),
                                 const_param.span(),
@@ -528,12 +524,27 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         // Set the scope state before traversing the function.
         self.scope_state.variant = Some(function.variant);
 
-        // Check that the function's annotations are valid.
+        // Check that the function's annotations are valid. The `_`-prefixed annotations are
+        // compiler-internal and are only recognised inside the standard library; user code that
+        // spells them gets the same "unknown annotation" error as any typo.
+        let in_std = self.scope_state.unit_name == Some(sym::std);
         for annotation in function.annotations.iter() {
-            if !matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline) {
+            let is_public =
+                matches!(annotation.identifier.name, sym::test | sym::should_fail | sym::no_inline | sym::inline);
+            let is_internal = matches!(
+                annotation.identifier.name,
+                sym::_caller_annotation | sym::_program_id_arg | sym::_callable_function_arg | sym::_onchain_context
+            );
+            if !(is_public || (is_internal && in_std)) {
                 self.emit_err(crate::errors::type_checker::unknown_annotation(annotation, annotation.span))
             }
         }
+
+        // `@_onchain_context` wrappers evaluate a `FinalizeRead` intrinsic in a regular `fn` body;
+        // remember the flag so the intrinsic's own scope check can pass. Callsite propagation in
+        // `visit_call` enforces the caller-side rule.
+        self.scope_state.has_onchain_context =
+            function.annotations.iter().any(|a| a.identifier.name == sym::_onchain_context);
 
         let get = |symbol: Symbol| -> &Annotation {
             function.annotations.iter().find(|ann| ann.identifier.name == symbol).unwrap()

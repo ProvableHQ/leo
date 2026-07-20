@@ -1204,10 +1204,6 @@ impl Intrinsic {
             (sym::group, sym::to_x_coordinate) => sym::_group_to_x_coordinate,
             (sym::group, sym::to_y_coordinate) => sym::_group_to_y_coordinate,
 
-            (sym::ProgramCore, sym::checksum) => sym::_program_checksum,
-            (sym::ProgramCore, sym::edition) => sym::_program_edition,
-            (sym::ProgramCore, sym::program_owner) => sym::_program_owner,
-            (sym::ProgramCore, sym::function_checksum) => sym::_function_checksum,
 
             (sym::signature, sym::verify) => sym::_signature_verify,
             (sym::Final, sym::run) => sym::_final_run,

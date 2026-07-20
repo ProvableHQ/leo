@@ -1,10 +1,10 @@
 program test.aleo {
     fn main() -> bool {
-        return self.address;
+        return std::ctx::addr();
     }
 
     fn next() -> bool {
-        let a = self.address;
+        let a = std::ctx::addr();
         return a;
     }
 

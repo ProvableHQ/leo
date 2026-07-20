@@ -72,6 +72,13 @@ pub struct TypeCheckingVisitor<'a> {
     pub conditional_scopes: Vec<IndexSet<Symbol>>,
     /// If we're inside an async block, this is the node ID of the contained `Block`. Otherwise, this is `None`.
     pub async_block_id: Option<NodeID>,
+    /// Functions whose bodies invoke an offchain intrinsic directly
+    /// (`_self_caller` / `_self_signer`).
+    pub offchain_intrinsic_users: IndexSet<Location>,
+    /// Calls recorded during visit that must be re-checked after the full call graph is built.
+    /// Each entry is a call from a scope that would inline the callee into a finalize context;
+    /// if closure analysis proves the callee reaches an offchain intrinsic, the call must error.
+    pub pending_offchain_checks: Vec<(Span, Location)>,
 }
 
 impl TypeCheckingVisitor<'_> {
@@ -117,6 +124,89 @@ impl TypeCheckingVisitor<'_> {
     /// Emits a type checker error.
     pub fn emit_err(&self, err: impl Into<LeoError>) {
         self.state.handler.emit_err(err);
+    }
+
+    /// Validates a program-metadata intrinsic's first argument. If it's a well-formed
+    /// program-ID literal, returns the id string. Wrong-shaped literals always error. Non-literal
+    /// arguments error unless the enclosing function is a `@_program_id_arg` wrapper (whose
+    /// const generic parameter carries the literal in, resolved at monomorphisation).
+    pub(super) fn check_program_id_intrinsic_arg(&mut self, name: &str, expr: &Expression) -> Option<String> {
+        match expr {
+            Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
+                if super::ast::PROGRAM_ID_REGEX.is_match(s) =>
+            {
+                Some(s.clone())
+            }
+            Expression::Literal(literal) => {
+                self.emit_err(crate::errors::type_checker::custom(
+                    format!("`{name}` must be called on a program ID, e.g. `foo.aleo`"),
+                    literal.span(),
+                ));
+                None
+            }
+            _ => {
+                if !self.enclosing_function_has_annotation(sym::_program_id_arg) {
+                    self.emit_err(crate::errors::type_checker::custom(
+                        format!("`{name}` must be called on a program ID literal, e.g. `foo.aleo`"),
+                        expr.span(),
+                    ));
+                }
+                None
+            }
+        }
+    }
+
+    /// Whether the function we're currently visiting carries the given annotation.
+    fn enclosing_function_has_annotation(&self, annotation: Symbol) -> bool {
+        if self.scope_state.function.is_none() {
+            return false;
+        }
+        let loc = self.scope_state.location();
+        self.state
+            .symbol_table
+            .iter_functions()
+            .find(|(l, _)| *l == &loc)
+            .is_some_and(|(_, fs)| fs.function.annotations.iter().any(|a| a.identifier.name == annotation))
+    }
+
+    /// After the full program has been visited, propagate the "uses an off-chain-only intrinsic"
+    /// property backwards through the call graph and emit an error at every recorded callsite
+    /// whose callee ends up in the closure.
+    pub fn emit_offchain_transitivity_errors(&mut self) {
+        if self.pending_offchain_checks.is_empty() {
+            return;
+        }
+
+        // Seed with fns that directly invoke an offchain intrinsic.
+        let mut effectively_offchain: IndexSet<Location> = self.offchain_intrinsic_users.clone();
+
+        // Fixpoint over the call graph: a caller is offchain if any callee is offchain.
+        let all_nodes: Vec<Location> = self.state.call_graph.nodes().cloned().collect();
+        loop {
+            let mut changed = false;
+            for node in &all_nodes {
+                if effectively_offchain.contains(node) {
+                    continue;
+                }
+                let reaches_offchain =
+                    self.state.call_graph.neighbors(node).any(|callee| effectively_offchain.contains(callee));
+                if reaches_offchain {
+                    effectively_offchain.insert(node.clone());
+                    changed = true;
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+
+        // Emit at each pending callsite whose callee ends up in the closure.
+        let checks = std::mem::take(&mut self.pending_offchain_checks);
+        for (span, callee) in checks {
+            if effectively_offchain.contains(&callee) {
+                self.emit_err(crate::errors::type_checker::call_reaches_offchain_from_onchain_scope(span));
+            }
+        }
     }
 
     /// Returns `true` if `expr` is a path receiver; otherwise emits a diagnostic and returns `false`.
@@ -585,9 +675,6 @@ impl TypeCheckingVisitor<'_> {
                 ));
             }
         };
-
-        // Define a regex to match valid program IDs.
-        let program_id_regex = regex::Regex::new(r"^[a-zA-Z][a-zA-Z0-9_]{0,30}\.aleo$").unwrap();
 
         fn struct_not_supported<T, U>(_: &T) -> anyhow::Result<U> {
             bail!("structs are not supported")
@@ -1348,23 +1435,10 @@ impl TypeCheckingVisitor<'_> {
                 )),
             )),
             Intrinsic::ProgramChecksum => {
-                // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a program ID.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::checksum` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
+                self.check_program_id_intrinsic_arg("_program_checksum", expression);
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
                     Expression::Literal(Literal::integer(
@@ -1376,99 +1450,54 @@ impl TypeCheckingVisitor<'_> {
                 ))
             }
             Intrinsic::ProgramEdition => {
-                // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a member access.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::edition` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
+                self.check_program_id_intrinsic_arg("_program_edition", expression);
                 Type::Integer(IntegerType::U16)
             }
             Intrinsic::ProgramOwner => {
-                // Get the argument type, expression, and span.
                 let (type_, expression) = &arguments[0];
                 let span = expression.span();
-                // Check that the expression is a member access.
-                match expression {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) => {}
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::program_owner` must be called on a program ID, e.g. `foo.aleo`",
-                            span,
-                        ));
-                    }
-                }
-                // Verify that the argument is a string.
                 self.assert_type(type_, &Type::Address, span);
-                // Return the type.
+                self.check_program_id_intrinsic_arg("_program_owner", expression);
                 Type::Address
             }
             Intrinsic::FunctionChecksum => {
-                // The first argument is the program ID, the second the component name.
+                // The first argument is the program ID, the second the component name. Type checks
+                // enforce `address` and `identifier` shapes; when both args are concrete literals
+                // we can also verify that the named function actually exists as an entry/view of
+                // that program. Non-literal args (generic-parameter references) are re-checked
+                // after monomorphisation substitutes concrete literals.
                 let (program_type, program_expr) = &arguments[0];
-                let program_span = program_expr.span();
-                // Check that the first argument is a program ID.
-                let program_id = match program_expr {
-                    Expression::Literal(Literal { variant: LiteralVariant::Address(s), .. })
-                        if program_id_regex.is_match(s) =>
-                    {
-                        Some(s.clone())
-                    }
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "`Program::function_checksum` must be called on a program ID, e.g. `foo.aleo`",
-                            program_span,
-                        ));
-                        None
-                    }
-                };
-                self.assert_type(program_type, &Type::Address, program_span);
-                // Check that the second argument is an identifier literal naming the component, e.g. `'foo'`.
+                self.assert_type(program_type, &Type::Address, program_expr.span());
                 let (component_type, component_expr) = &arguments[1];
-                let component_span = component_expr.span();
-                let component = match component_expr {
-                    Expression::Literal(Literal { variant: LiteralVariant::Identifier(name), .. }) => {
-                        Some(name.clone())
-                    }
-                    _ => {
-                        self.emit_err(crate::errors::type_checker::custom(
-                            "the function name must be an identifier literal, e.g. `'foo'`",
-                            component_span,
-                        ));
-                        None
-                    }
-                };
-                self.assert_type(component_type, &Type::Identifier, component_span);
-                // Checksums exist only for externally-callable components — entry and view functions.
-                // Closures and `final fn`s are inlining artifacts with no stable identity, so reject
-                // anything that does not resolve to an entry or view function of the named (imported) program.
-                if let (Some(program_id), Some(component)) = (program_id, component) {
-                    let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(&component)]);
-                    let current_unit = self.scope_state.unit_name.expect("type checking runs within a program");
+                self.assert_type(component_type, &Type::Identifier, component_expr.span());
+
+                if let Some(program_id) = self.check_program_id_intrinsic_arg("_function_checksum", program_expr)
+                    && let Expression::Literal(Literal { variant: LiteralVariant::Identifier(component), .. }) =
+                        component_expr
+                {
+                    // Use a visibility-free lookup: this intrinsic can be reached from a
+                    // monomorphised stdlib wrapper whose `current_unit` is `std`, from which
+                    // the user's program isn't importable. Presence anywhere in the symbol
+                    // table is enough — the wrapper's own callsite already ran the visibility
+                    // check in the user's scope.
+                    let location = Location::new(Symbol::intern(&program_id), vec![Symbol::intern(component.as_str())]);
                     let is_entry_or_view = self
                         .state
                         .symbol_table
-                        .lookup_function(current_unit, &location)
-                        .is_some_and(|symbol| symbol.function.variant.is_externally_callable());
+                        .iter_functions()
+                        .find(|(loc, _)| *loc == &location)
+                        .is_some_and(|(_, symbol)| symbol.function.variant.is_externally_callable());
                     if !is_entry_or_view {
                         self.emit_err(crate::errors::type_checker::custom(
                             format!("`{component}` must be an entry function or a view function of `{program_id}`"),
-                            component_span,
+                            component_expr.span(),
                         ));
                     }
                 }
+
                 // Return the type.
                 Type::Array(ArrayType::new(
                     Type::Integer(IntegerType::U8),
@@ -1612,7 +1641,10 @@ impl TypeCheckingVisitor<'_> {
             Intrinsic::SelfAddress => Type::Address,
             Intrinsic::SelfCaller => {
                 // Check that the operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.caller", AccessScope::OffchainCaller, function_span);
+                self.check_access_allowed("std::ctx::caller()", AccessScope::OffchainCaller, function_span);
+                if self.scope_state.function.is_some() {
+                    self.offchain_intrinsic_users.insert(self.scope_state.location());
+                }
                 Type::Address
             }
             Intrinsic::SelfChecksum => Type::Array(ArrayType::new(
@@ -1630,29 +1662,32 @@ impl TypeCheckingVisitor<'_> {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // The program owner resolves read-only in the finalize register path, so views can read it
                 // (matching the externally-addressed `Program::program_owner` form).
-                self.check_access_allowed("program_owner", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctc::program_owner()", AccessScope::FinalizeRead, function_span);
                 Type::Address
             }
             Intrinsic::SelfSigner => {
                 // Check that operation is not invoked in a `finalize` block.
-                self.check_access_allowed("self.signer", AccessScope::OffchainCaller, function_span);
+                self.check_access_allowed("std::ctx::signer()", AccessScope::OffchainCaller, function_span);
+                if self.scope_state.function.is_some() {
+                    self.offchain_intrinsic_users.insert(self.scope_state.location());
+                }
                 Type::Address
             }
             Intrinsic::BlockHeight => {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // Views see the latest block height via FinalizeGlobalState::for_view.
-                self.check_access_allowed("block.height", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctx::block_height()", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U32)
             }
             Intrinsic::BlockTimestamp => {
                 // Check that the operation is invoked in a `finalize` block or a view.
                 // Views see the block timestamp via FinalizeGlobalState, exactly like `block.height`.
-                self.check_access_allowed("block.timestamp", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctx::block_timestamp()", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::I64)
             }
             Intrinsic::NetworkId => {
                 // Check that the operation is not invoked outside a `finalize` block or a view.
-                self.check_access_allowed("network.id", AccessScope::FinalizeRead, function_span);
+                self.check_access_allowed("std::ctx::network_id()", AccessScope::FinalizeRead, function_span);
                 Type::Integer(IntegerType::U16)
             }
             // Dynamic dispatch intrinsics are handled in visit_intrinsic before check_intrinsic.
@@ -2268,7 +2303,9 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Const generic parameters can only be monomorphized at inline call sites.  Reject them on
-        // any function that will never be inlined or that does not support inlining.
+        // any function that will never be inlined or that does not support inlining. `final fn`
+        // helpers are always inlined into their `final {}` callsite, so they support const
+        // generics the same way regular `fn` helpers do.
         if !function.const_parameters.is_empty() {
             if function.annotations.iter().any(|a| a.identifier.name == sym::no_inline) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
@@ -2278,11 +2315,6 @@ impl TypeCheckingVisitor<'_> {
             } else if matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
                 self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
                     "entry point functions",
-                    function.identifier.span(),
-                ));
-            } else if matches!(self.scope_state.variant, Some(Variant::FinalFn)) {
-                self.emit_err(crate::errors::type_checker::cannot_have_const_generics(
-                    "`final fn` functions",
                     function.identifier.span(),
                 ));
             } else if matches!(self.scope_state.variant, Some(Variant::View)) {
@@ -2303,11 +2335,7 @@ impl TypeCheckingVisitor<'_> {
         for const_param in &function.const_parameters {
             self.visit_type(const_param.type_());
 
-            // Restrictions for const parameters
-            if !matches!(
-                const_param.type_(),
-                Type::Boolean | Type::Integer(_) | Type::Address | Type::Scalar | Type::Group | Type::Field
-            ) {
+            if !const_param.type_().is_valid_const_generic_type() {
                 self.emit_err(crate::errors::type_checker::bad_const_generic_type(
                     const_param.type_(),
                     const_param.span(),
@@ -2640,16 +2668,26 @@ impl TypeCheckingVisitor<'_> {
     /// Validates whether an access operation is allowed in the current function or block context.
     /// See [`AccessScope`] for the meaning of each variant.
     pub fn check_access_allowed(&mut self, name: &str, scope: AccessScope, span: Span) {
+        // A `@_onchain_context` wrapper's body invokes a `FinalizeRead` intrinsic in a regular
+        // `fn` scope; propagation at the wrapper's callsites is what enforces the on-chain rule.
+        if matches!(scope, AccessScope::FinalizeRead) && self.scope_state.has_onchain_context {
+            return;
+        }
+
         let in_view = matches!(self.scope_state.variant, Some(Variant::View));
         let in_finalize_ctx = self.scope_state.variant.is_some_and(|v| v.is_finalize_context());
         let in_async_block = self.async_block_id.is_some();
 
         // In a view: only finalize-read ops are allowed.
         if in_view {
-            if !matches!(scope, AccessScope::FinalizeRead) {
-                self.state
-                    .handler
-                    .emit_err(crate::errors::type_checker::invalid_operation_outside_finalize(name, span));
+            match scope {
+                AccessScope::FinalizeRead => {}
+                AccessScope::FinalizeWrite => {
+                    self.state.handler.emit_err(crate::errors::type_checker::view_cannot_write_state(name, span));
+                }
+                AccessScope::OffchainCaller => {
+                    self.state.handler.emit_err(crate::errors::type_checker::offchain_op_in_view(name, span));
+                }
             }
             return;
         }

@@ -57,7 +57,7 @@ program vote.aleo {
     // Propose a new proposal to vote on.
     fn propose(public info: ProposalInfo) -> (Proposal, Final) {
         // Authenticate proposer.
-        assert_eq(self.signer, info.proposer);
+        assert_eq(std::ctx::signer(), info.proposer);
 
         // Generate a new proposal id.
         let id: field = BHP256::hash_to_field(info.title);
@@ -65,7 +65,7 @@ program vote.aleo {
         // Return a new record for the proposal.
         // Finalize the proposal id.
         return (
-            Proposal { owner: self.signer, id, info },
+            Proposal { owner: std::ctx::signer(), id, info },
             final {
                 finalize_propose(id);
             },

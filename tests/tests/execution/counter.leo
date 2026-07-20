@@ -46,12 +46,12 @@ program test.aleo {
     mapping counter: address => u64;
 
     fn dubble() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_dubble(caller); };
     }
 
     fn unsafe_increment() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_unsafe_increment(caller); };
     }
 

@@ -17,7 +17,7 @@ program public_state_demo.aleo {
 
     // ANCHOR: mapping_usage
     fn dubble() -> Final {
-        let addr: address = self.caller;
+        let addr: address = std::ctx::caller();
         return final {
             let current_value: u64 = balance.get_or_use(addr, 0u64);
             balance.set(addr, current_value + 1u64);
