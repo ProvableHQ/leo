@@ -403,7 +403,17 @@ impl Package {
                     })
                     .collect();
                 if let Some(deps) = manifest.dev_dependencies.as_ref() {
-                    test_dependencies.extend(deps.iter().cloned());
+                    // Canonicalize dev-dependency paths like regular dependencies, so the same local
+                    // library in both lists dedups instead of comparing relative against absolute.
+                    for dep in deps {
+                        let dep = canonicalize_dependency_path_relative_to(&path, dep.clone())?;
+                        let dep = if dep.location == Location::Workspace {
+                            resolve_workspace_dependency(&path, dep)?
+                        } else {
+                            dep
+                        };
+                        test_dependencies.push(dep);
+                    }
                 }
                 test_dependencies
             } else {

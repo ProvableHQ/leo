@@ -194,10 +194,13 @@ impl CompilationUnit {
             ))
         })?;
         let manifest = Manifest::read_from_file(package_directory.join(MANIFEST_FILENAME))?;
+        // Like Cargo, tests see the package's `dependencies` plus test-only `dev_dependencies`; a
+        // library in both lists is redundant but harmless, since the `IndexSet` dedups the entries.
         let mut dependencies = manifest
-            .dev_dependencies
-            .unwrap_or_default()
+            .dependencies
             .into_iter()
+            .flatten()
+            .chain(manifest.dev_dependencies.into_iter().flatten())
             .map(|dependency| {
                 let dep = canonicalize_dependency_path_relative_to(package_directory, dependency)?;
                 if dep.location == Location::Workspace {
