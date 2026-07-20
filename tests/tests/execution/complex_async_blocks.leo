@@ -26,7 +26,7 @@ program zero_program.aleo {
     mapping counts: address => u64;
 
     fn c() -> Final {
-        let addr = self.signer;
+        let addr = std::ctx::signer();
         let f = final {
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
@@ -44,7 +44,7 @@ program one_program.aleo {
     mapping counts: address => u64;
 
     fn d() -> Final {
-        let addr = self.signer;
+        let addr = std::ctx::signer();
         let f = final {
             let count: u64 = counts.get_or_use(addr, 0u64);
             counts.set(addr, count + 1u64);
@@ -66,7 +66,7 @@ program two_program.aleo {
     fn b() -> Final {
         let f0: Final = zero_program.aleo::c();
         let f1: Final = one_program.aleo::d();
-        let addr = self.signer;
+        let addr = std::ctx::signer();
         return final {
             f0.run();
             f1.run();
@@ -91,7 +91,7 @@ program three_program.aleo {
         let f0: Final = two_program.aleo::b();
         let f1: Final = one_program.aleo::d();
         let f2: Final = zero_program.aleo::c();
-        let addr = self.signer;
+        let addr = std::ctx::signer();
         return final {
             f0.run();
             f1.run();
@@ -115,7 +115,7 @@ program four_program.aleo {
     fn a() -> Final {
         let f0: Final = two_program.aleo::b();
         let f1: Final = three_program.aleo::e();
-        let addr = self.signer;
+        let addr = std::ctx::signer();
         return final {
             f0.run();
             f1.run();

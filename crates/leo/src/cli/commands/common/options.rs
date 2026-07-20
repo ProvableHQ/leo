@@ -51,7 +51,7 @@ pub struct BuildOptions {
     pub offline: bool,
     #[clap(
         long,
-        help = "Print the program checksum and the checksum of each entry and view function (the `Program::function_checksum` targets)."
+        help = "Print the program checksum and the checksum of each entry and view function (the `std::prog::function_checksum` targets)."
     )]
     pub checksums: bool,
     #[clap(skip)]

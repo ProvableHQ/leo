@@ -1,0 +1,28 @@
+[EPAR0370056] Error: the `Program::checksum` syntax has been removed
+   ╭─[ test:3:16 ]
+   │
+ 3 │         return Program::checksum::[credits.aleo]();
+   │ 
+   │ Help: Use `std::prog::checksum::[PROG_ID]()` instead.
+───╯
+[EPAR0370056] Error: the `Program::edition` syntax has been removed
+   ╭─[ test:6:16 ]
+   │
+ 6 │         return Program::edition::[credits.aleo]();
+   │ 
+   │ Help: Use `std::prog::edition::[PROG_ID]()` instead.
+───╯
+[EPAR0370056] Error: the `Program::program_owner` syntax has been removed
+   ╭─[ test:9:16 ]
+   │
+ 9 │         return Program::program_owner::[credits.aleo]();
+   │ 
+   │ Help: Use `std::prog::program_owner::[PROG_ID]()` instead.
+───╯
+[EPAR0370056] Error: the `Program::function_checksum` syntax has been removed
+    ╭─[ test:12:16 ]
+    │
+ 12 │         return Program::function_checksum::[credits.aleo, transfer_public]();
+    │ 
+    │ Help: Use `std::prog::function_checksum::[PROG_ID, FN_NAME]()` instead.
+────╯

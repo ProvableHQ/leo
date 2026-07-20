@@ -28,5 +28,5 @@ export final fn finalize_public_adder(a: u8, b: u8) -> public u8 {
 
 export final fn finalize_no_params() {
     increment(values, 0u8, 1u8);
-    increment(account, self.caller, 1u64);
+    increment(account, std::ctx::caller(), 1u64);
 }

@@ -3,6 +3,6 @@ program test.aleo {
 
     @noupgrade
     constructor() {
-        assert_eq(self.edition, 0u16);
+        assert_eq(std::ctx::edition(), 0u16);
     }
 }

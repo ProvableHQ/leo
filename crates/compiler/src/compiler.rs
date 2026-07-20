@@ -941,23 +941,34 @@ impl Compiler {
 
     /// Registers the implicit `std` library on `self.import_stubs`.
     ///
-    /// Reuses an existing entry if one was preloaded
+    /// Reuses an existing entry if one was preloaded.
     fn inject_std_library(&mut self) -> Result<()> {
         if self.compiler_options.no_std {
             return Ok(());
         }
 
         let std_name = Symbol::intern(leo_std::library_name());
-        let parent = Symbol::intern(self.unit_name.as_deref().expect("Cannot get unit name"));
+        let unit_parent = Symbol::intern(self.unit_name.as_deref().expect("Cannot get unit name"));
+
+        let mut parents: Vec<Symbol> = self
+            .import_stubs
+            .iter()
+            .filter_map(|(name, _)| if *name == std_name { None } else { Some(*name) })
+            .collect();
+        parents.push(unit_parent);
 
         if let Some(existing) = self.import_stubs.get_mut(&std_name) {
-            existing.add_parent(parent);
+            for parent in parents {
+                existing.add_parent(parent);
+            }
             return Ok(());
         }
 
         let mut stub =
             Self::build_std_stub(self.state.handler.clone(), Rc::clone(&self.state.node_builder), self.state.network)?;
-        stub.add_parent(parent);
+        for parent in parents {
+            stub.add_parent(parent);
+        }
         self.import_stubs.insert(std_name, stub);
         Ok(())
     }
@@ -1485,7 +1496,7 @@ mod tests {
                 "    @noupgrade\n",
                 "    constructor() {}\n",
                 "    fn foo() -> R {\n",
-                "        return R { owner: self.signer, x: true };\n",
+                "        return R { owner: std::ctx::signer(), x: true };\n",
                 "    }\n",
                 "}\n",
             );

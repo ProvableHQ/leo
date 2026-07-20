@@ -13,13 +13,13 @@ program test_dep.aleo {
             Mapping::set(Yo, a, b);
             let c: u32 = a + b;
         };
-        let l: yeets = yeets { owner: self.signer, val: 1u32 };
+        let l: yeets = yeets { owner: std::ctx::signer(), val: 1u32 };
         return (l, f);
     }
 
     fn main_dep_2(a: u32) -> (yeets, Final<Fn()>) {
         let f: Final<Fn()> = final { Mapping::set(Yo, 1u32, 1u32); };
-        let l: yeets = yeets { owner: self.signer, val: 1u32 };
+        let l: yeets = yeets { owner: std::ctx::signer(), val: 1u32 };
         return (l, f);
     }
 

@@ -3,9 +3,9 @@ program test.aleo {
 
     fn t1() -> Final {
         return final {
-            let b = block.height;
-            let t = block.timestamp;
-            let i = network.id;
+            let b = std::ctx::block_height();
+            let t = std::ctx::block_timestamp();
+            let i = std::ctx::network_id();
             foo.set(0u32, 0u32);
             let s1 = foo.get(0u32);
             let s2 = foo.get_or_use(0u32, 0u32);

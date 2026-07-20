@@ -1,0 +1,5 @@
+[ETYC0372156] Error: `missing` must be an entry function or a view function of `test.aleo`
+    ╭─[ compiler-test:14:53 ]
+    │
+ 14 │     let _: [u8; 32] = _function_checksum(test.aleo, 'missing');
+────╯

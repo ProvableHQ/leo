@@ -2,7 +2,7 @@ program registry.aleo {
     mapping users: address => bool;
 
     fn register() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_register(caller); };
     }
 

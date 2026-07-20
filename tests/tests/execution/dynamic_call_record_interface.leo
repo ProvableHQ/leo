@@ -24,7 +24,7 @@ program vault.aleo: TokenOps {
 
     // Mints a token owned by the transaction signer.
     fn mint(balance: u64) -> Token {
-        return Token { owner: self.signer, balance };
+        return Token { owner: std::ctx::signer(), balance };
     }
 
     @noupgrade

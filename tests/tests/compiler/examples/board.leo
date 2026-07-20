@@ -22,11 +22,11 @@ program test.aleo {
     // Returns a new board_state.
     fn new_board_state(ships: u64, opponent: address) -> board_state {
         return board_state {
-            owner: self.signer,
+            owner: std::ctx::signer(),
             hits_and_misses: 0u64,
             played_tiles: 0u64,
             ships,
-            player_1: self.caller,
+            player_1: std::ctx::caller(),
             player_2: opponent,
             game_started: false,
         };

@@ -57,17 +57,17 @@ export final fn fin_test_async_array_rt(addr: address, value: [u8; 2]) {
 
 program test.aleo {
     fn test_async_u32_rt(value: u32) -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { fin_test_async_u32_rt(caller, value); };
     }
 
     fn test_async_field_rt(value: field) -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { fin_test_async_field_rt(caller, value); };
     }
 
     fn test_async_array_rt(value: [u8; 2]) -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { fin_test_async_array_rt(caller, value); };
     }
 

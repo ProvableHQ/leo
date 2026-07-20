@@ -288,12 +288,26 @@
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
+[EPAR0370057] Error: `self` is no longer a valid expression
+   ╭─[ test_39:1:1 ]
+   │
+ 1 │ self x = 10u8;
+   │ 
+   │ Help: `self` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information.
+───╯
 [EPAR0370005] Error: expected ';', found `x`
    ╭─[ test_40:1:6 ]
    │
  1 │ Self x = 10u8;
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
+───╯
+[EPAR0370058] Error: `Self` is reserved for future use
+   ╭─[ test_40:1:1 ]
+   │
+ 1 │ Self x = 10u8;
+   │ 
+   │ Help: Rename this identifier. `Self` is reserved by the language for an upcoming feature.
 ───╯
 [EPAR0370005] Error: expected ';', found `x`
    ╭─[ test_41:1:6 ]

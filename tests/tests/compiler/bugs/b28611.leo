@@ -4,8 +4,8 @@ program test.aleo {
     fn foo(sig: signature, x: u32, y: u32) {
         // ensure that the caller provided the correct signature
         let t: (u32, u32) = (x, y);
-        let b: bool = sig.verify(self.caller, t);
-        let c: bool = sig.verify(self.caller, m);
+        let b: bool = sig.verify(std::ctx::caller(), t);
+        let c: bool = sig.verify(std::ctx::caller(), m);
     }
 
     @noupgrade
