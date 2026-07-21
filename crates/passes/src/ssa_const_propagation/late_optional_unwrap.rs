@@ -293,3 +293,53 @@ impl UnitReconstructor for LateOptionalUnwrapVisitor<'_> {
         input
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use leo_span::{Span, create_session_if_not_set_then};
+
+    fn local(state: &CompilerState, name: Symbol) -> Expression {
+        Path::from(Identifier::new(name, state.node_builder.next_id())).to_local().into()
+    }
+
+    #[test]
+    fn different_condition_keeps_outer_optional_selection() {
+        create_session_if_not_set_then(|_| {
+            let mut state = CompilerState::default();
+            let condition_name = Symbol::intern("outer_condition");
+            let value_name = Symbol::intern("value");
+            let outer_condition = local(&state, condition_name);
+            let inner_condition = local(&state, Symbol::intern("inner_condition"));
+            let value = local(&state, value_name);
+            let fallback = local(&state, Symbol::intern("fallback"));
+            let ternary_id = state.node_builder.next_id();
+
+            let mut visitor = LateOptionalUnwrapVisitor {
+                state: &mut state,
+                program: Symbol::intern("test.aleo"),
+                optional_fields: Default::default(),
+                aliases: Default::default(),
+                optional_selections: IndexSet::from([(condition_name, value_name)]),
+                atom_ternaries: IndexMap::from([(value_name, (inner_condition, fallback.clone()))]),
+                composites: Default::default(),
+                changed: false,
+            };
+
+            let (result, ()) = visitor.reconstruct_ternary(
+                TernaryExpression {
+                    condition: outer_condition,
+                    if_true: value,
+                    if_false: fallback,
+                    span: Span::default(),
+                    id: ternary_id,
+                },
+                &(),
+            );
+
+            assert!(matches!(result, Expression::Ternary(_)));
+            assert!(!visitor.changed);
+        });
+    }
+}
