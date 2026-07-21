@@ -16,28 +16,7 @@
 
 // NOTE: If compiler passes are made optional, pass preconditions and invariants may not necessarily hold true.
 
-use std::collections::HashSet;
-
 #[derive(Clone, Debug, Default)]
 pub struct CompilerOptions {
-    /// Whether spans are enabled in the output ASTs.
-    pub ast_spans_enabled: bool,
-
-    pub ast_snapshots: AstSnapshots,
-
-    pub initial_ast: bool,
-
     pub no_std: bool,
-}
-
-#[derive(Clone, Debug)]
-pub enum AstSnapshots {
-    All,
-    Some(HashSet<String>),
-}
-
-impl Default for AstSnapshots {
-    fn default() -> Self {
-        AstSnapshots::Some(Default::default())
-    }
 }
