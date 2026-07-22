@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::{NetworkName, NodeBuilder, Program, Stub, TypeInterner};
-use leo_compiler::{AstSnapshots, Compiled, Compiler, CompilerOptions};
+use leo_compiler::{Compiled, Compiler, CompilerOptions};
 use leo_package::{ABI_FILENAME, Package};
 use leo_span::Symbol;
 
@@ -54,16 +54,7 @@ struct ProgramForValidation {
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
-        Self {
-            ast_spans_enabled: options.enable_ast_spans,
-            ast_snapshots: if options.enable_all_ast_snapshots {
-                AstSnapshots::All
-            } else {
-                AstSnapshots::Some(options.ast_snapshots.into_iter().collect())
-            },
-            initial_ast: options.enable_all_ast_snapshots | options.enable_initial_ast_snapshot,
-            no_std: options.no_std,
-        }
+        Self { no_std: options.no_std }
     }
 }
 
@@ -294,15 +285,12 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
 
                 let is_main = source == &main_source_path;
                 if is_main || unit.kind.is_test() {
-                    // Compile the program (main or test). AST snapshots, if enabled, land
-                    // under this unit's own `build/<name>/snapshots/` directory.
-                    let snapshots_directory = package.unit_snapshots_directory(&unit_name);
+                    // Compile the program (main or test).
                     let compiled = compile_leo_source_directory(
                         source, // entry file
                         &source_dir,
                         unit.name,
                         unit.kind.is_test(),
-                        &snapshots_directory,
                         &handler,
                         &node_builder,
                         build_options.clone(),
@@ -367,12 +355,10 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
                     // dependencies are parsed only; their semantics are validated when their own
                     // `leo build` is run.
                     let library = if primary_name == Some(unit.name) {
-                        let snapshots_directory = package.unit_snapshots_directory(&unit_name);
                         let (lib, interfaces) = build_leo_source_directory_library(
                             source,
                             &source_dir,
                             unit.name,
-                            &snapshots_directory,
                             &handler,
                             &node_builder,
                             build_options.clone(),
@@ -442,13 +428,11 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             continue;
         }
         let source_dir = directory.join("src");
-        let snapshots_directory = package.unit_snapshots_directory(&unit_name);
         let compiled = compile_leo_source_directory(
             source,
             &source_dir,
             unit.name,
             false,
-            &snapshots_directory,
             &handler,
             &node_builder,
             build_options.clone(),
@@ -591,7 +575,6 @@ fn compile_leo_source_directory(
     source_directory: &Path,
     program_name: Symbol,
     is_test: bool,
-    output_path: &Path,
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
     options: BuildOptions,
@@ -610,7 +593,6 @@ fn compile_leo_source_directory(
         is_test,
         handler.clone(),
         Rc::clone(node_builder),
-        output_path.to_path_buf(),
         Some(options.into()),
         stubs,
         network,
@@ -691,7 +673,6 @@ fn parse_leo_source_directory(
         false,
         handler.clone(),
         Rc::clone(node_builder),
-        std::path::PathBuf::default(),
         Some(options.into()),
         IndexMap::new(),
         network,
@@ -758,7 +739,6 @@ fn parse_leo_source_directory_library(
         false,
         handler.clone(),
         Rc::clone(node_builder),
-        std::path::PathBuf::default(),
         Some(options.into()),
         IndexMap::new(),
         network,
@@ -775,7 +755,6 @@ fn build_leo_source_directory_library(
     entry_file_path: &Path,
     source_directory: &Path,
     library_name: Symbol,
-    snapshots_directory: &Path,
     handler: &Handler,
     node_builder: &Rc<NodeBuilder>,
     options: BuildOptions,
@@ -791,7 +770,6 @@ fn build_leo_source_directory_library(
         false,
         handler.clone(),
         Rc::clone(node_builder),
-        snapshots_directory.to_path_buf(),
         Some(options.into()),
         stubs,
         network,

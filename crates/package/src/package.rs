@@ -111,13 +111,6 @@ impl Package {
         self.unit_build_directory(name).join(INTERFACES_DIRNAME)
     }
 
-    /// Path to a unit's AST-snapshot directory: `build/<name>/snapshots/`.
-    /// Populated only when a snapshot CLI flag is set; created lazily by the
-    /// compiler on the first write, so absent on builds that don't request snapshots.
-    pub fn unit_snapshots_directory(&self, name: &str) -> PathBuf {
-        self.unit_build_directory(name).join(SNAPSHOTS_DIRNAME)
-    }
-
     pub fn source_directory(&self) -> PathBuf {
         self.base_directory.join(SOURCE_DIRECTORY)
     }
@@ -788,7 +781,6 @@ mod tests {
         assert_eq!(pkg.unit_bytecode_path("token.aleo"), PathBuf::from("/tmp/demo/build/token/token.aleo"));
         assert_eq!(pkg.unit_abi_path("token"), PathBuf::from("/tmp/demo/build/token/abi.json"));
         assert_eq!(pkg.unit_interfaces_directory("token"), PathBuf::from("/tmp/demo/build/token/interfaces"));
-        assert_eq!(pkg.unit_snapshots_directory("token"), PathBuf::from("/tmp/demo/build/token/snapshots"));
     }
 
     #[test]

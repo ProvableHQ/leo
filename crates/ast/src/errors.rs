@@ -14,51 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{
-    error::Error as ErrorArg,
-    fmt::{Debug, Display},
-};
+use std::fmt::Display;
 
 use leo_errors::Backtraced;
 
 const CODE_PREFIX: &str = "AST";
 const CODE_MASK: i32 = 2000;
-
-pub(crate) fn failed_to_convert_ast_to_json_string(error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK, format!("failed to convert the AST to a JSON string: {error}"))
-        .with_help("This is an internal serialization failure. Re-run the build; if it persists, please file an issue.")
-}
-
-pub(crate) fn failed_to_create_ast_json_file(path: &dyn Debug, error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 1, format!("failed to create AST JSON file `{path:?}`: {error}"))
-        .with_help("Check that the build output directory exists and is writable.")
-}
-
-pub(crate) fn failed_to_write_ast_to_json_file(path: &dyn Debug, error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 2, format!("failed to write the AST to JSON file `{path:?}`: {error}"))
-        .with_help("Check that the build output directory is writable and has enough free space.")
-}
-
-pub(crate) fn failed_to_read_json_string_to_ast(error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 3, format!("failed to deserialize a JSON string into an AST: {error}"))
-        .with_help("The cached AST JSON is corrupt or was produced by an incompatible Leo version. Run `leo clean` and rebuild.")
-}
-
-pub(crate) fn failed_to_read_json_file(path: &dyn Debug, error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(
-        CODE_PREFIX,
-        CODE_MASK + 4,
-        format!("failed to deserialize JSON file `{path:?}` into an AST: {error}"),
-    )
-    .with_help(
-        "The cached AST JSON is corrupt or was produced by an incompatible Leo version. Run `leo clean` and rebuild.",
-    )
-}
-
-pub(crate) fn failed_to_convert_ast_to_json_value(error: &dyn ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 5, format!("failed to convert the AST to a JSON value: {error}"))
-        .with_help("This is an internal serialization failure. Re-run the build; if it persists, please file an issue.")
-}
 
 pub(crate) fn invalid_network_name(network: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 18, format!("invalid network name: `{network}`"))

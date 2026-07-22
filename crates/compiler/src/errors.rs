@@ -60,11 +60,6 @@ pub(crate) fn imported_program_not_found(
     .with_help(format!("Add `{dependency_name}` as a dependency in `program.json`. Run `leo add --help` for details."))
 }
 
-pub(crate) fn failed_ast_file(filename: impl Display, error: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 11, format!("failed to write AST to file `{filename}`: {error}"))
-        .with_help("Verify the build output directory exists, is writable, and has enough free space.")
-}
-
 // Duplicated from package — same message, different code.
 pub(crate) fn failed_path(path: impl Display, err: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("cannot find path `{path}`: {err}"))
