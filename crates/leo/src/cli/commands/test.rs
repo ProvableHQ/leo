@@ -138,16 +138,8 @@ fn discover_test_functions(package: &Package, match_str: &str, network: NetworkN
         let handler = Handler::default();
         let node_builder = Rc::new(NodeBuilder::default());
 
-        let mut compiler = Compiler::new(
-            None,
-            unit.kind.is_test(),
-            handler,
-            node_builder,
-            "/unused".into(),
-            None,
-            IndexMap::new(),
-            network,
-        );
+        let mut compiler =
+            Compiler::new(None, unit.kind.is_test(), handler, node_builder, None, IndexMap::new(), network);
 
         // A test is a single standalone file; its `tests/` siblings are independent programs,
         // so parse only this file rather than scanning the directory for modules.

@@ -670,7 +670,6 @@ fn run_compiler_analysis(
         false,
         handler,
         Rc::new(leo_ast::NodeBuilder::default()),
-        PathBuf::default(),
         Some(leo_compiler::CompilerOptions::default()),
         import_stubs,
         leo_ast::NetworkName::TestnetV0,

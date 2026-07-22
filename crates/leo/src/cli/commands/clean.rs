@@ -70,9 +70,8 @@ fn clean_package(context: Context) -> Result<()> {
     }
 
     // Best-effort legacy cleanup: pre-flat-layout builds created a top-level
-    // `outputs/` directory for AST snapshots. Snapshots now live under
-    // `build/<unit>/snapshots/`, so this entry only fires when wiping an
-    // upgraded checkout that still has the stale directory on disk.
+    // `outputs/` directory. This entry only fires when wiping an upgraded
+    // checkout that still has the stale directory on disk.
     remove_dir_if_present(&path.join("outputs"), "legacy outputs directory");
 
     // Removes the build/ directory.
