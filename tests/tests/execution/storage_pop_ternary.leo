@@ -55,6 +55,11 @@ input = ["true"]
 program = "storage_pop_ternary.aleo"
 function = "both_arms_false"
 input = ["false"]
+
+[case]
+program = "storage_pop_ternary.aleo"
+function = "condition_uses_pre_pop_len"
+input = []
 */
 
 program storage_pop_ternary.aleo {
@@ -69,6 +74,7 @@ program storage_pop_ternary.aleo {
     storage compound_selected_values: [u32];
     storage both_true_values: [u32];
     storage both_false_values: [u32];
+    storage condition_once_values: [u32];
 
     fn true_arm_unselected(public take: bool) -> Final {
         return final {
@@ -175,6 +181,17 @@ program storage_pop_ternary.aleo {
             assert(popped != none);
             assert(popped.unwrap() == 13u32);
             assert(both_false_values.len() == 1u32);
+        };
+    }
+
+    fn condition_uses_pre_pop_len() -> Final {
+        return final {
+            condition_once_values.push(1u32);
+            let popped: u32? =
+                (condition_once_values.len() > 0u32) ? condition_once_values.pop() : none;
+            assert(popped != none);
+            assert(popped.unwrap() == 1u32);
+            assert(condition_once_values.len() == 0u32);
         };
     }
 
