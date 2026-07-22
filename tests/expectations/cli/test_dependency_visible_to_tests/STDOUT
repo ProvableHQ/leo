@@ -1,0 +1,16 @@
+--- leo test with a dependencies-only library named from a test ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'my_app.aleo'
+       Leo     Program size: 0.24 KB / 2000.00 KB
+       Leo ✅ Compiled 'my_app.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI for program 'my_app.aleo'.
+
+       Leo 🔨 Compiling 'test_my_app.aleo'
+       Leo     Program size: 0.23 KB / 2000.00 KB
+       Leo ✅ Compiled 'test_my_app.aleo' into Aleo instructions.
+       Leo     Import 'my_app.aleo': checksum = '[254u8, 98u8, 107u8, 69u8, 193u8, 121u8, 99u8, 187u8, 182u8, 80u8, 195u8, 16u8, 168u8, 141u8, 26u8, 111u8, 236u8, 121u8, 3u8, 83u8, 163u8, 213u8, 217u8, 160u8, 105u8, 125u8, 141u8, 184u8, 3u8, 143u8, 103u8, 204u8]'
+       Leo Loading the ledger from storage...
+1 / 1 tests passed.
+PASSED: test_my_app.aleo/test_combine

@@ -21,11 +21,11 @@ program test.aleo {
     }
 
     view fn read_time() -> i64 {
-        return block.timestamp;
+        return std::ctx::block_timestamp();
     }
 
     view fn read_height() -> u32 {
-        return block.height;
+        return std::ctx::block_height();
     }
 
     @noupgrade

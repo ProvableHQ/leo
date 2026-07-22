@@ -18,7 +18,7 @@ program example_program.aleo {
     // ANCHOR: mint_record
     fn mint_record(x: field) -> Example {
         return Example {
-            owner: self.signer,
+            owner: std::ctx::signer(),
             x,
         };
     }
@@ -26,7 +26,7 @@ program example_program.aleo {
 
     // ANCHOR: pause
     fn pause() {
-        assert_eq(self.signer, ADMIN);
+        assert_eq(std::ctx::signer(), ADMIN);
     }
     // ANCHOR_END: pause
 

@@ -212,6 +212,12 @@ mod validate {
         "comment_before_program",
         "malformed_missing_program_rbrace",
         "wrap_binary_chain",
+        // Regression fixtures use undefined symbols to trigger formatter edge cases.
+        "comment_path_field_trailing",
+        "comment_path_field_interior",
+        "wrap_postfix_method_comma",
+        "wrap_single_field_access",
+        "wrap_field_access_blank_line",
     ];
 
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -242,7 +248,6 @@ mod validate {
             false,
             handler,
             Rc::new(NodeBuilder::default()),
-            "/tmp".into(),
             None,
             Default::default(),
             NetworkName::TestnetV0,
@@ -393,7 +398,6 @@ mod validate {
                     false,
                     handler,
                     Rc::new(NodeBuilder::default()),
-                    "/tmp".into(),
                     None,
                     Default::default(),
                     NetworkName::TestnetV0,
@@ -401,6 +405,7 @@ mod validate {
 
                 let result = compiler
                     .parse_program(&source, FileName::Custom(name.into()), &[])
+                    .and_then(|_| compiler.add_import_stubs())
                     .and_then(|_| compiler.intermediate_passes().map(|_| ()));
 
                 if let Err(e) = result {

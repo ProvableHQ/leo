@@ -251,12 +251,10 @@
    │
  1 │ x::self
 ───╯
-[EPAR0370003] Error: unexpected end of file
-   ╭─[ test_47:1:8 ]
+[EPAR0370047] Error: expected identifier after ::
+   ╭─[ test_47:1:4 ]
    │
  1 │ x::Self
-   │ 
-   │ Help: The parser reached the end of the file while still expecting more input. Complete the current item. Common causes are a missing `}`, `)`, or `;`.
 ───╯
 [EPAR0370047] Error: expected identifier after ::
    ╭─[ test_48:1:4 ]

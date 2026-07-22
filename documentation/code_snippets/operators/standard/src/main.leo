@@ -323,32 +323,32 @@ program standard_ops_demo.aleo {
 
     // ANCHOR: self_address
     fn get_program_address() -> address {
-        return self.address;
+        return std::ctx::addr();
     }
     // ANCHOR_END: self_address
 
     // ANCHOR: self_id
     fn get_program_id() -> address {
-        return self.id;
+        return std::ctx::id();
     }
     // ANCHOR_END: self_id
 
     // ANCHOR: self_caller
     fn matches_caller(addr: address) -> bool {
-        return self.caller == addr;
+        return std::ctx::caller() == addr;
     }
     // ANCHOR_END: self_caller
 
     // ANCHOR: self_signer
     fn matches_signer(addr: address) -> bool {
-        return self.signer == addr;
+        return std::ctx::signer() == addr;
     }
     // ANCHOR_END: self_signer
 
     // ANCHOR: block_height
     fn matches_height(height: u32) -> Final {
         return final {
-            assert_eq(height, block.height);
+            assert_eq(height, std::ctx::block_height());
         };
     }
     // ANCHOR_END: block_height
@@ -356,7 +356,7 @@ program standard_ops_demo.aleo {
     // ANCHOR: block_timestamp
     fn matches_timestamp(timestamp: i64) -> Final {
         return final {
-            assert_eq(timestamp, block.timestamp);
+            assert_eq(timestamp, std::ctx::block_timestamp());
         };
     }
     // ANCHOR_END: block_timestamp
@@ -364,7 +364,7 @@ program standard_ops_demo.aleo {
     // ANCHOR: network_id
     fn matches_network(id: u16) -> Final {
         return final {
-            assert_eq(id, network.id);
+            assert_eq(id, std::ctx::network_id());
         };
     }
     // ANCHOR_END: network_id
@@ -372,7 +372,7 @@ program standard_ops_demo.aleo {
     // ANCHOR: self_checksum
     fn matches_checksum(checksum: [u8; 32]) -> Final {
         return final {
-            assert_eq(self.checksum, checksum);
+            assert_eq(std::ctx::checksum(), checksum);
         };
     }
     // ANCHOR_END: self_checksum
@@ -380,7 +380,7 @@ program standard_ops_demo.aleo {
     // ANCHOR: self_edition
     fn matches_edition(edition: u16) -> Final {
         return final {
-            assert_eq(self.edition, edition);
+            assert_eq(std::ctx::edition(), edition);
         };
     }
     // ANCHOR_END: self_edition
@@ -388,7 +388,7 @@ program standard_ops_demo.aleo {
     // ANCHOR: self_program_owner
     fn matches_owner(owner: address) -> Final {
         return final {
-            assert_eq(self.program_owner, owner);
+            assert_eq(std::ctx::program_owner(), owner);
         };
     }
     // ANCHOR_END: self_program_owner

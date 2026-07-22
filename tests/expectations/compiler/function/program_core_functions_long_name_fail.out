@@ -1,15 +1,15 @@
-[ETYC0372156] Error: `Program::checksum` must be called on a program ID, e.g. `foo.aleo`
-   ╭─[ compiler-test:3:41 ]
+[ETYC0372156] Error: `std::prog::checksum` must be called on a program ID, e.g. `foo.aleo`
+   ╭─[ compiler-test:3:45 ]
    │
- 3 │     let c: [u8; 32] = Program::checksum(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+ 3 │     let c: [u8; 32] = std::prog::checksum::[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo]();
 ───╯
-[ETYC0372156] Error: `Program::edition` must be called on a program ID, e.g. `foo.aleo`
-   ╭─[ compiler-test:4:35 ]
+[ETYC0372156] Error: `std::prog::edition` must be called on a program ID, e.g. `foo.aleo`
+   ╭─[ compiler-test:4:39 ]
    │
- 4 │     let d: u16 = Program::edition(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+ 4 │     let d: u16 = std::prog::edition::[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo]();
 ───╯
-[ETYC0372156] Error: `Program::program_owner` must be called on a program ID, e.g. `foo.aleo`
-   ╭─[ compiler-test:5:45 ]
+[ETYC0372156] Error: `std::prog::program_owner` must be called on a program ID, e.g. `foo.aleo`
+   ╭─[ compiler-test:5:49 ]
    │
- 5 │     let e: address = Program::program_owner(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo);
+ 5 │     let e: address = std::prog::program_owner::[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aleo]();
 ───╯

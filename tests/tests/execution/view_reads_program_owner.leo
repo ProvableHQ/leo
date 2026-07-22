@@ -16,7 +16,7 @@ program test.aleo {
     }
 
     view fn read_owner() -> address {
-        return self.program_owner;
+        return std::ctx::program_owner();
     }
 
     @noupgrade

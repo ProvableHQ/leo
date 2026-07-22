@@ -18,7 +18,7 @@ program a.aleo {
     }
 
     fn get_initial(balance: u64) -> Token {
-        return Token { owner: self.signer, balance };
+        return Token { owner: std::ctx::signer(), balance };
     }
 
     @noupgrade

@@ -694,6 +694,57 @@ fn offline_build_uses_locked_commit_and_cache() {
     let _ = std::fs::remove_dir_all(&root);
 }
 
+/// A regular `dependency` must be visible to in-package tests, and a local library in both
+/// `dependencies` and `dev_dependencies` must dedup rather than conflict. Regression test for #29592.
+#[test]
+fn library_visible_to_src_and_tests() {
+    let run = |dev_dependencies: &str| {
+        let root = unique_dir("lib_visibility");
+        let home = root.join("home");
+        std::fs::create_dir_all(&home).unwrap();
+
+        let lib = root.join("mylib");
+        write_library(&lib, "mylib", "null");
+
+        let app = root.join("app");
+        write_file(
+            &app.join(MANIFEST_FILENAME),
+            &format!(
+                r#"{{"program":"app.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{{"name":"mylib","location":"local","path":"../mylib"}}],"dev_dependencies":{dev_dependencies}}}"#
+            ),
+        );
+        write_file(&app.join("src/main.leo"), "// main\n");
+        write_file(&app.join("tests/test_app.leo"), "// test\n");
+
+        leo_span::create_session_if_not_set_then(|_| {
+            // Relative `../mylib` and the canonicalized absolute path are the same library.
+            let package = Package::from_directory_with_tests(&app, &home, false, false, false, None, None, 3).unwrap();
+            let mylib = Symbol::intern("mylib");
+            let test_unit = package
+                .compilation_units
+                .iter()
+                .find(|u| u.kind.is_test())
+                .expect("the in-package test program is a compilation unit");
+            assert!(
+                test_unit.dependencies.iter().any(|d| d.name == "mylib"),
+                "a regular `dependencies` library is visible to the test program",
+            );
+            assert_eq!(
+                package.compilation_units.iter().filter(|u| u.name == mylib).count(),
+                1,
+                "the shared local library is resolved exactly once",
+            );
+        });
+
+        let _ = std::fs::remove_dir_all(&root);
+    };
+
+    // Case 2: library only in `dependencies` — must still be visible to the test program.
+    run("null");
+    // Case 1: library in both lists — must dedup, not conflict.
+    run(r#"[{"name":"mylib","location":"local","path":"../mylib"}]"#);
+}
+
 /// A plain (non-test) build must not drop a git dev-dependency's pin from `leo.lock`.
 #[test]
 fn plain_build_keeps_dev_dependency_pin() {

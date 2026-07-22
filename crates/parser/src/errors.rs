@@ -163,6 +163,23 @@ pub(crate) fn multiple_program_declarations(span: leo_span::Span) -> Formatted {
         .with_help("Remove the duplicate `program` block. Only one is allowed per program.")
 }
 
+pub(crate) fn obsolete_context_access(old: impl Display, replacement: impl Display, span: leo_span::Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 56, format!("the `{old}` syntax has been removed"), span)
+        .with_help(format!("Use `{replacement}` instead."))
+}
+
+pub(crate) fn obsolete_context_keyword(keyword: impl Display, span: leo_span::Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 57, format!("`{keyword}` is no longer a valid expression"), span)
+        .with_help(format!(
+            "`{keyword}` is reserved and no longer denotes an execution-context value. Use functions from the `std::ctx` module to access caller, signer, block, or network information."
+        ))
+}
+
+pub(crate) fn reserved_identifier(name: impl Display, span: leo_span::Span) -> Formatted {
+    Formatted::error(CODE_PREFIX, CODE_MASK + 58, format!("`{name}` is reserved for future use"), span)
+        .with_help(format!("Rename this identifier. `{name}` is reserved by the language for an upcoming feature."))
+}
+
 // Parser warnings
 
 pub(crate) fn record_prototype_redundant(record_name: impl Display, span: leo_span::Span) -> Formatted {

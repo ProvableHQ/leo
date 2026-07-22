@@ -34,7 +34,7 @@ mod output;
 
 use clap::{Args, Parser};
 use colored::Colorize;
-use leo_parser_rowan::parse_main;
+use leo_parser_rowan::{LexError, LexErrorKind, ParseError, SyntaxNode, parse_file};
 use leo_span::file_source::{DiskFileSource, FileSource};
 use similar::{ChangeTag, TextDiff};
 use std::{
@@ -97,13 +97,22 @@ pub fn run_format_with_file_source(
 ) -> io::Result<bool> {
     let paths = resolve_paths(&args.paths, base_dir);
     let leo_files = collect_leo_files(&paths)?;
-    let mut has_unformatted = false;
+    let mut needs_attention = false;
 
     for file_path in leo_files {
         let source = file_source.read_file(&file_path).map_err(|error| {
             io::Error::new(error.kind(), format!("failed to read {}: {error}", file_path.display()))
         })?;
-        let formatted = format_source(&source);
+
+        // Fail closed on parse errors: never write output that could drop source.
+        let formatted = match try_format_source(&source) {
+            Ok(formatted) => formatted,
+            Err(errors) => {
+                report_parse_errors(&file_path, &source, &errors);
+                needs_attention = true;
+                continue;
+            }
+        };
 
         if source == formatted {
             continue;
@@ -111,7 +120,7 @@ pub fn run_format_with_file_source(
 
         if args.check {
             print_diff(&file_path, &source, &formatted);
-            has_unformatted = true;
+            needs_attention = true;
         } else {
             fs::write(&file_path, formatted).map_err(|error| {
                 io::Error::new(error.kind(), format!("failed to write {}: {error}", file_path.display()))
@@ -119,7 +128,28 @@ pub fn run_format_with_file_source(
         }
     }
 
-    Ok(has_unformatted)
+    Ok(needs_attention)
+}
+
+fn report_parse_errors(path: &Path, source: &str, errors: &[ParseError]) {
+    eprintln!("{}: cannot format {} (leaving it untouched)", "error".red().bold(), path.display());
+    for error in errors {
+        let offset = usize::from(error.range.start());
+        let (line, col) = line_col(source, offset);
+        eprintln!("  {}:{line}:{col}: {}", path.display(), error.message);
+    }
+}
+
+/// Convert a byte offset into a 1-based `(line, column)` pair.
+///
+/// The column counts characters, not bytes, so multibyte characters earlier on
+/// the line do not push the reported column past the error.
+fn line_col(source: &str, offset: usize) -> (usize, usize) {
+    let offset = offset.min(source.len());
+    let line = source[..offset].bytes().filter(|&b| b == b'\n').count() + 1;
+    let line_start = source[..offset].rfind('\n').map_or(0, |i| i + 1);
+    let col = source[line_start..offset].chars().count() + 1;
+    (line, col)
 }
 
 /// Standalone `leo-fmt` entrypoint logic.
@@ -134,7 +164,7 @@ pub fn run_standalone() -> ExitCode {
     };
 
     match run_format_cli(&args.format, &base_dir) {
-        Ok(has_unformatted) if args.format.check && has_unformatted => ExitCode::from(1),
+        Ok(needs_attention) if needs_attention => ExitCode::from(1),
         Ok(_) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("{error}");
@@ -226,11 +256,40 @@ fn print_diff(path: &Path, original: &str, formatted: &str) {
 /// - **Deterministic**: Same input always produces same output
 /// - **Comment-preserving**: All comments are retained
 pub fn format_source(source: &str) -> String {
-    let tree = parse_main(source).expect("rowan parser should never fail");
+    format_syntax(&parse_file(source).syntax())
+}
 
+/// Render a parsed syntax tree to formatted source.
+fn format_syntax(node: &SyntaxNode) -> String {
     let mut out = Output::new();
-    format::format_node(&tree, &mut out);
+    format::format_node(node, &mut out);
     out.finish()
+}
+
+/// Format Leo source, returning the diagnostics instead of output when the source
+/// fails to lex or parse, so callers never write a partial file that drops content.
+pub fn try_format_source(source: &str) -> Result<String, Vec<ParseError>> {
+    let parse = parse_file(source);
+    if !parse.is_ok() {
+        // Surface lex errors too; a source that only fails lexing has no parse
+        // errors, and returning them would leave the caller with no diagnostics.
+        let mut errors = parse.errors().to_vec();
+        errors.extend(parse.lex_errors().iter().map(lex_error_as_parse_error));
+        return Err(errors);
+    }
+    Ok(format_syntax(&parse.syntax()))
+}
+
+/// Render a lexer error as a [`ParseError`] so it can share the diagnostic path.
+fn lex_error_as_parse_error(error: &LexError) -> ParseError {
+    let message = match &error.kind {
+        LexErrorKind::InvalidDigit { digit, radix, token } => {
+            format!("digit `{digit}` is invalid in radix {radix} (token `{token}`)")
+        }
+        LexErrorKind::CouldNotLex { content } => format!("could not tokenize the following content: `{content}`"),
+        LexErrorKind::BidiOverride => "unicode bidirectional override code point encountered".to_string(),
+    };
+    ParseError { message, range: error.range, found: None, expected: Vec::new() }
 }
 
 /// Check if source code is already formatted.
@@ -249,6 +308,34 @@ mod tests {
     #[test]
     fn valid_code_ok() {
         assert_eq!(format_source(VALID), VALID);
+    }
+
+    #[test]
+    fn try_format_rejects_unparseable_source() {
+        // An invalid program name is unparseable; refuse rather than drop the body (#29583).
+        let source = "program 1num.aleo {\n    function compute() -> u32 {\n        return 42u32;\n    }\n}\n";
+        assert!(try_format_source(source).is_err());
+    }
+
+    #[test]
+    fn try_format_accepts_valid_source() {
+        assert_eq!(try_format_source(VALID).unwrap(), VALID);
+    }
+
+    #[test]
+    fn try_format_reports_lex_only_errors() {
+        // `0b2u8` fails lexing (invalid digit) but parses cleanly, so the error list
+        // must still surface the lex error rather than being empty (#29583).
+        let source = "program test.aleo {\n    fn f() -> u8 {\n        return 0b2u8;\n    }\n}\n";
+        let errors = try_format_source(source).unwrap_err();
+        assert!(!errors.is_empty());
+    }
+
+    #[test]
+    fn line_col_counts_characters_not_bytes() {
+        // "é" is two bytes; the caret at byte offset 3 is character column 3.
+        let source = "aé=b\n";
+        assert_eq!(line_col(source, 3), (1, 3));
     }
 
     #[test]
@@ -316,6 +403,15 @@ mod tests {
         let source = "program test.aleo{fn main()->u32{return counter_impl.aleo::Counter@('foo','aleo')::total;}}\n";
         let expected = "program test.aleo {\n    fn main() -> u32 {\n        return counter_impl.aleo::Counter@('foo', 'aleo')::total;\n    }\n}\n";
         assert_eq!(format_source(source), expected);
+    }
+
+    #[test]
+    fn preserves_self_upper_recovery() {
+        // `Self::…` is reserved; parser recovers by consuming the whole path so it becomes one
+        // SELF_UPPER_EXPR node. Fmt must emit the raw text — a naive `out.write("Self")` arm
+        // would drop everything after `Self`.
+        let source = "program test.aleo {\n    fn f() -> address {\n        return Self::ctx::caller();\n    }\n}\n";
+        assert_eq!(format_source(source), source);
     }
 
     #[test]

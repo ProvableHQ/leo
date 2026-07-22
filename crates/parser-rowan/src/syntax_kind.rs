@@ -225,6 +225,8 @@ define_syntax_kinds! {
     KW_AS,
     /// `self`
     KW_SELF,
+    /// `Self`
+    KW_SELF_UPPER,
     /// `assert`
     KW_ASSERT,
     /// `assert_eq`
@@ -525,6 +527,8 @@ define_syntax_kinds! {
     PROGRAM_REF_EXPR,
     /// Self expression: `self`
     SELF_EXPR,
+    /// `Self` expression.
+    SELF_UPPER_EXPR,
     /// Block keyword expression: `block`
     BLOCK_KW_EXPR,
     /// Network keyword expression: `network`
@@ -654,6 +658,7 @@ impl SyntaxKind {
                 | KW_EXPORT
                 | KW_AS
                 | KW_SELF
+                | KW_SELF_UPPER
                 | KW_ASSERT
                 | KW_ASSERT_EQ
                 | KW_ASSERT_NEQ
@@ -748,6 +753,7 @@ impl SyntaxKind {
                     | PATH_LOCATOR_EXPR
                     | PROGRAM_REF_EXPR
                     | SELF_EXPR
+                    | SELF_UPPER_EXPR
                     | BLOCK_KW_EXPR
                     | NETWORK_KW_EXPR
                     | PAREN_EXPR
@@ -924,6 +930,7 @@ impl SyntaxKind {
             KW_EXPORT => "'export'",
             KW_AS => "'as'",
             KW_SELF => "'self'",
+            KW_SELF_UPPER => "'Self'",
             KW_ASSERT => "'assert'",
             KW_ASSERT_EQ => "'assert_eq'",
             KW_ASSERT_NEQ => "'assert_neq'",

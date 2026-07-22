@@ -112,12 +112,18 @@ impl Pass for TypeChecking {
             conditional_scopes: Vec::new(),
             limits: input,
             async_block_id: None,
+            offchain_intrinsic_users: IndexSet::new(),
+            pending_offchain_checks: Vec::new(),
         };
 
         match &ast {
             Ast::Program(program) => visitor.visit_program(program),
             Ast::Library(library) => visitor.visit_library(library),
         }
+
+        // Post-visit: the call graph is now complete, so we can propagate offchain-ness through
+        // it and reject calls that would inline an offchain intrinsic into a finalize/view scope.
+        visitor.emit_offchain_transitivity_errors();
 
         visitor.state.handler.last_err()?;
 

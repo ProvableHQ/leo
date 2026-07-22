@@ -1,5 +1,5 @@
 export final fn bar() {
-    let x: u64 = block.height;
+    let x: u64 = std::ctx::block_height();
 }
 
 program test.aleo {

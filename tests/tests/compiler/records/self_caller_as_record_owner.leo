@@ -4,11 +4,11 @@ program test0.aleo {
     }
 
     fn foo() -> Token {
-        return Token { owner: self.caller };
+        return Token { owner: std::ctx::caller() };
     }
 
     fn bar() -> Token {
-        let t: Token = Token { owner: self.caller };
+        let t: Token = Token { owner: std::ctx::caller() };
         return t;
     }
 

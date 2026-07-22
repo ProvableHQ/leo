@@ -1,6 +1,6 @@
 program test.aleo {
     fn matches(addr: address) -> bool {
-        return self.caller == addr;
+        return std::ctx::caller() == addr;
     }
 
     mapping balances: address => u128;

@@ -33,14 +33,6 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(long, help = "Enable spans in AST snapshots.", hide = true)]
-    pub enable_ast_spans: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.", hide = true)]
-    pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.", hide = true)]
-    pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1.., hide = true)]
-    pub ast_snapshots: Vec<String>,
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,
     #[clap(long, help = "Don't use the dependency cache.")]
@@ -51,7 +43,7 @@ pub struct BuildOptions {
     pub offline: bool,
     #[clap(
         long,
-        help = "Print the program checksum and the checksum of each entry and view function (the `Program::function_checksum` targets)."
+        help = "Print the program checksum and the checksum of each entry and view function (the `std::prog::function_checksum` targets)."
     )]
     pub checksums: bool,
     #[clap(skip)]

@@ -111,13 +111,6 @@ impl Package {
         self.unit_build_directory(name).join(INTERFACES_DIRNAME)
     }
 
-    /// Path to a unit's AST-snapshot directory: `build/<name>/snapshots/`.
-    /// Populated only when a snapshot CLI flag is set; created lazily by the
-    /// compiler on the first write, so absent on builds that don't request snapshots.
-    pub fn unit_snapshots_directory(&self, name: &str) -> PathBuf {
-        self.unit_build_directory(name).join(SNAPSHOTS_DIRNAME)
-    }
-
     pub fn source_directory(&self) -> PathBuf {
         self.base_directory.join(SOURCE_DIRECTORY)
     }
@@ -403,7 +396,17 @@ impl Package {
                     })
                     .collect();
                 if let Some(deps) = manifest.dev_dependencies.as_ref() {
-                    test_dependencies.extend(deps.iter().cloned());
+                    // Canonicalize dev-dependency paths like regular dependencies, so the same local
+                    // library in both lists dedups instead of comparing relative against absolute.
+                    for dep in deps {
+                        let dep = canonicalize_dependency_path_relative_to(&path, dep.clone())?;
+                        let dep = if dep.location == Location::Workspace {
+                            resolve_workspace_dependency(&path, dep)?
+                        } else {
+                            dep
+                        };
+                        test_dependencies.push(dep);
+                    }
                 }
                 test_dependencies
             } else {
@@ -778,7 +781,6 @@ mod tests {
         assert_eq!(pkg.unit_bytecode_path("token.aleo"), PathBuf::from("/tmp/demo/build/token/token.aleo"));
         assert_eq!(pkg.unit_abi_path("token"), PathBuf::from("/tmp/demo/build/token/abi.json"));
         assert_eq!(pkg.unit_interfaces_directory("token"), PathBuf::from("/tmp/demo/build/token/interfaces"));
-        assert_eq!(pkg.unit_snapshots_directory("token"), PathBuf::from("/tmp/demo/build/token/snapshots"));
     }
 
     #[test]
