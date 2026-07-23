@@ -18,7 +18,7 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::{AstSnapshots, CompilerOptions, errors};
+use crate::{CompilerOptions, errors};
 
 use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
@@ -92,8 +92,6 @@ pub struct Compiled {
 
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
-    /// The path to where the compiler outputs all generated files.
-    output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
     /// When set, recompile under this on-chain name instead of the one the source
@@ -178,11 +176,6 @@ impl Compiler {
 
         self.state.ast = Ast::Program(program);
 
-        if self.compiler_options.initial_ast {
-            self.write_ast_to_json("initial.json")?;
-            self.write_ast("initial.ast")?;
-        }
-
         Ok(())
     }
 
@@ -251,11 +244,6 @@ impl Compiler {
         // way programs do, so adopt the name supplied by the caller if none was pre-set.
         if self.unit_name.is_none() {
             self.unit_name = Some(library_name.to_string());
-        }
-
-        if self.compiler_options.initial_ast {
-            self.write_ast_to_json("initial.json")?;
-            self.write_ast("initial.ast")?;
         }
 
         Ok(())
@@ -329,7 +317,6 @@ impl Compiler {
         is_test: bool,
         handler: Handler,
         node_builder: Rc<NodeBuilder>,
-        output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
         network: NetworkName,
@@ -342,7 +329,6 @@ impl Compiler {
                 network,
                 ..Default::default()
             },
-            output_directory,
             unit_name: expected_unit_name,
             rename: None,
             compiler_options: compiler_options.unwrap_or_default(),
@@ -356,22 +342,12 @@ impl Compiler {
     }
 
     /// Runs a compiler pass and checks whether the caller still wants the
-    /// result once the pass and any requested snapshots have completed.
+    /// result once the pass has completed.
     fn do_pass_with_check<P: Pass, C>(&mut self, input: P::Input, should_continue: &mut C) -> Result<P::Output>
     where
         C: FnMut() -> Result<()>,
     {
         let output = P::do_pass(input, &mut self.state)?;
-
-        let write = match &self.compiler_options.ast_snapshots {
-            AstSnapshots::All => true,
-            AstSnapshots::Some(passes) => passes.contains(P::NAME),
-        };
-
-        if write {
-            self.write_ast_to_json(&format!("{}.json", P::NAME))?;
-            self.write_ast(&format!("{}.ast", P::NAME))?;
-        }
 
         should_continue()?;
         Ok(output)
@@ -738,48 +714,6 @@ impl Compiler {
         }
     }
 
-    /// Writes the AST to a JSON file under the unit's snapshots directory.
-    fn write_ast_to_json(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
-        if self.output_directory.as_os_str().is_empty() {
-            return Ok(());
-        }
-        // Snapshots are opt-in; create the directory lazily on first write.
-        fs::create_dir_all(&self.output_directory)
-            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-        let dir = self.output_directory.clone();
-        if self.compiler_options.ast_spans_enabled {
-            match &self.state.ast {
-                Ast::Program(program) => leo_ast::write_ast_json(program, dir, filename)?,
-                Ast::Library(library) => leo_ast::write_ast_json(library, dir, filename)?,
-            }
-        } else {
-            match &self.state.ast {
-                Ast::Program(program) => leo_ast::write_ast_json_filtered(program, dir, filename, &["_span", "span"])?,
-                Ast::Library(library) => leo_ast::write_ast_json_filtered(library, dir, filename, &["_span", "span"])?,
-            }
-        }
-        Ok(())
-    }
-
-    /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
-    fn write_ast(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
-        if self.output_directory.as_os_str().is_empty() {
-            return Ok(());
-        }
-        // Snapshots are opt-in; create the directory lazily on first write.
-        fs::create_dir_all(&self.output_directory)
-            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-        let full_filename = self.output_directory.join(filename);
-
-        let contents = self.state.ast.to_string();
-
-        fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
-
-        Ok(())
-    }
-
     /// Resolves and registers all import stubs for the current program.
     ///
     /// This method performs a graph traversal over the program’s import relationships to:
@@ -914,11 +848,9 @@ impl Compiler {
             false,
             handler,
             node_builder,
-            PathBuf::new(),
             Some(CompilerOptions {
                 // avoid infinite recursion
                 no_std: true,
-                ..CompilerOptions::default()
             }),
             IndexMap::new(),
             network,
@@ -1228,7 +1160,6 @@ fn load_source_dependency_stub(
         false,
         handler,
         node_builder,
-        PathBuf::default(),
         Some(CompilerOptions::default()),
         IndexMap::new(),
         network,
@@ -1351,16 +1282,8 @@ mod tests {
 
             let handler = Handler::default();
             let node_builder = Rc::new(NodeBuilder::default());
-            let mut compiler = Compiler::new(
-                None,
-                false,
-                handler,
-                node_builder,
-                PathBuf::from("/unused"),
-                None,
-                IndexMap::new(),
-                NetworkName::TestnetV0,
-            );
+            let mut compiler =
+                Compiler::new(None, false, handler, node_builder, None, IndexMap::new(), NetworkName::TestnetV0);
 
             let library = compiler
                 .parse_library_from_directory_with_file_source(
@@ -1402,7 +1325,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1447,7 +1369,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1479,7 +1400,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1528,9 +1448,8 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::new(),
                 // `no_std` avoids injecting `std` into itself.
-                Some(crate::CompilerOptions { no_std: true, ..Default::default() }),
+                Some(crate::CompilerOptions { no_std: true }),
                 IndexMap::new(),
                 NetworkName::TestnetV0,
             );
