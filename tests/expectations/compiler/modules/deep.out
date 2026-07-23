@@ -6,6 +6,10 @@ struct Foo__8n3BEGIXogs:
 struct Foo__2Rn9ACFPIh3:
     a as [u32; 3u32];
 
+struct Wrapper:
+    outer as Foo__8n3BEGIXogs;
+    inner as Foo__2Rn9ACFPIh3;
+
 struct Foo__KN4SHuYiDFN:
     a as [u32; 4u32];
 
