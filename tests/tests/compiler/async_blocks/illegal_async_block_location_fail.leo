@@ -19,14 +19,14 @@ program test.aleo {
     constructor() {}
 }
 
-fn f2(x: u32) {
+export fn f2(x: u32) {
     let f = final {};
 }
 
-final fn f3() {
+export final fn f3() {
     let f = final {};
 }
 
-fn i() {
+export fn i() {
     let f = final {};
 }

@@ -1,6 +1,6 @@
 // Test: Function return type doesn't match interface requirement (should fail)
 
-interface Converter {
+export interface Converter {
     fn convert(value: u64) -> u32;
 }
 

@@ -1,7 +1,7 @@
 [ECHI03712001] Error: interface `Combined` has a conflicting definition for `value` inherited from `Storage1`
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ interface Combined: Storage1 + Storage2 {
+  9 │ ╭─▶ export interface Combined: Storage1 + Storage2 {
  10 │ ├─▶ }
     │ │       
     │ ╰─────── here
@@ -11,7 +11,7 @@
 [ECHI03712001] Error: interface `Combined` has a conflicting definition for `value` inherited from `Storage1`
     ╭─[ compiler-test:9:1 ]
     │
-  9 │ ╭─▶ interface Combined: Storage1 + Storage2 {
+  9 │ ╭─▶ export interface Combined: Storage1 + Storage2 {
  10 │ ├─▶ }
     │ │       
     │ ╰─────── here

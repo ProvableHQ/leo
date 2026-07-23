@@ -36,18 +36,18 @@ program rand_dce_probe.aleo {
     constructor() {}
 }
 
-final fn finalize_with_unused() {
+export final fn finalize_with_unused() {
     let unused: u8 = ChaCha::rand_u8();
     let kept: u8 = ChaCha::rand_u8();
     values.set(0u8, kept);
 }
 
-final fn finalize_without_unused() {
+export final fn finalize_without_unused() {
     let kept: u8 = ChaCha::rand_u8();
     values.set(0u8, kept);
 }
 
-final fn finalize_with_used() {
+export final fn finalize_with_used() {
     let used: u8 = ChaCha::rand_u8();
     let kept: u8 = ChaCha::rand_u8();
     values.set(1u8, used);

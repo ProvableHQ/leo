@@ -2,7 +2,7 @@
 // const propagation passes. The interface's array length literal must be visited
 // by the type checker so its NodeID is in the type table.
 
-interface TokenStorage {
+export interface TokenStorage {
     mapping allowances: [address; 2] => u128;
 }
 

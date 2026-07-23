@@ -1,0 +1,7 @@
+[ETYC0372018] Error: `w` is not a member of `Point`
+   ╭─[ compiler-test:9:38 ]
+   │
+ 9 │         let updated: Point = Point { w: 5u32, ..base };
+   │ 
+   │ Help: Check the field name for typos and confirm `w` is declared on `Point`.
+───╯

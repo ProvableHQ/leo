@@ -4,7 +4,7 @@
 // Here, `test.aleo` has no `Token` record of its own and tries to satisfy the interface
 // requirement `fn transfer(t: Token) -> Token` using `other.aleo`'s `Token`. This must fail.
 
-interface HasToken {
+export interface HasToken {
     record Token {
         owner: address,
         ..

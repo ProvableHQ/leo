@@ -7,7 +7,7 @@ input = ["3u32"]
 
 // --- library: math_lib --- //
 
-fn scale::[N: u32](a: u32) -> u32 {
+export fn scale::[N: u32](a: u32) -> u32 {
     return a * N;
 }
 

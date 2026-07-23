@@ -1,4 +1,4 @@
-struct QQ {
+export struct QQ {
     y: dep::Baz::[3],
 }
 
@@ -23,7 +23,7 @@ program multifile.aleo {
     constructor() {}
 }
 
-fn goo::[M: u32]() -> u32 {
+export fn goo::[M: u32]() -> u32 {
     let b = dep::Bar::[M] {
         a: [43; M],
         c: dep::Baz::[M] { x: 169 },
@@ -34,22 +34,22 @@ fn goo::[M: u32]() -> u32 {
 
 // --- Next Module: dep.leo --- //
 
-struct Baz::[Q: u32] {
+export struct Baz::[Q: u32] {
     x: u32,
 }
 
-const X: u32 = 6;
+export const X: u32 = 6;
 
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     a: [u32; N],
 }
 
-struct Bar::[N: u32] {
+export struct Bar::[N: u32] {
     a: [u32; N],
     c: Baz::[N],
 }
 
-fn bar() -> u32 {
+export fn bar() -> u32 {
     let c = Foo::[X] { a: [66; X] };
     let b: [u32; 3] = [1, 2, 3];
     b[2] = 4;
@@ -57,7 +57,7 @@ fn bar() -> u32 {
     return c.a[0] + goo::[29]() + X + other_dep::Y;
 }
 
-fn goo::[M: u32]() -> u32 {
+export fn goo::[M: u32]() -> u32 {
     let c = Baz::[M] { x: 69 };
     let b = Bar::[M] { a: [43; M], c };
     b.a[M / 2] = 333333;
@@ -65,24 +65,24 @@ fn goo::[M: u32]() -> u32 {
 }
 
 // --- Next Module: dep/other_dep.leo --- //
-const Y: u32 = 999999;
+export const Y: u32 = 999999;
 
 // --- Next Module: inner/dep.leo --- //
-const X: u32 = 11;
+export const X: u32 = 11;
 
-struct Foo {
+export struct Foo {
     a: [u32; X],
 }
 
-struct Bar::[N: u32] {
+export struct Bar::[N: u32] {
     a: [u32; N],
 }
 
-fn bar() -> u32 {
+export fn bar() -> u32 {
     let c = Foo { a: [6; X] };
     return c.a[0] + goo::[99]() + X;
 }
 
-fn goo::[N: u32]() -> u32 {
+export fn goo::[N: u32]() -> u32 {
     return N + X;
 }

@@ -1,0 +1,14 @@
+program test.aleo;
+
+function dummy_transition:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    output r1 as u32.private;
+
+view read_owner:
+    output program_owner as address.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px

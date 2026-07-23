@@ -8,7 +8,7 @@
 
 // --- Next Module: itoken.leo --- //
 
-interface TokenInterface {
+export interface TokenInterface {
     record Token;
     fn mint(owner: address) -> Token;
 }

@@ -14,9 +14,9 @@ fn split(t: test.aleo::Token) -> (test.aleo::Token, u64)
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ test:5:19 ]
+   ╭─[ test:5:26 ]
    │
- 5 │ ╭─▶ interface ISplit {
+ 5 │ ╭─▶ export interface ISplit {
    ┆ ┆   
  9 │ ├─▶     }
    │ │           

@@ -8,6 +8,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_main(target: field) {
+export final fn finalize_main(target: field) {
     let val: u64 = _dynamic_call::[u64](target, target, target);
 }

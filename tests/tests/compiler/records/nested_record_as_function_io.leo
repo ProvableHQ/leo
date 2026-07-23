@@ -5,7 +5,7 @@ program program_a.aleo {
     }
 
     fn mint2(input: u32) -> X {
-        return X { owner: self.signer, val: input };
+        return X { owner: std::ctx::signer(), val: input };
     }
 
     @noupgrade

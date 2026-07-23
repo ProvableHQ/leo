@@ -10,12 +10,12 @@
 
 // --- library: vec_lib --- //
 
-struct Vec2 {
+export struct Vec2 {
     x: u32,
     y: u32,
 }
 
-struct VecN::[N: u32] {
+export struct VecN::[N: u32] {
     len: u32,
 }
 

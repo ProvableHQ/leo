@@ -7,10 +7,10 @@ xxx::xxx
 
 XXX::YYY::ZZZ
 
-Self::pp::qq
-
 foo.aleo::bar 
 
 foo/bar
+
+Self::pp::qq
 
 self::y

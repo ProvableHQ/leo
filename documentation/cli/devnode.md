@@ -120,6 +120,42 @@ leo execute <TRANSITION> <INPUTS> --skip-execute-proof --endpoint http://localho
 leo upgrade --skip-deploy-certificate --endpoint http://localhost:3030
 ```
 
+## Evaluating View Functions
+
+A devnode exposes two REST endpoints for evaluating a program's [`view fn`](../language/programs_in_practice/functions.md) against the current ledger state. View functions are read-only: they compute a result from on-chain state without producing a transaction, so no key, signature, or proof is required.
+
+Both endpoints are mounted under the network prefix (e.g. `testnet`) and are also available behind the `v1` and `v2` API version prefixes:
+
+| Method | Path                                               | Description                                          |
+| ------ | -------------------------------------------------- | ---------------------------------------------------- |
+| `POST` | `/{network}/program/{id}/view/{function}`          | Evaluate a view function at the latest block height. |
+| `POST` | `/{network}/program/{id}/view/{function}/{height}` | Evaluate a view function at a specific block height. |
+
+The request body is a JSON array of the view function's inputs, each encoded as an Aleo value string. Pass `[]` when the function takes no inputs. The response is a JSON array of the function's outputs.
+
+The latest-height endpoint accepts an optional `?metadata=true` query parameter; when set, the response is wrapped as `{ "data": [...], "height": <block_height> }` instead of a bare output array.
+
+### **Examples**
+
+```bash
+# Evaluate `my_view` on `my_program.aleo` at the latest height
+curl -X POST http://localhost:3030/testnet/program/my_program.aleo/view/my_view \
+  -H 'Content-Type: application/json' \
+  -d '["1u32", "2u32"]'
+
+# Include the block height the result was evaluated at
+curl -X POST 'http://localhost:3030/testnet/program/my_program.aleo/view/my_view?metadata=true' \
+  -H 'Content-Type: application/json' \
+  -d '[]'
+
+# Evaluate against historical state at block height 10
+curl -X POST http://localhost:3030/testnet/program/my_program.aleo/view/my_view/10 \
+  -H 'Content-Type: application/json' \
+  -d '[]'
+```
+
+Under the `v2` prefix the endpoints return `422 Unprocessable Entity` for malformed inputs and `400 Bad Request` for an unknown view function or a height before the program was deployed.
+
 ## Typical Workflow
 
 ```bash

@@ -558,9 +558,13 @@ impl<'a> ConversionContext<'a> {
             PATH_EXPR => self.path_expr_to_expression(node)?,
             PATH_LOCATOR_EXPR => self.path_locator_expr_to_expression(node)?,
             PROGRAM_REF_EXPR => self.program_ref_expr_to_expression(node)?,
-            SELF_EXPR => self.keyword_expr_to_path(node, sym::SelfLower)?,
-            BLOCK_KW_EXPR => self.keyword_expr_to_path(node, sym::block)?,
-            NETWORK_KW_EXPR => self.keyword_expr_to_path(node, sym::network)?,
+            SELF_EXPR => self.error_removed_context_keyword(node, sym::SelfLower),
+            BLOCK_KW_EXPR => self.error_removed_context_keyword(node, sym::block),
+            NETWORK_KW_EXPR => self.error_removed_context_keyword(node, sym::network),
+            SELF_UPPER_EXPR => {
+                self.handler.emit_err(crate::errors::reserved_identifier("Self", self.trimmed_span(node)));
+                self.error_expression(span)
+            }
             PAREN_EXPR => {
                 // Parenthesized expression - just unwrap
                 if let Some(inner) = children(node).find(|n| n.kind().is_expression()) {
@@ -884,6 +888,25 @@ impl<'a> ConversionContext<'a> {
                 }
                 .into());
             }
+            // `Program::*` used to desugar to the program-metadata intrinsics. The replacement
+            // lives in `std::prog::*`; emit a tailored migration error.
+            if module == sym::ProgramCore {
+                let replacement = match name {
+                    sym::checksum => Some("std::prog::checksum::[PROG_ID]()"),
+                    sym::edition => Some("std::prog::edition::[PROG_ID]()"),
+                    sym::program_owner => Some("std::prog::program_owner::[PROG_ID]()"),
+                    sym::function_checksum => Some("std::prog::function_checksum::[PROG_ID, FN_NAME]()"),
+                    _ => None,
+                };
+                if let Some(replacement) = replacement {
+                    self.handler.emit_err(crate::errors::obsolete_context_access(
+                        format!("Program::{}", name),
+                        replacement,
+                        span,
+                    ));
+                    return Ok(self.error_expression(span));
+                }
+            }
         }
 
         // Bare intrinsic calls (e.g. `_dynamic_call::[u64](args)`).
@@ -1122,7 +1145,12 @@ impl<'a> ConversionContext<'a> {
         let (inner, first_child_kind) = match children(node).find(|n| n.kind().is_expression()) {
             Some(n) => {
                 let kind = n.kind();
-                (self.to_expression(&n)?, kind)
+                let lowered = if matches!(kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+                    self.error_expression(self.trimmed_span(&n))
+                } else {
+                    self.to_expression(&n)?
+                };
+                (lowered, kind)
             }
             None => {
                 self.emit_unexpected_str("expression in field access", node.text(), span);
@@ -1131,7 +1159,7 @@ impl<'a> ConversionContext<'a> {
         };
 
         // Get the field name (token after DOT).
-        // Field names can be identifiers or keywords (e.g. `self.address`).
+        // Field names can be identifiers or keywords.
         let field_token = match find_name_after_dot(node) {
             Some(token) => token,
             None => {
@@ -1152,37 +1180,42 @@ impl<'a> ConversionContext<'a> {
             return Ok(leo_ast::Literal::address(full_name, span, id).into());
         }
 
-        // Check for special accesses: self.caller, block.height, etc.
+        // `self.X`, `block.X`, and `network.X` used to be sugar for execution-context
+        // intrinsics. The sugar has been removed; the same values are now reached
+        // through the `std::ctx` module. Emit a targeted migration error that names
+        // the replacement.
         let field_name = Symbol::intern(field_token.text());
-
-        let special = match (first_child_kind, field_name) {
-            (SELF_EXPR, sym::address) => Some(sym::_self_address),
-            (SELF_EXPR, sym::caller) => Some(sym::_self_caller),
-            (SELF_EXPR, sym::checksum) => Some(sym::_self_checksum),
-            (SELF_EXPR, sym::edition) => Some(sym::_self_edition),
-            (SELF_EXPR, sym::id) => Some(sym::_self_id),
-            (SELF_EXPR, sym::program_owner) => Some(sym::_self_program_owner),
-            (SELF_EXPR, sym::signer) => Some(sym::_self_signer),
-            (BLOCK_KW_EXPR, sym::height) => Some(sym::_block_height),
-            (BLOCK_KW_EXPR, sym::timestamp) => Some(sym::_block_timestamp),
-            (NETWORK_KW_EXPR, sym::id) => Some(sym::_network_id),
-            (SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR, _) => {
-                self.handler.emit_err(crate::errors::custom("Unsupported special access", span));
-                return Ok(self.error_expression(span));
-            }
+        let removed_access = match (first_child_kind, field_name) {
+            (SELF_EXPR, sym::address) => Some(("self.address", "std::ctx::addr()")),
+            (SELF_EXPR, sym::caller) => Some(("self.caller", "std::ctx::caller()")),
+            (SELF_EXPR, sym::checksum) => Some(("self.checksum", "std::ctx::checksum()")),
+            (SELF_EXPR, sym::edition) => Some(("self.edition", "std::ctx::edition()")),
+            (SELF_EXPR, sym::id) => Some(("self.id", "std::ctx::id()")),
+            (SELF_EXPR, sym::program_owner) => Some(("self.program_owner", "std::ctx::program_owner()")),
+            (SELF_EXPR, sym::signer) => Some(("self.signer", "std::ctx::signer()")),
+            (BLOCK_KW_EXPR, sym::height) => Some(("block.height", "std::ctx::block_height()")),
+            (BLOCK_KW_EXPR, sym::timestamp) => Some(("block.timestamp", "std::ctx::block_timestamp()")),
+            (NETWORK_KW_EXPR, sym::id) => Some(("network.id", "std::ctx::network_id()")),
             _ => None,
         };
-
-        if let Some(intrinsic_name) = special {
-            return Ok(self.intrinsic_expression(intrinsic_name, Vec::new(), span));
+        if let Some((old, replacement)) = removed_access {
+            self.handler.emit_err(crate::errors::obsolete_context_access(old, replacement, span));
+            return Ok(self.error_expression(span));
+        }
+        if matches!(first_child_kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+            let keyword = match first_child_kind {
+                SELF_EXPR => "self",
+                BLOCK_KW_EXPR => "block",
+                NETWORK_KW_EXPR => "network",
+                _ => unreachable!(),
+            };
+            self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
+            return Ok(self.error_expression(span));
         }
 
-        // Field token may be an identifier or keyword (e.g. `self.address`).
-        let name = leo_ast::Identifier {
-            name: Symbol::intern(field_token.text()),
-            span: self.token_span(&field_token),
-            id: self.builder.next_id(),
-        };
+        // Field token may be an identifier or keyword (e.g. `obj.aleo`).
+        let field_span = self.token_span(&field_token);
+        let name = leo_ast::Identifier { name: field_name, span: field_span, id: self.builder.next_id() };
         Ok(leo_ast::MemberAccess { inner, name, span, id }.into())
     }
 
@@ -1351,8 +1384,13 @@ impl<'a> ConversionContext<'a> {
             .filter(|n| matches!(n.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND))
             .map(|n| self.struct_field_init_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
+        let base = children(node)
+            .find(|n| n.kind() == STRUCT_BASE_UPDATE)
+            .and_then(|n| children(&n).find(|c| c.kind().is_expression()))
+            .map(|n| self.to_expression(&n).map(Box::new))
+            .transpose()?;
         let (_type_parameters, const_arguments) = self.extract_const_arg_list(node)?;
-        Ok(leo_ast::CompositeExpression { path, const_arguments, members, span, id }.into())
+        Ok(leo_ast::CompositeExpression { path, const_arguments, members, base, span, id }.into())
     }
 
     /// Convert a STRUCT_EXPR node to a CompositeExpression.
@@ -1523,12 +1561,19 @@ impl<'a> ConversionContext<'a> {
         Ok(leo_ast::Expression::Path(path))
     }
 
-    /// Convert a keyword expression (SELF_EXPR, BLOCK_KW_EXPR, NETWORK_KW_EXPR) to a Path.
-    fn keyword_expr_to_path(&self, node: &SyntaxNode, name: Symbol) -> Result<leo_ast::Expression> {
+    /// Emit the migration error for a bare reference to one of the removed context keywords
+    /// (`self`, `block`, `network`) and return an error placeholder expression. The sugar that
+    /// turned these into expressions has been replaced by the `std::ctx` module.
+    fn error_removed_context_keyword(&self, node: &SyntaxNode, name: Symbol) -> leo_ast::Expression {
         let span = self.trimmed_span(node);
-        let ident = leo_ast::Identifier { name, span, id: self.builder.next_id() };
-        let path = leo_ast::Path::new(None, Vec::new(), ident, span, self.builder.next_id());
-        Ok(leo_ast::Expression::Path(path))
+        let keyword = match name {
+            sym::SelfLower => "self",
+            sym::block => "block",
+            sym::network => "network",
+            _ => unreachable!("error_removed_context_keyword called with non-context keyword"),
+        };
+        self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
+        self.error_expression(span)
     }
 
     /// Convert a FINAL_EXPR node to an Expression.
@@ -1770,7 +1815,8 @@ impl<'a> ConversionContext<'a> {
 
         let value = self.require_expression(node, "value in const declaration")?;
 
-        Ok(leo_ast::ConstDeclaration { place, type_, value, span, id }.into())
+        // Visibility doesn't apply to statement-level `const`s.
+        Ok(leo_ast::ConstDeclaration { is_exported: None, place, type_, value, span, id }.into())
     }
 
     /// Convert a RETURN_STMT node to a ReturnStatement.
@@ -1987,7 +2033,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let composite = self.to_composite(item)?;
+                let composite = self.to_composite(item, is_in_program_block)?;
                 composites.push((composite.identifier.name, composite));
             }
             GLOBAL_CONST => {
@@ -2001,7 +2047,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let global_const = self.to_global_const(item)?;
+                let global_const = self.to_global_const(item, is_in_program_block)?;
                 consts.push((global_const.place.name, global_const));
             }
             INTERFACE_DEF => {
@@ -2015,7 +2061,7 @@ impl<'a> ConversionContext<'a> {
                         .with_help("Move the declaration outside the `program` block, to the top level of the file."),
                     );
                 }
-                let interface = self.to_interface(item)?;
+                let interface = self.to_interface(item, is_in_program_block)?;
                 interfaces.push((interface.identifier.name, interface));
             }
             _ => {}
@@ -2035,11 +2081,11 @@ impl<'a> ConversionContext<'a> {
         if is_library_item(item.kind()) {
             match item.kind() {
                 GLOBAL_CONST => {
-                    let global_const = self.to_global_const(item)?;
+                    let global_const = self.to_global_const(item, false)?;
                     consts.push((global_const.place.name, global_const));
                 }
                 STRUCT_DEF => {
-                    let composite = self.to_composite(item)?;
+                    let composite = self.to_composite(item, false)?;
                     structs.push((composite.identifier.name, composite));
                 }
                 FUNCTION_DEF => {
@@ -2048,7 +2094,7 @@ impl<'a> ConversionContext<'a> {
                     functions.push((func.identifier.name, func));
                 }
                 INTERFACE_DEF => {
-                    let interface = self.to_interface(item)?;
+                    let interface = self.to_interface(item, false)?;
                     interfaces.push((interface.identifier.name, interface));
                 }
                 _ => {}
@@ -2409,7 +2455,10 @@ impl<'a> ConversionContext<'a> {
 
         let block = self.require_block(node, span)?;
 
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
         Ok(leo_ast::Function {
+            is_exported,
             annotations,
             variant,
             identifier,
@@ -2581,7 +2630,7 @@ impl<'a> ConversionContext<'a> {
     }
 
     /// Convert a STRUCT_DEF or RECORD_DEF node to a Composite.
-    fn to_composite(&self, node: &SyntaxNode) -> Result<leo_ast::Composite> {
+    fn to_composite(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Composite> {
         debug_assert!(matches!(node.kind(), STRUCT_DEF | RECORD_DEF));
         let span = self.non_trivia_span(node);
         let id = self.builder.next_id();
@@ -2604,7 +2653,9 @@ impl<'a> ConversionContext<'a> {
             .map(|n| self.struct_member_to_member(&n))
             .collect::<Result<Vec<_>>>()?;
 
-        Ok(leo_ast::Composite { identifier, const_parameters, members, is_record, span, id })
+        let is_exported = if is_record || is_in_program_block { None } else { Some(has_export(node)) };
+
+        Ok(leo_ast::Composite { is_exported, identifier, const_parameters, members, is_record, span, id })
     }
 
     /// Convert a STRUCT_MEMBER node to a Member.
@@ -2627,7 +2678,7 @@ impl<'a> ConversionContext<'a> {
     }
 
     /// Convert a GLOBAL_CONST node to a ConstDeclaration.
-    fn to_global_const(&self, node: &SyntaxNode) -> Result<leo_ast::ConstDeclaration> {
+    fn to_global_const(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::ConstDeclaration> {
         debug_assert_eq!(node.kind(), GLOBAL_CONST);
         let span = self.non_trivia_span(node);
         let id = self.builder.next_id();
@@ -2639,7 +2690,9 @@ impl<'a> ConversionContext<'a> {
 
         let value = self.require_expression(node, "const value")?;
 
-        Ok(leo_ast::ConstDeclaration { place, type_, value, span, id })
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
+        Ok(leo_ast::ConstDeclaration { is_exported, place, type_, value, span, id })
     }
 
     /// Parse a MAPPING_DEF node, returning its constituent parts.
@@ -2720,7 +2773,7 @@ impl<'a> ConversionContext<'a> {
     // =========================================================================
 
     /// Convert an INTERFACE_DEF node to an Interface.
-    fn to_interface(&self, node: &SyntaxNode) -> Result<leo_ast::Interface> {
+    fn to_interface(&self, node: &SyntaxNode, is_in_program_block: bool) -> Result<leo_ast::Interface> {
         debug_assert_eq!(node.kind(), INTERFACE_DEF);
         let span = self.to_span(node);
 
@@ -2762,7 +2815,10 @@ impl<'a> ConversionContext<'a> {
             }
         }
 
+        let is_exported = if is_in_program_block { None } else { Some(has_export(node)) };
+
         Ok(leo_ast::Interface {
+            is_exported,
             identifier,
             parents,
             span,
@@ -3162,6 +3218,11 @@ fn children(node: &SyntaxNode) -> impl Iterator<Item = SyntaxNode> + '_ {
 /// Get non-trivia tokens from a node.
 fn tokens(node: &SyntaxNode) -> impl Iterator<Item = SyntaxToken> + '_ {
     node.children_with_tokens().filter_map(|elem| elem.into_token()).filter(|t| !t.kind().is_trivia())
+}
+
+/// True when `node` carries a direct `export` keyword child.
+fn has_export(node: &SyntaxNode) -> bool {
+    tokens(node).any(|t| t.kind() == KW_EXPORT)
 }
 
 /// Find the first IDENT or keyword token after the DOT in a node.

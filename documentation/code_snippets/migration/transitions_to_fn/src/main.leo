@@ -7,7 +7,7 @@ program test.aleo {
     }
 
     fn mint(public amount: u64) -> Token {
-        return Token { owner: self.caller, amount: amount };
+        return Token { owner: std::ctx::caller(), amount: amount };
     }
 
     @noupgrade

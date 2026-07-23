@@ -1730,7 +1730,7 @@ program swap.aleo {
         std::fs::write(
             utils_dir.join("src/lib.leo"),
             "\
-const FACTOR: u32 = 2u32;
+export const FACTOR: u32 = 2u32;
 ",
         )
         .unwrap();
@@ -2179,7 +2179,7 @@ program outer.aleo {
 }
             ";
         let inner_1_program = "
-struct ex_struct {
+export struct ex_struct {
     arg1: u32,
     arg2: u32,
 }
@@ -2191,7 +2191,7 @@ program inner_1.aleo {
     }
     fn inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
         return inner_1_record {
-            owner: self.caller,
+            owner: std::ctx::caller(),
             val: c.arg1,
         };
     }
@@ -2210,7 +2210,7 @@ program inner_2.aleo {
     fn inner_2_main(public a: u32, b: u32) -> inner_2_record {
         let c: u32 = a + b;
         return inner_2_record {
-            owner: self.caller,
+            owner: std::ctx::caller(),
             val: a,
         };
     }
@@ -2371,7 +2371,7 @@ program outer_2.aleo {
         inner_2.aleo::Yo_Consumer(inner_2.aleo::Yo());
         let h: inner_2.aleo::Yoo = inner_2.aleo::Yo();
         let i: inner_2.aleo::Goo = inner_2.aleo::Goo_creator();
-        let j: Hello = Hello {owner: self.signer, a:1u32};
+        let j: Hello = Hello {owner: std::ctx::signer(), a:1u32};
 
         return (h, j);
     }
@@ -2381,12 +2381,12 @@ program outer_2.aleo {
 }
 ";
         let inner_1_program = "
-struct Foo {
+export struct Foo {
     a: u32,
     b: u32,
     c: Boo,
 }
-struct Boo {
+export struct Boo {
     a: u32,
     b: u32,
 }
@@ -2402,16 +2402,16 @@ program inner_1.aleo {
     constructor() {}
 }";
         let inner_2_program = "
-struct Foo {
+export struct Foo {
     a: u32,
     b: u32,
     c: Boo,
 }
-struct Boo {
+export struct Boo {
     a: u32,
     b: u32,
 }
-struct Goo {
+export struct Goo {
     a: u32,
     b: u32,
     c: u32,
@@ -2425,7 +2425,7 @@ program inner_2.aleo {
         return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
     }
     fn Yo()-> Yoo {
-        return Yoo {owner: self.signer, a:1u32};
+        return Yoo {owner: std::ctx::signer(), a:1u32};
     }
     fn Yo_Consumer(a: Yoo)->u32 {
         return a.a;

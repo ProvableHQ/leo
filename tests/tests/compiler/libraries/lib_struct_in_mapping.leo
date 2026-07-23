@@ -10,7 +10,7 @@
 
 // --- library: cache_lib --- //
 
-struct Entry::[N: u32] {
+export struct Entry::[N: u32] {
     size: u32,
 }
 

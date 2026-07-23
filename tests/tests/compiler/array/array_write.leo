@@ -1,15 +1,15 @@
-struct S {
+export struct S {
     x: u8,
     y: u32,
 }
 
-struct T {
+export struct T {
     x: u8,
     y: [S; 3],
     z: S,
 }
 
-final fn f_finalize(x: u8) {
+export final fn f_finalize(x: u8) {
     assert_eq(x, x);
 }
 
@@ -58,7 +58,7 @@ program test.aleo {
 
     fn f_record() -> (R, Final) {
         let fut: Final = final { f_finalize(1u8); };
-        let r: R = R { owner: self.signer, x: 1u8 };
+        let r: R = R { owner: std::ctx::signer(), x: 1u8 };
         r.x = 2u8;
         return (r, fut);
     }

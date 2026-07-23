@@ -20,16 +20,9 @@
     │ Help: Remove the const generic parameters from this entry point functions.
 ────╯
 [ETYC0372143] Error: functions annotated with `@no_inline` cannot have generic const parameters
-   ╭─[ compiler-test:6:4 ]
+   ╭─[ compiler-test:6:11 ]
    │
- 6 │ fn foo1::[N: u32](x: u32) -> u32 {
+ 6 │ export fn foo1::[N: u32](x: u32) -> u32 {
    │ 
    │ Help: Remove the const generic parameters from this functions annotated with `@no_inline`.
 ───╯
-[ETYC0372143] Error: `final fn` functions cannot have generic const parameters
-    ╭─[ compiler-test:10:10 ]
-    │
- 10 │ final fn foo2::[N: u32](x: u32) {}
-    │ 
-    │ Help: Remove the const generic parameters from this `final fn` functions.
-────╯

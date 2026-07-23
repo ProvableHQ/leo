@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Fail
 */
 
-struct Message {
+export struct Message {
     data: u32,
 }
 

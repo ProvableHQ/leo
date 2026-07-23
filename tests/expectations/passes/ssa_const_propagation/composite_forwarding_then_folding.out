@@ -2,7 +2,7 @@ program test.aleo {
     @noupgrade
     async constructor() {
     }
-    struct Flag {
+    export struct Flag {
         active: bool,
         payload: u32,
     }

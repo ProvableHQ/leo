@@ -1,8 +1,8 @@
-struct Data {
+export struct Data {
     data: [u8; 2],
 }
 
-fn foo(a: u8, b: u8) -> [Data; 2] {
+export fn foo(a: u8, b: u8) -> [Data; 2] {
     let data_1: Data = Data { data: [a, b] };
     let data_2: Data = Data { data: [b, a] };
     if (a == b) {

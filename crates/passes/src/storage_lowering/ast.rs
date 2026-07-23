@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::StorageLoweringVisitor;
+use crate::expression_can_be_discarded;
 
 use leo_ast::*;
 use leo_span::{Span, Symbol, sym};
@@ -87,17 +88,45 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     panic!("Vector::push can only be called with `Expression::Path`");
                 };
 
-                let (value, stmts) = self.reconstruct_expression(value_expr.clone(), &());
+                let value_type = self
+                    .state
+                    .type_table
+                    .get(&value_expr.id())
+                    .expect("type checking should assign a type to the pushed value");
+                let value_must_be_evaluated_first = !expression_can_be_discarded(value_expr, self.state);
+                let (value, mut stmts) = self.reconstruct_expression(value_expr.clone(), &());
+                self.state.type_table.insert(value.id(), value_type.clone());
 
                 // Input:
-                //   Vector::push(v, 42u32)
+                //   Vector::push(v, value)
                 //
                 // Lowered reconstruction:
+                //   let $push_value = value; // if the value cannot be discarded
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
-                //   Mapping::set(vec_map, $len_var, 42u32);
                 //   Mapping::set(len_map, false, $len_var + 1);
+                //   Mapping::set(vec_map, $len_var, value or $push_value);
+                //
+                // If the pushed value cannot be discarded, bind it before mutating
+                // vector length so source argument evaluation order is preserved.
+                let value = if value_must_be_evaluated_first {
+                    let value_var_sym = self.state.assigner.unique_symbol("$push_value", "$");
+                    let value_var_ident = Identifier {
+                        name: value_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.state.type_table.insert(value_var_ident.id, value_type);
+                    stmts.push(self.state.assigner.simple_definition(
+                        value_var_ident,
+                        value,
+                        self.state.node_builder.next_id(),
+                    ));
+                    value_var_ident.into()
+                } else {
+                    value
+                };
 
-                // Reconstruct value
+                // Reconstruct the backing mappings.
                 let (vec_path_expr, len_path_expr) = self.generate_vector_mapping_exprs(path_to_vector);
 
                 // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
@@ -244,9 +273,33 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     panic!("Vector::get can only be called with `Expression::Path`");
                 };
 
-                // Reconstruct key/index)
-                let (reconstructed_key_expr, key_stmts) =
+                // Reconstruct key/index.
+                let key_type = self
+                    .state
+                    .type_table
+                    .get(&key_expr.id())
+                    .expect("type checking should assign a type to the vector index");
+                let key_must_be_evaluated_once = !expression_can_be_discarded(key_expr, self.state);
+                let (reconstructed_key_expr, mut key_stmts) =
                     self.reconstruct_expression(key_expr.clone(), &Default::default());
+                self.state.type_table.insert(reconstructed_key_expr.id(), key_type.clone());
+                let reconstructed_key_expr = if key_must_be_evaluated_once {
+                    let key_var_sym = self.state.assigner.unique_symbol("$index", "$");
+                    let key_var_ident = Identifier {
+                        name: key_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.state.type_table.insert(key_var_ident.id, key_type);
+                    key_stmts.push(self.state.assigner.simple_definition(
+                        key_var_ident,
+                        reconstructed_key_expr,
+                        self.state.node_builder.next_id(),
+                    ));
+                    key_var_ident.into()
+                } else {
+                    reconstructed_key_expr
+                };
 
                 // Input:
                 //   Get(v, index)
@@ -255,7 +308,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 //   let $len_var = Mapping::get_or_use(len_map, false, 0u32);
                 //   index < $len_var
                 //       ? Mapping::get_or_use(vec_map, index, zero_value)
-                //       : None
+                //       : none
                 let (vec_path_expr, len_path_expr) = self.generate_vector_mapping_exprs(path_to_vector);
 
                 // let $len_var = Mapping::get_or_use(len_map, false, 0u32)
@@ -281,7 +334,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let get_or_use_expr =
                     self.get_or_use_mapping_expr(vec_path_expr, reconstructed_key_expr.clone(), zero, input.span);
 
-                // ternary: index < len ? get(vec, index) : None
+                // ternary: index < len ? get(vec, index) : none
                 let none_expr: Expression = Literal::none(Span::default(), self.state.node_builder.next_id()).into();
                 let ternary_expr = self.ternary_expr(index_lt_len_expr, get_or_use_expr, none_expr, input.span);
 
@@ -721,6 +774,13 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             member.expression = Some(expr);
         }
 
+        // Reconstruct the struct update base, if any.
+        if let Some(base) = input.base.take() {
+            let (expr, statements2) = self.reconstruct_expression(*base, &());
+            statements.extend(statements2);
+            input.base = Some(Box::new(expr));
+        }
+
         (input.into(), statements)
     }
 
@@ -938,11 +998,13 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
     }
 
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
+        let keep_expression = !expression_can_be_discarded(&input.expression, self.state);
         let (reconstructed_expression, statements) = self.reconstruct_expression(input.expression, &Default::default());
-        if !matches!(
+        let legal_expression_statement = matches!(
             reconstructed_expression,
             Expression::Call(_) | Expression::DynamicOp(_) | Expression::Intrinsic(_)
-        ) {
+        );
+        if !legal_expression_statement && !keep_expression {
             (
                 ExpressionStatement {
                     expression: Expression::Unit(UnitExpression {
@@ -950,6 +1012,23 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                         id: self.state.node_builder.next_id(),
                     }),
                     ..input
+                }
+                .into(),
+                statements,
+            )
+        } else if !legal_expression_statement {
+            // Type checking only permits call-like expression statements, so
+            // preserve evaluation by binding the lowered expression to a local.
+            let discard_sym = self.state.assigner.unique_symbol("$discard", "$");
+            let discard_ident =
+                Identifier { name: discard_sym, span: Default::default(), id: self.state.node_builder.next_id() };
+            (
+                DefinitionStatement {
+                    place: DefinitionPlace::Single(discard_ident),
+                    type_: None,
+                    value: reconstructed_expression,
+                    span: input.span,
+                    id: self.state.node_builder.next_id(),
                 }
                 .into(),
                 statements,

@@ -984,6 +984,7 @@ fn plaintext_to_expression(
                         })
                     })
                     .collect::<Option<Vec<_>>>()?,
+                base: None,
             }
             .into()
         }

@@ -35,11 +35,11 @@ program child.aleo {
 
 // --- Next Module: types.leo --- //
 
-struct Inner {
+export struct Inner {
     val: u32,
 }
 
-struct Outer {
+export struct Outer {
     inner: Inner,
     count: u32,
 }

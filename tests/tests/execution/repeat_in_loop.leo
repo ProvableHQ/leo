@@ -8,7 +8,7 @@ function = "main"
 input = []
 */
 
-fn foo::[P: u32]() -> u32 {
+export fn foo::[P: u32]() -> u32 {
     let sum = 0u32;
     for i: u32 in 1..P {
         let arr = [i; i];
@@ -20,7 +20,7 @@ fn foo::[P: u32]() -> u32 {
     return sum;
 }
 
-fn bar::[K: u32](arr: [u32; K]) -> u32 {
+export fn bar::[K: u32](arr: [u32; K]) -> u32 {
     let sum = 0u32;
     for j: u32 in 0..K {
         sum += arr[j];
@@ -35,6 +35,6 @@ program test.aleo {
 
     @custom
     constructor() {
-        assert_eq(self.edition, 0u16);
+        assert_eq(std::ctx::edition(), 0u16);
     }
 }

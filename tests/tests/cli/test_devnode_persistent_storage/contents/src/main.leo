@@ -3,7 +3,7 @@ program persistent_counter.aleo {
     mapping counts: address => u64;
 
     fn increment() -> Final {
-        let caller: address = self.caller;
+        let caller: address = std::ctx::caller();
         return final {
             let current: u64 = counts.get_or_use(caller, 0u64);
             counts.set(caller, current + 1u64);

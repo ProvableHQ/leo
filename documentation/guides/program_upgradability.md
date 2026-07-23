@@ -57,16 +57,16 @@ There are two key properties of the `constructor` related to upgradability:
 
 ### Program Metadata Operands
 
-Within a `constructor`, you can access on-chain metadata about the program using the `self` keyword.
+Within a `constructor`, you can access on-chain metadata about the program through the [`std::ctx`](../language/standard_library.md#stdctx) module of the standard library.
 
-| Operand              | Leo Type   | Description                                                                                                                                  |
-| -------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `self.address`       | `address`  | The program's own account address.                                                                                                           |
-| `self.edition`       | `u16`      | The program's version number. Starts at `0` and is incremented by `1` for each upgrade. The edition is tracked automatically on the network. |
-| `self.program_owner` | `address`  | The address that submitted the deployment transaction.                                                                                       |
-| `self.checksum`      | `[u8, 32]` | The program's checksum, which is a unique identifier for the program's code.                                                                 |
+| Operand                       | Leo Type   | Description                                                                                                                                  |
+| ----------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `std::ctx::addr()`            | `address`  | The program's own account address.                                                                                                           |
+| `std::ctx::edition()`         | `u16`      | The program's version number. Starts at `0` and is incremented by `1` for each upgrade. The edition is tracked automatically on the network. |
+| `std::ctx::program_owner()`   | `address`  | The address that submitted the deployment transaction.                                                                                       |
+| `std::ctx::checksum()`        | `[u8, 32]` | The program's checksum, which is a unique identifier for the program's code.                                                                 |
 
-You may also refer to other program's metadata by qualifying the operand with the program name, like `Program::edition(credits.aleo)`, `Program::program_owner(foo.aleo)`.
+You may also refer to another program's metadata through the [`std::prog`](../language/standard_library.md#stdprog) module — for example `std::prog::edition::[credits.aleo]()` or `std::prog::program_owner::[foo.aleo]()`.
 You will need to import the program in your Leo file to use this syntax.
 
 Note. Programs deployed before the upgradability feature (i.e. using Leo version < v3.1.0) do not have a `program_owner`. Attempting to access it will result in a runtime error.

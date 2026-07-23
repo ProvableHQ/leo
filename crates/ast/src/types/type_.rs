@@ -297,6 +297,22 @@ impl Type {
             _ => false,
         }
     }
+
+    /// Whether this type is allowed as the declared type of a const generic parameter.
+    /// The const-generic monomorphization backend can only substitute a fixed set of literal
+    /// shapes; adding another case here requires backend support.
+    pub fn is_valid_const_generic_type(&self) -> bool {
+        matches!(
+            self,
+            Type::Boolean
+                | Type::Integer(_)
+                | Type::Address
+                | Type::Scalar
+                | Type::Group
+                | Type::Field
+                | Type::Identifier
+        )
+    }
 }
 
 impl From<LiteralType> for Type {

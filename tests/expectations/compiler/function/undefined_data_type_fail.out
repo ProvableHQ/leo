@@ -1,21 +1,21 @@
 [ETYC0372017] Error: the type `test.aleo::Board` is not found in the current scope
-   ╭─[ compiler-test:6:25 ]
+   ╭─[ compiler-test:6:32 ]
    │
- 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ export fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372017] Error: the type `test.aleo::Board` is not found in the current scope
-   ╭─[ compiler-test:6:25 ]
+   ╭─[ compiler-test:6:32 ]
    │
- 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ export fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯
 [ETYC0372017] Error: the type `test.aleo::u128bool` is not found in the current scope
-   ╭─[ compiler-test:6:45 ]
+   ╭─[ compiler-test:6:52 ]
    │
- 6 │ fn aria192check_for_win(b: Board, p: u8) -> u128bool {
+ 6 │ export fn aria192check_for_win(b: Board, p: u8) -> u128bool {
    │ 
    │ Help: Check the type name for typos. If it comes from another program, qualify it with the program name, e.g. `credits.aleo::credits` instead of `credits`.
 ───╯

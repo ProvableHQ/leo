@@ -1,0 +1,7 @@
+[ETYC0372117] Error: expected type `test.aleo::Point`, but type `test.aleo::Other` was found
+    ╭─[ compiler-test:15:46 ]
+    │
+ 15 │         let updated: Point = Point { x: x, ..base };
+    │ 
+    │ Help: Change the expression to produce type `test.aleo::Point`.
+────╯

@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `N` is defined multiple times
-    ╭─[ compiler-test:12:10 ]
+    ╭─[ compiler-test:12:17 ]
     │
- 12 │ fn foo::[N: u32]() {}
+ 12 │ export fn foo::[N: u32]() {}
     │
-    ├─[ compiler-test:12:10 ]
+    ├─[ compiler-test:12:17 ]
     │
- 10 │ const N: u32 = 5;
-    │       ┬  
-    │       ╰── previous definition of `N` here
+ 10 │ export const N: u32 = 5;
+    │              ┬  
+    │              ╰── previous definition of `N` here
     │ 
- 12 │ fn foo::[N: u32]() {}
-    │          ┬  
-    │          ╰── `N` redefined here
+ 12 │ export fn foo::[N: u32]() {}
+    │                 ┬  
+    │                 ╰── `N` redefined here
     │ 
     │ Help: Rename or remove all but one of the `N` definitions so the name is unique within its scope.
 ────╯

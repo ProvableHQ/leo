@@ -14,9 +14,9 @@ fn f1(t: other.aleo::Token) -> other.aleo::Token
     │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ interfaces.leo:2:18 ]
+   ╭─[ interfaces.leo:2:25 ]
    │
- 2 │ ╭─▶ interface IBase {
+ 2 │ ╭─▶ export interface IBase {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -25,9 +25,9 @@ fn f1(t: other.aleo::Token) -> other.aleo::Token
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ interfaces.leo:10:26 ]
+    ╭─[ interfaces.leo:10:33 ]
     │
- 10 │ ╭─▶ interface IChild: IBase {
+ 10 │ ╭─▶ export interface IChild: IBase {
     ┆ ┆   
  14 │ ├─▶     }
     │ │           
@@ -36,9 +36,9 @@ fn f1(t: other.aleo::Token) -> other.aleo::Token
     │     Help: Simplify the declaration to `record Token;`.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ interfaces.leo:2:18 ]
+   ╭─[ interfaces.leo:2:25 ]
    │
- 2 │ ╭─▶ interface IBase {
+ 2 │ ╭─▶ export interface IBase {
    ┆ ┆   
  6 │ ├─▶     }
    │ │           
@@ -47,9 +47,9 @@ fn f1(t: other.aleo::Token) -> other.aleo::Token
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-    ╭─[ interfaces.leo:10:26 ]
+    ╭─[ interfaces.leo:10:33 ]
     │
- 10 │ ╭─▶ interface IChild: IBase {
+ 10 │ ╭─▶ export interface IChild: IBase {
     ┆ ┆   
  14 │ ├─▶     }
     │ │           

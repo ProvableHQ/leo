@@ -13,7 +13,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -33,14 +33,14 @@ program caller.aleo {
 }
 
 // Helper with internal CEI violation: runs the future, then writes state.
-final fn buggy_helper(f: Final, key: u32, val: u32) {
+export final fn buggy_helper(f: Final, key: u32, val: u32) {
     // [I] Interaction
     f.run();
     // [E] Effect after interaction — violation inside this helper
     Mapping::set(balances, key, val);
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // Call the helper. The helper internally violates CEI.
     // The warning should surface at Mapping::set inside buggy_helper,
     // not at this call site.

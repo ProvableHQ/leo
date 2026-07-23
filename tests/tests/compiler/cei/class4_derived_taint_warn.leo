@@ -12,7 +12,7 @@ program exchange.aleo {
     constructor() {}
 }
 
-final fn finalize_get_rate(id: u32) {
+export final fn finalize_get_rate(id: u32) {
     let r: u64 = Mapping::get_or_use(rates, id, 0u64);
     Mapping::set(rates, id, r);
 }
@@ -37,7 +37,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_transfer(f: Final, adjusted_rate: u64, local_val: u64, id: u32) {
+export final fn finalize_transfer(f: Final, adjusted_rate: u64, local_val: u64, id: u32) {
     // [E] Effect using tainted adjusted_rate — should warn
     Mapping::set(balances, id, adjusted_rate + local_val);
     f.run();

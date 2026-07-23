@@ -1,9 +1,9 @@
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
 
-struct Point {
+export struct Point {
     a: u32,
     b: u32,
 }

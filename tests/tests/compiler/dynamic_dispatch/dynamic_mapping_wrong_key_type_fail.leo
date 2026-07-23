@@ -1,5 +1,5 @@
 // FAIL: key argument type does not match the mapping's declared key type.
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field) {
+export final fn finalize_query(target: field) {
     let val: u64 = Bank@(target)::balances.get(42u64);
 }

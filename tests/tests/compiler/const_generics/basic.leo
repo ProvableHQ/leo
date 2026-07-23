@@ -1,5 +1,5 @@
-const M: u32 = 1u32;
-const P: u32 = 2u32;
+export const M: u32 = 1u32;
+export const P: u32 = 2u32;
 
 program test.aleo {
     fn main() -> u32 {
@@ -14,7 +14,7 @@ program test.aleo {
     constructor() {}
 }
 
-fn sum_first_n_ints::[N: u32]() -> u32 {
+export fn sum_first_n_ints::[N: u32]() -> u32 {
     let sum = 0u32;
     for i in 0u32..N {
         sum += i + other::[i](); // this call to `other` will be resolved in the second pass of monomorphization
@@ -22,6 +22,6 @@ fn sum_first_n_ints::[N: u32]() -> u32 {
     return sum;
 }
 
-fn other::[Q: u32]() -> u32 {
+export fn other::[Q: u32]() -> u32 {
     return Q;
 }

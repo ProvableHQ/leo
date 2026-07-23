@@ -3,19 +3,19 @@
 
 // --- library: base --- //
 
-const A: u32 = 1u32;
+export const A: u32 = 1u32;
 
 // --- Next Program --- //
 
 // --- library: middle --- //
 
-const B: u32 = base::A + 2u32;
+export const B: u32 = base::A + 2u32;
 
 // --- Next Program --- //
 
 // --- library: top --- //
 
-const C: u32 = middle::B + base::A + 3u32;
+export const C: u32 = middle::B + base::A + 3u32;
 
 // --- Next Program --- //
 

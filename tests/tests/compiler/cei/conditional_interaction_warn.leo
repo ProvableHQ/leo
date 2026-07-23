@@ -11,7 +11,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
@@ -30,7 +30,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [E] Effect always happens
     Mapping::set(balances, 0u32, a);
     // [I] Interaction is conditional

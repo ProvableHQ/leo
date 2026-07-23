@@ -1,7 +1,7 @@
 [ECHI03712000] Error: interface `lib.aleo/B` not found
    ╭─[ compiler-test:3:1 ]
    │
- 3 │ ╭─▶ interface A: lib.aleo::B {
+ 3 │ ╭─▶ export interface A: lib.aleo::B {
    ┆ ┆   
  5 │ ├─▶ }
    │ │       
@@ -19,7 +19,7 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: interface `lib.aleo/B` not found
    ╭─[ compiler-test:3:1 ]
    │
- 3 │ ╭─▶ interface A: lib.aleo::B {
+ 3 │ ╭─▶ export interface A: lib.aleo::B {
    ┆ ┆   
  5 │ ├─▶ }
    │ │       

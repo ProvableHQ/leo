@@ -7,12 +7,12 @@
 // --- library: shape_lib --- //
 
 // --- Next Module: a.leo --- //
-struct Pair::[N: u32] {
+export struct Pair::[N: u32] {
     x: u32,
 }
 
 // --- Next Module: b.leo --- //
-struct Pair::[N: u32] {
+export struct Pair::[N: u32] {
     y: u32,
 }
 

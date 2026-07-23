@@ -3,7 +3,7 @@
 // type parameter verifies that loop unrolling and const propagation cooperate
 // correctly when N appears in an intrinsic type parameter.
 
-const N: u32 = 2u32;
+export const N: u32 = 2u32;
 
 program test.aleo {
     fn main(bits: [bool; 182]) -> u32 {

@@ -1,4 +1,4 @@
-struct S2 {
+export struct S2 {
     x: field,
     y: u32,
 }

@@ -22,7 +22,7 @@ program parent.aleo {
     }
 
     fn wrapper_mint(owner: address, val: u32) -> (child.aleo::A, B) {
-        return (child.aleo::mint(self.caller, 1u32), B { owner: self.signer, val: val });
+        return (child.aleo::mint(std::ctx::caller(), 1u32), B { owner: std::ctx::signer(), val: val });
     }
 
     @noupgrade

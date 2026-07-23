@@ -5,7 +5,7 @@ program test.aleo {
     }
 
     fn mint_credits(to: address, amount: u64) {
-        return test_credits { owner: self.signer, amount };
+        return test_credits { owner: std::ctx::signer(), amount };
     }
 
     @noupgrade

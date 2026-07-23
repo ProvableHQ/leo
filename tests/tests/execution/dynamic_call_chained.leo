@@ -8,7 +8,7 @@ function = "main"
 input = ["111516215175533field", "1717658988field", "7u32"]
 */
 
-interface Leaf {
+export interface Leaf {
     fn process(val: u32) -> (u32, Final);
 }
 
@@ -32,7 +32,7 @@ program leaf.aleo: Leaf {
 // --- Next Program --- //
 import leaf.aleo;
 
-interface Middle {
+export interface Middle {
     fn relay(leaf_target: field, val: u32) -> (u32, Final);
 }
 

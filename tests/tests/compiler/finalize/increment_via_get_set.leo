@@ -2,7 +2,7 @@ program test.aleo {
     mapping amounts: address => u128;
 
     fn increase_self(amount: u128) -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_increase_self(caller, amount); };
     }
 
@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_increase_self(addr: address, amount: u128) {
+export final fn finalize_increase_self(addr: address, amount: u128) {
     let current_amount: u128 = Mapping::get_or_use(amounts, addr, 0u128);
     Mapping::set(amounts, addr, current_amount + amount);
 }

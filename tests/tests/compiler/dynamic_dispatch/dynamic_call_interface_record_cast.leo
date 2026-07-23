@@ -1,6 +1,6 @@
 // OK: A router program accepts a dyn record and dispatches it via interface dynamic call.
 // The router does not implement the interface — it acts purely as a dispatcher.
-interface TokenOps {
+export interface TokenOps {
     record Token;
     fn transfer(t: Token) -> Token;
 }

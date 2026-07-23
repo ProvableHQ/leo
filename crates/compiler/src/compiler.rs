@@ -18,7 +18,7 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
-use crate::{AstSnapshots, CompilerOptions, errors};
+use crate::{CompilerOptions, errors};
 
 use leo_ast::{AleoProgram, FunctionStub, Identifier, Library, NetworkName, NodeBuilder, ProgramId, Stub};
 pub use leo_ast::{Ast, DiGraph, Program};
@@ -92,8 +92,6 @@ pub struct Compiled {
 
 /// The primary entry point of the Leo compiler.
 pub struct Compiler {
-    /// The path to where the compiler outputs all generated files.
-    output_directory: PathBuf,
     /// The name of the compilation unit (program or library).
     pub unit_name: Option<String>,
     /// When set, recompile under this on-chain name instead of the one the source
@@ -178,11 +176,6 @@ impl Compiler {
 
         self.state.ast = Ast::Program(program);
 
-        if self.compiler_options.initial_ast {
-            self.write_ast_to_json("initial.json")?;
-            self.write_ast("initial.ast")?;
-        }
-
         Ok(())
     }
 
@@ -251,11 +244,6 @@ impl Compiler {
         // way programs do, so adopt the name supplied by the caller if none was pre-set.
         if self.unit_name.is_none() {
             self.unit_name = Some(library_name.to_string());
-        }
-
-        if self.compiler_options.initial_ast {
-            self.write_ast_to_json("initial.json")?;
-            self.write_ast("initial.ast")?;
         }
 
         Ok(())
@@ -329,7 +317,6 @@ impl Compiler {
         is_test: bool,
         handler: Handler,
         node_builder: Rc<NodeBuilder>,
-        output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
         import_stubs: IndexMap<Symbol, Stub>,
         network: NetworkName,
@@ -342,7 +329,6 @@ impl Compiler {
                 network,
                 ..Default::default()
             },
-            output_directory,
             unit_name: expected_unit_name,
             rename: None,
             compiler_options: compiler_options.unwrap_or_default(),
@@ -356,22 +342,12 @@ impl Compiler {
     }
 
     /// Runs a compiler pass and checks whether the caller still wants the
-    /// result once the pass and any requested snapshots have completed.
+    /// result once the pass has completed.
     fn do_pass_with_check<P: Pass, C>(&mut self, input: P::Input, should_continue: &mut C) -> Result<P::Output>
     where
         C: FnMut() -> Result<()>,
     {
         let output = P::do_pass(input, &mut self.state)?;
-
-        let write = match &self.compiler_options.ast_snapshots {
-            AstSnapshots::All => true,
-            AstSnapshots::Some(passes) => passes.contains(P::NAME),
-        };
-
-        if write {
-            self.write_ast_to_json(&format!("{}.json", P::NAME))?;
-            self.write_ast(&format!("{}.ast", P::NAME))?;
-        }
 
         should_continue()?;
         Ok(output)
@@ -624,6 +600,27 @@ impl Compiler {
         self.compile(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)
     }
 
+    /// Compiles a single standalone source file, without discovering sibling modules.
+    ///
+    /// Used for tests: each `tests/test_*.leo` is its own program, so its directory must not be
+    /// scanned for modules (the siblings are independent test programs, not submodules).
+    pub fn compile_from_file(&mut self, entry_file_path: impl AsRef<Path>) -> Result<Compiled> {
+        self.compile_from_file_with_file_source(entry_file_path, &DiskFileSource)
+    }
+
+    /// Compiles a single standalone source file using the given file source.
+    pub fn compile_from_file_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Compiled> {
+        let entry_file_path = entry_file_path.as_ref();
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
+        self.compile(&source, FileName::Real(entry_file_path.into()), &Vec::new())
+    }
+
     /// Parses a program from a source file and its associated module files in the same directory tree.
     pub fn parse_program_from_directory(
         &mut self,
@@ -648,6 +645,32 @@ impl Compiler {
 
         // Parse the main source along with all collected modules.
         self.parse_program(&source, FileName::Real(entry_file_path.as_ref().into()), &module_refs)?;
+
+        match &self.state.ast {
+            Ast::Program(program) => Ok(program.clone()),
+            Ast::Library(_) => unreachable!("expected Program AST"),
+        }
+    }
+
+    /// Parses a single standalone source file, without discovering sibling modules.
+    ///
+    /// Used for tests: each `tests/test_*.leo` is its own program, so its directory must not be
+    /// scanned for modules (the siblings are independent test programs, not submodules).
+    pub fn parse_program_from_file(&mut self, entry_file_path: impl AsRef<Path>) -> Result<Program> {
+        self.parse_program_from_file_with_file_source(entry_file_path, &DiskFileSource)
+    }
+
+    /// Parses a single standalone source file using the given file source.
+    pub fn parse_program_from_file_with_file_source(
+        &mut self,
+        entry_file_path: impl AsRef<Path>,
+        file_source: &impl FileSource,
+    ) -> Result<Program> {
+        let entry_file_path = entry_file_path.as_ref();
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
+        self.parse_program(&source, FileName::Real(entry_file_path.into()), &[])?;
 
         match &self.state.ast {
             Ast::Program(program) => Ok(program.clone()),
@@ -689,48 +712,6 @@ impl Compiler {
             Ast::Library(library) => Ok(library.clone()),
             Ast::Program(_) => unreachable!("expected Library AST"),
         }
-    }
-
-    /// Writes the AST to a JSON file under the unit's snapshots directory.
-    fn write_ast_to_json(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
-        if self.output_directory.as_os_str().is_empty() {
-            return Ok(());
-        }
-        // Snapshots are opt-in; create the directory lazily on first write.
-        fs::create_dir_all(&self.output_directory)
-            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-        let dir = self.output_directory.clone();
-        if self.compiler_options.ast_spans_enabled {
-            match &self.state.ast {
-                Ast::Program(program) => leo_ast::write_ast_json(program, dir, filename)?,
-                Ast::Library(library) => leo_ast::write_ast_json(library, dir, filename)?,
-            }
-        } else {
-            match &self.state.ast {
-                Ast::Program(program) => leo_ast::write_ast_json_filtered(program, dir, filename, &["_span", "span"])?,
-                Ast::Library(library) => leo_ast::write_ast_json_filtered(library, dir, filename, &["_span", "span"])?,
-            }
-        }
-        Ok(())
-    }
-
-    /// Writes the AST to a file (Leo syntax, not JSON) under the unit's snapshots directory.
-    fn write_ast(&self, filename: &str) -> Result<()> {
-        // No snapshots directory configured (parse-only preflight or LSP); skip rather than dump into the CWD.
-        if self.output_directory.as_os_str().is_empty() {
-            return Ok(());
-        }
-        // Snapshots are opt-in; create the directory lazily on first write.
-        fs::create_dir_all(&self.output_directory)
-            .map_err(|e| crate::errors::failed_ast_file(self.output_directory.display(), e))?;
-        let full_filename = self.output_directory.join(filename);
-
-        let contents = self.state.ast.to_string();
-
-        fs::write(&full_filename, contents).map_err(|e| crate::errors::failed_ast_file(full_filename.display(), e))?;
-
-        Ok(())
     }
 
     /// Resolves and registers all import stubs for the current program.
@@ -867,11 +848,9 @@ impl Compiler {
             false,
             handler,
             node_builder,
-            PathBuf::new(),
             Some(CompilerOptions {
                 // avoid infinite recursion
                 no_std: true,
-                ..CompilerOptions::default()
             }),
             IndexMap::new(),
             network,
@@ -894,23 +873,34 @@ impl Compiler {
 
     /// Registers the implicit `std` library on `self.import_stubs`.
     ///
-    /// Reuses an existing entry if one was preloaded
+    /// Reuses an existing entry if one was preloaded.
     fn inject_std_library(&mut self) -> Result<()> {
         if self.compiler_options.no_std {
             return Ok(());
         }
 
         let std_name = Symbol::intern(leo_std::library_name());
-        let parent = Symbol::intern(self.unit_name.as_deref().expect("Cannot get unit name"));
+        let unit_parent = Symbol::intern(self.unit_name.as_deref().expect("Cannot get unit name"));
+
+        let mut parents: Vec<Symbol> = self
+            .import_stubs
+            .iter()
+            .filter_map(|(name, _)| if *name == std_name { None } else { Some(*name) })
+            .collect();
+        parents.push(unit_parent);
 
         if let Some(existing) = self.import_stubs.get_mut(&std_name) {
-            existing.add_parent(parent);
+            for parent in parents {
+                existing.add_parent(parent);
+            }
             return Ok(());
         }
 
         let mut stub =
             Self::build_std_stub(self.state.handler.clone(), Rc::clone(&self.state.node_builder), self.state.network)?;
-        stub.add_parent(parent);
+        for parent in parents {
+            stub.add_parent(parent);
+        }
         self.import_stubs.insert(std_name, stub);
         Ok(())
     }
@@ -1170,7 +1160,6 @@ fn load_source_dependency_stub(
         false,
         handler,
         node_builder,
-        PathBuf::default(),
         Some(CompilerOptions::default()),
         IndexMap::new(),
         network,
@@ -1293,16 +1282,8 @@ mod tests {
 
             let handler = Handler::default();
             let node_builder = Rc::new(NodeBuilder::default());
-            let mut compiler = Compiler::new(
-                None,
-                false,
-                handler,
-                node_builder,
-                PathBuf::from("/unused"),
-                None,
-                IndexMap::new(),
-                NetworkName::TestnetV0,
-            );
+            let mut compiler =
+                Compiler::new(None, false, handler, node_builder, None, IndexMap::new(), NetworkName::TestnetV0);
 
             let library = compiler
                 .parse_library_from_directory_with_file_source(
@@ -1344,7 +1325,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1389,7 +1369,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1421,7 +1400,6 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::from("/unused"),
                 None,
                 IndexMap::new(),
                 NetworkName::TestnetV0,
@@ -1438,7 +1416,7 @@ mod tests {
                 "    @noupgrade\n",
                 "    constructor() {}\n",
                 "    fn foo() -> R {\n",
-                "        return R { owner: self.signer, x: true };\n",
+                "        return R { owner: std::ctx::signer(), x: true };\n",
                 "    }\n",
                 "}\n",
             );
@@ -1470,9 +1448,8 @@ mod tests {
                 false,
                 handler,
                 node_builder,
-                PathBuf::new(),
                 // `no_std` avoids injecting `std` into itself.
-                Some(crate::CompilerOptions { no_std: true, ..Default::default() }),
+                Some(crate::CompilerOptions { no_std: true }),
                 IndexMap::new(),
                 NetworkName::TestnetV0,
             );

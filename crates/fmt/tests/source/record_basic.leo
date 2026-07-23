@@ -3,7 +3,7 @@ program test.aleo {
 
 
 fn mint(  public amt  :  u64  )  ->  Token  {
-    return  Token  {  owner  :  self.caller  ,  amount  :  amt  }  ;
+    return  Token  {  owner  :  std::ctx::caller()  ,  amount  :  amt  }  ;
 }
 
 record Token

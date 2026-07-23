@@ -64,11 +64,11 @@ A `view fn` is a read-only entry point. It is declared inside a `program {}` blo
 ```leo file=../../code_snippets/functions/view_basic/src/main.leo#file showLineNumbers
 ```
 
-A `view fn` body sees the same on-chain context as a `final {}` block — it can read mappings, storage, vectors, `block.height`, and `network.id`. Beyond the `final {}` rules above, a view adds these restrictions:
+A `view fn` body sees the same on-chain context as a `final {}` block — it can read mappings, storage, vectors, `std::ctx::block_height()`, and `std::ctx::network_id()`. Beyond the `final {}` rules above, a view adds these restrictions:
 
 - **Read-only.** All state writes are rejected — both singleton storage assignment (`counter = 5u64;`, `counter = none;`) and the mutating intrinsics `Mapping::set`, `Mapping::remove`, `Vector::set`, `Vector::push`, `Vector::pop`, `Vector::swap_remove`, `Vector::clear`.
 - **Leaf in the emitted bytecode.** A view may call a helper `fn` (its body is fully inlined into the view), but it cannot `call` another `view fn`, a `final fn`, or an entry point. This keeps the emitted Aleo `view` block free of `call` instructions, which snarkVM requires. Dynamic calls (the `dyn ...` form) are also rejected.
-- No `block.timestamp`, `Snark::verify`, `Snark::verify_batch`, or `program_owner` — these are available in `final {}` but not when a node evaluates a view off-consensus.
+- No `std::ctx::block_timestamp()`, `Snark::verify`, `Snark::verify_batch`, or `std::ctx::program_owner()` — these are available in `final {}` but not when a node evaluates a view off-consensus.
 - Returns plaintext only (no records); cannot be combined with `final`.
 
 ### Calling Views from On-chain Code
@@ -105,10 +105,10 @@ Helper functions also support **const generics**:
 ```leo file=../../code_snippets/functions/const_generic/src/main.leo showLineNumbers
 ```
 
-Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, and `address`.
+Acceptable types for const generic parameters include integer types, `bool`, `scalar`, `group`, `field`, `address`, and `identifier`.
 
 :::note
-Const generic parameters are only valid on inlinable helper `fn` functions. They are not permitted on entry point functions inside a `program {}` block, `final fn` functions, functions annotated with `@no_inline`, or function signatures declared inside an `interface`.
+Const generic parameters are only valid on functions that are inlined at every call site. They are not permitted on entry point functions inside a `program {}` block, functions annotated with `@no_inline`, or function signatures declared inside an `interface`. `final fn`s are always inlined into their `final {}` callsite, so they may declare const generic parameters.
 :::
 
 ### The `@no_inline` Annotation

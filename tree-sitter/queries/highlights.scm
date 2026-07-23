@@ -1,5 +1,5 @@
 [
-  "let" "const" "constant" "fn" "final" "view" "struct" "record"
+  "let" "const" "constant" "export" "dyn" "fn" "final" "view" "struct" "record"
   "program" "import" "mapping" "storage" "interface" "constructor"
   "if" "else" "for" "in" "return"
   "public" "private" "as" "self" "block" "network"
@@ -34,7 +34,10 @@
 (import_declaration name: (program_id) @namespace)
 
 (annotation name: (_) @attribute)
-"@" @attribute
+(annotation "@" @attribute)
+
+; The `@` in a dynamic interface access reads as an operator, not an annotation.
+(dynamic_op_expression "@" @operator)
 
 (field_expression field: (_) @property)
 (struct_field name: (identifier) @property)

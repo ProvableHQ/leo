@@ -5,7 +5,7 @@ program child.aleo {
     }
 
     fn create() -> R {
-        return R { owner: self.signer, x: 1u8 };
+        return R { owner: std::ctx::signer(), x: 1u8 };
     }
 
     @noupgrade
@@ -22,7 +22,7 @@ program parent.aleo {
     }
 
     fn check() -> bool {
-        let r1: R = R { owner: self.signer, x: 1u16 };
+        let r1: R = R { owner: std::ctx::signer(), x: 1u16 };
         return r1 == child.aleo::create();
     }
 

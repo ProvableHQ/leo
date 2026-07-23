@@ -82,6 +82,9 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         SELF_EXPR => out.write("self"),
         BLOCK_KW_EXPR => out.write("block"),
         NETWORK_KW_EXPR => out.write("network"),
+        SELF_UPPER_EXPR => {
+            out.write(node.text().to_string().trim());
+        }
         UNARY_EXPR => format_unary(node, out),
         TERNARY_EXPR => format_ternary(node, out),
         FIELD_EXPR => format_field_expr(node, out),
@@ -95,6 +98,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         STRUCT_EXPR | STRUCT_LOCATOR_EXPR => format_struct_expr(node, out),
         STRUCT_FIELD_INIT => format_struct_field_init(node, out),
         STRUCT_FIELD_SHORTHAND => format_struct_field_shorthand(node, out),
+        STRUCT_BASE_UPDATE => format_struct_base_update(node, out),
         FINAL_EXPR => format_final_expr(node, out),
 
         // Patterns
@@ -443,7 +447,7 @@ fn format_function(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_FINAL | KW_VIEW | KW_FN | KW_SCRIPT => {
+                    KW_EXPORT | KW_FINAL | KW_VIEW | KW_FN | KW_SCRIPT => {
                         out.write(tok.text());
                         out.space();
                     }
@@ -606,7 +610,7 @@ fn format_composite(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
-                    KW_STRUCT | KW_RECORD => {
+                    KW_EXPORT | KW_STRUCT | KW_RECORD => {
                         out.write(tok.text());
                         out.space();
                     }
@@ -748,6 +752,10 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
+                    KW_EXPORT => {
+                        out.write("export");
+                        out.space();
+                    }
                     KW_INTERFACE => {
                         out.write("interface");
                         out.space();
@@ -1207,6 +1215,10 @@ fn format_global_const(node: &SyntaxNode, out: &mut Output) {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
                 match k {
+                    KW_EXPORT => {
+                        out.write("export");
+                        out.space();
+                    }
                     KW_CONST => {
                         out.write("const");
                         out.space();
@@ -1648,11 +1660,24 @@ fn format_type_locator(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_type_path(node: &SyntaxNode, out: &mut Output) {
-    for elem in node.children_with_tokens() {
+    // Index of the last non-trivia child. Trivia after it are trailing comments,
+    // which are re-emitted by `emit_node_trailing_comments`; trivia before it are
+    // interior comments that must be preserved here.
+    let children: Vec<_> = node.children_with_tokens().collect();
+    let last_real = children.iter().rposition(|elem| match elem {
+        SyntaxElement::Token(tok) => !is_trivia(tok.kind()),
+        SyntaxElement::Node(_) => true,
+    });
+    for (i, elem) in children.into_iter().enumerate() {
         match elem {
             SyntaxElement::Token(tok) => {
                 let k = tok.kind();
-                if k != WHITESPACE && k != LINEBREAK {
+                if k == COMMENT_LINE || k == COMMENT_BLOCK {
+                    // Emit interior comments; skip trailing ones.
+                    if last_real.is_some_and(|last| i < last) {
+                        out.write(tok.text());
+                    }
+                } else if !is_trivia(k) {
                     out.write(tok.text());
                 }
             }
@@ -2826,6 +2851,11 @@ fn try_format_postfix_chain(node: &SyntaxNode, out: &mut Output) -> bool {
         return false;
     }
 
+    // Only break a chain with a method call; a bare `receiver.field` reads worse split.
+    if !segments.iter().any(|segment| is_method_call_segment(segment)) {
+        return false;
+    }
+
     out.write(&base_string);
     out.indented(|out| {
         let mut on_continuation_line = false;
@@ -2848,6 +2878,11 @@ fn try_format_postfix_chain(node: &SyntaxNode, out: &mut Output) -> bool {
     });
 
     true
+}
+
+/// Whether a postfix-chain segment is a method call (`.name(args)`).
+fn is_method_call_segment(segment: &str) -> bool {
+    segment.starts_with('.') && segment.contains('(')
 }
 
 fn is_postfix_chain_root(node: &SyntaxNode) -> bool {
@@ -2894,6 +2929,10 @@ fn format_postfix_suffix(node: &SyntaxNode, receiver: &SyntaxNode) -> Option<Str
             SyntaxElement::Token(tok) => {
                 if !is_trivia(tok.kind()) {
                     suffix.push_str(tok.text());
+                    // Normalize argument separators to `, ` just like the non-wrapped path.
+                    if tok.kind() == COMMA {
+                        suffix.push(' ');
+                    }
                 }
             }
             SyntaxElement::Node(n) if n.kind().is_expression() => {
@@ -3026,8 +3065,10 @@ fn format_parenthesized(node: &SyntaxNode, out: &mut Output) {
 }
 
 fn format_struct_expr(node: &SyntaxNode, out: &mut Output) {
-    let inits: Vec<_> =
-        node.children().filter(|c| matches!(c.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND)).collect();
+    let inits: Vec<_> = node
+        .children()
+        .filter(|c| matches!(c.kind(), STRUCT_FIELD_INIT | STRUCT_FIELD_SHORTHAND | STRUCT_BASE_UPDATE))
+        .collect();
     let elems = elements(node);
 
     // Write everything before L_BRACE (struct path/name)
@@ -3087,6 +3128,13 @@ fn format_struct_field_init(node: &SyntaxNode, out: &mut Output) {
 fn format_struct_field_shorthand(node: &SyntaxNode, out: &mut Output) {
     if let Some(tok) = node.children_with_tokens().find_map(|e| e.into_token().filter(|t| t.kind() == IDENT)) {
         out.write(tok.text());
+    }
+}
+
+fn format_struct_base_update(node: &SyntaxNode, out: &mut Output) {
+    out.write("..");
+    if let Some(expr) = node.children().find(|n| n.kind().is_expression()) {
+        format_node(&expr, out);
     }
 }
 

@@ -1,17 +1,17 @@
 [EAST0372017] Error: the name `f1` is defined multiple times
-   ╭─[ compiler-test:6:4 ]
+   ╭─[ compiler-test:6:11 ]
    │
- 6 │ fn f1(a: u8) -> u8 {
+ 6 │ export fn f1(a: u8) -> u8 {
    │
-   ├─[ compiler-test:6:4 ]
+   ├─[ compiler-test:6:11 ]
    │
- 1 │ fn f1(a: u8) -> u8 {
-   │    ─┬  
-   │     ╰── previous definition of `f1` here
+ 1 │ export fn f1(a: u8) -> u8 {
+   │           ─┬  
+   │            ╰── previous definition of `f1` here
    │ 
- 6 │ fn f1(a: u8) -> u8 {
-   │    ─┬  
-   │     ╰── `f1` redefined here
+ 6 │ export fn f1(a: u8) -> u8 {
+   │           ─┬  
+   │            ╰── `f1` redefined here
    │ 
    │ Help: Rename or remove all but one of the `f1` definitions so the name is unique within its scope.
 ───╯

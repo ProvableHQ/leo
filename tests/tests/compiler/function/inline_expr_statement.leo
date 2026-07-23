@@ -1,8 +1,8 @@
-fn function_that_returns_a_value() -> u32 {
+export fn function_that_returns_a_value() -> u32 {
     return 0u32;
 }
 
-fn another_f_that_returns_a_value(a: u32) -> u32 {
+export fn another_f_that_returns_a_value(a: u32) -> u32 {
     return a * a;
 }
 

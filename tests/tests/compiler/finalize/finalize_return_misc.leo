@@ -17,25 +17,25 @@ program test.aleo {
     @custom
     constructor() {
         let initial: u64 = base_supply();
-        Mapping::set(account, self.address, initial);
+        Mapping::set(account, std::ctx::addr(), initial);
     }
 }
 
-final fn audit_credit(receiver: address, amount: u64) -> (u64, bool) {
+export final fn audit_credit(receiver: address, amount: u64) -> (u64, bool) {
     let balance: u64 = checked_add(Mapping::get_or_use(account, receiver, 0u64), amount);
     return (balance, balance > 1000u64);
 }
 
-final fn checked_add(a: u64, b: u64) -> u64 {
+export final fn checked_add(a: u64, b: u64) -> u64 {
     return a + b;
 }
 
-final fn bump(receiver: address) -> u64 {
+export final fn bump(receiver: address) -> u64 {
     let next: u64 = Mapping::get_or_use(account, receiver, 0u64) + 1u64;
     Mapping::set(account, receiver, next);
     return next;
 }
 
-final fn base_supply() -> u64 {
+export final fn base_supply() -> u64 {
     return 1_000_000u64;
 }

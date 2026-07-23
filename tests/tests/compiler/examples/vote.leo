@@ -1,30 +1,30 @@
 // The 'vote.leo' program.
 
 // Proposal details
-struct ProposalInfo {
+export struct ProposalInfo {
     title: field,
     content: field,
     proposer: address,
 }
 
 // Create a new proposal in the "tickets" mapping.
-final fn finalize_propose(id: field) {
+export final fn finalize_propose(id: field) {
     Mapping::set(tickets, id, 0u64);
 }
 
 // Create a new ticket on a proposal in the "tickets" mapping.
-final fn finalize_new_ticket(pid: field) {
+export final fn finalize_new_ticket(pid: field) {
     let current: u64 = Mapping::get_or_use(tickets, pid, 0u64);
     Mapping::set(tickets, pid, current + 1u64);
 }
 
-final fn finalize_agree(pid: field) {
+export final fn finalize_agree(pid: field) {
     // Publicly increment the number of agree votes.
     let current: u64 = Mapping::get_or_use(agree_votes, pid, 0u64);
     Mapping::set(agree_votes, pid, current + 1u64);
 }
 
-final fn finalize_disagree(pid: field) {
+export final fn finalize_disagree(pid: field) {
     // Publicly increment the number of disagree votes.
     let current: u64 = Mapping::get_or_use(disagree_votes, pid, 0u64);
     Mapping::set(disagree_votes, pid, current + 1u64);
@@ -57,7 +57,7 @@ program vote.aleo {
     // Propose a new proposal to vote on.
     fn propose(public info: ProposalInfo) -> (Proposal, Final) {
         // Authenticate proposer.
-        assert_eq(self.signer, info.proposer);
+        assert_eq(std::ctx::signer(), info.proposer);
 
         // Generate a new proposal id.
         let id: field = BHP256::hash_to_field(info.title);
@@ -65,7 +65,7 @@ program vote.aleo {
         // Return a new record for the proposal.
         // Finalize the proposal id.
         return (
-            Proposal { owner: self.signer, id, info },
+            Proposal { owner: std::ctx::signer(), id, info },
             final {
                 finalize_propose(id);
             },

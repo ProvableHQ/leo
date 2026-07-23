@@ -4,12 +4,12 @@
 // reconstruct_interface in monomorphization, the prototype retains the unresolved
 // generic form `Pair::[4u32]` instead of the concrete monomorphized struct.
 
-struct Pair::[N: u32] {
+export struct Pair::[N: u32] {
     first: u32,
     second: u32,
 }
 
-interface Combiner {
+export interface Combiner {
     fn combine(a: Pair::[4u32], b: Pair::[4u32]) -> Pair::[4u32];
 }
 

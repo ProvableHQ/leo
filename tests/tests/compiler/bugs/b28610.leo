@@ -4,7 +4,7 @@ program b28610.aleo {
     }
 
     fn foo() -> Final {
-        let signer = self.signer;
+        let signer = std::ctx::signer();
         return final { bar(signer); };
     }
 
@@ -12,7 +12,7 @@ program b28610.aleo {
     constructor() {}
 }
 
-final fn bar(addr: address) {
+export final fn bar(addr: address) {
     let t: Token = Token { owner: addr };
     assert(Token { owner: addr }.owner == addr);
 }

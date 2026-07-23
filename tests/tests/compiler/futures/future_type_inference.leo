@@ -13,7 +13,7 @@ program credits.aleo {
     constructor() {}
 }
 
-final fn finalize() {
+export final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -27,14 +27,14 @@ program multi_token_support_program.aleo {
 
     fn mint_private() -> (Token, Final) {
         let f: Final = final { finalize(); };
-        return (Token { owner: self.signer, amount: 100u64 }, f);
+        return (Token { owner: std::ctx::signer(), amount: 100u64 }, f);
     }
 
     @noupgrade
     constructor() {}
 }
 
-final fn finalize() {
+export final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -49,7 +49,7 @@ program mtsp_credits.aleo {
     ) -> (credits.aleo::credits, multi_token_support_program.aleo::Token, Final) {
         let transfer_output: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
             input_record,
-            self.address,
+            std::ctx::addr(),
             amount,
         );
         let mint_output: (multi_token_support_program.aleo::Token, Final) = multi_token_support_program.aleo::mint_private();
@@ -67,7 +67,7 @@ program mtsp_credits.aleo {
 
 // In an earlier Leo version, both Finals would be incorrectly inferred to
 // be the same type.
-final fn finalize_deposit(f0: Final, f1: Final) {
+export final fn finalize_deposit(f0: Final, f1: Final) {
     f0.run();
     f1.run();
 }

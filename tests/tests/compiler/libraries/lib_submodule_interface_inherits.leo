@@ -3,19 +3,19 @@
 
 // --- library: shapes --- //
 
-interface Shape {
+export interface Shape {
     fn area() -> u32;
 }
 
 // --- Next Module: polygons.leo --- //
 
-interface Polygon : shapes::Shape {
+export interface Polygon : shapes::Shape {
     fn perimeter() -> u32;
 }
 
 // --- Next Module: quadrilaterals.leo --- //
 
-interface Quadrilateral : shapes::polygons::Polygon {
+export interface Quadrilateral : shapes::polygons::Polygon {
     fn side_count() -> u32;
 }
 

@@ -28,11 +28,7 @@ use leo_parser::parse_program;
 use leo_span::{Symbol, source_map::FileName, with_session_globals};
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
 
-use std::{
-    fs,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::{fs, path::Path, rc::Rc};
 
 use indexmap::IndexMap;
 use walkdir::WalkDir;
@@ -278,7 +274,6 @@ pub fn create_compiler(fixture: &FixtureData) -> Compiler {
         false,
         Handler::default(),
         Rc::new(NodeBuilder::default()),
-        PathBuf::default(),
         Some(CompilerOptions::default()),
         fixture.import_stubs.clone(),
         fixture.network,
@@ -294,7 +289,6 @@ pub fn create_parse_only_compiler(fixture: &FixtureData) -> Compiler {
         false,
         Handler::default(),
         Rc::new(NodeBuilder::default()),
-        PathBuf::default(),
         Some(CompilerOptions::default()),
         IndexMap::new(),
         fixture.network,

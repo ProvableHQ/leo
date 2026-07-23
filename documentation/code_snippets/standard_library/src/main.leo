@@ -115,6 +115,18 @@ program stdlib_demo.aleo {
         };
     }
 
+    fn prog_demo() -> Final {
+        return final {
+            // ANCHOR: std_prog
+            // Other-program metadata; the target is a compile-time const generic.
+            let cs: [u8; 32] = std::prog::checksum::[stdlib_demo.aleo]();
+            let ed: u16 = std::prog::edition::[stdlib_demo.aleo]();
+            let ow: address = std::prog::program_owner::[stdlib_demo.aleo]();
+            let fc: [u8; 32] = std::prog::function_checksum::[stdlib_demo.aleo, 'prog_demo']();
+            // ANCHOR_END: std_prog
+        };
+    }
+
     @noupgrade
     constructor() {}
 }

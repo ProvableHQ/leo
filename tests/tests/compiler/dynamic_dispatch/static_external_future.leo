@@ -14,7 +14,7 @@ program credits.aleo {
     constructor() {}
 }
 
-final fn finalize() {
+export final fn finalize() {
     assert_eq(1u8, 1u8);
 }
 
@@ -27,7 +27,7 @@ program test_static.aleo {
     constructor() {}
 
     fn test_withdraw_private(amount: u64) -> (credits.aleo::credits, Final) {
-        let (cred, f): (credits.aleo::credits, Final) = credits.aleo::transfer_public_to_private(self.signer, amount);
+        let (cred, f): (credits.aleo::credits, Final) = credits.aleo::transfer_public_to_private(std::ctx::signer(), amount);
         return (cred, final { f.run(); });
     }
 }

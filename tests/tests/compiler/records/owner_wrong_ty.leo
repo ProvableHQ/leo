@@ -8,6 +8,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(x: field) -> bool {
+export fn main(x: field) -> bool {
     return true;
 }

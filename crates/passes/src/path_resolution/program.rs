@@ -119,6 +119,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
 
     fn reconstruct_function(&mut self, input: Function) -> Function {
         self.in_scope(input.id, |slf| Function {
+            is_exported: input.is_exported,
             annotations: input.annotations,
             variant: input.variant,
             identifier: input.identifier,
@@ -135,6 +136,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                             type_: Some(ty.clone()),
                             span: const_param.identifier.span,
                             declaration: VariableType::ConstParameter,
+                            is_exported: None,
                         },
                     ) {
                         slf.state.handler.emit_err(err);
@@ -154,6 +156,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                         type_: Some(ty.clone()),
                         span: inp.identifier.span,
                         declaration: VariableType::Input(inp.mode()),
+                        is_exported: None,
                     }) {
                         slf.state.handler.emit_err(err);
                     }
@@ -212,6 +215,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                                 type_: Some(ty.clone()),
                                 span: const_param.identifier.span,
                                 declaration: VariableType::ConstParameter,
+                                is_exported: None,
                             },
                         ) {
                             slf.state.handler.emit_err(err);

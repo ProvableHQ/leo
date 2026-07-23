@@ -11,11 +11,11 @@ input = []
 // --- library: data_lib --- //
 
 // --- Next Module: types.leo --- //
-struct Buffer::[N: u32] {
+export struct Buffer::[N: u32] {
     data: [u32; N],
 }
 
-fn fill(val: u32) -> Buffer::[3] {
+export fn fill(val: u32) -> Buffer::[3] {
     return Buffer::[3] { data: [val, val, val] };
 }
 

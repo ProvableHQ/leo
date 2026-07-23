@@ -13,7 +13,7 @@ program dep_a.aleo {
     constructor() {}
 }
 
-final fn finalize_get_value(id: u32) {
+export final fn finalize_get_value(id: u32) {
     Mapping::set(data_a, id, 10u64);
 }
 
@@ -30,7 +30,7 @@ program dep_b.aleo {
     constructor() {}
 }
 
-final fn finalize_get_value(id: u32) {
+export final fn finalize_get_value(id: u32) {
     Mapping::set(data_b, id, 20u64);
 }
 

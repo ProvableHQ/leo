@@ -2,7 +2,7 @@ program test.aleo {
     mapping balances: address => u32;
 
     fn foo() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_foo(caller); };
     }
 
@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_foo(account: address) -> () {
+export final fn finalize_foo(account: address) -> () {
     Mapping::set(balances, account, 1u32);
 
     let expect_true: bool = Mapping::contains(balances, account);

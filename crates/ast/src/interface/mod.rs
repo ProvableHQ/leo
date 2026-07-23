@@ -26,6 +26,10 @@ mod prototypes;
 /// An interface definition.
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Interface {
+    /// Whether the `export` keyword was written on this interface. `None` when
+    /// visibility doesn't apply (program-block interfaces, which are always
+    /// reachable).
+    pub is_exported: Option<bool>,
     /// The interface identifier, e.g., `Foo` in `interface Foo { ... }`.
     pub identifier: Identifier,
     /// The interfaces this interface inherits from (supports multiple inheritance)
@@ -77,6 +81,9 @@ impl fmt::Debug for Interface {
 
 impl fmt::Display for Interface {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if self.is_exported == Some(true) {
+            write!(f, "export ")?;
+        }
         writeln!(
             f,
             "interface {}{} {{",

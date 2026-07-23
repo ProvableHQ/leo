@@ -2,7 +2,7 @@
 
 // --- library: base_lib --- //
 
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x + x;
 }
 
@@ -10,7 +10,7 @@ fn double(x: u32) -> u32 {
 
 // --- library: derived_lib --- //
 
-fn quadruple(x: u32) -> u32 {
+export fn quadruple(x: u32) -> u32 {
     return base_lib::double(base_lib::double(x));
 }
 

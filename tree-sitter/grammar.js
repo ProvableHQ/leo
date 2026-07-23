@@ -46,6 +46,9 @@ const ALL_KEYWORDS = [
   'let',
   'const',
   'constant',
+  'export',
+  'dyn',
+  'identifier',
   'final',
   'view',
   'fn',
@@ -108,6 +111,7 @@ module.exports = grammar({
     [$.path_locator_expression, $.program_ref_expression],
     [$.path_locator_expression, $.locator_type],
     [$.path_locator_expression, $.program_ref_expression, $.locator_type],
+    [$.path_locator_expression],
     [$.return_type, $.tuple_type],
     [$.return_type_item, $.tuple_type],
     [$.optional_type, $.mapping_type],
@@ -141,6 +145,7 @@ module.exports = grammar({
       $.struct_definition,
       $.function_definition,
       $.final_function_definition,
+      $.view_function_definition,
       $.const_declaration,
     ),
 
@@ -184,6 +189,7 @@ module.exports = grammar({
     ),
 
     interface_declaration: $ => seq(
+      optional('export'),
       'interface',
       field('name', $.identifier),
       optional(seq(':', field('parents', $.parent_list))),
@@ -212,10 +218,16 @@ module.exports = grammar({
     record_prototype: $ => seq(
       'record',
       field('name', $.identifier),
-      ';',
+      choice(
+        ';',
+        // Partially-constrained record body in an interface: fields must end
+        // with a trailing `..` (fully constraining fields is not yet supported).
+        seq('{', optional(commaSep1($.struct_field)), '..', '}'),
+      ),
     ),
 
     struct_definition: $ => seq(
+      optional('export'),
       'struct',
       field('name', $.identifier),
       optional(field('const_parameters', $.const_param_list)),
@@ -267,6 +279,7 @@ module.exports = grammar({
     ),
 
     const_declaration: $ => seq(
+      optional('export'),
       'const',
       field('name', $.identifier),
       ':',
@@ -278,6 +291,7 @@ module.exports = grammar({
 
     function_definition: $ => seq(
       repeat($.annotation),
+      optional('export'),
       'fn',
       field('name', $.identifier),
       optional(field('const_parameters', $.const_param_list)),
@@ -288,6 +302,7 @@ module.exports = grammar({
 
     final_function_definition: $ => seq(
       repeat($.annotation),
+      optional('export'),
       'final',
       'fn',
       field('name', $.identifier),
@@ -299,6 +314,7 @@ module.exports = grammar({
 
     view_function_definition: $ => seq(
       repeat($.annotation),
+      optional('export'),
       'view',
       'fn',
       field('name', $.identifier),
@@ -318,7 +334,7 @@ module.exports = grammar({
     const_param_list: $ => seq(
       token(prec(1, '::')),
       '[',
-      commaSep1($.const_param),
+      optional(commaSep1($.const_param)),
       ']',
     ),
 
@@ -354,7 +370,7 @@ module.exports = grammar({
     annotation: $ => seq(
       '@',
       field('name', $._annotation_name),
-      optional(seq('(', commaSep1($.annotation_pair), ')')),
+      optional(seq('(', optional(commaSep1($.annotation_pair)), ')')),
     ),
 
     annotation_pair: $ => seq(
@@ -529,6 +545,7 @@ module.exports = grammar({
       $.field_expression,
       $.tuple_access_expression,
       $.index_expression,
+      $.dynamic_op_expression,
       $.path_expression,
       $.struct_expression,
       $.struct_locator_expression,
@@ -555,6 +572,7 @@ module.exports = grammar({
       $.field_expression,
       $.tuple_access_expression,
       $.index_expression,
+      $.dynamic_op_expression,
       $.path_expression,
       $.path_locator_expression,
       $.program_ref_expression,
@@ -613,7 +631,7 @@ module.exports = grammar({
     cast_expression: $ => prec.left(PREC.cast, seq(
       field('value', $._expression),
       'as',
-      field('type', $.primitive_type),
+      field('type', choice($.primitive_type, $.dyn_record_type)),
     )),
 
     ternary_expression: $ => prec.right(PREC.ternary, seq(
@@ -661,6 +679,26 @@ module.exports = grammar({
       ']',
     )),
 
+    // Dynamic interface/storage access, in three forms:
+    //   iface@(target)::func(args)          — dynamic function call
+    //   iface@(target)::storage.op(args)    — dynamic mapping/vector access
+    //   iface@(target)::storage             — dynamic singleton storage read
+    // The target may be followed by an optional network argument: `@(target, network)`.
+    dynamic_op_expression: $ => prec.left(PREC.call, seq(
+      field('interface', $._expression),
+      '@',
+      '(',
+      field('target', $._expression),
+      optional(seq(',', field('network', $._expression))),
+      ')',
+      token(prec(1, '::')),
+      field('member', $.identifier),
+      optional(choice(
+        field('arguments', $.argument_list),
+        seq('.', field('operation', $.identifier), field('arguments', $.argument_list)),
+      )),
+    )),
+
     path_expression: $ => choice(
       $.special_path,
       seq(
@@ -684,6 +722,7 @@ module.exports = grammar({
       field('program', $.program_id),
       token(prec(1, '::')),
       field('member', $.identifier),
+      repeat(seq(token(prec(1, '::')), $.identifier)),
       optional($.const_arg_list),
     ),
 
@@ -691,13 +730,27 @@ module.exports = grammar({
 
     struct_field_init_list: $ => seq(
       '{',
-      optional(commaSep1($.struct_field_init)),
+      optional(choice(
+        // A struct update base may stand alone: `Foo { ..base }`.
+        $.struct_base_update,
+        // Otherwise, explicit fields optionally followed by a trailing `..base`.
+        seq(
+          commaSep1($.struct_field_init),
+          optional($.struct_base_update),
+        ),
+      )),
       '}',
     ),
 
     struct_field_init: $ => seq(
       field('name', $.identifier),
       optional(seq(':', field('value', $._expression))),
+    ),
+
+    // A struct update base: `..expr` copies any field not listed explicitly from `expr`.
+    struct_base_update: $ => seq(
+      '..',
+      field('base', $._expression),
     ),
 
     const_arg_list: $ => choice(
@@ -708,14 +761,18 @@ module.exports = grammar({
     const_arg_list_bracket: $ => seq(
       token(prec(1, '::')),
       '[',
-      commaSep1($.const_arg),
+      optional(commaSep1($.const_arg)),
       ']',
     ),
 
     const_arg: $ => choice(
+      $.dynamic_call_return_type,
       $._type,
       $._expression,
     ),
+
+    // A visibility-prefixed type argument, e.g. `public u64` in `foo::[public u64]`.
+    dynamic_call_return_type: $ => seq($.visibility, $._type),
 
     const_arg_list_angle: $ => seq(
       token(prec(1, '::')),
@@ -784,11 +841,13 @@ module.exports = grammar({
       /0b[0-9A-Za-z_]+(u8|u16|u32|u64|u128|i8|i16|i32|i64|i128)?/,
     )),
 
-    field_literal: _ => token(prec(2, /[0-9][0-9_]*field/)),
+    // Suffix literals accept the same bases as integer literals (decimal, `0x`, `0o`, `0b`);
+    // the compiler classifies purely by the trailing type suffix.
+    field_literal: _ => token(prec(2, /[0-9][0-9A-Za-z_]*field/)),
 
-    group_literal: _ => token(prec(2, /[0-9][0-9_]*group/)),
+    group_literal: _ => token(prec(2, /[0-9][0-9A-Za-z_]*group/)),
 
-    scalar_literal: _ => token(prec(2, /[0-9][0-9_]*scalar/)),
+    scalar_literal: _ => token(prec(2, /[0-9][0-9A-Za-z_]*scalar/)),
 
     string_literal: _ => token(/"[^"]*"/),
 
@@ -803,6 +862,7 @@ module.exports = grammar({
 
     _type: $ => choice(
       $.primitive_type,
+      $.dyn_record_type,
       $.path_type,
       $.locator_type,
       $.array_type,
@@ -812,6 +872,9 @@ module.exports = grammar({
       $.final_type,
       $.mapping_type,
     ),
+
+    // A dynamic record type: `dyn record`.
+    dyn_record_type: _ => seq('dyn', 'record'),
 
     primitive_type: _ => choice(
       'address',
@@ -842,7 +905,7 @@ module.exports = grammar({
 
     locator_type: $ => seq(
       $.program_id,
-      optional(seq(token(prec(1, '::')), $.identifier)),
+      repeat(seq(token(prec(1, '::')), $.identifier)),
       optional($.const_arg_list),
     ),
 

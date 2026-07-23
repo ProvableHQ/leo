@@ -12,7 +12,7 @@ program child.aleo {
 
 // --- Next Module: outer/inner.leo --- //
 
-struct DeepPoint {
+export struct DeepPoint {
     x: u32,
     y: u32,
 }

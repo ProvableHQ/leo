@@ -1,7 +1,7 @@
 [ETYC0372117] Error: expected type `u32`, but type `bool` was found
-   ╭─[ compiler-test:1:16 ]
+   ╭─[ compiler-test:1:23 ]
    │
- 1 │ const X: u32 = true;
+ 1 │ export const X: u32 = true;
    │ 
    │ Help: Change the expression to produce type `u32`.
 ───╯

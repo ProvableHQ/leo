@@ -1,4 +1,4 @@
-struct bar {
+export struct bar {
     data: u8,
 }
 

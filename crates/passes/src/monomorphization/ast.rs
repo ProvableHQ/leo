@@ -241,6 +241,9 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             })
             .collect();
 
+        // Reconstruct the struct update base, if any.
+        input.base = input.base.map(|base| Box::new(self.reconstruct_expression(*base, &()).0));
+
         // Proceed only if there are some const arguments.
         if input.const_arguments.is_empty() {
             input.members = members;
@@ -265,6 +268,7 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
             CompositeExpression {
                 path: self.monomorphize_composite(&input.path, &evaluated_const_args),
                 members,
+                base: input.base,
                 const_arguments: vec![], // remove const arguments
                 span: input.span,        // Keep pointing to the original composite expression
                 id: input.id,

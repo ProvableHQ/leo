@@ -20,11 +20,11 @@ function foo:
     output r2 as u8.private;
 */
 
-fn eliminate_unused_function_call(a: u8, b: u8) -> u8 {
+export fn eliminate_unused_function_call(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-fn inline_and_eliminate(a: u8, b: u8) -> u8 {
+export fn inline_and_eliminate(a: u8, b: u8) -> u8 {
     return a * b;
 }
 
@@ -42,7 +42,7 @@ program test.aleo {
         if (a == b) {
             e = inline_and_eliminate(a, b);
         }
-        let f: dummy = dummy { owner: self.signer, data: e };
+        let f: dummy = dummy { owner: std::ctx::signer(), data: e };
         return a + b;
     }
 

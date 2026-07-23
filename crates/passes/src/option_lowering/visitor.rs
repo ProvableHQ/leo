@@ -89,6 +89,7 @@ impl OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 },
             ],
+            base: None,
             span: Span::default(),
             id: self.state.node_builder.next_id(),
         };
@@ -166,6 +167,7 @@ impl OptionLoweringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 },
             ],
+            base: None,
             span: Span::default(),
             id: self.state.node_builder.next_id(),
         };
@@ -194,6 +196,7 @@ impl OptionLoweringVisitor<'_> {
         let struct_name = crate::make_optional_struct_symbol(ty);
 
         self.composites.entry(Location::new(self.program, vec![struct_name])).or_insert_with(|| Composite {
+            is_exported: None,
             identifier: Identifier::new(struct_name, self.state.node_builder.next_id()),
             const_parameters: vec![], // this is not a generic struct
             members: vec![

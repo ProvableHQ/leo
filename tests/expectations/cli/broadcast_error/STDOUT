@@ -4,7 +4,7 @@
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -16,7 +16,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  16
+  Consensus Version:  17
 
 📦 Deployment Tasks:
   • broadcast_error.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -78,7 +78,7 @@ Transaction accepted.
        Leo ✅ Compiled 'broadcast_error.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'broadcast_error.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -90,7 +90,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  16
+  Consensus Version:  17
 
 📦 Deployment Tasks:
   • broadcast_error.aleo  │ priority fee: 0  │ fee record: no (public fee)

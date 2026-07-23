@@ -14,7 +14,7 @@ program child.aleo {
 // --- Next Module: math.leo --- //
 
 @no_inline
-fn helper(x: u32) -> u32 {
+export fn helper(x: u32) -> u32 {
     return x + 1u32;
 }
 

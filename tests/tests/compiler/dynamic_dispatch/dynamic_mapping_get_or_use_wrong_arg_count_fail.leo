@@ -1,5 +1,5 @@
 // FAIL: dynamic mapping get_or_use requires exactly 2 arguments (key and default).
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: field, key: address) {
+export final fn finalize_query(target: field, key: address) {
     let val: u64 = Bank@(target)::balances.get_or_use(key);
 }

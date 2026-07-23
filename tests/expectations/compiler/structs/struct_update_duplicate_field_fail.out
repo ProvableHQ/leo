@@ -1,0 +1,11 @@
+[ETYC0372015] Error: struct field `x` is already declared
+    ╭─[ compiler-test:10:41 ]
+    │
+ 10 │         let p: Point = Point { x: 1u32, x: 2u32, ..base };
+    │                                ┬        ┬  
+    │                                ╰─────────── `x` first declared here
+    │                                         │  
+    │                                         ╰── struct field already declared
+    │ 
+    │ Help: Remove or rename the duplicate `x` field.
+────╯

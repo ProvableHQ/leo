@@ -154,6 +154,15 @@ A `tag` or `rev` is immutable: once locked, it is reused from the cache and neve
 
 Pass `--offline` to `leo build` to skip all git fetching and build from the locked commits and the local cache, even for branch references. `leo remove` deletes the removed dependency's entries from `leo.lock`.
 
+## `dependencies` vs. `dev_dependencies`
+
+A manifest has two dependency lists, and they differ only in what can see them:
+
+- **`dependencies`** are visible to your `src` program **and** to the package's in-package [tests](./testing.md). A dependency your program is built from is automatically available to the tests too.
+- **`dev_dependencies`** are visible **only** to the in-package tests, never to `src`. Use this list for libraries or programs that the tests need but the program itself does not.
+
+Because `dependencies` are already visible to the tests, a library used by both `src` and the tests belongs in `dependencies` alone — you do not repeat it under `dev_dependencies`. (Listing the same local library in both lists is allowed and simply deduplicates, but it is redundant.)
+
 ## Manifest field reference
 
 This applies to every kind of dependency, not just workspace members. `leo add` fills in these fields for you, but if you edit `program.json` by hand Leo validates each dependency entry when it loads the manifest and rejects incompatible combinations. Every entry has a `location`; the other fields depend on it:

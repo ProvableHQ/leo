@@ -3,6 +3,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn main(y: u32) {
+export fn main(y: u32) {
     let x: bool = true ? y : true;
 }

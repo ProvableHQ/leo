@@ -1,1 +1,1 @@
-const A_VAL: u32 = 1u32;
+export const A_VAL: u32 = 1u32;

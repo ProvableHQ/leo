@@ -42,6 +42,11 @@ use std::fmt;
 /// A function definition.
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Function {
+    /// Whether the `export` keyword was written on this function. `None` means the
+    /// visibility concept does not apply (e.g., program-block functions and
+    /// stubs, which are always reachable as part of the program's public
+    /// interface, and compiler-synthesized helpers).
+    pub is_exported: Option<bool>,
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
     /// Is this function a transition, inlined, or a regular function?.
@@ -76,6 +81,7 @@ impl Function {
     /// Initialize a new function.
     #[allow(clippy::too_many_arguments)]
     pub fn new(
+        is_exported: Option<bool>,
         annotations: Vec<Annotation>,
         variant: Variant,
         identifier: Identifier,
@@ -92,7 +98,19 @@ impl Function {
             _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
-        Function { annotations, variant, identifier, const_parameters, input, output, output_type, block, span, id }
+        Function {
+            is_exported,
+            annotations,
+            variant,
+            identifier,
+            const_parameters,
+            input,
+            output,
+            output_type,
+            block,
+            span,
+            id,
+        }
     }
 
     /// Returns function name.
@@ -109,6 +127,7 @@ impl Function {
 impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
         Self {
+            is_exported: None,
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,
@@ -133,6 +152,10 @@ impl fmt::Display for Function {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for annotation in &self.annotations {
             writeln!(f, "{annotation}")?;
+        }
+
+        if self.is_exported == Some(true) {
+            write!(f, "export ")?;
         }
 
         match self.variant {

@@ -8,7 +8,7 @@ program test.aleo {
     mapping tokens: address => Token;
 
     fn decrease_self(amount: u128) -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_decrease_self(caller, amount); };
     }
 
@@ -16,7 +16,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_decrease_self(addr: address, amount: u128) {
+export final fn finalize_decrease_self(addr: address, amount: u128) {
     Mapping::get(tokens, true);
     tokens.get(true);
     Mapping::get(amounts, 1u8);

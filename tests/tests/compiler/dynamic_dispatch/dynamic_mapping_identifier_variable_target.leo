@@ -1,5 +1,5 @@
 // Interface-based dynamic mapping get with an identifier variable as target.
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -12,6 +12,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_query(target: identifier, key: address) {
+export final fn finalize_query(target: identifier, key: address) {
     let val: u64 = Bank@(target)::balances.get(key);
 }

@@ -3,9 +3,9 @@
 
 // --- library: math_lib --- //
 
-const BASE: u32 = 10u32;
-const DOUBLE: u32 = BASE + BASE;
-const TRIPLE: u32 = DOUBLE + BASE;
+export const BASE: u32 = 10u32;
+export const DOUBLE: u32 = BASE + BASE;
+export const TRIPLE: u32 = DOUBLE + BASE;
 
 // --- Next Program --- //
 

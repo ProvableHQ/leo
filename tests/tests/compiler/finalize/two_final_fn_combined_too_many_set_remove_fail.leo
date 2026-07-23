@@ -12,7 +12,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn write_a() {
+export final fn write_a() {
     foo.set(0u8, 0u8);
     foo.set(1u8, 1u8);
     foo.set(2u8, 2u8);
@@ -32,7 +32,7 @@ final fn write_a() {
     foo.set(16u8, 16u8);
 }
 
-final fn write_b() {
+export final fn write_b() {
     foo.set(17u8, 17u8);
     foo.set(18u8, 18u8);
     foo.set(19u8, 19u8);

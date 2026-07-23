@@ -1,13 +1,13 @@
 // --- Base Structs ---
-struct S {
+export struct S {
     x: u32,
 }
 
-struct OS {
+export struct OS {
     inner: S?,
 }
 
-struct Wrap {
+export struct Wrap {
     arr: [u32?; 2]?,
     val: u32?,
 }

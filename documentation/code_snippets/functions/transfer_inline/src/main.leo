@@ -22,7 +22,7 @@ program transfer.aleo {
             amount,
         };
 
-        let caller: address = self.caller;
+        let caller: address = std::ctx::caller();
         // Return the receiver's record, then decrement the token amount of the caller publicly.
         return (new, final {
             // Decrements `account[sender]` by `amount`.

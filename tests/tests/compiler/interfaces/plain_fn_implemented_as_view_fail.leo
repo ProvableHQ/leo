@@ -1,7 +1,7 @@
 // FAIL: the inverse of `view_required_wrong_variant_fail` — interface declares
 // a plain `fn`, the program tries to satisfy it with a `view fn`. Variants
 // must match in both directions.
-interface IToken {
+export interface IToken {
     fn read(account: address) -> u128;
 }
 

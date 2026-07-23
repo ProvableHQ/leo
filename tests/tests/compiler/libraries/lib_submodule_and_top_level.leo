@@ -1,13 +1,13 @@
 // --- library: mixed_lib --- //
 
-const BASE: u32 = 10u32;
+export const BASE: u32 = 10u32;
 
 // --- Next Module: ops.leo --- //
-fn scale(x: u32) -> u32 {
+export fn scale(x: u32) -> u32 {
     return x * mixed_lib::BASE;
 }
 
-fn offset(x: u32) -> u32 {
+export fn offset(x: u32) -> u32 {
     return x + mixed_lib::BASE;
 }
 

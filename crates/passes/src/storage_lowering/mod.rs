@@ -16,8 +16,8 @@
 
 //! Performs lowering of `storage` variables and storage vectors into explicit `Mapping` operations.
 //!
-//! This pass rewrites high-level storage constructs—such as `storage` declarations and `Vector` methods concrete
-//! calls to the underlying `Mapping` API used in Aleo programs. Each `storage` variable is de-sugared into one or more
+//! This pass rewrites high-level storage constructs—such as `storage` declarations and `Vector` method calls—to the
+//! underlying `Mapping` API used in Aleo programs. Each `storage` variable is de-sugared into one or more
 //! `Mapping` instances, and all read/write operations are rewritten as `Mapping::get`, `Mapping::set`, or
 //! `Mapping::get_or_use` calls.
 //!
@@ -43,7 +43,8 @@
 //! async transition test_vector_ops() -> Future {
 //!     return async {
 //!         vec.push(10u32);
-//!         let x = vec.get(0u32).unwrap();
+//!         vec.push(vec.len());
+//!         let x = vec.get(0u32);
 //!         let y = vec.pop();
 //!     };
 //! }
@@ -57,17 +58,23 @@
 //!
 //! // vec.push(10u32);
 //! let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
-//! Mapping::set(vec__, $len_var, 10u32);
 //! Mapping::set(vec__len__, false, $len_var + 1u32);
+//! Mapping::set(vec__, $len_var, 10u32);
 //!
-//! // let x = vec.get(3u32);
+//! // vec.push(vec.len());
+//! let $push_value = Mapping::get_or_use(vec__len__, false, 0u32);
 //! let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
-//! let x = 3u32 < $len_var ? Mapping::get_or_use(vec__, 3u32, 0u32) : None;
+//! Mapping::set(vec__len__, false, $len_var + 1u32);
+//! Mapping::set(vec__, $len_var, $push_value);
+//!
+//! // let x = vec.get(0u32);
+//! let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
+//! let x = 0u32 < $len_var ? Mapping::get_or_use(vec__, 0u32, 0u32) : none;
 //!
 //! // let y = vec.pop();
 //! let $len_var = Mapping::get_or_use(vec__len__, false, 0u32);
 //! if ($len_var > 0u32) { Mapping::set(vec__len__, false, $len_var - 1u32); }
-//! let y = $len_var > 0u32 ? Mapping::get_or_use(vec__, $len_var - 1u32, 0u32) : None;
+//! let y = $len_var > 0u32 ? Mapping::get_or_use(vec__, $len_var - 1u32, 0u32) : none;
 //! ```
 //!
 //! ### Example: Singleton Storage

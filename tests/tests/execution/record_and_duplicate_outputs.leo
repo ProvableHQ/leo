@@ -30,7 +30,7 @@ program test0.aleo {
     }
 
     fn make() -> R {
-        return R { owner: self.signer, x: 0field };
+        return R { owner: std::ctx::signer(), x: 0field };
     }
 
     @noupgrade
@@ -40,7 +40,7 @@ program test0.aleo {
 // --- Next Program --- //
 import test0.aleo;
 
-struct S {
+export struct S {
     x: field,
     y: field,
 }
