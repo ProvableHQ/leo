@@ -77,7 +77,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
             }
         };
 
-        // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
+        // Preserve generated Optional identity before its reserved raw name is legalized for Aleo.
         let mut generated_optional_structs = HashSet::new();
         let data_types = order
             .into_iter()

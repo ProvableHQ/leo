@@ -161,6 +161,8 @@ fn try_make_optional_struct_symbol(ty: &Type) -> Option<Symbol> {
     Some(Symbol::intern(&format!("{}?", display_type(ty)?)))
 }
 
+/// Recognizes the reserved name and field layout emitted by Optional lowering.
+/// The `?`-suffixed raw name cannot originate from a Leo source identifier.
 pub(crate) fn is_generated_optional_struct(composite: &Composite) -> bool {
     let [is_some, val] = composite.members.as_slice() else {
         return false;
