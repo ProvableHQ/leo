@@ -28,10 +28,6 @@ use leo_span::Symbol;
 
 mod ast;
 
-mod composite_sra;
-
-mod late_optional_unwrap;
-
 mod program;
 
 mod visitor;
@@ -71,16 +67,5 @@ impl Pass for SsaConstPropagation {
             }
         }
         panic!("ran out of loops");
-    }
-}
-
-impl SsaConstPropagation {
-    /// Runs the narrow Optional forwarding phase exposed by final SSA.
-    ///
-    /// This is public only so the compiler crate can schedule the owner phase
-    /// without changing the pass's published unit input.
-    #[doc(hidden)]
-    pub fn run_optional_forwarding_after_final_ssa(state: &mut crate::CompilerState) -> Result<()> {
-        late_optional_unwrap::run(state)
     }
 }

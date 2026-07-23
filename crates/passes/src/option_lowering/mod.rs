@@ -67,7 +67,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, Ast, CompositeType, Type, UnitReconstructor as _};
+use leo_ast::{ArrayType, Ast, Composite, CompositeType, Type, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -140,7 +140,7 @@ fn try_make_optional_struct_symbol(ty: &Type) -> Option<Symbol> {
                 Some(format!("[{}; {length}]", display_type(element_type)?))
             }
             Type::Composite(CompositeType { path, .. }) => {
-                Some(format!("::{}", path.expect_global_location().path.iter().format("::")))
+                Some(format!("::{}", path.try_global_location()?.path.iter().format("::")))
             }
 
             Type::Tuple(_)
@@ -161,8 +161,16 @@ fn try_make_optional_struct_symbol(ty: &Type) -> Option<Symbol> {
     Some(Symbol::intern(&format!("{}?", display_type(ty)?)))
 }
 
-pub(crate) fn is_optional_struct_symbol(symbol: Symbol, inner: &Type) -> bool {
-    try_make_optional_struct_symbol(inner) == Some(symbol)
+pub(crate) fn is_generated_optional_struct(composite: &Composite) -> bool {
+    let [is_some, val] = composite.members.as_slice() else {
+        return false;
+    };
+
+    !composite.is_record
+        && is_some.identifier.name == Symbol::intern("is_some")
+        && is_some.type_ == Type::Boolean
+        && val.identifier.name == Symbol::intern("val")
+        && try_make_optional_struct_symbol(&val.type_) == Some(composite.identifier.name)
 }
 
 pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {

@@ -430,11 +430,6 @@ impl Compiler {
 
         self.do_pass::<SsaForming>(SsaFormingInput { rename_defs: false })?;
 
-        // Final SSA can expose lowered Optional composites through local aliases.
-        // Repeat only the owning projection phase; rerunning the full constant
-        // propagation pass here would also reconsider unrelated lowered code.
-        SsaConstPropagation::run_optional_forwarding_after_final_ssa(&mut self.state)?;
-
         self.do_pass::<CommonSubexpressionEliminating>(())?;
 
         self.do_pass::<DeadCodeEliminating>(())?;

@@ -20,7 +20,7 @@ use itertools::Itertools;
 use leo_ast::{Ast, Mode, ProgramId};
 use leo_errors::Result;
 
-use std::fmt::Display;
+use std::{collections::HashSet, fmt::Display};
 
 mod expression;
 
@@ -63,13 +63,25 @@ impl GeneratedPrograms {
         CompiledPrograms { primary_bytecode, import_bytecodes }
     }
 
-    /// Returns mutable references to all statement lists across all functions/closures/finalizes/constructors.
+    /// Returns mutable references to all statement lists across all functions, closures, finalizes, views, and constructors.
     pub fn for_each_statement_list(&mut self, mut f: impl FnMut(&mut Vec<AleoStmt>, usize)) {
         for (_, program) in &mut self.imports {
             program.for_each_statement_list(&mut f);
         }
         if let Some(primary) = &mut self.primary {
             primary.for_each_statement_list(&mut f);
+        }
+    }
+
+    pub(crate) fn for_each_statement_list_with_generated_optionals(
+        &mut self,
+        mut f: impl FnMut(&mut Vec<AleoStmt>, usize, &HashSet<String>),
+    ) {
+        for (_, program) in &mut self.imports {
+            program.for_each_statement_list_with_generated_optionals(&mut f);
+        }
+        if let Some(primary) = &mut self.primary {
+            primary.for_each_statement_list_with_generated_optionals(&mut f);
         }
     }
 }
@@ -116,33 +128,43 @@ pub struct AleoProgram {
     mappings: Vec<AleoMapping>,
     functions: Vec<AleoFunctional>,
     constructor: Option<AleoConstructor>,
+    /// Legalized names of the Optional wrappers inserted by option lowering for this program.
+    generated_optional_structs: HashSet<String>,
 }
 
 impl AleoProgram {
-    /// Calls `f` for each statement list in the program (closures, functions, finalizes, constructor).
+    /// Calls `f` for each statement list in the program (closures, functions, finalizes, views, and constructor).
     /// The second argument to `f` is the number of input registers for that function.
     pub fn for_each_statement_list(&mut self, f: &mut impl FnMut(&mut Vec<AleoStmt>, usize)) {
+        self.for_each_statement_list_with_generated_optionals(&mut |stmts, num_inputs, _| f(stmts, num_inputs));
+    }
+
+    fn for_each_statement_list_with_generated_optionals(
+        &mut self,
+        f: &mut impl FnMut(&mut Vec<AleoStmt>, usize, &HashSet<String>),
+    ) {
+        let generated_optional_structs = &self.generated_optional_structs;
         for functional in &mut self.functions {
             match functional {
                 AleoFunctional::Closure(c) => {
-                    f(&mut c.statements, c.inputs.len());
+                    f(&mut c.statements, c.inputs.len(), generated_optional_structs);
                 }
                 AleoFunctional::Function(fun) => {
-                    f(&mut fun.statements, fun.inputs.len());
+                    f(&mut fun.statements, fun.inputs.len(), generated_optional_structs);
                     if let Some(fin) = &mut fun.finalize {
-                        f(&mut fin.statements, fin.inputs.len());
+                        f(&mut fin.statements, fin.inputs.len(), generated_optional_structs);
                     }
                 }
                 AleoFunctional::Finalize(fin) => {
-                    f(&mut fin.statements, fin.inputs.len());
+                    f(&mut fin.statements, fin.inputs.len(), generated_optional_structs);
                 }
                 AleoFunctional::View(v) => {
-                    f(&mut v.statements, v.inputs.len());
+                    f(&mut v.statements, v.inputs.len(), generated_optional_structs);
                 }
             }
         }
         if let Some(constructor) = &mut self.constructor {
-            f(&mut constructor.statements, 0);
+            f(&mut constructor.statements, 0, generated_optional_structs);
         }
     }
 }
