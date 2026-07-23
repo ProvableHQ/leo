@@ -125,10 +125,9 @@ finalize check2:
     assert.eq r15 true;
     contains addr_val__[false] into r16;
     get.or_use addr_val__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r17;
-    ternary r16 r17 aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r18;
-    ternary r16 r18 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r19;
-    is.eq r19 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r20;
-    assert.eq r20 true;
+    ternary r16 r17 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r18;
+    is.eq r18 aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta into r19;
+    assert.eq r19 true;
 
 constructor:
     assert.eq edition 0u16;

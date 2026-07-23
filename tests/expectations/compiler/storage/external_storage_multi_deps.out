@@ -172,10 +172,9 @@ finalize test_fallback:
     assert.eq r7 true;
     contains mid2.aleo/counter__[false] into r8;
     get.or_use mid2.aleo/counter__[false] 0u8 into r9;
-    ternary r8 r9 0u8 into r10;
-    ternary r8 r10 11u8 into r11;
-    is.eq r11 11u8 into r12;
-    assert.eq r12 true;
+    ternary r8 r9 11u8 into r10;
+    is.eq r10 11u8 into r11;
+    assert.eq r11 true;
 
 function test_none:
     async test_none into r0;

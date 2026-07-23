@@ -43,9 +43,8 @@ finalize nonzero_fallback:
     get.or_use data__len__[false] 0u32 into r1;
     lt r0 r1 into r2;
     get.or_use data__[r0] 0u8 into r3;
-    ternary r2 r3 0u8 into r4;
-    ternary r2 r4 7u8 into r5;
-    set r5 into result[1u32];
+    ternary r2 r3 7u8 into r4;
+    set r4 into result[1u32];
 
 function input_fallback:
     input r0 as u32.private;
@@ -59,9 +58,8 @@ finalize input_fallback:
     get.or_use data__len__[false] 0u32 into r2;
     lt r0 r2 into r3;
     get.or_use data__[r0] 0u8 into r4;
-    ternary r3 r4 0u8 into r5;
-    ternary r3 r5 r1 into r6;
-    set r6 into result[2u32];
+    ternary r3 r4 r1 into r5;
+    set r5 into result[2u32];
 
 function dynamic_output_key:
     input r0 as u32.private;

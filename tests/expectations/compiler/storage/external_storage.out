@@ -535,10 +535,9 @@ finalize check_fallback:
     assert.eq r110 true;
     contains child.aleo/counter__[false] into r111;
     get.or_use child.aleo/counter__[false] 0u8 into r112;
-    ternary r111 r112 0u8 into r113;
-    ternary r111 r113 123u8 into r114;
-    is.eq r114 123u8 into r115;
-    assert.eq r115 true;
+    ternary r111 r112 123u8 into r113;
+    is.eq r113 123u8 into r114;
+    assert.eq r114 true;
 
 constructor:
     assert.eq edition 0u16;

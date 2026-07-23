@@ -105,10 +105,9 @@ finalize unsigned_integers:
     assert.eq r11 true;
     contains counter_u32__[false] into r12;
     get.or_use counter_u32__[false] 0u32 into r13;
-    ternary r12 r13 0u32 into r14;
-    ternary r12 r14 99u32 into r15;
-    is.eq r15 15u32 into r16;
-    assert.eq r16 true;
+    ternary r12 r13 99u32 into r14;
+    is.eq r14 15u32 into r15;
+    assert.eq r15 true;
 
 function signed_integers:
     async signed_integers into r0;
@@ -135,10 +134,9 @@ finalize signed_integers:
     assert.eq r11 true;
     contains counter_i32__[false] into r12;
     get.or_use counter_i32__[false] 0i32 into r13;
-    ternary r12 r13 0i32 into r14;
-    ternary r12 r14 1i32 into r15;
-    is.eq r15 -8i32 into r16;
-    assert.eq r16 true;
+    ternary r12 r13 1i32 into r14;
+    is.eq r14 -8i32 into r15;
+    assert.eq r15 true;
 
 function primitive_types:
     async primitive_types into r0;
@@ -194,15 +192,14 @@ finalize primitive_types:
     assert.eq r27 true;
     contains flag__[false] into r28;
     get.or_use flag__[false] false into r29;
-    ternary r28 r29 false into r30;
-    ternary r28 r30 true into r31;
-    is.eq r31 false into r32;
-    assert.eq r32 true;
-    contains field_val__[false] into r33;
-    get.or_use field_val__[false] 0field into r34;
-    ternary r33 r34 0field into r35;
-    is.eq r35 21field into r36;
-    assert.eq r36 true;
+    ternary r28 r29 true into r30;
+    is.eq r30 false into r31;
+    assert.eq r31 true;
+    contains field_val__[false] into r32;
+    get.or_use field_val__[false] 0field into r33;
+    ternary r32 r33 0field into r34;
+    is.eq r34 21field into r35;
+    assert.eq r35 true;
 
 function structs_and_arrays:
     async structs_and_arrays into r0;

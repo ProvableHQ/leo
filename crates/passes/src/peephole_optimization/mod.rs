@@ -608,10 +608,9 @@ fn register_reader_counts(stmts: &[AleoStmt]) -> HashMap<AleoReg, usize> {
 /// to every source-level Optional or to lookalike structs.
 ///
 /// Generated wrapper casts are infallible: codegen has already checked both field types against the
-/// exact struct recorded for this program. To limit the rewrite to storage/vector lowering shapes,
-/// the tag register must be a destination of `contains`, `contains.dynamic`, `lt`, or `gt` in the
-/// same statement list, and the value must be a register or literal. The cast is removed only when
-/// forwarding leaves the whole wrapper unread.
+/// exact struct recorded for this program. The tag must be produced by one of the boolean operations
+/// currently emitted by storage/vector Optional lowering, and the value must be a register or
+/// literal. The cast is removed only when forwarding leaves the whole wrapper unread.
 fn forward_generated_optional_projections(stmts: &mut Vec<AleoStmt>, generated_optional_structs: &HashSet<String>) {
     if generated_optional_structs.is_empty() {
         return;
@@ -704,8 +703,8 @@ fn forward_generated_optional_projections(stmts: &mut Vec<AleoStmt>, generated_o
 
 /// Removes only the exact construct-then-project pattern emitted by lowered Optionals.
 ///
-/// Equal fallbacks can collapse to the original selection when its result does not escape.
-/// Distinct fallbacks retain both selections and remove only the generated wrapper.
+/// When the first selection does not escape, the outer fallback replaces its irrelevant inner
+/// fallback. Otherwise, only the generated wrapper is removed.
 fn fold_lowered_optional_unwraps(stmts: &mut Vec<AleoStmt>, generated_optional_structs: &HashSet<String>) {
     if generated_optional_structs.is_empty() || stmts.len() < 3 {
         return;
@@ -740,7 +739,7 @@ fn fold_lowered_optional_unwraps(stmts: &mut Vec<AleoStmt>, generated_optional_s
     while index + 2 < stmts.len() {
         let rewrite = match (&stmts[index], &stmts[index + 1], &stmts[index + 2]) {
             (
-                AleoStmt::Ternary(condition, value, inner_fallback, selected),
+                AleoStmt::Ternary(condition, value, _, selected),
                 AleoStmt::Cast(AleoExpr::Tuple(fields), wrapper, AleoType::Ident { name }),
                 AleoStmt::Ternary(outer_condition, outer_value, outer_fallback, output),
             ) if generated_optional_structs.contains(name)
@@ -753,11 +752,11 @@ fn fold_lowered_optional_unwraps(stmts: &mut Vec<AleoStmt>, generated_optional_s
                 && !reads_register(outer_fallback, wrapper)
                 && reader_counts.get(wrapper).copied().unwrap_or(0) == 1 =>
             {
-                if inner_fallback == outer_fallback && reader_counts.get(selected).copied().unwrap_or(0) == 1 {
+                if reader_counts.get(selected).copied().unwrap_or(0) == 1 {
                     Some(Rewrite::Collapse(AleoStmt::Ternary(
                         condition.clone(),
                         value.clone(),
-                        inner_fallback.clone(),
+                        outer_fallback.clone(),
                         output.clone(),
                     )))
                 } else {
@@ -1447,15 +1446,12 @@ mod tests {
     }
 
     #[test]
-    fn preserves_distinct_outer_fallback() {
+    fn collapses_distinct_outer_fallback() {
         let mut stmts = lowered_optional(AleoExpr::U8(0), AleoExpr::U8(7));
 
         fold_lowered_optional_unwraps(&mut stmts, &generated_optionals());
 
-        assert_eq!(stmts, vec![
-            AleoStmt::Ternary(register_expr(0), register_expr(1), AleoExpr::U8(0), register(2)),
-            AleoStmt::Ternary(register_expr(0), register_expr(2), AleoExpr::U8(7), register(4)),
-        ]);
+        assert_eq!(stmts, vec![AleoStmt::Ternary(register_expr(0), register_expr(1), AleoExpr::U8(7), register(4))]);
     }
 
     #[test]
@@ -1495,14 +1491,14 @@ mod tests {
 
     #[test]
     fn keeps_selected_value_with_another_reader() {
-        let mut stmts = lowered_optional(AleoExpr::U8(0), AleoExpr::U8(0));
+        let mut stmts = lowered_optional(AleoExpr::U8(0), AleoExpr::U8(7));
         stmts.push(AleoStmt::AssertEq(register_expr(2), AleoExpr::U8(0)));
 
         fold_lowered_optional_unwraps(&mut stmts, &generated_optionals());
 
         assert_eq!(stmts, vec![
             AleoStmt::Ternary(register_expr(0), register_expr(1), AleoExpr::U8(0), register(2)),
-            AleoStmt::Ternary(register_expr(0), register_expr(2), AleoExpr::U8(0), register(4)),
+            AleoStmt::Ternary(register_expr(0), register_expr(2), AleoExpr::U8(7), register(4)),
             AleoStmt::AssertEq(register_expr(2), AleoExpr::U8(0)),
         ]);
     }
