@@ -128,7 +128,7 @@ pub struct AleoProgram {
     mappings: Vec<AleoMapping>,
     functions: Vec<AleoFunctional>,
     constructor: Option<AleoConstructor>,
-    /// Legalized names of the Optional wrappers inserted by option lowering for this program.
+    /// Legalized names of Option-lowered wrappers emitted in this program.
     generated_optional_structs: HashSet<String>,
 }
 
