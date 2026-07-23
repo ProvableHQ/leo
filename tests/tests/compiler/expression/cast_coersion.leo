@@ -1,4 +1,4 @@
-struct foo {
+export struct foo {
     data: field,
 }
 

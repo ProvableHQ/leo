@@ -3,7 +3,7 @@
 // entry point fns cannot return optional types. The failure is a ETYC error from
 // the type checker, not an ECHI error from the interface checker.
 
-interface Finder {
+export interface Finder {
     fn find(key: u32) -> u32?;
 }
 

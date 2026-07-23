@@ -1,4 +1,4 @@
-fn f1(a: u8) -> u8 {
+export fn f1(a: u8) -> u8 {
     return a * 100u8;
 }
 

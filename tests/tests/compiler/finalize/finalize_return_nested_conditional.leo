@@ -16,7 +16,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn tier_of(amount: u64) -> u8 {
+export final fn tier_of(amount: u64) -> u8 {
     if amount >= 1000u64 {
         if amount >= 1_000_000u64 {
             return 3u8;

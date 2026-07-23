@@ -35,7 +35,7 @@ program optconsumer.aleo {
     constructor() {}
 }
 
-final fn finalize_peek() {
+export final fn finalize_peek() {
     let present: bool = Mapping::contains(optprod.aleo::maybe__, true);
     let v: u32 = Mapping::get(optprod.aleo::maybe__, true);
     let w: u32 = Mapping::get_or_use(optprod.aleo::maybe__, false, 0u32);

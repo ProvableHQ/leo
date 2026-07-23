@@ -24,7 +24,7 @@
 
 // --- Next Module: interfaces.leo --- //
 
-interface IBase {
+export interface IBase {
     record Token {
         owner: address,
         ..
@@ -32,18 +32,18 @@ interface IBase {
     fn issue(owner: address) -> Token;
 }
 
-interface ILeft: IBase {
+export interface ILeft: IBase {
     fn split(t: Token) -> (Token, Token);
 }
 
-interface IRight: IBase {
+export interface IRight: IBase {
     fn owner_of(t: Token) -> address;
 }
 
 // IDiamond inherits both ILeft and IRight (diamond pattern).
 // flatten_interface encounters issue() in both parents and calls prototypes_match
 // with inheritance_record_names = {Token} to verify they are compatible.
-interface IDiamond: ILeft + IRight {}
+export interface IDiamond: ILeft + IRight {}
 
 // --- Next Program --- //
 

@@ -33,8 +33,7 @@
 //!
 //! Inside `build`, every compilation unit - the package's own program or
 //! library, its local dependencies, and fetched network imports - gets its own
-//! `build/<name>/` directory with the same shape. When compiler-debug AST
-//! snapshots are requested they appear under `build/<name>/snapshots/`.
+//! `build/<name>/` directory with the same shape.
 //!
 //! For packages that live inside a workspace (a directory whose `workspace.json`
 //! is an ancestor), `build/` moves to the workspace root rather than the
@@ -126,10 +125,6 @@ pub const ABI_FILENAME: &str = "abi.json";
 
 /// Name of the per-unit subdirectory holding interface ABI JSON files.
 pub const INTERFACES_DIRNAME: &str = "interfaces";
-
-/// Name of the per-unit subdirectory holding compiler-debug AST snapshots.
-/// Created lazily on first write; absent on builds that don't request snapshots.
-pub const SNAPSHOTS_DIRNAME: &str = "snapshots";
 
 pub const TESTS_DIRECTORY: &str = "tests";
 

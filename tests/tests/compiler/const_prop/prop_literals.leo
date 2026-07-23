@@ -1,8 +1,8 @@
-const A: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
+export const A: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
 
-const B: field = 0field;
+export const B: field = 0field;
 
-const C: [address; 2] = [A, A];
+export const C: [address; 2] = [A, A];
 
 program test.aleo {
     fn f1() -> address {

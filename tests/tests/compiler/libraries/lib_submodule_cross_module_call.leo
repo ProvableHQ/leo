@@ -1,12 +1,12 @@
 // --- library: utils_lib --- //
 
 // --- Next Module: math.leo --- //
-fn square(x: u32) -> u32 {
+export fn square(x: u32) -> u32 {
     return x * x;
 }
 
 // --- Next Module: geometry.leo --- //
-fn distance_sq(ax: u32, ay: u32, bx: u32, by: u32) -> u32 {
+export fn distance_sq(ax: u32, ay: u32, bx: u32, by: u32) -> u32 {
     let dx: u32 = bx - ax;
     let dy: u32 = by - ay;
     return utils_lib::math::square(dx) + utils_lib::math::square(dy);

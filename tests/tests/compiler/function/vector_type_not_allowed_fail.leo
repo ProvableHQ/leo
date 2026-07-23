@@ -1,21 +1,21 @@
 
 // Vector as function parameter
-fn foo(a: [u32]) -> u32 {
+export fn foo(a: [u32]) -> u32 {
     return 0u32;
 }
 
 // Vector as function return type
-fn bar() -> [u32] {
+export fn bar() -> [u32] {
     return 0u32;
 }
 
 // Vector as struct field
-struct MyStruct {
+export struct MyStruct {
     data: [u32]
 }
 
 // Vector nested in array
-fn baz(a: [[u32]; 3]) -> u32 {
+export fn baz(a: [[u32]; 3]) -> u32 {
     return 0u32;
 }
 

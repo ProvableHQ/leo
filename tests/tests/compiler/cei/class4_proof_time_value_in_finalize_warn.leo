@@ -13,7 +13,7 @@ program token.aleo {
     constructor() {}
 }
 
-final fn finalize_get_supply(id: u32) {
+export final fn finalize_get_supply(id: u32) {
     let s: u32 = Mapping::get_or_use(supply, id, 0u32);
     Mapping::set(supply, id, s);
 }
@@ -35,7 +35,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_make_decision(f: Final, val: u32, id: u32) {
+export final fn finalize_make_decision(f: Final, val: u32, id: u32) {
     // [E] Effect: use proof-time val which may now be stale
     Mapping::set(decisions, id, val);
     // [I] Interaction: run the future (supply may have changed)

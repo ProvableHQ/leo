@@ -33,7 +33,7 @@ program test.aleo: interfaces::IChild {
 
 // --- Next Module: interfaces.leo --- //
 
-interface IBase {
+export interface IBase {
     record Token {
         owner: address,
         ..
@@ -41,7 +41,7 @@ interface IBase {
     fn f1(t: Token) -> Token;
 }
 
-interface IChild: IBase {
+export interface IChild: IBase {
     record Token {
         owner: address,
         ..

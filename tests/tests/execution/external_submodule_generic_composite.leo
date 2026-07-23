@@ -25,12 +25,12 @@ program child.aleo {
 
 // --- Next Module: math.leo --- //
 
-struct Pair::[N: u32] {
+export struct Pair::[N: u32] {
     a: u32,
     b: u32,
 }
 
-fn make_pair::[N: u32](x: u32) -> Pair::[N] {
+export fn make_pair::[N: u32](x: u32) -> Pair::[N] {
     return Pair::[N] { a: x, b: x * N };
 }
 

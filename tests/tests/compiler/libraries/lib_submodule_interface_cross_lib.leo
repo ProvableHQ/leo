@@ -5,7 +5,7 @@
 
 // --- Next Module: core.leo --- //
 
-interface Core {
+export interface Core {
     fn fetch() -> u32;
 }
 
@@ -15,7 +15,7 @@ interface Core {
 
 // --- Next Module: advanced.leo --- //
 
-interface Advanced : base_lib::core::Core {
+export interface Advanced : base_lib::core::Core {
     fn store(v: u32) -> u32;
 }
 

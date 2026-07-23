@@ -20,12 +20,12 @@ function = "commit"
 input = ["987654321field", "0group", "1scalar"]
 */
 
-struct S {
+export struct S {
     x: field?,
     y: group?,
 }
 
-struct Outer {
+export struct Outer {
     inner: S?,
     arr: [field?; 3]?,
 }

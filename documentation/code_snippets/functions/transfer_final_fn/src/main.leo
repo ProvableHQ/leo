@@ -21,14 +21,14 @@ program transfer.aleo {
             amount,
         };
 
-        let caller: address = self.caller;
+        let caller: address = std::ctx::caller();
         return (new, final {
             decrement_balance(caller, amount);
         });
     }
 
     fn burn(public amount: u64) -> Final {
-        let caller: address = self.caller;
+        let caller: address = std::ctx::caller();
         return final {
             decrement_balance(caller, amount);
         };

@@ -1,4 +1,4 @@
-struct S {
+export struct S {
     member: Final,
 }
 
@@ -15,6 +15,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finish() {
+export final fn finish() {
     assert_eq(1u8, 1u8);
 }

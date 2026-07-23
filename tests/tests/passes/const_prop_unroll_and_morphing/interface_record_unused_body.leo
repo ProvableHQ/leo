@@ -8,7 +8,7 @@
 // references it), and CheckInterfaces at convergence would erroneously report
 // Token as missing.
 
-interface Issuer {
+export interface Issuer {
     record Token {
         owner: address,
         ..

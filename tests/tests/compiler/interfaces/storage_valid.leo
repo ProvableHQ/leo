@@ -1,4 +1,4 @@
-interface StorageInterface {
+export interface StorageInterface {
     storage counter: u32;
 }
 

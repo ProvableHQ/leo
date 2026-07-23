@@ -1,4 +1,4 @@
-struct TokenInfo {
+export struct TokenInfo {
     id: u64,
 }
 
@@ -13,7 +13,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_add_new_token_2() {
+export final fn finalize_add_new_token_2() {
     let try_get_token: TokenInfo = Mapping::get_or_use(
         token_name_to_info,
         0field,

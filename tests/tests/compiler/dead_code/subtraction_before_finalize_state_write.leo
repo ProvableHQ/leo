@@ -9,7 +9,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_store_after_sub_check(amount: u8) {
+export final fn finalize_store_after_sub_check(amount: u8) {
     let must_halt: u8 = 0u8 - amount;
     observed.set(0u8, amount);
 }

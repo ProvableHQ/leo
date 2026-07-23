@@ -1,4 +1,4 @@
-struct Info {
+export struct Info {
     inner: u64,
 }
 

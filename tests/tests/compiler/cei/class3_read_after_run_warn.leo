@@ -10,7 +10,7 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_modify(a: u32) {
+export final fn finalize_modify(a: u32) {
     Mapping::set(shared, 0u32, a);
 }
 
@@ -29,7 +29,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, a: u32) {
+export final fn finalize_do_work(f: Final, a: u32) {
     // [I] Interaction: run external future (modifies state)
     f.run();
     // [C] Check: read state that may have been changed by f.run()

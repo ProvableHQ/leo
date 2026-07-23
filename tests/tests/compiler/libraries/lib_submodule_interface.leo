@@ -3,11 +3,11 @@
 // --- library: math_lib --- //
 
 // --- Next Module: ops.leo --- //
-interface Addable {
+export interface Addable {
     fn add(a: u32, b: u32) -> u32;
 }
 
-fn add(a: u32, b: u32) -> u32 {
+export fn add(a: u32, b: u32) -> u32 {
     return a + b;
 }
 

@@ -10,14 +10,14 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
 // --- Next Program --- //
 import dep.aleo;
 
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 
@@ -33,7 +33,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, target: field, key: address) {
+export final fn finalize_do_work(f: Final, target: field, key: address) {
     // [I] Interaction
     f.run();
     // [C] Dynamic mapping get after interaction — should warn

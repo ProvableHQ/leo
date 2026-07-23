@@ -1,5 +1,5 @@
 // The 'build_checksums' program. Exercises `leo build --checksums`, which prints the program
-// checksum and the checksum of each entry and view function (the `Program::function_checksum`
+// checksum and the checksum of each entry and view function (the `std::prog::function_checksum`
 // targets).
 program build_checksums.aleo {
     mapping vals: u32 => u32;

@@ -1,5 +1,5 @@
 [EPAR0370047] Error: expected constant name
-   ╭─[ compiler-test:1:7 ]
+   ╭─[ compiler-test:1:14 ]
    │
- 1 │ const (HELLO,GOODBYE): (u8,u8) = (0u8,0u8);
+ 1 │ export const (HELLO,GOODBYE): (u8,u8) = (0u8,0u8);
 ───╯

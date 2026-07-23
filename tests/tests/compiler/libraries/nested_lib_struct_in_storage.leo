@@ -8,7 +8,7 @@
 
 // --- library: geo_lib --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }
@@ -17,7 +17,7 @@ struct Point {
 
 // --- library: shape_lib --- //
 
-struct Rect {
+export struct Rect {
     top_left: geo_lib::Point,
     bottom_right: geo_lib::Point,
 }

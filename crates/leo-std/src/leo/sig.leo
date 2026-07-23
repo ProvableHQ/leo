@@ -26,7 +26,7 @@
 //   wrappers).
 //
 // Returns `true` iff the signature verifies under `signer`'s public key.
-final fn verify_schnorr(sig: signature, signer: address, message: field) -> bool {
+export final fn verify_schnorr(sig: signature, signer: address, message: field) -> bool {
     return _signature_verify(sig, signer, message);
 }
 
@@ -40,7 +40,11 @@ final fn verify_schnorr(sig: signature, signer: address, message: field) -> bool
 //
 // The caller is responsible for computing `prehash` with the same hash
 // function the signer used; this verifier does no hashing of its own.
-final fn verify_ecdsa_digest(sig: [u8; 65], verifying_key: [u8; 33], prehash: [u8; 32]) -> bool {
+export final fn verify_ecdsa_digest(
+    sig: [u8; 65],
+    verifying_key: [u8; 33],
+    prehash: [u8; 32],
+) -> bool {
     return _ecdsa_verify_digest(sig, verifying_key, prehash);
 }
 
@@ -53,6 +57,10 @@ final fn verify_ecdsa_digest(sig: [u8; 65], verifying_key: [u8; 33], prehash: [u
 // - `sig` is the 65-byte ECDSA signature.
 // - `eth_address` is the signer's 20-byte Ethereum address.
 // - `prehash` is the 32-byte digest the signer hashed before signing.
-final fn verify_ecdsa_digest_eth(sig: [u8; 65], eth_address: [u8; 20], prehash: [u8; 32]) -> bool {
+export final fn verify_ecdsa_digest_eth(
+    sig: [u8; 65],
+    eth_address: [u8; 20],
+    prehash: [u8; 32],
+) -> bool {
     return _ecdsa_verify_digest_eth(sig, eth_address, prehash);
 }

@@ -4,7 +4,7 @@
 
 // --- Next Module: algorithms.leo --- //
 
-interface Processor {
+export interface Processor {
     fn process(x: u32) -> u32;
 }
 

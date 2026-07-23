@@ -13,6 +13,6 @@ program test.aleo {
     constructor() {}
 }
 
-struct Bar {
+export struct Bar {
     bar: (Token2, Token2),
 }

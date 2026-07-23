@@ -1,4 +1,4 @@
-struct Foo {
+export struct Foo {
     a: u16,
     b: u16,
 }

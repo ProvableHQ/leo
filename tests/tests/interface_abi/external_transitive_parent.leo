@@ -1,7 +1,7 @@
 // Test: implementing an external interface whose parent is in a third program
 // emits ABIs for both the child and the grandparent.
 
-interface Base {
+export interface Base {
     fn get() -> u64;
 }
 
@@ -15,7 +15,7 @@ program lib_a.aleo {
 // --- Next Program --- //
 import lib_a.aleo;
 
-interface Extended: lib_a.aleo::Base {
+export interface Extended: lib_a.aleo::Base {
     fn set(v: u64) -> u64;
 }
 

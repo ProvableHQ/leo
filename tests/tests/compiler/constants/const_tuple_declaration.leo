@@ -1,4 +1,4 @@
-const B: (u8, u32) = (1u8, 1u32);
+export const B: (u8, u32) = (1u8, 1u32);
 
 program test.aleo {
     fn foo() -> u32 {

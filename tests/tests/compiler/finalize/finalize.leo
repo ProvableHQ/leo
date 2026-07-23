@@ -7,7 +7,7 @@ program test.aleo {
     }
 
     fn finalize_self_caller() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_finalize_self_caller(caller); };
     }
 
@@ -15,12 +15,12 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint(receiver: address, amount: u64) {
+export final fn finalize_mint(receiver: address, amount: u64) {
     let current_amount: u64 = Mapping::get_or_use(account, receiver, 0u64);
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-final fn finalize_finalize_self_caller(caller: address) -> () {
+export final fn finalize_finalize_self_caller(caller: address) -> () {
     let current_value: u8 = Mapping::get_or_use(values, 0u8, 0u8);
     Mapping::set(values, 0u8, current_value + 1u8);
     let current_amount: u64 = Mapping::get_or_use(account, caller, 0u64);

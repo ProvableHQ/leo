@@ -25,7 +25,7 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: interface `lib.aleo/Base` not found
    ╭─[ compiler-test:4:1 ]
    │
- 4 │ ╭─▶ interface Extended: lib.aleo::Base {
+ 4 │ ╭─▶ export interface Extended: lib.aleo::Base {
    ┆ ┆   
  6 │ ├─▶ }
    │ │       
@@ -36,7 +36,7 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712000] Error: interface `lib.aleo/Base` not found
    ╭─[ compiler-test:4:1 ]
    │
- 4 │ ╭─▶ interface Extended: lib.aleo::Base {
+ 4 │ ╭─▶ export interface Extended: lib.aleo::Base {
    ┆ ┆   
  6 │ ├─▶ }
    │ │       

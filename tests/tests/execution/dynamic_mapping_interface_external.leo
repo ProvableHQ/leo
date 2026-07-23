@@ -27,7 +27,7 @@ input = ["2000349607123886170466field", "999u64", "0u64"]
 //   bank_impl = 2000349607123886170466field
 //   checker   = 32199659248511075field
 
-interface Bank {
+export interface Bank {
     mapping balances: u64 => u64;
 }
 
@@ -42,7 +42,7 @@ program bank_impl.aleo: Bank {
     constructor() {}
 }
 
-final fn finalize_deposit(key: u64, val: u64) {
+export final fn finalize_deposit(key: u64, val: u64) {
     Mapping::set(balances, key, val);
 }
 
@@ -66,17 +66,17 @@ program checker.aleo {
     constructor() {}
 }
 
-final fn fin_check_contains(target: field, key: u64) {
+export final fn fin_check_contains(target: field, key: u64) {
     let exists: bool = bank_impl.aleo::Bank@(target)::balances.contains(key);
     assert(exists);
 }
 
-final fn fin_check_get(target: field, key: u64, expected: u64) {
+export final fn fin_check_get(target: field, key: u64, expected: u64) {
     let val: u64 = bank_impl.aleo::Bank@(target)::balances.get(key);
     assert_eq(val, expected);
 }
 
-final fn fin_check_get_or_use_missing(target: field, key: u64, default_val: u64) {
+export final fn fin_check_get_or_use_missing(target: field, key: u64, default_val: u64) {
     // key 999u64 is absent; expect the default.
     let val: u64 = bank_impl.aleo::Bank@(target)::balances.get_or_use(key, default_val);
     assert_eq(val, default_val);

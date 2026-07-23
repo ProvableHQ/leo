@@ -1,4 +1,4 @@
-struct Foo {
+export struct Foo {
     constant a: u8,
     private bar: bool,
     public bax: u16,

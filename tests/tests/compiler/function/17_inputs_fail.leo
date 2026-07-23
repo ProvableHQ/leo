@@ -50,7 +50,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn baz_finalize(
+export final fn baz_finalize(
     a: u8,
     b: u8,
     c: u8,
@@ -72,7 +72,7 @@ final fn baz_finalize(
 
 // The maximum number of arguments to a `function` is 16.
 @no_inline
-fn foo(
+export fn foo(
     a: u8,
     b: u8,
     c: u8,

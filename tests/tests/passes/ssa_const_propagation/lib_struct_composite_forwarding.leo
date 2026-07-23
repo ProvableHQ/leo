@@ -6,7 +6,7 @@
 
 // --- library: shape_lib --- //
 
-struct Pair {
+export struct Pair {
     a: u32,
     b: u32,
 }

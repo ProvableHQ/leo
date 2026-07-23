@@ -3,9 +3,9 @@
 // --- library: cfg_lib --- //
 
 // --- Next Module: math.leo --- //
-const FACTOR: u32 = 5u32;
+export const FACTOR: u32 = 5u32;
 
-fn scaled(x: u32) -> u32 {
+export fn scaled(x: u32) -> u32 {
     return x * FACTOR;
 }
 

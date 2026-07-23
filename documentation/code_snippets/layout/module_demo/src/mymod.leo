@@ -1,5 +1,5 @@
 // ANCHOR: snippet
-const X: u32 = 2u32;
+export const X: u32 = 2u32;
 
 struct S {
     a: field,

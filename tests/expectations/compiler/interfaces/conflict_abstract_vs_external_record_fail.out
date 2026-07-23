@@ -1,21 +1,21 @@
 [ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
- 17 │ interface ICombined: IAbstract + IConcrete {}
+ 17 │ export interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
 [ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
- 17 │ interface ICombined: IAbstract + IConcrete {}
+ 17 │ export interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:22 ]
+   ╭─[ compiler-test:4:29 ]
    │
- 4 │ ╭─▶ interface IAbstract {
+ 4 │ ╭─▶ export interface IAbstract {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           
@@ -31,14 +31,14 @@ Note: Treating dependencies as Aleo produces different results:
 [ECHI03712001] Error: interface `ICombined` has a conflicting definition for `process` inherited from `IAbstract`
     ╭─[ compiler-test:17:1 ]
     │
- 17 │ interface ICombined: IAbstract + IConcrete {}
+ 17 │ export interface ICombined: IAbstract + IConcrete {}
     │ 
     │ Help: Members with the same name must have identical signatures. Align both definitions, or rename one of them.
 ────╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:22 ]
+   ╭─[ compiler-test:4:29 ]
    │
- 4 │ ╭─▶ interface IAbstract {
+ 4 │ ╭─▶ export interface IAbstract {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           
@@ -47,9 +47,9 @@ Note: Treating dependencies as Aleo produces different results:
    │     Help: Simplify the declaration to `record Token;`.
 ───╯
 [WPAR0370002] Warning: record prototype `Token` does not constrain any fields beyond the implicit `owner: address`
-   ╭─[ compiler-test:4:22 ]
+   ╭─[ compiler-test:4:29 ]
    │
- 4 │ ╭─▶ interface IAbstract {
+ 4 │ ╭─▶ export interface IAbstract {
    ┆ ┆   
  8 │ ├─▶     }
    │ │           

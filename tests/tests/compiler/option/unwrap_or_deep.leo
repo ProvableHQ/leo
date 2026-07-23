@@ -1,16 +1,16 @@
-struct Inner {
+export struct Inner {
     val: u8?,
 }
 
-struct Wrapper {
+export struct Wrapper {
     arr: [Inner?; 1]?,
 }
 
-struct Container {
+export struct Container {
     wrappers: [Wrapper?; 1]?,
 }
 
-struct Top {
+export struct Top {
     container: Container?,
 }
 

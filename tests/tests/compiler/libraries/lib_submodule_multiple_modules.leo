@@ -3,12 +3,12 @@
 // --- library: multi_lib --- //
 
 // --- Next Module: algebra.leo --- //
-fn square(x: u32) -> u32 {
+export fn square(x: u32) -> u32 {
     return x * x;
 }
 
 // --- Next Module: bits.leo --- //
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x + x;
 }
 

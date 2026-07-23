@@ -10,7 +10,7 @@ function = "main2"
 input = []
 */
 
-struct Foo {
+export struct Foo {
     x: u32,
     y: u32,
     z: u32,
@@ -29,7 +29,7 @@ program child1.aleo {
 
 // --- Next Program --- //
 
-struct Foo {
+export struct Foo {
     x: u32,
     y: u32,
     z: u32,
@@ -51,7 +51,7 @@ program child2.aleo {
 import child1.aleo;
 import child2.aleo;
 
-struct Foo {
+export struct Foo {
     x: u32,
     y: u32,
 }

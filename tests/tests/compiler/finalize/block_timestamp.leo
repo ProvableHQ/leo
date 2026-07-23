@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_matches(timestamp: i64) {
-    assert_eq(timestamp, block.timestamp);
+export final fn finalize_matches(timestamp: i64) {
+    assert_eq(timestamp, std::ctx::block_timestamp());
 }

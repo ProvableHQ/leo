@@ -219,10 +219,14 @@ define_syntax_kinds! {
     KW_PUBLIC,
     /// `private`
     KW_PRIVATE,
+    /// `export`
+    KW_EXPORT,
     /// `as`
     KW_AS,
     /// `self`
     KW_SELF,
+    /// `Self`
+    KW_SELF_UPPER,
     /// `assert`
     KW_ASSERT,
     /// `assert_eq`
@@ -513,6 +517,8 @@ define_syntax_kinds! {
     STRUCT_FIELD_INIT,
     /// Struct field shorthand: `{ x }` (equivalent to `{ x: x }`)
     STRUCT_FIELD_SHORTHAND,
+    /// Struct update base: `..other` in `Foo { a: 1, ..other }`
+    STRUCT_BASE_UPDATE,
     /// Path expression: `foo::bar`
     PATH_EXPR,
     /// Path locator expression: `program.aleo::function`
@@ -521,6 +527,8 @@ define_syntax_kinds! {
     PROGRAM_REF_EXPR,
     /// Self expression: `self`
     SELF_EXPR,
+    /// `Self` expression.
+    SELF_UPPER_EXPR,
     /// Block keyword expression: `block`
     BLOCK_KW_EXPR,
     /// Network keyword expression: `network`
@@ -647,8 +655,10 @@ impl SyntaxKind {
                 | KW_BLOCK
                 | KW_PUBLIC
                 | KW_PRIVATE
+                | KW_EXPORT
                 | KW_AS
                 | KW_SELF
+                | KW_SELF_UPPER
                 | KW_ASSERT
                 | KW_ASSERT_EQ
                 | KW_ASSERT_NEQ
@@ -743,6 +753,7 @@ impl SyntaxKind {
                     | PATH_LOCATOR_EXPR
                     | PROGRAM_REF_EXPR
                     | SELF_EXPR
+                    | SELF_UPPER_EXPR
                     | BLOCK_KW_EXPR
                     | NETWORK_KW_EXPR
                     | PAREN_EXPR
@@ -916,8 +927,10 @@ impl SyntaxKind {
             // Visibility and assertion keywords
             KW_PUBLIC => "'public'",
             KW_PRIVATE => "'private'",
+            KW_EXPORT => "'export'",
             KW_AS => "'as'",
             KW_SELF => "'self'",
+            KW_SELF_UPPER => "'Self'",
             KW_ASSERT => "'assert'",
             KW_ASSERT_EQ => "'assert_eq'",
             KW_ASSERT_NEQ => "'assert_neq'",

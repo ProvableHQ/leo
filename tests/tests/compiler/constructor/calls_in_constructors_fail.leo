@@ -1,5 +1,5 @@
 @no_inline
-fn foo(a: bool) {
+export fn foo(a: bool) {
     assert_eq(true, a);
 }
 

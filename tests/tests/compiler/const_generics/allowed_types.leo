@@ -1,4 +1,4 @@
-struct Foo::[
+export struct Foo::[
     a1: bool,
     a2: u8,
     a3: u16,
@@ -19,7 +19,7 @@ struct Foo::[
 }
 
 // Define a generic function `foo` that takes all allowed types and returns them as a tuple
-fn foo::[
+export fn foo::[
     a1: bool,
     a2: u8,
     a3: u16,

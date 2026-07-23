@@ -7,7 +7,7 @@
 
 // --- Next Module: token_types.leo --- //
 
-interface TokenStorage {
+export interface TokenStorage {
     mapping allowances: [address; 2] => u128;
 }
 

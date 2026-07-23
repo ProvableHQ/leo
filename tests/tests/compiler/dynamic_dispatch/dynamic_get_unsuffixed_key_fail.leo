@@ -10,6 +10,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_check(prog: field, net: field, mapping_name: field) {
+export final fn finalize_check(prog: field, net: field, mapping_name: field) {
     let _: u64 = _dynamic_get::[u64](prog, net, mapping_name, 1);
 }

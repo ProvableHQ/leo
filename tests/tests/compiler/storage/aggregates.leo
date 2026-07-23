@@ -3,12 +3,12 @@
 // Struct and array storage declarations
 // ────────────────────────────────────────────────────────────────
 //
-struct Point {
+export struct Point {
     x: field,
     y: field,
 }
 
-struct Stats {
+export struct Stats {
     values: [u32; 3],
     active: bool,
 }

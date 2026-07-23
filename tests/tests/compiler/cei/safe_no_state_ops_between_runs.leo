@@ -10,7 +10,7 @@ program dep_a.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(data_a, 0u32, a);
 }
 
@@ -26,7 +26,7 @@ program dep_b.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(data_b, 0u32, a);
 }
 
@@ -45,7 +45,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(fa: Final, fb: Final) {
+export final fn finalize_do_work(fa: Final, fb: Final) {
     // [I] Only interactions, no state ops between them
     fa.run();
     fb.run();

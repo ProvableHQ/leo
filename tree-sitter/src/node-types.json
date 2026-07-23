@@ -28,6 +28,10 @@
         "named": true
       },
       {
+        "type": "dynamic_op_expression",
+        "named": true
+      },
+      {
         "type": "field_expression",
         "named": true
       },
@@ -220,6 +224,10 @@
         "named": true
       },
       {
+        "type": "dyn_record_type",
+        "named": true
+      },
+      {
         "type": "final_type",
         "named": true
       },
@@ -314,7 +322,15 @@
             "named": false
           },
           {
+            "type": "dyn",
+            "named": false
+          },
+          {
             "type": "else",
+            "named": false
+          },
+          {
+            "type": "export",
             "named": false
           },
           {
@@ -359,6 +375,10 @@
           },
           {
             "type": "i8",
+            "named": false
+          },
+          {
+            "type": "identifier",
             "named": false
           },
           {
@@ -839,6 +859,10 @@
         "required": true,
         "types": [
           {
+            "type": "dyn_record_type",
+            "named": true
+          },
+          {
             "type": "primitive_type",
             "named": true
           }
@@ -912,6 +936,10 @@
         {
           "type": "_type",
           "named": true
+        },
+        {
+          "type": "dynamic_call_return_type",
+          "named": true
         }
       ]
     }
@@ -960,7 +988,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "const_arg",
@@ -1037,7 +1065,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "const_param",
@@ -1119,6 +1147,96 @@
     }
   },
   {
+    "type": "dyn_record_type",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "dynamic_call_return_type",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_type",
+          "named": true
+        },
+        {
+          "type": "visibility",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "dynamic_op_expression",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "argument_list",
+            "named": true
+          }
+        ]
+      },
+      "interface": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "member": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "network": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      },
+      "operation": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "target": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "expression_statement",
     "named": true,
     "fields": {
@@ -1195,7 +1313,15 @@
             "named": false
           },
           {
+            "type": "dyn",
+            "named": false
+          },
+          {
             "type": "else",
+            "named": false
+          },
+          {
+            "type": "export",
             "named": false
           },
           {
@@ -1240,6 +1366,10 @@
           },
           {
             "type": "i8",
+            "named": false
+          },
+          {
+            "type": "identifier",
             "named": false
           },
           {
@@ -1519,6 +1649,10 @@
             "named": true
           },
           {
+            "type": "dynamic_op_expression",
+            "named": true
+          },
+          {
             "type": "field_expression",
             "named": true
           },
@@ -1630,6 +1764,10 @@
           },
           {
             "type": "cast_expression",
+            "named": true
+          },
+          {
+            "type": "dynamic_op_expression",
             "named": true
           },
           {
@@ -1877,6 +2015,10 @@
           },
           {
             "type": "cast_expression",
+            "named": true
+          },
+          {
+            "type": "dynamic_op_expression",
             "named": true
           },
           {
@@ -2250,7 +2392,15 @@
             "named": false
           },
           {
+            "type": "dyn",
+            "named": false
+          },
+          {
             "type": "else",
+            "named": false
+          },
+          {
+            "type": "export",
             "named": false
           },
           {
@@ -2295,6 +2445,10 @@
           },
           {
             "type": "i8",
+            "named": false
+          },
+          {
+            "type": "identifier",
             "named": false
           },
           {
@@ -2579,11 +2733,15 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "const_arg_list",
+          "named": true
+        },
+        {
+          "type": "identifier",
           "named": true
         }
       ]
@@ -2766,6 +2924,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "struct_field",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2885,6 +3053,10 @@
         {
           "type": "struct_definition",
           "named": true
+        },
+        {
+          "type": "view_function_definition",
+          "named": true
         }
       ]
     }
@@ -2909,6 +3081,22 @@
         "types": [
           {
             "type": "_type",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "struct_base_update",
+    "named": true,
+    "fields": {
+      "base": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_expression",
             "named": true
           }
         ]
@@ -3047,6 +3235,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "struct_base_update",
+          "named": true
+        },
         {
           "type": "struct_field_init",
           "named": true
@@ -3576,7 +3768,15 @@
     "named": false
   },
   {
+    "type": "dyn",
+    "named": false
+  },
+  {
     "type": "else",
+    "named": false
+  },
+  {
+    "type": "export",
     "named": false
   },
   {
@@ -3633,11 +3833,11 @@
   },
   {
     "type": "identifier",
-    "named": false
+    "named": true
   },
   {
     "type": "identifier",
-    "named": true
+    "named": false
   },
   {
     "type": "identifier_literal",

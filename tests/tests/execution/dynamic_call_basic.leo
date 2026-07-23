@@ -7,7 +7,7 @@ function = "main"
 input = ["512089499423744773612641field", "3u32", "5u32"]
 */
 
-interface Adder {
+export interface Adder {
     fn sum(a: u32, b: u32) -> u32;
 }
 

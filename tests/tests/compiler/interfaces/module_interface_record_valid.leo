@@ -22,7 +22,7 @@ program test.aleo: interfaces::HasToken {
 
 // --- Next Module: interfaces.leo --- //
 
-interface HasToken {
+export interface HasToken {
     record Token {
         owner: address,
         ..

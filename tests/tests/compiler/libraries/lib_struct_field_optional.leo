@@ -7,16 +7,16 @@
 
 // --- library: token_lib --- //
 
-struct Balance {
+export struct Balance {
     amount: u64,
     supply: u64?,
 }
 
-fn make_empty(amount: u64) -> Balance {
+export fn make_empty(amount: u64) -> Balance {
     return Balance { amount, supply: none };
 }
 
-fn amount_of(b: Balance) -> u64 {
+export fn amount_of(b: Balance) -> u64 {
     return b.amount;
 }
 

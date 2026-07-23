@@ -4,7 +4,7 @@
 
 // --- Next Module: traits.leo --- //
 
-interface Worker {
+export interface Worker {
     fn work() -> u32;
     fn status() -> u32;
 }

@@ -27,16 +27,16 @@
     │ Help: Replace the vector with a fixed-size array, or move the value into a `storage` declaration.
 ────╯
 [ETYC0372189] Error: vector types can only be used in storage declarations
-   ╭─[ compiler-test:3:8 ]
+   ╭─[ compiler-test:3:15 ]
    │
- 3 │ fn foo(a: [u32]) -> u32 {
+ 3 │ export fn foo(a: [u32]) -> u32 {
    │ 
    │ Help: Replace the vector with a fixed-size array, or move the value into a `storage` declaration.
 ───╯
 [ETYC0372189] Error: vector types can only be used in storage declarations
-   ╭─[ compiler-test:8:13 ]
+   ╭─[ compiler-test:8:20 ]
    │
- 8 │ fn bar() -> [u32] {
+ 8 │ export fn bar() -> [u32] {
    │ 
    │ Help: Replace the vector with a fixed-size array, or move the value into a `storage` declaration.
 ───╯
@@ -48,9 +48,9 @@
    │ Help: Change the expression to produce type `[u32]`.
 ───╯
 [ETYC0372189] Error: vector types can only be used in storage declarations
-    ╭─[ compiler-test:18:8 ]
+    ╭─[ compiler-test:18:15 ]
     │
- 18 │ fn baz(a: [[u32]; 3]) -> u32 {
+ 18 │ export fn baz(a: [[u32]; 3]) -> u32 {
     │ 
     │ Help: Replace the vector with a fixed-size array, or move the value into a `storage` declaration.
 ────╯

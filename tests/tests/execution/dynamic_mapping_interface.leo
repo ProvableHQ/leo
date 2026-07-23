@@ -30,7 +30,7 @@ input = ["1802396002field", "999u64", "0u64"]
 
 // Field encoding: bank = 1802396002field
 
-interface Bank {
+export interface Bank {
     mapping balances: u64 => u64;
 }
 
@@ -66,27 +66,27 @@ program bank.aleo: Bank {
     constructor() {}
 }
 
-final fn finalize_deposit(key: u64, val: u64) {
+export final fn finalize_deposit(key: u64, val: u64) {
     Mapping::set(balances, key, val);
 }
 
-final fn fin_check_contains(prog: field, key: u64) {
+export final fn fin_check_contains(prog: field, key: u64) {
     let exists: bool = Bank@(prog)::balances.contains(key);
     assert(exists);
 }
 
-final fn fin_check_get(prog: field, key: u64, expected: u64) {
+export final fn fin_check_get(prog: field, key: u64, expected: u64) {
     let val: u64 = Bank@(prog)::balances.get(key);
     assert_eq(val, expected);
 }
 
-final fn fin_get_or_use_existing(prog: field, key: u64, default_val: u64) {
+export final fn fin_get_or_use_existing(prog: field, key: u64, default_val: u64) {
     // key 1u64 is in the mapping with value 42u64.
     let val: u64 = Bank@(prog)::balances.get_or_use(key, default_val);
     assert_eq(val, 42u64);
 }
 
-final fn fin_get_or_use_missing(prog: field, key: u64, default_val: u64) {
+export final fn fin_get_or_use_missing(prog: field, key: u64, default_val: u64) {
     // key 999u64 is absent; expect the default 0u64.
     let val: u64 = Bank@(prog)::balances.get_or_use(key, default_val);
     assert_eq(val, default_val);

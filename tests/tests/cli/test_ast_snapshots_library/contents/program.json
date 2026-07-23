@@ -1,8 +1,0 @@
-{
-  "program": "ast_library",
-  "version": "0.1.0",
-  "description": "Library with a submodule, used to exercise AST-snapshot flags.",
-  "license": "MIT",
-  "dependencies": null,
-  "dev_dependencies": null
-}

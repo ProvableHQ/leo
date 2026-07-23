@@ -18,7 +18,7 @@ program test.aleo {
 //     { 0, 1, 2,24, 3,19, 6,25,   22, 4,20,10,16, 7,12,26,
 //      31,23,18, 5,21, 9,15,11,   30,17, 8,14,29,13,28,27};
 
-fn deBruijnTableLookup(i: u32) -> u8 {
+export fn deBruijnTableLookup(i: u32) -> u8 {
     if i == 0u32 {
         return 0u8;
     } else if i == 1u32 {

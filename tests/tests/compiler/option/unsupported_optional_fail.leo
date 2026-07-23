@@ -19,4 +19,4 @@ program invalid_optional_types.aleo {
 }
 
 // Dummy future-returning function
-final fn finalize() {}
+export final fn finalize() {}

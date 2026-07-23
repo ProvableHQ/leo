@@ -1,5 +1,5 @@
 @test
-fn foo2() {}
+export fn foo2() {}
 
 program test.aleo {
     @test
@@ -24,9 +24,9 @@ program test.aleo {
 
 @test
 @test
-fn foo7() {}
+export fn foo7() {}
 
 @test
-fn foo8(x: u8) -> u8 {
+export fn foo8(x: u8) -> u8 {
     return x;
 }

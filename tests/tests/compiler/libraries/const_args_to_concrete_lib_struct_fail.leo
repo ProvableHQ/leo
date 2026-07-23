@@ -4,7 +4,7 @@
 
 // --- library: foo_lib --- //
 
-struct Point {
+export struct Point {
     x: u32,
     y: u32,
 }

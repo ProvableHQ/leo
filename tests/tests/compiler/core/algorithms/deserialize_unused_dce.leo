@@ -32,7 +32,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize(
+export final fn finalize(
     sig: [u8; 65],
     addr: [u8; 33],
     digest: [u8; 32],

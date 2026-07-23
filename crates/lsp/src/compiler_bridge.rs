@@ -670,7 +670,6 @@ fn run_compiler_analysis(
         false,
         handler,
         Rc::new(leo_ast::NodeBuilder::default()),
-        PathBuf::default(),
         Some(leo_compiler::CompilerOptions::default()),
         import_stubs,
         leo_ast::NetworkName::TestnetV0,
@@ -1395,6 +1394,10 @@ impl<'a> AstVisitor for CompilerSemanticCollector<'a> {
             if let Some(expression) = expression {
                 self.visit_expression(expression, &());
             }
+        }
+        // Visit the base so its symbols resolve for definition, hover, references, and rename.
+        if let Some(base) = &input.base {
+            self.visit_expression(base, &());
         }
     }
 

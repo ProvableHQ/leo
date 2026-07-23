@@ -20,11 +20,11 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
+export final fn finalize_mint_public(receiver: address, amount: u64) -> u64 {
     let current: u64 = Mapping::get_or_use(account, receiver, 0u64);
     return current + amount;
 }
 
-final fn finalize_public_adder(a: u8, b: u8) -> u8 {
+export final fn finalize_public_adder(a: u8, b: u8) -> u8 {
     return a + b;
 }

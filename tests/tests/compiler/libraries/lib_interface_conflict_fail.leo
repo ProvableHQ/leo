@@ -3,12 +3,12 @@
 
 // --- library: conflict_lib --- //
 
-interface Parent {
+export interface Parent {
     fn compute(x: u32) -> u32;
 }
 
 // Child redeclares `compute` with a different signature — conflicts with Parent.
-interface Child : conflict_lib::Parent {
+export interface Child : conflict_lib::Parent {
     fn compute(x: u64) -> u64;
 }
 

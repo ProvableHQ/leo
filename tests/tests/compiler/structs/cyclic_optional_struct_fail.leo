@@ -3,7 +3,7 @@
 // Before the fix, the cycle-graph edge insertion in `type_checking::program` had
 // no `Type::Optional` arm, and `disallowed_inside_optional` had no visited-set,
 // so declaring this struct hung the type checker until the main thread overflowed.
-struct Node {
+export struct Node {
     val: u32,
     next: Node?,
 }

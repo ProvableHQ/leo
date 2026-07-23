@@ -19,7 +19,6 @@
 mod program_scope;
 pub use program_scope::*;
 
-use leo_errors::Result;
 use leo_span::Symbol;
 
 use crate::{Module, ProgramId, Stub};
@@ -70,49 +69,6 @@ impl Default for Program {
     }
 }
 
-impl Program {
-    /// Serializes the ast into a JSON string.
-    pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self).map_err(|e| crate::errors::failed_to_convert_ast_to_json_string(&e))?)
-    }
-
-    // Converts the ast into a JSON value.
-    // Note that there is no corresponding `from_json_value` function
-    // since we modify JSON values leaving them unable to be converted
-    // back into Programs.
-    pub fn to_json_value(&self) -> Result<serde_json::Value> {
-        Ok(serde_json::to_value(self).map_err(|e| crate::errors::failed_to_convert_ast_to_json_value(&e))?)
-    }
-
-    /// Serializes the ast into a JSON file.
-    pub fn to_json_file(&self, path: std::path::PathBuf, file_name: &str) -> Result<()> {
-        write_ast_json(self, path, file_name)
-    }
-
-    /// Serializes the ast into a JSON value and removes keys from object mappings before writing to a file.
-    pub fn to_json_file_without_keys(
-        &self,
-        path: std::path::PathBuf,
-        file_name: &str,
-        excluded_keys: &[&str],
-    ) -> Result<()> {
-        write_ast_json_filtered(self, path, file_name, excluded_keys)
-    }
-
-    /// Deserializes the JSON string into a ast.
-    pub fn from_json_string(json: &str) -> Result<Self> {
-        let ast: Program =
-            serde_json::from_str(json).map_err(|e| crate::errors::failed_to_read_json_string_to_ast(&e))?;
-        Ok(ast)
-    }
-
-    /// Deserializes the JSON string into a ast from a file.
-    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
-        let data = std::fs::read_to_string(&path).map_err(|e| crate::errors::failed_to_read_json_file(&path, &e))?;
-        Self::from_json_string(&data)
-    }
-}
-
 /// Helper function to recursively filter keys from AST JSON.
 pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
@@ -155,36 +111,6 @@ pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
         }
         _ => value,
     }
-}
-
-/// Serializes an AST node (`Program` or `Library`) into a pretty JSON file, spans included.
-pub fn write_ast_json<T: Serialize>(value: &T, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
-    path.push(file_name);
-    let file = std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
-    let writer = std::io::BufWriter::new(file);
-    Ok(serde_json::to_writer_pretty(writer, value)
-        .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
-}
-
-/// Serializes an AST node to a JSON file, stripping `excluded_keys` and normalizing first.
-pub fn write_ast_json_filtered<T: Serialize>(
-    value: &T,
-    mut path: std::path::PathBuf,
-    file_name: &str,
-    excluded_keys: &[&str],
-) -> Result<()> {
-    path.push(file_name);
-    let file = std::fs::File::create(&path).map_err(|e| crate::errors::failed_to_create_ast_json_file(&path, &e))?;
-    let writer = std::io::BufWriter::new(file);
-
-    let mut value = serde_json::to_value(value).map_err(|e| crate::errors::failed_to_convert_ast_to_json_value(&e))?;
-    for key in excluded_keys {
-        value = remove_key_from_json(value, key);
-    }
-    value = normalize_json_value(value);
-
-    Ok(serde_json::to_writer_pretty(writer, &value)
-        .map_err(|e| crate::errors::failed_to_write_ast_to_json_file(&path, &e))?)
 }
 
 /// Serde helpers for `IndexMap<Vec<Symbol>, V>` maps keyed by module paths.

@@ -6,7 +6,7 @@ TMP_DIR=$(mktemp -d)
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
 # `--checksums` prints the program checksum and the checksum of each entry and view function
-# (the `Program::function_checksum` targets) to stdout.
+# (the `std::prog::function_checksum` targets) to stdout.
 ${LEO_BIN} --disable-update-check build --checksums >"${TMP_DIR}/stdout" 2>"${TMP_DIR}/stderr"
 
 grep -qF "The program checksum is:" "${TMP_DIR}/stdout"

@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-const N: u32 = 5;
+export const N: u32 = 5;
 
-fn foo::[N: u32]() {}
+export fn foo::[N: u32]() {}

@@ -54,6 +54,7 @@ const SIG_LEO: &str = include_str!("leo/sig.leo");
 const SERIALIZE_LEO: &str = include_str!("leo/serialize.leo");
 const GRP_LEO: &str = include_str!("leo/grp.leo");
 const CTX_LEO: &str = include_str!("leo/ctx.leo");
+const PROG_LEO: &str = include_str!("leo/prog.leo");
 
 /// Entry source of the standard library (contents of `lib.leo`).
 pub fn entry_source() -> &'static str {
@@ -94,6 +95,7 @@ pub fn modules() -> &'static [(&'static str, &'static str)] {
         ("serialize.leo", SERIALIZE_LEO),
         ("grp.leo", GRP_LEO),
         ("ctx.leo", CTX_LEO),
+        ("prog.leo", PROG_LEO),
     ]
 }
 

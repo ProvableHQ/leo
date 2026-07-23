@@ -1,39 +1,39 @@
-struct F {
+export struct F {
     b: B,
     g: G,
 }
 
-struct B {
+export struct B {
     a: A,
     d: D,
 }
 
-struct A {
+export struct A {
     data: u8,
 }
 
-struct D {
+export struct D {
     c: C,
     e: E,
 }
 
-struct C {
+export struct C {
     data: u8,
 }
 
-struct E {
+export struct E {
     data: u8,
 }
 
-struct G {
+export struct G {
     i: I,
 }
 
-struct I {
+export struct I {
     h: H,
 }
 
-struct H {
+export struct H {
     data: u8,
 }
 

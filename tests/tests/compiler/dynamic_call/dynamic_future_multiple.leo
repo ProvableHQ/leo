@@ -1,4 +1,4 @@
-interface Worker {
+export interface Worker {
     fn work(a: u32) -> (u32, Final);
 }
 
@@ -26,7 +26,7 @@ program test.aleo: Worker {
     constructor() {}
 }
 
-final fn finalize_main(f1: Final, f2: Final) {
+export final fn finalize_main(f1: Final, f2: Final) {
     f1.run();
     f2.run();
 }

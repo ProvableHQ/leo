@@ -33,14 +33,6 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(long, help = "Enable spans in AST snapshots.", hide = true)]
-    pub enable_ast_spans: bool,
-    #[clap(long, help = "Write an AST snapshot immediately after parsing.", hide = true)]
-    pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.", hide = true)]
-    pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Comma separated list of passes whose AST snapshots to capture.", value_delimiter = ',', num_args = 1.., hide = true)]
-    pub ast_snapshots: Vec<String>,
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,
     #[clap(long, help = "Don't use the dependency cache.")]
@@ -51,7 +43,7 @@ pub struct BuildOptions {
     pub offline: bool,
     #[clap(
         long,
-        help = "Print the program checksum and the checksum of each entry and view function (the `Program::function_checksum` targets)."
+        help = "Print the program checksum and the checksum of each entry and view function (the `std::prog::function_checksum` targets)."
     )]
     pub checksums: bool,
     #[clap(skip)]
@@ -238,6 +230,7 @@ pub fn get_consensus_version(
         Some(14) => Ok(ConsensusVersion::V14),
         Some(15) => Ok(ConsensusVersion::V15),
         Some(16) => Ok(ConsensusVersion::V16),
+        Some(17) => Ok(ConsensusVersion::V17),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -324,6 +317,7 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         14 => Ok(ConsensusVersion::V14),
         15 => Ok(ConsensusVersion::V15),
         16 => Ok(ConsensusVersion::V16),
+        17 => Ok(ConsensusVersion::V17),
         _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
@@ -452,7 +446,7 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V16); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V17); // If this fails, update the test and any code that matches on `ConsensusVersion`.
     }
 
     #[test]

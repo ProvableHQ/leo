@@ -12,7 +12,7 @@ program child.aleo {
     constructor() {}
 }
 
-fn f() -> u32 {
+export fn f() -> u32 {
     return 4;
 }
 
@@ -28,6 +28,6 @@ program parent.aleo {
     constructor() {}
 }
 
-fn f() -> u32 {
+export fn f() -> u32 {
     return 4;
 }

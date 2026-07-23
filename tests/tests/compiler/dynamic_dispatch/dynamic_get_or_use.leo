@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_get_balance(prog: field, net: field, m: field, key: address) {
+export final fn finalize_get_balance(prog: field, net: field, m: field, key: address) {
     let val: u64 = _dynamic_get_or_use::[u64](prog, net, m, key, 0u64);
     Mapping::set(result, key, val);
 }

@@ -10,7 +10,7 @@ program test.aleo {
     }
 
     fn finalize_self_caller() -> Final {
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final {
             let current_value: u8 = values.get_or_use(0u8, 0u8);
             values.set(0u8, current_value + 1u8);

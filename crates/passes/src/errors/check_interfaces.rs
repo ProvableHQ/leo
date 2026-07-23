@@ -256,3 +256,19 @@ pub(crate) fn record_prototype_owner_wrong_type(
     )
     .with_help("Change the field's type to `address`. The `owner` field of every record is always `address`.")
 }
+
+pub(crate) fn duplicate_interface_member(
+    kind: &str,
+    first_kind: &str,
+    member_name: impl Display,
+    interface_name: impl Display,
+    span: Span,
+) -> Formatted {
+    let message = if kind == first_kind {
+        format!("interface `{interface_name}` declares {kind} `{member_name}` more than once")
+    } else {
+        format!("interface `{interface_name}` declares `{member_name}` as both a {first_kind} and a {kind}")
+    };
+    Formatted::error(CODE_PREFIX, CODE_MASK + 15, message, span)
+        .with_help("Rename or remove one of the declarations. Member names must be unique within an interface.")
+}

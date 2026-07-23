@@ -1,16 +1,16 @@
 // --- library: geo_lib --- //
 
 // --- Next Module: types.leo --- //
-struct Vec2 {
+export struct Vec2 {
     x: u32,
     y: u32,
 }
 
-fn magnitude_sq(v: Vec2) -> u32 {
+export fn magnitude_sq(v: Vec2) -> u32 {
     return v.x * v.x + v.y * v.y;
 }
 
-fn make_vec2(x: u32, y: u32) -> Vec2 {
+export fn make_vec2(x: u32, y: u32) -> Vec2 {
     return Vec2 { x, y };
 }
 

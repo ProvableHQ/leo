@@ -1,5 +1,5 @@
 // ANCHOR: file
-interface Bank {
+export interface Bank {
     mapping balances: address => u64;
 }
 

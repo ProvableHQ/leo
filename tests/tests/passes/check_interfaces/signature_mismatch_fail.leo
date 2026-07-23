@@ -1,6 +1,6 @@
 // Test: Function signature doesn't match interface requirement (should fail)
 
-interface Processor {
+export interface Processor {
     fn process(value: u64, multiplier: u64) -> u64;
 }
 

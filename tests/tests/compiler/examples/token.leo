@@ -1,4 +1,4 @@
-final fn finalize_mint_public(receiver: address, amount: u64) {
+export final fn finalize_mint_public(receiver: address, amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -6,7 +6,7 @@ final fn finalize_mint_public(receiver: address, amount: u64) {
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-final fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
+export final fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -19,7 +19,7 @@ final fn finalize_tr_public(sender: address, receiver: address, amount: u64) {
     Mapping::set(account, receiver, receiver_amount + amount);
 }
 
-final fn finalize_tr_private_to_public(receiver: address, amount: u64) {
+export final fn finalize_tr_private_to_public(receiver: address, amount: u64) {
     // Increments `account[receiver]` by `amount`.
     // If `account[receiver]` does not exist, it will be created.
     // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -27,7 +27,7 @@ final fn finalize_tr_private_to_public(receiver: address, amount: u64) {
     Mapping::set(account, receiver, current_amount + amount);
 }
 
-final fn finalize_tr_public_to_private(sender: address, amount: u64) {
+export final fn finalize_tr_public_to_private(sender: address, amount: u64) {
     // Decrements `account[sender]` by `amount`.
     // If `account[sender]` does not exist, it will be created.
     // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
@@ -62,7 +62,7 @@ program token.aleo {
     /* Transfer */
     fn transfer_public(public receiver: address, public amount: u64) -> Final {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return final { finalize_tr_public(caller, receiver, amount); };
     }
 
@@ -112,7 +112,7 @@ program token.aleo {
         let transferred: token = token { owner: receiver, amount: amount };
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        let caller = self.caller;
+        let caller = std::ctx::caller();
         return (
             transferred,
             final {

@@ -10,7 +10,7 @@
 
 // --- library: linalg --- //
 
-struct Matrix::[R: u32, C: u32] {
+export struct Matrix::[R: u32, C: u32] {
     rows: u32,
     cols: u32,
 }

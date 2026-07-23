@@ -1,0 +1,19 @@
+program test.aleo;
+
+function dummy_transition:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    output r1 as u32.private;
+
+view read_time:
+    output block.timestamp as i64.public;
+
+view read_height:
+    output block.height as u32.public;
+
+constructor:
+    assert.eq edition 0u16;
+status: success
+output: 1234567890i64
+status: success
+output: 0u32

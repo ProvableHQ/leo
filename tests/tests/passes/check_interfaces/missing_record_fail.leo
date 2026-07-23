@@ -1,6 +1,6 @@
 // Test: Program missing a required interface record (should fail)
 
-interface TokenStandard {
+export interface TokenStandard {
     record Token;
     fn transfer(amount: u64) -> u64;
 }

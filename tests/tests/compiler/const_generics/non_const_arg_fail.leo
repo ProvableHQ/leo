@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn bar::[N: u32]() -> u32 {
+export fn bar::[N: u32]() -> u32 {
     return N;
 }

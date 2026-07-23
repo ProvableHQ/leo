@@ -1,4 +1,4 @@
-struct Metadata {
+export struct Metadata {
     amount: u64,
 }
 
@@ -9,7 +9,7 @@ program token.aleo {
     }
 
     fn mint(m: Metadata) -> Token {
-        return Token { owner: self.signer, meta: m };
+        return Token { owner: std::ctx::signer(), meta: m };
     }
 
     @noupgrade

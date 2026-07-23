@@ -10,7 +10,7 @@ program test.aleo {
     constructor() {}
 }
 
-final fn finalize_read(prog: field, net: field, m: field) {
+export final fn finalize_read(prog: field, net: field, m: field) {
     let val: u64 = _dynamic_get::[u64](prog, net, m);
-    Mapping::set(result, self.caller, val);
+    Mapping::set(result, std::ctx::caller(), val);
 }

@@ -2,17 +2,17 @@
 
 // --- library: geo_lib --- //
 
-struct Vec2 {
+export struct Vec2 {
     x: u32,
     y: u32,
 }
 
-fn make_vec(x: u32, y: u32) -> Vec2 {
+export fn make_vec(x: u32, y: u32) -> Vec2 {
     let v: Vec2 = Vec2 { x, y };
     return v;
 }
 
-fn sum_components(x: u32, y: u32) -> u32 {
+export fn sum_components(x: u32, y: u32) -> u32 {
     let v: Vec2 = make_vec(x, y);
     return v.x + v.y;
 }

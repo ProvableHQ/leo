@@ -1,0 +1,14 @@
+program test.aleo;
+
+function dummy:
+    input r0 as u32.private;
+    output r0 as u32.private;
+
+view read_height:
+    output block.height as u32.public;
+
+view read_network:
+    output network.id as u16.public;
+
+constructor:
+    assert.eq edition 0u16;

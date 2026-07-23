@@ -7,6 +7,6 @@ program test.aleo {
     constructor() {}
 }
 
-final fn fin_foo(a: [bool; 8]) {
+export final fn fin_foo(a: [bool; 8]) {
     assert_eq(true, true);
 }

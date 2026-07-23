@@ -1,0 +1,7 @@
+[ETYC0372194] Error: `std::ctx::network_id()` must be inside a `final fn`, a `final` block, or a `view fn`
+   ╭─[ compiler-test:3:24 ]
+   │
+ 3 │         assert_eq(nid, std::ctx::network_id());
+   │ 
+   │ Help: Move the `std::ctx::network_id()` call into a `final fn`, a `view fn`, or wrap it in a `final { … }` block.
+───╯

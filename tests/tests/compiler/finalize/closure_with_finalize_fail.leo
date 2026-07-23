@@ -5,22 +5,22 @@ program test.aleo {
     constructor() {}
 }
 
-fn foo(a: u8, b: u8) -> Final {
+export fn foo(a: u8, b: u8) -> Final {
     return finalize_bar(a, b);
 }
 
-fn bar(a: u8, b: u8) -> u8 {
+export fn bar(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-final fn finalize_bar(a: u8, b: u8) -> u8 {
+export final fn finalize_bar(a: u8, b: u8) -> u8 {
     return a + b;
 }
 
-fn mint_public(receiver: address, amount: u64) -> Final {
+export fn mint_public(receiver: address, amount: u64) -> Final {
     return final { finalize_mint(receiver, amount); };
 }
 
-final fn finalize_mint(receiver: address, amount: u64) {
+export final fn finalize_mint(receiver: address, amount: u64) {
     Mapping::set(account, receiver, amount);
 }

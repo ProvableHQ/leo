@@ -1,4 +1,4 @@
-struct S {
+export struct S {
     x: u8,
     y: u16,
 }
@@ -46,6 +46,6 @@ program test.aleo {
     constructor() {}
 }
 
-fn bar(x: u32, y: u64) -> u16 {
+export fn bar(x: u32, y: u64) -> u16 {
     return 0 + 1;
 }

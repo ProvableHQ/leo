@@ -199,6 +199,25 @@ can be consumed from another package by qualifying the path with the library nam
 ```leo file=../code_snippets/data_types/const_generic_consumer/src/main.leo#file
 ```
 
+#### Struct update syntax
+
+A struct or record can be constructed from an existing value of the same type using the update syntax `..base`. Any field not listed explicitly is copied from `base`:
+
+```leo file=../code_snippets/data_types/struct_update/src/main.leo#file
+```
+
+The rules are:
+
+- `..base` must be the **last** entry inside the braces.
+- `base` must have the **same type** as the struct being constructed, including matching const-generic arguments.
+- Explicitly listed fields take precedence over the values copied from `base`.
+- A field may not be listed more than once, even when a base is present.
+
+The same syntax applies to records:
+
+```leo file=../code_snippets/data_types/record_update/src/main.leo#file
+```
+
 ### Records
 
 A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is the method of encoding private state on Aleo. Records are declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name.

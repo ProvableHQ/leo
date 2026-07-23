@@ -10,14 +10,14 @@ program dep.aleo {
     constructor() {}
 }
 
-final fn finalize_update(a: u32) {
+export final fn finalize_update(a: u32) {
     Mapping::set(dep_data, 0u32, a);
 }
 
 // --- Next Program --- //
 import dep.aleo;
 
-interface Counter {
+export interface Counter {
     storage total: u64;
 }
 
@@ -33,7 +33,7 @@ program caller.aleo {
     constructor() {}
 }
 
-final fn finalize_do_work(f: Final, target: field) {
+export final fn finalize_do_work(f: Final, target: field) {
     // [I] Interaction
     f.run();
     // [C] Dynamic singleton read after interaction — should warn

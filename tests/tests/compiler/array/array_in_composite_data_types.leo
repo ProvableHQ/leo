@@ -1,4 +1,4 @@
-struct bar {
+export struct bar {
     data: [u8; 8],
 }
 
@@ -12,7 +12,7 @@ program test.aleo {
         return (
             a[0u32][0u32],
             bar { data: [1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8] },
-            floo { owner: self.signer, data: [1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8] },
+            floo { owner: std::ctx::signer(), data: [1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8] },
         );
     }
 

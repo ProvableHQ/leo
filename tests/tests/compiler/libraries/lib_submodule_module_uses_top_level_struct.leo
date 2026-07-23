@@ -2,11 +2,11 @@
 
 // --- library: shape_lib --- //
 
-struct Point { x: u32, y: u32 }
+export struct Point { x: u32, y: u32 }
 
 // --- Next Module: ops.leo --- //
 
-fn norm_sq(p: shape_lib::Point) -> u32 {
+export fn norm_sq(p: shape_lib::Point) -> u32 {
     return p.x * p.x + p.y * p.y;
 }
 

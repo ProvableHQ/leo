@@ -2,7 +2,7 @@
 
 // --- library: math_lib --- //
 
-fn divmod(a: u32, b: u32) -> (u32, u32) {
+export fn divmod(a: u32, b: u32) -> (u32, u32) {
     return (a / b, a % b);
 }
 

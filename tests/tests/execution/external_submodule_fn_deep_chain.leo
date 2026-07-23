@@ -27,7 +27,7 @@ program grandchild.aleo {
 
 // --- Next Module: ops.leo --- //
 
-fn inc(x: u32) -> u32 {
+export fn inc(x: u32) -> u32 {
     return x + 1u32;
 }
 
@@ -46,7 +46,7 @@ program child.aleo {
 
 // --- Next Module: ops.leo --- //
 
-fn double(x: u32) -> u32 {
+export fn double(x: u32) -> u32 {
     return x * 2u32;
 }
 

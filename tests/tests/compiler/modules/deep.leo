@@ -1,4 +1,4 @@
-struct Wrapper {
+export struct Wrapper {
     outer: base::Foo,
     inner: base::nested::Foo::[3],
 }
@@ -29,34 +29,34 @@ program module_resolution_corner.aleo {
 
 // --- Next Module: base.leo --- //
 
-const X: u32 = 2;
+export const X: u32 = 2;
 
-struct Foo {
+export struct Foo {
     a: [u32; X],
 }
 
 // --- Next Module: base/nested.leo --- //
 
-const X: u32 = 3;
+export const X: u32 = 3;
 
-struct Foo::[N: u32] {
+export struct Foo::[N: u32] {
     a: [u32; N],
 }
 
-fn compute() -> u32 {
+export fn compute() -> u32 {
     let b = Foo::[X] { a: [10; X] };
     return b.a[1] + deeper::X + deeper::compute();
 }
 
 // --- Next Module: base/nested/deeper.leo --- //
 
-const X: u32 = 4;
+export const X: u32 = 4;
 
-struct Foo::[M: u32] {
+export struct Foo::[M: u32] {
     a: [u32; M],
 }
 
-fn compute() -> u32 {
+export fn compute() -> u32 {
     let f = Foo::[X] { a: [20; X] };
     return X + f.a[2];
 }
