@@ -647,7 +647,9 @@ impl UnitVisitor for CrossLayerTaintVisitor<'_> {
 
     fn visit_function(&mut self, input: &Function) {
         // Only analyze transitions that produce a Future (have a finalize block).
-        if input.variant != Variant::EntryPoint || !input.has_final_output() {
+        // Skip `@test` transitions: they are off-chain fixtures where cross-layer
+        // taint has no runtime meaning.
+        if input.variant != Variant::EntryPoint || !input.has_final_output() || input.is_test() {
             return;
         }
 
