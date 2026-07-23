@@ -5,6 +5,9 @@
        Leo     Program size: 0.29 KB / 2000.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
        Leo     Import 'grandchild.aleo': checksum = '[174u8, 187u8, 41u8, 199u8, 29u8, 93u8, 47u8, 173u8, 98u8, 32u8, 73u8, 250u8, 151u8, 53u8, 73u8, 94u8, 242u8, 95u8, 71u8, 74u8, 121u8, 121u8, 133u8, 66u8, 113u8, 125u8, 133u8, 149u8, 137u8, 234u8, 137u8, 134u8]'
+       Leo     Import 'grandchild.aleo': program size: 0.18 KB / 2000.00 KB
        Leo     Import 'child1.aleo': checksum = '[138u8, 68u8, 23u8, 17u8, 147u8, 202u8, 54u8, 131u8, 68u8, 191u8, 115u8, 122u8, 104u8, 93u8, 82u8, 133u8, 237u8, 116u8, 228u8, 7u8, 183u8, 28u8, 164u8, 4u8, 200u8, 189u8, 94u8, 146u8, 227u8, 27u8, 196u8, 215u8]'
+       Leo     Import 'child1.aleo': program size: 0.26 KB / 2000.00 KB
        Leo     Import 'child2.aleo': checksum = '[23u8, 157u8, 69u8, 176u8, 63u8, 187u8, 23u8, 101u8, 134u8, 214u8, 248u8, 221u8, 72u8, 152u8, 104u8, 120u8, 22u8, 40u8, 157u8, 249u8, 73u8, 22u8, 38u8, 208u8, 53u8, 79u8, 137u8, 191u8, 121u8, 50u8, 88u8, 15u8]'
+       Leo     Import 'child2.aleo': program size: 0.26 KB / 2000.00 KB
        Leo ✅ Generated ABI for program 'parent.aleo'.
