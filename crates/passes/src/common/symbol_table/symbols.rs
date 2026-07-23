@@ -75,6 +75,8 @@ impl Display for VariableSymbol {
 pub struct FunctionSymbol {
     pub function: Function,
     pub finalizer: Option<Finalizer>,
+    /// True if this came from an external program stub, whose body is not visible as Leo AST.
+    pub is_stub: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]

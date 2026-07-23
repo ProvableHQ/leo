@@ -165,93 +165,22 @@ impl Summary {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Scanner
-
-/// The CEI ordering scanner.
-///
-/// One instance is created per pass invocation and walks every finalize
-/// context in the AST. Its two mutable pieces of state are:
-///
-/// - `summaries`: lazily populated as `summary_of` is called.
-/// - `warned`: dedup set so a single violation site never emits twice.
-/// - `suppress`: set to `true` inside a loop body that has already fired
-///   the CEI03 loop-level warning, so we don't repeat the same root cause
-///   as per-statement warnings.
-struct Scanner<'a> {
-    state: &'a mut CompilerState,
-    program: Symbol,
-    summaries: IndexMap<Location, Summary>,
-    warned: IndexSet<(Span, i32)>,
-    suppress: bool,
+/// Computes callee [`Summary`]s with an order-insensitive walk. It borrows only
+/// the symbol table (read) and the memo map (write) — disjoint from the rest of
+/// the [`Scanner`] — and reborrows the symbol table through its own `&'a` field,
+/// so callee bodies are summarized in place rather than cloned out.
+struct Summarizer<'a> {
+    sym: &'a SymbolTable,
+    summaries: &'a mut IndexMap<Location, Summary>,
 }
 
-// CEI warning codes (must match `errors/cei_analyzer.rs`).
-const CODE_CHECK: i32 = 13000;
-const CODE_EFFECT: i32 = 13001;
-const CODE_CALLEE: i32 = 13002;
-const CODE_LOOP: i32 = 13003;
-
-impl<'a> Scanner<'a> {
-    fn new(state: &'a mut CompilerState) -> Self {
-        Self {
-            state,
-            program: Symbol::intern(""),
-            summaries: IndexMap::new(),
-            warned: IndexSet::new(),
-            suppress: false,
-        }
-    }
-
-    /// Merge two branch post-states (union). Prefer the first argument's
-    /// span (source-order stability: then-branch before else-branch).
-    fn merge(a: Option<Span>, b: Option<Span>) -> Option<Span> {
-        a.or(b)
-    }
-
-    /// Emit a warning, deduped by (span, code) and gated by `suppress`.
-    fn emit(&mut self, span: Span, code: i32, w: Formatted) {
-        if !self.suppress && self.warned.insert((span, code)) {
-            self.state.handler.emit_warning(w);
-        }
-    }
-
-    /// Apply an operation's effect to the post-state.
-    ///
-    /// - Interaction: advance post-state (unless already set).
-    /// - Read/Write: if post-state is set, emit a warning at `span`.
-    fn apply(&mut self, op: Op, span: Span, post: Option<Span>, desc: &str) -> Option<Span> {
-        match op {
-            Op::Interaction => post.or(Some(span)),
-            Op::Read => {
-                if post.is_some() {
-                    self.emit(span, CODE_CHECK, cei_analyzer::check_after_interaction(desc, span));
-                }
-                post
-            }
-            Op::Write => {
-                if post.is_some() {
-                    self.emit(span, CODE_EFFECT, cei_analyzer::effect_after_interaction(desc, span));
-                }
-                post
-            }
-        }
-    }
-
-    /// Apply a callee summary at a call site.
-    fn apply_summary(&mut self, s: Summary, callee: &Path, span: Span, post: Option<Span>) -> Option<Span> {
-        if post.is_some() && (s.reads || s.writes) {
-            self.emit(span, CODE_CALLEE, cei_analyzer::callee_has_effects_after_interaction(callee, span));
-        }
-        if s.interacts { post.or(Some(span)) } else { post }
-    }
-
-    // -----------------------------------------------------------------
-    // Summaries — order-insensitive walk that returns a `Summary`.
-
+impl Summarizer<'_> {
     /// Get or compute a callee's summary. Off-chain callees (regular `fn`)
     /// and unresolved paths return the empty summary.
     fn summary_of(&mut self, callee: &Path) -> Summary {
+        // Copy of the shared symbol-table ref, lifetime-independent of the
+        // `&mut self` borrows below, so `func`/`block` outlive `summarize_block`.
+        let sym = self.sym;
         let Some(loc) = callee.try_global_location() else { return Summary::default() };
         if let Some(s) = self.summaries.get(loc) {
             return *s;
@@ -260,7 +189,7 @@ impl<'a> Scanner<'a> {
         // Seed with default so any self-reference terminates. Recursion is
         // rejected by earlier passes; this is defensive.
         self.summaries.insert(loc.clone(), Summary::default());
-        let Some(func) = self.state.symbol_table.lookup_function(loc.program, &loc) else {
+        let Some(func) = sym.lookup_function(loc.program, &loc) else {
             return Summary::default();
         };
         if !func.function.variant.is_onchain() {
@@ -268,20 +197,19 @@ impl<'a> Scanner<'a> {
             return Summary::default();
         }
         let variant = func.function.variant;
-        let block = func.function.block.clone();
-        let s = if block.statements.is_empty() {
-            // Callee is a stub. Its body isn't visible as Leo AST, so we
-            // can't summarize it. Fall back to a conservative summary based on
-            // the variant, so callee-has-effects warnings still fire against
-            // externals.
+        let s = if func.is_stub {
+            // Callee is an external stub. Its body isn't visible as Leo AST, so
+            // we can't summarize it. Fall back to a conservative summary based
+            // on the variant, so callee-has-effects warnings still fire against
+            // externals. (A local function with a genuinely empty body is not a
+            // stub and correctly summarizes to no effects.)
             match variant {
                 Variant::View => Summary { reads: true, writes: false, interacts: false },
                 Variant::FinalFn | Variant::Finalize => Summary { reads: true, writes: true, interacts: true },
                 Variant::Fn | Variant::EntryPoint => Summary::default(),
             }
         } else {
-            let prog = loc.program;
-            self.summarize_block(&block, prog)
+            self.summarize_block(&func.function.block, loc.program)
         };
         self.summaries.insert(loc, s);
         s
@@ -306,7 +234,7 @@ impl<'a> Scanner<'a> {
             },
             Statement::Assign(a) => {
                 if let Some(root) = peel_assign_root(&a.place)
-                    && is_storage_var(&self.state.symbol_table, prog, root)
+                    && is_storage_var(self.sym, prog, root)
                 {
                     s.writes = true;
                 }
@@ -390,7 +318,7 @@ impl<'a> Scanner<'a> {
                 }
             }
             Expression::Path(p) => {
-                if is_storage_var(&self.state.symbol_table, prog, p) {
+                if is_storage_var(self.sym, prog, p) {
                     s.reads = true;
                 }
             }
@@ -435,6 +363,94 @@ impl<'a> Scanner<'a> {
             Expression::Async(a) => s.merge(self.summarize_block(&a.block, prog)),
             Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) => {}
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Scanner
+
+/// The CEI ordering scanner.
+///
+/// One instance is created per pass invocation and walks every finalize
+/// context in the AST. Its two mutable pieces of state are:
+///
+/// - `summaries`: lazily populated as `summary_of` is called.
+/// - `warned`: dedup set so a single violation site never emits twice.
+struct Scanner<'a> {
+    state: &'a mut CompilerState,
+    program: Symbol,
+    summaries: IndexMap<Location, Summary>,
+    warned: IndexSet<(Span, Warning)>,
+}
+
+/// Discriminant for warning deduplication. Distinguishes the four ordering
+/// warnings so a single site can emit at most one of each. The user-facing
+/// CEI code numbers live in `errors/cei_analyzer.rs`; this is only a dedup key.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum Warning {
+    Check,
+    Effect,
+    Callee,
+    Loop,
+}
+
+impl<'a> Scanner<'a> {
+    fn new(state: &'a mut CompilerState) -> Self {
+        Self { state, program: Symbol::intern(""), summaries: IndexMap::new(), warned: IndexSet::new() }
+    }
+
+    /// Merge two branch post-states (union). Prefer the first argument's
+    /// span (source-order stability: then-branch before else-branch).
+    fn merge(a: Option<Span>, b: Option<Span>) -> Option<Span> {
+        a.or(b)
+    }
+
+    /// Emit a warning, deduped by (span, code).
+    fn emit(&mut self, span: Span, code: Warning, w: Formatted) {
+        if self.warned.insert((span, code)) {
+            self.state.handler.emit_warning(w);
+        }
+    }
+
+    /// Apply an operation's effect to the post-state.
+    ///
+    /// - Interaction: advance post-state (unless already set).
+    /// - Read/Write: if post-state is set, emit a warning at `span`.
+    fn apply(&mut self, op: Op, span: Span, post: Option<Span>, desc: impl FnOnce() -> String) -> Option<Span> {
+        // `desc` is only forced when a warning fires, so the common
+        // no-interaction path never allocates the description string.
+        match op {
+            Op::Interaction => post.or(Some(span)),
+            Op::Read => {
+                if post.is_some() {
+                    self.emit(span, Warning::Check, cei_analyzer::check_after_interaction(desc(), span));
+                }
+                post
+            }
+            Op::Write => {
+                if post.is_some() {
+                    self.emit(span, Warning::Effect, cei_analyzer::effect_after_interaction(desc(), span));
+                }
+                post
+            }
+        }
+    }
+
+    /// Apply a callee summary at a call site.
+    fn apply_summary(&mut self, s: Summary, callee: &Path, span: Span, post: Option<Span>) -> Option<Span> {
+        if post.is_some() && (s.reads || s.writes) {
+            self.emit(span, Warning::Callee, cei_analyzer::callee_has_effects_after_interaction(callee, span));
+        }
+        if s.interacts { post.or(Some(span)) } else { post }
+    }
+
+    // -----------------------------------------------------------------
+    // Summaries — order-insensitive walk over a callee, delegated to
+    // [`Summarizer`], which borrows the symbol table and memo map disjointly
+    // from the rest of the scanner so callee bodies need not be cloned.
+
+    fn summarizer(&mut self) -> Summarizer<'_> {
+        Summarizer { sym: &self.state.symbol_table, summaries: &mut self.summaries }
     }
 
     // -----------------------------------------------------------------
@@ -483,7 +499,7 @@ impl<'a> Scanner<'a> {
         if let Some(root) = peel_assign_root(&a.place)
             && is_storage_var(&self.state.symbol_table, self.program, root)
         {
-            self.apply(Op::Write, a.span, post, "a storage variable write")
+            self.apply(Op::Write, a.span, post, || "a storage variable write".to_string())
         } else {
             post
         }
@@ -511,24 +527,21 @@ impl<'a> Scanner<'a> {
         let body_summary = {
             let mut s = Summary::default();
             let prog = self.program;
-            let stmts = it.block.statements.clone();
-            for st in &stmts {
-                self.summarize_stmt(st, prog, &mut s);
+            let mut summarizer = self.summarizer();
+            for st in &it.block.statements {
+                summarizer.summarize_stmt(st, prog, &mut s);
             }
             s
         };
-        let mixed = body_summary.interacts && (body_summary.reads || body_summary.writes);
-        if mixed {
+        if body_summary.interacts && (body_summary.reads || body_summary.writes) {
             let span = it.variable.span();
-            self.emit(span, CODE_LOOP, cei_analyzer::cei_violation_in_loop(span));
+            self.emit(span, Warning::Loop, cei_analyzer::cei_violation_in_loop(span));
         }
 
-        // FP4: suppress per-statement warnings inside a body that has
-        // already fired the loop-level warning.
-        let new_suppress = mixed || self.suppress;
-        let saved = std::mem::replace(&mut self.suppress, new_suppress);
+        // The loop-level warning above covers the cross-iteration hazard; the
+        // body scan below still surfaces within-iteration violations at their
+        // precise statement locations.
         let after = self.scan_block(&it.block, post);
-        self.suppress = saved;
 
         // If the body performs an interaction, downstream code is post.
         if body_summary.interacts { after.or(Some(it.span)) } else { after }
@@ -542,15 +555,14 @@ impl<'a> Scanner<'a> {
                 if let Some(intr) = Intrinsic::from_symbol(i.name, &i.type_parameters)
                     && let Some(op) = classify_intrinsic(&intr)
                 {
-                    let desc = format!("a call to `{}`", i.name);
-                    self.apply(op, i.span, post, &desc)
+                    self.apply(op, i.span, post, || format!("a call to `{}`", i.name))
                 } else {
                     post
                 }
             }
             Expression::Call(c) => {
                 let post = self.scan_args(&c.arguments, post);
-                let s = self.summary_of(&c.function);
+                let s = self.summarizer().summary_of(&c.function);
                 self.apply_summary(s, &c.function, c.span, post)
             }
             Expression::DynamicOp(d) => self.scan_dynamic_op(d, post),
@@ -597,7 +609,7 @@ impl<'a> Scanner<'a> {
             }
             Expression::Path(p) => {
                 if is_storage_var(&self.state.symbol_table, self.program, p) {
-                    self.apply(Op::Read, p.span, post, "a storage variable read")
+                    self.apply(Op::Read, p.span, post, || "a storage variable read".to_string())
                 } else {
                     post
                 }
@@ -629,141 +641,32 @@ impl<'a> Scanner<'a> {
                 self.scan_args(arguments, post)
             }
             DynamicOpKind::Read { storage } => {
-                let desc = format!("a read of dynamic storage `{storage}`");
-                self.apply(Op::Read, d.span, post, &desc)
+                self.apply(Op::Read, d.span, post, || format!("a read of dynamic storage `{storage}`"))
             }
             DynamicOpKind::Op { op, arguments, .. } => {
                 let post = self.scan_args(arguments, post);
-                let desc = format!("a `{op}` call on dynamic storage");
-                self.apply(Op::Read, d.span, post, &desc)
+                self.apply(Op::Read, d.span, post, || format!("a `{op}` call on dynamic storage"))
             }
-        }
-    }
-
-    // -----------------------------------------------------------------
-    // EntryPoint driver: locate inline `async { ... }` blocks and scan
-    // each as a fresh finalize context. Non-async code in the transition
-    // body is proof-context and outside CEI's remit.
-
-    fn scan_entrypoint(&mut self, b: &Block) {
-        for s in &b.statements {
-            self.scan_entrypoint_stmt(s);
-        }
-    }
-
-    fn scan_entrypoint_stmt(&mut self, s: &Statement) {
-        match s {
-            Statement::Assert(a) => match &a.variant {
-                AssertVariant::Assert(e) => self.scan_entrypoint_expr(e),
-                AssertVariant::AssertEq(l, r) | AssertVariant::AssertNeq(l, r) => {
-                    self.scan_entrypoint_expr(l);
-                    self.scan_entrypoint_expr(r);
-                }
-            },
-            Statement::Assign(a) => {
-                self.scan_entrypoint_expr(&a.place);
-                self.scan_entrypoint_expr(&a.value);
-            }
-            Statement::Block(b) => self.scan_entrypoint(b),
-            Statement::Conditional(c) => {
-                self.scan_entrypoint_expr(&c.condition);
-                self.scan_entrypoint(&c.then);
-                if let Some(o) = &c.otherwise {
-                    self.scan_entrypoint_stmt(o);
-                }
-            }
-            Statement::Const(d) => self.scan_entrypoint_expr(&d.value),
-            Statement::Definition(d) => self.scan_entrypoint_expr(&d.value),
-            Statement::Expression(e) => self.scan_entrypoint_expr(&e.expression),
-            Statement::Iteration(it) => {
-                self.scan_entrypoint_expr(&it.start);
-                self.scan_entrypoint_expr(&it.stop);
-                self.scan_entrypoint(&it.block);
-            }
-            Statement::Return(r) => self.scan_entrypoint_expr(&r.expression),
-        }
-    }
-
-    fn scan_entrypoint_expr(&mut self, e: &Expression) {
-        match e {
-            Expression::Async(a) => {
-                let _ = self.scan_block(&a.block, None);
-            }
-            Expression::Intrinsic(i) => {
-                for arg in &i.arguments {
-                    self.scan_entrypoint_expr(arg);
-                }
-            }
-            Expression::Call(c) => {
-                for arg in &c.arguments {
-                    self.scan_entrypoint_expr(arg);
-                }
-            }
-            Expression::DynamicOp(d) => {
-                self.scan_entrypoint_expr(&d.target_program);
-                if let Some(n) = &d.network {
-                    self.scan_entrypoint_expr(n);
-                }
-                match &d.kind {
-                    DynamicOpKind::Call { arguments, .. } | DynamicOpKind::Op { arguments, .. } => {
-                        for arg in arguments {
-                            self.scan_entrypoint_expr(arg);
-                        }
-                    }
-                    DynamicOpKind::Read { .. } => {}
-                }
-            }
-            Expression::Binary(b) => {
-                self.scan_entrypoint_expr(&b.left);
-                self.scan_entrypoint_expr(&b.right);
-            }
-            Expression::Unary(u) => self.scan_entrypoint_expr(&u.receiver),
-            Expression::Ternary(t) => {
-                self.scan_entrypoint_expr(&t.condition);
-                self.scan_entrypoint_expr(&t.if_true);
-                self.scan_entrypoint_expr(&t.if_false);
-            }
-            Expression::Cast(c) => self.scan_entrypoint_expr(&c.expression),
-            Expression::Tuple(t) => {
-                for e in &t.elements {
-                    self.scan_entrypoint_expr(e);
-                }
-            }
-            Expression::Array(a) => {
-                for e in &a.elements {
-                    self.scan_entrypoint_expr(e);
-                }
-            }
-            Expression::ArrayAccess(a) => {
-                self.scan_entrypoint_expr(&a.array);
-                self.scan_entrypoint_expr(&a.index);
-            }
-            Expression::MemberAccess(a) => self.scan_entrypoint_expr(&a.inner),
-            Expression::TupleAccess(a) => self.scan_entrypoint_expr(&a.tuple),
-            Expression::Composite(c) => {
-                for m in &c.members {
-                    if let Some(e) = &m.expression {
-                        self.scan_entrypoint_expr(e);
-                    }
-                }
-            }
-            Expression::Repeat(r) => {
-                self.scan_entrypoint_expr(&r.expr);
-                self.scan_entrypoint_expr(&r.count);
-            }
-            Expression::Path(_) | Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) => {}
         }
     }
 }
 
 // ---------------------------------------------------------------------------
 // UnitVisitor plumbing — the driver's only job is to identify each
-// finalize-context function and dispatch into `scan_block`, and each
-// EntryPoint into `scan_entrypoint`.
+// finalize-context function and dispatch into `scan_block`. An EntryPoint
+// body is walked with the default visitor traversal, whose only effect is to
+// hand each inline `async { ... }` block to `visit_async`.
 
 impl AstVisitor for Scanner<'_> {
     type AdditionalInput = ();
     type Output = ();
+
+    // Each inline `async { ... }` in a transition body is a fresh finalize
+    // context. Overriding this (instead of recursing) stops the default walk
+    // at the async boundary and hands the block to the path-sensitive scan.
+    fn visit_async(&mut self, input: &AsyncExpression, _: &()) {
+        let _ = self.scan_block(&input.block, None);
+    }
 }
 
 impl UnitVisitor for Scanner<'_> {
@@ -786,7 +689,8 @@ impl UnitVisitor for Scanner<'_> {
         if input.variant.is_finalize_context() {
             let _ = self.scan_block(&input.block, None);
         } else if input.variant == Variant::EntryPoint {
-            self.scan_entrypoint(&input.block);
+            // Default traversal; `visit_async` scans each `async` block it finds.
+            self.visit_block(&input.block);
         }
         // Regular helpers (`Fn`) and `View` are analyzed via `summary_of`
         // when called from a finalize context.
@@ -801,6 +705,7 @@ pub fn run(state: &mut CompilerState) {
     let mut scanner = Scanner::new(state);
     match &ast {
         Ast::Program(p) => scanner.visit_program(p),
+        // visit libraries keeps the reentrancy check correct if they ever gain finalize-context functions.
         Ast::Library(l) => scanner.visit_library(l),
     }
     scanner.state.ast = ast;
