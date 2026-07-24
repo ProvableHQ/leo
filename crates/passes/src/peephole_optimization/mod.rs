@@ -31,7 +31,7 @@ use crate::{AleoExpr, AleoReg, AleoStmt, AleoType, CompiledPrograms, GeneratedPr
 
 use leo_errors::Result;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 pub struct PeepholeOptimizing;
 
@@ -734,10 +734,17 @@ fn fold_lowered_optional_unwraps(stmts: &mut Vec<AleoStmt>, generated_optional_s
     }
 
     let reader_counts = register_reader_counts(stmts);
-    let mut index = 0;
+    let mut remaining: VecDeque<_> = std::mem::take(stmts).into();
+    stmts.reserve(remaining.len());
 
-    while index + 2 < stmts.len() {
-        let rewrite = match (&stmts[index], &stmts[index + 1], &stmts[index + 2]) {
+    while let Some(first) = remaining.pop_front() {
+        if remaining.len() < 2 {
+            stmts.push(first);
+            stmts.extend(remaining);
+            break;
+        }
+
+        let rewrite = match (&first, &remaining[0], &remaining[1]) {
             (
                 AleoStmt::Ternary(condition, value, _, selected),
                 AleoStmt::Cast(AleoExpr::Tuple(fields), wrapper, AleoType::Ident { name }),
@@ -773,15 +780,17 @@ fn fold_lowered_optional_unwraps(stmts: &mut Vec<AleoStmt>, generated_optional_s
 
         match rewrite {
             Some(Rewrite::Collapse(replacement)) => {
-                stmts[index] = replacement;
-                stmts.drain(index + 1..=index + 2);
+                remaining.pop_front();
+                remaining.pop_front();
+                remaining.push_front(replacement);
             }
             Some(Rewrite::RemoveWrapper(replacement)) => {
-                stmts[index + 2] = replacement;
-                stmts.remove(index + 1);
-                index += 1;
+                stmts.push(first);
+                remaining.pop_front();
+                remaining.pop_front();
+                remaining.push_front(replacement);
             }
-            None => index += 1,
+            None => stmts.push(first),
         }
     }
 }
@@ -1320,12 +1329,21 @@ mod tests {
         AleoStmt::Contains(AleoExpr::RawName("mapping".to_string()), AleoExpr::Bool(false), register(destination))
     }
 
-    fn lowered_optional(inner_fallback: AleoExpr, outer_fallback: AleoExpr) -> Vec<AleoStmt> {
+    fn lowered_optional_at(offset: u64, inner_fallback: AleoExpr, outer_fallback: AleoExpr) -> Vec<AleoStmt> {
         vec![
-            AleoStmt::Ternary(register_expr(0), register_expr(1), inner_fallback, register(2)),
-            optional_cast(0, 2, 3),
-            AleoStmt::Ternary(member(3, "is_some"), member(3, "val"), outer_fallback, register(4)),
+            AleoStmt::Ternary(register_expr(offset), register_expr(offset + 1), inner_fallback, register(offset + 2)),
+            optional_cast(offset, offset + 2, offset + 3),
+            AleoStmt::Ternary(
+                member(offset + 3, "is_some"),
+                member(offset + 3, "val"),
+                outer_fallback,
+                register(offset + 4),
+            ),
         ]
+    }
+
+    fn lowered_optional(inner_fallback: AleoExpr, outer_fallback: AleoExpr) -> Vec<AleoStmt> {
+        lowered_optional_at(0, inner_fallback, outer_fallback)
     }
 
     #[test]
@@ -1452,6 +1470,26 @@ mod tests {
         fold_lowered_optional_unwraps(&mut stmts, &generated_optionals());
 
         assert_eq!(stmts, vec![AleoStmt::Ternary(register_expr(0), register_expr(1), AleoExpr::U8(7), register(4))]);
+    }
+
+    #[test]
+    fn collapses_consecutive_generated_optionals() {
+        let mut stmts = Vec::new();
+        let mut expected = Vec::new();
+
+        for offset in (0..40).step_by(5) {
+            stmts.extend(lowered_optional_at(offset, AleoExpr::U8(0), AleoExpr::U8(7)));
+            expected.push(AleoStmt::Ternary(
+                register_expr(offset),
+                register_expr(offset + 1),
+                AleoExpr::U8(7),
+                register(offset + 4),
+            ));
+        }
+
+        fold_lowered_optional_unwraps(&mut stmts, &generated_optionals());
+
+        assert_eq!(stmts, expected);
     }
 
     #[test]
