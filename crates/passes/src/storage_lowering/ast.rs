@@ -238,11 +238,31 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                 // Mapping::set(len_map, false, new_len)
                 let literal_false = self.literal_false();
-                let set_len_stmt = Statement::Expression(ExpressionStatement {
+                let set_len_stmt: Statement = ExpressionStatement {
                     expression: self.set_mapping_expr(len_path_expr.clone(), literal_false, new_len_expr, input.span),
                     span: input.span,
                     id: self.state.node_builder.next_id(),
-                });
+                }
+                .into();
+
+                // Ordinary ternary operands are evaluated eagerly, but an on-chain
+                // mutation must remain under the source arm that selected it. The
+                // pop result uses only the eagerly initialized length/value reads, so
+                // the length write can be guarded without an illegal branch value join.
+                let set_len_stmt = if let Some(condition) = self.active_ternary_guard() {
+                    let block_id = self.state.node_builder.next_id();
+                    let conditional_id = self.state.node_builder.next_id();
+                    ConditionalStatement {
+                        condition,
+                        then: Block { statements: vec![set_len_stmt], span: input.span, id: block_id },
+                        otherwise: None,
+                        span: input.span,
+                        id: conditional_id,
+                    }
+                    .into()
+                } else {
+                    set_len_stmt
+                };
 
                 // zero value for element type (used as default in get_or_use)
                 let zero = self.zero(&element_type);
@@ -794,10 +814,42 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         _addiional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
         let (condition, mut statements) = self.reconstruct_expression(input.condition, &());
-        let (if_true, statements2) = self.reconstruct_expression(input.if_true, &());
-        let (if_false, statements3) = self.reconstruct_expression(input.if_false, &());
-        statements.extend(statements2);
-        statements.extend(statements3);
+
+        // Mutation guards may clone only atoms. Defer a local binding for every
+        // other condition, and emit it only if an arm contains a lowered pop.
+        let condition_is_atom = matches!(condition, Expression::Path(_) | Expression::Literal(_));
+        let (guard_condition, guarded_condition, condition_binding) = if condition_is_atom {
+            (condition.clone(), condition.clone(), None)
+        } else {
+            let identifier = Identifier {
+                name: self.state.assigner.unique_symbol("$ternary_condition", "$"),
+                span: condition.span(),
+                id: self.state.node_builder.next_id(),
+            };
+            let path: Expression = identifier.into();
+            let binding =
+                self.state.assigner.simple_definition(identifier, condition.clone(), self.state.node_builder.next_id());
+            (path.clone(), path, Some(binding))
+        };
+
+        self.ternary_guards.push(super::TernaryGuard { condition: guard_condition, selects_true: true, used: false });
+        let (if_true, true_statements) = self.reconstruct_expression(input.if_true, &());
+
+        self.ternary_guards.last_mut().expect("the current ternary guard must exist").selects_true = false;
+        let (if_false, false_statements) = self.reconstruct_expression(input.if_false, &());
+
+        let guard = self.ternary_guards.pop().expect("the current ternary guard must exist");
+        let condition = if guard.used {
+            if let Some(binding) = condition_binding {
+                statements.push(binding);
+            }
+            guarded_condition
+        } else {
+            condition
+        };
+
+        statements.extend(true_statements);
+        statements.extend(false_statements);
         (TernaryExpression { condition, if_true, if_false, ..input }.into(), statements)
     }
 
