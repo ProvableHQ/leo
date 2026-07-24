@@ -5,6 +5,9 @@ record Token:
     amount as u64.public;
     data as field.private;
 
+struct Unused:
+    x as u32;
+
 struct Point:
     x as i32;
     y as i32;
