@@ -5,51 +5,29 @@
        Leo     Program size: 5.43 KB / 2000.00 KB
        Leo ✅ Compiled 'storage_demo.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'storage_demo.aleo'.
-
        Leo 🔨 Compiling 'test_storage_demo.aleo'
-       Leo     Program size: 20.35 KB / 2000.00 KB
-       Leo ✅ Compiled 'test_storage_demo.aleo' into Aleo instructions.
-       Leo     Import 'storage_demo.aleo': checksum = '[226u8, 104u8, 115u8, 137u8, 3u8, 83u8, 131u8, 89u8, 56u8, 167u8, 125u8, 100u8, 155u8, 220u8, 210u8, 53u8, 15u8, 25u8, 15u8, 152u8, 34u8, 88u8, 82u8, 31u8, 208u8, 157u8, 23u8, 145u8, 128u8, 36u8, 118u8, 40u8]'
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-21 / 21 tests passed.
-PASSED: test_storage_demo.aleo/unset_singletons_default
-PASSED: test_storage_demo.aleo/set_and_read_flag
-PASSED: test_storage_demo.aleo/set_and_read_counter
-PASSED: test_storage_demo.aleo/bump_counter_from_unset
-PASSED: test_storage_demo.aleo/bump_counter_twice
-PASSED: test_storage_demo.aleo/clear_counter_resets_default
-PASSED: test_storage_demo.aleo/set_and_read_tiny
-PASSED: test_storage_demo.aleo/set_and_read_signed
-PASSED: test_storage_demo.aleo/set_and_read_tag
-PASSED: test_storage_demo.aleo/set_and_read_marker
-PASSED: test_storage_demo.aleo/set_and_read_pivot
-PASSED: test_storage_demo.aleo/set_and_read_point
-PASSED: test_storage_demo.aleo/set_and_read_quad
-PASSED: test_storage_demo.aleo/vector_starts_empty
-PASSED: test_storage_demo.aleo/push_then_len_and_get
-PASSED: test_storage_demo.aleo/pop_drops_last_element
-PASSED: test_storage_demo.aleo/set_replaces_slot
-PASSED: test_storage_demo.aleo/swap_remove_pulls_last
-PASSED: test_storage_demo.aleo/clear_resets_length
-PASSED: test_storage_demo.aleo/unwrap_unset_singleton_halts
-PASSED: test_storage_demo.aleo/unwrap_oob_get_halts
+
+     Running 21 tests
+        PASS test_storage_demo.leo::unset_singletons_default
+        PASS test_storage_demo.leo::set_and_read_flag
+        PASS test_storage_demo.leo::set_and_read_counter
+        PASS test_storage_demo.leo::bump_counter_from_unset
+        PASS test_storage_demo.leo::bump_counter_twice
+        PASS test_storage_demo.leo::clear_counter_resets_default
+        PASS test_storage_demo.leo::set_and_read_tiny
+        PASS test_storage_demo.leo::set_and_read_signed
+        PASS test_storage_demo.leo::set_and_read_tag
+        PASS test_storage_demo.leo::set_and_read_marker
+        PASS test_storage_demo.leo::set_and_read_pivot
+        PASS test_storage_demo.leo::set_and_read_point
+        PASS test_storage_demo.leo::set_and_read_quad
+        PASS test_storage_demo.leo::vector_starts_empty
+        PASS test_storage_demo.leo::push_then_len_and_get
+        PASS test_storage_demo.leo::pop_drops_last_element
+        PASS test_storage_demo.leo::set_replaces_slot
+        PASS test_storage_demo.leo::swap_remove_pulls_last
+        PASS test_storage_demo.leo::clear_resets_length
+        PASS test_storage_demo.leo::unwrap_unset_singleton_halts
+        PASS test_storage_demo.leo::unwrap_oob_get_halts
+────────────────────────
+     Summary 21 tests run: 21 passed, 0 failed
