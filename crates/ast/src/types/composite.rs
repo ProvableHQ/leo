@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Path, Type};
+use crate::{Expression, Path, TypeKind};
 use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A composite type of a identifier and external program name.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CompositeType {
     /// The path to the composite definition.
     pub path: Path,
@@ -40,8 +40,8 @@ impl fmt::Display for CompositeType {
     }
 }
 
-impl From<CompositeType> for Type {
+impl From<CompositeType> for TypeKind {
     fn from(value: CompositeType) -> Self {
-        Type::Composite(value)
+        TypeKind::Composite(value)
     }
 }

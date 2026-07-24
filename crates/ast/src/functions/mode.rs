@@ -18,7 +18,7 @@ use core::fmt;
 use serde::{Deserialize, Serialize};
 
 /// The mode associated with a type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Mode {
     None,
     Constant,

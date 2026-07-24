@@ -54,7 +54,7 @@ pub(crate) use snarkvm::prelude::{
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
-use crate::{Expression, IntegerType, NodeBuilder, Type};
+use crate::{Expression, IntegerType, NodeBuilder, TypeKind};
 
 pub(crate) type CurrentNetwork = TestnetV0;
 
@@ -539,25 +539,25 @@ impl Value {
         Some(value)
     }
 
-    pub fn cast(&self, ty: &Type) -> Option<Self> {
+    pub fn cast(&self, ty: &TypeKind) -> Option<Self> {
         let literal_ty = match ty {
-            Type::Address => LiteralType::Address,
-            Type::Boolean => LiteralType::Boolean,
-            Type::Field => LiteralType::Field,
-            Type::Group => LiteralType::Group,
-            Type::Integer(IntegerType::U8) => LiteralType::U8,
-            Type::Integer(IntegerType::U16) => LiteralType::U16,
-            Type::Integer(IntegerType::U32) => LiteralType::U32,
-            Type::Integer(IntegerType::U64) => LiteralType::U64,
-            Type::Integer(IntegerType::U128) => LiteralType::U128,
-            Type::Integer(IntegerType::I8) => LiteralType::I8,
-            Type::Integer(IntegerType::I16) => LiteralType::I16,
-            Type::Integer(IntegerType::I32) => LiteralType::I32,
-            Type::Integer(IntegerType::I64) => LiteralType::I64,
-            Type::Integer(IntegerType::I128) => LiteralType::I128,
-            Type::Scalar => LiteralType::Scalar,
-            Type::Signature => LiteralType::Signature,
-            Type::String => LiteralType::String,
+            TypeKind::Address => LiteralType::Address,
+            TypeKind::Boolean => LiteralType::Boolean,
+            TypeKind::Field => LiteralType::Field,
+            TypeKind::Group => LiteralType::Group,
+            TypeKind::Integer(IntegerType::U8) => LiteralType::U8,
+            TypeKind::Integer(IntegerType::U16) => LiteralType::U16,
+            TypeKind::Integer(IntegerType::U32) => LiteralType::U32,
+            TypeKind::Integer(IntegerType::U64) => LiteralType::U64,
+            TypeKind::Integer(IntegerType::U128) => LiteralType::U128,
+            TypeKind::Integer(IntegerType::I8) => LiteralType::I8,
+            TypeKind::Integer(IntegerType::I16) => LiteralType::I16,
+            TypeKind::Integer(IntegerType::I32) => LiteralType::I32,
+            TypeKind::Integer(IntegerType::I64) => LiteralType::I64,
+            TypeKind::Integer(IntegerType::I128) => LiteralType::I128,
+            TypeKind::Scalar => LiteralType::Scalar,
+            TypeKind::Signature => LiteralType::Signature,
+            TypeKind::String => LiteralType::String,
             _ => return None,
         };
 
@@ -820,9 +820,9 @@ impl Value {
 
     /// Gets the type of a `Value` but only if it is an integer, a field, a group, or a scalar.
     /// Return `None` otherwise. These are the only types that an unsuffixed literal can have.
-    pub fn get_numeric_type(&self) -> Option<Type> {
+    pub fn get_numeric_type(&self) -> Option<TypeKind> {
         use IntegerType::*;
-        use Type::*;
+        use TypeKind::*;
         let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = &self.contents else {
             return None;
         };
@@ -849,8 +849,8 @@ impl Value {
         &self,
         span: Span,
         node_builder: &NodeBuilder,
-        ty: &Type,
-        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
+        ty: &TypeKind,
+        struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, TypeKind)>,
     ) -> Option<Expression> {
         use crate::{Literal, TupleExpression, UnitExpression};
 
@@ -858,7 +858,7 @@ impl Value {
         let expression = match &self.contents {
             ValueVariants::Unit => UnitExpression { span, id }.into(),
             ValueVariants::Tuple(vec) => {
-                let Type::Tuple(tuple_type) = ty else {
+                let TypeKind::Tuple(tuple_type) = ty else {
                     return None;
                 };
 
@@ -900,8 +900,8 @@ fn plaintext_to_expression(
     plaintext: &SvmPlaintext,
     span: Span,
     node_builder: &NodeBuilder,
-    ty: &Type,
-    struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
+    ty: &TypeKind,
+    struct_lookup: &dyn Fn(&Location) -> Vec<(Symbol, TypeKind)>,
 ) -> Option<Expression> {
     use crate::{ArrayExpression, CompositeExpression, CompositeFieldInitializer, Identifier, IntegerType, Literal};
 
@@ -953,7 +953,7 @@ fn plaintext_to_expression(
             }
         },
         Plaintext::Struct(index_map, ..) => {
-            let Type::Composite(composite_type) = ty else {
+            let TypeKind::Composite(composite_type) = ty else {
                 return None;
             };
             let composite_location = &composite_type.path.expect_global_location();
@@ -989,7 +989,7 @@ fn plaintext_to_expression(
             .into()
         }
         Plaintext::Array(vec, ..) => {
-            let Type::Array(array_ty) = ty else {
+            let TypeKind::Array(array_ty) = ty else {
                 return None;
             };
             ArrayExpression {

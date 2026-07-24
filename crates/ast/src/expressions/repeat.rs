@@ -20,7 +20,7 @@ use super::*;
 ///
 /// E.g., `[1u32; 5]`. Expression `expr` is the element to be repeated; Expression `count` is the number of times to
 /// repeat it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RepeatExpression {
     /// The element to repeat.
     pub expr: Expression,

@@ -35,8 +35,8 @@ use leo_span::Symbol;
 use indexmap::IndexMap;
 use std::collections::HashSet;
 
-pub(crate) fn interface_ref_from_type(ty: &ast::Type, current_program: &str) -> Option<abi::InterfaceRef> {
-    let ast::Type::Composite(ct) = ty else { return None };
+pub(crate) fn interface_ref_from_type(ty: &ast::TypeKind, current_program: &str) -> Option<abi::InterfaceRef> {
+    let ast::TypeKind::Composite(ct) = ty else { return None };
     let loc = ct.path.try_global_location()?;
     let prog_str = loc.program.to_string();
     let program = if prog_str == current_program { None } else { Some(prog_str) };
@@ -110,13 +110,13 @@ fn convert_record(composite: &ast::Composite, module_path: &[Symbol]) -> abi::Re
 }
 
 fn convert_field(member: &ast::Member) -> abi::StructField {
-    abi::StructField { name: member.identifier.name.to_string(), ty: convert_plaintext(&member.type_) }
+    abi::StructField { name: member.identifier.name.to_string(), ty: convert_plaintext(member.type_.kind()) }
 }
 
 fn convert_record_field(member: &ast::Member) -> abi::RecordField {
     abi::RecordField {
         name: member.identifier.name.to_string(),
-        ty: convert_plaintext(&member.type_),
+        ty: convert_plaintext(member.type_.kind()),
         mode: convert_mode(member.mode),
     }
 }
@@ -130,12 +130,12 @@ fn convert_mapping(mapping: &ast::Mapping) -> abi::Mapping {
 }
 
 fn convert_storage_variable(sv: &ast::StorageVariable) -> abi::StorageVariable {
-    abi::StorageVariable { name: sv.identifier.name.to_string(), ty: convert_storage_type(&sv.type_) }
+    abi::StorageVariable { name: sv.identifier.name.to_string(), ty: convert_storage_type(sv.type_.kind()) }
 }
 
-fn convert_storage_type(ty: &ast::Type) -> abi::StorageType {
+fn convert_storage_type(ty: &ast::TypeKind) -> abi::StorageType {
     match ty {
-        ast::Type::Vector(v) => abi::StorageType::Vector(Box::new(convert_storage_type(&v.element_type))),
+        ast::TypeKind::Vector(v) => abi::StorageType::Vector(Box::new(convert_storage_type(&v.element_type))),
         other => abi::StorageType::Plaintext(convert_plaintext(other)),
     }
 }
@@ -149,11 +149,11 @@ fn convert_function(function: &ast::Function, ctx: &Ctx) -> abi::Function {
 }
 
 fn convert_input(input: &ast::Input, ctx: &Ctx, is_view: bool) -> abi::FunctionInput {
-    convert_function_input(&input.type_, ctx, resolve_io_mode(input.mode, is_view))
+    convert_function_input(input.type_.kind(), ctx, resolve_io_mode(input.mode, is_view))
 }
 
 fn convert_output(output: &ast::Output, ctx: &Ctx, is_view: bool) -> abi::FunctionOutput {
-    convert_function_output(&output.type_, ctx, resolve_io_mode(output.mode, is_view))
+    convert_function_output(output.type_.kind(), ctx, resolve_io_mode(output.mode, is_view))
 }
 
 /// Converts a record-field visibility mode. Unmoded record fields lower to private, so they are
@@ -184,51 +184,51 @@ pub(crate) fn resolve_io_mode(mode: ast::Mode, is_view: bool) -> abi::Mode {
     }
 }
 
-fn convert_plaintext(ty: &ast::Type) -> abi::Plaintext {
+fn convert_plaintext(ty: &ast::TypeKind) -> abi::Plaintext {
     match ty {
-        ast::Type::Address => abi::Plaintext::Primitive(abi::Primitive::Address),
-        ast::Type::Boolean => abi::Plaintext::Primitive(abi::Primitive::Boolean),
-        ast::Type::Field => abi::Plaintext::Primitive(abi::Primitive::Field),
-        ast::Type::Group => abi::Plaintext::Primitive(abi::Primitive::Group),
-        ast::Type::Scalar => abi::Plaintext::Primitive(abi::Primitive::Scalar),
-        ast::Type::Identifier => abi::Plaintext::Primitive(abi::Primitive::Identifier),
-        ast::Type::Signature => abi::Plaintext::Primitive(abi::Primitive::Signature),
-        ast::Type::Integer(int_ty) => abi::Plaintext::Primitive(convert_integer(*int_ty)),
-        ast::Type::Array(arr_ty) => abi::Plaintext::Array(abi::Array {
+        ast::TypeKind::Address => abi::Plaintext::Primitive(abi::Primitive::Address),
+        ast::TypeKind::Boolean => abi::Plaintext::Primitive(abi::Primitive::Boolean),
+        ast::TypeKind::Field => abi::Plaintext::Primitive(abi::Primitive::Field),
+        ast::TypeKind::Group => abi::Plaintext::Primitive(abi::Primitive::Group),
+        ast::TypeKind::Scalar => abi::Plaintext::Primitive(abi::Primitive::Scalar),
+        ast::TypeKind::Identifier => abi::Plaintext::Primitive(abi::Primitive::Identifier),
+        ast::TypeKind::Signature => abi::Plaintext::Primitive(abi::Primitive::Signature),
+        ast::TypeKind::Integer(int_ty) => abi::Plaintext::Primitive(convert_integer(*int_ty)),
+        ast::TypeKind::Array(arr_ty) => abi::Plaintext::Array(abi::Array {
             element: Box::new(convert_plaintext(arr_ty.element_type())),
             length: extract_array_length(&arr_ty.length),
         }),
-        ast::Type::Composite(comp_ty) => abi::Plaintext::Struct(abi::StructRef {
+        ast::TypeKind::Composite(comp_ty) => abi::Plaintext::Struct(abi::StructRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         }),
-        ast::Type::Optional(opt_ty) => {
+        ast::TypeKind::Optional(opt_ty) => {
             abi::Plaintext::Optional(abi::Optional(Box::new(convert_plaintext(&opt_ty.inner))))
         }
         // These types cannot appear in plaintext contexts:
         // - Tuple: not allowed in storage or transition inputs/outputs
         // - Vector: only allowed in storage variables (handled by convert_storage_type)
         // - Others: resolved or invalid after type checking
-        ast::Type::Future(_)
-        | ast::Type::Mapping(_)
-        | ast::Type::Tuple(_)
-        | ast::Type::Vector(_)
-        | ast::Type::String
-        | ast::Type::Unit
-        | ast::Type::Ident(_)
-        | ast::Type::Numeric
-        | ast::Type::DynRecord
-        | ast::Type::Err => {
+        ast::TypeKind::Future(_)
+        | ast::TypeKind::Mapping(_)
+        | ast::TypeKind::Tuple(_)
+        | ast::TypeKind::Vector(_)
+        | ast::TypeKind::String
+        | ast::TypeKind::Unit
+        | ast::TypeKind::Ident(_)
+        | ast::TypeKind::Numeric
+        | ast::TypeKind::DynRecord
+        | ast::TypeKind::Err => {
             unreachable!("unexpected type in plaintext context: {ty}")
         }
     }
 }
 
-fn convert_function_input(ty: &ast::Type, ctx: &Ctx, mode: abi::Mode) -> abi::FunctionInput {
-    if let ast::Type::DynRecord = ty {
+fn convert_function_input(ty: &ast::TypeKind, ctx: &Ctx, mode: abi::Mode) -> abi::FunctionInput {
+    if let ast::TypeKind::DynRecord = ty {
         return abi::FunctionInput::DynamicRecord;
     }
-    if let ast::Type::Composite(comp_ty) = ty
+    if let ast::TypeKind::Composite(comp_ty) = ty
         && is_record(comp_ty, ctx)
     {
         return abi::FunctionInput::Record(abi::RecordRef {
@@ -239,11 +239,11 @@ fn convert_function_input(ty: &ast::Type, ctx: &Ctx, mode: abi::Mode) -> abi::Fu
     abi::FunctionInput::Plaintext { ty: convert_plaintext(ty), mode }
 }
 
-fn convert_function_output(ty: &ast::Type, ctx: &Ctx, mode: abi::Mode) -> abi::FunctionOutput {
+fn convert_function_output(ty: &ast::TypeKind, ctx: &Ctx, mode: abi::Mode) -> abi::FunctionOutput {
     match ty {
-        ast::Type::Future(_) => abi::FunctionOutput::Final,
-        ast::Type::DynRecord => abi::FunctionOutput::DynamicRecord,
-        ast::Type::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::FunctionOutput::Record(abi::RecordRef {
+        ast::TypeKind::Future(_) => abi::FunctionOutput::Final,
+        ast::TypeKind::DynRecord => abi::FunctionOutput::DynamicRecord,
+        ast::TypeKind::Composite(comp_ty) if is_record(comp_ty, ctx) => abi::FunctionOutput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
             program: comp_ty.path.program().map(|s| s.to_string()),
         }),

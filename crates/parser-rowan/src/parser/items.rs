@@ -351,7 +351,7 @@ impl Parser<'_, '_> {
         m.complete(self, ANNOTATION_PAIR);
     }
 
-    /// Parse a struct or record definition: `[export] struct|record Name { field: Type, ... }`.
+    /// Parse a struct or record definition: `[export] struct|record Name { field: TypeKind, ... }`.
     fn parse_composite_def(&mut self, kind: SyntaxKind) -> Option<CompletedMarker> {
         let m = self.start();
         let _ = self.eat(KW_EXPORT);
@@ -464,7 +464,7 @@ impl Parser<'_, '_> {
         Some(m.complete(self, MAPPING_DEF))
     }
 
-    /// Parse a storage definition: `storage name: Type;`
+    /// Parse a storage definition: `storage name: TypeKind;`
     fn parse_storage_def(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // storage
@@ -477,7 +477,7 @@ impl Parser<'_, '_> {
             self.error("expected storage name");
         }
 
-        // Type
+        // TypeKind
         self.expect(COLON);
         if self.parse_type().is_none() {
             self.error_recover("expected type", TYPE_RECOVERY);
@@ -487,7 +487,7 @@ impl Parser<'_, '_> {
         Some(m.complete(self, STORAGE_DEF))
     }
 
-    /// Parse a global constant: `[export] const NAME: Type = expr;`
+    /// Parse a global constant: `[export] const NAME: TypeKind = expr;`
     fn parse_global_const(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         let _ = self.eat(KW_EXPORT);
@@ -504,7 +504,7 @@ impl Parser<'_, '_> {
             return Some(m.complete(self, GLOBAL_CONST));
         }
 
-        // Type
+        // TypeKind
         self.expect(COLON);
         if self.parse_type().is_none() {
             self.error_recover("expected type", TYPE_RECOVERY);
@@ -601,7 +601,7 @@ impl Parser<'_, '_> {
         // Parameters
         self.parse_param_list();
 
-        // Return type: `-> [visibility] Type` or `-> (vis Type, vis Type)`
+        // Return type: `-> [visibility] TypeKind` or `-> (vis TypeKind, vis TypeKind)`
         if self.eat(ARROW) {
             self.parse_return_type();
         }
@@ -618,7 +618,7 @@ impl Parser<'_, '_> {
     fn parse_return_type(&mut self) {
         self.skip_trivia();
         if self.at(L_PAREN) {
-            // Tuple return type: (vis Type, vis Type, ...)
+            // Tuple return type: (vis TypeKind, vis TypeKind, ...)
             let m = self.start();
             self.bump_any(); // (
             if !self.at(R_PAREN) {
@@ -659,7 +659,7 @@ impl Parser<'_, '_> {
         self.parse_block();
     }
 
-    /// Parse a parameter list: `(a: Type, b: Type)`
+    /// Parse a parameter list: `(a: TypeKind, b: TypeKind)`
     fn parse_param_list(&mut self) {
         let m = self.start();
         self.expect(L_PAREN);
@@ -677,7 +677,7 @@ impl Parser<'_, '_> {
         m.complete(self, PARAM_LIST);
     }
 
-    /// Parse a parent list: `Type + Type`
+    /// Parse a parent list: `TypeKind + TypeKind`
     fn parse_parent_list(&mut self) {
         let m = self.start();
         self.parse_type();
@@ -693,7 +693,7 @@ impl Parser<'_, '_> {
         m.complete(self, PARENT_LIST);
     }
 
-    /// Parse a single parameter: `[visibility] name: Type`
+    /// Parse a single parameter: `[visibility] name: TypeKind`
     fn parse_param(&mut self) {
         let m = self.start();
         self.skip_trivia();
@@ -709,7 +709,7 @@ impl Parser<'_, '_> {
             self.error("expected parameter name");
         }
 
-        // Type
+        // TypeKind
         self.expect(COLON);
         if self.parse_type().is_none() {
             self.error_recover("expected parameter type", PARAM_RECOVERY);
@@ -785,7 +785,7 @@ impl Parser<'_, '_> {
         }
     }
 
-    /// Parse function prototype: `[view] fn name(...) [-> Type];`
+    /// Parse function prototype: `[view] fn name(...) [-> TypeKind];`
     ///
     /// When the leading `view` keyword is present, the prototype is recorded as a view fn
     /// (see `to_function_prototype`).

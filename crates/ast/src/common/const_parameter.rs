@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type};
+use crate::{Identifier, Node, NodeID, TypeNode};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A const parameter for a function or a composite.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ConstParameter {
     /// The name of the const parameter.
     pub identifier: Identifier,
     /// What's the const parameter's type?
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The const parameter's span from any annotations to its type.
     pub span: Span,
     /// The ID of the node.
@@ -42,7 +42,7 @@ impl ConstParameter {
         &self.identifier
     }
 
-    pub fn type_(&self) -> &Type {
+    pub fn type_(&self) -> &TypeNode {
         &self.type_
     }
 }

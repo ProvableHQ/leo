@@ -16,11 +16,25 @@
 
 use super::ProcessingAsyncVisitor;
 use crate::BlockToFunctionRewriter;
-use leo_ast::{AstReconstructor, AsyncExpression, Block, Expression, IterationStatement, Node, Statement, Variant};
+use leo_ast::{
+    AstReconstructor,
+    AsyncExpression,
+    Block,
+    Expression,
+    IterationStatement,
+    Node,
+    Statement,
+    TypeInterner,
+    Variant,
+};
 
 impl AstReconstructor for ProcessingAsyncVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
+
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
 
     /// Transforms an `AsyncExpression` into a standalone async `Function` and returns
     /// a call to this function. This process:
@@ -67,7 +81,7 @@ impl AstReconstructor for ProcessingAsyncVisitor<'_> {
         self.in_scope(input.id(), |slf| {
             (
                 IterationStatement {
-                    type_: input.type_.map(|ty| slf.reconstruct_type(ty).0),
+                    type_: input.type_.map(|ty| slf.reconstruct_type_node(ty).0),
                     start: slf.reconstruct_expression(input.start, &()).0,
                     stop: slf.reconstruct_expression(input.stop, &()).0,
                     block: slf.reconstruct_block(input.block).0,

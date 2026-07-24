@@ -47,6 +47,7 @@ use leo_ast::{
     TernaryExpression,
     TupleExpression,
     Type,
+    TypeKind,
     UnaryExpression,
     UnaryOperation,
     Variant,
@@ -61,8 +62,11 @@ use anyhow::bail;
 /// Implement the necessary methods to visit nodes in the AST.
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_expression(&mut self, input: &Expression) -> (Option<AleoExpr>, Vec<AleoStmt>) {
-        let is_empty_type = self.state.type_table.get(&input.id()).map(|ty| ty.is_empty()).unwrap_or(false);
-        let is_pure = input.is_pure(&|id| self.state.type_table.get(&id).expect("Types should be resolved by now."));
+        let is_empty_type =
+            self.state.type_table.get(&input.id()).map(|ty| self.state.types.resolve(ty).is_empty()).unwrap_or(false);
+        let is_pure = input.is_pure(&|id| {
+            self.state.types.resolve(self.state.type_table.get(&id).expect("Types should be resolved by now."))
+        });
 
         if is_empty_type && is_pure {
             // ignore expresssion
@@ -127,23 +131,23 @@ impl CodeGeneratingVisitor<'_> {
         let literal = if let LiteralVariant::Unsuffixed(value) = &input.variant {
             // For unsuffixed lierals, consult the `type_table` for their types. The type checker
             // ensures that their type can only be `Integer`, `Field`, `Group`, or `Scalar`.
-            match self.state.type_table.get(&input.id) {
-                Some(Type::Integer(int_ty)) => Literal {
+            match self.state.type_table.get(&input.id).map(|t| self.state.types.resolve(t)) {
+                Some(TypeKind::Integer(int_ty)) => Literal {
                     variant: LiteralVariant::Integer(int_ty, value.clone()),
                     id: self.state.node_builder.next_id(),
                     span: input.span,
                 },
-                Some(Type::Field) => Literal {
+                Some(TypeKind::Field) => Literal {
                     variant: LiteralVariant::Field(value.clone()),
                     id: self.state.node_builder.next_id(),
                     span: input.span,
                 },
-                Some(Type::Group) => Literal {
+                Some(TypeKind::Group) => Literal {
                     variant: LiteralVariant::Group(value.clone()),
                     id: self.state.node_builder.next_id(),
                     span: input.span,
                 },
-                Some(Type::Scalar) => Literal {
+                Some(TypeKind::Scalar) => Literal {
                     variant: LiteralVariant::Scalar(value.clone()),
                     id: self.state.node_builder.next_id(),
                     span: input.span,
@@ -263,14 +267,15 @@ impl CodeGeneratingVisitor<'_> {
         let operand = operand.expect("Trying to cast an empty expression");
 
         // if the source already has the target type, reuse its operand directly instead of emitting a no-op cast.
-        if self.state.type_table.get(&input.expression.id()).as_ref() == Some(&input.type_) {
+        let cast_ty = self.state.types.intern(input.type_.kind());
+        if self.state.type_table.get(&input.expression.id()) == Some(cast_ty) {
             return (operand, instructions);
         }
 
         // Construct the destination register.
         let dest_reg = self.next_register();
 
-        let cast_instruction = AleoStmt::Cast(operand, dest_reg.clone(), self.visit_type(&input.type_));
+        let cast_instruction = AleoStmt::Cast(operand, dest_reg.clone(), self.visit_type(input.type_.kind()));
 
         // Concatenate the instructions.
         instructions.push(cast_instruction);
@@ -294,7 +299,9 @@ impl CodeGeneratingVisitor<'_> {
         let destination_register = self.next_register();
 
         // Get the array type.
-        let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
+        let Some(array_type @ TypeKind::Array(..)) =
+            self.state.type_table.get(&input.id).map(|t| self.state.types.resolve(t))
+        else {
             panic!("All types should be known at this phase of compilation");
         };
         let array_type: AleoType = self.visit_type(&array_type);
@@ -415,7 +422,10 @@ impl CodeGeneratingVisitor<'_> {
         let array_operand = array_operand.expect("Trying to access an element of an empty expression.");
 
         assert!(
-            matches!(self.state.type_table.get(&input.index.id()), Some(Type::Integer(_))),
+            matches!(
+                self.state.type_table.get(&input.index.id()).map(|t| self.state.types.resolve(t)),
+                Some(TypeKind::Integer(_))
+            ),
             "unexpected type for for array index. This should have been caught by the type checker."
         );
 
@@ -436,9 +446,10 @@ impl CodeGeneratingVisitor<'_> {
 
         // Check if the inner expression is a dyn record.
         let inner_type = self.state.type_table.get(&input.inner.id());
-        if matches!(inner_type, Some(Type::DynRecord)) && input.name.name != sym::owner {
+        if inner_type == Some(Type::DYN_RECORD) && input.name.name != sym::owner {
             // Non-owner field access on dyn record: emit get.record.dynamic.
-            let result_type = self.state.type_table.get(&input.id).expect("Type should be resolved.");
+            let result_type =
+                self.state.types.resolve(self.state.type_table.get(&input.id).expect("Type should be resolved."));
             let dest_reg = self.next_register();
             let aleo_type = self.visit_type(&result_type);
             instructions.push(AleoStmt::GetRecordDynamic(
@@ -466,7 +477,9 @@ impl CodeGeneratingVisitor<'_> {
         let dest_reg = self.next_register();
 
         // Get the array type.
-        let Some(array_type @ Type::Array(..)) = self.state.type_table.get(&input.id) else {
+        let Some(array_type @ TypeKind::Array(..)) =
+            self.state.type_table.get(&input.id).map(|t| self.state.types.resolve(t))
+        else {
             panic!("All types should be known at this phase of compilation");
         };
         let array_type = self.visit_type(&array_type);
@@ -541,7 +554,7 @@ impl CodeGeneratingVisitor<'_> {
         // Create operands for the output registers.
         match func_symbol.function.output_type.clone() {
             t if t.is_empty() => {} // Do nothing
-            Type::Tuple(tuple) => match tuple.length() {
+            TypeKind::Tuple(tuple) => match tuple.length() {
                 0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
                     for _ in 0..len {
@@ -595,7 +608,7 @@ impl CodeGeneratingVisitor<'_> {
     /// are guaranteed by the type checker).
     fn lookup_dynamic_op_interface(&self, input: &DynamicOpExpression) -> Interface {
         let caller_program = self.program_id.expect("Dynamic ops only appear within programs.").as_symbol();
-        let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
+        let TypeKind::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
             panic!("Dynamic ops can only be done over interface types, got `{}`", input.interface);
         };
         let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
@@ -714,14 +727,14 @@ impl CodeGeneratingVisitor<'_> {
             .iter()
             .map(|inp| {
                 let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
-                self.dynamic_call_input_type(&inp.type_, viz, Some(&interface))
+                self.dynamic_call_input_type(inp.type_.kind(), viz, Some(&interface))
             })
             .collect();
 
         // Allocate output registers.
         let num_destinations = match &func_proto.output_type {
             t if t.is_empty() => 0,
-            Type::Tuple(tuple) => match tuple.length() {
+            TypeKind::Tuple(tuple) => match tuple.length() {
                 0 | 1 => panic!("Parsing guarantees that a tuple type has at least two elements"),
                 len => len,
             },
@@ -734,7 +747,7 @@ impl CodeGeneratingVisitor<'_> {
         let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
             .output
             .iter()
-            .map(|out| self.dynamic_call_output_type(&out.type_, out.mode, Some(&interface)))
+            .map(|out| self.dynamic_call_output_type(out.type_.kind(), out.mode, Some(&interface)))
             .collect();
 
         let dest_exprs: Vec<AleoExpr> = destinations.iter().cloned().map(AleoExpr::Reg).collect();
@@ -784,11 +797,12 @@ impl CodeGeneratingVisitor<'_> {
                 .iter()
                 .skip(3)
                 .map(|arg| {
-                    let ty = self
-                        .state
-                        .type_table
-                        .get(&arg.id())
-                        .expect("Type checking guarantees argument types are in the type table");
+                    let ty = self.state.types.resolve(
+                        self.state
+                            .type_table
+                            .get(&arg.id())
+                            .expect("Type checking guarantees argument types are in the type table"),
+                    );
                     let viz = Some(AleoVisibility::Private);
                     self.dynamic_call_input_type(&ty, viz, None)
                 })
@@ -1062,7 +1076,9 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 Intrinsic::Serialize(variant) => {
                     // Get the input type.
-                    let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
+                    let Some(input_type) =
+                        self.state.type_table.get(&arguments[0].1).map(|t| self.state.types.resolve(t))
+                    else {
                         panic!("All types should be known at this phase of compilation");
                     };
                     // Get the instruction variant.
@@ -1100,7 +1116,9 @@ impl CodeGeneratingVisitor<'_> {
                 }
                 Intrinsic::Deserialize(variant, output_type) => {
                     // Get the input type.
-                    let Some(input_type) = self.state.type_table.get(&arguments[0].1) else {
+                    let Some(input_type) =
+                        self.state.type_table.get(&arguments[0].1).map(|t| self.state.types.resolve(t))
+                    else {
                         panic!("All types should be known at this phase of compilation");
                     };
 
@@ -1139,42 +1157,42 @@ impl CodeGeneratingVisitor<'_> {
         }
     }
 
-    pub fn clone_register(&mut self, register: &AleoExpr, typ: &Type) -> (AleoExpr, Vec<AleoStmt>) {
+    pub fn clone_register(&mut self, register: &AleoExpr, typ: &TypeKind) -> (AleoExpr, Vec<AleoStmt>) {
         let new_reg = self.next_register();
         match typ {
-            Type::Address => {
+            TypeKind::Address => {
                 let cast = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Address);
                 ((AleoExpr::Reg(new_reg)), vec![cast])
             }
-            Type::Boolean => {
+            TypeKind::Boolean => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Boolean);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
-            Type::Field => {
+            TypeKind::Field => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Field);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
-            Type::Group => {
+            TypeKind::Group => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Group);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
-            Type::Scalar => {
+            TypeKind::Scalar => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Scalar);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
-            Type::Signature => {
+            TypeKind::Signature => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Signature);
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
-            Type::DynRecord => {
+            TypeKind::DynRecord => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::DynamicRecord);
                 (AleoExpr::Reg(new_reg), vec![ins])
             }
-            Type::Identifier => {
+            TypeKind::Identifier => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), AleoType::Identifier);
                 (AleoExpr::Reg(new_reg), vec![ins])
             }
-            Type::Integer(int) => {
+            TypeKind::Integer(int) => {
                 let ins = AleoStmt::Cast(register.clone(), new_reg.clone(), match int {
                     IntegerType::U8 => AleoType::U8,
                     IntegerType::U16 => AleoType::U16,
@@ -1190,7 +1208,7 @@ impl CodeGeneratingVisitor<'_> {
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
-            Type::Array(array_type) => {
+            TypeKind::Array(array_type) => {
                 // We need to cast the old array's members into the new array.
                 let elems = (0..array_type.length.as_u32().expect("length should be known at this point"))
                     .map(|i| AleoExpr::ArrayAccess(Box::new(register.clone()), Box::new(AleoExpr::U32(i))))
@@ -1200,7 +1218,7 @@ impl CodeGeneratingVisitor<'_> {
                 ((AleoExpr::Reg(new_reg)), vec![ins])
             }
 
-            Type::Composite(comp_ty) => {
+            TypeKind::Composite(comp_ty) => {
                 let current_program = self.program_id.unwrap().as_symbol();
                 // We need to cast the old struct or record's members into the new one.
                 let composite_location = comp_ty.path.expect_global_location();
@@ -1213,15 +1231,14 @@ impl CodeGeneratingVisitor<'_> {
                 // Records are emitted with `owner` as the first field regardless of source
                 // order (see `visit_record` in `program.rs`), so reorder here too to keep
                 // the cast operand list aligned with the declared record schema.
-                // Empty-typed members (Type::Unit, zero-length arrays) are omitted by the
-                // record/struct declaration emitters in `program.rs`, so omit them here too
-                // to keep the cast operand list consistent with the declared schema.
+                // Match `program.rs` in dropping empty-typed members (`Unit`, zero-length arrays)
+                // so the cast operand list lines up with the declared schema.
                 let is_record = comp.is_record;
                 let owner = is_record.then(|| comp.members.iter().find(|m| m.identifier.name == sym::owner)).flatten();
                 let elems = owner
                     .into_iter()
                     .chain(comp.members.iter().filter(|m| !is_record || m.identifier.name != sym::owner))
-                    .filter(|member| !member.type_.is_empty())
+                    .filter(|member| !member.type_.kind().is_empty())
                     .map(|member| {
                         AleoExpr::MemberAccess(Box::new(register.clone()), member.identifier.name.to_string())
                     })
@@ -1234,18 +1251,18 @@ impl CodeGeneratingVisitor<'_> {
                 ((AleoExpr::Reg(new_reg)), vec![instruction])
             }
 
-            Type::Optional(_) => panic!("All optional types should have been lowered by now."),
+            TypeKind::Optional(_) => panic!("All optional types should have been lowered by now."),
 
-            Type::Vector(_) => panic!("All vector types should have been lowered by now."),
+            TypeKind::Vector(_) => panic!("All vector types should have been lowered by now."),
 
-            Type::Mapping(..)
-            | Type::Future(..)
-            | Type::Tuple(..)
-            | Type::Ident(..)
-            | Type::String
-            | Type::Unit
-            | Type::Numeric
-            | Type::Err => panic!("Objects of type {typ} cannot be cloned."),
+            TypeKind::Mapping(..)
+            | TypeKind::Future(..)
+            | TypeKind::Tuple(..)
+            | TypeKind::Ident(..)
+            | TypeKind::String
+            | TypeKind::Unit
+            | TypeKind::Numeric
+            | TypeKind::Err => panic!("Objects of type {typ} cannot be cloned."),
         }
     }
 }

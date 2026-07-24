@@ -57,6 +57,10 @@ impl AstReconstructor for DisambiguateVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     fn reconstruct_intrinsic(
         &mut self,
         mut input: IntrinsicExpression,
@@ -71,11 +75,11 @@ impl AstReconstructor for DisambiguateVisitor<'_> {
         input.arguments = input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg, &()).0).collect();
 
         if input.name == Symbol::intern("__unresolved_get") {
-            match self.state.type_table.get(&input.arguments[0].id()) {
-                Some(Type::Vector(..)) => {
+            match self.state.type_table.get(&input.arguments[0].id()).map(|t| self.state.types.resolve(t)) {
+                Some(TypeKind::Vector(..)) => {
                     input.name = sym::_vector_get;
                 }
-                Some(Type::Mapping(..)) => {
+                Some(TypeKind::Mapping(..)) => {
                     input.name = sym::_mapping_get;
                 }
                 _ => {
@@ -83,11 +87,11 @@ impl AstReconstructor for DisambiguateVisitor<'_> {
                 }
             }
         } else if input.name == Symbol::intern("__unresolved_set") {
-            match self.state.type_table.get(&input.arguments[0].id()) {
-                Some(Type::Vector(..)) => {
+            match self.state.type_table.get(&input.arguments[0].id()).map(|t| self.state.types.resolve(t)) {
+                Some(TypeKind::Vector(..)) => {
                     input.name = sym::_vector_set;
                 }
-                Some(Type::Mapping(..)) => {
+                Some(TypeKind::Mapping(..)) => {
                     input.name = sym::_mapping_set;
                 }
                 _ => {

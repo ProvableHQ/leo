@@ -20,20 +20,20 @@ use leo_span::Symbol;
 use itertools::Itertools as _;
 
 /// An intrinsic call, e.g.`_foo(args)`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct IntrinsicExpression {
     /// Which intrinsic is being called
     pub name: Symbol,
     /// Type parameters for generic intrinsics.
-    pub type_parameters: Vec<(Type, Span)>,
+    pub type_parameters: Vec<(TypeKind, Span)>,
     /// Explicit input types for `_dynamic_call` with optional visibility modes.
     /// Derived from all type parameters except the last.
     /// Empty for all other intrinsics or when input types are not annotated.
-    pub input_types: Vec<(Mode, Type, Span)>,
+    pub input_types: Vec<(Mode, TypeKind, Span)>,
     /// Explicit return type for `_dynamic_call` with optional visibility mode.
     /// Derived from the last type parameter (unpacking tuples into elements).
     /// Empty for all other intrinsics or void calls.
-    pub return_types: Vec<(Mode, Type, Span)>,
+    pub return_types: Vec<(Mode, TypeKind, Span)>,
     /// Expressions for the arguments passed to the function's parameters.
     pub arguments: Vec<Expression>,
     /// Span of the entire call `function(arguments)`.

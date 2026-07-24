@@ -49,7 +49,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Program statement that defines some action (or expression) to be carried out.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum Statement {
     /// An assert statement.
     Assert(AssertStatement),

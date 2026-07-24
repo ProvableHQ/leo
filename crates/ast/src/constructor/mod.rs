@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node, NodeID, Type};
+use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node, NodeID, TypeKind};
 use leo_span::{Span, sym};
 
 use anyhow::{anyhow, bail};
@@ -40,7 +40,7 @@ pub struct Constructor {
 pub enum UpgradeVariant {
     Admin { address: String },
     Custom,
-    Checksum { mapping: Location, key: String, key_type: Type },
+    Checksum { mapping: Location, key: String, key_type: TypeKind },
     NoUpgrade,
 }
 
@@ -129,25 +129,25 @@ impl fmt::Debug for Constructor {
 crate::simple_node_impl!(Constructor);
 
 // A helper function to get the type from a snarkVM literal.
-fn get_type_from_snarkvm_literal<N: Network>(literal: &Literal<N>) -> Type {
+fn get_type_from_snarkvm_literal<N: Network>(literal: &Literal<N>) -> TypeKind {
     match literal {
-        Literal::Field(_) => Type::Field,
-        Literal::Group(_) => Type::Group,
-        Literal::Address(_) => Type::Address,
-        Literal::Scalar(_) => Type::Scalar,
-        Literal::Boolean(_) => Type::Boolean,
-        Literal::String(_) => Type::String,
-        Literal::I8(_) => Type::Integer(IntegerType::I8),
-        Literal::I16(_) => Type::Integer(IntegerType::I16),
-        Literal::I32(_) => Type::Integer(IntegerType::I32),
-        Literal::I64(_) => Type::Integer(IntegerType::I64),
-        Literal::I128(_) => Type::Integer(IntegerType::I128),
-        Literal::U8(_) => Type::Integer(IntegerType::U8),
-        Literal::U16(_) => Type::Integer(IntegerType::U16),
-        Literal::U32(_) => Type::Integer(IntegerType::U32),
-        Literal::U64(_) => Type::Integer(IntegerType::U64),
-        Literal::U128(_) => Type::Integer(IntegerType::U128),
-        Literal::Signature(_) => Type::Signature,
-        Literal::Identifier(_) => Type::Identifier,
+        Literal::Field(_) => TypeKind::Field,
+        Literal::Group(_) => TypeKind::Group,
+        Literal::Address(_) => TypeKind::Address,
+        Literal::Scalar(_) => TypeKind::Scalar,
+        Literal::Boolean(_) => TypeKind::Boolean,
+        Literal::String(_) => TypeKind::String,
+        Literal::I8(_) => TypeKind::Integer(IntegerType::I8),
+        Literal::I16(_) => TypeKind::Integer(IntegerType::I16),
+        Literal::I32(_) => TypeKind::Integer(IntegerType::I32),
+        Literal::I64(_) => TypeKind::Integer(IntegerType::I64),
+        Literal::I128(_) => TypeKind::Integer(IntegerType::I128),
+        Literal::U8(_) => TypeKind::Integer(IntegerType::U8),
+        Literal::U16(_) => TypeKind::Integer(IntegerType::U16),
+        Literal::U32(_) => TypeKind::Integer(IntegerType::U32),
+        Literal::U64(_) => TypeKind::Integer(IntegerType::U64),
+        Literal::U128(_) => TypeKind::Integer(IntegerType::U128),
+        Literal::Signature(_) => TypeKind::Signature,
+        Literal::Identifier(_) => TypeKind::Identifier,
     }
 }

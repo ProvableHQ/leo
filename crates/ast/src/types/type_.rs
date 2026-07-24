@@ -26,10 +26,13 @@ use crate::{
     Path,
     ProgramId,
     TupleType,
+    Type,
+    TypeInterner,
     VectorType,
 };
 
 use itertools::Itertools;
+use leo_span::Span;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
     LiteralType,
@@ -39,9 +42,97 @@ use snarkvm::prelude::{
 };
 use std::fmt;
 
+/// AST-level type annotation: the source-shaped `kind` with its cached canonical [`Type`]
+/// handle. `kind` and `type_` are private to preserve the invariant
+/// `type_ == interner.intern(&kind)`, which only [`TypeNode::new`] can establish.
+#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
+pub struct TypeNode {
+    kind: TypeKind,
+    pub span: Span,
+    #[serde(default, skip)]
+    type_: Type,
+}
+
+impl TypeNode {
+    pub fn new(interner: &TypeInterner, kind: TypeKind, span: Span) -> Self {
+        let type_ = interner.intern(&kind);
+        Self { kind, span, type_ }
+    }
+
+    /// Escape hatch that skips interning. `type_` is `Type::ERR`; the value must reach an
+    /// interner before it can be compared or hashed. `PartialEq` / `Hash` `assert!` this.
+    pub fn unchecked(kind: TypeKind, span: Span) -> Self {
+        Self { kind, span, type_: Type::default() }
+    }
+
+    pub fn kind(&self) -> &TypeKind {
+        &self.kind
+    }
+
+    pub fn ty(&self) -> Type {
+        self.type_
+    }
+
+    pub fn into_parts(self) -> (TypeKind, Span, Type) {
+        (self.kind, self.span, self.type_)
+    }
+
+    /// Bypass the interner. The caller is responsible for `type_ == interner.intern(&kind)`;
+    /// only safe when `kind` is being canonicalized (span/id scrub) without shape change.
+    pub fn from_parts(kind: TypeKind, span: Span, type_: Type) -> Self {
+        Self { kind, span, type_ }
+    }
+
+    /// Fast path via the canonical handle; falls back to structural [`TypeKind::types_equivalent`]
+    /// for equivalences that don't imply identity — implicit `Future`, undetermined array length,
+    /// pending const-generic arguments.
+    pub fn types_equivalent(&self, other: &TypeNode) -> bool {
+        if self.type_ != Type::ERR && self.type_ == other.type_ {
+            return true;
+        }
+        self.kind.types_equivalent(&other.kind)
+    }
+}
+
+impl Default for TypeNode {
+    fn default() -> Self {
+        Self::unchecked(TypeKind::Err, Span::default())
+    }
+}
+
+impl PartialEq for TypeNode {
+    fn eq(&self, other: &Self) -> bool {
+        assert!(
+            self.kind == TypeKind::Err || self.type_ != Type::ERR,
+            "TypeNode with non-Err kind must have been interned before equality use",
+        );
+        assert!(
+            other.kind == TypeKind::Err || other.type_ != Type::ERR,
+            "TypeNode with non-Err kind must have been interned before equality use",
+        );
+        self.type_ == other.type_
+    }
+}
+
+impl std::hash::Hash for TypeNode {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        assert!(
+            self.kind == TypeKind::Err || self.type_ != Type::ERR,
+            "TypeNode with non-Err kind must have been interned before hashing",
+        );
+        self.type_.hash(state);
+    }
+}
+
+impl fmt::Display for TypeNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.kind.fmt(f)
+    }
+}
+
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Type {
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TypeKind {
     /// The `address` type.
     Address,
     /// The array type.
@@ -88,7 +179,7 @@ pub enum Type {
     Err,
 }
 
-impl Type {
+impl TypeKind {
     /// Are the types considered equal as far as the Leo user is concerned?
     ///
     /// In particular, any comparison involving an `Err` is `true`, and Futures which aren't explicit compare equal to
@@ -101,21 +192,21 @@ impl Type {
     /// Composite types are considered equal if their names and resolved program names match. If either side still has
     /// const generic arguments, they are treated as equal unconditionally since monomorphization and other passes of
     /// type-checking will handle mismatches later.
-    pub fn types_equivalent(&self, other: &Type) -> bool {
+    pub fn types_equivalent(&self, other: &TypeKind) -> bool {
         match (self, other) {
-            (Type::Err, _)
-            | (_, Type::Err)
-            | (Type::Address, Type::Address)
-            | (Type::Boolean, Type::Boolean)
-            | (Type::Field, Type::Field)
-            | (Type::Group, Type::Group)
-            | (Type::Scalar, Type::Scalar)
-            | (Type::Signature, Type::Signature)
-            | (Type::String, Type::String)
-            | (Type::Identifier, Type::Identifier)
-            | (Type::DynRecord, Type::DynRecord)
-            | (Type::Unit, Type::Unit) => true,
-            (Type::Array(left), Type::Array(right)) => {
+            (TypeKind::Err, _)
+            | (_, TypeKind::Err)
+            | (TypeKind::Address, TypeKind::Address)
+            | (TypeKind::Boolean, TypeKind::Boolean)
+            | (TypeKind::Field, TypeKind::Field)
+            | (TypeKind::Group, TypeKind::Group)
+            | (TypeKind::Scalar, TypeKind::Scalar)
+            | (TypeKind::Signature, TypeKind::Signature)
+            | (TypeKind::String, TypeKind::String)
+            | (TypeKind::Identifier, TypeKind::Identifier)
+            | (TypeKind::DynRecord, TypeKind::DynRecord)
+            | (TypeKind::Unit, TypeKind::Unit) => true,
+            (TypeKind::Array(left), TypeKind::Array(right)) => {
                 (match (left.length.as_u32(), right.length.as_u32()) {
                     (Some(l1), Some(l2)) => l1 == l2,
                     _ => {
@@ -125,19 +216,21 @@ impl Type {
                     }
                 }) && left.element_type().types_equivalent(right.element_type())
             }
-            (Type::Ident(left), Type::Ident(right)) => left.name == right.name,
-            (Type::Integer(left), Type::Integer(right)) => left == right,
-            (Type::Mapping(left), Type::Mapping(right)) => {
+            (TypeKind::Ident(left), TypeKind::Ident(right)) => left.name == right.name,
+            (TypeKind::Integer(left), TypeKind::Integer(right)) => left == right,
+            (TypeKind::Mapping(left), TypeKind::Mapping(right)) => {
                 left.key.types_equivalent(&right.key) && left.value.types_equivalent(&right.value)
             }
-            (Type::Optional(left), Type::Optional(right)) => left.inner.types_equivalent(&right.inner),
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+            (TypeKind::Optional(left), TypeKind::Optional(right)) => left.inner.types_equivalent(&right.inner),
+            (TypeKind::Tuple(left), TypeKind::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.types_equivalent(right_type)),
-            (Type::Vector(left), Type::Vector(right)) => left.element_type.types_equivalent(&right.element_type),
-            (Type::Composite(left), Type::Composite(right)) => {
+            (TypeKind::Vector(left), TypeKind::Vector(right)) => {
+                left.element_type.types_equivalent(&right.element_type)
+            }
+            (TypeKind::Composite(left), TypeKind::Composite(right)) => {
                 // If either composite still has const generic arguments, treat them as equal;
                 // monomorphization and a subsequent type-checking pass will handle mismatches.
                 if !left.const_arguments.is_empty() || !right.const_arguments.is_empty() {
@@ -151,8 +244,8 @@ impl Type {
                 }
             }
 
-            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+            (TypeKind::Future(left), TypeKind::Future(right)) if !left.is_explicit || !right.is_explicit => true,
+            (TypeKind::Future(left), TypeKind::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
@@ -164,14 +257,14 @@ impl Type {
     pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program_id: ProgramId) -> Self {
         match t {
             Literal(lit) => (*lit).into(),
-            Struct(s) => Type::Composite(CompositeType {
+            Struct(s) => TypeKind::Composite(CompositeType {
                 path: {
                     let ident = Identifier::from(s);
                     Path::from(ident).to_global(Location::new(program_id.as_symbol(), vec![ident.name]))
                 },
                 const_arguments: Vec::new(),
             }),
-            ExternalStruct(l) => Type::Composite(CompositeType {
+            ExternalStruct(l) => TypeKind::Composite(CompositeType {
                 path: {
                     let external_program = ProgramId::from(l.program_id());
                     let name = Identifier::from(l.resource());
@@ -181,18 +274,18 @@ impl Type {
                 },
                 const_arguments: Vec::new(),
             }),
-            Array(array) => Type::Array(ArrayType::from_snarkvm(array, program_id)),
+            Array(array) => TypeKind::Array(ArrayType::from_snarkvm(array, program_id)),
         }
     }
 
     // Attempts to convert `self` to a snarkVM `PlaintextType`.
     pub fn to_snarkvm<N: Network>(&self) -> anyhow::Result<PlaintextType<N>> {
         match self {
-            Type::Address => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Address)),
-            Type::Boolean => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Boolean)),
-            Type::Field => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Field)),
-            Type::Group => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Group)),
-            Type::Integer(int_type) => match int_type {
+            TypeKind::Address => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Address)),
+            TypeKind::Boolean => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Boolean)),
+            TypeKind::Field => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Field)),
+            TypeKind::Group => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Group)),
+            TypeKind::Integer(int_type) => match int_type {
                 IntegerType::U8 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U8)),
                 IntegerType::U16 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U16)),
                 IntegerType::U32 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::U32)),
@@ -204,9 +297,9 @@ impl Type {
                 IntegerType::I64 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I64)),
                 IntegerType::I128 => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::I128)),
             },
-            Type::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
-            Type::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
-            Type::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
+            TypeKind::Scalar => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Scalar)),
+            TypeKind::Signature => Ok(PlaintextType::Literal(snarkvm::prelude::LiteralType::Signature)),
+            TypeKind::Array(array_type) => Ok(PlaintextType::<N>::Array(array_type.to_snarkvm()?)),
             _ => anyhow::bail!("Converting from type {self} to snarkVM type is not supported"),
         }
     }
@@ -243,8 +336,8 @@ impl Type {
     ///
     /// # Returns
     /// `true` if coercion is allowed; `false` otherwise.
-    pub fn can_coerce_to(&self, expected: &Type) -> bool {
-        use Type::*;
+    pub fn can_coerce_to(&self, expected: &TypeKind) -> bool {
+        use TypeKind::*;
 
         match (self, expected) {
             // Allow Optional<T> → Optional<T>
@@ -280,14 +373,14 @@ impl Type {
         matches!(self, Self::Mapping(_))
     }
 
-    pub fn to_optional(&self) -> Type {
-        Type::Optional(OptionalType { inner: Box::new(self.clone()) })
+    pub fn to_optional(&self) -> TypeKind {
+        TypeKind::Optional(OptionalType { inner: Box::new(self.clone()) })
     }
 
     pub fn is_empty(&self) -> bool {
         match self {
-            Type::Unit => true,
-            Type::Array(array_type) => {
+            TypeKind::Unit => true,
+            TypeKind::Array(array_type) => {
                 if let Some(length) = array_type.length.as_u32() {
                     length == 0
                 } else {
@@ -304,66 +397,99 @@ impl Type {
     pub fn is_valid_const_generic_type(&self) -> bool {
         matches!(
             self,
-            Type::Boolean
-                | Type::Integer(_)
-                | Type::Address
-                | Type::Scalar
-                | Type::Group
-                | Type::Field
-                | Type::Identifier
+            TypeKind::Boolean
+                | TypeKind::Integer(_)
+                | TypeKind::Address
+                | TypeKind::Scalar
+                | TypeKind::Group
+                | TypeKind::Field
+                | TypeKind::Identifier
         )
     }
 }
 
-impl From<LiteralType> for Type {
+impl From<LiteralType> for TypeKind {
     fn from(value: LiteralType) -> Self {
         match value {
-            LiteralType::Identifier => Type::Identifier,
-            LiteralType::Address => Type::Address,
-            LiteralType::Boolean => Type::Boolean,
-            LiteralType::Field => Type::Field,
-            LiteralType::Group => Type::Group,
-            LiteralType::U8 => Type::Integer(IntegerType::U8),
-            LiteralType::U16 => Type::Integer(IntegerType::U16),
-            LiteralType::U32 => Type::Integer(IntegerType::U32),
-            LiteralType::U64 => Type::Integer(IntegerType::U64),
-            LiteralType::U128 => Type::Integer(IntegerType::U128),
-            LiteralType::I8 => Type::Integer(IntegerType::I8),
-            LiteralType::I16 => Type::Integer(IntegerType::I16),
-            LiteralType::I32 => Type::Integer(IntegerType::I32),
-            LiteralType::I64 => Type::Integer(IntegerType::I64),
-            LiteralType::I128 => Type::Integer(IntegerType::I128),
-            LiteralType::Scalar => Type::Scalar,
-            LiteralType::Signature => Type::Signature,
-            LiteralType::String => Type::String,
+            LiteralType::Identifier => TypeKind::Identifier,
+            LiteralType::Address => TypeKind::Address,
+            LiteralType::Boolean => TypeKind::Boolean,
+            LiteralType::Field => TypeKind::Field,
+            LiteralType::Group => TypeKind::Group,
+            LiteralType::U8 => TypeKind::Integer(IntegerType::U8),
+            LiteralType::U16 => TypeKind::Integer(IntegerType::U16),
+            LiteralType::U32 => TypeKind::Integer(IntegerType::U32),
+            LiteralType::U64 => TypeKind::Integer(IntegerType::U64),
+            LiteralType::U128 => TypeKind::Integer(IntegerType::U128),
+            LiteralType::I8 => TypeKind::Integer(IntegerType::I8),
+            LiteralType::I16 => TypeKind::Integer(IntegerType::I16),
+            LiteralType::I32 => TypeKind::Integer(IntegerType::I32),
+            LiteralType::I64 => TypeKind::Integer(IntegerType::I64),
+            LiteralType::I128 => TypeKind::Integer(IntegerType::I128),
+            LiteralType::Scalar => TypeKind::Scalar,
+            LiteralType::Signature => TypeKind::Signature,
+            LiteralType::String => TypeKind::String,
         }
     }
 }
 
-impl fmt::Display for Type {
+impl fmt::Display for TypeKind {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Type::Address => write!(f, "address"),
-            Type::Identifier => write!(f, "identifier"),
-            Type::DynRecord => write!(f, "dyn record"),
-            Type::Array(ref array_type) => write!(f, "{array_type}"),
-            Type::Boolean => write!(f, "bool"),
-            Type::Field => write!(f, "field"),
-            Type::Future(ref future_type) => write!(f, "{future_type}"),
-            Type::Group => write!(f, "group"),
-            Type::Ident(ref variable) => write!(f, "{variable}"),
-            Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
-            Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
-            Type::Optional(ref optional_type) => write!(f, "{optional_type}"),
-            Type::Scalar => write!(f, "scalar"),
-            Type::Signature => write!(f, "signature"),
-            Type::String => write!(f, "string"),
-            Type::Composite(ref composite_type) => write!(f, "{composite_type}"),
-            Type::Tuple(ref tuple) => write!(f, "{tuple}"),
-            Type::Vector(ref vector_type) => write!(f, "{vector_type}"),
-            Type::Numeric => write!(f, "numeric"),
-            Type::Unit => write!(f, "()"),
-            Type::Err => write!(f, "error"),
+            TypeKind::Address => write!(f, "address"),
+            TypeKind::Identifier => write!(f, "identifier"),
+            TypeKind::DynRecord => write!(f, "dyn record"),
+            TypeKind::Array(ref array_type) => write!(f, "{array_type}"),
+            TypeKind::Boolean => write!(f, "bool"),
+            TypeKind::Field => write!(f, "field"),
+            TypeKind::Future(ref future_type) => write!(f, "{future_type}"),
+            TypeKind::Group => write!(f, "group"),
+            TypeKind::Ident(ref variable) => write!(f, "{variable}"),
+            TypeKind::Integer(ref integer_type) => write!(f, "{integer_type}"),
+            TypeKind::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+            TypeKind::Optional(ref optional_type) => write!(f, "{optional_type}"),
+            TypeKind::Scalar => write!(f, "scalar"),
+            TypeKind::Signature => write!(f, "signature"),
+            TypeKind::String => write!(f, "string"),
+            TypeKind::Composite(ref composite_type) => write!(f, "{composite_type}"),
+            TypeKind::Tuple(ref tuple) => write!(f, "{tuple}"),
+            TypeKind::Vector(ref vector_type) => write!(f, "{vector_type}"),
+            TypeKind::Numeric => write!(f, "numeric"),
+            TypeKind::Unit => write!(f, "()"),
+            TypeKind::Err => write!(f, "error"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic(expected = "TypeNode with non-Err kind must have been interned")]
+    fn eq_panics_on_unchecked_non_err_kind() {
+        let interner = TypeInterner::new();
+        let unchecked = TypeNode::unchecked(TypeKind::Address, Span::default());
+        let interned = TypeNode::new(&interner, TypeKind::Boolean, Span::default());
+        let _ = unchecked == interned;
+    }
+
+    #[test]
+    #[should_panic(expected = "TypeNode with non-Err kind must have been interned")]
+    fn hash_panics_on_unchecked_non_err_kind() {
+        use std::hash::Hash;
+
+        let unchecked = TypeNode::unchecked(TypeKind::Address, Span::default());
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        unchecked.hash(&mut hasher);
+    }
+
+    #[test]
+    fn eq_accepts_defaulted_err_nodes() {
+        // Default (`Err`, `Type::ERR`) values must remain comparable — the invariant
+        // is scoped to *non-Err* kinds.
+        let a = TypeNode::default();
+        let b = TypeNode::default();
+        assert_eq!(a, b);
     }
 }

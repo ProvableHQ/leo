@@ -18,7 +18,7 @@ use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
 
-use leo_ast::{Function, Location, Mode, Type};
+use leo_ast::{Function, Location, Mode, TypeKind};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
@@ -48,9 +48,9 @@ impl Display for VariableType {
 /// An entry for a variable in the symbol table.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct VariableSymbol {
-    /// The `Type` of the variable. This is an `Option` because variables are inserted into the
-    /// symbol table first without types. The types are only set in `TypeChecking`.
-    pub type_: Option<Type>,
+    /// `None` until `TypeChecking` runs. Symbols are inserted first (during path resolution)
+    /// and only get their type once type-checking has resolved the surrounding expression.
+    pub type_: Option<TypeKind>,
     /// The `Span` associated with the variable.
     pub span: Span,
     /// The type of declaration for the variable.
@@ -88,5 +88,5 @@ pub struct Finalizer {
     pub future_inputs: Vec<Location>,
 
     /// The types passed to the async function called by this async transition.
-    pub inferred_inputs: Vec<Type>,
+    pub inferred_inputs: Vec<TypeKind>,
 }

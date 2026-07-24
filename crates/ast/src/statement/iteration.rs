@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Indent, Node, NodeID, Statement, Type};
+use crate::{Block, Expression, Identifier, Indent, Node, NodeID, Statement, TypeNode};
 
 use leo_span::Span;
 
@@ -22,12 +22,12 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A bounded `for` loop statement `for variable in start .. =? stop block`.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub struct IterationStatement {
     /// The binding / variable to introduce in the body `block`.
     pub variable: Identifier,
     /// The type of the iteration.
-    pub type_: Option<Type>,
+    pub type_: Option<TypeNode>,
     /// The start of the iteration.
     pub start: Expression,
     /// The end of the iteration, possibly `inclusive`.

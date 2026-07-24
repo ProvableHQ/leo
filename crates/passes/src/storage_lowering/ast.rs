@@ -24,11 +24,15 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     /* Types */
-    fn reconstruct_array_type(&mut self, input: ArrayType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_array_type(&mut self, input: ArrayType) -> (TypeKind, Self::AdditionalOutput) {
         let (length, stmts) = self.reconstruct_expression(*input.length, &());
         (
-            Type::Array(ArrayType {
+            TypeKind::Array(ArrayType {
                 element_type: Box::new(self.reconstruct_type(*input.element_type).0),
                 length: Box::new(length),
             }),
@@ -36,7 +40,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         )
     }
 
-    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (TypeKind, Self::AdditionalOutput) {
         let mut statements = Vec::new();
 
         let const_arguments = input
@@ -49,7 +53,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
             })
             .collect();
 
-        (Type::Composite(CompositeType { const_arguments, ..input }), statements)
+        (TypeKind::Composite(CompositeType { const_arguments, ..input }), statements)
     }
 
     /* Expressions */
@@ -83,7 +87,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 };
 
                 // Validate vector type
-                assert!(matches!(self.state.type_table.get(&vector_expr.id()), Some(Type::Vector(_))));
+                assert!(matches!(
+                    self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t)),
+                    Some(TypeKind::Vector(_))
+                ));
                 let Expression::Path(path_to_vector) = vector_expr else {
                     panic!("Vector::push can only be called with `Expression::Path`");
                 };
@@ -95,7 +102,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     .expect("type checking should assign a type to the pushed value");
                 let value_must_be_evaluated_first = !expression_can_be_discarded(value_expr, self.state);
                 let (value, mut stmts) = self.reconstruct_expression(value_expr.clone(), &());
-                self.state.type_table.insert(value.id(), value_type.clone());
+                self.state.type_table.insert(value.id(), value_type);
 
                 // Input:
                 //   Vector::push(v, value)
@@ -172,7 +179,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 };
 
                 // Validate vector type
-                assert!(matches!(self.state.type_table.get(&vector_expr.id()), Some(Type::Vector(_))));
+                assert!(matches!(
+                    self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t)),
+                    Some(TypeKind::Vector(_))
+                ));
                 let Expression::Path(path_to_vector) = vector_expr else {
                     panic!("Vector::len can only be called with `Expression::Path`");
                 };
@@ -190,7 +200,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 };
 
                 // Validate vector type
-                let Some(Type::Vector(VectorType { element_type })) = self.state.type_table.get(&vector_expr.id())
+                let Some(TypeKind::Vector(VectorType { element_type })) =
+                    self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t))
                 else {
                     panic!("argument to Vector::pop should be of type `Vector`.");
                 };
@@ -265,7 +276,8 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 };
 
                 // Validate vector type
-                let Some(Type::Vector(VectorType { element_type })) = self.state.type_table.get(&vector_expr.id())
+                let Some(TypeKind::Vector(VectorType { element_type })) =
+                    self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t))
                 else {
                     panic!("argument to Vector::get should be of type `Vector`.");
                 };
@@ -282,7 +294,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let key_must_be_evaluated_once = !expression_can_be_discarded(key_expr, self.state);
                 let (reconstructed_key_expr, mut key_stmts) =
                     self.reconstruct_expression(key_expr.clone(), &Default::default());
-                self.state.type_table.insert(reconstructed_key_expr.id(), key_type.clone());
+                self.state.type_table.insert(reconstructed_key_expr.id(), key_type);
                 let reconstructed_key_expr = if key_must_be_evaluated_once {
                     let key_var_sym = self.state.assigner.unique_symbol("$index", "$");
                     let key_var_ident = Identifier {
@@ -349,7 +361,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                 // Validate vector type
                 assert!(
-                    matches!(self.state.type_table.get(&vector_expr.id()), Some(Type::Vector(_))),
+                    matches!(
+                        self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t)),
+                        Some(TypeKind::Vector(_))
+                    ),
                     "argument to Vector::set should be of type `Vector`."
                 );
                 let Expression::Path(path_to_vector) = vector_expr else {
@@ -414,7 +429,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                 // Validate vector type
                 assert!(
-                    matches!(self.state.type_table.get(&vector_expr.id()), Some(Type::Vector(_))),
+                    matches!(
+                        self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t)),
+                        Some(TypeKind::Vector(_))
+                    ),
                     "argument to Vector::clear should be of type `Vector`."
                 );
                 let Expression::Path(path_to_vector) = vector_expr else {
@@ -447,7 +465,10 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
 
                 // Validate vector type
                 assert!(
-                    matches!(self.state.type_table.get(&vector_expr.id()), Some(Type::Vector(_))),
+                    matches!(
+                        self.state.type_table.get(&vector_expr.id()).map(|t| self.state.types.resolve(t)),
+                        Some(TypeKind::Vector(_))
+                    ),
                     "argument to Vector::swap_remove should be of type `Vector`."
                 );
                 let Expression::Path(path_to_vector) = vector_expr else {
@@ -679,11 +700,11 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let vector_storage = interface
                     .storages
                     .iter()
-                    .find(|s| s.identifier.name == member.name && matches!(s.type_, Type::Vector(_)))
+                    .find(|s| s.identifier.name == member.name && matches!(s.type_.kind(), TypeKind::Vector(_)))
                     .cloned();
 
                 if let Some(storage_proto) = vector_storage {
-                    let Type::Vector(VectorType { element_type }) = storage_proto.type_ else {
+                    let TypeKind::Vector(VectorType { element_type }) = storage_proto.type_.kind() else {
                         unreachable!("filtered above");
                     };
                     if op.name == sym::get {
@@ -691,7 +712,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                             input.target_program,
                             input.network,
                             member,
-                            *element_type,
+                            (**element_type).clone(),
                             arguments,
                             input.span,
                         );
@@ -978,7 +999,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        let (type_expr, type_statements) = self.reconstruct_type(input.type_);
+        let (type_expr, type_statements) = self.reconstruct_type_node(input.type_);
         let (value_expr, value_statements) = self.reconstruct_expression(input.value, &Default::default());
 
         let mut statements = Vec::new();
@@ -991,7 +1012,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
     fn reconstruct_definition(&mut self, mut input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         let (new_value, additional_stmts) = self.reconstruct_expression(input.value, &());
 
-        input.type_ = input.type_.map(|ty| self.reconstruct_type(ty).0);
+        input.type_ = input.type_.map(|ty| self.reconstruct_type_node(ty).0);
         input.value = new_value;
 
         (input.into(), additional_stmts)

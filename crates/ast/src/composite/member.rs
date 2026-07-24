@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, NodeID, Type};
+use crate::{Identifier, Mode, Node, NodeID, TypeNode};
 
 use leo_span::{Span, Symbol};
 
@@ -22,14 +22,14 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A member of a composite data type, e.g `foobar: u8` or `private baz: bool` .
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Member {
     /// The mode of the member.
     pub mode: Mode,
     /// The identifier of the member.
     pub identifier: Identifier,
     /// The type of the member.
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The span of the member.
     pub span: Span,
     /// The ID of the node.

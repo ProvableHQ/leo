@@ -163,7 +163,7 @@ impl TransformVisitor<'_> {
         }
         // A body that falls through its end returns unit implicitly.
         let id = self.state.node_builder.next_id();
-        self.state.type_table.insert(id, Type::Unit);
+        self.state.type_table.insert(id, Type::UNIT);
         out.extend(self.bind_and_continue(
             UnitExpression { span: Default::default(), id }.into(),
             binder,

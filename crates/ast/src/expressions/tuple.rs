@@ -19,7 +19,7 @@ use super::*;
 use itertools::Itertools as _;
 
 /// A tuple expression, e.g., `(foo, false, 42)`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TupleExpression {
     /// The elements of the tuple.
     /// In the example above, it would be `foo`, `false`, and `42`.

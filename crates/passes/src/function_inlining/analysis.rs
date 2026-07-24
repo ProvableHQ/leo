@@ -76,9 +76,9 @@ impl UnitVisitor for AnalysisVisitor {
         self.current_variant = Some(input.variant);
 
         // Visit function body (default implementation)
-        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
-        input.input.iter().for_each(|input| self.visit_type(&input.type_));
-        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        input.const_parameters.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.input.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&input.output_type);
         self.visit_block(&input.block);
 

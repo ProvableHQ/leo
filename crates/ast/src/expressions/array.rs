@@ -19,7 +19,7 @@ use super::*;
 use itertools::Itertools as _;
 
 /// An array expression, e.g., `[true, false, true, false]`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayExpression {
     /// The elements of the array.
     pub elements: Vec<Expression>,

@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A tuple access expression, e.g., `tuple.index`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TupleAccess {
     /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
     pub tuple: Expression,

@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct AsyncExpression {
     /// The block to run asynchronously.
     pub block: Block,

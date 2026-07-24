@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::TypeKind;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An optional type. For example `u32?` where `inner` refers to `u32`.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct OptionalType {
-    pub inner: Box<Type>,
+    pub inner: Box<TypeKind>,
 }
 
 impl fmt::Display for OptionalType {

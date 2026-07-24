@@ -163,7 +163,7 @@ impl BinaryOperation {
 
 /// A binary expression `left op right` of two operands separated by some operator.
 /// For example, `foo + bar`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct BinaryExpression {
     /// The left operand of the expression.
     pub left: Expression,

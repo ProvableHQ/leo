@@ -68,7 +68,7 @@ impl Parser<'_, '_> {
         }
     }
 
-    /// Parse a let statement: `let x: Type = expr;` or `let (a, b) = expr;`
+    /// Parse a let statement: `let x: TypeKind = expr;` or `let (a, b) = expr;`
     fn parse_let_stmt(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // let
@@ -91,7 +91,7 @@ impl Parser<'_, '_> {
         Some(m.complete(self, LET_STMT))
     }
 
-    /// Parse a const statement: `const X: Type = expr;`
+    /// Parse a const statement: `const X: TypeKind = expr;`
     fn parse_const_stmt(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // const
@@ -104,7 +104,7 @@ impl Parser<'_, '_> {
             self.error("expected identifier");
         }
 
-        // Type annotation (required for const).
+        // TypeKind annotation (required for const).
         // If ':' is missing but '=' follows, skip the type to avoid cascading.
         if self.expect(COLON) {
             if self.parse_type().is_none() {
@@ -170,7 +170,7 @@ impl Parser<'_, '_> {
         Some(m.complete(self, IF_STMT))
     }
 
-    /// Parse a for statement: `for i: Type in lo..hi { }`
+    /// Parse a for statement: `for i: TypeKind in lo..hi { }`
     fn parse_for_stmt(&mut self) -> Option<CompletedMarker> {
         let m = self.start();
         self.bump_any(); // for

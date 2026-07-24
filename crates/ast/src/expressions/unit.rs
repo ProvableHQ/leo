@@ -17,7 +17,7 @@
 use super::*;
 
 /// Represents a unit expression.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct UnitExpression {
     /// The span of the unit expression.
     pub span: Span,

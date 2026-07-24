@@ -16,15 +16,15 @@
 
 use super::*;
 
-use crate::Type;
+use crate::TypeNode;
 
 /// A cast expression, e.g. `42u8 as u16`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CastExpression {
     /// The expression to be casted, e.g.`42u8` in `42u8 as u16`.
     pub expression: Expression,
     /// The type to be casted to, e.g. `u16` in `42u8 as u16`.
-    pub type_: Type,
+    pub type_: TypeNode,
     /// Span of the entire cast `42u8 as u16`.
     pub span: Span,
     /// The ID of the node.

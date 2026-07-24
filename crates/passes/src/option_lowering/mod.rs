@@ -67,7 +67,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, Ast, CompositeType, Type, UnitReconstructor as _};
+use leo_ast::{ArrayType, Ast, CompositeType, TypeKind, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -126,36 +126,36 @@ impl Pass for OptionLowering {
     }
 }
 
-pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
+pub fn make_optional_struct_symbol(ty: &TypeKind) -> Symbol {
     // Step 1: Extract a usable type name
-    fn display_type(ty: &Type) -> String {
+    fn display_type(ty: &TypeKind) -> String {
         match ty {
-            Type::Address
-            | Type::Field
-            | Type::Group
-            | Type::Scalar
-            | Type::Signature
-            | Type::Boolean
-            | Type::Integer(..) => format!("{ty}"),
-            Type::Array(ArrayType { element_type, length }) => {
+            TypeKind::Address
+            | TypeKind::Field
+            | TypeKind::Group
+            | TypeKind::Scalar
+            | TypeKind::Signature
+            | TypeKind::Boolean
+            | TypeKind::Integer(..) => format!("{ty}"),
+            TypeKind::Array(ArrayType { element_type, length }) => {
                 format!("[{}; {length}]", display_type(element_type))
             }
-            Type::Composite(CompositeType { path, .. }) => {
+            TypeKind::Composite(CompositeType { path, .. }) => {
                 format!("::{}", path.expect_global_location().path.iter().format("::"))
             }
 
-            Type::Tuple(_)
-            | Type::Optional(_)
-            | Type::Mapping(_)
-            | Type::Numeric
-            | Type::Ident(_)
-            | Type::Future(_)
-            | Type::Vector(_)
-            | Type::String
-            | Type::Identifier
-            | Type::DynRecord
-            | Type::Err
-            | Type::Unit => {
+            TypeKind::Tuple(_)
+            | TypeKind::Optional(_)
+            | TypeKind::Mapping(_)
+            | TypeKind::Numeric
+            | TypeKind::Ident(_)
+            | TypeKind::Future(_)
+            | TypeKind::Vector(_)
+            | TypeKind::String
+            | TypeKind::Identifier
+            | TypeKind::DynRecord
+            | TypeKind::Err
+            | TypeKind::Unit => {
                 panic!("unexpected inner type in optional struct name")
             }
         }

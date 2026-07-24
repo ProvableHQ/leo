@@ -19,11 +19,11 @@
 //! This module implements parsing for all Leo type expressions:
 //! - Primitive types: bool, field, group, scalar, address, signature, string
 //! - Integer types: u8, u16, u32, u64, u128, i8, i16, i32, i64, i128
-//! - Array types: [Type; len] or [Type] (vector)
+//! - Array types: [TypeKind; len] or [TypeKind] (vector)
 //! - Tuple types: (Type1, Type2, ...) or () (unit)
-//! - Optional types: Type?
-//! - Future types: Future or Future<fn(Types) -> Type>
-//! - Composite types: Named, Foo::[N], program.aleo::Type (locator)
+//! - Optional types: TypeKind?
+//! - Future types: Future or Future<fn(Types) -> TypeKind>
+//! - Composite types: Named, Foo::[N], program.aleo::TypeKind (locator)
 
 use super::{CompletedMarker, Parser};
 use crate::syntax_kind::SyntaxKind::*;
@@ -78,7 +78,7 @@ impl Parser<'_, '_> {
     pub fn parse_type_with_opts(&mut self, opts: TypeOpts) -> Option<CompletedMarker> {
         let ty = self.parse_type_inner()?;
 
-        // Optional suffix: Type?
+        // Optional suffix: TypeKind?
         if opts.allow_optional && self.at(QUESTION) {
             let m = ty.precede(self);
             self.bump_any(); // ?
@@ -106,7 +106,7 @@ impl Parser<'_, '_> {
             KW_DYN => self.parse_dyn_record_type(),
             // Primitive type keywords
             _ if self.at_primitive_type() => self.parse_primitive_type(),
-            // Named/Composite type: Foo, Foo::[N], program.aleo::Type
+            // Named/Composite type: Foo, Foo::[N], program.aleo::TypeKind
             IDENT => self.parse_named_type(),
             _ => None,
         }
@@ -301,7 +301,7 @@ impl Parser<'_, '_> {
     /// - Simple names: `Foo`
     /// - Paths: `Foo::Bar`
     /// - Const generics: `Foo::[N]` or `Foo::<N>`
-    /// - Locators: `program.aleo::Type`
+    /// - Locators: `program.aleo::TypeKind`
     fn parse_named_type(&mut self) -> Option<CompletedMarker> {
         if !self.at(IDENT) {
             return None;
@@ -310,16 +310,16 @@ impl Parser<'_, '_> {
         let m = self.start();
         self.bump_any(); // first identifier
 
-        // Check for locator: name.aleo::Type
+        // Check for locator: name.aleo::TypeKind
         if self.at(DOT) && self.nth(1) == KW_ALEO {
             self.bump_any(); // .
             self.bump_any(); // aleo
 
             if self.eat(COLON_COLON) {
-                // Locator path: program.aleo::Type or program.aleo::module::Type
+                // Locator path: program.aleo::TypeKind or program.aleo::module::TypeKind
                 if self.at(IDENT) {
                     self.bump_any();
-                    // Consume additional path segments: program.aleo::module::submodule::Type
+                    // Consume additional path segments: program.aleo::module::submodule::TypeKind
                     while self.at(COLON_COLON) && self.nth(1) == IDENT {
                         self.bump_any(); // ::
                         self.bump_any(); // IDENT
@@ -362,7 +362,7 @@ impl Parser<'_, '_> {
     /// Parse a const generic parameter list (declaration site): `::[N: u32, M: u32]`.
     ///
     /// Wraps the list in a `CONST_PARAM_LIST` node. Each parameter is
-    /// wrapped in a `CONST_PARAM` node containing `name: Type`.
+    /// wrapped in a `CONST_PARAM` node containing `name: TypeKind`.
     pub fn parse_const_param_list(&mut self) {
         let m = self.start();
 
@@ -857,7 +857,7 @@ mod tests {
 
     #[test]
     fn parse_type_program_id_without_type() {
-        // Just program.aleo without /Type
+        // Just program.aleo without /TypeKind
         check_type("credits.aleo", expect![[r#"
             ROOT@0..12
               TYPE_LOCATOR@0..12

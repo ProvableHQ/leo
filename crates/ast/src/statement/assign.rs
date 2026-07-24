@@ -22,7 +22,7 @@ use std::fmt;
 
 /// An assignment statement, `assignee = value`.
 /// Note that there is no operation associated with the assignment.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub struct AssignStatement {
     /// The place to assign to.
     pub place: Expression,

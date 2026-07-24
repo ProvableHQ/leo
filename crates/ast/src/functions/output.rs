@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Mode, Node, NodeID, Type};
+use crate::{Mode, Node, NodeID, TypeNode};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A function output.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Output {
     /// The mode of the function output.
     pub mode: Mode,
     /// The type of the function output.
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The parameters span from any annotations to its type.
     pub span: Span,
     /// The ID of the node.
@@ -34,7 +34,7 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn type_(&self) -> &Type {
+    pub fn type_(&self) -> &TypeNode {
         &self.type_
     }
 

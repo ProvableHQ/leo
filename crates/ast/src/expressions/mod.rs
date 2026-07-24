@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, Type};
+use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, TypeKind};
 use leo_span::{Span, Symbol, sym};
 
 use serde::{Deserialize, Serialize};
@@ -75,7 +75,7 @@ mod literal;
 pub use literal::*;
 
 /// Expression that evaluates to a value.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Expression {
     /// An array access, e.g. `arr[i]`.
     ArrayAccess(Box<ArrayAccess>),
@@ -311,7 +311,7 @@ impl Expression {
     }
 
     /// Returns true if we can confidently say evaluating this expression has no side effects, false otherwise
-    pub fn is_pure(&self, get_type: &impl Fn(NodeID) -> Type) -> bool {
+    pub fn is_pure(&self, get_type: &impl Fn(NodeID) -> TypeKind) -> bool {
         match self {
             // Discriminate intrinsics
             Expression::Intrinsic(intr) => {
@@ -337,7 +337,7 @@ impl Expression {
                     Div | DivWrapped | Mod | Rem | RemWrapped | Shl | Shr => false,
                     // These can only halt for integers.
                     Add | Mul | Pow | Sub => {
-                        !matches!(get_type(expr.id()), Type::Integer(..))
+                        !matches!(get_type(expr.id()), TypeKind::Integer(..))
                             && expr.left.is_pure(get_type)
                             && expr.right.is_pure(get_type)
                     }
@@ -350,7 +350,7 @@ impl Expression {
                     // These can halt for any of their operand types.
                     Abs | Inverse | SquareRoot => false,
                     // Negate can only halt for integers.
-                    Negate => expr.receiver.is_pure(get_type) && !matches!(get_type(expr.id()), Type::Integer(..)),
+                    Negate => expr.receiver.is_pure(get_type) && !matches!(get_type(expr.id()), TypeKind::Integer(..)),
                     _ => expr.receiver.is_pure(get_type),
                 }
             }
@@ -363,7 +363,7 @@ impl Expression {
             Expression::MemberAccess(expr) => {
                 // Keep dyn record owner handling in sync with type checking and code generation.
                 let is_dynamic_record_read =
-                    matches!(get_type(expr.inner.id()), Type::DynRecord) && expr.name.name != sym::owner;
+                    matches!(get_type(expr.inner.id()), TypeKind::DynRecord) && expr.name.name != sym::owner;
                 !is_dynamic_record_read && expr.inner.is_pure(get_type)
             }
             Expression::Repeat(expr) => expr.expr.is_pure(get_type) && expr.count.is_pure(get_type),
@@ -398,49 +398,49 @@ impl Expression {
     /// The `composite_lookup` callback provides member definitions for composite types.
     #[allow(clippy::type_complexity)]
     pub fn zero(
-        ty: &Type,
+        ty: &TypeKind,
         span: Span,
         node_builder: &NodeBuilder,
-        composite_lookup: &dyn Fn(&Location) -> Vec<(Symbol, Type)>,
+        composite_lookup: &dyn Fn(&Location) -> Vec<(Symbol, TypeKind)>,
     ) -> Option<Self> {
         let id = node_builder.next_id();
 
         match ty {
             // Numeric types
-            Type::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
-            Type::Integer(IntegerType::I16) => {
+            TypeKind::Integer(IntegerType::I8) => Some(Literal::integer(IntegerType::I8, "0".to_string(), span, id).into()),
+            TypeKind::Integer(IntegerType::I16) => {
                 Some(Literal::integer(IntegerType::I16, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::I32) => {
+            TypeKind::Integer(IntegerType::I32) => {
                 Some(Literal::integer(IntegerType::I32, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::I64) => {
+            TypeKind::Integer(IntegerType::I64) => {
                 Some(Literal::integer(IntegerType::I64, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::I128) => {
+            TypeKind::Integer(IntegerType::I128) => {
                 Some(Literal::integer(IntegerType::I128, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
-            Type::Integer(IntegerType::U16) => {
+            TypeKind::Integer(IntegerType::U8) => Some(Literal::integer(IntegerType::U8, "0".to_string(), span, id).into()),
+            TypeKind::Integer(IntegerType::U16) => {
                 Some(Literal::integer(IntegerType::U16, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::U32) => {
+            TypeKind::Integer(IntegerType::U32) => {
                 Some(Literal::integer(IntegerType::U32, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::U64) => {
+            TypeKind::Integer(IntegerType::U64) => {
                 Some(Literal::integer(IntegerType::U64, "0".to_string(), span, id).into())
             }
-            Type::Integer(IntegerType::U128) => {
+            TypeKind::Integer(IntegerType::U128) => {
                 Some(Literal::integer(IntegerType::U128, "0".to_string(), span, id).into())
             }
 
             // Boolean
-            Type::Boolean => Some(Literal::boolean(false, span, id).into()),
+            TypeKind::Boolean => Some(Literal::boolean(false, span, id).into()),
 
             // Address: addresses don't have a well defined _zero_ but this value is often used as
             // the "zero" address in practical applications. It really should never be used directly though.
             // It should only be used as a placeholder for representating `none` for example.
-            Type::Address => Some(
+            TypeKind::Address => Some(
                 Literal::address(
                     "aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc".to_string(),
                     span,
@@ -450,14 +450,14 @@ impl Expression {
             ),
 
             // Field, Group, Scalar
-            Type::Field => Some(Literal::field("0".to_string(), span, id).into()),
-            Type::Group => Some(Literal::group("0".to_string(), span, id).into()),
-            Type::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
+            TypeKind::Field => Some(Literal::field("0".to_string(), span, id).into()),
+            TypeKind::Group => Some(Literal::group("0".to_string(), span, id).into()),
+            TypeKind::Scalar => Some(Literal::scalar("0".to_string(), span, id).into()),
 
             // Signature: signatures don't have a well defined _zero_. The value chosen here is arbitrary.
             // That being said, this value should really never be used directly. It should only be used as a 
             // placeholder for representing `none` for example.
-            Type::Signature => Some(
+            TypeKind::Signature => Some(
                 Literal::signature(
                     "sign195m229jvzr0wmnshj6f8gwplhkrkhjumgjmad553r997u7pjfgpfz4j2w0c9lp53mcqqdsmut2g3a2zuvgst85w38hv273mwjec3sqjsv9w6uglcy58gjh7x3l55z68zsf24kx7a73ctp8x8klhuw7l2p4s3aq8um5jp304js7qcnwdqj56q5r5088tyvxsgektun0rnmvtsuxpe6sj".to_string(),
                     span,
@@ -467,7 +467,7 @@ impl Expression {
             ),
 
             // Composite types
-            Type::Composite(composite_type) => {
+            TypeKind::Composite(composite_type) => {
                 let path = &composite_type.path;
                 let members = composite_lookup(path.expect_global_location());
 
@@ -497,7 +497,7 @@ impl Expression {
             }
 
             // Arrays
-            Type::Array(array_type) => {
+            TypeKind::Array(array_type) => {
                 let element_ty = &array_type.element_type;
 
                 let element_expr = Self::zero(element_ty, span, node_builder, composite_lookup)?;

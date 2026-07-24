@@ -32,7 +32,7 @@ pub use output::*;
 mod mode;
 pub use mode::*;
 
-use crate::{Block, ConstParameter, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, Type};
+use crate::{Block, ConstParameter, FunctionStub, Identifier, Indent, Node, NodeID, TupleType, TypeKind};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools as _;
@@ -60,7 +60,7 @@ pub struct Function {
     /// The function's output declarations.
     pub output: Vec<Output>,
     /// The function's output type.
-    pub output_type: Type,
+    pub output_type: TypeKind,
     /// The body of the function.
     pub block: Block,
     /// The entire span of the function definition.
@@ -93,9 +93,9 @@ impl Function {
         id: NodeID,
     ) -> Self {
         let output_type = match output.len() {
-            0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
+            0 => TypeKind::Unit,
+            1 => output[0].type_.kind().clone(),
+            _ => TypeKind::Tuple(TupleType::new(output.iter().map(|o| o.type_.kind().clone()).collect())),
         };
 
         Function {
@@ -120,7 +120,7 @@ impl Function {
 
     /// Returns `true` if any output of the function is a `Final`
     pub fn has_final_output(&self) -> bool {
-        self.output.iter().any(|o| matches!(o.type_, Type::Future(_)))
+        self.output.iter().any(|o| matches!(o.type_.kind(), TypeKind::Future(_)))
     }
 
     /// Returns `true` if the function carries an `@test` annotation.
@@ -180,7 +180,7 @@ impl fmt::Display for Function {
         match self.output.len() {
             0 => {}
             1 => {
-                if !matches!(self.output[0].type_, Type::Unit) {
+                if !matches!(self.output[0].type_.kind(), TypeKind::Unit) {
                     write!(f, " -> {}", self.output[0])?;
                 }
             }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID, Statement, Type};
+use crate::{Expression, Identifier, Node, NodeID, Statement, TypeKind, TypeNode};
 
 use leo_span::Span;
 
@@ -23,12 +23,12 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A `let` or `const` declaration statement.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub struct DefinitionStatement {
     /// The bindings / variable names to declare.
     pub place: DefinitionPlace,
     /// The types of the bindings, if specified, or inferred otherwise.
-    pub type_: Option<Type>,
+    pub type_: Option<TypeNode>,
     /// An initializer value for the bindings.
     pub value: Expression,
     /// The span excluding the semicolon.
@@ -37,7 +37,7 @@ pub struct DefinitionStatement {
     pub id: NodeID,
 }
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub enum DefinitionPlace {
     Single(Identifier),
     Multiple(Vec<Identifier>),
@@ -54,9 +54,9 @@ impl fmt::Display for DefinitionPlace {
 
 impl fmt::Display for DefinitionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self.type_ {
+        match self.type_.as_ref().map(|t| t.kind()) {
             // For an Err type (as produced by many passes), don't write the type to reduce verbosity.
-            Some(Type::Err) | None => write!(f, "let {} = {}", self.place, self.value),
+            Some(TypeKind::Err) | None => write!(f, "let {} = {}", self.place, self.value),
             Some(ty) => write!(f, "let {}: {} = {}", self.place, ty, self.value),
         }
     }

@@ -111,7 +111,7 @@ pub fn generate_program_interfaces(ast: &ast::Program) -> Vec<CompiledInterface>
 
     // Seed from program-level parent implementations (scope.parents).
     for (_, ty) in &scope.parents {
-        if let ast::Type::Composite(ct) = ty
+        if let ast::TypeKind::Composite(ct) = ty
             && let Some(loc) = ct.path.try_global_location()
         {
             worklist.push((loc.program, loc.path.clone()));
@@ -126,7 +126,7 @@ pub fn generate_program_interfaces(ast: &ast::Program) -> Vec<CompiledInterface>
         .chain(ast.modules.values().flat_map(|m| m.interfaces.iter().map(|(_, i)| i)));
     for iface in local_ifaces {
         for (_, parent_ty) in &iface.parents {
-            if let ast::Type::Composite(ct) = parent_ty
+            if let ast::TypeKind::Composite(ct) = parent_ty
                 && let Some(loc) = ct.path.try_global_location()
             {
                 worklist.push((loc.program, loc.path.clone()));
@@ -153,7 +153,7 @@ pub fn generate_program_interfaces(ast: &ast::Program) -> Vec<CompiledInterface>
             result.push(CompiledInterface { owner: InterfaceOwner::External { owner_program: owner_str }, abi });
             // Enqueue this interface's parents for processing.
             for (_, parent_ty) in &iface.parents {
-                let ast::Type::Composite(ct) = parent_ty else { continue };
+                let ast::TypeKind::Composite(ct) = parent_ty else { continue };
                 let Some(parent_loc) = ct.path.try_global_location() else { continue };
                 worklist.push((parent_loc.program, parent_loc.path.clone()));
             }
@@ -445,7 +445,7 @@ fn convert_mapping_prototype(proto: &ast::MappingPrototype) -> abi::Mapping {
 }
 
 fn convert_storage_variable_prototype(proto: &ast::StorageVariablePrototype) -> abi::StorageVariable {
-    abi::StorageVariable { name: proto.identifier.name.to_string(), ty: convert_storage_type(&proto.type_) }
+    abi::StorageVariable { name: proto.identifier.name.to_string(), ty: convert_storage_type(proto.type_.kind()) }
 }
 
 fn convert_input(
@@ -454,7 +454,7 @@ fn convert_input(
     cs: &CompositeSource<'_>,
     is_view: bool,
 ) -> abi::FunctionInput {
-    convert_function_input(&input.type_, iface, cs, resolve_io_mode(input.mode, is_view))
+    convert_function_input(input.type_.kind(), iface, cs, resolve_io_mode(input.mode, is_view))
 }
 
 fn convert_output(
@@ -463,7 +463,7 @@ fn convert_output(
     cs: &CompositeSource<'_>,
     is_view: bool,
 ) -> abi::FunctionOutput {
-    convert_function_output(&output.type_, iface, cs, resolve_io_mode(output.mode, is_view))
+    convert_function_output(output.type_.kind(), iface, cs, resolve_io_mode(output.mode, is_view))
 }
 
 /// Checks if a composite type is a record in the context of an interface.
@@ -480,15 +480,15 @@ fn is_record_for_interface(comp_ty: &ast::CompositeType, iface: &ast::Interface,
 }
 
 fn convert_function_input(
-    ty: &ast::Type,
+    ty: &ast::TypeKind,
     iface: &ast::Interface,
     cs: &CompositeSource<'_>,
     mode: abi::Mode,
 ) -> abi::FunctionInput {
-    if let ast::Type::DynRecord = ty {
+    if let ast::TypeKind::DynRecord = ty {
         return abi::FunctionInput::DynamicRecord;
     }
-    if let ast::Type::Composite(comp_ty) = ty
+    if let ast::TypeKind::Composite(comp_ty) = ty
         && is_record_for_interface(comp_ty, iface, cs)
     {
         return abi::FunctionInput::Record(abi::RecordRef {
@@ -500,15 +500,15 @@ fn convert_function_input(
 }
 
 fn convert_function_output(
-    ty: &ast::Type,
+    ty: &ast::TypeKind,
     iface: &ast::Interface,
     cs: &CompositeSource<'_>,
     mode: abi::Mode,
 ) -> abi::FunctionOutput {
     match ty {
-        ast::Type::Future(_) => abi::FunctionOutput::Final,
-        ast::Type::DynRecord => abi::FunctionOutput::DynamicRecord,
-        ast::Type::Composite(comp_ty) if is_record_for_interface(comp_ty, iface, cs) => {
+        ast::TypeKind::Future(_) => abi::FunctionOutput::Final,
+        ast::TypeKind::DynRecord => abi::FunctionOutput::DynamicRecord,
+        ast::TypeKind::Composite(comp_ty) if is_record_for_interface(comp_ty, iface, cs) => {
             abi::FunctionOutput::Record(abi::RecordRef {
                 path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
                 program: comp_ty.path.program().map(|s| s.to_string()),

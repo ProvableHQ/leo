@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// An `if condition block (else next)?` statement.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
 pub struct ConditionalStatement {
     /// The `bool`-typed condition deciding what to evaluate.
     pub condition: Expression,

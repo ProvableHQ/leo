@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::TypeKind;
 
 use itertools::Itertools as _;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A type list of at least two types.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TupleType {
-    pub elements: Vec<Type>,
+    pub elements: Vec<TypeKind>,
 }
 
 impl TupleType {
     /// Creates a new tuple type.
-    pub fn new(elements: Vec<Type>) -> Self {
+    pub fn new(elements: Vec<TypeKind>) -> Self {
         Self { elements }
     }
 
     /// Returns the elements of the tuple type.
-    pub fn elements(&self) -> &[Type] {
+    pub fn elements(&self) -> &[TypeKind] {
         &self.elements
     }
 
@@ -49,8 +49,8 @@ impl fmt::Display for TupleType {
     }
 }
 
-impl From<TupleType> for Type {
+impl From<TupleType> for TypeKind {
     fn from(value: TupleType) -> Self {
-        Type::Tuple(value)
+        TypeKind::Tuple(value)
     }
 }
