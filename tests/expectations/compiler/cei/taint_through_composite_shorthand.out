@@ -7,6 +7,9 @@
 ────╯
 program exchange.aleo;
 
+struct Box:
+    rate as u64;
+
 mapping rates:
     key as u32.public;
     value as u64.public;
