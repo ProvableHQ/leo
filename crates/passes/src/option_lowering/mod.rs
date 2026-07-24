@@ -67,7 +67,7 @@ use crate::{
     TypeCheckingInput,
 };
 
-use leo_ast::{ArrayType, Ast, CompositeType, Type, UnitReconstructor as _};
+use leo_ast::{ArrayType, Ast, Composite, CompositeType, Type, UnitReconstructor as _};
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -126,9 +126,8 @@ impl Pass for OptionLowering {
     }
 }
 
-pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
-    // Step 1: Extract a usable type name
-    fn display_type(ty: &Type) -> String {
+fn try_make_optional_struct_symbol(ty: &Type) -> Option<Symbol> {
+    fn display_type(ty: &Type) -> Option<String> {
         match ty {
             Type::Address
             | Type::Field
@@ -136,12 +135,12 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Scalar
             | Type::Signature
             | Type::Boolean
-            | Type::Integer(..) => format!("{ty}"),
+            | Type::Integer(..) => Some(format!("{ty}")),
             Type::Array(ArrayType { element_type, length }) => {
-                format!("[{}; {length}]", display_type(element_type))
+                Some(format!("[{}; {length}]", display_type(element_type)?))
             }
             Type::Composite(CompositeType { path, .. }) => {
-                format!("::{}", path.expect_global_location().path.iter().format("::"))
+                Some(format!("::{}", path.try_global_location()?.path.iter().format("::")))
             }
 
             Type::Tuple(_)
@@ -155,12 +154,27 @@ pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
             | Type::Identifier
             | Type::DynRecord
             | Type::Err
-            | Type::Unit => {
-                panic!("unexpected inner type in optional struct name")
-            }
+            | Type::Unit => None,
         }
     }
 
-    // Step 3: Build symbol that ends with `?`.
-    Symbol::intern(&format!("{}?", display_type(ty)))
+    Some(Symbol::intern(&format!("{}?", display_type(ty)?)))
+}
+
+/// Recognizes the reserved name and field layout emitted by Optional lowering.
+/// The `?`-suffixed raw name cannot originate from a Leo source identifier.
+pub(crate) fn is_generated_optional_struct(composite: &Composite) -> bool {
+    let [is_some, val] = composite.members.as_slice() else {
+        return false;
+    };
+
+    !composite.is_record
+        && is_some.identifier.name == Symbol::intern("is_some")
+        && is_some.type_ == Type::Boolean
+        && val.identifier.name == Symbol::intern("val")
+        && try_make_optional_struct_symbol(&val.type_) == Some(composite.identifier.name)
+}
+
+pub fn make_optional_struct_symbol(ty: &Type) -> Symbol {
+    try_make_optional_struct_symbol(ty).expect("unexpected inner type in optional struct name")
 }

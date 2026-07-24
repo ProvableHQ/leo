@@ -165,19 +165,15 @@ view current_counter:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    ternary r3.is_some r3.val 0u32 into r4;
-    output r4 as u32.public;
+    output r2 as u32.public;
 
 view counters:
     contains counter__[false] into r0;
     get.or_use counter__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    ternary r3.is_some r3.val 0u32 into r4;
-    add r4 1u32 into r5;
-    output r4 as u32.public;
-    output r5 as u32.public;
+    add r2 1u32 into r3;
+    output r2 as u32.public;
+    output r3 as u32.public;
 
 constructor:
     assert.eq edition 0u16;

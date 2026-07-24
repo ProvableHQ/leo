@@ -52,9 +52,7 @@ finalize do_work:
     contains counter__[false] into r1;
     get.or_use counter__[false] 0u32 into r2;
     ternary r1 r2 0u32 into r3;
-    cast r1 r3 into r4 as Optional__JzunLORyB8U;
-    ternary r4.is_some r4.val 0u32 into r5;
-    set r5 into balances[0u32];
+    set r3 into balances[0u32];
 
 constructor:
     assert.eq edition 0u16;

@@ -27,10 +27,8 @@ function dummy:
 view current_owner:
     contains owner__[false] into r0;
     get.or_use owner__[false] aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r1;
-    ternary r0 r1 aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc into r2;
-    cast r0 r2 into r3 as Optional__6wU7KHJhSvv;
-    ternary r3.is_some r3.val aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9 into r4;
-    output r4 as address.public;
+    ternary r0 r1 aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9 into r2;
+    output r2 as address.public;
 
 view entry_count:
     get.or_use entries__len__[false] 0u32 into r0;
@@ -42,9 +40,7 @@ view entry_at:
     lt r0 r1 into r2;
     get.or_use entries__[r0] 0u64 into r3;
     ternary r2 r3 0u64 into r4;
-    cast r2 r4 into r5 as Optional__DmN5CQ9hzeK;
-    ternary r5.is_some r5.val 0u64 into r6;
-    output r6 as u64.public;
+    output r4 as u64.public;
 
 constructor:
     assert.eq edition 0u16;

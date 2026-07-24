@@ -30,6 +30,21 @@ program = "test.aleo"
 function = "entry_at_oob"
 input = ["5u32"]
 seed_mapping = ["entries__len__", "false", "3u32"]
+
+[case]
+program = "test.aleo"
+function = "entry_at_or"
+input = ["1u32", "77u64"]
+seed_mapping = ["entries__len__", "false", "3u32"]
+seed_mapping = ["entries__", "0u32", "10u64"]
+seed_mapping = ["entries__", "1u32", "20u64"]
+seed_mapping = ["entries__", "2u32", "30u64"]
+
+[case]
+program = "test.aleo"
+function = "entry_at_or"
+input = ["5u32", "77u64"]
+seed_mapping = ["entries__len__", "false", "3u32"]
 */
 
 // Views that read storage variables and vectors. Storage and vector reads
@@ -60,6 +75,10 @@ program test.aleo {
     // Demonstrates the optional-default fallback path.
     view fn entry_at_oob(idx: u32) -> u64 {
         return entries.get(idx).unwrap_or(99u64);
+    }
+
+    view fn entry_at_or(idx: u32, fallback: u64) -> u64 {
+        return entries.get(idx).unwrap_or(fallback);
     }
 
     @noupgrade

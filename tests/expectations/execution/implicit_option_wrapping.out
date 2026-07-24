@@ -37,10 +37,8 @@ function basic_implicit_argument:
 
 function basic_implicit_ternary:
     input r0 as boolean.private;
-    ternary r0 10u8 0u8 into r1;
-    cast r0 r1 into r2 as Optional__3aph2JMPtnA;
-    ternary r2.is_some r2.val 42u8 into r3;
-    output r3 as u8.private;
+    ternary r0 10u8 42u8 into r1;
+    output r1 as u8.private;
 
 function basic_implicit_reassignment:
     cast false 0u8 into r0 as Optional__3aph2JMPtnA;
