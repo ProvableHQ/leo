@@ -22,6 +22,10 @@ use clap::Parser;
 fn set_panic_hook() {
     std::panic::set_hook({
         Box::new(move |e| {
+            // Caught test halts are reported by their caller, not as compiler errors.
+            if leo_compiler::run::halt_expected() {
+                return;
+            }
             eprintln!("thread `{}` {}", std::thread::current().name().unwrap_or("<unnamed>"), e);
             eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
             eprintln!("error: internal compiler error: unexpected panic\n");

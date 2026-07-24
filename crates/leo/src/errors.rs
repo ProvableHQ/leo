@@ -156,7 +156,6 @@ pub(crate) fn custom(msg: impl Display) -> Backtraced {
 
 pub(crate) fn tests_failed(failed: impl Display, total: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 46, format!("{failed} out of {total} tests failed"))
-        .with_help("Re-run with `leo test -- --nocapture` to see per-test output.")
 }
 
 pub(crate) fn generated_invalid_bytecode(

@@ -8,15 +8,11 @@
        Leo     Program size: 1.05 KB / 2000.00 KB
        Leo ✅ Compiled 'my_app.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'my_app.aleo'.
-
        Leo 🔨 Compiling 'test_my_app.aleo'
-       Leo     Program size: 0.64 KB / 2000.00 KB
-       Leo ✅ Compiled 'test_my_app.aleo' into Aleo instructions.
-       Leo     Import 'my_app.aleo': checksum = '[93u8, 245u8, 51u8, 127u8, 99u8, 181u8, 136u8, 128u8, 74u8, 171u8, 76u8, 239u8, 117u8, 174u8, 196u8, 73u8, 60u8, 16u8, 72u8, 68u8, 36u8, 48u8, 229u8, 148u8, 64u8, 232u8, 195u8, 46u8, 166u8, 177u8, 77u8, 7u8]'
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-       Leo Loading the ledger from storage...
-3 / 3 tests passed.
-PASSED: test_my_app.aleo/test_rect_area
-PASSED: test_my_app.aleo/test_unit_side
-PASSED: test_my_app.aleo/test_scaled_area
+
+     Running 3 tests
+        PASS test_my_app.leo::test_rect_area
+        PASS test_my_app.leo::test_unit_side
+        PASS test_my_app.leo::test_scaled_area
+────────────────────────
+     Summary 3 tests run: 3 passed, 0 failed
