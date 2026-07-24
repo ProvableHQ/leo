@@ -1,0 +1,95 @@
+program producer.aleo;
+
+mapping values:
+    key as u32.public;
+    value as u32.public;
+
+function route:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call.dynamic r0 'aleo' 'execute' with r1 (as u32.private) into r2 (as dynamic.future);
+    async route r2 into r3;
+    output r3 as producer.aleo/route.future;
+
+finalize route:
+    input r0 as dynamic.future;
+    await r0;
+
+function execute:
+    input r0 as u32.private;
+    async execute r0 into r1;
+    output r1 as producer.aleo/execute.future;
+
+finalize execute:
+    input r0 as u32.public;
+    set r0 into values[r0];
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import producer.aleo;
+program consumer.aleo;
+
+function forward:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call producer.aleo/route r0 r1 into r2;
+    async forward r2 into r3;
+    output r3 as consumer.aleo/forward.future;
+
+finalize forward:
+    input r0 as producer.aleo/route.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+program producer.aleo;
+
+mapping values:
+    key as u32.public;
+    value as u32.public;
+
+function execute:
+    input r0 as u32.private;
+    async execute r0 into r1;
+    output r1 as producer.aleo/execute.future;
+
+finalize execute:
+    input r0 as u32.public;
+    set r0 into values[r0];
+
+function route:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call.dynamic r0 'aleo' 'execute' with r1 (as u32.private) into r2 (as dynamic.future);
+    async route r2 into r3;
+    output r3 as producer.aleo/route.future;
+
+finalize route:
+    input r0 as dynamic.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import producer.aleo;
+program consumer.aleo;
+
+function forward:
+    input r0 as field.private;
+    input r1 as u32.private;
+    call producer.aleo/route r0 r1 into r2;
+    async forward r2 into r3;
+    output r3 as consumer.aleo/forward.future;
+
+finalize forward:
+    input r0 as producer.aleo/route.future;
+    await r0;
+
+constructor:
+    assert.eq edition 0u16;
