@@ -75,5 +75,24 @@ program singleton_storage.aleo {
             _mapping_set(singleton_storage.aleo::nums__, $len_var$12, $push_value$11);
         };
     }
+    fn set_statement_fallible_index(public x: u32) -> Final<Fn()> {
+        return async {
+            let $index$13 = 1u32 / x;
+            let $len_var$14 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$13 < $len_var$14);
+            _mapping_set(singleton_storage.aleo::nums__, $index$13, 42u32);
+        };
+    }
+    fn swap_remove_fallible_index(public x: u32) -> Final<Fn()> {
+        return async {
+            let $index$15 = 1u32 / x;
+            let $len_var$16 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$15 < $len_var$16);
+            let $removed$17 = _mapping_get(singleton_storage.aleo::nums__, $index$15);
+            _mapping_set(singleton_storage.aleo::nums__, $index$15, _mapping_get(singleton_storage.aleo::nums__, $len_var$16 - 1u32));
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$16 - 1u32);
+            let $discard$18 = $removed$17;
+        };
+    }
 }
 
