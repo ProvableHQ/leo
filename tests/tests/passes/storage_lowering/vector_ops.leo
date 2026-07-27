@@ -56,7 +56,7 @@ program singleton_storage.aleo {
         return final { nums.set(1u32 / x, 42u32); };
     }
 
-    fn swap_remove_statement_fallible_index(public x: u32) -> Final {
+    fn swap_remove_fallible_index(public x: u32) -> Final {
         return final { nums.swap_remove(1u32 / x); };
     }
 }
