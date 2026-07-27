@@ -20,6 +20,48 @@ use leo_span::Symbol;
 
 use itertools::{Itertools, izip};
 
+impl DestructuringVisitor<'_> {
+    /// Builds an equality or inequality comparison between already-reconstructed tuples.
+    /// Tuple equality is conjunctive, while tuple inequality is disjunctive.
+    fn reconstruct_tuple_comparison(
+        &mut self,
+        operation: BinaryOperation,
+        left: &TupleExpression,
+        right: &TupleExpression,
+    ) -> Expression {
+        use BinaryOperation::*;
+
+        let fold_operation = match operation {
+            Eq => And,
+            Neq => Or,
+            _ => unreachable!("tuple comparisons only support equality and inequality"),
+        };
+
+        assert_eq!(left.elements.len(), right.elements.len());
+
+        let comparisons: Vec<Expression> = left
+            .elements
+            .iter()
+            .zip(&right.elements)
+            .map(|(left, right)| {
+                let comparison: Expression = BinaryExpression {
+                    op: operation,
+                    left: left.clone(),
+                    right: right.clone(),
+                    span: Default::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into();
+
+                self.state.type_table.insert(comparison.id(), Type::BOOLEAN);
+                comparison
+            })
+            .collect();
+
+        self.fold_with_op(fold_operation, comparisons.into_iter())
+    }
+}
+
 impl AstReconstructor for DestructuringVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
@@ -44,42 +86,11 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         let (right, statements2) = self.reconstruct_expression_tuple(input.right);
         statements.extend(statements2);
 
-        use BinaryOperation::*;
-
         // Tuple equality / inequality expansion
         if let (Expression::Tuple(tuple_left), Expression::Tuple(tuple_right)) = (&left, &right)
-            && matches!(input.op, Eq | Neq)
+            && matches!(input.op, BinaryOperation::Eq | BinaryOperation::Neq)
         {
-            assert_eq!(tuple_left.elements.len(), tuple_right.elements.len());
-
-            // Directly build elementwise (l OP r)
-            let pieces: Vec<Expression> = tuple_left
-                .elements
-                .iter()
-                .zip(&tuple_right.elements)
-                .map(|(l, r)| {
-                    let expr: Expression = BinaryExpression {
-                        op: input.op,
-                        left: l.clone(),
-                        right: r.clone(),
-                        span: Default::default(),
-                        id: self.state.node_builder.next_id(),
-                    }
-                    .into();
-
-                    self.state.type_table.insert(expr.id(), Type::BOOLEAN);
-                    expr
-                })
-                .collect();
-
-            // Fold appropriately
-            let op = match input.op {
-                Eq => BinaryOperation::And,
-                Neq => BinaryOperation::Or,
-                _ => unreachable!(),
-            };
-
-            return (self.fold_with_op(op, pieces.into_iter()), statements);
+            return (self.reconstruct_tuple_comparison(input.op, tuple_left, tuple_right), statements);
         }
 
         // Fallback
@@ -219,8 +230,10 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     }
 
     /* Statements */
-    /// `assert_eq` and `assert_neq` comparing tuples should be expanded to as many asserts as
-    /// the length of each tuple.
+    /// Reconstructs assertions.
+    ///
+    /// Tuple equality requires every corresponding element to match, while tuple inequality
+    /// requires at least one corresponding element to differ.
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         match input.variant {
             AssertVariant::Assert(expr) => {
@@ -235,18 +248,24 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                 match (&left, &right) {
                     (Expression::Tuple(tuple_left), Expression::Tuple(tuple_right)) => {
-                        // Ensure the tuple lengths match
+                        if matches!(&input.variant, AssertVariant::AssertNeq(..)) {
+                            let predicate =
+                                self.reconstruct_tuple_comparison(BinaryOperation::Neq, tuple_left, tuple_right);
+                            return (
+                                AssertStatement { variant: AssertVariant::Assert(predicate), ..input }.into(),
+                                statements,
+                            );
+                        }
+
                         assert_eq!(tuple_left.elements.len(), tuple_right.elements.len());
 
-                        for (l, r) in tuple_left.elements.iter().zip(&tuple_right.elements) {
-                            let assert_variant = match input.variant {
-                                AssertVariant::AssertEq(_, _) => AssertVariant::AssertEq(l.clone(), r.clone()),
-                                AssertVariant::AssertNeq(_, _) => AssertVariant::AssertNeq(l.clone(), r.clone()),
-                                _ => unreachable!(),
-                            };
-
-                            let stmt = AssertStatement { variant: assert_variant, ..input.clone() }.into();
-                            statements.push(stmt);
+                        for (left, right) in tuple_left.elements.iter().zip(&tuple_right.elements) {
+                            let statement = AssertStatement {
+                                variant: AssertVariant::AssertEq(left.clone(), right.clone()),
+                                ..input.clone()
+                            }
+                            .into();
+                            statements.push(statement);
                         }
 
                         // We don't need the original statement, just the ones we've created.
