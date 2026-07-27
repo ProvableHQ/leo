@@ -4,4 +4,7 @@
        Leo 🔨 Compiling 'parent.aleo'
        Leo     Program size: 0.29 KB / 2000.00 KB
        Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
+       Leo     Import 'grandchild.aleo': program size: 0.18 KB / 2000.00 KB
+       Leo     Import 'child1.aleo': program size: 0.26 KB / 2000.00 KB
+       Leo     Import 'child2.aleo': program size: 0.26 KB / 2000.00 KB
        Leo ✅ Generated ABI for program 'parent.aleo'.
