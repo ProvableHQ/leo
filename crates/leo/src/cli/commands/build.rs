@@ -652,6 +652,16 @@ fn compile_leo_source_directory(
         }
     }
 
+    // Import sizes track the primary program size rather than the checksums:
+    // both answer "will this fit on chain", so they print together.
+    if !is_test {
+        for import in &compiled.imports {
+            let import_size = import.bytecode.len();
+            let (size_kb, max_kb, _warning) = format_program_size(import_size, MAX_PROGRAM_SIZE);
+            tracing::info!("    Import '{}': program size: {size_kb:.2} KB / {max_kb:.2} KB", import.name);
+        }
+    }
+
     Ok(compiled)
 }
 

@@ -11,6 +11,7 @@
        Leo 🔨 Compiling 'swap.aleo'
        Leo     Program size: 0.23 KB / 2000.00 KB
        Leo ✅ Compiled 'swap.aleo' into Aleo instructions.
+       Leo     Import 'token.aleo': program size: 0.17 KB / 2000.00 KB
        Leo ✅ Generated ABI for program 'swap.aleo'.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
