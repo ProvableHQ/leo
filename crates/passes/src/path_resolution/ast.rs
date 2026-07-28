@@ -31,14 +31,19 @@ use leo_ast::{
     IterationStatement,
     Path,
     Statement,
-    Type,
+    TypeInterner,
+    TypeKind,
 };
 
 impl AstReconstructor for PathResolutionVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
 
-    fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (Type, Self::AdditionalOutput) {
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
+    fn reconstruct_composite_type(&mut self, mut input: CompositeType) -> (TypeKind, Self::AdditionalOutput) {
         if !input.path.is_resolved() {
             input.path = input.path.resolve_as_global_in_module(
                 self.program,
@@ -47,7 +52,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
             );
         }
         (
-            Type::Composite(CompositeType {
+            TypeKind::Composite(CompositeType {
                 path: input.path,
                 const_arguments: input
                     .const_arguments
@@ -174,7 +179,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        let reconstructed_type = self.reconstruct_type(input.type_).0;
+        let reconstructed_type = self.reconstruct_type_node(input.type_).0;
         let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
 
         // Are we in a global scope? If not, then this is a local `const`. Insert it as a local in
@@ -195,7 +200,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type(ty).0);
+        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type_node(ty).0);
         let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
 
         match &input.place {
@@ -248,7 +253,7 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type(ty).0);
+        let reconstructed_type = input.type_.map(|ty| self.reconstruct_type_node(ty).0);
         let reconstructed_start = self.reconstruct_expression(input.start, &Default::default()).0;
         let reconstructed_stop = self.reconstruct_expression(input.stop, &Default::default()).0;
 

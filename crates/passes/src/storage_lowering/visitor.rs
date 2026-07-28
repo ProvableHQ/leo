@@ -182,7 +182,7 @@ impl StorageLoweringVisitor<'_> {
         mapping: Expression,
         key: Expression,
         default: Expression,
-        value_ty: Type,
+        value_ty: TypeKind,
         span: Span,
     ) -> Expression {
         IntrinsicExpression {
@@ -198,8 +198,8 @@ impl StorageLoweringVisitor<'_> {
     }
 
     /// Looks up the interface referenced by an interface type expression.
-    pub fn lookup_interface_from_type(&self, interface_ty: &Type) -> Interface {
-        let Type::Composite(CompositeType { path, .. }) = interface_ty else {
+    pub fn lookup_interface_from_type(&self, interface_ty: &TypeKind) -> Interface {
+        let TypeKind::Composite(CompositeType { path, .. }) = interface_ty else {
             panic!("Dynamic access requires a composite interface type, got `{interface_ty}`");
         };
         let location = path.try_global_location().expect("interface path must resolve to a global location");
@@ -218,7 +218,7 @@ impl StorageLoweringVisitor<'_> {
     /// `contains.dynamic ? get_or_use.dynamic(..) : None` producing `Option<T>`.
     pub fn lower_dynamic_read(
         &mut self,
-        interface_ty: Type,
+        interface_ty: TypeKind,
         target_program: Expression,
         network: Option<Expression>,
         storage: Identifier,
@@ -232,9 +232,9 @@ impl StorageLoweringVisitor<'_> {
             .cloned()
             .expect("type checking guarantees storage exists in interface");
 
-        let inner_type = match storage_proto.type_ {
-            Type::Vector(_) => panic!("vector storage cannot be read as a singleton"),
-            t => t,
+        let inner_type = match storage_proto.type_.kind() {
+            TypeKind::Vector(_) => panic!("vector storage cannot be read as a singleton"),
+            t => t.clone(),
         };
 
         let (prog_expr, prog_stmts) = self.reconstruct_expression(target_program, &());
@@ -271,7 +271,7 @@ impl StorageLoweringVisitor<'_> {
         target_program: Expression,
         network: Option<Expression>,
         member: Identifier,
-        element_type: Type,
+        element_type: TypeKind,
         arguments: Vec<Expression>,
         span: Span,
     ) -> (Expression, Vec<Statement>) {
@@ -288,7 +288,7 @@ impl StorageLoweringVisitor<'_> {
             .expect("type checking should assign a type to the vector index");
         let index_must_be_evaluated_once = !expression_can_be_discarded(&index_argument, self.state);
         let (index_expr, mut index_stmts) = self.reconstruct_expression(index_argument, &());
-        self.state.type_table.insert(index_expr.id(), index_type.clone());
+        self.state.type_table.insert(index_expr.id(), index_type);
         let index_expr = if index_must_be_evaluated_once {
             let index_var_sym = self.state.assigner.unique_symbol("$index", "$");
             let index_var_ident =
@@ -317,7 +317,7 @@ impl StorageLoweringVisitor<'_> {
             len_mapping_lit,
             false_lit,
             zero_u32,
-            Type::Integer(IntegerType::U32),
+            TypeKind::Integer(IntegerType::U32),
             span,
         );
         let len_var_sym = self.state.assigner.unique_symbol("$len_var", "$");
@@ -370,7 +370,7 @@ impl StorageLoweringVisitor<'_> {
             len_mapping_lit,
             false_lit,
             zero_u32,
-            Type::Integer(IntegerType::U32),
+            TypeKind::Integer(IntegerType::U32),
             span,
         );
 
@@ -379,8 +379,9 @@ impl StorageLoweringVisitor<'_> {
         (expr, stmts)
     }
 
-    /// Produces a zero expression for `Type` `ty`.
-    pub fn zero(&self, ty: &Type) -> Expression {
+    /// The zero value at type `ty`. Used to synthesise a default when reading a storage slot
+    /// that has never been written.
+    pub fn zero(&self, ty: &TypeKind) -> Expression {
         // zero value for element type (used as default in get_or_use)
         let symbol_table = &self.state.symbol_table;
         let struct_lookup = |loc: &Location| {
@@ -389,7 +390,7 @@ impl StorageLoweringVisitor<'_> {
                 .unwrap()
                 .members
                 .iter()
-                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .map(|mem| (mem.identifier.name, mem.type_.kind().clone()))
                 .collect()
         };
         Expression::zero(ty, Span::default(), &self.state.node_builder, &struct_lookup)
@@ -416,12 +417,12 @@ impl StorageLoweringVisitor<'_> {
         };
 
         match &var.type_ {
-            Some(Type::Mapping(_)) => {
+            Some(TypeKind::Mapping(_)) => {
                 // No transformation needed for mappings.
                 input
             }
 
-            Some(Type::Optional(OptionalType { inner })) => {
+            Some(TypeKind::Optional(OptionalType { inner })) => {
                 // Input:
                 //   storage x: field;
                 //   ...

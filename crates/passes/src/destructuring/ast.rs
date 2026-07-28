@@ -24,6 +24,10 @@ impl AstReconstructor for DestructuringVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     /// Reconstructs a binary expression, expanding equality and inequality over
     /// tuples into elementwise comparisons. When both sides are tuples and the
     /// operator is `==` or `!=`, it generates per-element comparisons and folds
@@ -63,7 +67,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     }
                     .into();
 
-                    self.state.type_table.insert(expr.id(), Type::Boolean);
+                    self.state.type_table.insert(expr.id(), Type::BOOLEAN);
                     expr
                 })
                 .collect();
@@ -96,7 +100,10 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         match self.tuples.get(&path.identifier().name).and_then(|tuple_names| tuple_names.get(input.index.value())) {
             Some(id) => (Path::from(*id).to_local().into(), Default::default()),
             None => {
-                if !matches!(self.state.type_table.get(&path.id), Some(Type::Future(_))) {
+                if !matches!(
+                    self.state.type_table.get(&path.id).map(|t| self.state.types.resolve(t)),
+                    Some(TypeKind::Future(_))
+                ) {
                     panic!("Type checking guarantees that all tuple accesses are declared and indices are valid.");
                 }
 
@@ -106,7 +113,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     input.span,
                     self.state.node_builder.next_id(),
                 );
-                self.state.type_table.insert(index.id(), Type::Integer(IntegerType::U32));
+                self.state.type_table.insert(index.id(), Type::U32);
 
                 let expr =
                     ArrayAccess { array: path.clone().into(), index: index.into(), span: input.span, id: input.id }
@@ -134,7 +141,9 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         match (if_true, if_false) {
             (Expression::Tuple(tuple_true), Expression::Tuple(tuple_false)) => {
                 // Aleo's `ternary` opcode doesn't know about tuples, so we have to handle this.
-                let Some(Type::Tuple(tuple_type)) = self.state.type_table.get(&tuple_true.id()) else {
+                let Some(TypeKind::Tuple(tuple_type)) =
+                    self.state.type_table.get(&tuple_true.id()).map(|t| self.state.types.resolve(t))
+                else {
                     panic!("Should have tuple type");
                 };
 
@@ -152,7 +161,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                     statements.push(definition);
 
-                    self.state.type_table.insert(place.id(), Type::Boolean);
+                    self.state.type_table.insert(place.id(), Type::BOOLEAN);
 
                     Expression::Path(Path::from(place).to_local())
                 };
@@ -179,8 +188,9 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     }
                     .into();
 
-                    self.state.type_table.insert(identifier.id(), ty.clone());
-                    self.state.type_table.insert(expression.id(), ty.clone());
+                    let ty_id = self.state.types.intern(ty);
+                    self.state.type_table.insert(identifier.id(), ty_id);
+                    self.state.type_table.insert(expression.id(), ty_id);
 
                     let definition = self.state.assigner.simple_definition(
                         identifier,
@@ -196,7 +206,8 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
                         .into();
 
-                self.state.type_table.insert(expr.id(), Type::Tuple(tuple_type.clone()));
+                let tuple_ty = self.state.types.intern(&TypeKind::Tuple(tuple_type.clone()));
+                self.state.type_table.insert(expr.id(), tuple_ty);
 
                 (expr, statements)
             }
@@ -270,7 +281,10 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         let (value, mut statements) = self.reconstruct_expression(assign.value, &());
 
         if let Expression::Path(path) = &assign.place
-            && let Type::Tuple(..) = self.state.type_table.get(&value.id()).expect("Expressions should have types.")
+            && let TypeKind::Tuple(..) = self
+                .state
+                .types
+                .resolve(self.state.type_table.get(&value.id()).expect("Expressions should have types."))
         {
             // This is the first case, assigning to a variable of tuple type.
             let identifiers = self.tuples.get(&path.identifier().name).expect("Tuple should have been encountered.");
@@ -385,9 +399,10 @@ impl AstReconstructor for DestructuringVisitor<'_> {
         };
 
         let (value, mut statements) = self.reconstruct_expression(definition.value, &());
-        let ty = self.state.type_table.get(&value.id()).expect("Expressions should have a type.");
+        let ty =
+            self.state.types.resolve(self.state.type_table.get(&value.id()).expect("Expressions should have a type."));
         match (definition.place, value, ty) {
-            (Single(identifier), Expression::Path(rhs), Type::Tuple(tuple_type)) => {
+            (Single(identifier), Expression::Path(rhs), TypeKind::Tuple(tuple_type)) => {
                 // We need to give the members new names, in case they are assigned to.
                 let identifiers = make_identifiers(self, identifier.name, tuple_type.length());
 
@@ -397,7 +412,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     // Make a definition for each.
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
-                        type_: Some(ty.clone()),
+                        type_: Some(TypeNode::new(&self.state.types, ty.clone(), Default::default())),
                         value: Expression::Path(Path::from(*rhs_identifier).to_local()),
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -406,14 +421,15 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     statements.push(stmt);
 
                     // Put each into the type table.
-                    self.state.type_table.insert(identifier.id(), ty.clone());
+                    let ty_id = self.state.types.intern(ty);
+                    self.state.type_table.insert(identifier.id(), ty_id);
                 }
 
                 // Put the identifier in `self.tuples`. We don't need to keep our definition.
                 self.tuples.insert(identifier.name, identifiers);
                 (Statement::dummy(), statements)
             }
-            (Single(identifier), Expression::Tuple(tuple), Type::Tuple(tuple_type)) => {
+            (Single(identifier), Expression::Tuple(tuple), TypeKind::Tuple(tuple_type)) => {
                 // Name each of the expressions on the right.
                 let identifiers = make_identifiers(self, identifier.name, tuple_type.length());
 
@@ -421,7 +437,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     // Make a definition for each.
                     let stmt = DefinitionStatement {
                         place: Single(*identifier),
-                        type_: Some(ty.clone()),
+                        type_: Some(TypeNode::new(&self.state.types, ty.clone(), Default::default())),
                         value: expr,
                         span: Default::default(),
                         id: self.state.node_builder.next_id(),
@@ -430,14 +446,19 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                     statements.push(stmt);
 
                     // Put each into the type table.
-                    self.state.type_table.insert(identifier.id(), ty.clone());
+                    let ty_id = self.state.types.intern(ty);
+                    self.state.type_table.insert(identifier.id(), ty_id);
                 }
 
                 // Put the identifier in `self.tuples`. We don't need to keep our definition.
                 self.tuples.insert(identifier.name, identifiers);
                 (Statement::dummy(), statements)
             }
-            (Single(identifier), rhs @ (Expression::Call(..) | Expression::DynamicOp(..)), Type::Tuple(tuple_type)) => {
+            (
+                Single(identifier),
+                rhs @ (Expression::Call(..) | Expression::DynamicOp(..)),
+                TypeKind::Tuple(tuple_type),
+            ) => {
                 let definition_stmt = self.assign_tuple(rhs, identifier.name);
 
                 let Statement::Definition(DefinitionStatement {
@@ -452,12 +473,13 @@ impl AstReconstructor for DestructuringVisitor<'_> {
 
                 // Put each into the type table.
                 for (identifier, ty) in identifiers.iter().zip(tuple_type.elements()) {
-                    self.state.type_table.insert(identifier.id(), ty.clone());
+                    let ty_id = self.state.types.intern(ty);
+                    self.state.type_table.insert(identifier.id(), ty_id);
                 }
 
                 (definition_stmt, statements)
             }
-            (Multiple(identifiers), Expression::Tuple(tuple), Type::Tuple(..)) => {
+            (Multiple(identifiers), Expression::Tuple(tuple), TypeKind::Tuple(..)) => {
                 // Just make a definition for each tuple element.
                 for (identifier, expr) in identifiers.into_iter().zip_eq(tuple.elements) {
                     let stmt = DefinitionStatement {
@@ -474,7 +496,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                 // We don't need to keep the original definition.
                 (Statement::dummy(), statements)
             }
-            (Multiple(identifiers), Expression::Path(rhs), Type::Tuple(..)) => {
+            (Multiple(identifiers), Expression::Path(rhs), TypeKind::Tuple(..)) => {
                 // Again, make a definition for each tuple element.
                 let rhs_identifiers =
                     self.tuples.get(&rhs.identifier().name).expect("We should have encountered this tuple by now");
@@ -496,7 +518,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
             (
                 m @ Multiple(..),
                 value @ (Expression::Call(..) | Expression::DynamicOp(..) | Expression::Intrinsic(..)),
-                Type::Tuple(..),
+                TypeKind::Tuple(..),
             ) => {
                 // Just reconstruct the statement.
                 let stmt =
@@ -504,7 +526,7 @@ impl AstReconstructor for DestructuringVisitor<'_> {
                         .into();
                 (stmt, statements)
             }
-            (_, _, Type::Tuple(..)) => {
+            (_, _, TypeKind::Tuple(..)) => {
                 panic!("Expressions of tuple type can only be tuple literals, identifiers, or calls.");
             }
             (s @ Single(..), rhs, _) => {

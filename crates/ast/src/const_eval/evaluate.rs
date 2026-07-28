@@ -19,7 +19,7 @@ use snarkvm::prelude::{Double, Inverse as _, Pow as _, ProgramID, Square as _, S
 use leo_errors::Formatted;
 use leo_span::Span;
 
-use crate::{BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVariant, Type, UnaryOperation};
+use crate::{BinaryOperation, FromStrRadix as _, IntegerType, Literal, LiteralVariant, TypeKind, UnaryOperation};
 
 use super::{errors, *};
 
@@ -57,57 +57,61 @@ impl Value {
         })
     }
 
-    /// Resolves an unsuffixed literal to a typed `Value` using the provided optional `Type`. If the value is unsuffixed
+    /// Resolves an unsuffixed literal to a typed `Value` using the provided optional `TypeKind`. If the value is unsuffixed
     /// and a type is provided, parses the string into the corresponding `Value` variant. Handles integers of various
     /// widths and special types like `Field`, `Group`, and `Scalar`. If no type is given or the value is already typed,
     /// returns the original value. Returns an error if type inference is not possible or parsing fails.
-    pub fn resolve_if_unsuffixed(&self, ty: &Option<Type>) -> Result<Value, String> {
+    pub fn resolve_if_unsuffixed(&self, ty: &Option<TypeKind>) -> Result<Value, String> {
         if let ValueVariants::Unsuffixed(s) = &self.contents {
             if let Some(ty) = ty {
                 let value = match ty {
-                    Type::Integer(IntegerType::U8) => {
+                    TypeKind::Integer(IntegerType::U8) => {
                         let s = s.replace("_", "");
                         u8::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::U16) => {
+                    TypeKind::Integer(IntegerType::U16) => {
                         let s = s.replace("_", "");
                         u16::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::U32) => {
+                    TypeKind::Integer(IntegerType::U32) => {
                         let s = s.replace("_", "");
                         u32::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::U64) => {
+                    TypeKind::Integer(IntegerType::U64) => {
                         let s = s.replace("_", "");
                         u64::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::U128) => {
+                    TypeKind::Integer(IntegerType::U128) => {
                         let s = s.replace("_", "");
                         u128::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::I8) => {
+                    TypeKind::Integer(IntegerType::I8) => {
                         let s = s.replace("_", "");
                         i8::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::I16) => {
+                    TypeKind::Integer(IntegerType::I16) => {
                         let s = s.replace("_", "");
                         i16::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::I32) => {
+                    TypeKind::Integer(IntegerType::I32) => {
                         let s = s.replace("_", "");
                         i32::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::I64) => {
+                    TypeKind::Integer(IntegerType::I64) => {
                         let s = s.replace("_", "");
                         i64::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Integer(IntegerType::I128) => {
+                    TypeKind::Integer(IntegerType::I128) => {
                         let s = s.replace("_", "");
                         i128::from_str_by_radix(&s).expect("Parsing guarantees this works.").into()
                     }
-                    Type::Field => SvmLiteralParam::Field(parse_tc(prepare_snarkvm_string(s, "field").parse())?).into(),
-                    Type::Group => SvmLiteralParam::Group(parse_tc(prepare_snarkvm_string(s, "group").parse())?).into(),
-                    Type::Scalar => {
+                    TypeKind::Field => {
+                        SvmLiteralParam::Field(parse_tc(prepare_snarkvm_string(s, "field").parse())?).into()
+                    }
+                    TypeKind::Group => {
+                        SvmLiteralParam::Group(parse_tc(prepare_snarkvm_string(s, "group").parse())?).into()
+                    }
+                    TypeKind::Scalar => {
                         SvmLiteralParam::Scalar(parse_tc(prepare_snarkvm_string(s, "scalar").parse())?).into()
                     }
                     _ => return Err("cannot infer type of unsuffixed literal".into()),
@@ -122,7 +126,7 @@ impl Value {
     }
 }
 
-pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result<Value, String> {
+pub fn literal_to_value(literal: &Literal, expected_ty: &Option<TypeKind>) -> Result<Value, String> {
     Ok(match &literal.variant {
         LiteralVariant::Address(s) => {
             if s.ends_with(".aleo") {
@@ -207,16 +211,16 @@ pub fn literal_to_value(literal: &Literal, expected_ty: &Option<Type>) -> Result
 fn resolve_unsuffixed_unary_op_operand(
     val: &Value,
     op: &UnaryOperation,
-    expected_ty: &Option<Type>,
+    expected_ty: &Option<TypeKind>,
 ) -> Result<Value, String> {
     match op {
         UnaryOperation::Inverse | UnaryOperation::Square | UnaryOperation::SquareRoot => {
             // These ops only take a `field` and return a `field`
-            val.resolve_if_unsuffixed(&Some(Type::Field))
+            val.resolve_if_unsuffixed(&Some(TypeKind::Field))
         }
         UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {
             // These ops only take a `Group`
-            val.resolve_if_unsuffixed(&Some(Type::Group))
+            val.resolve_if_unsuffixed(&Some(TypeKind::Group))
         }
         _ => {
             // All other unary ops take the same type as the their return type
@@ -230,12 +234,12 @@ pub fn evaluate_unary(
     span: Span,
     op: UnaryOperation,
     value: &Value,
-    expected_ty: &Option<Type>,
+    expected_ty: &Option<TypeKind>,
 ) -> Result<Value, Formatted> {
     evaluate_unary_inner(op, value, expected_ty).map_err(|reason| errors::unary_op_failure(value, op, reason, span))
 }
 
-fn evaluate_unary_inner(op: UnaryOperation, value: &Value, expected_ty: &Option<Type>) -> Result<Value, String> {
+fn evaluate_unary_inner(op: UnaryOperation, value: &Value, expected_ty: &Option<TypeKind>) -> Result<Value, String> {
     let value = resolve_unsuffixed_unary_op_operand(value, &op, expected_ty)?;
     let ValueVariants::Svm(SvmValueParam::Plaintext(Plaintext::Literal(literal, ..))) = &value.contents else {
         return Err("Type error".into());
@@ -324,9 +328,9 @@ fn resolve_unsuffixed_binary_op_operands(
     lhs: &Value,
     rhs: &Value,
     op: &BinaryOperation,
-    expected_ty: &Option<Type>,
+    expected_ty: &Option<TypeKind>,
 ) -> Result<(Value, Value), String> {
-    use Type::*;
+    use TypeKind::*;
 
     let lhs_ty = lhs.get_numeric_type();
     let rhs_ty = rhs.get_numeric_type();
@@ -353,10 +357,10 @@ fn resolve_unsuffixed_binary_op_operands(
             // For a `Pow`, if one operand is a `Field`, then the other must also be a `Field.
             // Otherwise, only the `lhs` must match the return type.
             let lhs_resolved = lhs
-                .resolve_if_unsuffixed(&rhs_ty.filter(|ty| matches!(ty, Type::Field)))?
+                .resolve_if_unsuffixed(&rhs_ty.filter(|ty| matches!(ty, TypeKind::Field)))?
                 .resolve_if_unsuffixed(expected_ty)?;
 
-            let rhs_resolved = rhs.resolve_if_unsuffixed(&lhs_ty.filter(|ty| matches!(ty, Type::Field)))?;
+            let rhs_resolved = rhs.resolve_if_unsuffixed(&lhs_ty.filter(|ty| matches!(ty, TypeKind::Field)))?;
 
             (lhs_resolved, rhs_resolved)
         }
@@ -373,7 +377,7 @@ pub fn evaluate_binary(
     op: BinaryOperation,
     lhs: &Value,
     rhs: &Value,
-    expected_ty: &Option<Type>,
+    expected_ty: &Option<TypeKind>,
 ) -> Result<Value, Formatted> {
     evaluate_binary_inner(op, lhs, rhs, expected_ty)
         .map_err(|reason| errors::binary_op_failure(lhs, op, rhs, reason, span))
@@ -383,7 +387,7 @@ fn evaluate_binary_inner(
     op: BinaryOperation,
     lhs: &Value,
     rhs: &Value,
-    expected_ty: &Option<Type>,
+    expected_ty: &Option<TypeKind>,
 ) -> Result<Value, String> {
     let (lhs, rhs) = resolve_unsuffixed_binary_op_operands(lhs, rhs, &op, expected_ty)?;
 

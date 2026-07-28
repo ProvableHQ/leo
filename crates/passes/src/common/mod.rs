@@ -50,7 +50,7 @@ pub use type_table::*;
 /// can lower to assertions or storage reads must still be evaluated even when
 /// their result is unused.
 pub(crate) fn expression_can_be_discarded(expr: &Expression, state: &CompilerState) -> bool {
-    expr.is_pure(&|id| state.type_table.get(&id).expect("Types should be assigned."))
+    expr.is_pure(&|id| state.types.resolve(state.type_table.get(&id).expect("Types should be assigned.")))
         && !contains_non_discardable_operation(expr, state)
 }
 

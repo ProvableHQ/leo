@@ -85,7 +85,8 @@ impl FunctionConsumer for SsaFormingVisitor<'_> {
                 input_variable.identifier = new_identifier;
 
                 // Add the new identifier to the type table.
-                self.state.type_table.insert(new_identifier.id(), input_variable.type_.clone());
+                let ty = input_variable.type_.ty();
+                self.state.type_table.insert(new_identifier.id(), ty);
 
                 // Associate the old name with its ID.
                 self.rename_table.update(old_identifier.name, old_identifier.name, old_identifier.id);

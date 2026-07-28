@@ -211,7 +211,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
             composite_definition.members.iter().map(|member| member.identifier.name).collect();
         // Field types are only needed to synthesize `..base` copies; clone them only when a base is present.
         let definition_member_types: Vec<(Symbol, Type)> = if input.base.is_some() {
-            composite_definition.members.iter().map(|member| (member.identifier.name, member.type_.clone())).collect()
+            composite_definition.members.iter().map(|member| (member.identifier.name, member.type_.ty())).collect()
         } else {
             Vec::new()
         };
@@ -243,7 +243,7 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
                 }
                 // Synthesize `base.name`, registering the access type for later passes.
                 let access_id = self.state.node_builder.next_id();
-                self.state.type_table.insert(access_id, member_type.clone());
+                self.state.type_table.insert(access_id, *member_type);
                 let access = MemberAccess {
                     inner: base_expr.clone(),
                     name: Identifier::new(*name, self.state.node_builder.next_id()),

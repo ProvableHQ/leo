@@ -16,11 +16,11 @@
 
 use leo_span::{Symbol, sym};
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Explicit integer type.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Serialize)]
 pub enum IntegerType {
     U8,
     U16,

@@ -26,7 +26,7 @@ use leo_ast::{
     Expression,
     Identifier,
     Node as _,
-    Type,
+    TypeKind,
     UnitReconstructor as _,
 };
 
@@ -57,11 +57,18 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
 
+    fn interner(&self) -> &leo_ast::TypeInterner {
+        &self.state.types
+    }
+
     /* Types */
-    fn reconstruct_composite_type(&mut self, input: leo_ast::CompositeType) -> (leo_ast::Type, Self::AdditionalOutput) {
+    fn reconstruct_composite_type(
+        &mut self,
+        input: leo_ast::CompositeType,
+    ) -> (leo_ast::TypeKind, Self::AdditionalOutput) {
         // Proceed only if there are some const arguments.
         if input.const_arguments.is_empty() {
-            return (Type::Composite(input), Default::default());
+            return (TypeKind::Composite(input), Default::default());
         }
 
         // Ensure all const arguments can be evaluated to literals; if not, we skip this composite type instantiation for
@@ -70,13 +77,13 @@ impl AstReconstructor for MonomorphizationVisitor<'_> {
         // The types of the const arguments are already checked in the type checking pass.
         let Some(evaluated_const_args) = self.try_evaluate_const_args(&input.const_arguments) else {
             self.unresolved_composite_types.push(input.clone());
-            return (Type::Composite(input), Default::default());
+            return (TypeKind::Composite(input), Default::default());
         };
 
         // At this stage, we know that we're going to modify the program
         self.changed = true;
         (
-            Type::Composite(CompositeType {
+            TypeKind::Composite(CompositeType {
                 path: self.monomorphize_composite(&input.path, &evaluated_const_args),
                 const_arguments: vec![], // remove const arguments
             }),

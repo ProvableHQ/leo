@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{NetworkName, NodeBuilder, Program, Stub};
+use leo_ast::{NetworkName, NodeBuilder, Program, Stub, TypeInterner};
 use leo_compiler::{Compiled, Compiler, CompilerOptions};
 use leo_package::{ABI_FILENAME, Package};
 use leo_span::Symbol;
@@ -192,7 +192,12 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // so the prebuilt stub is shared across the build instead of recompiled per unit.
     // `inject_std_library` short-circuits when it finds this entry.
     if !build_options.no_std {
-        let std_stub = Compiler::build_std_stub(handler.clone(), Rc::clone(&node_builder), network)?;
+        let std_stub = Compiler::build_std_stub(
+            handler.clone(),
+            Rc::clone(&node_builder),
+            network,
+            Rc::new(TypeInterner::default()),
+        )?;
         stubs.insert(Symbol::intern(leo_std::library_name()), std_stub);
     }
 

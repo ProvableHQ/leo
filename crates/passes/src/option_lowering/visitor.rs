@@ -57,7 +57,7 @@ impl OptionLoweringVisitor<'_> {
     ///
     /// # Returns
     /// - An `Expression` representing the constructed `Optional<T>` struct instance.
-    pub fn wrap_optional_value(&mut self, expr: Expression, ty: Type) -> Expression {
+    pub fn wrap_optional_value(&mut self, expr: Expression, ty: TypeKind) -> Expression {
         let is_some_expr = Expression::Literal(Literal {
             span: Span::default(),
             id: self.state.node_builder.next_id(),
@@ -110,7 +110,7 @@ impl OptionLoweringVisitor<'_> {
     ///
     /// # Returns
     /// - An `Expression` representing the constructed `Optional<T>` struct instance with `None`.
-    pub fn wrap_none(&mut self, inner_ty: &Type) -> Expression {
+    pub fn wrap_none(&mut self, inner_ty: &TypeKind) -> Expression {
         let is_some_expr = Expression::Literal(Literal {
             span: Span::default(),
             id: self.state.node_builder.next_id(),
@@ -138,7 +138,7 @@ impl OptionLoweringVisitor<'_> {
                 })
                 .members
                 .iter()
-                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .map(|mem| (mem.identifier.name, mem.type_.kind().clone()))
                 .collect()
         };
 
@@ -192,7 +192,7 @@ impl OptionLoweringVisitor<'_> {
     ///
     /// If the struct for this type already exists, it’s reused; otherwise, a new one is created.
     /// Returns the `Symbol` for the struct name.
-    pub fn insert_optional_wrapper_struct(&mut self, ty: &Type) -> Symbol {
+    pub fn insert_optional_wrapper_struct(&mut self, ty: &TypeKind) -> Symbol {
         let struct_name = crate::make_optional_struct_symbol(ty);
 
         self.composites.entry(Location::new(self.program, vec![struct_name])).or_insert_with(|| Composite {
@@ -203,14 +203,14 @@ impl OptionLoweringVisitor<'_> {
                 Member {
                     mode: Mode::None,
                     identifier: Identifier::new(Symbol::intern("is_some"), self.state.node_builder.next_id()),
-                    type_: Type::Boolean,
+                    type_: TypeNode::new(&self.state.types, TypeKind::Boolean, Span::default()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },
                 Member {
                     mode: Mode::None,
                     identifier: Identifier::new(Symbol::intern("val"), self.state.node_builder.next_id()),
-                    type_: ty.clone(),
+                    type_: TypeNode::new(&self.state.types, ty.clone(), Span::default()),
                     span: Span::default(),
                     id: self.state.node_builder.next_id(),
                 },

@@ -44,7 +44,7 @@ impl WriteTransformingVisitor<'_> {
         if let Some(array_members) = self.array_members.get(&input.name) {
             // Build the array expression from the members.
             let id = self.state.node_builder.next_id();
-            self.state.type_table.insert(id, ty.clone());
+            self.state.type_table.insert(id, ty);
             let expr = ArrayExpression {
                 elements: array_members
                     // This clone is unfortunate, but both `array_members` and the closure below borrow self.
@@ -70,8 +70,8 @@ impl WriteTransformingVisitor<'_> {
         } else if let Some(composite_members) = self.composite_members.get(&input.name) {
             // Build the composite expression from the members.
             let id = self.state.node_builder.next_id();
-            self.state.type_table.insert(id, ty.clone());
-            let Type::Composite(comp_type) = ty else {
+            self.state.type_table.insert(id, ty);
+            let TypeKind::Composite(comp_type) = self.state.types.resolve(ty) else {
                 panic!("The type of a composite init should be a composite.");
             };
             let expr = CompositeExpression {
@@ -114,6 +114,10 @@ impl WriteTransformingVisitor<'_> {
 impl AstReconstructor for WriteTransformingVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Vec<Statement>;
+
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
 
     /* Expressions */
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {

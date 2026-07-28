@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AstReconstructor, Block, IterationStatement, Literal, Node, NodeID, Statement, Type, const_eval::Value};
+use leo_ast::{
+    AstReconstructor,
+    Block,
+    IterationStatement,
+    Literal,
+    Node,
+    NodeID,
+    Statement,
+    TypeKind,
+    const_eval::Value,
+};
 use leo_span::{Span, Symbol};
 
 use itertools::Either;
@@ -87,12 +97,13 @@ impl UnrollingVisitor<'_> {
             self.state.type_table.get(&input.variable.id()).expect("guaranteed to have a type after type checking");
 
         // Update the type table.
-        self.state.type_table.insert(const_id, iterator_type.clone());
+        self.state.type_table.insert(const_id, iterator_type);
 
         let outer_block_id = self.state.node_builder.next_id();
 
         // Reconstruct `iteration_count` as a `Literal`.
-        let Type::Integer(integer_type) = &iterator_type else {
+        let iterator_kind = self.state.types.resolve(iterator_type);
+        let TypeKind::Integer(integer_type) = &iterator_kind else {
             unreachable!("Type checking enforces that the iteration variable is of integer type");
         };
 
@@ -107,6 +118,7 @@ impl UnrollingVisitor<'_> {
                 &mut slf.state.symbol_table,
                 &slf.state.node_builder,
                 &slf.state.type_table,
+                &slf.state.types,
             );
 
             let result = slf.reconstruct_block(duplicated_body).0.into();

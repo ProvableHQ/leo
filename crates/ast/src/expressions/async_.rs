@@ -17,11 +17,11 @@
 use crate::{Block, Expression, Indent, Node, NodeID};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct AsyncExpression {
     /// The block to run asynchronously.
     pub block: Block,

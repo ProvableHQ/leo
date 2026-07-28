@@ -18,7 +18,7 @@ use crate::{Identifier, NetworkName};
 
 use core::fmt;
 use leo_span::{Span, Symbol};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use snarkvm::{
     console::program::ProgramID,
     prelude::{CanaryV0, MainnetV0, Network, Result, TestnetV0},
@@ -26,7 +26,7 @@ use snarkvm::{
 use std::str::FromStr;
 
 /// An identifier for a program that is eventually deployed to the network.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Serialize)]
 pub struct ProgramId {
     /// The name of the program.
     pub name: Identifier,

@@ -19,7 +19,7 @@ use snarkvm::{
     synthesizer::program::{DeserializeVariant, SerializeVariant},
 };
 
-use crate::{ArrayType, Expression, Intrinsic, Type, const_eval::Value};
+use crate::{ArrayType, Expression, Intrinsic, TypeKind, const_eval::Value};
 use leo_errors::Formatted;
 use leo_span::Span;
 
@@ -56,7 +56,7 @@ fn evaluate_intrinsic_inner(
         synthesizer::program::{CommitVariant, ECDSAVerifyVariant, HashVariant},
     };
 
-    let dohash = |values: &mut Vec<Value>, variant: HashVariant, typ: Type| -> Result<Value, String> {
+    let dohash = |values: &mut Vec<Value>, variant: HashVariant, typ: TypeKind| -> Result<Value, String> {
         let input = type_fail(pop_value(values)?.try_into())?;
         let value = snark(snarkvm::synthesizer::program::evaluate_hash(variant, &input, &snark(typ.to_snarkvm())?))?;
         Ok(value.into())
@@ -105,23 +105,24 @@ fn evaluate_intrinsic_inner(
         Ok(value.into())
     };
 
-    let dodeserialize = |values: &mut Vec<Value>, variant: DeserializeVariant, type_: Type| -> Result<Value, String> {
-        let value: SvmValue = type_fail(pop_value(values)?.try_into())?;
-        let bits = match value {
-            SvmValue::Plaintext(plaintext) => snark(plaintext.as_bit_array())?,
-            _ => return Err("expected array for deserialization".into()),
+    let dodeserialize =
+        |values: &mut Vec<Value>, variant: DeserializeVariant, type_: TypeKind| -> Result<Value, String> {
+            let value: SvmValue = type_fail(pop_value(values)?.try_into())?;
+            let bits = match value {
+                SvmValue::Plaintext(plaintext) => snark(plaintext.as_bit_array())?,
+                _ => return Err("expected array for deserialization".into()),
+            };
+            let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
+            let get_external_struct_fail = |_: &SvmLocator| anyhow::bail!("structs are not supported");
+            let value = snark(snarkvm::synthesizer::program::evaluate_deserialize(
+                variant,
+                &bits,
+                &snark(type_.to_snarkvm())?,
+                &get_struct_fail,
+                &get_external_struct_fail,
+            ))?;
+            Ok(value.into())
         };
-        let get_struct_fail = |_: &SvmIdentifier| anyhow::bail!("structs are not supported");
-        let get_external_struct_fail = |_: &SvmLocator| anyhow::bail!("structs are not supported");
-        let value = snark(snarkvm::synthesizer::program::evaluate_deserialize(
-            variant,
-            &bits,
-            &snark(type_.to_snarkvm())?,
-            &get_struct_fail,
-            &get_external_struct_fail,
-        ))?;
-        Ok(value.into())
-    };
 
     let value = match intrinsic {
         Intrinsic::ChaChaRand(_) => {

@@ -81,7 +81,8 @@ use leo_ast::{
     StorageVariable,
     StorageVariablePrototype,
     Stub,
-    Type,
+    TypeInterner,
+    TypeKind,
     UnitVisitor,
 };
 use leo_compiler::{Compiler, FrontendAnalysis, load_import_stubs_for_package_with_file_source};
@@ -686,8 +687,8 @@ fn run_compiler_analysis(
     // diagnostics flow through the handler regardless.
     let mut returned_error: Option<leo_errors::LeoError> = None;
     let occurrences = match frontend_result {
-        Ok(FrontendAnalysis { ast, symbol_table, type_table }) => {
-            Some(CompilerSemanticCollector::new(symbol_table, type_table, program_roots).collect(ast))
+        Ok(FrontendAnalysis { ast, symbol_table, type_table, types }) => {
+            Some(CompilerSemanticCollector::new(symbol_table, type_table, types, program_roots).collect(ast))
         }
         Err(error) => {
             returned_error = Some(error);
@@ -893,6 +894,7 @@ impl PackageAnalysisCache {
             project.package_root.as_ref(),
             leo_ast::NetworkName::TestnetV0,
             file_source,
+            &Rc::new(TypeInterner::default()),
         )
         .map_err(|error| error.to_string())?;
         let watch_paths = Arc::<[PathBuf]>::from(loaded.watch_paths);
@@ -1029,6 +1031,7 @@ struct CompilerSemanticCollector<'a> {
     symbol_table: &'a SymbolTable,
     #[allow(dead_code)]
     type_table: &'a TypeTable,
+    types: &'a leo_ast::TypeInterner,
     occurrences: Vec<SymbolOccurrence>,
     program_roots: ProgramRoots,
     current_program: Symbol,
@@ -1041,10 +1044,16 @@ struct CompilerSemanticCollector<'a> {
 
 impl<'a> CompilerSemanticCollector<'a> {
     /// Create a fresh collector bound to one compiler frontend snapshot.
-    fn new(symbol_table: &'a SymbolTable, type_table: &'a TypeTable, program_roots: ProgramRoots) -> Self {
+    fn new(
+        symbol_table: &'a SymbolTable,
+        type_table: &'a TypeTable,
+        types: &'a leo_ast::TypeInterner,
+        program_roots: ProgramRoots,
+    ) -> Self {
         Self {
             symbol_table,
             type_table,
+            types,
             occurrences: Vec::new(),
             current_program_root: program_roots.current.clone(),
             program_roots,
@@ -1223,26 +1232,24 @@ impl<'a> CompilerSemanticCollector<'a> {
     }
 
     /// Recover the owning composite location for a member-capable type.
-    fn member_owner_from_type(&self, type_: &Type) -> Option<Location> {
+    fn member_owner_from_type(&self, type_: &TypeKind) -> Option<Location> {
         match type_ {
-            Type::Composite(composite) => composite.path.try_global_location().cloned(),
-            Type::Optional(optional) => self.member_owner_from_type(optional.inner.as_ref()),
+            TypeKind::Composite(composite) => composite.path.try_global_location().cloned(),
+            TypeKind::Optional(optional) => self.member_owner_from_type(optional.inner.as_ref()),
             _ => None,
         }
     }
 
     /// Recover the owning composite location for `receiver.member`.
     fn member_owner_from_expression(&self, expression: &leo_ast::Expression) -> Option<Location> {
-        self.type_table.get(&expression.id()).and_then(|type_| self.member_owner_from_type(&type_))
+        self.type_table.get(&expression.id()).and_then(|type_| self.member_owner_from_type(&self.types.resolve(type_)))
     }
 
-    /// Recover the owning composite location for `Type { field: ... }`.
+    /// Recover the owning composite location for `Foo { field: ... }`.
     fn member_owner_from_composite_init(&self, input: &CompositeExpression) -> Option<Location> {
-        input
-            .path
-            .try_global_location()
-            .cloned()
-            .or_else(|| self.type_table.get(&input.id).and_then(|type_| self.member_owner_from_type(&type_)))
+        input.path.try_global_location().cloned().or_else(|| {
+            self.type_table.get(&input.id).and_then(|type_| self.member_owner_from_type(&self.types.resolve(type_)))
+        })
     }
 
     /// Record a source import and point it at the imported program when available.
@@ -1486,7 +1493,7 @@ impl<'a> AstVisitor for CompilerSemanticCollector<'a> {
     fn visit_const(&mut self, input: &ConstDeclaration) {
         // Constants behave like readonly variable declarations for semantic
         // token purposes, even when they appear at top level.
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
         self.visit_expression(&input.value, &());
         if self.local_scopes.is_empty() {
             // Top-level consts participate in global path resolution, so they
@@ -1509,7 +1516,7 @@ impl<'a> AstVisitor for CompilerSemanticCollector<'a> {
     /// Visit a `let` definition and bind every declared local name.
     fn visit_definition(&mut self, input: &DefinitionStatement) {
         if let Some(type_) = &input.type_ {
-            self.visit_type(type_);
+            self.visit_type(type_.kind());
         }
         self.visit_expression(&input.value, &());
         // Definitions can destructure multiple identifiers, but each bound name
@@ -1525,7 +1532,7 @@ impl<'a> AstVisitor for CompilerSemanticCollector<'a> {
     /// Visit a loop while limiting the loop variable to the body scope.
     fn visit_iteration(&mut self, input: &IterationStatement) {
         if let Some(type_) = &input.type_ {
-            self.visit_type(type_);
+            self.visit_type(type_.kind());
         }
         self.visit_expression(&input.start, &());
         self.visit_expression(&input.stop, &());
@@ -1659,7 +1666,7 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
 
         self.push_scope();
         input.const_parameters.iter().for_each(|parameter| {
-            self.visit_type(&parameter.type_);
+            self.visit_type(parameter.type_.kind());
             self.bind_local(&parameter.identifier, SemanticKind::Parameter, true);
         });
         input.members.iter().for_each(|member| {
@@ -1669,7 +1676,7 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
                 member.mode == leo_ast::Mode::Constant,
                 span_to_file_range(member.identifier.span),
             );
-            self.visit_type(&member.type_);
+            self.visit_type(member.type_.kind());
         });
         self.pop_scope();
         self.owner_stack.pop();
@@ -1706,7 +1713,7 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
                 false,
             );
         }
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
     }
 
     /// Visit an interface mapping prototype under the active owner.
@@ -1741,7 +1748,7 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
                 false,
             );
         }
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
     }
 
     /// Visit a concrete function and bind its parameter/body scopes.
@@ -1761,14 +1768,14 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
 
         self.push_scope();
         input.const_parameters.iter().for_each(|parameter| {
-            self.visit_type(&parameter.type_);
+            self.visit_type(parameter.type_.kind());
             self.bind_local(&parameter.identifier, SemanticKind::Parameter, true);
         });
         input.input.iter().for_each(|parameter| {
-            self.visit_type(&parameter.type_);
+            self.visit_type(parameter.type_.kind());
             self.bind_local(&parameter.identifier, SemanticKind::Parameter, false);
         });
-        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        input.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&input.output_type);
         self.visit_block(&input.block);
         self.pop_scope();
@@ -1819,14 +1826,14 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
 
         self.push_scope();
         input.const_parameters.iter().for_each(|parameter| {
-            self.visit_type(&parameter.type_);
+            self.visit_type(parameter.type_.kind());
             self.bind_local(&parameter.identifier, SemanticKind::Parameter, true);
         });
         input.input.iter().for_each(|parameter| {
-            self.visit_type(&parameter.type_);
+            self.visit_type(parameter.type_.kind());
             self.bind_local(&parameter.identifier, SemanticKind::Parameter, false);
         });
-        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        input.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&input.output_type);
         self.pop_scope();
     }
@@ -1856,7 +1863,7 @@ impl<'a> UnitVisitor for CompilerSemanticCollector<'a> {
                 member.mode == leo_ast::Mode::Constant,
                 span_to_file_range(member.identifier.span),
             );
-            self.visit_type(&member.type_);
+            self.visit_type(member.type_.kind());
         });
         self.owner_stack.pop();
     }
@@ -2123,13 +2130,14 @@ mod tests {
             SymbolOccurrence,
         },
     };
-    use leo_ast::NetworkName;
+    use leo_ast::{NetworkName, TypeInterner};
     use leo_compiler::load_import_stubs_for_package;
     use lsp_types::Uri;
     use serde_json::json;
     use std::{
         fs,
         path::{Path, PathBuf},
+        rc::Rc,
         sync::Arc,
         thread,
         time::Duration,
@@ -2206,7 +2214,8 @@ mod tests {
         );
         fs::write(root.join("src").join("main.leo"), "program root.aleo {}\n").expect("write root source");
 
-        let loaded = load_import_stubs_for_package(&root, NetworkName::TestnetV0).expect("load import stubs");
+        let loaded = load_import_stubs_for_package(&root, NetworkName::TestnetV0, &Rc::new(TypeInterner::default()))
+            .expect("load import stubs");
         assert_eq!(loaded.stubs.len(), 1);
     }
 

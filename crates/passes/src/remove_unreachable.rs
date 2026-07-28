@@ -66,17 +66,20 @@ impl UnitReconstructor for RemoveUnreachableVisitor<'_> {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| ConstParameter {
+                    type_: self.reconstruct_type_node(param.type_.clone()).0,
+                    ..param.clone()
+                })
                 .collect(),
             input: input
                 .input
                 .iter()
-                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .map(|input| Input { type_: self.reconstruct_type_node(input.type_.clone()).0, ..input.clone() })
                 .collect(),
             output: input
                 .output
                 .iter()
-                .map(|output| Output { type_: self.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .map(|output| Output { type_: self.reconstruct_type_node(output.type_.clone()).0, ..output.clone() })
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,
@@ -103,6 +106,10 @@ impl UnitReconstructor for RemoveUnreachableVisitor<'_> {
 impl AstReconstructor for RemoveUnreachableVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
+
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
 
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
         // Produce every reconstructed statement until you see an unconditional return
@@ -159,7 +166,7 @@ impl AstReconstructor for RemoveUnreachableVisitor<'_> {
 
         (
             IterationStatement {
-                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                type_: input.type_.map(|ty| self.reconstruct_type_node(ty).0),
                 start: self.reconstruct_expression(input.start, &Default::default()).0,
                 stop: self.reconstruct_expression(input.stop, &Default::default()).0,
                 block,

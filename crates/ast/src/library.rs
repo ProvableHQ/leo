@@ -18,7 +18,7 @@ use leo_span::Symbol;
 
 use crate::{Composite, ConstDeclaration, Function, Indent, Interface, Module, Stub};
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Stores the Leo library abstract syntax tree.
@@ -26,7 +26,7 @@ use std::fmt;
 /// Libraries may contain `const` declarations, `struct` definitions, `fn` functions,
 /// `interface` definitions, and submodules (each a separate source file under the
 /// library's `src/` directory).
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Library {
     pub name: Symbol,
     /// Submodules of this library, keyed by their path (e.g., `[utils]` for `src/utils.leo`).

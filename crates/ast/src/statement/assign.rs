@@ -17,12 +17,12 @@
 use crate::{Expression, Node, NodeID, Statement};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An assignment statement, `assignee = value`.
 /// Note that there is no operation associated with the assignment.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct AssignStatement {
     /// The place to assign to.
     pub place: Expression,

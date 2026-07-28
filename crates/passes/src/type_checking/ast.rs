@@ -18,7 +18,7 @@ use super::*;
 use crate::{BlockToFunctionRewriter, VariableType};
 
 use leo_ast::{
-    Type::{Future, Tuple},
+    TypeKind::{Future, Tuple},
     *,
 };
 use leo_errors::Label;
@@ -37,7 +37,7 @@ pub(super) static PROGRAM_ID_REGEX: LazyLock<regex::Regex> =
 
 #[derive(Clone, Debug)]
 pub struct AssignTargetInfo {
-    pub ty: Type,
+    pub ty: TypeKind,
     pub kind: AssignTargetKind,
 }
 
@@ -85,7 +85,7 @@ impl TypeCheckingVisitor<'_> {
             },
             _ => {
                 self.emit_err(crate::errors::type_checker::invalid_assignment_target(input, input.span()));
-                AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err }
+                AssignTargetInfo { ty: TypeKind::Err, kind: AssignTargetKind::Err }
             }
         };
 
@@ -93,7 +93,7 @@ impl TypeCheckingVisitor<'_> {
         if let Expression::Path(path) = input
             && !self.symbol_in_conditional_scope(path.identifier().name)
             && (self.is_external_record(&assign_target_info.ty)
-                || matches!(&assign_target_info.ty, Type::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty))))
+                || matches!(&assign_target_info.ty, TypeKind::Tuple(tuple) if tuple.elements().iter().any(|ty| self.is_external_record(ty))))
         {
             if self.is_external_record(&assign_target_info.ty) {
                 self.emit_err(crate::errors::type_checker::assignment_to_external_record_cond(
@@ -111,21 +111,27 @@ impl TypeCheckingVisitor<'_> {
 
         // Prohibit reassignment of futures or mappings
         match &assign_target_info.ty {
-            Type::Future(..) => {
+            TypeKind::Future(..) => {
                 self.emit_err(crate::errors::type_checker::cannot_reassign_final_variable(input, input.span()))
             }
-            Type::Mapping(_) => {
+            TypeKind::Mapping(_) => {
                 self.emit_err(crate::errors::type_checker::cannot_reassign_mapping(input, input.span()))
             }
             _ => {}
         }
 
         // Add the expression and its associated type to the type table.
-        self.state.type_table.insert(input.id(), assign_target_info.ty.clone());
+        let ty = self.state.types.intern(&assign_target_info.ty);
+        self.state.type_table.insert(input.id(), ty);
         assign_target_info
     }
 
-    pub fn visit_array_access_general(&mut self, input: &ArrayAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_array_access_general(
+        &mut self,
+        input: &ArrayAccess,
+        assign: bool,
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         // Check that the expression is an array.
         let this_type = if assign {
             self.visit_expression_assign(&input.array).ty
@@ -137,10 +143,10 @@ impl TypeCheckingVisitor<'_> {
         // Check that the index is an integer type.
         let mut index_type = self.visit_expression(&input.index, &None);
 
-        if index_type == Type::Numeric {
+        if index_type == TypeKind::Numeric {
             // If the index has type `Numeric`, then it's an unsuffixed literal. Just infer its type to be `u32` and
             // then check it's validity as a `u32`.
-            index_type = Type::Integer(IntegerType::U32);
+            index_type = TypeKind::Integer(IntegerType::U32);
             if let Expression::Literal(literal) = &input.index {
                 self.check_numeric_literal(literal, &index_type);
             }
@@ -150,12 +156,13 @@ impl TypeCheckingVisitor<'_> {
 
         // Keep track of the type of the index in the type table.
         // This is important for when the index is an unsuffixed literal.
-        self.state.type_table.insert(input.index.id(), index_type.clone());
+        let index_ty = self.state.types.intern(&index_type);
+        self.state.type_table.insert(input.index.id(), index_ty);
 
         // Get the element type of the array.
-        let Type::Array(array_type) = this_type else {
+        let TypeKind::Array(array_type) = this_type else {
             // We must have already reported an error above, in our type assertion.
-            return Type::Err;
+            return TypeKind::Err;
         };
 
         let element_type = array_type.element_type();
@@ -167,7 +174,12 @@ impl TypeCheckingVisitor<'_> {
         element_type.clone()
     }
 
-    pub fn visit_member_access_general(&mut self, input: &MemberAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_member_access_general(
+        &mut self,
+        input: &MemberAccess,
+        assign: bool,
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let ty = if assign {
             self.visit_expression_assign(&input.inner).ty
         } else {
@@ -181,20 +193,20 @@ impl TypeCheckingVisitor<'_> {
 
         // Check that the type of `inner` in `inner.name` is a composite.
         match ty {
-            Type::Err => Type::Err,
-            Type::Composite(ref composite) => {
+            TypeKind::Err => TypeKind::Err,
+            TypeKind::Composite(ref composite) => {
                 // Retrieve the composite definition associated with `identifier`.
                 let Some(composite) = self.lookup_composite(composite.path.expect_global_location()) else {
                     self.emit_err(crate::errors::type_checker::undefined_type(ty, input.inner.span()));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
                 // Check that `input.name` is a member of the composite.
                 match composite.members.iter().find(|member| member.name() == input.name.name) {
                     // Case where `input.name` is a member of the composite.
                     Some(Member { type_, .. }) => {
                         // Check that the type of `input.name` is the same as `expected`.
-                        self.maybe_assert_type(type_, expected, input.span());
-                        type_.clone()
+                        self.maybe_assert_type(type_.kind(), expected, input.span());
+                        type_.kind().clone()
                     }
                     // Case where `input.name` is not a member of the composite.
                     None => {
@@ -203,23 +215,23 @@ impl TypeCheckingVisitor<'_> {
                             &composite,
                             input.name.span(),
                         ));
-                        Type::Err
+                        TypeKind::Err
                     }
                 }
             }
-            Type::DynRecord => {
+            TypeKind::DynRecord => {
                 if assign {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         "dyn record",
                         "an assignable struct or record",
                         input.inner.span(),
                     ));
-                    return Type::Err;
+                    return TypeKind::Err;
                 }
                 // `.owner` is always accessible and returns `address`.
                 if input.name.name == sym::owner {
-                    self.maybe_assert_type(&Type::Address, expected, input.span());
-                    Type::Address
+                    self.maybe_assert_type(&TypeKind::Address, expected, input.span());
+                    TypeKind::Address
                 } else if let Some(expected_type) = expected {
                     // Other fields require a type annotation (via `let x: T = r.field` or `r.field as T`).
                     expected_type.clone()
@@ -228,7 +240,7 @@ impl TypeCheckingVisitor<'_> {
                         input.name,
                         input.name.span(),
                     ));
-                    Type::Err
+                    TypeKind::Err
                 }
             }
             type_ => {
@@ -237,25 +249,30 @@ impl TypeCheckingVisitor<'_> {
                     "a struct or record",
                     input.inner.span(),
                 ));
-                Type::Err
+                TypeKind::Err
             }
         }
     }
 
-    pub fn visit_tuple_access_general(&mut self, input: &TupleAccess, assign: bool, expected: &Option<Type>) -> Type {
+    pub fn visit_tuple_access_general(
+        &mut self,
+        input: &TupleAccess,
+        assign: bool,
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let this_type = if assign {
             self.visit_expression_assign(&input.tuple).ty
         } else {
             self.visit_expression(&input.tuple, &None)
         };
         match this_type {
-            Type::Err => Type::Err,
-            Type::Tuple(tuple) => {
+            TypeKind::Err => TypeKind::Err,
+            TypeKind::Tuple(tuple) => {
                 // Check out of range input.
                 let index = input.index.value();
                 let Some(actual) = tuple.elements().get(index) else {
                     self.emit_err(crate::errors::type_checker::tuple_out_of_range(index, tuple.length(), input.span()));
-                    return Type::Err;
+                    return TypeKind::Err;
                 };
 
                 self.maybe_assert_type(actual, expected, input.span());
@@ -264,7 +281,7 @@ impl TypeCheckingVisitor<'_> {
             }
             type_ => {
                 self.emit_err(crate::errors::type_checker::type_should_be2(type_, "a tuple", input.span()));
-                Type::Err
+                TypeKind::Err
             }
         }
     }
@@ -286,7 +303,7 @@ impl TypeCheckingVisitor<'_> {
         // Lookup the variable in the symbol table
         let Some(var) = self.state.symbol_table.lookup_path(current_program, input) else {
             self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span));
-            return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
+            return AssignTargetInfo { ty: TypeKind::Err, kind: AssignTargetKind::Err };
         };
 
         let ty = var.type_.expect("must be known by now").clone();
@@ -294,7 +311,7 @@ impl TypeCheckingVisitor<'_> {
         // Cannot assign to storage vectors
         if ty.is_vector() {
             self.emit_err(crate::errors::type_checker::invalid_assignment_target(input, input.span()));
-            return AssignTargetInfo { ty: Type::Err, kind: AssignTargetKind::Err };
+            return AssignTargetInfo { ty: TypeKind::Err, kind: AssignTargetKind::Err };
         }
 
         // Check that variable is not a constant or constant input
@@ -348,34 +365,39 @@ impl TypeCheckingVisitor<'_> {
         AssignTargetInfo { ty, kind: AssignTargetKind::Local }
     }
 
-    /// Infers the type of an expression, but returns Type::Err and emits an error if the result is Type::Numeric.
+    /// Infers the type of an expression, but returns TypeKind::Err and emits an error if the result is TypeKind::Numeric.
     /// Used to disallow numeric types in specific contexts where they are not valid or expected.
-    pub(crate) fn visit_expression_reject_numeric(&mut self, expr: &Expression, expected: &Option<Type>) -> Type {
+    pub(crate) fn visit_expression_reject_numeric(
+        &mut self,
+        expr: &Expression,
+        expected: &Option<TypeKind>,
+    ) -> TypeKind {
         let mut inferred = self.visit_expression(expr, expected);
         match inferred {
-            Type::Numeric => {
+            TypeKind::Numeric => {
                 self.emit_inference_failure_error(&mut inferred, expr);
-                Type::Err
+                TypeKind::Err
             }
             _ => inferred,
         }
     }
 
-    /// Infers the type of an expression, and if it is `Type::Numeric`, coerces it to `U32`, validates it, and
+    /// Infers the type of an expression, and if it is `TypeKind::Numeric`, coerces it to `U32`, validates it, and
     /// records it in the type table.
-    pub(crate) fn visit_expression_infer_default_u32(&mut self, expr: &Expression) -> Type {
+    pub(crate) fn visit_expression_infer_default_u32(&mut self, expr: &Expression) -> TypeKind {
         let mut inferred = self.visit_expression(expr, &None);
 
-        if inferred == Type::Numeric {
-            inferred = Type::Integer(IntegerType::U32);
+        if inferred == TypeKind::Numeric {
+            inferred = TypeKind::Integer(IntegerType::U32);
 
             if let Expression::Literal(literal) = expr
                 && !self.check_numeric_literal(literal, &inferred)
             {
-                inferred = Type::Err;
+                inferred = TypeKind::Err;
             }
 
-            self.state.type_table.insert(expr.id(), inferred.clone());
+            let inferred_ty = self.state.types.intern(&inferred);
+            self.state.type_table.insert(expr.id(), inferred_ty);
         }
 
         inferred
@@ -383,8 +405,8 @@ impl TypeCheckingVisitor<'_> {
 }
 
 impl AstVisitor for TypeCheckingVisitor<'_> {
-    type AdditionalInput = Option<Type>;
-    type Output = Type;
+    type AdditionalInput = Option<TypeKind>;
+    type Output = TypeKind;
 
     /* Types */
     fn visit_array_type(&mut self, input: &ArrayType) {
@@ -408,7 +430,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
             // Check the types of const arguments against the types of the composite's const parameters
             for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
-                self.visit_expression(argument, &Some(expected.type_().clone()));
+                self.visit_expression(argument, &Some(expected.type_().kind().clone()));
             }
         } else if !input.const_arguments.is_empty() {
             // This handles erroring out on all non-structs
@@ -441,7 +463,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         };
 
         // Add the expression and its associated type to the symbol table.
-        self.state.type_table.insert(input.id(), output.clone());
+        let output_ty = self.state.types.intern(&output);
+        self.state.type_table.insert(input.id(), output_ty);
         output
     }
 
@@ -461,9 +484,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Grab the element type from the expected type if the expected type is an array or if it's
         // an optional array
         let element_type = match additional {
-            Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
-            Some(Type::Optional(opt)) => match &*opt.inner {
-                Type::Array(array_ty) => Some(array_ty.element_type().clone()),
+            Some(TypeKind::Array(array_ty)) => Some(array_ty.element_type().clone()),
+            Some(TypeKind::Optional(opt)) => match &*opt.inner {
+                TypeKind::Array(array_ty) => Some(array_ty.element_type().clone()),
                 _ => None,
             },
             _ => None,
@@ -474,7 +497,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 ty
             } else {
                 self.emit_err(crate::errors::type_checker::could_not_determine_type(input, input.span()));
-                Type::Err
+                TypeKind::Err
             }
         } else {
             self.visit_expression_reject_numeric(&input.elements[0], &element_type)
@@ -491,8 +514,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         for expression in input.elements.iter().skip(1) {
             let next_type = self.visit_expression_reject_numeric(expression, &element_type);
 
-            if next_type == Type::Err {
-                return Type::Err;
+            if next_type == TypeKind::Err {
+                return TypeKind::Err;
             }
 
             if let Some(ref element_type) = element_type {
@@ -502,11 +525,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        if inferred_type == Type::Err {
-            return Type::Err;
+        if inferred_type == TypeKind::Err {
+            return TypeKind::Err;
         }
 
-        let type_ = Type::Array(ArrayType::new(
+        let type_ = TypeKind::Array(ArrayType::new(
             inferred_type,
             Expression::Literal(Literal {
                 // The default type for array length is `U32`.
@@ -525,9 +548,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Grab the element type from the expected type if the expected type is an array or if it's
         // an optional array
         let expected_element_type = match additional {
-            Some(Type::Array(array_ty)) => Some(array_ty.element_type().clone()),
-            Some(Type::Optional(opt)) => match &*opt.inner {
-                Type::Array(array_ty) => Some(array_ty.element_type().clone()),
+            Some(TypeKind::Array(array_ty)) => Some(array_ty.element_type().clone()),
+            Some(TypeKind::Optional(opt)) => match &*opt.inner {
+                TypeKind::Array(array_ty) => Some(array_ty.element_type().clone()),
                 _ => None,
             },
             _ => None,
@@ -535,8 +558,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         let inferred_element_type = self.visit_expression_reject_numeric(&input.expr, &expected_element_type);
 
-        // Now infer the type of `count`. If it's an unsuffixed literal (i.e. has `Type::Numeric`), then infer it to be
-        // a `U32` as the default type.
+        // Unsuffixed literals in a length position default to `u32`.
         self.visit_expression_infer_default_u32(&input.count);
 
         // If we can already evaluate the repeat count as a `u32`, then make sure it's not greater than the array
@@ -553,7 +575,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.emit_err(crate::errors::type_checker::array_too_large_for_u32(input.span()));
         }
 
-        let type_ = Type::Array(ArrayType::new(inferred_element_type, input.count.clone()));
+        let type_ = TypeKind::Array(ArrayType::new(inferred_element_type, input.count.clone()));
 
         self.maybe_assert_type(&type_, additional, input.span());
         type_
@@ -569,7 +591,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check core struct name and function.
         let Some(intrinsic) = self.get_intrinsic(input) else {
-            return Type::Err;
+            return TypeKind::Err;
         };
 
         // Dynamic dispatch intrinsics have custom validation.
@@ -609,17 +631,17 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // A few restrictions
         if self.scope_state.is_conditional {
             self.emit_err(crate::errors::type_checker::final_block_in_conditional(input.span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         if !matches!(self.scope_state.variant, Some(Variant::EntryPoint)) {
             self.emit_err(crate::errors::type_checker::illegal_final_block_location(input.span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         if self.scope_state.already_contains_an_async_block {
             self.emit_err(crate::errors::type_checker::multiple_final_blocks_not_allowed(input.span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         if self.scope_state.has_called_finalize {
@@ -645,7 +667,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check that no captured variable is a record type.
         for func_input in &new_function.input {
-            if let Type::Composite(composite) = &func_input.type_
+            if let TypeKind::Composite(composite) = &func_input.type_.kind()
                 && let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
                 && comp.is_record
             {
@@ -656,7 +678,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
-        let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.clone()).collect();
+        let input_types = new_function.input.iter().map(|Input { type_, .. }| type_.kind().clone()).collect();
         self.async_function_input_types.insert(
             Location::new(self.scope_state.unit_name.unwrap(), vec![Symbol::intern(&format!(
                 "finalize/{}",
@@ -670,16 +692,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // The type of the async block is just a `Future` with no `Location` (i.e. not produced by an explicit `async
         // function`) and no inputs since we're not allowed to access inputs of a `Future` produced by an `async block.
-        Type::Future(FutureType::new(Vec::new(), None, false))
+        TypeKind::Future(FutureType::new(Vec::new(), None, false))
     }
 
     fn visit_binary(&mut self, input: &BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
-        let assert_same_type = |slf: &Self, t1: &Type, t2: &Type| -> Type {
-            if t1 == &Type::Err || t2 == &Type::Err {
-                Type::Err
+        let assert_same_type = |slf: &Self, t1: &TypeKind, t2: &TypeKind| -> TypeKind {
+            if t1 == &TypeKind::Err || t2 == &TypeKind::Err {
+                TypeKind::Err
             } else if !t1.types_equivalent(t2) {
                 slf.emit_err(crate::errors::type_checker::operation_types_mismatch(input.op, t1, t2, input.span()));
-                Type::Err
+                TypeKind::Err
             } else {
                 t1.clone()
             }
@@ -692,8 +714,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // - If one type is a known numeric type and the other is `Numeric`, infer the unknown type.
         // - If one type is `Numeric` but the other is not a valid numeric type, emit an error.
         // - Otherwise, do nothing (types are already resolved or not subject to inference).
-        let infer_numeric_types = |slf: &Self, left_type: &mut Type, right_type: &mut Type| {
-            use Type::*;
+        let infer_numeric_types = |slf: &Self, left_type: &mut TypeKind, right_type: &mut TypeKind| {
+            use TypeKind::*;
 
             match (&*left_type, &*right_type) {
                 // Case: Both types are unknown numeric types – cannot infer either side
@@ -711,7 +733,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Case: Right type is unknown numeric, infer it from known left type
                 (Integer(_) | Field | Group | Scalar, Numeric) => {
                     *right_type = left_type.clone();
-                    slf.state.type_table.insert(input.right.id(), right_type.clone());
+                    let ty = slf.state.types.intern(right_type);
+                    slf.state.type_table.insert(input.right.id(), ty);
                     if let Expression::Literal(literal) = &input.right {
                         slf.check_numeric_literal(literal, right_type);
                     }
@@ -720,7 +743,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // Case: Left type is unknown numeric, infer it from known right type
                 (Numeric, Integer(_) | Field | Group | Scalar) => {
                     *left_type = right_type.clone();
-                    slf.state.type_table.insert(input.left.id(), left_type.clone());
+                    let ty = slf.state.types.intern(left_type);
+                    slf.state.type_table.insert(input.left.id(), ty);
                     if let Expression::Literal(literal) = &input.left {
                         slf.check_numeric_literal(literal, left_type);
                     }
@@ -739,10 +763,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
-                self.maybe_assert_type(&Type::Boolean, destination, input.span());
-                self.visit_expression(&input.left, &Some(Type::Boolean));
-                self.visit_expression(&input.right, &Some(Type::Boolean));
-                Type::Boolean
+                self.maybe_assert_type(&TypeKind::Boolean, destination, input.span());
+                self.visit_expression(&input.left, &Some(TypeKind::Boolean));
+                self.visit_expression(&input.right, &Some(TypeKind::Boolean));
+                TypeKind::Boolean
             }
             BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor => {
                 let operand_expected = self.unwrap_optional_type(destination);
@@ -774,8 +798,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 infer_numeric_types(self, &mut t1, &mut t2);
 
                 // Now sanity check everything
-                let assert_add_type = |type_: &Type, span: Span| {
-                    if !matches!(type_, Type::Err | Type::Field | Type::Group | Type::Scalar | Type::Integer(_)) {
+                let assert_add_type = |type_: &TypeKind, span: Span| {
+                    if !matches!(
+                        type_,
+                        TypeKind::Err | TypeKind::Field | TypeKind::Group | TypeKind::Scalar | TypeKind::Integer(_)
+                    ) {
                         self.emit_err(crate::errors::type_checker::type_should_be2(
                             type_,
                             "a field, group, scalar, or integer",
@@ -817,9 +844,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let unwrapped_dest = self.unwrap_optional_type(destination);
 
                 // The expected type for both `left` and `right` is the same as unwrapped destination except when it is
-                // a `Type::Group`. In that case, the two operands should be a `Type::Group` and `Type::Scalar` but we can't
+                // a `TypeKind::Group`. In that case, the two operands should be a `TypeKind::Group` and `TypeKind::Scalar` but we can't
                 // known which one is which.
-                let expected = if matches!(unwrapped_dest, Some(Type::Group)) { &None } else { &unwrapped_dest };
+                let expected = if matches!(unwrapped_dest, Some(TypeKind::Group)) { &None } else { &unwrapped_dest };
                 let mut t1 = self.visit_expression(&input.left, expected);
                 let mut t2 = self.visit_expression(&input.right, expected);
 
@@ -829,24 +856,26 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 //
                 // If no special case applies, default to inferring types between `t1` and `t2` as-is.
                 match (&t1, &t2) {
-                    (Type::Group, Type::Numeric) => infer_numeric_types(self, &mut Type::Scalar, &mut t2),
-                    (Type::Numeric, Type::Group) => infer_numeric_types(self, &mut t1, &mut Type::Scalar),
-                    (Type::Scalar, Type::Numeric) => infer_numeric_types(self, &mut Type::Group, &mut t2),
-                    (Type::Numeric, Type::Scalar) => infer_numeric_types(self, &mut t1, &mut Type::Group),
+                    (TypeKind::Group, TypeKind::Numeric) => infer_numeric_types(self, &mut TypeKind::Scalar, &mut t2),
+                    (TypeKind::Numeric, TypeKind::Group) => infer_numeric_types(self, &mut t1, &mut TypeKind::Scalar),
+                    (TypeKind::Scalar, TypeKind::Numeric) => infer_numeric_types(self, &mut TypeKind::Group, &mut t2),
+                    (TypeKind::Numeric, TypeKind::Scalar) => infer_numeric_types(self, &mut t1, &mut TypeKind::Group),
                     (_, _) => infer_numeric_types(self, &mut t1, &mut t2),
                 }
 
                 // Final sanity checks
                 let result_t = match (&t1, &t2) {
-                    (Type::Err, _) | (_, Type::Err) => Type::Err,
-                    (Type::Group, Type::Scalar) | (Type::Scalar, Type::Group) => Type::Group,
-                    (Type::Field, Type::Field) => Type::Field,
-                    (Type::Integer(integer_type1), Type::Integer(integer_type2)) if integer_type1 == integer_type2 => {
+                    (TypeKind::Err, _) | (_, TypeKind::Err) => TypeKind::Err,
+                    (TypeKind::Group, TypeKind::Scalar) | (TypeKind::Scalar, TypeKind::Group) => TypeKind::Group,
+                    (TypeKind::Field, TypeKind::Field) => TypeKind::Field,
+                    (TypeKind::Integer(integer_type1), TypeKind::Integer(integer_type2))
+                        if integer_type1 == integer_type2 =>
+                    {
                         t1.clone()
                     }
                     _ => {
                         self.emit_err(crate::errors::type_checker::mul_types_mismatch(t1, t2, input.span()));
-                        Type::Err
+                        TypeKind::Err
                     }
                 };
 
@@ -925,27 +954,27 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // If one side is a `Field` and the other is a `Numeric`, infer the `Numeric` as a `Field.
                 // Otherwise, error out for each `Numeric`.
-                if matches!((&t1, &t2), (Type::Field, Type::Numeric) | (Type::Numeric, Type::Field)) {
+                if matches!((&t1, &t2), (TypeKind::Field, TypeKind::Numeric) | (TypeKind::Numeric, TypeKind::Field)) {
                     infer_numeric_types(self, &mut t1, &mut t2);
                 } else {
-                    if matches!(t1, Type::Numeric) {
+                    if matches!(t1, TypeKind::Numeric) {
                         self.emit_inference_failure_error(&mut t1, &input.left);
                     }
-                    if matches!(t2, Type::Numeric) {
+                    if matches!(t2, TypeKind::Numeric) {
                         self.emit_inference_failure_error(&mut t2, &input.right);
                     }
                 }
 
                 // Now sanity check everything
                 let ty = match (&t1, &t2) {
-                    (Type::Err, _) | (_, Type::Err) => Type::Err,
-                    (Type::Field, Type::Field) => Type::Field,
-                    (base @ Type::Integer(_), t2) => {
+                    (TypeKind::Err, _) | (_, TypeKind::Err) => TypeKind::Err,
+                    (TypeKind::Field, TypeKind::Field) => TypeKind::Field,
+                    (base @ TypeKind::Integer(_), t2) => {
                         if !matches!(
                             t2,
-                            Type::Integer(IntegerType::U8)
-                                | Type::Integer(IntegerType::U16)
-                                | Type::Integer(IntegerType::U32)
+                            TypeKind::Integer(IntegerType::U8)
+                                | TypeKind::Integer(IntegerType::U16)
+                                | TypeKind::Integer(IntegerType::U32)
                         ) {
                             self.emit_err(crate::errors::type_checker::pow_types_mismatch(base, t2, input.span()));
                         }
@@ -953,7 +982,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     }
                     _ => {
                         self.emit_err(crate::errors::type_checker::pow_types_mismatch(t1, t2, input.span()));
-                        Type::Err
+                        TypeKind::Err
                     }
                 };
 
@@ -993,7 +1022,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // pattern is almost always a developer mistake — e.g. comparing two `Mapping::set`
                 // calls, expecting a runtime check, when the operator alone determines which branch
                 // of any surrounding `if`/ternary survives codegen.
-                if matches!(t1, Type::Unit) && matches!(t2, Type::Unit) {
+                if matches!(t1, TypeKind::Unit) && matches!(t2, TypeKind::Unit) {
                     let (op_str, folded) = match input.op {
                         BinaryOperation::Eq => ("==", "true"),
                         BinaryOperation::Neq => ("!=", "false"),
@@ -1009,9 +1038,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     );
                 }
 
-                self.maybe_assert_type(&Type::Boolean, destination, input.span());
+                self.maybe_assert_type(&TypeKind::Boolean, destination, input.span());
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte => {
                 // Assert left and right are equal field, scalar, or integer types.
@@ -1022,8 +1051,8 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 infer_numeric_types(self, &mut t1, &mut t2);
 
                 // Now sanity check everything
-                let assert_compare_type = |type_: &Type, span: Span| {
-                    if !matches!(type_, Type::Err | Type::Field | Type::Scalar | Type::Integer(_)) {
+                let assert_compare_type = |type_: &TypeKind, span: Span| {
+                    if !matches!(type_, TypeKind::Err | TypeKind::Field | TypeKind::Scalar | TypeKind::Integer(_)) {
                         self.emit_err(crate::errors::type_checker::type_should_be2(
                             type_,
                             "a field, scalar, or integer",
@@ -1037,9 +1066,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 let _ = assert_same_type(self, &t1, &t2);
 
-                self.maybe_assert_type(&Type::Boolean, destination, input.span());
+                self.maybe_assert_type(&TypeKind::Boolean, destination, input.span());
 
-                Type::Boolean
+                TypeKind::Boolean
             }
             BinaryOperation::AddWrapped
             | BinaryOperation::SubWrapped
@@ -1081,10 +1110,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 if !matches!(
                     &t2,
-                    Type::Err
-                        | Type::Integer(IntegerType::U8)
-                        | Type::Integer(IntegerType::U16)
-                        | Type::Integer(IntegerType::U32)
+                    TypeKind::Err
+                        | TypeKind::Integer(IntegerType::U8)
+                        | TypeKind::Integer(IntegerType::U16)
+                        | TypeKind::Integer(IntegerType::U32)
                 ) {
                     self.emit_err(crate::errors::type_checker::shift_type_magnitude(input.op, t2, input.right.span()));
                 }
@@ -1098,13 +1127,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         let current_program = self.scope_state.unit_name.unwrap();
 
         // Look up the interface in the symbol table.
-        let Type::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
+        let TypeKind::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
             panic!("Dynamic ops can only be done over interface types, got `{}`", input.interface);
         };
         let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
         let Some(interface) = self.state.symbol_table.lookup_interface(current_program, interface_location) else {
             self.emit_err(crate::errors::type_checker::unknown_sym("interface", &input.interface, interface_path.span));
-            return Type::Err;
+            return TypeKind::Err;
         };
         if !self.scope_state.is_accessible(interface_location, interface.is_exported) {
             self.emit_err(crate::errors::type_checker::inaccessible_item(
@@ -1112,7 +1141,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 &input.interface,
                 interface_path.span,
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
         let interface = interface.clone();
 
@@ -1136,7 +1165,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 input.function.clone(),
                 input.function.span(),
             ));
-            return Type::Err;
+            return TypeKind::Err;
         };
 
         if !self.scope_state.is_accessible(callee_location, func_symbol.function.is_exported) {
@@ -1145,7 +1174,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 input.function.clone(),
                 input.function.span(),
             ));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         let func = func_symbol.function.clone();
@@ -1162,7 +1191,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             && self.async_block_id.is_none()
         {
             self.emit_err(crate::errors::type_checker::call_final_fn_outside_finalize_context(input.span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Check that the call is valid.
@@ -1220,7 +1249,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         if self.async_block_id.is_some() && !matches!(func.variant, Variant::FinalFn | Variant::Fn | Variant::View) {
             // FIXME better error
             self.emit_err(crate::errors::type_checker::can_only_call_inline_function("a final block", input.span));
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Regular `fn`s are inlined into the caller's scope; if any transitively-called function
@@ -1305,7 +1334,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Async functions return a single future.
         let mut ret = if func.variant == Variant::Finalize {
             // Async functions always return futures.
-            Type::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
+            TypeKind::Future(FutureType::new(Vec::new(), Some(callee_location.clone()), false))
         } else if func.variant == Variant::EntryPoint && func.has_final_output() {
             // Fully infer future type.
             let Some(inputs) =
@@ -1318,20 +1347,20 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 // visited. If we land here without it, the call has either been already
                 // diagnosed as invalid above (e.g. ETYC0372043: a local entry-point calling
                 // another local entry-point) or the callee's async block has not been visited
-                // yet at this point in the AST walk. Falling back to `Type::Err` keeps the
+                // yet at this point in the AST walk. Falling back to `TypeKind::Err` keeps the
                 // diagnostic chain going instead of panicking on otherwise-valid input.
-                return Type::Err;
+                return TypeKind::Err;
             };
 
-            let future_type = Type::Future(FutureType::new(inputs.clone(), Some(callee_location.clone()), true));
+            let future_type = TypeKind::Future(FutureType::new(inputs.clone(), Some(callee_location.clone()), true));
             let fully_inferred_type = match &func.output_type {
-                Type::Tuple(tup) => Type::Tuple(TupleType::new(
+                TypeKind::Tuple(tup) => TypeKind::Tuple(TupleType::new(
                     tup.elements()
                         .iter()
-                        .map(|t| if matches!(t, Type::Future(_)) { future_type.clone() } else { t.clone() })
-                        .collect::<Vec<Type>>(),
+                        .map(|t| if matches!(t, TypeKind::Future(_)) { future_type.clone() } else { t.clone() })
+                        .collect::<Vec<TypeKind>>(),
                 )),
-                Type::Future(_) => future_type,
+                TypeKind::Future(_) => future_type,
                 _ => panic!("Invalid output type for async transition."),
             };
             self.assert_and_return_type(fully_inferred_type, expected, input.span())
@@ -1360,19 +1389,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check the types of const arguments against the types of the function's const parameters
         for (expected, argument) in func.const_parameters.iter().zip(input.const_arguments.iter()) {
-            self.visit_expression(argument, &Some(expected.type_().clone()));
+            self.visit_expression(argument, &Some(expected.type_().kind().clone()));
         }
 
         let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
         for (expected, argument) in func.input.iter().zip(input.arguments.iter()) {
             // Get the type of the expression. If the type is not known, do not attempt to attempt any further inference.
-            let ty = self.visit_expression(argument, &Some(expected.type_().clone()));
+            let ty = self.visit_expression(argument, &Some(expected.type_().kind().clone()));
 
-            if ty == Type::Err {
-                return Type::Err;
+            if ty == TypeKind::Err {
+                return TypeKind::Err;
             }
             // Extract information about futures that are being consumed.
-            if func.variant == Variant::Finalize && matches!(expected.type_(), Type::Future(_)) {
+            if func.variant == Variant::Finalize && matches!(expected.type_().kind(), TypeKind::Future(_)) {
                 // Consume the future.
                 let option_name = match argument {
                     Expression::Path(path) => Some(path.identifier().name),
@@ -1509,7 +1538,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             self.scope_state.has_called_finalize = true;
 
             // Update ret to reflect fully inferred future type.
-            ret = Type::Future(FutureType::new(
+            ret = TypeKind::Future(FutureType::new(
                 inferred_finalize_inputs.clone(),
                 Some(Location::new(callee_program, callee_path.clone())),
                 true,
@@ -1535,11 +1564,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_cast(&mut self, input: &CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Special case: casting to `dyn record`.
-        if matches!(input.type_, Type::DynRecord) {
+        if matches!(input.type_.kind(), TypeKind::DynRecord) {
             let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
             // Only concrete record types can be cast to `dyn record`.
             match &expression_type {
-                Type::Composite(composite) => {
+                TypeKind::Composite(composite) => {
                     if let Some(comp) = self.lookup_composite(composite.path.expect_global_location())
                         && !comp.is_record
                     {
@@ -1549,7 +1578,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         ));
                     }
                 }
-                Type::Err => {}
+                TypeKind::Err => {}
                 _ => {
                     self.emit_err(crate::errors::type_checker::cannot_cast_to_dyn_record(
                         &expression_type,
@@ -1557,53 +1586,54 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     ));
                 }
             }
-            self.maybe_assert_type(&input.type_, expected, input.span());
-            return input.type_.clone();
+            self.maybe_assert_type(input.type_.kind(), expected, input.span());
+            return input.type_.kind().clone();
         }
 
-        // Special case: `r.field as Type` on a dyn record provides the expected type
-        // to the member access so the field resolves to the annotated type.
+        // A `dyn record` field access has no declared type; the surrounding cast is what pins
+        // its expected type. Propagate the cast target down so member resolution sees it.
         if let Expression::MemberAccess(member) = &input.expression {
             let inner_type = self.visit_expression(&member.inner, &None);
-            if matches!(inner_type, Type::DynRecord) {
+            if matches!(inner_type, TypeKind::DynRecord) {
                 // Re-visit the full member access with the cast target as expected type.
-                let result = self.visit_member_access_general(member, false, &Some(input.type_.clone()));
+                let result = self.visit_member_access_general(member, false, &Some(input.type_.kind().clone()));
                 // Update the type table with the resolved type.
-                self.state.type_table.insert(input.expression.id(), result.clone());
-                self.maybe_assert_type(&input.type_, expected, input.span());
-                return input.type_.clone();
+                let result_ty = self.state.types.intern(&result);
+                self.state.type_table.insert(input.expression.id(), result_ty);
+                self.maybe_assert_type(input.type_.kind(), expected, input.span());
+                return input.type_.kind().clone();
             }
         }
 
         let expression_type = self.visit_expression_reject_numeric(&input.expression, &None);
 
         // Special case: `expr as dyn record` — source must be a record type (not a struct).
-        if matches!(input.type_, Type::DynRecord) {
-            let is_record = matches!(&expression_type, Type::Composite(ct)
+        if matches!(input.type_.kind(), TypeKind::DynRecord) {
+            let is_record = matches!(&expression_type, TypeKind::Composite(ct)
                 if self.lookup_composite(ct.path.expect_global_location())
                     .is_some_and(|c| c.is_record));
-            if !is_record && !matches!(expression_type, Type::Err) {
+            if !is_record && !matches!(expression_type, TypeKind::Err) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     &expression_type,
                     "a record type",
                     input.expression.span(),
                 ));
             }
-            self.maybe_assert_type(&input.type_, expected, input.span());
-            return input.type_.clone();
+            self.maybe_assert_type(input.type_.kind(), expected, input.span());
+            return input.type_.kind().clone();
         }
 
-        let assert_castable_type = |actual: &Type, span: Span| {
+        let assert_castable_type = |actual: &TypeKind, span: Span| {
             if !matches!(
                 actual,
-                Type::Integer(_)
-                    | Type::Boolean
-                    | Type::Field
-                    | Type::Group
-                    | Type::Scalar
-                    | Type::Address
-                    | Type::Identifier
-                    | Type::Err,
+                TypeKind::Integer(_)
+                    | TypeKind::Boolean
+                    | TypeKind::Field
+                    | TypeKind::Group
+                    | TypeKind::Scalar
+                    | TypeKind::Address
+                    | TypeKind::Identifier
+                    | TypeKind::Err,
             ) {
                 self.emit_err(crate::errors::type_checker::type_should_be2(
                     actual,
@@ -1613,13 +1643,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
         };
 
-        assert_castable_type(&input.type_, input.span());
+        assert_castable_type(input.type_.kind(), input.span());
 
         assert_castable_type(&expression_type, input.expression.span());
 
-        self.maybe_assert_type(&input.type_, expected, input.span());
+        self.maybe_assert_type(input.type_.kind(), expected, input.span());
 
-        input.type_.clone()
+        input.type_.kind().clone()
     }
 
     fn visit_composite_init(
@@ -1635,11 +1665,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 input.path.clone(),
                 input.path.span(),
             ));
-            return Type::Err;
+            return TypeKind::Err;
         };
 
         if !self.check_composite_accessible(composite_location, &composite, input.path.span()) {
-            return Type::Err;
+            return TypeKind::Err;
         }
 
         // Check the number of const arguments against the number of the composite's const parameters
@@ -1654,11 +1684,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Check the types of const arguments against the types of the composite's const parameters
         for (expected, argument) in composite.const_parameters.iter().zip(input.const_arguments.iter()) {
-            self.visit_expression(argument, &Some(expected.type_().clone()));
+            self.visit_expression(argument, &Some(expected.type_().kind().clone()));
         }
 
-        let type_ =
-            Type::Composite(CompositeType { path: input.path.clone(), const_arguments: input.const_arguments.clone() });
+        let type_ = TypeKind::Composite(CompositeType {
+            path: input.path.clone(),
+            const_arguments: input.const_arguments.clone(),
+        });
         self.maybe_assert_type(&type_, additional, input.path.span());
 
         // A struct update base must have the composite type; it supplies any field not listed explicitly.
@@ -1746,16 +1778,16 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                                 self.check_access_allowed("storage access", AccessScope::FinalizeRead, input.span());
                             }
 
-                            self.maybe_assert_type(&ty, &Some(type_.clone()), input.span());
+                            self.maybe_assert_type(&ty, &Some(type_.kind().clone()), input.span());
                             ty.clone()
                         } else {
                             self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span()));
-                            Type::Err
+                            TypeKind::Err
                         };
                     }
                     Some(expr) => {
                         // Otherwise, visit the associated expression.
-                        self.visit_expression(expr, &Some(type_.clone()));
+                        self.visit_expression(expr, &Some(type_.kind().clone()));
                     }
                 };
             } else if input.base.is_none() {
@@ -1830,7 +1862,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
     fn visit_err(&mut self, _input: &ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        Type::Err
+        TypeKind::Err
     }
 
     fn visit_path(&mut self, input: &Path, expected: &Self::AdditionalInput) -> Self::Output {
@@ -1844,14 +1876,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 && !self.scope_state.is_accessible(loc, var.is_exported)
             {
                 self.emit_err(crate::errors::type_checker::inaccessible_item("item", input, input.span()));
-                return Type::Err;
+                return TypeKind::Err;
             }
 
             // The type may be `None` if a prior error (e.g. a tuple size mismatch) prevented the
-            // variable's type from being set during `visit_definition`. Return `Type::Err` to
+            // variable's type from being set during `visit_definition`. Return `TypeKind::Err` to
             // signal that an error has already been emitted rather than panicking.
             let Some(ty) = var.type_ else {
-                return Type::Err;
+                return TypeKind::Err;
             };
             if var.declaration == VariableType::Storage && !ty.is_vector() && !ty.is_mapping() {
                 self.check_access_allowed("storage access", AccessScope::FinalizeRead, input.span());
@@ -1861,7 +1893,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             ty.clone()
         } else {
             self.emit_err(crate::errors::type_checker::unknown_sym("variable", input, input.span()));
-            Type::Err
+            TypeKind::Err
         }
     }
 
@@ -1871,15 +1903,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         macro_rules! parse_and_return {
             ($ty:ty, $variant:expr, $str:expr, $label:expr) => {{
                 self.parse_integer_literal::<$ty>($str, span, $label);
-                Type::Integer($variant)
+                TypeKind::Integer($variant)
             }};
         }
 
         let type_ = match &input.variant {
-            LiteralVariant::Address(..) => Type::Address,
-            LiteralVariant::Boolean(..) => Type::Boolean,
-            LiteralVariant::Field(..) => Type::Field,
-            LiteralVariant::Identifier(..) => Type::Identifier,
+            LiteralVariant::Address(..) => TypeKind::Address,
+            LiteralVariant::Boolean(..) => TypeKind::Boolean,
+            LiteralVariant::Field(..) => TypeKind::Field,
+            LiteralVariant::Identifier(..) => TypeKind::Identifier,
             LiteralVariant::Group(s) => {
                 let trimmed = s.trim_start_matches('-').trim_start_matches('0');
                 if !trimmed.is_empty()
@@ -1889,7 +1921,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 {
                     self.emit_err(crate::errors::type_checker::invalid_int_value(trimmed, "group", span));
                 }
-                Type::Group
+                TypeKind::Group
             }
             LiteralVariant::Integer(kind, string) => match kind {
                 IntegerType::U8 => parse_and_return!(u8, IntegerType::U8, string, "u8"),
@@ -1904,29 +1936,31 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 IntegerType::I128 => parse_and_return!(i128, IntegerType::I128, string, "i128"),
             },
             LiteralVariant::None => {
-                if let Some(ty @ Type::Optional(_)) = expected {
+                if let Some(ty @ TypeKind::Optional(_)) = expected {
                     ty.clone()
                 } else if let Some(ty) = expected {
                     self.emit_err(crate::errors::type_checker::none_found_non_optional(format!("{ty}"), span));
-                    Type::Err
+                    TypeKind::Err
                 } else {
                     self.emit_err(crate::errors::type_checker::could_not_determine_type(format!("{input}"), span));
-                    Type::Err
+                    TypeKind::Err
                 }
             }
-            LiteralVariant::Scalar(..) => Type::Scalar,
-            LiteralVariant::Signature(..) => Type::Signature,
-            LiteralVariant::String(..) => Type::String,
+            LiteralVariant::Scalar(..) => TypeKind::Scalar,
+            LiteralVariant::Signature(..) => TypeKind::Signature,
+            LiteralVariant::String(..) => TypeKind::String,
             LiteralVariant::Unsuffixed(_) => match expected {
-                Some(ty @ Type::Integer(_) | ty @ Type::Field | ty @ Type::Group | ty @ Type::Scalar) => {
+                Some(
+                    ty @ TypeKind::Integer(_) | ty @ TypeKind::Field | ty @ TypeKind::Group | ty @ TypeKind::Scalar,
+                ) => {
                     self.check_numeric_literal(input, ty);
                     ty.clone()
                 }
-                Some(ty @ Type::Optional(opt)) => {
+                Some(ty @ TypeKind::Optional(opt)) => {
                     // Handle optional expected type, e.g., u32?
                     let inner = &opt.inner;
                     match &**inner {
-                        Type::Integer(_) | Type::Field | Type::Group | Type::Scalar => {
+                        TypeKind::Integer(_) | TypeKind::Field | TypeKind::Group | TypeKind::Scalar => {
                             self.check_numeric_literal(input, inner);
                             *inner.clone()
                         }
@@ -1935,7 +1969,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                                 format!("type `{ty}`"),
                                 span,
                             ));
-                            Type::Err
+                            TypeKind::Err
                         }
                     }
                 }
@@ -1944,9 +1978,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         format!("type `{ty}`"),
                         span,
                     ));
-                    Type::Err
+                    TypeKind::Err
                 }
-                None => Type::Numeric,
+                None => TypeKind::Numeric,
             },
         };
 
@@ -1956,7 +1990,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_ternary(&mut self, input: &TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        self.visit_expression(&input.condition, &Some(Type::Boolean));
+        self.visit_expression(&input.condition, &Some(TypeKind::Boolean));
 
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
@@ -1969,27 +2003,27 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             )
         } else if input.if_false.is_none_expr() {
             let t1 = self.visit_expression(&input.if_true, &None);
-            if matches!(t1, Type::Optional(_)) {
+            if matches!(t1, TypeKind::Optional(_)) {
                 (t1.clone(), self.visit_expression(&input.if_false, &Some(t1.clone())))
             } else {
                 (
                     t1.clone(),
                     self.visit_expression(
                         &input.if_false,
-                        &Some(Type::Optional(OptionalType { inner: Box::new(t1.clone()) })),
+                        &Some(TypeKind::Optional(OptionalType { inner: Box::new(t1.clone()) })),
                     ),
                 )
             }
         } else if input.if_true.is_none_expr() {
             let t2 = self.visit_expression(&input.if_false, &None);
-            if matches!(t2, Type::Optional(_)) {
+            if matches!(t2, TypeKind::Optional(_)) {
                 (t2.clone(), self.visit_expression(&input.if_true, &Some(t2.clone())))
             } else {
                 (
                     t2.clone(),
                     self.visit_expression(
                         &input.if_true,
-                        &Some(Type::Optional(OptionalType { inner: Box::new(t2.clone()) })),
+                        &Some(TypeKind::Optional(OptionalType { inner: Box::new(t2.clone()) })),
                     ),
                 )
             }
@@ -2002,11 +2036,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.scope_state.is_conditional = previous_is_conditional;
 
-        let typ = if t1 == Type::Err || t2 == Type::Err {
-            Type::Err
+        let typ = if t1 == TypeKind::Err || t2 == TypeKind::Err {
+            TypeKind::Err
         } else if !t1.can_coerce_to(&t2) && !t2.can_coerce_to(&t1) {
             self.emit_err(crate::errors::type_checker::ternary_branch_mismatch(t1, t2, input.span()));
-            Type::Err
+            TypeKind::Err
         } else if let Some(expected) = expected {
             expected.clone()
         } else if t1.can_coerce_to(&t2) {
@@ -2021,7 +2055,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // dyn record cannot be used in ternary - the VM does not support it.
-        if matches!(typ, Type::DynRecord) {
+        if matches!(typ, TypeKind::DynRecord) {
             self.emit_err(crate::errors::type_checker::type_should_be2(
                 "dyn record",
                 "a type supported by ternary",
@@ -2030,7 +2064,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // None of its members may be external record types either.
-        if let Type::Tuple(tuple) = &typ
+        if let TypeKind::Tuple(tuple) = &typ
             && tuple.elements().iter().any(|ty| self.is_external_record(ty))
         {
             self.emit_err(crate::errors::type_checker::ternary_over_external_records(&typ, input.span));
@@ -2041,7 +2075,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
     fn visit_tuple(&mut self, input: &TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(expected) = expected {
-            if let Type::Tuple(expected_types) = expected {
+            if let TypeKind::Tuple(expected_types) = expected {
                 // If the expected type is a tuple, then ensure it's compatible with `input`
 
                 // First, make sure that the number of tuple elements is correct
@@ -2072,19 +2106,19 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                     .iter()
                     .map(|field| {
                         let ty = self.visit_expression(field, &None);
-                        if ty == Type::Numeric {
+                        if ty == TypeKind::Numeric {
                             self.emit_err(crate::errors::type_checker::could_not_determine_type(
                                 field.clone(),
                                 field.span(),
                             ));
-                            Type::Err
+                            TypeKind::Err
                         } else {
                             ty
                         }
                     })
                     .collect::<Vec<_>>();
-                if field_types.iter().all(|f| *f != Type::Err) {
-                    let tuple_type = Type::Tuple(TupleType::new(field_types));
+                if field_types.iter().all(|f| *f != TypeKind::Err) {
+                    let tuple_type = TypeKind::Tuple(TupleType::new(field_types));
                     self.emit_err(crate::errors::type_checker::type_should_be2(tuple_type, expected, input.span()));
                 }
 
@@ -2101,18 +2135,18 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 }
             });
 
-            Type::Tuple(TupleType::new(
+            TypeKind::Tuple(TupleType::new(
                 input
                     .elements
                     .iter()
                     .map(|field| {
                         let ty = self.visit_expression(field, &None);
-                        if ty == Type::Numeric {
+                        if ty == TypeKind::Numeric {
                             self.emit_err(crate::errors::type_checker::could_not_determine_type(
                                 field.clone(),
                                 field.span(),
                             ));
-                            Type::Err
+                            TypeKind::Err
                         } else {
                             ty
                         }
@@ -2125,15 +2159,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_unary(&mut self, input: &UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         let operand_expected = self.unwrap_optional_type(destination);
 
-        let assert_signed_int = |slf: &mut Self, type_: &Type| {
+        let assert_signed_int = |slf: &mut Self, type_: &TypeKind| {
             if !matches!(
                 type_,
-                Type::Err
-                    | Type::Integer(IntegerType::I8)
-                    | Type::Integer(IntegerType::I16)
-                    | Type::Integer(IntegerType::I32)
-                    | Type::Integer(IntegerType::I64)
-                    | Type::Integer(IntegerType::I128)
+                TypeKind::Err
+                    | TypeKind::Integer(IntegerType::I8)
+                    | TypeKind::Integer(IntegerType::I16)
+                    | TypeKind::Integer(IntegerType::I32)
+                    | TypeKind::Integer(IntegerType::I64)
+                    | TypeKind::Integer(IntegerType::I128)
             ) {
                 slf.emit_err(crate::errors::type_checker::type_should_be2(type_, "a signed integer", input.span()));
             }
@@ -2152,7 +2186,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             UnaryOperation::Double => {
                 let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
-                if !matches!(&type_, Type::Err | Type::Field | Type::Group) {
+                if !matches!(&type_, TypeKind::Err | TypeKind::Field | TypeKind::Group) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &type_,
                         "a field or group",
@@ -2163,12 +2197,12 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             UnaryOperation::Inverse => {
                 let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
-                if type_ == Type::Numeric {
+                if type_ == TypeKind::Numeric {
                     // We can actually infer to `field` here because only fields can be inverted
-                    type_ = Type::Field;
-                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                    type_ = TypeKind::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::FIELD);
                 } else {
-                    self.assert_type(&type_, &Type::Field, input.span());
+                    self.assert_type(&type_, &TypeKind::Field, input.span());
                 }
                 type_
             }
@@ -2176,14 +2210,14 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
                 if !matches!(
                     &type_,
-                    Type::Err
-                        | Type::Integer(IntegerType::I8)
-                        | Type::Integer(IntegerType::I16)
-                        | Type::Integer(IntegerType::I32)
-                        | Type::Integer(IntegerType::I64)
-                        | Type::Integer(IntegerType::I128)
-                        | Type::Group
-                        | Type::Field
+                    TypeKind::Err
+                        | TypeKind::Integer(IntegerType::I8)
+                        | TypeKind::Integer(IntegerType::I16)
+                        | TypeKind::Integer(IntegerType::I32)
+                        | TypeKind::Integer(IntegerType::I64)
+                        | TypeKind::Integer(IntegerType::I128)
+                        | TypeKind::Group
+                        | TypeKind::Field
                 ) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &type_,
@@ -2195,7 +2229,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             UnaryOperation::Not => {
                 let type_ = self.visit_expression_reject_numeric(&input.receiver, &operand_expected);
-                if !matches!(&type_, Type::Err | Type::Boolean | Type::Integer(_)) {
+                if !matches!(&type_, TypeKind::Err | TypeKind::Boolean | TypeKind::Integer(_)) {
                     self.emit_err(crate::errors::type_checker::type_should_be2(
                         &type_,
                         "a bool or integer",
@@ -2206,30 +2240,30 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             }
             UnaryOperation::Square => {
                 let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
-                if type_ == Type::Numeric {
+                if type_ == TypeKind::Numeric {
                     // We can actually infer to `field` here because only fields can be squared
-                    type_ = Type::Field;
-                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                    type_ = TypeKind::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::FIELD);
                 } else {
-                    self.assert_type(&type_, &Type::Field, input.span());
+                    self.assert_type(&type_, &TypeKind::Field, input.span());
                 }
                 type_
             }
             UnaryOperation::SquareRoot => {
                 let mut type_ = self.visit_expression(&input.receiver, &operand_expected);
-                if type_ == Type::Numeric {
+                if type_ == TypeKind::Numeric {
                     // We can actually infer to `field` here because only fields can be square-rooted
-                    type_ = Type::Field;
-                    self.state.type_table.insert(input.receiver.id(), Type::Field);
+                    type_ = TypeKind::Field;
+                    self.state.type_table.insert(input.receiver.id(), Type::FIELD);
                 } else {
-                    self.assert_type(&type_, &Type::Field, input.span());
+                    self.assert_type(&type_, &TypeKind::Field, input.span());
                 }
                 type_
             }
             UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {
-                let _operand_type = self.visit_expression(&input.receiver, &Some(Type::Group));
-                self.maybe_assert_type(&Type::Field, destination, input.span());
-                Type::Field
+                let _operand_type = self.visit_expression(&input.receiver, &Some(TypeKind::Group));
+                self.maybe_assert_type(&TypeKind::Field, destination, input.span());
+                TypeKind::Field
             }
         };
 
@@ -2239,7 +2273,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_unit(&mut self, _input: &UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        Type::Unit
+        TypeKind::Unit
     }
 
     /* Statements */
@@ -2266,13 +2300,13 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_assert(&mut self, input: &AssertStatement) {
         match &input.variant {
             AssertVariant::Assert(expr) => {
-                let _type = self.visit_expression(expr, &Some(Type::Boolean));
+                let _type = self.visit_expression(expr, &Some(TypeKind::Boolean));
             }
             AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
                 let t1 = self.visit_expression_reject_numeric(left, &None);
                 let t2 = self.visit_expression_reject_numeric(right, &None);
 
-                if t1 != Type::Err && t2 != Type::Err && !t1.types_equivalent(&t2) {
+                if t1 != TypeKind::Err && t2 != TypeKind::Err && !t1.types_equivalent(&t2) {
                     let op =
                         if matches!(input.variant, AssertVariant::AssertEq(..)) { "assert_eq" } else { "assert_neq" };
                     self.emit_err(crate::errors::type_checker::operation_types_mismatch(op, &t1, &t2, input.span()));
@@ -2302,7 +2336,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         let expected_rhs_ty = match (&assign_target_info.kind, value.is_none_expr(), &assign_target_info.ty) {
-            (AssignTargetKind::Storage, false, Type::Optional(OptionalType { inner })) => {
+            (AssignTargetKind::Storage, false, TypeKind::Optional(OptionalType { inner })) => {
                 // For storage variables that are being assigned to a value other than `none` where
                 // assign_target_info.ty` is an optional, we want the expected type to be the wrapped type
                 // in that optional. For example:
@@ -2336,7 +2370,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_conditional(&mut self, input: &ConditionalStatement) {
-        self.visit_expression(&input.condition, &Some(Type::Boolean));
+        self.visit_expression(&input.condition, &Some(TypeKind::Boolean));
 
         let mut then_block_has_return = false;
         let mut otherwise_block_has_return = false;
@@ -2376,28 +2410,28 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
 
         // For now, consts that contain optional types are not supported.
         // TODO: remove this restriction by supporting const evaluation of optionals including `None`.
-        if self.contains_optional_type(&input.type_) {
+        if self.contains_optional_type(input.type_.kind()) {
             self.emit_err(crate::errors::type_checker::const_cannot_be_optional(input.span));
         }
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
-        match &input.type_ {
+        match &input.type_.kind() {
             // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(crate::errors::type_checker::lhs_must_be_identifier_or_tuple(input.span)),
+            TypeKind::Unit => self.emit_err(crate::errors::type_checker::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) => match tuple.length() {
+            TypeKind::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
-                    if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                    if tuple.elements().iter().any(|type_| matches!(type_, TypeKind::Tuple(_))) {
                         self.emit_err(crate::errors::type_checker::nested_tuple_type(input.span))
                     }
                 }
             },
-            Type::Mapping(_) | Type::Err => unreachable!(
+            TypeKind::Mapping(_) | TypeKind::Err => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
             // Otherwise, the type is valid.
@@ -2405,45 +2439,46 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         }
 
         // Check the expression on the right-hand side.
-        self.visit_expression(&input.value, &Some(input.type_.clone()));
+        self.visit_expression(&input.value, &Some(input.type_.kind().clone()));
 
         if self.scope_state.function.is_some() {
             // Global consts have already been handled, so only set the type here if it's local
-            self.state.symbol_table.set_local_type(input.place.name, input.type_.clone());
+            self.state.symbol_table.set_local_type(input.place.name, input.type_.kind().clone());
         }
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
         // Check that the type annotation of the definition is valid, if provided.
         if let Some(ty) = &input.type_ {
-            self.visit_type(ty);
-            self.assert_type_is_valid(ty, input.span);
+            self.visit_type(ty.kind());
+            self.assert_type_is_valid(ty.kind(), input.span);
         }
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
-        match &input.type_ {
+        match input.type_.as_ref().map(|t| t.kind()) {
             // If the type is a singleton tuple, return an error.
-            Some(Type::Tuple(tuple)) => match tuple.length() {
+            Some(TypeKind::Tuple(tuple)) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
                     for type_ in tuple.elements() {
-                        if matches!(type_, Type::Tuple(_)) {
+                        if matches!(type_, TypeKind::Tuple(_)) {
                             self.emit_err(crate::errors::type_checker::nested_tuple_type(input.span))
                         }
                     }
                 }
             },
-            Some(Type::Mapping(_)) | Some(Type::Err) => unreachable!(
+            Some(TypeKind::Mapping(_)) | Some(TypeKind::Err) => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
             // Otherwise, the type is valid.
             _ => (), // Do nothing
         }
 
-        // Check the expression on the right-hand side. If we could not resolve `Type::Numeric`, then just give up.
+        // Check the expression on the right-hand side. If we could not resolve `TypeKind::Numeric`, then just give up.
         // We could do better in the future by potentially looking at consumers of this variable and inferring type
         // information from them.
-        let inferred_type = self.visit_expression_reject_numeric(&input.value, &input.type_);
+        let annotated_ty = input.type_.as_ref().map(|t| t.kind().clone());
+        let inferred_type = self.visit_expression_reject_numeric(&input.value, &annotated_ty);
 
         // If the RHS is a storage vector, error out. Storage vectors cannot be assigned to a variable.
         // They can only be accessed directly via `push`, `pop`, etc.
@@ -2457,36 +2492,36 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                 self.set_local_type(
                     Some(inferred_type.clone()),
                     identifier,
-                    input.type_.clone().unwrap_or(inferred_type),
+                    annotated_ty.clone().unwrap_or(inferred_type),
                 );
             }
             DefinitionPlace::Multiple(identifiers) => {
                 // Get the tuple type either from `input.type_` or from `inferred_type`.
-                let tuple_type = match (&input.type_, inferred_type.clone()) {
-                    (Some(Type::Tuple(tuple_type)), _) => tuple_type.clone(),
-                    (None, Type::Tuple(tuple_type)) => tuple_type.clone(),
+                let tuple_type = match (&annotated_ty, inferred_type.clone()) {
+                    (Some(TypeKind::Tuple(tuple_type)), _) => tuple_type.clone(),
+                    (None, TypeKind::Tuple(tuple_type)) => tuple_type.clone(),
                     (None, rhs_type) => {
                         // No annotation and the RHS is not a tuple. Emit a diagnostic and set all
-                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // identifiers to `TypeKind::Err` to uphold the invariant that every variable has
                         // a known type after type checking, preventing downstream panics.
-                        if !matches!(rhs_type, Type::Err) {
+                        if !matches!(rhs_type, TypeKind::Err) {
                             self.emit_err(crate::errors::type_checker::multi_identifier_definition_requires_tuple(
                                 rhs_type,
                                 input.span(),
                             ));
                         }
                         for identifier in identifiers {
-                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                            self.set_local_type(Some(TypeKind::Err), identifier, TypeKind::Err);
                         }
                         return;
                     }
                     _ => {
                         // This is a type error: no tuple type could be determined for this binding.
                         // An error should have been emitted by the expression visitor. Set all
-                        // identifiers to `Type::Err` to uphold the invariant that every variable has
+                        // identifiers to `TypeKind::Err` to uphold the invariant that every variable has
                         // a known type after type checking, preventing downstream panics.
                         for identifier in identifiers {
-                            self.set_local_type(Some(Type::Err), identifier, Type::Err);
+                            self.set_local_type(Some(TypeKind::Err), identifier, TypeKind::Err);
                         }
                         return;
                     }
@@ -2504,10 +2539,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
                 // Now just insert each tuple element as a separate variable
                 for (i, identifier) in identifiers.iter().enumerate() {
-                    let inferred = if let Type::Tuple(inferred_tuple) = &inferred_type {
+                    let inferred = if let TypeKind::Tuple(inferred_tuple) = &inferred_type {
                         inferred_tuple.elements().get(i).cloned().unwrap_or_default()
                     } else {
-                        Type::Err
+                        TypeKind::Err
                     };
                     self.set_local_type(Some(inferred), identifier, tuple_type.elements()[i].clone());
                 }
@@ -2531,14 +2566,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     fn visit_iteration(&mut self, input: &IterationStatement) {
         // Ensure the type annotation is an integer type
         if let Some(ty) = &input.type_ {
-            self.visit_type(ty);
-            self.assert_int_type(ty, input.variable.span);
+            self.visit_type(ty.kind());
+            self.assert_int_type(ty.kind(), input.variable.span);
         }
 
         // These are the types of the start and end expressions of the iterator range. `visit_expression` will make
         // sure they match `input.type_` (i.e. the iterator type annotation) if available.
-        let start_ty = self.visit_expression(&input.start, &input.type_.clone());
-        let stop_ty = self.visit_expression(&input.stop, &input.type_.clone());
+        let annotated_ty = input.type_.as_ref().map(|t| t.kind().clone());
+        let start_ty = self.visit_expression(&input.start, &annotated_ty);
+        let stop_ty = self.visit_expression(&input.stop, &annotated_ty);
 
         // Ensure both types are integer types
         self.assert_int_type(&start_ty, input.start.span());
@@ -2554,8 +2590,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Now, just set the type of the iterator variable to `start_ty` if `input.type_` is not available. If `stop_ty`
         // does not match `start_ty` and `input.type_` is not available, the we just recover with `start_ty` anyways
         // and continue.
-        let iterator_ty = input.type_.clone().unwrap_or(start_ty);
-        self.state.type_table.insert(input.variable.id(), iterator_ty.clone());
+        let iterator_ty = annotated_ty.unwrap_or(start_ty);
+        let iterator_ty_id = self.state.types.intern(&iterator_ty);
+        self.state.type_table.insert(input.variable.id(), iterator_ty_id);
 
         self.in_scope(input.id(), |slf| {
             // Set the type of the loop variable in the scope of the loop body.
@@ -2629,7 +2666,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
                         .elements()
                         .iter()
                         .map(|t| if matches!(t, Future(_)) { inferred_future_type.clone() } else { t.clone() })
-                        .collect::<Vec<Type>>(),
+                        .collect::<Vec<TypeKind>>(),
                 )),
                 _ => {
                     return self
@@ -2643,7 +2680,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         if matches!(input.expression, Expression::Unit(..)) {
             // Manually type check rather than using one of the assert functions for a better error message.
-            if return_type != Type::Unit {
+            if return_type != TypeKind::Unit {
                 // TODO - This is a bit hackish. We're reusing an existing error, because
                 // we have too many errors in TypeCheckerError without hitting the recursion
                 // limit for macros. But the error message to the user should still be pretty clear.

@@ -16,13 +16,13 @@
 
 use std::fmt::Display;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-use leo_ast::{Function, Location, Mode, Type};
+use leo_ast::{Function, Location, Mode, TypeKind};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum VariableType {
     Const,
     ConstParameter,
@@ -46,11 +46,11 @@ impl Display for VariableType {
 }
 
 /// An entry for a variable in the symbol table.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct VariableSymbol {
-    /// The `Type` of the variable. This is an `Option` because variables are inserted into the
-    /// symbol table first without types. The types are only set in `TypeChecking`.
-    pub type_: Option<Type>,
+    /// `None` until `TypeChecking` runs. Symbols are inserted first (during path resolution)
+    /// and only get their type once type-checking has resolved the surrounding expression.
+    pub type_: Option<TypeKind>,
     /// The `Span` associated with the variable.
     pub span: Span,
     /// The type of declaration for the variable.
@@ -79,7 +79,7 @@ pub struct FunctionSymbol {
     pub is_stub: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct Finalizer {
     /// The name of the async function this async transition calls.
     pub location: Location,
@@ -88,5 +88,5 @@ pub struct Finalizer {
     pub future_inputs: Vec<Location>,
 
     /// The types passed to the async function called by this async transition.
-    pub inferred_inputs: Vec<Type>,
+    pub inferred_inputs: Vec<TypeKind>,
 }

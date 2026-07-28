@@ -45,29 +45,29 @@ use crate::*;
 /// A Visitor trait for types in the AST.
 pub trait AstVisitor {
     /* Types */
-    fn visit_type(&mut self, input: &Type) {
+    fn visit_type(&mut self, input: &TypeKind) {
         match input {
-            Type::Array(array_type) => self.visit_array_type(array_type),
-            Type::Composite(composite_type) => self.visit_composite_type(composite_type),
-            Type::Future(future_type) => self.visit_future_type(future_type),
-            Type::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
-            Type::Optional(optional_type) => self.visit_optional_type(optional_type),
-            Type::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
-            Type::Vector(array_type) => self.visit_vector_type(array_type),
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Group
-            | Type::Identifier
-            | Type::DynRecord
-            | Type::Ident(_)
-            | Type::Integer(_)
-            | Type::Scalar
-            | Type::Signature
-            | Type::String
-            | Type::Numeric
-            | Type::Unit
-            | Type::Err => {}
+            TypeKind::Array(array_type) => self.visit_array_type(array_type),
+            TypeKind::Composite(composite_type) => self.visit_composite_type(composite_type),
+            TypeKind::Future(future_type) => self.visit_future_type(future_type),
+            TypeKind::Mapping(mapping_type) => self.visit_mapping_type(mapping_type),
+            TypeKind::Optional(optional_type) => self.visit_optional_type(optional_type),
+            TypeKind::Tuple(tuple_type) => self.visit_tuple_type(tuple_type),
+            TypeKind::Vector(array_type) => self.visit_vector_type(array_type),
+            TypeKind::Address
+            | TypeKind::Boolean
+            | TypeKind::Field
+            | TypeKind::Group
+            | TypeKind::Identifier
+            | TypeKind::DynRecord
+            | TypeKind::Ident(_)
+            | TypeKind::Integer(_)
+            | TypeKind::Scalar
+            | TypeKind::Signature
+            | TypeKind::String
+            | TypeKind::Numeric
+            | TypeKind::Unit
+            | TypeKind::Err => {}
         }
     }
 
@@ -318,13 +318,13 @@ pub trait AstVisitor {
     }
 
     fn visit_const(&mut self, input: &ConstDeclaration) {
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
         self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
         if let Some(ty) = input.type_.as_ref() {
-            self.visit_type(ty)
+            self.visit_type(ty.kind())
         }
         self.visit_expression(&input.value, &Default::default());
     }
@@ -335,7 +335,7 @@ pub trait AstVisitor {
 
     fn visit_iteration(&mut self, input: &IterationStatement) {
         if let Some(ty) = input.type_.as_ref() {
-            self.visit_type(ty)
+            self.visit_type(ty.kind())
         }
         self.visit_expression(&input.start, &Default::default());
         self.visit_expression(&input.stop, &Default::default());
@@ -394,8 +394,8 @@ pub trait UnitVisitor: AstVisitor {
     }
 
     fn visit_composite(&mut self, input: &Composite) {
-        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
-        input.members.iter().for_each(|member| self.visit_type(&member.type_));
+        input.const_parameters.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.members.iter().for_each(|member| self.visit_type(member.type_.kind()));
     }
 
     fn visit_mapping(&mut self, input: &Mapping) {
@@ -404,13 +404,13 @@ pub trait UnitVisitor: AstVisitor {
     }
 
     fn visit_storage_variable(&mut self, input: &StorageVariable) {
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
     }
 
     fn visit_function(&mut self, input: &Function) {
-        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
-        input.input.iter().for_each(|input| self.visit_type(&input.type_));
-        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        input.const_parameters.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.input.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&input.output_type);
         self.visit_block(&input.block);
     }
@@ -423,14 +423,14 @@ pub trait UnitVisitor: AstVisitor {
     }
 
     fn visit_function_prototype(&mut self, input: &FunctionPrototype) {
-        input.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
-        input.input.iter().for_each(|input| self.visit_type(&input.type_));
-        input.output.iter().for_each(|output| self.visit_type(&output.type_));
+        input.const_parameters.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.input.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        input.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&input.output_type);
     }
 
     fn visit_record_prototype(&mut self, input: &RecordPrototype) {
-        input.members.iter().for_each(|member| self.visit_type(&member.type_));
+        input.members.iter().for_each(|member| self.visit_type(member.type_.kind()));
     }
 
     fn visit_mapping_prototype(&mut self, input: &MappingPrototype) {
@@ -439,7 +439,7 @@ pub trait UnitVisitor: AstVisitor {
     }
 
     fn visit_storage_variable_prototype(&mut self, input: &StorageVariablePrototype) {
-        self.visit_type(&input.type_);
+        self.visit_type(input.type_.kind());
     }
 
     fn visit_constructor(&mut self, input: &Constructor) {

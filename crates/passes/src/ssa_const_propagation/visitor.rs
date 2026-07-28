@@ -100,7 +100,7 @@ impl SsaConstPropagationVisitor<'_> {
     /// Returns the new expression and its node ID.
     /// If the original node doesn't have a type, this will return None.
     pub fn value_to_expression(&mut self, value: &Value, span: Span, id: NodeID) -> Option<(Expression, NodeID)> {
-        let ty = self.state.type_table.get(&id)?.clone();
+        let ty = self.state.types.resolve(self.state.type_table.get(&id)?);
         let symbol_table = &self.state.symbol_table;
         let struct_lookup = |loc: &Location| {
             symbol_table
@@ -108,7 +108,7 @@ impl SsaConstPropagationVisitor<'_> {
                 .unwrap()
                 .members
                 .iter()
-                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .map(|mem| (mem.identifier.name, mem.type_.kind().clone()))
                 .collect()
         };
         let new_expr = value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)?;
@@ -122,31 +122,32 @@ impl SsaConstPropagationVisitor<'_> {
 
     /// Copy types for nested expressions based on the type structure.
     /// This ensures that ALL expressions in the tree have proper type information.
-    fn copy_types_recursively(&mut self, expr: &Expression, ty: &leo_ast::Type) {
-        use leo_ast::Type;
+    fn copy_types_recursively(&mut self, expr: &Expression, ty: &leo_ast::TypeKind) {
+        use leo_ast::TypeKind;
 
-        self.state.type_table.insert(expr.id(), ty.clone());
+        let ty_id = self.state.types.intern(ty);
+        self.state.type_table.insert(expr.id(), ty_id);
 
         // Then recursively handle nested expressions
         match (expr, ty) {
-            (Expression::Array(array_expr), Type::Array(array_ty)) => {
+            (Expression::Array(array_expr), TypeKind::Array(array_ty)) => {
                 for element in &array_expr.elements {
                     self.copy_types_recursively(element, array_ty.element_type());
                 }
             }
-            (Expression::Tuple(tuple_expr), Type::Tuple(tuple_ty)) => {
+            (Expression::Tuple(tuple_expr), TypeKind::Tuple(tuple_ty)) => {
                 for (element, elem_ty) in tuple_expr.elements.iter().zip(tuple_ty.elements()) {
                     self.copy_types_recursively(element, elem_ty);
                 }
             }
-            (Expression::Composite(composite_expr), Type::Composite(composite_ty)) => {
+            (Expression::Composite(composite_expr), TypeKind::Composite(composite_ty)) => {
                 // We only look for structs here (not records) because `copy_types_recursively` is
                 // only called from `value_to_expression`, which never produces record expressions.
-                let member_types: Vec<leo_ast::Type> = self
+                let member_types: Vec<leo_ast::TypeKind> = self
                     .state
                     .symbol_table
                     .lookup_struct(self.program, composite_ty.path.expect_global_location())
-                    .map(|struct_def| struct_def.members.iter().map(|m| m.type_.clone()).collect())
+                    .map(|struct_def| struct_def.members.iter().map(|m| m.type_.kind().clone()).collect())
                     .unwrap_or_default();
                 for (member, member_ty) in composite_expr.members.iter().zip(member_types.iter()) {
                     if let Some(expr) = &member.expression {

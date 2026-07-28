@@ -17,7 +17,7 @@
 use super::StaticAnalyzingVisitor;
 
 use crate::errors::static_analyzer;
-use leo_ast::{Type, *};
+use leo_ast::{TypeKind, *};
 
 impl UnitVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
@@ -36,9 +36,9 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
     }
 
     fn visit_function(&mut self, function: &Function) {
-        function.const_parameters.iter().for_each(|input| self.visit_type(&input.type_));
-        function.input.iter().for_each(|input| self.visit_type(&input.type_));
-        function.output.iter().for_each(|output| self.visit_type(&output.type_));
+        function.const_parameters.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        function.input.iter().for_each(|input| self.visit_type(input.type_.kind()));
+        function.output.iter().for_each(|output| self.visit_type(output.type_.kind()));
         self.visit_type(&function.output_type);
 
         // Set the function name and variant.
@@ -48,7 +48,12 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         self.non_async_external_call_seen = false;
 
         if self.variant.is_some_and(|v| v.is_finalize_context()) | function.has_final_output() {
-            super::future_checker::future_check_function(function, &self.state.type_table, &self.state.handler);
+            super::future_checker::future_check_function(
+                function,
+                &self.state.type_table,
+                &self.state.types,
+                &self.state.handler,
+            );
         }
 
         // If the function is an async function, initialize the await checker.
@@ -59,7 +64,11 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
                     .input
                     .iter()
                     .filter_map(|input| {
-                        if let Type::Future(_) = input.type_.clone() { Some(input.identifier.name) } else { None }
+                        if let TypeKind::Future(_) = input.type_.kind().clone() {
+                            Some(input.identifier.name)
+                        } else {
+                            None
+                        }
                     })
                     .collect(),
             );

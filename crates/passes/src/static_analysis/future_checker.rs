@@ -17,14 +17,14 @@
 use crate::TypeTable;
 
 use crate::errors::static_analyzer;
-use leo_ast::{AstVisitor, DynamicOpKind, Expression, Function, Intrinsic, Node, Type};
+use leo_ast::{AstVisitor, DynamicOpKind, Expression, Function, Intrinsic, Node, TypeInterner, TypeKind};
 use leo_errors::Handler;
 
 /// Error if futures are used improperly.
 ///
 /// This prevents, for instance, a bare call which creates an unused future.
-pub fn future_check_function(function: &Function, type_table: &TypeTable, handler: &Handler) {
-    let mut future_checker = FutureChecker { type_table, handler };
+pub fn future_check_function(function: &Function, type_table: &TypeTable, types: &TypeInterner, handler: &Handler) {
+    let mut future_checker = FutureChecker { type_table, types, handler };
     future_checker.visit_block(&function.block);
 }
 
@@ -42,6 +42,7 @@ enum Position {
 
 struct FutureChecker<'a> {
     type_table: &'a TypeTable,
+    types: &'a TypeInterner,
     handler: &'a Handler,
 }
 
@@ -66,27 +67,27 @@ impl AstVisitor for FutureChecker<'_> {
         // semantics because later arms would pick up the fall-through when the inner `if` is
         // false, causing spurious errors.
         #[allow(clippy::collapsible_match, clippy::collapsible_if)]
-        match self.type_table.get(&input.id()) {
-            Some(Type::Future(..)) if is_call | is_async_block => {
+        match self.type_table.get(&input.id()).map(|t| self.types.resolve(t)) {
+            Some(TypeKind::Future(..)) if is_call | is_async_block => {
                 // A call producing a Future may appear in any of these positions.
                 if !matches!(additional, Await | Return | FunctionArgument | LastTupleLiteral | Definition) {
                     self.emit_err(static_analyzer::misplaced_final(input.span()));
                 }
             }
-            Some(Type::Future(..)) => {
+            Some(TypeKind::Future(..)) => {
                 // A Future expression that's not a call may appear in any of these positions.
                 if !matches!(additional, Await | Return | FunctionArgument | LastTupleLiteral | TupleAccess) {
                     self.emit_err(static_analyzer::misplaced_final(input.span()));
                 }
             }
-            Some(Type::Tuple(tuple)) if !matches!(tuple.elements().last(), Some(Type::Future(_))) => {}
-            Some(Type::Tuple(..)) if is_call => {
+            Some(TypeKind::Tuple(tuple)) if !matches!(tuple.elements().last(), Some(TypeKind::Future(_))) => {}
+            Some(TypeKind::Tuple(..)) if is_call => {
                 // A call producing a Tuple ending in a Future may appear in any of these positions.
                 if !matches!(additional, Return | Definition) {
                     self.emit_err(static_analyzer::misplaced_final(input.span()));
                 }
             }
-            Some(Type::Tuple(..)) => {
+            Some(TypeKind::Tuple(..)) => {
                 // A Tuple ending in a Future that's not a call may appear in any of these positions.
                 if !matches!(additional, Return | TupleAccess) {
                     self.emit_err(static_analyzer::misplaced_final(input.span()));
@@ -182,7 +183,7 @@ impl AstVisitor for FutureChecker<'_> {
     /* Statments */
     fn visit_definition(&mut self, input: &leo_ast::DefinitionStatement) {
         if let Some(ty) = input.type_.as_ref() {
-            self.visit_type(ty)
+            self.visit_type(ty.kind())
         }
         self.visit_expression(&input.value, &Position::Definition);
     }

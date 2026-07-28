@@ -17,7 +17,7 @@
 use crate::{Assigner, SymbolTable, TypeTable};
 
 use indexmap::IndexMap;
-use leo_ast::{Ast, CallGraph, CompositeGraph, Location, NetworkName, NodeBuilder};
+use leo_ast::{Ast, CallGraph, CompositeGraph, Location, NetworkName, NodeBuilder, TypeInterner};
 use leo_errors::{Handler, Result};
 
 use std::rc::Rc;
@@ -31,6 +31,8 @@ pub struct CompilerState {
     pub handler: Handler,
     /// Maps node IDs to types.
     pub type_table: TypeTable,
+    /// Hold canonical types
+    pub types: Rc<TypeInterner>,
     /// Creates incrementing node IDs.
     pub node_builder: Rc<NodeBuilder>,
     /// Creates unique symbols and definitions.

@@ -22,7 +22,7 @@ use std::cmp::Ordering;
 /// A binary operator.
 ///
 /// Precedence is defined in the parser.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Ord, PartialOrd, Serialize)]
 pub enum BinaryOperation {
     /// Addition, i.e. `+`, `.add()`.
     Add,
@@ -163,7 +163,7 @@ impl BinaryOperation {
 
 /// A binary expression `left op right` of two operands separated by some operator.
 /// For example, `foo + bar`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct BinaryExpression {
     /// The left operand of the expression.
     pub left: Expression,

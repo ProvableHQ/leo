@@ -17,6 +17,12 @@
 mod array;
 pub use array::*;
 
+mod canonicalize;
+pub use canonicalize::*;
+
+mod interner;
+pub use interner::*;
+
 mod composite;
 pub use composite::*;
 

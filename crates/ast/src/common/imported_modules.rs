@@ -19,7 +19,7 @@ use crate::Program;
 use leo_span::{Symbol, with_session_globals};
 
 use indexmap::IndexMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Serialize, Serializer};
 
 #[allow(clippy::ptr_arg)]
 pub fn serialize<S: Serializer>(
@@ -37,11 +37,4 @@ pub fn serialize<S: Serializer>(
     });
 
     joined.serialize(serializer)
-}
-
-pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<IndexMap<Vec<Symbol>, Program>, D::Error> {
-    Ok(IndexMap::<String, Program>::deserialize(deserializer)?
-        .into_iter()
-        .map(|(package, program)| (package.split('.').map(Symbol::intern).collect(), program))
-        .collect())
 }

@@ -67,7 +67,8 @@ use leo_ast::{
     TupleAccess,
     TupleExpression,
     TupleType,
-    Type,
+    TypeKind,
+    TypeNode,
     Variant,
 };
 use leo_span::{Span, Symbol};
@@ -132,126 +133,129 @@ impl BlockToFunctionRewriter<'_> {
         // A `Vec<(Input, Expression)>`, where:
         // - `Input` is a parameter for the generated function.
         // - `Expression` is the call-site argument expression used to invoke that parameter.
-        let mut make_inputs_and_arguments =
-            |slf: &mut Self, symbol: Symbol, var_type: &Type, index_opt: Option<usize>| -> Vec<(Input, Expression)> {
-                if replacements.contains_key(&(symbol, index_opt)) {
-                    return vec![]; // No new input needed; argument already exists
-                }
+        let mut make_inputs_and_arguments = |slf: &mut Self,
+                                             symbol: Symbol,
+                                             var_type: &TypeKind,
+                                             index_opt: Option<usize>|
+         -> Vec<(Input, Expression)> {
+            if replacements.contains_key(&(symbol, index_opt)) {
+                return vec![]; // No new input needed; argument already exists
+            }
 
-                match index_opt {
-                    Some(index) => {
-                        let Type::Tuple(TupleType { elements }) = var_type else {
-                            // The type checker has already emitted an error for this invalid access;
-                            // return no inputs so compilation can continue to report all diagnostics.
-                            return vec![];
-                        };
-
-                        // The type checker has already emitted an error for this out-of-bounds access;
+            match index_opt {
+                Some(index) => {
+                    let TypeKind::Tuple(TupleType { elements }) = var_type else {
+                        // The type checker has already emitted an error for this invalid access;
                         // return no inputs so compilation can continue to report all diagnostics.
-                        if index >= elements.len() {
-                            return vec![];
-                        }
+                        return vec![];
+                    };
 
-                        let synthetic_name = format!("\"{symbol}.{index}\"");
-                        let synthetic_symbol = Symbol::intern(&synthetic_name);
-                        let identifier = make_identifier(slf, synthetic_symbol);
-
-                        let input = Input {
-                            identifier,
-                            mode: leo_ast::Mode::None,
-                            type_: elements[index].clone(),
-                            span: Span::default(),
-                            id: slf.state.node_builder.next_id(),
-                        };
-
-                        replacements.insert((symbol, Some(index)), Path::from(identifier).to_local().into());
-
-                        vec![(
-                            input,
-                            TupleAccess {
-                                tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
-                                index: index.into(),
-                                span: Span::default(),
-                                id: slf.state.node_builder.next_id(),
-                            }
-                            .into(),
-                        )]
+                    // The type checker has already emitted an error for this out-of-bounds access;
+                    // return no inputs so compilation can continue to report all diagnostics.
+                    if index >= elements.len() {
+                        return vec![];
                     }
 
-                    None => match var_type {
-                        Type::Tuple(TupleType { elements }) => {
-                            let mut inputs_and_arguments = Vec::with_capacity(elements.len());
-                            let mut tuple_elements = Vec::with_capacity(elements.len());
+                    let synthetic_name = format!("\"{symbol}.{index}\"");
+                    let synthetic_symbol = Symbol::intern(&synthetic_name);
+                    let identifier = make_identifier(slf, synthetic_symbol);
 
-                            for (i, element_type) in elements.iter().enumerate() {
-                                let key = (symbol, Some(i));
+                    let input = Input {
+                        identifier,
+                        mode: leo_ast::Mode::None,
+                        type_: TypeNode::new(&slf.state.types, elements[index].clone(), Span::default()),
+                        span: Span::default(),
+                        id: slf.state.node_builder.next_id(),
+                    };
 
-                                // Skip if this field is already handled
-                                if let Some(existing_expr) = replacements.get(&key) {
-                                    tuple_elements.push(existing_expr.clone());
-                                    continue;
-                                }
+                    replacements.insert((symbol, Some(index)), Path::from(identifier).to_local().into());
 
-                                // Otherwise, synthesize identifier and input
-                                let synthetic_name = format!("\"{symbol}.{i}\"");
-                                let synthetic_symbol = Symbol::intern(&synthetic_name);
-                                let identifier = make_identifier(slf, synthetic_symbol);
+                    vec![(
+                        input,
+                        TupleAccess {
+                            tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
+                            index: index.into(),
+                            span: Span::default(),
+                            id: slf.state.node_builder.next_id(),
+                        }
+                        .into(),
+                    )]
+                }
 
-                                let input = Input {
-                                    identifier,
-                                    mode: leo_ast::Mode::None,
-                                    type_: element_type.clone(),
-                                    span: Span::default(),
-                                    id: slf.state.node_builder.next_id(),
-                                };
+                None => match var_type {
+                    TypeKind::Tuple(TupleType { elements }) => {
+                        let mut inputs_and_arguments = Vec::with_capacity(elements.len());
+                        let mut tuple_elements = Vec::with_capacity(elements.len());
 
-                                let expr: Expression = Path::from(identifier).to_local().into();
+                        for (i, element_type) in elements.iter().enumerate() {
+                            let key = (symbol, Some(i));
 
-                                replacements.insert(key, expr.clone());
-                                tuple_elements.push(expr.clone());
-                                inputs_and_arguments.push((
-                                    input,
-                                    TupleAccess {
-                                        tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
-                                        index: i.into(),
-                                        span: Span::default(),
-                                        id: slf.state.node_builder.next_id(),
-                                    }
-                                    .into(),
-                                ));
+                            // Skip if this field is already handled
+                            if let Some(existing_expr) = replacements.get(&key) {
+                                tuple_elements.push(existing_expr.clone());
+                                continue;
                             }
 
-                            // Now insert the full tuple (even if all fields were already there).
-                            replacements.insert(
-                                (symbol, None),
-                                Expression::Tuple(TupleExpression {
-                                    elements: tuple_elements,
-                                    span: Span::default(),
-                                    id: slf.state.node_builder.next_id(),
-                                }),
-                            );
+                            // Otherwise, synthesize identifier and input
+                            let synthetic_name = format!("\"{symbol}.{i}\"");
+                            let synthetic_symbol = Symbol::intern(&synthetic_name);
+                            let identifier = make_identifier(slf, synthetic_symbol);
 
-                            inputs_and_arguments
-                        }
-
-                        _ => {
-                            let identifier = make_identifier(slf, symbol);
                             let input = Input {
                                 identifier,
                                 mode: leo_ast::Mode::None,
-                                type_: var_type.clone(),
+                                type_: TypeNode::new(&slf.state.types, element_type.clone(), Span::default()),
                                 span: Span::default(),
                                 id: slf.state.node_builder.next_id(),
                             };
 
-                            replacements.insert((symbol, None), Path::from(identifier).to_local().into());
+                            let expr: Expression = Path::from(identifier).to_local().into();
 
-                            let argument = Path::from(make_identifier(slf, symbol)).to_local().into();
-                            vec![(input, argument)]
+                            replacements.insert(key, expr.clone());
+                            tuple_elements.push(expr.clone());
+                            inputs_and_arguments.push((
+                                input,
+                                TupleAccess {
+                                    tuple: Path::from(make_identifier(slf, symbol)).to_local().into(),
+                                    index: i.into(),
+                                    span: Span::default(),
+                                    id: slf.state.node_builder.next_id(),
+                                }
+                                .into(),
+                            ));
                         }
-                    },
-                }
-            };
+
+                        // Now insert the full tuple (even if all fields were already there).
+                        replacements.insert(
+                            (symbol, None),
+                            Expression::Tuple(TupleExpression {
+                                elements: tuple_elements,
+                                span: Span::default(),
+                                id: slf.state.node_builder.next_id(),
+                            }),
+                        );
+
+                        inputs_and_arguments
+                    }
+
+                    _ => {
+                        let identifier = make_identifier(slf, symbol);
+                        let input = Input {
+                            identifier,
+                            mode: leo_ast::Mode::None,
+                            type_: TypeNode::new(&slf.state.types, var_type.clone(), Span::default()),
+                            span: Span::default(),
+                            id: slf.state.node_builder.next_id(),
+                        };
+
+                        replacements.insert((symbol, None), Path::from(identifier).to_local().into());
+
+                        let argument = Path::from(make_identifier(slf, symbol)).to_local().into();
+                        vec![(input, argument)]
+                    }
+                },
+            }
+        };
 
         // Resolve symbol accesses into inputs and call arguments.
         let (inputs, arguments): (Vec<_>, Vec<_>) = access_collector
@@ -318,8 +322,8 @@ impl BlockToFunctionRewriter<'_> {
             identifier: make_identifier(self, function_name),
             const_parameters: vec![],
             input: inputs,
-            output: vec![],          // No returns supported yet.
-            output_type: Type::Unit, // No returns supported yet.
+            output: vec![],              // No returns supported yet.
+            output_type: TypeKind::Unit, // No returns supported yet.
             block: new_block,
             span: input.span,
             id: self.state.node_builder.next_id(),

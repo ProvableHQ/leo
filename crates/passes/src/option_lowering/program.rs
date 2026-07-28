@@ -177,17 +177,20 @@ impl UnitReconstructor for OptionLoweringVisitor<'_> {
             const_parameters: input
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: self.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| ConstParameter {
+                    type_: self.reconstruct_type_node(param.type_.clone()).0,
+                    ..param.clone()
+                })
                 .collect(),
             input: input
                 .input
                 .iter()
-                .map(|input| Input { type_: self.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .map(|input| Input { type_: self.reconstruct_type_node(input.type_.clone()).0, ..input.clone() })
                 .collect(),
             output: input
                 .output
                 .iter()
-                .map(|output| Output { type_: self.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .map(|output| Output { type_: self.reconstruct_type_node(output.type_.clone()).0, ..output.clone() })
                 .collect(),
             output_type: self.reconstruct_type(input.output_type).0,
             block: self.reconstruct_block(input.block).0,

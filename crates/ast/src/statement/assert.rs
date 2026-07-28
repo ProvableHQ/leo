@@ -18,11 +18,11 @@ use crate::{Expression, Node, NodeID, Statement};
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A variant of an assert statement.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub enum AssertVariant {
     /// A `assert(expr)` variant, asserting that the expression evaluates to true.
     Assert(Expression),
@@ -33,7 +33,7 @@ pub enum AssertVariant {
 }
 
 /// An assert statement, `assert(<expr>)`, `assert_eq(<expr>)` or `assert_neq(<expr>)`.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct AssertStatement {
     /// The variant of the assert statement.
     pub variant: AssertVariant,

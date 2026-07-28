@@ -25,7 +25,7 @@ use leo_ast::{
     ProgramScope,
     Statement,
     StorageVariable,
-    Type,
+    TypeKind,
     UnitReconstructor,
     VectorType,
 };
@@ -117,8 +117,8 @@ impl UnitReconstructor for StorageLoweringVisitor<'_> {
         // Common base mapping name: e.g. "x__" or "vec__"
         let mapping_name = Symbol::intern(&(name.clone() + "__"));
 
-        match &input.type_ {
-            Type::Vector(VectorType { element_type }) => {
+        match &input.type_.kind() {
+            TypeKind::Vector(VectorType { element_type }) => {
                 // === Vector storage ===
                 //
                 // Create two mappings:
@@ -128,7 +128,7 @@ impl UnitReconstructor for StorageLoweringVisitor<'_> {
                 // Mapping for the vector’s contents
                 self.new_mappings.insert(Location::new(self.program, vec![mapping_name]), Mapping {
                     identifier: Identifier::new(mapping_name, id()),
-                    key_type: Type::Integer(IntegerType::U32),
+                    key_type: TypeKind::Integer(IntegerType::U32),
                     value_type: *element_type.clone(),
                     span: input.span,
                     id: id(),
@@ -138,8 +138,8 @@ impl UnitReconstructor for StorageLoweringVisitor<'_> {
                 let len_name = Symbol::intern(&(name + "__len__"));
                 self.new_mappings.insert(Location::new(self.program, vec![len_name]), Mapping {
                     identifier: Identifier::new(len_name, id()),
-                    key_type: Type::Boolean,
-                    value_type: Type::Integer(IntegerType::U32),
+                    key_type: TypeKind::Boolean,
+                    value_type: TypeKind::Integer(IntegerType::U32),
                     span: input.span,
                     id: id(),
                 });
@@ -155,8 +155,8 @@ impl UnitReconstructor for StorageLoweringVisitor<'_> {
 
                 self.new_mappings.insert(Location::new(self.program, vec![mapping_name]), Mapping {
                     identifier: Identifier::new(mapping_name, id()),
-                    key_type: Type::Boolean,
-                    value_type: input.type_.clone(),
+                    key_type: TypeKind::Boolean,
+                    value_type: input.type_.kind().clone(),
                     span: input.span,
                     id: id(),
                 });

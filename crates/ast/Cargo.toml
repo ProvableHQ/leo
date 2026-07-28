@@ -27,6 +27,7 @@ leo-errors      = { workspace = true }
 leo-span        = { workspace = true }
 # third party dependencies
 anyhow          = { workspace = true }
+fxhash          = { workspace = true }
 indexmap        = { workspace = true }
 itertools       = { workspace = true }
 serde           = { workspace = true }

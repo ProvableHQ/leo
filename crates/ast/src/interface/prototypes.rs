@@ -26,23 +26,24 @@ use crate::{
     NodeID,
     Output,
     TupleType,
-    Type,
+    TypeKind,
+    TypeNode,
     Variant,
     indent_display::Indent,
 };
 use itertools::Itertools;
 use leo_span::Span;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 /// A mapping prototype in an interface, e.g. `mapping balances: address => u128;`.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct MappingPrototype {
     /// The name of the mapping.
     pub identifier: Identifier,
     /// The type of the key.
-    pub key_type: Type,
+    pub key_type: TypeKind,
     /// The type of the value.
-    pub value_type: Type,
+    pub value_type: TypeKind,
     /// The entire span of the mapping prototype.
     pub span: Span,
     /// The ID of the node.
@@ -66,12 +67,12 @@ impl fmt::Display for MappingPrototype {
 crate::simple_node_impl!(MappingPrototype);
 
 /// A storage variable prototype in an interface, e.g. `storage counter: u32;`.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct StorageVariablePrototype {
     /// The name of the storage variable.
     pub identifier: Identifier,
     /// The type of the variable.
-    pub type_: Type,
+    pub type_: TypeNode,
     /// The entire span of the storage variable prototype.
     pub span: Span,
     /// The ID of the node.
@@ -94,7 +95,7 @@ impl fmt::Display for StorageVariablePrototype {
 
 crate::simple_node_impl!(StorageVariablePrototype);
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct FunctionPrototype {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
@@ -111,7 +112,7 @@ pub struct FunctionPrototype {
     /// The function's output declarations.
     pub output: Vec<Output>,
     /// The function's output type.
-    pub output_type: Type,
+    pub output_type: TypeKind,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -131,9 +132,9 @@ impl FunctionPrototype {
         id: NodeID,
     ) -> Self {
         let output_type = match output.len() {
-            0 => Type::Unit,
-            1 => output[0].type_.clone(),
-            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
+            0 => TypeKind::Unit,
+            1 => output[0].type_.kind().clone(),
+            _ => TypeKind::Tuple(TupleType::new(output.iter().map(|o| o.type_.kind().clone()).collect())),
         };
 
         Self { annotations, variant, identifier, const_parameters, input, output, output_type, span, id }
@@ -173,7 +174,7 @@ impl fmt::Display for FunctionPrototype {
         match self.output.len() {
             0 => {}
             1 => {
-                if !matches!(self.output[0].type_, Type::Unit) {
+                if !matches!(self.output[0].type_.kind(), TypeKind::Unit) {
                     write!(f, " -> {}", self.output[0])?;
                 }
             }
@@ -187,7 +188,7 @@ impl fmt::Display for FunctionPrototype {
 
 crate::simple_node_impl!(FunctionPrototype);
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct RecordPrototype {
     /// The record identifier
     pub identifier: Identifier,

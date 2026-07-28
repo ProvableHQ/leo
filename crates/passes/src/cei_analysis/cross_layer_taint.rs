@@ -197,7 +197,7 @@ impl CrossLayerTaintVisitor<'_> {
             Expression::Call(call) => {
                 if self.is_external_call(call)
                     && let Some(loc) = call.function.try_global_location()
-                    && let Some(ret_type) = self.state.type_table.get(&call.id)
+                    && let Some(ret_type) = self.state.type_table.get(&call.id).map(|t| self.state.types.resolve(t))
                     && Self::type_contains_future(&ret_type)
                 {
                     let callee_desc = call.function.to_string();
@@ -210,7 +210,7 @@ impl CrossLayerTaintVisitor<'_> {
             }
             Expression::DynamicOp(dop) => {
                 if let DynamicOpKind::Call { arguments, .. } = &dop.kind
-                    && let Some(ret_type) = self.state.type_table.get(&dop.id)
+                    && let Some(ret_type) = self.state.type_table.get(&dop.id).map(|t| self.state.types.resolve(t))
                     && Self::type_contains_future(&ret_type)
                 {
                     self.warn_tainted_call_arguments(arguments, "<dynamic call>", dop.span);
@@ -278,10 +278,10 @@ impl CrossLayerTaintVisitor<'_> {
     }
 
     /// Check if a type contains a Future.
-    fn type_contains_future(ty: &Type) -> bool {
+    fn type_contains_future(ty: &TypeKind) -> bool {
         match ty {
-            Type::Future(_) => true,
-            Type::Tuple(tuple) => tuple.elements().iter().any(Self::type_contains_future),
+            TypeKind::Future(_) => true,
+            TypeKind::Tuple(tuple) => tuple.elements().iter().any(Self::type_contains_future),
             _ => false,
         }
     }
@@ -521,7 +521,10 @@ impl AstVisitor for CrossLayerTaintVisitor<'_> {
                 // reference (e.g. `let f: Final = start.1;` where `start` is tainted),
                 // the conservative variable-granularity rule still applies and we
                 // taint normally.
-                let bound_is_future = matches!(self.state.type_table.get(&input.value.id()), Some(Type::Future(_)));
+                let bound_is_future = matches!(
+                    self.state.type_table.get(&input.value.id()).map(|t| self.state.types.resolve(t)),
+                    Some(TypeKind::Future(_))
+                );
                 if bound_is_future && propagated.coupled_futures.is_empty() {
                     return;
                 }
@@ -538,10 +541,12 @@ impl AstVisitor for CrossLayerTaintVisitor<'_> {
                     return;
                 }
                 // Per-position: skip destructure slots whose element type is Future.
-                if let Some(Type::Tuple(tuple_ty)) = self.state.type_table.get(&input.value.id()) {
+                if let Some(TypeKind::Tuple(tuple_ty)) =
+                    self.state.type_table.get(&input.value.id()).map(|t| self.state.types.resolve(t))
+                {
                     let elements = tuple_ty.elements();
                     for (i, id) in ids.iter().enumerate() {
-                        let is_future = elements.get(i).is_some_and(|t| matches!(t, Type::Future(_)));
+                        let is_future = elements.get(i).is_some_and(|t| matches!(t, TypeKind::Future(_)));
                         if !is_future {
                             self.taint_map.insert(id.name, merged.clone());
                         }

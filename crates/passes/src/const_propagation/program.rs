@@ -127,17 +127,20 @@ impl UnitReconstructor for ConstPropagationVisitor<'_> {
             function.const_parameters = function
                 .const_parameters
                 .iter()
-                .map(|param| ConstParameter { type_: slf.reconstruct_type(param.type_.clone()).0, ..param.clone() })
+                .map(|param| ConstParameter {
+                    type_: slf.reconstruct_type_node(param.type_.clone()).0,
+                    ..param.clone()
+                })
                 .collect();
             function.input = function
                 .input
                 .iter()
-                .map(|input| Input { type_: slf.reconstruct_type(input.type_.clone()).0, ..input.clone() })
+                .map(|input| Input { type_: slf.reconstruct_type_node(input.type_.clone()).0, ..input.clone() })
                 .collect();
             function.output = function
                 .output
                 .iter()
-                .map(|output| Output { type_: slf.reconstruct_type(output.type_.clone()).0, ..output.clone() })
+                .map(|output| Output { type_: slf.reconstruct_type_node(output.type_.clone()).0, ..output.clone() })
                 .collect();
             function.output_type = slf.reconstruct_type(function.output_type).0;
             function.block = slf.reconstruct_block(function.block).0;

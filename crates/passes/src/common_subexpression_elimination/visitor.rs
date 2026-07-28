@@ -271,9 +271,9 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
                 // We already have a symbol whose value is this expression.
                 let identifier = Identifier { name, span, id: self.state.node_builder.next_id() };
                 // Get the type of the expression.
-                let type_ = self.state.type_table.get(&expression.id())?.clone();
+                let type_ = self.state.type_table.get(&expression.id())?;
                 // Assign the type of the new expression.
-                self.state.type_table.insert(identifier.id, type_.clone());
+                self.state.type_table.insert(identifier.id, type_);
                 if let Some(place) = place {
                     // We were defining a new variable, whose right hand side is already defined, so map
                     // this variable to the previous variable.

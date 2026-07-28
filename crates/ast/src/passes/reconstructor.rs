@@ -25,36 +25,46 @@ pub trait AstReconstructor {
     type AdditionalOutput: Default;
     type AdditionalInput: Default;
 
+    fn interner(&self) -> &TypeInterner;
+
     /* Types */
-    fn reconstruct_type(&mut self, input: Type) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_type(&mut self, input: TypeKind) -> (TypeKind, Self::AdditionalOutput) {
         match input {
-            Type::Array(array_type) => self.reconstruct_array_type(array_type),
-            Type::Composite(composite_type) => self.reconstruct_composite_type(composite_type),
-            Type::Future(future_type) => self.reconstruct_future_type(future_type),
-            Type::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
-            Type::Optional(optional_type) => self.reconstruct_optional_type(optional_type),
-            Type::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
-            Type::Vector(vector_type) => self.reconstruct_vector_type(vector_type),
-            Type::Address
-            | Type::Boolean
-            | Type::Field
-            | Type::Group
-            | Type::Ident(_)
-            | Type::Integer(_)
-            | Type::Identifier
-            | Type::DynRecord
-            | Type::Scalar
-            | Type::Signature
-            | Type::String
-            | Type::Numeric
-            | Type::Unit
-            | Type::Err => (input.clone(), Default::default()),
+            TypeKind::Array(array_type) => self.reconstruct_array_type(array_type),
+            TypeKind::Composite(composite_type) => self.reconstruct_composite_type(composite_type),
+            TypeKind::Future(future_type) => self.reconstruct_future_type(future_type),
+            TypeKind::Mapping(mapping_type) => self.reconstruct_mapping_type(mapping_type),
+            TypeKind::Optional(optional_type) => self.reconstruct_optional_type(optional_type),
+            TypeKind::Tuple(tuple_type) => self.reconstruct_tuple_type(tuple_type),
+            TypeKind::Vector(vector_type) => self.reconstruct_vector_type(vector_type),
+            TypeKind::Address
+            | TypeKind::Boolean
+            | TypeKind::Field
+            | TypeKind::Group
+            | TypeKind::Ident(_)
+            | TypeKind::Integer(_)
+            | TypeKind::Identifier
+            | TypeKind::DynRecord
+            | TypeKind::Scalar
+            | TypeKind::Signature
+            | TypeKind::String
+            | TypeKind::Numeric
+            | TypeKind::Unit
+            | TypeKind::Err => (input.clone(), Default::default()),
         }
     }
 
-    fn reconstruct_array_type(&mut self, input: ArrayType) -> (Type, Self::AdditionalOutput) {
+    /// Re-interns after `reconstruct_type` so the cached canonical handle stays consistent
+    /// with `kind` — overrides that only touch `kind` inherit that guarantee for free.
+    fn reconstruct_type_node(&mut self, input: TypeNode) -> (TypeNode, Self::AdditionalOutput) {
+        let (kind, span, _) = input.into_parts();
+        let (new_kind, additional) = self.reconstruct_type(kind);
+        (TypeNode::new(self.interner(), new_kind, span), additional)
+    }
+
+    fn reconstruct_array_type(&mut self, input: ArrayType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Array(ArrayType {
+            TypeKind::Array(ArrayType {
                 element_type: Box::new(self.reconstruct_type(*input.element_type).0),
                 length: Box::new(self.reconstruct_expression(*input.length, &Default::default()).0),
             }),
@@ -62,9 +72,9 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_composite_type(&mut self, input: CompositeType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Composite(CompositeType {
+            TypeKind::Composite(CompositeType {
                 const_arguments: input
                     .const_arguments
                     .into_iter()
@@ -76,9 +86,9 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_future_type(&mut self, input: FutureType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_future_type(&mut self, input: FutureType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Future(FutureType {
+            TypeKind::Future(FutureType {
                 inputs: input.inputs.into_iter().map(|input| self.reconstruct_type(input).0).collect(),
                 ..input
             }),
@@ -86,9 +96,9 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_mapping_type(&mut self, input: MappingType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_mapping_type(&mut self, input: MappingType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Mapping(MappingType {
+            TypeKind::Mapping(MappingType {
                 key: Box::new(self.reconstruct_type(*input.key).0),
                 value: Box::new(self.reconstruct_type(*input.value).0),
             }),
@@ -96,22 +106,25 @@ pub trait AstReconstructor {
         )
     }
 
-    fn reconstruct_optional_type(&mut self, input: OptionalType) -> (Type, Self::AdditionalOutput) {
-        (Type::Optional(OptionalType { inner: Box::new(self.reconstruct_type(*input.inner).0) }), Default::default())
+    fn reconstruct_optional_type(&mut self, input: OptionalType) -> (TypeKind, Self::AdditionalOutput) {
+        (
+            TypeKind::Optional(OptionalType { inner: Box::new(self.reconstruct_type(*input.inner).0) }),
+            Default::default(),
+        )
     }
 
-    fn reconstruct_tuple_type(&mut self, input: TupleType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_tuple_type(&mut self, input: TupleType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Tuple(TupleType {
+            TypeKind::Tuple(TupleType {
                 elements: input.elements.into_iter().map(|element| self.reconstruct_type(element).0).collect(),
             }),
             Default::default(),
         )
     }
 
-    fn reconstruct_vector_type(&mut self, input: VectorType) -> (Type, Self::AdditionalOutput) {
+    fn reconstruct_vector_type(&mut self, input: VectorType) -> (TypeKind, Self::AdditionalOutput) {
         (
-            Type::Vector(VectorType { element_type: Box::new(self.reconstruct_type(*input.element_type).0) }),
+            TypeKind::Vector(VectorType { element_type: Box::new(self.reconstruct_type(*input.element_type).0) }),
             Default::default(),
         )
     }
@@ -524,7 +537,7 @@ pub trait AstReconstructor {
     fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
         (
             ConstDeclaration {
-                type_: self.reconstruct_type(input.type_).0,
+                type_: self.reconstruct_type_node(input.type_).0,
                 value: self.reconstruct_expression(input.value, &Default::default()).0,
                 ..input
             }
@@ -536,7 +549,7 @@ pub trait AstReconstructor {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         (
             DefinitionStatement {
-                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                type_: input.type_.map(|ty| self.reconstruct_type_node(ty).0),
                 value: self.reconstruct_expression(input.value, &Default::default()).0,
                 ..input
             }
@@ -559,7 +572,7 @@ pub trait AstReconstructor {
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         (
             IterationStatement {
-                type_: input.type_.map(|ty| self.reconstruct_type(ty).0),
+                type_: input.type_.map(|ty| self.reconstruct_type_node(ty).0),
                 start: self.reconstruct_expression(input.start, &Default::default()).0,
                 stop: self.reconstruct_expression(input.stop, &Default::default()).0,
                 block: self.reconstruct_block(input.block).0,
@@ -707,7 +720,7 @@ pub trait UnitReconstructor: AstReconstructor {
     fn reconstruct_storage_variable_prototype(&mut self, input: StorageVariablePrototype) -> StorageVariablePrototype {
         StorageVariablePrototype {
             identifier: input.identifier,
-            type_: self.reconstruct_type(input.type_).0,
+            type_: self.reconstruct_type_node(input.type_).0,
             span: input.span,
             id: input.id,
         }
@@ -723,7 +736,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|param| {
                     let mut param = param.clone();
-                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param.type_ = self.reconstruct_type_node(param.type_).0;
                     param
                 })
                 .collect(),
@@ -732,7 +745,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|input| {
                     let mut input = input.clone();
-                    input.type_ = self.reconstruct_type(input.type_).0;
+                    input.type_ = self.reconstruct_type_node(input.type_).0;
                     input
                 })
                 .collect(),
@@ -741,7 +754,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|output| {
                     let mut output = output.clone();
-                    output.type_ = self.reconstruct_type(output.type_).0;
+                    output.type_ = self.reconstruct_type_node(output.type_).0;
                     output
                 })
                 .collect(),
@@ -761,7 +774,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|member| {
                     let mut member = member.clone();
-                    member.type_ = self.reconstruct_type(member.type_).0;
+                    member.type_ = self.reconstruct_type_node(member.type_).0;
                     member
                 })
                 .collect(),
@@ -779,7 +792,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|param| {
                     let mut param = param.clone();
-                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param.type_ = self.reconstruct_type_node(param.type_).0;
                     param
                 })
                 .collect(),
@@ -788,7 +801,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|input| {
                     let mut input = input.clone();
-                    input.type_ = self.reconstruct_type(input.type_).0;
+                    input.type_ = self.reconstruct_type_node(input.type_).0;
                     input
                 })
                 .collect(),
@@ -797,7 +810,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|output| {
                     let mut output = output.clone();
-                    output.type_ = self.reconstruct_type(output.type_).0;
+                    output.type_ = self.reconstruct_type_node(output.type_).0;
                     output
                 })
                 .collect(),
@@ -828,7 +841,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|param| {
                     let mut param = param.clone();
-                    param.type_ = self.reconstruct_type(param.type_).0;
+                    param.type_ = self.reconstruct_type_node(param.type_).0;
                     param
                 })
                 .collect(),
@@ -837,7 +850,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .iter()
                 .map(|member| {
                     let mut member = member.clone();
-                    member.type_ = self.reconstruct_type(member.type_).0;
+                    member.type_ = self.reconstruct_type_node(member.type_).0;
                     member
                 })
                 .collect(),
@@ -854,6 +867,6 @@ pub trait UnitReconstructor: AstReconstructor {
     }
 
     fn reconstruct_storage_variable(&mut self, input: StorageVariable) -> StorageVariable {
-        StorageVariable { type_: self.reconstruct_type(input.type_).0, ..input }
+        StorageVariable { type_: self.reconstruct_type_node(input.type_).0, ..input }
     }
 }

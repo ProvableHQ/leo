@@ -28,7 +28,8 @@ use leo_ast::{
     Path,
     Statement,
     TupleExpression,
-    Type,
+    TypeKind,
+    TypeNode,
 };
 use leo_span::Symbol;
 
@@ -44,8 +45,10 @@ impl DestructuringVisitor<'_> {
     /// Similar to `reconstruct_expression`, except that if `expression` is of tuple type, returns it as a tuple
     /// literal `(mem1, mem2, mem3, ...)`.
     pub fn reconstruct_expression_tuple(&mut self, expression: Expression) -> (Expression, Vec<Statement>) {
-        let Type::Tuple(tuple_type) =
-            self.state.type_table.get(&expression.id()).expect("Expressions should have types.")
+        let TypeKind::Tuple(tuple_type) = self
+            .state
+            .types
+            .resolve(self.state.type_table.get(&expression.id()).expect("Expressions should have types."))
         else {
             // It's not a tuple, so there's no more to do.
             return self.reconstruct_expression(expression, &());
@@ -64,7 +67,8 @@ impl DestructuringVisitor<'_> {
                     TupleExpression { elements, span: Default::default(), id: self.state.node_builder.next_id() }
                         .into();
 
-                self.state.type_table.insert(tuple.id(), Type::Tuple(tuple_type.clone()));
+                let ty = self.state.types.intern(&TypeKind::Tuple(tuple_type.clone()));
+                self.state.type_table.insert(tuple.id(), ty);
 
                 (tuple, statements)
             }
@@ -92,7 +96,8 @@ impl DestructuringVisitor<'_> {
                     id: self.state.node_builder.next_id(),
                 });
 
-                self.state.type_table.insert(expr.id(), Type::Tuple(tuple_type.clone()));
+                let ty = self.state.types.intern(&TypeKind::Tuple(tuple_type.clone()));
+                self.state.type_table.insert(expr.id(), ty);
 
                 statements.push(definition_stmt);
 
@@ -125,7 +130,7 @@ impl DestructuringVisitor<'_> {
                 }
                 .into();
 
-                self.state.type_table.insert(expr.id(), Type::Boolean);
+                self.state.type_table.insert(expr.id(), leo_ast::Type::BOOLEAN);
                 expr
             })
             .expect("fold_with_op called with empty iterator")
@@ -135,8 +140,10 @@ impl DestructuringVisitor<'_> {
     //
     // That is, `let (mem1, mem2, mem3...) = expression;`
     pub fn assign_tuple(&mut self, expression: Expression, name: Symbol) -> Statement {
-        let Type::Tuple(tuple_type) =
-            self.state.type_table.get(&expression.id()).expect("Expressions should have types.")
+        let TypeKind::Tuple(tuple_type) = self
+            .state
+            .types
+            .resolve(self.state.type_table.get(&expression.id()).expect("Expressions should have types."))
         else {
             panic!("assign_tuple should only be called for tuple types.");
         };
@@ -150,7 +157,7 @@ impl DestructuringVisitor<'_> {
 
         Statement::Definition(DefinitionStatement {
             place: DefinitionPlace::Multiple(new_identifiers),
-            type_: Some(Type::Tuple(tuple_type.clone())),
+            type_: Some(TypeNode::new(&self.state.types, TypeKind::Tuple(tuple_type.clone()), Default::default())),
             value: expression,
             span: Default::default(),
             id: self.state.node_builder.next_id(),

@@ -26,20 +26,20 @@ use crate::{
     Mapping,
     ProgramId,
     StorageVariable,
-    Type,
+    TypeKind,
 };
 
 use leo_span::{Span, Symbol};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Stores the Leo program scope abstract syntax tree.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
     /// The interfaces this program implements
-    pub parents: Vec<(Span, Type)>,
+    pub parents: Vec<(Span, TypeKind)>,
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of composite definitions.

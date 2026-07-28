@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use std::fmt;
 
@@ -29,7 +29,7 @@ use std::fmt;
 /// - `View`: a read-only `view fn` (V15). Top-level program component that
 ///   reads finalize-store state and returns plaintext to external callers.
 ///   Off-consensus, no transitions, no proofs, no state writes.
-#[derive(Copy, Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Default, Serialize, PartialEq, Eq)]
 pub enum Variant {
     #[default]
     Fn,

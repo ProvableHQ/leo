@@ -16,21 +16,21 @@
 
 use super::*;
 
-use leo_ast::{IntegerType, Interface, Mode, Type};
+use leo_ast::{IntegerType, Interface, Mode, TypeKind};
 
 impl CodeGeneratingVisitor<'_> {
-    pub fn visit_type(&self, input: &Type) -> AleoType {
+    pub fn visit_type(&self, input: &TypeKind) -> AleoType {
         match input {
-            Type::Address => AleoType::Address,
-            Type::Field => AleoType::Field,
-            Type::Group => AleoType::Group,
-            Type::Scalar => AleoType::Scalar,
-            Type::Signature => AleoType::Signature,
-            Type::String => AleoType::String,
-            Type::Identifier => AleoType::Identifier,
-            Type::DynRecord => AleoType::DynamicRecord,
+            TypeKind::Address => AleoType::Address,
+            TypeKind::Field => AleoType::Field,
+            TypeKind::Group => AleoType::Group,
+            TypeKind::Scalar => AleoType::Scalar,
+            TypeKind::Signature => AleoType::Signature,
+            TypeKind::String => AleoType::String,
+            TypeKind::Identifier => AleoType::Identifier,
+            TypeKind::DynRecord => AleoType::DynamicRecord,
 
-            Type::Integer(int) => match int {
+            TypeKind::Integer(int) => match int {
                 IntegerType::U8 => AleoType::U8,
                 IntegerType::U16 => AleoType::U16,
                 IntegerType::U32 => AleoType::U32,
@@ -42,8 +42,8 @@ impl CodeGeneratingVisitor<'_> {
                 IntegerType::I64 => AleoType::I64,
                 IntegerType::I128 => AleoType::I128,
             },
-            Type::Ident(id) => AleoType::Ident { name: id.to_string() },
-            Type::Composite(composite) => {
+            TypeKind::Ident(id) => AleoType::Ident { name: id.to_string() },
+            TypeKind::Composite(composite) => {
                 let composite_location = composite.path.expect_global_location();
                 let this_program_name = self.program_id.unwrap().as_symbol();
                 let program_name = composite_location.program;
@@ -58,44 +58,44 @@ impl CodeGeneratingVisitor<'_> {
                     AleoType::Location { program: program_name.to_string(), name: composite_name }
                 }
             }
-            Type::Boolean => AleoType::Boolean,
-            Type::Array(array_type) => AleoType::Array {
+            TypeKind::Boolean => AleoType::Boolean,
+            TypeKind::Array(array_type) => AleoType::Array {
                 inner: Box::new(self.visit_type(array_type.element_type())),
                 len: array_type.length.as_u32().expect("length should be known at this point"),
             },
-            Type::Future(..) => {
+            TypeKind::Future(..) => {
                 panic!("Future types should not be visited at this phase of compilation")
             }
-            Type::Optional(_) => {
+            TypeKind::Optional(_) => {
                 panic!("Optional types are not supported at this phase of compilation")
             }
-            Type::Mapping(_) => {
+            TypeKind::Mapping(_) => {
                 panic!("Mapping types are not supported at this phase of compilation")
             }
-            Type::Tuple(_) => {
+            TypeKind::Tuple(_) => {
                 panic!("Tuple types should not be visited at this phase of compilation")
             }
-            Type::Vector(_) => {
+            TypeKind::Vector(_) => {
                 panic!("Vector types should not be visited at this phase of compilation")
             }
-            Type::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
-            Type::Err => panic!("Error types should not exist at this phase of compilation"),
-            Type::Unit => panic!("Unit types are not supported at this phase of compilation"),
+            TypeKind::Numeric => panic!("`Numeric` types should not exist at this phase of compilation"),
+            TypeKind::Err => panic!("Error types should not exist at this phase of compilation"),
+            TypeKind::Unit => panic!("Unit types are not supported at this phase of compilation"),
         }
     }
 
     pub fn visit_type_with_visibility(
         &self,
-        type_: &Type,
+        type_: &TypeKind,
         visibility: Option<AleoVisibility>,
     ) -> (AleoType, Option<AleoVisibility>) {
         // Dynamic records have no visibility qualifier.
-        if matches!(type_, Type::DynRecord) {
+        if matches!(type_, TypeKind::DynRecord) {
             return (AleoType::DynamicRecord, None);
         }
 
         // If the type is a record, handle it separately.
-        if let Type::Composite(composite) = type_ {
+        if let TypeKind::Composite(composite) = type_ {
             let composite_location = composite.path.expect_global_location();
             let this_program_name = self.program_id.unwrap().as_symbol();
             let program_name = composite_location.program;
@@ -121,11 +121,11 @@ impl CodeGeneratingVisitor<'_> {
     /// become `DynamicRecord`; all others use the provided visibility.
     pub fn dynamic_call_input_type(
         &self,
-        type_: &Type,
+        type_: &TypeKind,
         visibility: Option<AleoVisibility>,
         interface: Option<&Interface>,
     ) -> (AleoType, Option<AleoVisibility>) {
-        if matches!(type_, Type::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
+        if matches!(type_, TypeKind::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
             return (AleoType::DynamicRecord, None);
         }
         (self.visit_type(type_), visibility)
@@ -135,13 +135,13 @@ impl CodeGeneratingVisitor<'_> {
     /// and interface record types become `DynamicRecord`; all others use the provided mode.
     pub fn dynamic_call_output_type(
         &self,
-        type_: &Type,
+        type_: &TypeKind,
         mode: Mode,
         interface: Option<&Interface>,
     ) -> (AleoType, Option<AleoVisibility>) {
-        if matches!(type_, Type::Future(..)) {
+        if matches!(type_, TypeKind::Future(..)) {
             (AleoType::DynamicFuture, None)
-        } else if matches!(type_, Type::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
+        } else if matches!(type_, TypeKind::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
             (AleoType::DynamicRecord, None)
         } else {
             let viz = AleoVisibility::maybe_from(mode).or(Some(AleoVisibility::Private));

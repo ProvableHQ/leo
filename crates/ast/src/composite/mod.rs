@@ -17,11 +17,11 @@
 pub mod member;
 pub use member::*;
 
-use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, ProgramId, Type};
+use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, ProgramId, TypeKind, TypeNode};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 use snarkvm::{
@@ -37,7 +37,7 @@ use snarkvm::{
 /// Type identity is decided by the full path including `identifier`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Composite {
     /// Whether the `export` keyword was written on this composite. `None` when the
     /// concept doesn't apply (records, program-block composites, and structs
@@ -72,12 +72,14 @@ impl Composite {
         self.identifier.name
     }
 
+    // No interner in scope at disassembly time; stub types get their canonical handle when
+    // the frontend re-interns them during stub merge.
     pub fn from_external_record<N: Network>(input: &RecordType<N>, program_id: ProgramId) -> Self {
         let mut members = Vec::with_capacity(input.entries().len() + 1);
         members.push(Member {
             mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
             identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
-            type_: Type::Address,
+            type_: TypeNode::unchecked(TypeKind::Address, Span::default()),
             span: Default::default(),
             id: Default::default(),
         });
@@ -85,9 +87,9 @@ impl Composite {
             mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
             identifier: Identifier::from(id),
             type_: match entry {
-                Public(t) => Type::from_snarkvm(t, program_id),
-                Private(t) => Type::from_snarkvm(t, program_id),
-                Constant(t) => Type::from_snarkvm(t, program_id),
+                Public(t) => TypeNode::unchecked(TypeKind::from_snarkvm(t, program_id), Span::default()),
+                Private(t) => TypeNode::unchecked(TypeKind::from_snarkvm(t, program_id), Span::default()),
+                Constant(t) => TypeNode::unchecked(TypeKind::from_snarkvm(t, program_id), Span::default()),
             },
             span: Default::default(),
             id: Default::default(),
@@ -103,6 +105,7 @@ impl Composite {
         }
     }
 
+    // See `from_external_record` for the `unchecked` rationale.
     pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: ProgramId) -> Self {
         Self {
             is_exported: None,
@@ -114,7 +117,7 @@ impl Composite {
                 .map(|(id, type_)| Member {
                     mode: Mode::None,
                     identifier: Identifier::from(id),
-                    type_: Type::from_snarkvm(type_, program),
+                    type_: TypeNode::unchecked(TypeKind::from_snarkvm(type_, program), Span::default()),
                     span: Default::default(),
                     id: Default::default(),
                 })

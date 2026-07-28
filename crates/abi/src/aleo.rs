@@ -130,18 +130,18 @@ fn convert_function_stub(function: &ast::FunctionStub, record_names: &HashSet<Sy
 }
 
 fn convert_input(input: &ast::Input, record_names: &HashSet<Symbol>, is_view: bool) -> abi::FunctionInput {
-    convert_function_input(&input.type_, record_names, resolve_io_mode(input.mode, is_view))
+    convert_function_input(input.type_.kind(), record_names, resolve_io_mode(input.mode, is_view))
 }
 
 fn convert_output(output: &ast::Output, record_names: &HashSet<Symbol>, is_view: bool) -> abi::FunctionOutput {
-    convert_function_output(&output.type_, record_names, resolve_io_mode(output.mode, is_view))
+    convert_function_output(output.type_.kind(), record_names, resolve_io_mode(output.mode, is_view))
 }
 
-fn convert_function_input(ty: &ast::Type, record_names: &HashSet<Symbol>, mode: abi::Mode) -> abi::FunctionInput {
-    if let ast::Type::DynRecord = ty {
+fn convert_function_input(ty: &ast::TypeKind, record_names: &HashSet<Symbol>, mode: abi::Mode) -> abi::FunctionInput {
+    if let ast::TypeKind::DynRecord = ty {
         return abi::FunctionInput::DynamicRecord;
     }
-    if let ast::Type::Composite(comp_ty) = ty {
+    if let ast::TypeKind::Composite(comp_ty) = ty {
         let name = comp_ty.path.identifier().name;
         if record_names.contains(&name) {
             return abi::FunctionInput::Record(abi::RecordRef {
@@ -153,11 +153,11 @@ fn convert_function_input(ty: &ast::Type, record_names: &HashSet<Symbol>, mode: 
     abi::FunctionInput::Plaintext { ty: convert_plaintext(ty), mode }
 }
 
-fn convert_function_output(ty: &ast::Type, record_names: &HashSet<Symbol>, mode: abi::Mode) -> abi::FunctionOutput {
+fn convert_function_output(ty: &ast::TypeKind, record_names: &HashSet<Symbol>, mode: abi::Mode) -> abi::FunctionOutput {
     match ty {
-        ast::Type::Future(_) => abi::FunctionOutput::Final,
-        ast::Type::DynRecord => abi::FunctionOutput::DynamicRecord,
-        ast::Type::Composite(comp_ty) => {
+        ast::TypeKind::Future(_) => abi::FunctionOutput::Final,
+        ast::TypeKind::DynRecord => abi::FunctionOutput::DynamicRecord,
+        ast::TypeKind::Composite(comp_ty) => {
             let name = comp_ty.path.identifier().name;
             if record_names.contains(&name) {
                 return abi::FunctionOutput::Record(abi::RecordRef {

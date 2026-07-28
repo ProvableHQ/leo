@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::{fmt, str::FromStr};
 
 /// A number string guaranteed to be non-negative.
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Serialize, Debug, PartialEq, Eq, Hash)]
 pub struct NonNegativeNumber {
     /// The string representation of the non-negative number.
     string: String,

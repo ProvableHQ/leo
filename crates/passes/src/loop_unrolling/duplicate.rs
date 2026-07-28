@@ -25,14 +25,16 @@ pub fn duplicate(
     symbol_table: &mut SymbolTable,
     node_builder: &NodeBuilder,
     type_table: &TypeTable,
+    interner: &TypeInterner,
 ) -> Block {
-    Duplicator { symbol_table, node_builder, type_table }.reconstruct_block(block).0
+    Duplicator { symbol_table, node_builder, type_table, interner }.reconstruct_block(block).0
 }
 
 struct Duplicator<'a> {
     symbol_table: &'a mut SymbolTable,
     node_builder: &'a NodeBuilder,
     type_table: &'a TypeTable,
+    interner: &'a TypeInterner,
 }
 
 impl Duplicator<'_> {
@@ -47,6 +49,10 @@ impl Duplicator<'_> {
 impl AstReconstructor for Duplicator<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = ();
+
+    fn interner(&self) -> &TypeInterner {
+        self.interner
+    }
 
     fn reconstruct_expression(
         &mut self,

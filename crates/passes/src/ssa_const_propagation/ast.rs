@@ -35,6 +35,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Option<Value>;
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     /// Reconstruct a path expression. If the path refers to a variable that has
     /// a constant value, replace it with that constant.
     fn reconstruct_path(&mut self, input: Path, _additional: &()) -> (Expression, Self::AdditionalOutput) {
@@ -78,7 +82,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             // constant (literals evaluate directly; paths look up tracked constants).
             let opt_value = match atom {
                 Expression::Literal(lit) => {
-                    let ty = self.state.type_table.get(&lit.id());
+                    let ty = self.state.type_table.get(&lit.id()).map(|t| self.state.types.resolve(t));
                     const_eval::literal_to_value(lit, &ty).ok()
                 }
                 Expression::Path(p) => p.try_local_symbol().and_then(|s| self.constants.get(&s).cloned()),
@@ -95,11 +99,11 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
     /// Reconstruct a literal expression and convert it to a Value.
     fn reconstruct_literal(&mut self, mut input: Literal, _additional: &()) -> (Expression, Self::AdditionalOutput) {
-        let type_info = self.state.type_table.get(&input.id());
+        let type_info = self.state.type_table.get(&input.id()).map(|t| self.state.types.resolve(t));
 
         // If this is an optional, then unwrap it first.
         let type_info = type_info.as_ref().map(|ty| match ty {
-            Type::Optional(opt) => *opt.inner.clone(),
+            TypeKind::Optional(opt) => *opt.inner.clone(),
             _ => ty.clone(),
         });
 
@@ -113,10 +117,10 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 // If we know the type of an unsuffixed literal, might as well change it to a suffixed literal.
                 LiteralVariant::Unsuffixed(s) => {
                     match type_info.expect("Expected type information to be available") {
-                        Type::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
-                        Type::Field => input.variant = LiteralVariant::Field(s),
-                        Type::Group => input.variant = LiteralVariant::Group(s),
-                        Type::Scalar => input.variant = LiteralVariant::Scalar(s),
+                        TypeKind::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
+                        TypeKind::Field => input.variant = LiteralVariant::Field(s),
+                        TypeKind::Group => input.variant = LiteralVariant::Group(s),
+                        TypeKind::Scalar => input.variant = LiteralVariant::Scalar(s),
                         _ => panic!("Type checking should have prevented this."),
                     }
                     (input.into(), Some(value))
@@ -149,7 +153,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                 input.op,
                 lhs_value,
                 rhs_value,
-                &self.state.type_table.get(&input_id),
+                &self.state.type_table.get(&input_id).map(|t| self.state.types.resolve(t)),
             ) {
                 Ok(new_value) => {
                     let (new_expr, _) = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
@@ -202,8 +206,8 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     return (right, rhs_opt_value);
                 }
                 // Absorbing element: x * 0 = 0 (only for integers and field, not group or scalar)
-                let result_ty = self.state.type_table.get(&input_id);
-                if matches!(&result_ty, Some(Type::Integer(_) | Type::Field)) {
+                let result_ty = self.state.type_table.get(&input_id).map(|t| self.state.types.resolve(t));
+                if matches!(&result_ty, Some(TypeKind::Integer(_) | TypeKind::Field)) {
                     if right_is_zero {
                         self.changed = true;
                         return (right, rhs_opt_value);
@@ -317,14 +321,14 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
             BinaryOperation::Eq if same_ssa_atom(&left, &right) => {
                 self.changed = true;
                 let id = self.state.node_builder.next_id();
-                self.state.type_table.insert(id, Type::Boolean);
+                self.state.type_table.insert(id, Type::BOOLEAN);
                 let lit = Literal::boolean(true, span, id);
                 return (lit.into(), Some(Value::from(true)));
             }
             BinaryOperation::Neq if same_ssa_atom(&left, &right) => {
                 self.changed = true;
                 let id = self.state.node_builder.next_id();
-                self.state.type_table.insert(id, Type::Boolean);
+                self.state.type_table.insert(id, Type::BOOLEAN);
                 let lit = Literal::boolean(false, span, id);
                 return (lit.into(), Some(Value::from(false)));
             }
@@ -344,7 +348,12 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match const_eval::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
+            match const_eval::evaluate_unary(
+                span,
+                input.op,
+                &value,
+                &self.state.type_table.get(&input_id).map(|t| self.state.types.resolve(t)),
+            ) {
                 Ok(new_value) => {
                     let (new_expr, _) = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     self.changed = true;
@@ -411,7 +420,7 @@ impl AstReconstructor for SsaConstPropagationVisitor<'_> {
                     (Some(false), Some(true)) => {
                         self.changed = true;
                         let id = self.state.node_builder.next_id();
-                        self.state.type_table.insert(id, Type::Boolean);
+                        self.state.type_table.insert(id, Type::BOOLEAN);
                         let not_cond =
                             UnaryExpression { op: UnaryOperation::Not, receiver: cond, span: ternary_span, id };
                         return (not_cond.into(), None);

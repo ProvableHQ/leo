@@ -22,7 +22,7 @@
 
 use crate::CompilerState;
 
-use leo_ast::{AstVisitor, Expression, Node as _, Path, TupleAccess, Type, UnitVisitor};
+use leo_ast::{AstVisitor, Expression, Node as _, Path, TupleAccess, TypeKind, UnitVisitor};
 
 use indexmap::IndexSet;
 
@@ -50,7 +50,9 @@ impl AstVisitor for SymbolAccessCollector<'_> {
         // checking. This may change in the future.
         if let Expression::Path(path) = &input.tuple {
             // Futures aren't accessed by field; treat the whole thing as a direct variable
-            if let Some(Type::Future(_)) = self.state.type_table.get(&input.tuple.id()) {
+            if let Some(TypeKind::Future(_)) =
+                self.state.type_table.get(&input.tuple.id()).map(|t| self.state.types.resolve(t))
+            {
                 self.symbol_accesses.insert((path.clone(), None));
             } else {
                 self.symbol_accesses.insert((path.clone(), Some(input.index.value())));

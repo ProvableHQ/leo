@@ -28,7 +28,7 @@ use leo_ast::{
     NetworkName,
     Program,
     ProgramScope,
-    Type,
+    TypeKind,
     UpgradeVariant,
     Variant,
 };
@@ -163,10 +163,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
             .members
             .iter()
             .filter_map(|var| {
-                if var.type_.is_empty() {
+                if var.type_.kind().is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), self.visit_type(&var.type_)))
+                    Some((var.identifier.to_string(), self.visit_type(var.type_.kind())))
                 }
             })
             .collect();
@@ -195,10 +195,10 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let fields = members
             .iter()
             .filter_map(|var| {
-                if var.type_.is_empty() {
+                if var.type_.kind().is_empty() {
                     None
                 } else {
-                    Some((var.identifier.to_string(), self.visit_type(&var.type_), match var.mode {
+                    Some((var.identifier.to_string(), self.visit_type(var.type_.kind()), match var.mode {
                         Mode::Constant => AleoVisibility::Constant,
                         Mode::Public => AleoVisibility::Public,
                         Mode::None | Mode::Private => AleoVisibility::Private,
@@ -248,14 +248,14 @@ impl<'a> CodeGeneratingVisitor<'a> {
             .input
             .iter()
             .filter_map(|input| {
-                if input.type_.is_empty() {
+                if input.type_.kind().is_empty() {
                     return None;
                 }
                 let register_num = self.next_register();
                 let current_program = self.program_id.unwrap().as_symbol();
 
                 // Track all internal record inputs.
-                if let Type::Composite(comp) = &input.type_ {
+                if let TypeKind::Composite(comp) = &input.type_.kind() {
                     let composite_location = comp.path.expect_global_location();
                     if self.state.symbol_table.lookup_record(current_program, composite_location).is_some()
                         && (composite_location.program == current_program)
@@ -273,7 +273,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                         (_, mode) => AleoVisibility::maybe_from(mode),
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
-                    if matches!(input.type_, Type::Future(_)) {
+                    if matches!(input.type_.kind(), TypeKind::Future(_)) {
                         let location = futures
                             .next()
                             .expect("Type checking guarantees we have future locations for each future input");
@@ -294,7 +294,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
                             )
                         }
                     } else {
-                        self.visit_type_with_visibility(&input.type_, visibility)
+                        self.visit_type_with_visibility(input.type_.kind(), visibility)
                     }
                 };
 
@@ -451,16 +451,13 @@ impl<'a> CodeGeneratingVisitor<'a> {
         let program = self.program_id.unwrap().as_symbol();
 
         // Helper to construct the string associated with the type.
-        let create_type = |type_: &Type| {
+        let create_type = |type_: &TypeKind| {
             match type_ {
-                Type::Mapping(_) | Type::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
-                Type::Ident(identifier) => {
-                    // Lookup the type in the composite mapping.
-                    // Invariant: `Type::Identifier` in a mapping position refers to a locally-defined
-                    // composite (struct or record). Library composites arrive as `Type::Composite` with
-                    // a qualified locator and are handled by the `type_` arm below; they never reach
-                    // here as `Type::Identifier`. The unwrap is therefore safe because all local
-                    // composites are registered in `composite_mapping` during codegen setup.
+                TypeKind::Mapping(_) | TypeKind::Tuple(_) => panic!("Mappings cannot contain mappings or tuples."),
+                TypeKind::Ident(identifier) => {
+                    // Bare `Ident` at this point only names a locally-defined composite; library
+                    // composites carry a qualified locator and go through the `type_` arm below.
+                    // The unwrap holds because local composites are all registered before codegen.
                     let is_record = self.composite_mapping.get(&Location::new(program, vec![identifier.name])).unwrap();
                     assert!(!is_record, "Type checking guarantees that mappings cannot contain records.");
                     self.visit_type_with_visibility(type_, Some(AleoVisibility::Public))

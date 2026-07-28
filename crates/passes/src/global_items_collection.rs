@@ -51,7 +51,7 @@ use leo_ast::{
     OptionalType,
     ProgramScope,
     StorageVariable,
-    Type,
+    TypeKind,
     UnitVisitor,
 };
 use leo_errors::Result;
@@ -110,7 +110,7 @@ impl AstVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_const(&mut self, input: &ConstDeclaration) {
         // Just set the type of the const in the symbol table.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        self.state.symbol_table.set_global_type(&Location::new(self.unit_name, const_path), input.type_.clone());
+        self.state.symbol_table.set_global_type(&Location::new(self.unit_name, const_path), input.type_.kind().clone());
     }
 }
 
@@ -163,7 +163,7 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
         // Set the type of the variable associated with the mapping in the symbol table.
         self.state.symbol_table.set_global_type(
             &Location::new(self.unit_name, vec![input.identifier.name]),
-            Type::Mapping(MappingType {
+            TypeKind::Mapping(MappingType {
                 key: Box::new(input.key_type.clone()),
                 value: Box::new(input.value_type.clone()),
             }),
@@ -174,9 +174,9 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
         // Set the type of the storage variable in the symbol table.
 
         // The type of non-vector storage variables is implicitly wrapped in an optional.
-        let type_ = match input.type_ {
-            Type::Vector(_) => input.type_.clone(),
-            _ => Type::Optional(OptionalType { inner: Box::new(input.type_.clone()) }),
+        let type_ = match input.type_.kind() {
+            TypeKind::Vector(_) => input.type_.kind().clone(),
+            _ => TypeKind::Optional(OptionalType { inner: Box::new(input.type_.kind().clone()) }),
         };
 
         self.state.symbol_table.set_global_type(&Location::new(self.unit_name, vec![input.identifier.name]), type_);

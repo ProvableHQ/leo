@@ -73,7 +73,7 @@ impl ConstPropagationVisitor<'_> {
     }
 
     pub fn value_to_expression(&self, value: &Value, span: Span, id: NodeID) -> Option<Expression> {
-        let ty = self.state.type_table.get(&id)?;
+        let ty = self.state.types.resolve(self.state.type_table.get(&id)?);
         let symbol_table = &self.state.symbol_table;
         let struct_lookup = |loc: &Location| {
             symbol_table
@@ -81,7 +81,7 @@ impl ConstPropagationVisitor<'_> {
                 .unwrap()
                 .members
                 .iter()
-                .map(|mem| (mem.identifier.name, mem.type_.clone()))
+                .map(|mem| (mem.identifier.name, mem.type_.kind().clone()))
                 .collect()
         };
         value.to_expression(span, &self.state.node_builder, &ty, &struct_lookup)

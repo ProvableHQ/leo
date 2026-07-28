@@ -3413,6 +3413,7 @@ name = "leo-ast"
 version = "4.3.2"
 dependencies = [
  "anyhow",
+ "fxhash",
  "getrandom 0.4.3",
  "indexmap",
  "itertools 0.14.0",

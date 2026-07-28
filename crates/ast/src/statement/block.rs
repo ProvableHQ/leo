@@ -17,11 +17,11 @@
 use crate::{Indent, Node, NodeID, Statement};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A block `{ [stmt]* }` consisting of a list of statements to execute in order.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug, Default)]
 pub struct Block {
     /// The list of statements to execute.
     pub statements: Vec<Statement>,

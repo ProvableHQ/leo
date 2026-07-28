@@ -14,17 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
+use crate::{Canonicalize, Expression, Identifier, Location, Node, NodeID, ProgramId, simple_node_impl};
 
 use leo_span::{Span, Symbol, with_session_globals};
 
+impl Canonicalize for Path {
+    fn canonicalize(self) -> Self {
+        // Full destructure so adding a field triggers a compile error here.
+        let Self { user_program, qualifier, identifier, target, span: _, id: _ } = self;
+        let (user_program, qualifier) = match target {
+            PathTarget::Global(_) | PathTarget::Local(_) => (None, Vec::new()),
+            PathTarget::Unresolved => (user_program.canonicalize(), qualifier.canonicalize()),
+        };
+        Self {
+            user_program,
+            qualifier,
+            identifier: identifier.canonicalize(),
+            target,
+            span: Span::default(),
+            id: NodeID::default(),
+        }
+    }
+}
+
 use indexmap::IndexSet;
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::{fmt, hash::Hash};
 
 /// A Path in a program.
-#[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, Eq, PartialEq, Serialize)]
 pub struct Path {
     /// The program this path belongs to, if set by the user
     user_program: Option<ProgramId>,
@@ -46,7 +65,7 @@ pub struct Path {
     pub id: NodeID,
 }
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize)]
 pub enum PathTarget {
     Unresolved,
     Local(Symbol),

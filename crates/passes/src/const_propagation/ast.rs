@@ -28,8 +28,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     type AdditionalInput = ();
     type AdditionalOutput = Option<Value>;
 
+    fn interner(&self) -> &TypeInterner {
+        &self.state.types
+    }
+
     /* Types */
-    fn reconstruct_array_type(&mut self, input: leo_ast::ArrayType) -> (leo_ast::Type, Self::AdditionalOutput) {
+    fn reconstruct_array_type(&mut self, input: leo_ast::ArrayType) -> (leo_ast::TypeKind, Self::AdditionalOutput) {
         let (length, opt_value) = self.reconstruct_expression(*input.length, &());
 
         // If we can't evaluate this array length, keep track of it for error reporting later
@@ -38,7 +42,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         }
 
         (
-            leo_ast::Type::Array(leo_ast::ArrayType {
+            leo_ast::TypeKind::Array(leo_ast::ArrayType {
                 element_type: Box::new(self.reconstruct_type(*input.element_type).0),
                 length: Box::new(length),
             }),
@@ -151,8 +155,8 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         if let Some(index_value) = index_opt {
             // We can perform compile time bounds checking.
 
-            let ty = self.state.type_table.get(&array_id);
-            let Some(Type::Array(array_ty)) = ty else {
+            let ty = self.state.type_table.get(&array_id).map(|t| self.state.types.resolve(t));
+            let Some(TypeKind::Array(array_ty)) = ty else {
                 panic!("Type checking guaranteed that this is an array.");
             };
             let len = array_ty.length.as_u32();
@@ -329,7 +333,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
                 input.op,
                 &lhs_value,
                 &rhs_value,
-                &self.state.type_table.get(&input_id),
+                &self.state.type_table.get(&input_id).map(|t| self.state.types.resolve(t)),
             ) {
                 Ok(new_value) => {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
@@ -367,11 +371,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         let (expr, opt_value) = self.reconstruct_expression(input.expression, &());
 
         if let Some(value) = opt_value {
-            if let Some(cast_value) = value.cast(&input.type_) {
+            if let Some(cast_value) = value.cast(input.type_.kind()) {
                 let expr = self.value_to_expression(&cast_value, span, id).expect(VALUE_ERROR);
                 return (expr, Some(cast_value));
             } else {
-                self.emit_err(static_analyzer::compile_time_cast(value, &input.type_, span));
+                self.emit_err(static_analyzer::compile_time_cast(value, input.type_.kind(), span));
             }
         }
         (CastExpression { expression: expr, ..input }.into(), None)
@@ -416,11 +420,11 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
         mut input: leo_ast::Literal,
         _additional: &(),
     ) -> (Expression, Self::AdditionalOutput) {
-        let type_info = self.state.type_table.get(&input.id());
+        let type_info = self.state.type_table.get(&input.id()).map(|t| self.state.types.resolve(t));
 
         // If this is an optional, then unwrap it first.
         let type_info = type_info.as_ref().map(|ty| match ty {
-            Type::Optional(opt) => *opt.inner.clone(),
+            TypeKind::Optional(opt) => *opt.inner.clone(),
             _ => ty.clone(),
         });
 
@@ -429,10 +433,10 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             // do not have to infer the type again in later passes of type checking.
             if let LiteralVariant::Unsuffixed(s) = input.variant {
                 match type_info.expect("Expected type information to be available") {
-                    Type::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
-                    Type::Field => input.variant = LiteralVariant::Field(s),
-                    Type::Group => input.variant = LiteralVariant::Group(s),
-                    Type::Scalar => input.variant = LiteralVariant::Scalar(s),
+                    TypeKind::Integer(ty) => input.variant = LiteralVariant::Integer(ty, s),
+                    TypeKind::Field => input.variant = LiteralVariant::Field(s),
+                    TypeKind::Group => input.variant = LiteralVariant::Group(s),
+                    TypeKind::Scalar => input.variant = LiteralVariant::Scalar(s),
                     _ => panic!("Type checking should have prevented this."),
                 }
             }
@@ -468,7 +472,12 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
         if let Some(value) = opt_value {
             // We were able to evaluate the operand, so we can evaluate the expression.
-            match const_eval::evaluate_unary(span, input.op, &value, &self.state.type_table.get(&input_id)) {
+            match const_eval::evaluate_unary(
+                span,
+                input.op,
+                &value,
+                &self.state.type_table.get(&input_id).map(|t| self.state.types.resolve(t)),
+            ) {
                 Ok(new_value) => {
                     let new_expr = self.value_to_expression(&new_value, span, input_id).expect(VALUE_ERROR);
                     return (new_expr, Some(new_value));
@@ -553,13 +562,13 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     }
 
     fn reconstruct_const(&mut self, mut input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
-        if matches!(input.type_, Type::Optional(_)) {
+        if matches!(input.type_.kind(), TypeKind::Optional(_)) {
             return (input.into(), None);
         }
 
         let span = input.span();
 
-        let type_ = self.reconstruct_type(input.type_).0;
+        let type_ = self.reconstruct_type_node(input.type_).0;
         let (expr, opt_value) = self.in_const_initializer(|slf| slf.reconstruct_expression(input.value, &()));
 
         if opt_value.is_some() {
@@ -591,7 +600,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
     fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         (
             DefinitionStatement {
-                type_: definition.type_.map(|ty| self.reconstruct_type(ty).0),
+                type_: definition.type_.map(|ty| self.reconstruct_type_node(ty).0),
                 value: self.reconstruct_expression(definition.value, &()).0,
                 ..definition
             }
@@ -617,7 +626,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
 
     fn reconstruct_iteration(&mut self, iteration: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         let id = iteration.id();
-        let type_ = iteration.type_.map(|ty| self.reconstruct_type(ty).0);
+        let type_ = iteration.type_.map(|ty| self.reconstruct_type_node(ty).0);
         let start = self.reconstruct_expression(iteration.start, &()).0;
         let stop = self.reconstruct_expression(iteration.stop, &()).0;
         self.in_scope(id, |slf| {

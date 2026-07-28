@@ -53,9 +53,9 @@ impl StaticAnalyzingVisitor<'_> {
         };
 
         // Make sure that the future is defined.
-        match self.state.type_table.get(&future_variable.id) {
+        match self.state.type_table.get(&future_variable.id).map(|t| self.state.types.resolve(t)) {
             Some(type_) => {
-                if !matches!(type_, Type::Future(_)) {
+                if !matches!(type_, TypeKind::Future(_)) {
                     self.emit_err(static_analyzer::expected_final(type_, future_variable.span()));
                 }
                 // Mark the future as consumed.
@@ -100,7 +100,7 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         // if we're passing finals to a final fn, they get run and checked there
         if func_symbol.function.variant == Variant::FinalFn {
             for (param, arg) in func_symbol.function.input.iter().zip(input.arguments.iter()) {
-                if matches!(param.type_, Type::Future(_))
+                if matches!(param.type_.kind(), TypeKind::Future(_))
                     && let Expression::Path(path) = arg
                 {
                     self.await_checker.remove(&path.identifier().name);
