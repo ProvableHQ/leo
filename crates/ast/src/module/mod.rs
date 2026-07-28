@@ -32,10 +32,10 @@ use leo_span::Symbol;
 use std::fmt;
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 /// Stores the abstract syntax tree of a Leo module.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Module {
     /// The name of the compilation unit (program or library) that this module belongs to.
     pub unit_name: Symbol,

@@ -17,11 +17,11 @@
 use crate::{Identifier, Node, NodeID, TypeNode};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A const parameter for a function or a composite.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct ConstParameter {
     /// The name of the const parameter.
     pub identifier: Identifier,

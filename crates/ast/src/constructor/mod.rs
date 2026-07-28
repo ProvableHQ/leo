@@ -18,12 +18,12 @@ use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node,
 use leo_span::{Span, sym};
 
 use anyhow::{anyhow, bail};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::{Address, Literal, Locator, Network};
 use std::{fmt, str::FromStr};
 
 /// A constructor definition.
-#[derive(Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Default, Eq, PartialEq, Serialize)]
 pub struct Constructor {
     /// Annotations on the constructor.
     pub annotations: Vec<Annotation>,

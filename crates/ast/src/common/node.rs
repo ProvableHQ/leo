@@ -23,7 +23,7 @@ pub type NodeID = usize;
 
 /// A node in the AST.
 pub trait Node:
-    std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
+    std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize
 {
     /// Returns the span of the node.
     fn span(&self) -> Span;

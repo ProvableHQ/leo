@@ -18,11 +18,11 @@ use crate::{Expression, Node, NodeID, Statement};
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A return statement `return expression;`.
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct ReturnStatement {
     /// The expression to return to the function caller.
     pub expression: Expression,

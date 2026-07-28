@@ -16,11 +16,11 @@
 
 use crate::TypeKind;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A vector type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct VectorType {
     pub element_type: Box<TypeKind>,
 }

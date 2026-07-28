@@ -16,11 +16,11 @@
 
 use crate::{Expression, Path, TypeKind};
 use itertools::Itertools as _;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A composite type of a identifier and external program name.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct CompositeType {
     /// The path to the composite definition.
     pub path: Path,

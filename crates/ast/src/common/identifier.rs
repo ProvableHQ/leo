@@ -24,14 +24,14 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 /// An identifier in a program.
 ///
 /// Attention - When adding or removing fields from this struct,
-/// please remember to update its Serialize and Deserialize implementation
+/// please remember to update its Serialize implementation
 /// to reflect the new struct instantiation.
-#[derive(Clone, Copy, Default, Serialize, Deserialize)]
+#[derive(Clone, Copy, Default, Serialize)]
 pub struct Identifier {
     /// The symbol that the user wrote, e.g., `foo`.
     pub name: Symbol,

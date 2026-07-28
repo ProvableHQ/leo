@@ -21,7 +21,7 @@ use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, ProgramId, T
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 use snarkvm::{
@@ -37,7 +37,7 @@ use snarkvm::{
 /// Type identity is decided by the full path including `identifier`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct Composite {
     /// Whether the `export` keyword was written on this composite. `None` when the
     /// concept doesn't apply (records, program-block composites, and structs

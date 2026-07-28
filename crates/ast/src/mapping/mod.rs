@@ -18,12 +18,12 @@ use crate::{Identifier, Node, NodeID, ProgramId, TypeKind};
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::{Mapping as MappingCore, Network};
 use std::fmt;
 
 /// A mapping declaration, e.g `mapping balances: address => u128`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct Mapping {
     /// The name of the mapping.
     pub identifier: Identifier,

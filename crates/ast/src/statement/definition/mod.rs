@@ -19,11 +19,11 @@ use crate::{Expression, Identifier, Node, NodeID, Statement, TypeKind, TypeNode}
 use leo_span::Span;
 
 use itertools::Itertools as _;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A `let` or `const` declaration statement.
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct DefinitionStatement {
     /// The bindings / variable names to declare.
     pub place: DefinitionPlace,
@@ -37,7 +37,7 @@ pub struct DefinitionStatement {
     pub id: NodeID,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub enum DefinitionPlace {
     Single(Identifier),
     Multiple(Vec<Identifier>),

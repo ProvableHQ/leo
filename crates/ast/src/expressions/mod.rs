@@ -17,7 +17,7 @@
 use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, TypeKind};
 use leo_span::{Span, Symbol, sym};
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 mod array_access;
@@ -75,7 +75,7 @@ mod literal;
 pub use literal::*;
 
 /// Expression that evaluates to a value.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum Expression {
     /// An array access, e.g. `arr[i]`.
     ArrayAccess(Box<ArrayAccess>),

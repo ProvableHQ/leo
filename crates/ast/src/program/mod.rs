@@ -23,10 +23,10 @@ use leo_span::Symbol;
 
 use crate::{Module, ProgramId, Stub};
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 /// Stores the Leo program abstract syntax tree.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct Program {
     /// A map from module paths to module definitions.
     #[serde(with = "module_map")]
@@ -116,12 +116,12 @@ pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
 /// Serde helpers for `IndexMap<Vec<Symbol>, V>` maps keyed by module paths.
 ///
 /// JSON object keys must be strings, so the `Vec<Symbol>` path is joined into a single
-/// `::`-separated string when serializing and split back when deserializing.
+/// `::`-separated string when serializing.
 pub(crate) mod module_map {
     use leo_span::{Symbol, with_session_globals};
 
     use indexmap::IndexMap;
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde::{Serialize, Serializer};
 
     pub fn serialize<S, V>(map: &IndexMap<Vec<Symbol>, V>, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -139,27 +139,16 @@ pub(crate) mod module_map {
         joined.serialize(serializer)
     }
 
-    pub fn deserialize<'de, D, V>(deserializer: D) -> Result<IndexMap<Vec<Symbol>, V>, D::Error>
-    where
-        D: Deserializer<'de>,
-        V: Deserialize<'de>,
-    {
-        Ok(IndexMap::<String, V>::deserialize(deserializer)?
-            .into_iter()
-            .map(|(path, value)| (path.split("::").map(Symbol::intern).collect(), value))
-            .collect())
-    }
-
     #[cfg(test)]
     mod tests {
         use super::*;
         use leo_span::create_session_if_not_set_then;
 
-        #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, Eq, Serialize)]
         struct Wrapper(#[serde(with = "super")] IndexMap<Vec<Symbol>, u32>);
 
         #[test]
-        fn round_trips_single_and_multi_segment_keys() {
+        fn serializes_single_and_multi_segment_keys() {
             create_session_if_not_set_then(|_| {
                 let mut map = IndexMap::new();
                 map.insert(vec![Symbol::intern("utils")], 1);
@@ -168,9 +157,6 @@ pub(crate) mod module_map {
 
                 let json = serde_json::to_value(&wrapper).unwrap();
                 assert_eq!(json, serde_json::json!({ "utils": 1, "utils::math": 2 }));
-
-                let restored: Wrapper = serde_json::from_value(json).unwrap();
-                assert_eq!(restored, wrapper);
             });
         }
     }

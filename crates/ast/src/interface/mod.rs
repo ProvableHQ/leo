@@ -16,7 +16,7 @@
 
 use crate::{Identifier, Node, NodeID, TypeKind, indent_display::Indent};
 use leo_span::{Span, Symbol};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 pub use prototypes::{FunctionPrototype, MappingPrototype, RecordPrototype, StorageVariablePrototype};
@@ -24,7 +24,7 @@ pub use prototypes::{FunctionPrototype, MappingPrototype, RecordPrototype, Stora
 mod prototypes;
 
 /// An interface definition.
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct Interface {
     /// Whether the `export` keyword was written on this interface. `None` when
     /// visibility doesn't apply (program-block interfaces, which are always

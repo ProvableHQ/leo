@@ -36,11 +36,11 @@ use crate::{Block, ConstParameter, FunctionStub, Identifier, Indent, Node, NodeI
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools as _;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A function definition.
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct Function {
     /// Whether the `export` keyword was written on this function. `None` means the
     /// visibility concept does not apply (e.g., program-block functions and

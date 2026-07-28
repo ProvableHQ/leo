@@ -18,11 +18,11 @@ use crate::{Expression, Node, NodeID, Statement};
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// An expression statement, `foo(a);`.
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct ExpressionStatement {
     /// The expression associated with the statement.
     pub expression: Expression,

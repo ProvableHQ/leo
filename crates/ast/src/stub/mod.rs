@@ -22,10 +22,10 @@ pub use function_stub::*;
 use crate::{Composite, ConstDeclaration, Identifier, Indent, Library, Mapping, NodeID, Program, ProgramId};
 use indexmap::{IndexMap, IndexSet};
 use leo_span::{Span, Symbol};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub enum Stub {
     /// A dependency that is a Leo program.
     FromLeo {
@@ -122,7 +122,7 @@ impl From<Library> for Stub {
 }
 
 /// Stores the Leo stub abstract syntax tree.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct AleoProgram {
     /// A vector of imported programs.
     pub imports: Vec<ProgramId>,

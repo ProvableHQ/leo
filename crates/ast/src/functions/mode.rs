@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use core::fmt;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 /// The mode associated with a type.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 pub enum Mode {
     None,
     Constant,

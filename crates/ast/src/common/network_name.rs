@@ -16,12 +16,12 @@
 
 use leo_errors::LeoError;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 use std::{fmt, str::FromStr};
 
 // Retrievable networks for an external program
-#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash, Serialize)]
 pub enum NetworkName {
     #[default]
     #[serde(rename = "testnet")]

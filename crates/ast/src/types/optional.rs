@@ -16,11 +16,11 @@
 
 use crate::TypeKind;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// An optional type. For example `u32?` where `inner` refers to `u32`.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct OptionalType {
     pub inner: Box<TypeKind>,
 }

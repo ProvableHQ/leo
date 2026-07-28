@@ -30,11 +30,11 @@ use crate::{
 };
 
 use leo_span::{Span, Symbol};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// Stores the Leo program scope abstract syntax tree.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,

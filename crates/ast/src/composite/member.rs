@@ -18,11 +18,11 @@ use crate::{Identifier, Mode, Node, NodeID, TypeNode};
 
 use leo_span::{Span, Symbol};
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A member of a composite data type, e.g `foobar: u8` or `private baz: bool` .
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct Member {
     /// The mode of the member.
     pub mode: Mode,

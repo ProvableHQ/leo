@@ -17,11 +17,11 @@
 use crate::{Mode, Node, NodeID, TypeNode};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A function output.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct Output {
     /// The mode of the function output.
     pub mode: Mode,

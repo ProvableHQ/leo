@@ -17,11 +17,11 @@ use crate::ProgramId;
 
 use itertools::Itertools;
 use leo_span::{Symbol, sym};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::{Locator, Network};
 use std::fmt::Display;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct Location {
     /// The program name. e.g. `credits.aleo` or `my_library`.
     pub program: Symbol,

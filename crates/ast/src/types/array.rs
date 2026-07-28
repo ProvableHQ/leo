@@ -18,12 +18,12 @@ use crate::{Expression, IntegerType, Literal, LiteralVariant, ProgramId, TypeKin
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
 use leo_span::Span;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::Network;
 use std::fmt;
 
 /// An array type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct ArrayType {
     pub element_type: Box<TypeKind>,
     pub length: Box<Expression>,

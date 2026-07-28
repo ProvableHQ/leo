@@ -17,11 +17,11 @@
 use crate::{Expression, Identifier, Node, NodeID, Statement, TypeNode};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A constant declaration statement.
-#[derive(Clone, Default, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, Default, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct ConstDeclaration {
     /// Whether the `export` keyword was written on this const. `None` when
     /// visibility doesn't apply (statement-level consts).

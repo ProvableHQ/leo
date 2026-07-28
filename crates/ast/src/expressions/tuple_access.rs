@@ -17,11 +17,11 @@
 use crate::{Expression, Node, NodeID, NonNegativeNumber};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A tuple access expression, e.g., `tuple.index`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct TupleAccess {
     /// An expression evaluating to some tuple type, e.g., `(5, 2)`.
     pub tuple: Expression,

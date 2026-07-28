@@ -16,13 +16,13 @@
 
 use std::fmt::Display;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 use leo_ast::{Function, Location, Mode, TypeKind};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 pub enum VariableType {
     Const,
     ConstParameter,
@@ -46,7 +46,7 @@ impl Display for VariableType {
 }
 
 /// An entry for a variable in the symbol table.
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct VariableSymbol {
     /// `None` until `TypeChecking` runs. Symbols are inserted first (during path resolution)
     /// and only get their type once type-checking has resolved the surrounding expression.
@@ -77,7 +77,7 @@ pub struct FunctionSymbol {
     pub finalizer: Option<Finalizer>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct Finalizer {
     /// The name of the async function this async transition calls.
     pub location: Location,

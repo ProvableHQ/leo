@@ -16,11 +16,11 @@
 
 use crate::{Location, TypeKind};
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A future type consisting of the type of the inputs.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct FutureType {
     // Optional type specification of inputs.
     pub inputs: Vec<TypeKind>,

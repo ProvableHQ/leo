@@ -42,7 +42,7 @@ fn stub_type(kind: TypeKind) -> TypeNode {
 }
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::{
     console::program::RegisterType,
     prelude::{FinalizeType, Network, ValueType},
@@ -51,7 +51,7 @@ use snarkvm::{
 use std::fmt;
 
 /// A function stub definition.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize)]
 pub struct FunctionStub {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,

@@ -17,11 +17,11 @@
 use crate::{Expression, Identifier, Node, NodeID};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A composite member access expression `inner.name` to some composite with *named members*.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct MemberAccess {
     /// The inner composite that is being accessed.
     pub inner: Expression,

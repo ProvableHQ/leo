@@ -33,7 +33,7 @@ use crate::{
 
 use itertools::Itertools;
 use leo_span::Span;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use snarkvm::prelude::{
     LiteralType,
     Network,
@@ -45,11 +45,11 @@ use std::fmt;
 /// AST-level type annotation: the source-shaped `kind` with its cached canonical [`Type`]
 /// handle. `kind` and `type_` are private to preserve the invariant
 /// `type_ == interner.intern(&kind)`, which only [`TypeNode::new`] can establish.
-#[derive(Clone, Debug, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Serialize)]
 pub struct TypeNode {
     kind: TypeKind,
     pub span: Span,
-    #[serde(default, skip)]
+    #[serde(skip)]
     type_: Type,
 }
 
@@ -131,7 +131,7 @@ impl fmt::Display for TypeNode {
 }
 
 /// Explicit type used for defining a variable or expression type
-#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash, Serialize)]
 pub enum TypeKind {
     /// The `address` type.
     Address,

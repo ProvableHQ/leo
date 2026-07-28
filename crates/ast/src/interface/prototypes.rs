@@ -33,10 +33,10 @@ use crate::{
 };
 use itertools::Itertools;
 use leo_span::Span;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 /// A mapping prototype in an interface, e.g. `mapping balances: address => u128;`.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct MappingPrototype {
     /// The name of the mapping.
     pub identifier: Identifier,
@@ -67,7 +67,7 @@ impl fmt::Display for MappingPrototype {
 crate::simple_node_impl!(MappingPrototype);
 
 /// A storage variable prototype in an interface, e.g. `storage counter: u32;`.
-#[derive(Clone, Default, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize)]
 pub struct StorageVariablePrototype {
     /// The name of the storage variable.
     pub identifier: Identifier,
@@ -95,7 +95,7 @@ impl fmt::Display for StorageVariablePrototype {
 
 crate::simple_node_impl!(StorageVariablePrototype);
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct FunctionPrototype {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
@@ -188,7 +188,7 @@ impl fmt::Display for FunctionPrototype {
 
 crate::simple_node_impl!(FunctionPrototype);
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize)]
 pub struct RecordPrototype {
     /// The record identifier
     pub identifier: Identifier,

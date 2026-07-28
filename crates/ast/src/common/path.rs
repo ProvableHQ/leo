@@ -39,11 +39,11 @@ impl Canonicalize for Path {
 
 use indexmap::IndexSet;
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::{fmt, hash::Hash};
 
 /// A Path in a program.
-#[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Hash, Eq, PartialEq, Serialize)]
 pub struct Path {
     /// The program this path belongs to, if set by the user
     user_program: Option<ProgramId>,
@@ -65,7 +65,7 @@ pub struct Path {
     pub id: NodeID,
 }
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize)]
 pub enum PathTarget {
     Unresolved,
     Local(Symbol),

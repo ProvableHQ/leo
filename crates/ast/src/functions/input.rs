@@ -17,11 +17,11 @@
 use crate::{Identifier, Mode, Node, NodeID, TypeNode};
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A function parameter.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct Input {
     /// The name the parameter is accessible as in the function's body.
     pub identifier: Identifier,

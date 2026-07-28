@@ -17,11 +17,11 @@
 use crate::TypeKind;
 
 use itertools::Itertools as _;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A type list of at least two types.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct TupleType {
     pub elements: Vec<TypeKind>,
 }

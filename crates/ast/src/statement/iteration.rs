@@ -18,11 +18,11 @@ use crate::{Block, Expression, Identifier, Indent, Node, NodeID, Statement, Type
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A bounded `for` loop statement `for variable in start .. =? stop block`.
-#[derive(Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Hash, Serialize, Debug)]
 pub struct IterationStatement {
     /// The binding / variable to introduce in the body `block`.
     pub variable: Identifier,

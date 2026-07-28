@@ -19,7 +19,7 @@ use super::*;
 use crate::TypeNode;
 
 /// A cast expression, e.g. `42u8 as u16`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct CastExpression {
     /// The expression to be casted, e.g.`42u8` in `42u8 as u16`.
     pub expression: Expression,

@@ -19,11 +19,11 @@ use crate::{Identifier, Node, NodeID, simple_node_impl};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// An annotation, e.g. @program.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
 pub struct Annotation {
     // TODO: Consider using a symbol instead of an identifier.
     /// The name of the annotation.

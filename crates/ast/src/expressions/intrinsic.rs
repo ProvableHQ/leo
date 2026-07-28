@@ -20,7 +20,7 @@ use leo_span::Symbol;
 use itertools::Itertools as _;
 
 /// An intrinsic call, e.g.`_foo(args)`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct IntrinsicExpression {
     /// Which intrinsic is being called
     pub name: Symbol,

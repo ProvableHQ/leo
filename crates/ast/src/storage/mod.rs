@@ -18,11 +18,11 @@ use crate::{Identifier, Node, NodeID, TypeNode};
 
 use leo_span::Span;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A storage declaration, e.g `storage x: u32`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct StorageVariable {
     /// The name of the storage variable.
     pub identifier: Identifier,

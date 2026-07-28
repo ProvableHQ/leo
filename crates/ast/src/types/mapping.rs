@@ -16,11 +16,11 @@
 
 use crate::TypeKind;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use std::fmt;
 
 /// A mapping type of a key and value type.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize)]
 pub struct MappingType {
     pub key: Box<TypeKind>,
     pub value: Box<TypeKind>,

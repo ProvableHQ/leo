@@ -33,7 +33,7 @@ use itertools::Itertools as _;
 ///   `Interface@(target[, network])::member.op(args)` — performs an operation on
 ///   a mapping (`get`, `get_or_use`, `contains`) or vector (`get`, `len`) storage
 ///   variable declared in the interface.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct DynamicOpExpression {
     /// The interface type.
     pub interface: TypeKind,
@@ -50,7 +50,7 @@ pub struct DynamicOpExpression {
 }
 
 /// Distinguishes the three surface forms of [`DynamicOpExpression`].
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub enum DynamicOpKind {
     /// `Interface@(p)::func(args)` — call a function declared in the interface.
     Call { function: Identifier, arguments: Vec<Expression> },

@@ -17,7 +17,7 @@
 use super::*;
 
 /// A ternary conditional expression, that is, `condition ? if_true : if_false`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
 pub struct TernaryExpression {
     /// The condition determining which branch to pick.
     pub condition: Expression,
