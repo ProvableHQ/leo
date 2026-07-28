@@ -136,10 +136,7 @@ constructor:
 
 ### Warning: Keep Compiler Versions Consistent
 
-Checksum-governed upgrades are bytecode-sensitive.
-Do not assume that bytecode is stable across Leo compiler versions.
-Different compiler versions can produce different bytecode for identical source.
-This difference can cause a checksum-governed upgrade to fail.
+Checksum-governed upgrades are bytecode-sensitive. Do not assume that bytecode is stable across Leo compiler versions. Different compiler versions can produce different bytecode for identical source. This difference can cause a checksum-governed upgrade to fail.
 
 Version consistency matters beyond checksums, though. A program's constructor cannot change between upgrades, and compiler behavior or supported features can change (or even break) across versions. Building every edition with the same pinned toolchain avoids both bytecode drift and subtle semantic differences a different compiler version could introduce.
 

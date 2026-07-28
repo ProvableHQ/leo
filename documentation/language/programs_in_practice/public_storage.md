@@ -244,7 +244,4 @@ Singleton storage variables and storage vectors can hold:
 
 They may **not** hold records, `dyn record`, futures, optionals (`T?`), tuples, mappings, the unit type `()`, or any zero-sized type.
 
-A storage vector `Vector<T>` lowers to a `u32 => T` mapping.
-Its element type `T` must be a primitive, array, or struct from the preceding list.
-The element cannot be another vector or a mapping.
-Mapping keys and values accept the same primitive, array, and struct types.
+A storage vector `Vector<T>` lowers to a `u32 => T` mapping. Its element type `T` must be a primitive, array, or struct from the preceding list. The element cannot be another vector or a mapping. Mapping keys and values accept the same primitive, array, and struct types.

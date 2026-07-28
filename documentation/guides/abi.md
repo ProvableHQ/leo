@@ -8,9 +8,7 @@ sidebar_label: ABI Generation
 
 ## Overview
 
-The Leo compiler generates an **Application Binary Interface (ABI)** with compiled bytecode.
-The ABI is a JSON file that describes the public program interface.
-Tools can use it to interact with deployed programs without the original source code.
+The Leo compiler generates an **Application Binary Interface (ABI)** with compiled bytecode. The ABI is a JSON file that describes the public program interface. Tools can use it to interact with deployed programs without the original source code.
 
 **Use cases:**
 
@@ -48,10 +46,7 @@ ABI generation is automatic on every build - no flags required.
 
 ## Generating ABIs from Compiled Bytecode
 
-The standalone [`leo abi`](../cli/abi.md) command generates an ABI JSON document from an `.aleo` file.
-Use it when you have deployed program bytecode but not its source.
-The `leo-aleo-abi-wasm` crate provides the same operation as a WebAssembly binding.
-Thus, browser tools such as wallets and explorers can produce ABIs from bytecode without the CLI.
+The standalone [`leo abi`](../cli/abi.md) command generates an ABI JSON document from an `.aleo` file. Use it when you have deployed program bytecode but not its source. The `leo-aleo-abi-wasm` crate provides the same operation as a WebAssembly binding. Thus, browser tools such as wallets and explorers can produce ABIs from bytecode without the CLI.
 
 ## ABI Format
 
@@ -201,9 +196,7 @@ Records are similar to structs but include a visibility mode for each field:
 - `"Private"` - Encrypted, visible only to owner
 - `"Public"` - Visible on-chain
 
-The ABI always records a concrete mode.
-Code generation determines the mode for source items without explicit visibility.
-For example, an unannotated record field becomes `Private`. Thus, the ABI does not have a `"None"` mode.
+The ABI always records a concrete mode. Code generation determines the mode for source items without explicit visibility. For example, an unannotated record field becomes `Private`. Thus, the ABI does not have a `"None"` mode.
 
 ### Optional
 
@@ -274,9 +267,7 @@ Entry functions define the public entry points:
 }
 ```
 
-Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility mode.
-A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`.
-A record is `{ "Record": { "path": [...], "program": "..." } }`.
+Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility mode. A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`. A record is `{ "Record": { "path": [...], "program": "..." } }`.
 
 **Input types:**
 

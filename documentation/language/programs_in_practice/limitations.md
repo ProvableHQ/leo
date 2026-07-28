@@ -9,9 +9,7 @@ toc_max_heading_level: 3
 snarkVM imposes the following limits on Aleo programs:
 
 - the maximum size of the compiled program is **2048 KB** by character count. This limit is raised by consensus version: 100 KB (V1), 512 KB (V14), and 2048 KB (V16).
-- the maximum number of mappings is **31**.
-  Each `storage` singleton uses one mapping slot, and each `storage` vector uses two.
-  Storage declarations share this limit with explicit `mapping` declarations.
+- the maximum number of mappings is **31**. Each `storage` singleton uses one mapping slot, and each `storage` vector uses two. Storage declarations share this limit with explicit `mapping` declarations.
 - the maximum number of imports is **64**.
 - the maximum length of a program name is **30 characters** (excluding the `.aleo` suffix). Identifiers (including struct, record, mapping, and function names) are limited to **31 ASCII alphanumeric or underscore characters** by the Aleo identifier rules.
 - the maximum import depth is **64**.
@@ -29,8 +27,7 @@ Some other protocol-level limits to be aware of are:
 - **the maximum transaction size is 2304 KB**, also raised by consensus version: 128 KB (V1), 768 KB (V14), and 2304 KB (V16). If your program exceeds this — for example by requiring large inputs or producing large outputs — consider optimizing the data types in your Leo code.
 - **the maximum number of micro-credits your transaction can consume for on-chain execution is `100_000_000`.** If your program exceeds this, consider optimizing on-chain components of your Leo code.
 
-Only the governance process can increase these limits.
-The authoritative values, such as `MAX_PROGRAM_SIZE`, `MAX_MAPPINGS`, and `MAX_FUNCTIONS`, are in `snarkvm-console-network`.
+Only the governance process can increase these limits. The authoritative values, such as `MAX_PROGRAM_SIZE`, `MAX_MAPPINGS`, and `MAX_FUNCTIONS`, are in `snarkvm-console-network`.
 
 ## Compiling Conditional On-Chain Code
 
@@ -46,15 +43,9 @@ This is compiled into the following Aleo instructions:
 
 Observe that both branches of the conditional are executed in the entry function. The correct output is then selected using a ternary instruction. This compilation method is only possible because operations in transitions are purely functional. [^1].
 
-Some on-chain commands are not purely functional.
-For example, `get`, `get.or_use`, `contains`, `remove`, and `set` depend on the program state.
-Thus, Leo cannot use the off-chain technique.
-It compiles on-chain code with `branch` and `position` commands, which can skip instruction sequences.
-Skipped instructions do not initialize their destination registers.
-A later instruction cannot access these registers, and an access attempt causes an execution error.
+Some on-chain commands are not purely functional. For example, `get`, `get.or_use`, `contains`, `remove`, and `set` depend on the program state. Thus, Leo cannot use the off-chain technique. It compiles on-chain code with `branch` and `position` commands, which can skip instruction sequences. Skipped instructions do not initialize their destination registers. A later instruction cannot access these registers, and an access attempt causes an execution error.
 
-An assignment from a conditional statement to its parent scope can cause this access.
-Therefore, Leo does not permit these assignments.
+An assignment from a conditional statement to its parent scope can cause this access. Therefore, Leo does not permit these assignments.
 
 This restriction can be mitigated by future improvements to `snarkVM`, however we table that discussion for later.
 

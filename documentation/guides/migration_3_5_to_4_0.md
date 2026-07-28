@@ -101,8 +101,7 @@ In 3.5, all declarations - transitions, functions, structs, mappings - lived ins
 | `mapping` declarations        | `struct` definitions    |
 |                               | `interface` definitions |
 
-This separation clearly shows what a program exposes on-chain.
-Helper functions and types at module level support the implementation but are not part of the on-chain interface.
+This separation clearly shows what a program exposes on-chain. Helper functions and types at module level support the implementation but are not part of the on-chain interface.
 
 ## Async/Finalize to Final
 
@@ -115,17 +114,11 @@ Leo programs execute in two distinct contexts:
 - **Proof context** - private, off-chain execution that generates ZK proofs. Regular `fn` declarations run here. Inputs can be private, and the computation is not visible on-chain.
 - **Finalization context** - public, on-chain execution that modifies state (mappings, storage). `final fn` definitions and `final { }` blocks run here. All inputs and operations are publicly visible.
 
-In Leo 3.5, the "async" terminology suggested asynchronous execution.
-However, this code ran on-chain during finalization.
-Leo 4.0 uses `final` to communicate this behavior directly.
-A `final` block or `final fn` runs in the finalization context.
+In Leo 3.5, the "async" terminology suggested asynchronous execution. However, this code ran on-chain during finalization. Leo 4.0 uses `final` to communicate this behavior directly. A `final` block or `final fn` runs in the finalization context.
 
 In practice: 3.5 split on-chain logic across an `async transition` and a separate `async function`. In 4.0, on-chain logic lives inside `final { }` blocks within entry points.
 
-The compiler converts a `final { }` block into a standalone finalization function.
-This function is the on-chain equivalent of the 3.5 `async function`.
-Before this conversion, Leo puts each `final fn` definition in the caller finalization block.
-Thus, a `final fn` reuses code during compilation and is not a standalone on-chain function.
+The compiler converts a `final { }` block into a standalone finalization function. This function is the on-chain equivalent of the 3.5 `async function`. Before this conversion, Leo puts each `final fn` definition in the caller finalization block. Thus, a `final fn` reuses code during compilation and is not a standalone on-chain function.
 
 ### Inline finalize
 
@@ -223,10 +216,7 @@ program example.aleo {
 
 ## Module-Level Struct Declarations
 
-In versions 3.5 and 4.0, you can declare structs inside or outside `program {}` blocks.
-In version 4.0, put structs outside `program {}` when they are not part of the on-chain interface.
-Records remain in the program block because they are part of the public interface.
-Structs in `program {}` still compile.
+In versions 3.5 and 4.0, you can declare structs inside or outside `program {}` blocks. In version 4.0, put structs outside `program {}` when they are not part of the on-chain interface. Records remain in the program block because they are part of the public interface. Structs in `program {}` still compile.
 
 **3.5:**
 

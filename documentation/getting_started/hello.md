@@ -37,16 +37,13 @@ hello/
 ```json file=../code_snippets/hello/program.json title="program.json"
 ```
 
-The `program` field contains the official program ID.
-After network deployment, other developers can use this ID to find the program.
-It must match the program name in `main.leo`. Otherwise, compilation fails.
+The `program` field contains the official program ID. After network deployment, other developers can use this ID to find the program. It must match the program name in `main.leo`. Otherwise, compilation fails.
 
 Dependencies will be added to the field of the same name, as they are imported. Dependencies that are only used during development and not in production will be added to the `dev_dependencies` field.
 
 ### The Code
 
-The `src/main.leo` file is the entry point of a Leo project. It initially contains a function named `main`.
-The following sections explain the structure of a Leo file.
+The `src/main.leo` file is the entry point of a Leo project. It initially contains a function named `main`. The following sections explain the structure of a Leo file.
 
 ```leo file=../code_snippets/hello/src/main.leo title="src/main.leo" showLineNumbers
 ```
@@ -78,14 +75,12 @@ Leo will check that `c`'s type matches the function return type `u32`.
 ```leo file=../code_snippets/hello/src/main.leo#ret
 ```
 
-The file also contains a `constructor` function. This function enables program upgrades.
-An upgrade can change some program logic and content after on-chain deployment.
+The file also contains a `constructor` function. This function enables program upgrades. An upgrade can change some program logic and content after on-chain deployment.
 
 ```leo file=../code_snippets/hello/src/main.leo#constructor
 ```
 
-The constructor controls program deployment and upgrades.
-The network runs its logic before each deployment and upgrade.
+The constructor controls program deployment and upgrades. The network runs its logic before each deployment and upgrade.
 
 :::note
 All programs must have an explicitly declared constructor function.
@@ -130,9 +125,7 @@ leo run main 1u32 2u32
 
 ## Deploying and Executing
 
-After local tests, deploy the program and execute functions on-chain.
-Use `leo deploy` for deployment. Use `leo execute` to execute functions and generate a transaction.
-The transaction contains the required metadata and zero-knowledge proofs.
+After local tests, deploy the program and execute functions on-chain. Use `leo deploy` for deployment. Use `leo execute` to execute functions and generate a transaction. The transaction contains the required metadata and zero-knowledge proofs.
 
 We have dedicated guides for both [Deploying](./../guides/deploying.md) and [Executing](./../guides/executing.md), so please check those out for more information!
 

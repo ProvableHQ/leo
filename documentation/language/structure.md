@@ -24,11 +24,9 @@ For the canonical list of which declarations belong inside vs. Outside the `prog
 
 ### Constructor
 
-A `constructor` is a special, mandatory function in the `program { ... }` block.
-Declare it as `constructor() { ... }`. Each program must declare exactly one constructor.
+A `constructor` is a special, mandatory function in the `program { ... }` block. Declare it as `constructor() { ... }`. Each program must declare exactly one constructor.
 
-It has no parameters or return value, and it is not a regular `fn`. Do not call it directly.
-The network runs it on-chain during the initial deployment and each upgrade. It controls the program upgrade policy.
+It has no parameters or return value, and it is not a regular `fn`. Do not call it directly. The network runs it on-chain during the initial deployment and each upgrade. It controls the program upgrade policy.
 
 Two properties set a `constructor` apart from an ordinary function:
 
@@ -54,22 +52,16 @@ Constants can be declared in three scopes:
 
 - **Global scope** (outside the `program` block in `main.leo`): accessible anywhere in the same file.
 - **Local scope** (inside a function body): accessible only within that function.
-- **Module scope**: applies to each non-`main.leo` source file in the package.
-  Module files do not contain a `program` block. They can only declare `const`, `struct`, `fn`, and `interface`.
-  Use `path::to::module::CONST_NAME` to access the constant in the same package. See [Modules](./layout.md#modules).
+- **Module scope**: applies to each non-`main.leo` source file in the package. Module files do not contain a `program` block. They can only declare `const`, `struct`, `fn`, and `interface`. Use `path::to::module::CONST_NAME` to access the constant in the same package. See [Modules](./layout.md#modules).
 
 Constants are also supported in [libraries](./libraries.md), which are separate packages containing reusable code. A library's root file and its submodules may declare constants, accessible from any dependent package as `library::CONST_NAME` or `library::path::to::submodule::CONST_NAME`.
 
-**Accessibility across packages:** An importing program can access global constants with `program_name.aleo::CONST_NAME`.
-Use `program_name.aleo::path::to::submodule::CONST_NAME` to access a constant in an imported program submodule.
-This access requires a dependency compiled from Leo source.
-Precompiled `.aleo` stubs do not contain the submodule type information that resolution requires.
+**Accessibility across packages:** An importing program can access global constants with `program_name.aleo::CONST_NAME`. Use `program_name.aleo::path::to::submodule::CONST_NAME` to access a constant in an imported program submodule. This access requires a dependency compiled from Leo source. Precompiled `.aleo` stubs do not contain the submodule type information that resolution requires.
 
 ```leo file=../code_snippets/structure/constants/src/main.leo#scopes
 ```
 
-**Supported types:** Constants support all integer types, `bool`, `field`, `group`, `scalar`, and `address`.
-They also support tuples, arrays, and structs composed of these types.
+**Supported types:** Constants support all integer types, `bool`, `field`, `group`, `scalar`, and `address`. They also support tuples, arrays, and structs composed of these types.
 
 **Compile-time expressions:** The right-hand side of a constant declaration must be evaluatable at compile time. Valid right-hand sides include:
 
@@ -118,17 +110,13 @@ Structs contain component declarations `{name}: {type},`.
 
 ### Record
 
-A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`.
-A record name must not contain `aleo`. It must not prefix another record name **declared in the same program**.
-This check does not apply across imported programs. It is a snarkVM requirement.
+A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`. A record name must not contain `aleo`. It must not prefix another record name **declared in the same program**. This check does not apply across imported programs. It is a snarkVM requirement.
 
 Records contain component declarations `{visibility} {name}: {type},`. Names of record components must not contain the keyword `aleo`.
 
 The visibility qualifier may be specified as `constant`, `public`, or `private`. If no qualifier is provided, Leo defaults to `private`.
 
-Each record must contain an `owner` component of type `address`, as shown below.
-A record function input also requires the `_nonce: group` and `_version: u8` components.
-Do not declare these components in the Leo program. The compiler inserts them automatically.
+Each record must contain an `owner` component of type `address`, as shown below. A record function input also requires the `_nonce: group` and `_version: u8` components. Do not declare these components in the Leo program. The compiler inserts them automatically.
 
 ```leo file=../code_snippets/data_types/demo/src/main.leo#token_record showLineNumbers
 ```

@@ -66,13 +66,9 @@ Future plugin crates will follow the same pattern.
 
 ## Plugin Versioning
 
-Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`.
-Each crate has its own git tag and release schedule.
-Thus, a tool update does not require a new compiler release.
+Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`. Each crate has its own git tag and release schedule. Thus, a tool update does not require a new compiler release.
 
-The installed versions do not have to match.
-For example, `leo-fmt` 4.1.0 can contain a formatter fix while `leo-lang` remains at 4.0.1.
-Install these versions with `cargo binstall leo-lang@4.0.1 leo-fmt@4.1.0`.
+The installed versions do not have to match. For example, `leo-fmt` 4.1.0 can contain a formatter fix while `leo-lang` remains at 4.0.1. Install these versions with `cargo binstall leo-lang@4.0.1 leo-fmt@4.1.0`.
 
 When packaging Leo, ensure the installed plugin versions are compatible with the installed `leo-lang` version.
 

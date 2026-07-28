@@ -32,14 +32,8 @@ When `leo new <NAME>` is run from inside a [workspace](../guides/workspaces.md),
 
 ### `--library`
 
-Creates a new Leo library instead of a program.
-Other Leo programs or libraries can import its reusable logic with `leo add --local`.
-You cannot deploy or execute a library independently.
-The generated project includes a `tests/` directory with a starter test file.
+Creates a new Leo library instead of a program. Other Leo programs or libraries can import its reusable logic with `leo add --local`. You cannot deploy or execute a library independently. The generated project includes a `tests/` directory with a starter test file.
 
 ### `--workspace`
 
-Creates a workspace skeleton instead of a package.
-The generated directory contains only a `workspace.json` with an empty `members` array.
-List member paths or globs, or run `leo new` in the workspace. See [Workspaces](../guides/workspaces.md).
-This option conflicts with `--library`.
+Creates a workspace skeleton instead of a package. The generated directory contains only a `workspace.json` with an empty `members` array. List member paths or globs, or run `leo new` in the workspace. See [Workspaces](../guides/workspaces.md). This option conflicts with `--library`.

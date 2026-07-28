@@ -6,8 +6,7 @@ sidebar_label: Testing
 
 [general tags]: # "guides, tests, testing, unit_testing, integration_testing, devnode, devnet, testnet"
 
-After deployment, an application stays on the ledger permanently. Thus, consider each edge case and test your code fully.
-You can use the following tools and techniques.
+After deployment, an application stays on the ledger permanently. Thus, consider each edge case and test your code fully. You can use the following tools and techniques.
 
 - [**Unit and Integration Testing**](#unit-and-integration-testing) - Validate Leo program logic through test cases.
 - [**Running a Devnode**](#running-a-devnode) - Deploy and execute against a lightweight local node.
@@ -24,8 +23,7 @@ You can use the following tools and techniques.
 | `leo devnet` | Full consensus scenarios, multi-validator behavior | Requires a snarkOS installation. Heavier setup |
 | Testnet | Final validation before mainnet | Real credits required. Use the [Aleo faucet](https://faucet.aleo.org/) |
 
-Start with `leo test` for pure logic. Use `leo devnode` to test deployment and execution cycles against a live node.
-Use `leo devnet` when the scenario requires full consensus behavior. Use Testnet for final validation before Mainnet.
+Start with `leo test` for pure logic. Use `leo devnode` to test deployment and execution cycles against a live node. Use `leo devnet` when the scenario requires full consensus behavior. Use Testnet for final validation before Mainnet.
 
 ## Unit and Integration Testing
 
@@ -48,16 +46,12 @@ example_program
 
 The test file is a Leo program that imports the program in `main.leo`. The test functions will all be annotated with `@test` above the function declaration.
 
-A test program can name a library or program in the package `dependencies`.
-Thus, tests can construct dependency types or call dependency functions directly.
-See [`dependencies` vs. `dev_dependencies`](./dependencies.md#dependencies-vs-dev_dependencies) for visibility rules.
+A test program can name a library or program in the package `dependencies`. Thus, tests can construct dependency types or call dependency functions directly. See [`dependencies` vs. `dev_dependencies`](./dependencies.md#dependencies-vs-dev_dependencies) for visibility rules.
 
 This tutorial will use an example program which can be found in the [example's repository](https://github.com/ProvableHQ/leo-examples/tree/main/example_with_test).
 
 :::info
-You can add multiple `.leo` files to the test directory.
-Each test file name must match the program name in that file.
-For example, `test_example_program.leo` must contain the program name `test_example_program.aleo`.
+You can add multiple `.leo` files to the test directory. Each test file name must match the program name in that file. For example, `test_example_program.leo` must contain the program name `test_example_program.aleo`.
 :::
 
 ### Testing Entry Functions
@@ -67,8 +61,7 @@ The `example_program.leo` program contains an entry function which returns the s
 ```leo file=../code_snippets/testing/example_program/src/main.leo#simple_addition
 ```
 
-`test_example_program.leo` contains two tests.
-They verify the correct sum and the failure that occurs when the output does not match the input sum.
+`test_example_program.leo` contains two tests. They verify the correct sum and the failure that occurs when the output does not match the input sum.
 
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_simple_addition
 ```
@@ -91,10 +84,7 @@ To run a single test as a different account, pass a `private_key` argument to th
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_with_private_key
 ```
 
-To test an access-controlled entry point, pair a privileged test with a `@should_fail` test.
-Run the second test with the default or another nonprivileged account.
-The privileged test uses `@test(private_key = "...")` to override the caller.
-The failing test uses `@test`, so it uses the default test account:
+To test an access-controlled entry point, pair a privileged test with a `@should_fail` test. Run the second test with the default or another nonprivileged account. The privileged test uses `@test(private_key = "...")` to override the caller. The failing test uses `@test`, so it uses the default test account:
 
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_admin_pair
 ```
@@ -119,10 +109,7 @@ Each test file is required to have at least one `@test fn` function.
 
 ### Modeling Onchain State
 
-The Leo test framework executes tests in the real VM.
-Thus, `@test fn` functions fully support on-chain mappings and storage without special syntax.
-Call entry functions that return `Final` in the same way as other functions.
-The test run executes the finalization.
+The Leo test framework executes tests in the real VM. Thus, `@test fn` functions fully support on-chain mappings and storage without special syntax. Call entry functions that return `Final` in the same way as other functions. The test run executes the finalization.
 
 For end-to-end and integration testing against a live network or a local devnet, use the [SDK](https://github.com/ProvableHQ/sdk) directly or `snarkVM` as a library.
 
@@ -176,8 +163,7 @@ See the [`leo devnode` CLI reference](./../cli/devnode.md) for setup instruction
 
 ## Running a Devnet
 
-`leo devnet` starts a full multi-validator snarkOS network locally.
-It requires more resources than `leo devnode` but provides a closer approximation of consensus behavior.
+`leo devnet` starts a full multi-validator snarkOS network locally. It requires more resources than `leo devnode` but provides a closer approximation of consensus behavior.
 
 See the [`leo devnet` CLI reference](./../cli/devnet.md) for setup instructions and flags.
 

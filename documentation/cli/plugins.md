@@ -30,11 +30,9 @@ No leo plugins detected on PATH.
 
 ## Plugin System
 
-Leo supports external plugin binaries. Plugins use the `leo-<name>` naming convention.
-Leo automatically finds them on your system `PATH`.
+Leo supports external plugin binaries. Plugins use the `leo-<name>` naming convention. Leo automatically finds them on your system `PATH`.
 
-When a command does not match a built-in, Leo searches `PATH` for a `leo-<name>` binary and runs it.
-Leo sends the arguments without changes. For example:
+When a command does not match a built-in, Leo searches `PATH` for a `leo-<name>` binary and runs it. Leo sends the arguments without changes. For example:
 
 ```bash
 leo fmt --check
@@ -77,8 +75,7 @@ Running `leo update` will also attempt to update bundled plugins like `leo-fmt` 
 
 ### Writing Custom Plugins
 
-Leo identifies each `leo-<name>` executable on `PATH` as a plugin.
-You can use any language to write a custom plugin. The requirements are:
+Leo identifies each `leo-<name>` executable on `PATH` as a plugin. You can use any language to write a custom plugin. The requirements are:
 
 1. The binary is named `leo-<name>` (for example `leo-mytools`)
 2. The binary is located in a directory on your `PATH`

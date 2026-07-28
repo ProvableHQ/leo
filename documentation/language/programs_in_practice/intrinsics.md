@@ -6,9 +6,7 @@ sidebar_label: Intrinsics
 
 [general tags]: # "intrinsic, dynamic_call, dynamic_contains, dynamic_get, dynamic_get_or_use, dynamic_dispatch, finalize"
 
-Intrinsics are low-level operations built into the compiler.
-They complement Leo's high-level abstractions when those abstractions do not support a use case.
-The `_` prefix distinguishes them from user-defined functions.
+Intrinsics are low-level operations built into the compiler. They complement Leo's high-level abstractions when those abstractions do not support a use case. The `_` prefix distinguishes them from user-defined functions.
 
 ---
 
@@ -31,9 +29,7 @@ _dynamic_call::[TYPE_PARAMS](prog, net, func, ...args)
 
 ### Type parameters
 
-Type parameters follow one rule: **the last entry is the return type**.
-All preceding entries are input types with an optional `public` or `private` visibility modifier.
-If you omit type parameters, the return is void and the compiler infers input visibility.
+Type parameters follow one rule: **the last entry is the return type**. All preceding entries are input types with an optional `public` or `private` visibility modifier. If you omit type parameters, the return is void and the compiler infers input visibility.
 
 #### No type parameters — void return
 

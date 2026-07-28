@@ -111,10 +111,7 @@ Within a package, paths between modules resolve **relative to the file you are w
 - From `outer.leo` (current module: `outer`), `inner::foo` resolves to `outer::inner::foo`.
 - From `outer/inner.leo` (current module: `outer::inner`), a bare `foo` resolves to `outer::inner::foo`.
 
-A downward path from parent to child always works, for example from `outer.leo` to `outer/inner.leo`.
-However, upward and sideways paths from a submodule do not work.
-In `outer/inner.leo`, `common::foo` resolves to `outer::inner::common::foo`.
-Leo does not have syntax to reference an item outside the current module subtree.
+A downward path from parent to child always works, for example from `outer.leo` to `outer/inner.leo`. However, upward and sideways paths from a submodule do not work. In `outer/inner.leo`, `common::foo` resolves to `outer::inner::common::foo`. Leo does not have syntax to reference an item outside the current module subtree.
 
 ```leo file=../code_snippets/layout/module_demo/src/mymod.leo#snippet
 ```
@@ -126,17 +123,14 @@ A module file may only contain `struct`, `const`, and `fn` definitions.
 Leo has no `pub`/private keywords for module items. The visibility rules are:
 
 - Every `struct`, `const`, and `fn` declared in a module is accessible from anywhere in the **same package** via its fully qualified path.
-- **Other packages** that depend on this package can access the same items.
-  See [Accessing Submodules of Imported Programs](#accessing-submodules-of-imported-programs) and [Leo Libraries](./libraries.md).
+- **Other packages** that depend on this package can access the same items. See [Accessing Submodules of Imported Programs](#accessing-submodules-of-imported-programs) and [Leo Libraries](./libraries.md).
 - The on-chain "interface" of a program is exactly the entry `fn`, `record`, `mapping`, and `storage` declarations inside its `program { … }` block. Helper `fn`s in modules can be reached by name from importers but are inlined into their bytecode rather than deployed as separate AVM functions.
 
-To keep an item private to one module, put it in that module file and do not reference it elsewhere.
-The compiler does not enforce a privacy boundary.
+To keep an item private to one module, put it in that module file and do not reference it elsewhere. The compiler does not enforce a privacy boundary.
 
 ### Accessing Submodules of Imported Programs
 
-An imported program can organize its source across submodules.
-Use an extended locator path to access a `struct`, `const`, or helper `fn` in those submodules:
+An imported program can organize its source across submodules. Use an extended locator path to access a `struct`, `const`, or helper `fn` in those submodules:
 
 ```text
 program.aleo::submodule::item
@@ -155,9 +149,7 @@ A program that imports `provider.aleo` can reach the submodule struct, constant,
 ```leo file=../code_snippets/layout/consumer/src/main.leo title="consumer/src/main.leo"
 ```
 
-Leo puts helper `fn` code from `program.aleo::submodule::name(...)` directly in the caller bytecode.
-These helpers are not separate on-chain calls and do not appear in the provider ABI.
-Only top-level entry functions in `program provider.aleo { ... }` remain in its on-chain interface.
+Leo puts helper `fn` code from `program.aleo::submodule::name(...)` directly in the caller bytecode. These helpers are not separate on-chain calls and do not appear in the provider ABI. Only top-level entry functions in `program provider.aleo { ... }` remain in its on-chain interface.
 
 Submodule paths can be arbitrarily deep — `program.aleo::a::b::item` is valid if `program.aleo` has a nested submodule `a/b.leo`. The same extended path syntax applies to library submodules (see [Leo Libraries](./libraries.md#submodules)).
 

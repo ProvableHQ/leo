@@ -38,8 +38,7 @@ This command does not synthesize the program circuit or generate proving and ver
  ...
 ```
 
-If one or more inputs are negative, separate the inputs with `--`.
-This separator prevents the command-line parser from interpreting a leading `-` as an option:
+If one or more inputs are negative, separate the inputs with `--`. This separator prevents the command-line parser from interpreting a leading `-` as an option:
 
 ```bash
 leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...

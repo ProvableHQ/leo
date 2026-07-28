@@ -28,9 +28,7 @@ Entry functions with on-chain logic return `Final` and embed the finalization co
 
 ## External Calls
 
-Leo lets you call entry functions from imported programs.
-An external entry function that returns `Final` produces a `Final` value.
-Use `.run()` to compose this value in a `final { }` block:
+Leo lets you call entry functions from imported programs. An external entry function that returns `Final` produces a `Final` value. Use `.run()` to compose this value in a `final { }` block:
 
 ```leo file=../code_snippets/finalization/external_call/src/main.leo#file
 ```
@@ -49,10 +47,7 @@ Inside a `final { }` block, the order of state reads, state writes, and external
 2. **Effects** — writes via `set`, `remove`, or storage assignments.
 3. **Interactions** — external finalize executions via `Final::run()`.
 
-In one execution path, all checks and effects must occur before a `.run()` call.
-The compiler warns about a check or effect after an interaction.
-The external finalization can change state that a later check reads or a later effect writes.
-This order can cause reentrancy-type bugs.
+In one execution path, all checks and effects must occur before a `.run()` call. The compiler warns about a check or effect after an interaction. The external finalization can change state that a later check reads or a later effect writes. This order can cause reentrancy-type bugs.
 
 The pass emits warnings (code prefix `CEI`) in the following situations:
 

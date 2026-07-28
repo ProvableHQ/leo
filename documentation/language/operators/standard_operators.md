@@ -640,9 +640,7 @@ Performs an inclusive OR operation on integer (bitwise) or boolean `first` and `
 ```leo file=../../code_snippets/operators/standard/src/main.leo#shl
 ```
 
-Shifts `first` left by `second` bits and stores the result in `destination`.
-The operation halts if the shift distance exceeds the bit size of `first`.
-It also halts if the type of `first` cannot contain the shifted result.
+Shifts `first` left by `second` bits and stores the result in `destination`. The operation halts if the shift distance exceeds the bit size of `first`. It also halts if the type of `first` cannot contain the shifted result.
 
 #### Supported Types
 
@@ -962,10 +960,7 @@ Checks if `first` is less than or equal to `second`, storing the result in `dest
 
 ## Context-dependent Expressions
 
-The [`std::ctx`](../standard_library.md#stdctx) module provides execution-context accessors.
-These accessors include the caller, transaction signer, program address, deployment metadata, block, and network.
-The [`std::prog`](../standard_library.md#stdprog) module provides on-chain metadata for imported programs.
-This metadata includes the checksum, edition, owner, and function checksums.
+The [`std::ctx`](../standard_library.md#stdctx) module provides execution-context accessors. These accessors include the caller, transaction signer, program address, deployment metadata, block, and network. The [`std::prog`](../standard_library.md#stdprog) module provides on-chain metadata for imported programs. This metadata includes the checksum, edition, owner, and function checksums.
 
 ## Group/Field Specific Operators
 
@@ -976,8 +971,7 @@ This metadata includes the checksum, edition, owner, and function checksums.
 
 Returns the generator of the algebraic group that the `group` type consists of.
 
-Leo compilation uses an elliptic curve whose points form a group.
-A specified point on this curve generates a subgroup. The elements of this subgroup form the `group` type.
+Leo compilation uses an elliptic curve whose points form a group. A specified point on this curve generates a subgroup. The elements of this subgroup form the `group` type.
 
 This is a constant, not a function. Thus, it takes no inputs, and just returns an output.
 

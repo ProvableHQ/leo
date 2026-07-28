@@ -23,8 +23,7 @@ leo devnet --snarkos <SNARKOS> --snarkos-features test_network
 
 The `<SNARKOS>` is the path to an installed binary of [**snarkOS**](https://github.com/ProvableHQ/snarkOS), the decentralized operating system that forms the backbone of the Aleo network.
 
-If snarkOS is not installed, pass `--install`.
-The CLI downloads, compiles, and stores the binary at the `<SNARKOS>` path.
+If snarkOS is not installed, pass `--install`. The CLI downloads, compiles, and stores the binary at the `<SNARKOS>` path.
 
 ```bash
 leo devnet --snarkos <SNARKOS> --snarkos-features test_network --install
@@ -35,9 +34,7 @@ leo devnet --snarkos <SNARKOS> --snarkos-features test_network --install
 Windows users will need to perform some additional steps in order for snarkOS to install properly:
 
 1. Upon initially installing Rust, you should have been automatically prompted to install Visual Studio with the MSVC 2022 C++ build tools.
-2. Open the Visual Studio Installer. Install the C++ Clang Compiler for Windows.
-   Install the Windows 10 SDK or Windows 11 SDK for your operating system.
-   Record the tool installation path. It must have the form `{PATH}\Microsoft Visual Studio\2022\BuildTools`.
+2. Open the Visual Studio Installer. Install the C++ Clang Compiler for Windows. Install the Windows 10 SDK or Windows 11 SDK for your operating system. Record the tool installation path. It must have the form `{PATH}\Microsoft Visual Studio\2022\BuildTools`.
 3. Within the aforementioned build tools directory, you should find the location of a file called `libclang.dll`. For `x86`-based systems, this should be in the `VC\Tools\Llvm\bin` subdirectory. For `x64`-based systems, this should be in the `VC\Tools\Llvm\x64\bin` subdirectory.
 4. Once you have the full path of `libclang.dll`, create the `LIBCLANG_PATH` environment variable for your system and set it to this path.
 5. snarkOS should now compile and run properly.
@@ -106,9 +103,7 @@ When you start the devnet, the CLI will actually spin up a new instance of the b
 
 The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, snarkOS built with `--features test_network` will fast forward to the highest `ConsensusVersion` on a Testnet ledger within a few blocks. You can get more insights by calling `curl localhost:3030/testnet/version`.
 
-To test an older `ConsensusVersion`, pass a comma-separated list of heights with `--consensus-heights`.
-For example, use `0,1,2,3,4,5,6,7,8,9,20,$((2**32 - 1))`.
-The list length must equal the number of consensus versions in the VM.
+To test an older `ConsensusVersion`, pass a comma-separated list of heights with `--consensus-heights`. For example, use `0,1,2,3,4,5,6,7,8,9,20,$((2**32 - 1))`. The list length must equal the number of consensus versions in the VM.
 
 Each time you stop and restart the chain, the prior state and history will be saved. You can clear any prior history by passing the `--clear-storage` flag:
 
@@ -120,15 +115,13 @@ Clearing the ledger history may be useful if you wish to redeploy your program w
 
 ## Deploying and Executing
 
-Before deployment or execution on a local devnet, set the endpoint to `http://localhost:3030`.
-Use one of these methods:
+Before deployment or execution on a local devnet, set the endpoint to `http://localhost:3030`. Use one of these methods:
 
 - Set the `ENDPOINT` environment variable.
 - Pass `--endpoint http://localhost:3030` to the CLI.
 - Set `ENDPOINT` in the `.env` file at the Leo project root.
 
-You will also need credits to fund transactions on the devnet.
-snarkOS automatically initializes four development accounts with Aleo credits for tests.
+You will also need credits to fund transactions on the devnet. snarkOS automatically initializes four development accounts with Aleo credits for tests.
 
 ```bash
 # Account 0
@@ -174,10 +167,7 @@ or by using `leo query` from the CLI:
 leo query transaction {TRANSACTION_ID}
 ```
 
-Use the transaction API endpoint to verify if a transaction succeeded.
-Successful and failed transactions both execute a fee transaction.
-If only the fee transaction appears, the transaction failed.
-Failed Testnet and Mainnet transactions still require a fee because the network performs a computation.
+Use the transaction API endpoint to verify if a transaction succeeded. Successful and failed transactions both execute a fee transaction. If only the fee transaction appears, the transaction failed. Failed Testnet and Mainnet transactions still require a fee because the network performs a computation.
 
 A [full list of API endpoints](https://docs.explorer.provable.com/docs/api/v2/intro) is available in the explorer documentation.
 

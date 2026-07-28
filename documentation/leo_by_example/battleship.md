@@ -41,9 +41,7 @@ title: A Game of Battleship in Leo
 
 This Battleship implementation showcases a well-designed application within Leo’s current constraints. However, some aspects—especially the bit manipulation—might seem complex at first glance. To set expectations, this is a more advanced example due to the way the board is encoded and manipulated. Planned improvements to Leo could make implementations like this much simpler in the future.
 
-In Battleship, two players put ships in secret positions on separate 8x8 grids.
-The players then take turns to fire at the other player's board.
-The game ends when one player has sunk all of the other player's ships.
+In Battleship, two players put ships in secret positions on separate 8x8 grids. The players then take turns to fire at the other player's board. The game ends when one player has sunk all of the other player's ships.
 
 This application is a Leo translation of the Aleo community's [zk-battleship](https://github.com/demox-labs/zk-battleship) example.
 
@@ -165,11 +163,9 @@ leo run offer_battleship "{
 Leo ✅ Finished 'battleship.aleo::offer_battleship'
 ```
 
-The first output record is the updated `board_state.record`. The `game_started` flag is now `true`.
-This board cannot offer or accept another Battleship game. Player 1 must initialize a new board for another game.
+The first output record is the updated `board_state.record`. The `game_started` flag is now `true`. This board cannot offer or accept another Battleship game. Player 1 must initialize a new board for another game.
 
-The second output record is a dummy `move.record`. It does not contain fire coordinates or information about Player 2's moves.
-Player 2 owns this record. To accept the game, Player 2 must use it with their `board_state.record`.
+The second output record is a dummy `move.record`. It does not contain fire coordinates or information about Player 2's moves. Player 2 owns this record. To accept the game, Player 2 must use it with their `board_state.record`.
 
 ## 4: Player 2 Places Ships On The Board
 
@@ -318,10 +314,7 @@ leo run play "{
 ✅ Executed 'battleship.aleo::play'
 ```
 
-Player 1 has an updated `board_state.record`. Its new `played_tiles` bitstring contains the fire coordinate sent to Player 2.
-The `incoming_fire_coordinate` in Player 2's `move.record` matches Player 1's input.
-Player 2 can use this move tile and send a new fire coordinate.
-The response also tells Player 1 if their coordinate hit one of Player 2's ships.
+Player 1 has an updated `board_state.record`. Its new `played_tiles` bitstring contains the fire coordinate sent to Player 2. The `incoming_fire_coordinate` in Player 2's `move.record` matches Player 1's input. Player 2 can use this move tile and send a new fire coordinate. The response also tells Player 1 if their coordinate hit one of Player 2's ships.
 
 ## 7: Player 2 Takes The 2nd Turn
 
@@ -377,9 +370,7 @@ leo run play "{
 ✅ Executed 'battleship.aleo::play'
 ```
 
-Player 2 now has an updated `board_state.record` which includes their newly updated `played_tiles`, only containing the fire coordinate they just sent to Player 1. Player 1 now owns a new `move.record` which includes the `hits_and_misses` field.
-This field contains only the result of Player 1's previous fire coordinate. A hit contains one coordinate on the 8x8 grid.
-A miss is `0u64`, which represents an 8x8 grid of zeros. A hit is the `u64` bitstring for the previous coordinate.
+Player 2 now has an updated `board_state.record` which includes their newly updated `played_tiles`, only containing the fire coordinate they just sent to Player 1. Player 1 now owns a new `move.record` which includes the `hits_and_misses` field. This field contains only the result of Player 1's previous fire coordinate. A hit contains one coordinate on the 8x8 grid. A miss is `0u64`, which represents an 8x8 grid of zeros. A hit is the `u64` bitstring for the previous coordinate.
 
 Two of Player 2's ships cover the complete bottom row. Thus, the following values are valid hits on that row:
 
@@ -394,10 +385,7 @@ Two of Player 2's ships cover the complete bottom row. Thus, the following value
 
 Player 1's first fire coordinate was `1u64`, and it was a hit. Therefore, the `hits_and_misses` field is also `1u64`.
 
-Player 1's next move consumes this `move.record` and updates Player 1's board with the hit or miss.
-The move also calculates the result of Player 2's fire coordinate.
-Player 1 now has values in `played_tiles` and cannot select a previous coordinate.
-For example, `aleo run play 'board_state.record' 'move.record' 1u64` fails because Player 1 already used `1u64`.
+Player 1's next move consumes this `move.record` and updates Player 1's board with the hit or miss. The move also calculates the result of Player 2's fire coordinate. Player 1 now has values in `played_tiles` and cannot select a previous coordinate. For example, `aleo run play 'board_state.record' 'move.record' 1u64` fails because Player 1 already used `1u64`.
 
 ## 8: Player 1 Takes The 3rd Turn
 
@@ -466,8 +454,7 @@ As before, both a `board_state.record` and `move.record` are created. The `board
 0 0 0 0 0 0 1 1
 ```
 
-The `hits_and_misses` field in `board_state.record` contains the result of the previous move.
-Player 2's new `move.record` contains the result of Player 2's previous move. It also contains Player 1's new fire coordinate.
+The `hits_and_misses` field in `board_state.record` contains the result of the previous move. Player 2's new `move.record` contains the result of Player 2's previous move. It also contains Player 1's new fire coordinate.
 
 ## 9: Player 2 Takes The 4th Turn
 
@@ -535,8 +522,7 @@ By taking advantage of selective privacy powered by zero knowledge proofs on Ale
 
 Broadly speaking, we can follow this general strategy:
 
-1. Create mathematical rules for ship positions.
-   These rules prevent players from stacking, removing, or intersecting their ships.
+1. Create mathematical rules for ship positions. These rules prevent players from stacking, removing, or intersecting their ships.
 
 2. Ensure that the players and boards that begin a game cannot be swapped out.
 
@@ -546,10 +532,7 @@ Broadly speaking, we can follow this general strategy:
 
 ## Modeling the board and ships
 
-Most Battleship programs use a 64-character string or eight arrays with eight elements to represent the board.
-Leo does not yet have efficient string support or `for` and `while` loops. However, Aleo has the unsigned 64-bit integer type `u64`.
-Each bit in a `u64` can represent one position on a Battleship board. For example, the following value represents an empty board:
-0u64 =
+Most Battleship programs use a 64-character string or eight arrays with eight elements to represent the board. Leo does not yet have efficient string support or `for` and `while` loops. However, Aleo has the unsigned 64-bit integer type `u64`. Each bit in a `u64` can represent one position on a Battleship board. For example, the following value represents an empty board: 0u64 =
 
 ```text
 0 0 0 0 0 0 0 0
@@ -562,10 +545,7 @@ Each bit in a `u64` can represent one position on a Battleship board. For exampl
 0 0 0 0 0 0 0 0
 ```
 
-This Battleship game has four ships with lengths 5, 4, 3, and 2. Other versions can have more ships.
-This project uses the basic four-ship version.
-A valid ship must be horizontal or vertical. A ship cannot cross a row boundary or intersect another ship.
-Ships can touch each other.
+This Battleship game has four ships with lengths 5, 4, 3, and 2. Other versions can have more ships. This project uses the basic four-ship version. A valid ship must be horizontal or vertical. A ship cannot cross a row boundary or intersect another ship. Ships can touch each other.
 
 Similar to how we represent a board with a u64 bitstring, we can represent a ship horizontally as a bitstring. We "flip" the bits to represent a ship:
 
@@ -672,8 +652,7 @@ Ships splitting across rows and columns:
 0 0 0 1 0 0 1 0
 ```
 
-First, validate the bitstring position of each ship. If all positions are valid, combine them on one board.
-Then, validate the complete board. The complete board is valid if the valid ship positions do not overlap.
+First, validate the bitstring position of each ship. If all positions are valid, combine them on one board. Then, validate the complete board. The complete board is valid if the valid ship positions do not overlap.
 
 ## Validating a single ship at a time
 
@@ -694,9 +673,7 @@ If a ship is valid vertically or horizontally, then we know the ship is valid. W
 
 ### Bit Counting
 
-See the `c_bitcount` closure in the code.
-The MIT AI Laboratory published [HAKMEM](https://www.jjj.de/hakmem/hakmem.html), a collection of methods for fast bitwise operations.
-HAKMEM 169 is the basis for this bit-count method. The implementation uses a modified form that is easier to understand.
+See the `c_bitcount` closure in the code. The MIT AI Laboratory published [HAKMEM](https://www.jjj.de/hakmem/hakmem.html), a collection of methods for fast bitwise operations. HAKMEM 169 is the basis for this bit-count method. The implementation uses a modified form that is easier to understand.
 
 Let a,b,c,d be either 0 or 1. Given a polynomial 8a + 4b + 2c + d, how do we find the summation of a + b + c + d? If we subtract subsets of this polynomial, we will be left with the summation.
 
@@ -706,9 +683,7 @@ Step 3: -2a - b
 Step 4: - a  
 Step 5: = a + b + c + d
 
-This polynomial is a bitwise representation of a number. Use these instructions to get the bit count of `1011`, or `13u64`.
-Step 2 subtracts the start value after one right shift. This operation is equivalent to division by 2.
-Step 3 subtracts the start value after two right shifts. Step 4 subtracts the value after three right shifts.
+This polynomial is a bitwise representation of a number. Use these instructions to get the bit count of `1011`, or `13u64`. Step 2 subtracts the start value after one right shift. This operation is equivalent to division by 2. Step 3 subtracts the start value after two right shifts. Step 4 subtracts the value after three right shifts.
 
 Thus, for a four-digit binary number `A`, use `A - (A >> 1) - (A >> 2) - (A >> 3) = B`.
 
@@ -718,9 +693,7 @@ Step 3: -0011 = 3u64
 Step 4: -0001 = 1u64  
 Step 5: =0011 = 3u64
 
-Use bit masks to apply this process to a number of any bit length.
-The masks separate the sums into four-bit groups and prevent interference between adjacent groups.
-For a larger start value such as `1111 0001 0111 0110`, use the following bit masks:
+Use bit masks to apply this process to a number of any bit length. The masks separate the sums into four-bit groups and prevent interference between adjacent groups. For a larger start value such as `1111 0001 0111 0110`, use the following bit masks:
 
 ```text
 For A >> 1, we'll use 0111 0111 0111 .... (in u64, this is 8608480567731124087u64)
@@ -768,11 +741,9 @@ C:    0000 0101 0000 0101
       0    5    0    5
 ```
 
-At this point, `C` contains bit sums in eight-bit groups. The required result is the total number of bits in the original value.
-Calculate `C` modulo 255 to get this result. The value 255 is equal to `2^8 - 1`.
+At this point, `C` contains bit sums in eight-bit groups. The required result is the total number of bits in the original value. Calculate `C` modulo 255 to get this result. The value 255 is equal to `2^8 - 1`.
 
-For example, consider `1 0000 0001`. Modulo 256 gives 1, but modulo 255 gives 2.
-The modulo 255 operation combines the bit sums from all eight-bit groups.
+For example, consider `1 0000 0001`. Modulo 256 gives 1, but modulo 255 gives 2. The modulo 255 operation combines the bit sums from all eight-bit groups.
 
 The following summary starts with a 64-bit integer `A`. It follows the `c_bitcount` closure in `verify.aleo`.
 
@@ -785,11 +756,7 @@ bit count = C mod 255u64
 
 ### Adjacency Check
 
-Use the ship position and its horizontal or vertical bitstring to determine if its bits are adjacent.
-See the `c_adjacency_check` closure in `verify.aleo`.
-A ship of length 2 has the horizontal bitstring `11`, or `3u64`.
-Its vertical bitstring is `100000001`, or `257u64`.
-If the ship starts at the bottom-right corner, its horizontal position bitstring is:
+Use the ship position and its horizontal or vertical bitstring to determine if its bits are adjacent. See the `c_adjacency_check` closure in `verify.aleo`. A ship of length 2 has the horizontal bitstring `11`, or `3u64`. Its vertical bitstring is `100000001`, or `257u64`. If the ship starts at the bottom-right corner, its horizontal position bitstring is:
 
 3u64
 
@@ -872,25 +839,17 @@ Vertical 65792u64
 0 0 0 0 0 0 0 0
 ```
 
-Each valid board position shifts the original bitstring by a power of 2.
-Divide the ship position bitstring by the horizontal or vertical ship bitstring.
-If the result is a power of 2, the ship's bits are adjacent.
+Each valid board position shifts the original bitstring by a power of 2. Divide the ship position bitstring by the horizontal or vertical ship bitstring. If the result is a power of 2, the ship's bits are adjacent.
 
 To ensure that the remaining number is a power of 2, we can use a bit trick. See the bit trick for ensuring a bitstring is a power of 2 section.
 
-The code has one additional step. Division can produce 0, and subtraction of 1 from 0 causes an underflow.
-If division produces 0, the ship position is not valid. Set a value that cannot be a power of 2.
+The code has one additional step. Division can produce 0, and subtraction of 1 from 0 causes an underflow. If division produces 0, the ship position is not valid. Set a value that cannot be a power of 2.
 
 ### Splitting a row or column
 
-See the `c_horizontal_check` closure in `verify.aleo`. Assume that all bits are adjacent, as described in the adjacency check section.
-The column check is direct. If a ship bitstring crosses columns, the adjacency division does not produce a power of 2.
-Thus, the adjacency check rejects the position.
+See the `c_horizontal_check` closure in `verify.aleo`. Assume that all bits are adjacent, as described in the adjacency check section. The column check is direct. If a ship bitstring crosses columns, the adjacency division does not produce a power of 2. Thus, the adjacency check rejects the position.
 
-The row check is necessary because a bitstring across two rows can still have adjacent bits.
-To simplify the check, calculate the 64-bit position bitstring modulo 255. This operation produces an eight-bit bitstring.
-A valid position produces a valid eight-bit bitstring. An invalid position produces an invalid eight-bit bitstring.
-For example:
+The row check is necessary because a bitstring across two rows can still have adjacent bits. To simplify the check, calculate the 64-bit position bitstring modulo 255. This operation produces an eight-bit bitstring. A valid position produces a valid eight-bit bitstring. An invalid position produces an invalid eight-bit bitstring. For example:
 
 ```text
 1 1 1 0 0 0 0 0
@@ -938,39 +897,28 @@ For example
 
 ## Validating all ships together in a single board
 
-Combine the valid ship position bitstrings with bitwise OR operators. See the `create_board` function in `verify.aleo`.
-Then, count the bits on the complete board. Ships with lengths 5, 4, 3, and 2 must have a total of 14 bits.
+Combine the valid ship position bitstrings with bitwise OR operators. See the `create_board` function in `verify.aleo`. Then, count the bits on the complete board. Ships with lengths 5, 4, 3, and 2 must have a total of 14 bits.
 
 ## Ensure that players and boards cannot swap mid-game
 
 Board states are represented with the board_state record. Each board has a flag indicating whether a game has been started with the board. This flag is set when offering a battleship game to an opponent, or accepting a battleship game from an opponent. Move records are created only in 3 ways:
 
 1. Offering a battleship game creates a dummy move record that sets the two players to the addresses set in the board state record.
-2. Accepting a Battleship game consumes the first dummy move record.
-   The function verifies that the record and the accepting player's board contain the same players.
-   Then, the function creates a new dummy move record with the same players.
-3. Each play consumes a move record and creates the next move record.
-   The function verifies that the move record and board contain the same players.
-   It automatically puts these players in the next move record.
+2. Accepting a Battleship game consumes the first dummy move record. The function verifies that the record and the accepting player's board contain the same players. Then, the function creates a new dummy move record with the same players.
+3. Each play consumes a move record and creates the next move record. The function verifies that the move record and board contain the same players. It automatically puts these players in the next move record.
 
-Moves from different boards can mix only when the same players start multiple games with each other.
-If one player accepts only one game with an opponent, only one set of moves can use their board.
+Moves from different boards can mix only when the same players start multiple games with each other. If one player accepts only one game with an opponent, only one set of moves can use their board.
 
 ## Ensure that each player can only move once before the next player can move
 
-A player must consume a move record to create the next move record. The record owner changes with each play.
-Player A consumes a move record and creates a record that contains their fire coordinate. Player B owns the new record.
-Player B must consume that record to create the next record, which Player A owns.
+A player must consume a move record to create the next move record. The record owner changes with each play. Player A consumes a move record and creates a record that contains their fire coordinate. Player B owns the new record. Player B must consume that record to create the next record, which Player A owns.
 
 ## Enforce valid moves
 
-A valid fire coordinate has only one set bit in a `u64`. Use the power-of-2 check to verify this condition.
-The coordinate must not be in the player's previous moves. `board.aleo::update_played_tiles` checks this condition.
+A valid fire coordinate has only one set bit in a `u64`. Use the power-of-2 check to verify this condition. The coordinate must not be in the player's previous moves. `board.aleo::update_played_tiles` checks this condition.
 
-To send a new move, call `main.aleo::play`. This function checks the opponent's fire coordinate on the current player's board.
-The new move record tells the opponent if that coordinate was a hit or a miss.
+To send a new move, call `main.aleo::play`. This function checks the opponent's fire coordinate on the current player's board. The new move record tells the opponent if that coordinate was a hit or a miss.
 
 ## Winning the game
 
-To check for a win, count the hits in the `hits_and_misses` field of your `board_state` record.
-You win the game when this field contains 14 hits.
+To check for a win, count the hits in the `hits_and_misses` field of your `board_state` record. You win the game when this field contains 14 hits.

@@ -107,7 +107,4 @@ leo build --json-output
 
 ### `-p <NAME>`
 
-Targets a specific [workspace](../guides/workspaces.md) member by name.
-The name can be the member directory, program name, or program name without the `.aleo` suffix.
-For example, use `token.aleo`. Use this option only in a workspace.
-If `workspace.json` does not exist, the command reports an error.
+Targets a specific [workspace](../guides/workspaces.md) member by name. The name can be the member directory, program name, or program name without the `.aleo` suffix. For example, use `token.aleo`. Use this option only in a workspace. If `workspace.json` does not exist, the command reports an error.

@@ -15,11 +15,9 @@ This program implements a bank that issues tokens to users and allows users to d
 
 1. The bank issues users tokens via the `issue` function.
 2. A user deposits tokens via the `deposit` function.
-3. When a user requests a withdrawal, the bank calculates the compound interest.
-   The `withdraw` function pays the principal and interest to the user.
+3. When a user requests a withdrawal, the bank calculates the compound interest. The `withdraw` function pays the principal and interest to the user.
 
-You can extend the program with more features.
-For example, a `transfer` function can let users send tokens to other users.
+You can extend the program with more features. For example, a `transfer` function can let users send tokens to other users.
 
 ## Bugs
 
@@ -78,8 +76,7 @@ private_key: APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc
 address: aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg
 ```
 
-Make some bank transactions. First, act as the bank. Issue 100 tokens to the user.
-Put the bank's private key in `.env`. Run the `issue` function. Specify the recipient and the amount.
+Make some bank transactions. First, act as the bank. Issue 100 tokens to the user. Put the bank's private key in `.env`. Run the `issue` function. Specify the recipient and the amount.
 
 ```bash
 echo "
@@ -102,8 +99,7 @@ Output
 
 ## <a id="deposit"></a> Deposit Tokens
 
-Now, deposit 50 of the user's tokens with the bank. Act as the user. Call the `deposit` function.
-Use the output record from the `issue` function. Specify the deposit amount.
+Now, deposit 50 of the user's tokens with the bank. Act as the user. Call the `deposit` function. Use the output record from the `issue` function. Specify the deposit amount.
 
 ```bash
 echo "
@@ -136,8 +132,7 @@ Output
 }
 ```
 
-The output contains a new private record with 50 credits that belongs to the user.
-It also contains the on-chain finalization code and its inputs.
+The output contains a new private record with 50 credits that belongs to the user. It also contains the on-chain finalization code and its inputs.
 
 ## <a id="wait"></a> Wait
 
@@ -147,8 +142,7 @@ You can run the calculation yourself, it comes out to 266 tokens accrued using t
 
 ## <a id="withdraw"></a> Withdraw Tokens
 
-After 15 periods, withdraw all tokens. Act as the bank. Call the `withdraw` function.
-Specify the recipient's address, amount, rate, and number of periods.
+After 15 periods, withdraw all tokens. Act as the bank. Call the `withdraw` function. Specify the recipient's address, amount, rate, and number of periods.
 
 ```bash
 echo "
@@ -177,5 +171,4 @@ Output
 }
 ```
 
-The `withdraw` function creates a private record for the user with all 266 withdrawn tokens.
-It also outputs the finalization data that runs on-chain.
+The `withdraw` function creates a private record for the user with all 266 withdrawn tokens. It also outputs the finalization data that runs on-chain.

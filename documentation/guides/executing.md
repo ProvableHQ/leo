@@ -23,12 +23,7 @@ purposes:
   execution proof, and produces a broadcastable [`Transaction`](https://docs.aleo.org/learn/core-concepts/transactions/index.html).
   Pass `--broadcast` to send that transaction to the network.
 
-For a function without a `final` block, use `leo run` while you develop the function.
-After the function operates correctly, use `leo execute` to produce the proof and transaction.
-For a function with a `final` block, `leo run` covers only the off-chain circuit.
-The `final` block runs on-chain after broadcast and confirmation.
-To test this logic, broadcast the transaction.
-For example, use `leo execute --broadcast` with a local [`leo devnode`](../cli/devnode.md).
+For a function without a `final` block, use `leo run` while you develop the function. After the function operates correctly, use `leo execute` to produce the proof and transaction. For a function with a `final` block, `leo run` covers only the off-chain circuit. The `final` block runs on-chain after broadcast and confirmation. To test this logic, broadcast the transaction. For example, use `leo execute --broadcast` with a local [`leo devnode`](../cli/devnode.md).
 
 ## Running `leo run`
 

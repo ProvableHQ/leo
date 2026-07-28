@@ -159,8 +159,7 @@ Output
 }
 ```
 
-`transfer_private` outputs two records. Bob owns the first record, which contains the balance after the 20-token transfer.
-Alice owns the second record, which contains the 20 transferred tokens.
+`transfer_private` outputs two records. Bob owns the first record, which contains the balance after the 20-token transfer. Alice owns the second record, which contains the 20 transferred tokens.
 
 ## <a id="step4"></a> Public to Private Transfer
 
@@ -230,5 +229,4 @@ Output
 }
 ```
 
-`transfer_private_to_public` consumes Bob's private record with 110 tokens.
-It outputs Bob's private record with 70 tokens and the finalization data that runs on-chain.
+`transfer_private_to_public` consumes Bob's private record with 110 tokens. It outputs Bob's private record with 70 tokens and the finalization data that runs on-chain.

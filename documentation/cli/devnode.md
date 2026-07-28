@@ -10,9 +10,7 @@ toc_max_heading_level: 2
 
 # `leo devnode`
 
-A devnode is a lightweight-node network.
-It does not use the consensus algorithm or require proofs for deployment and execution transactions.
-Use it to develop Aleo programs and run end-to-end tests before deployment to Testnet or Mainnet.
+A devnode is a lightweight-node network. It does not use the consensus algorithm or require proofs for deployment and execution transactions. Use it to develop Aleo programs and run end-to-end tests before deployment to Testnet or Mainnet.
 
 :::note
 `leo devnode` is the recommended local development tool for lightweight testing. The older [`leo devnet`](./devnet.md) command (which requires a full snarkOS installation and spins up a multi-validator network) remains available for more complex testing scenarios.
@@ -156,8 +154,7 @@ curl -X POST http://localhost:3030/testnet/program/my_program.aleo/view/my_view/
   -d '[]'
 ```
 
-Under the `v2` prefix, malformed inputs return `422 Unprocessable Entity`.
-An unknown view function or a height before program deployment returns `400 Bad Request`.
+Under the `v2` prefix, malformed inputs return `422 Unprocessable Entity`. An unknown view function or a height before program deployment returns `400 Bad Request`.
 
 ## Typical Workflow
 

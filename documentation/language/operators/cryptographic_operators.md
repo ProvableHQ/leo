@@ -12,12 +12,9 @@ toc_max_heading_level: 3
 
 Many of the cryptographic operators have both `hash` and `commit` variants.
 
-The `hash` variant is a one-way function. It takes an input and produces a fixed-size hash or digest.
-If one input bit changes, the output hash changes completely. Thus, a hash can show a change to the data.
+The `hash` variant is a one-way function. It takes an input and produces a fixed-size hash or digest. If one input bit changes, the output hash changes completely. Thus, a hash can show a change to the data.
 
-The `commit` variant wraps the `hash` variant and takes an additional blinding factor, or **salt**.
-The function adds the salt to the input before it calculates the hash. This operation gives a different output for the raw input.
-If you use a different salt each time, you can commit the same value more than once without disclosure.
+The `commit` variant wraps the `hash` variant and takes an additional blinding factor, or **salt**. The function adds the salt to the input before it calculates the hash. This operation gives a different output for the raw input. If you use a different salt each time, you can commit the same value more than once without disclosure.
 
 ## Table of Contents
 
@@ -603,8 +600,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak256_hash
 ```
 
-Computes a Keccak256 hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`.
-The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
+Computes a Keccak256 hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -672,8 +668,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak384_hash
 ```
 
-Computes a Keccak384 hash on inputs of 384-bit chunks in `first`, storing the hash in `destination`.
-The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
+Computes a Keccak384 hash on inputs of 384-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -741,8 +736,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak512_hash
 ```
 
-Computes a Keccak512 hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`.
-The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
+Computes a Keccak512 hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -1021,12 +1015,9 @@ This operation can only be used inside a `final { }` block or inside a `final fn
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#signature_verify
 ```
 
-Verifies signature `first` against address `second` and field `third`. The function stores the result in `destination`.
-This verification uses the [Schnorr signature scheme](https://en.wikipedia.org/wiki/Schnorr_signature).
-The signer generates a random nonce and commits to it. Then, the signer calculates a hash challenge.
+Verifies signature `first` against address `second` and field `third`. The function stores the result in `destination`. This verification uses the [Schnorr signature scheme](https://en.wikipedia.org/wiki/Schnorr_signature). The signer generates a random nonce and commits to it. Then, the signer calculates a hash challenge.
 
-The signer combines the nonce, challenge, and private key to produce the signature.
-The verifier reconstructs the challenge and compares it with the public key and message.
+The signer combines the nonce, challenge, and private key to produce the signature. The verifier reconstructs the challenge and compares it with the public key and message.
 
 #### Supported Types
 
@@ -1047,9 +1038,7 @@ A `Message` is any literal or `struct` type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_digest
 ```
 
-Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`.
-The function treats `third` as a precalculated hash. `verify_digest` treats `second` as a 33-byte ECDSA public key.
-`verify_digest_eth` treats `second` as a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as a precalculated hash. `verify_digest` treats `second` as a 33-byte ECDSA public key. `verify_digest_eth` treats `second` as a 20-byte Ethereum address.
 
 This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 

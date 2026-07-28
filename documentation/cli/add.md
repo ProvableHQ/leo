@@ -54,8 +54,7 @@ Libraries can only be added as local or git dependencies. Use `--local` or `--gi
 
 ### `-l <LOCAL>`
 
-Specifies a local program or library dependency at `<LOCAL>`.
-The path can be a Leo project root, a Leo library root, or a compiled `.aleo` file.
+Specifies a local program or library dependency at `<LOCAL>`. The path can be a Leo project root, a Leo library root, or a compiled `.aleo` file.
 
 ### `--network`
 

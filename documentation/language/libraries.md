@@ -90,12 +90,7 @@ Library functions support const generic parameters, just like regular helper fun
 ```leo file=../code_snippets/libraries/my_app_normalize/src/main.leo title="src/main.leo"
 ```
 
-Const-generic library functions operate like const-generic functions in a program.
-The compiler monomorphizes each `library::fn::[const_args](runtime_args)` call for its const arguments.
-Then, it puts the function code in the caller.
-Library code always uses this process, including code across package boundaries.
-A consuming program can reference and instantiate const-generic library structs with a fully qualified path.
-For example, use `math_utils::Vec::[10]`.
+Const-generic library functions operate like const-generic functions in a program. The compiler monomorphizes each `library::fn::[const_args](runtime_args)` call for its const arguments. Then, it puts the function code in the caller. Library code always uses this process, including code across package boundaries. A consuming program can reference and instantiate const-generic library structs with a fully qualified path. For example, use `math_utils::Vec::[10]`.
 
 ## Submodules
 
@@ -116,9 +111,7 @@ math_utils/
 
 ## Name Resolution and Path Precedence
 
-When a library dependency and local submodule have the same name, paths with that name resolve to the **library** first.
-For example, assume that a library dependency is named `foo` and a local submodule is `src/foo.leo`.
-In this case, `foo::bar` refers to `bar` in the library, not the submodule.
+When a library dependency and local submodule have the same name, paths with that name resolve to the **library** first. For example, assume that a library dependency is named `foo` and a local submodule is `src/foo.leo`. In this case, `foo::bar` refers to `bar` in the library, not the submodule.
 
 :::note
 Explicit disambiguation using absolute paths (similar to Rust's `crate::foo::…` for local modules) is planned for a future release.
@@ -138,14 +131,10 @@ leo build
        Leo ✅ Validated 'math_utils'.
 ```
 
-The build does not produce bytecode because libraries have no on-chain footprint.
-However, Leo reports frontend errors with spans that point to the library source files.
+The build does not produce bytecode because libraries have no on-chain footprint. However, Leo reports frontend errors with spans that point to the library source files.
 
 :::note
-Leo compiles library sources with each program that depends on the library.
-Thus, the consuming program build reports errors in the library.
-Run `leo build` in the library package to validate it separately.
-This operation finds problems before a consumer uses the library.
+Leo compiles library sources with each program that depends on the library. Thus, the consuming program build reports errors in the library. Run `leo build` in the library package to validate it separately. This operation finds problems before a consumer uses the library.
 :::
 
 ## Testing

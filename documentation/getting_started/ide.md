@@ -13,9 +13,7 @@ Developers can choose from a wide variety of development environments.
 Leo ships a Language Server Protocol (LSP) implementation (`leo-lsp`) that powers the editor plugins listed below. The server exposes the following capabilities:
 
 - **Semantic highlighting** — token classification driven by the compiler's own analysis, so keywords, types, and identifiers are highlighted consistently with how Leo actually parses your code.
-- **Push diagnostics** — shows compile errors and warnings while you edit.
-  This includes the CEI warnings in the [Finalization Model guide](../guides/finalization.md#checks-effects-interactions-cei).
-  The messages use the same ariadne format as the command line.
+- **Push diagnostics** — shows compile errors and warnings while you edit. This includes the CEI warnings in the [Finalization Model guide](../guides/finalization.md#checks-effects-interactions-cei). The messages use the same ariadne format as the command line.
 - **Go to definition** — jump from any identifier to where it is defined, including across module and library boundaries.
 - **Find all references** — list every use of a symbol across the package.
 - **Rename** — rename a symbol everywhere it is used. The server uses `prepare-rename` to validate the target before applying the edit.

@@ -210,8 +210,7 @@ Only the project's own (primary) program is renamed. Programs that `import` the 
 - it is combined with `--build-tests` (tests keep their original names and would dangle against the renamed primary).
 - deploying multiple [workspace](../guides/workspaces.md) members at once (deploy a single program instead).
 
-**Executing a renamed program.** Your local package keeps its original identity.
-Run the renamed program by its **fully qualified** on-chain name. This name resolves to the deployed network copy:
+**Executing a renamed program.** Your local package keeps its original identity. Run the renamed program by its **fully qualified** on-chain name. This name resolves to the deployed network copy:
 
 ```bash
 leo execute --broadcast renamed_prog.aleo::main 1u32 2u32

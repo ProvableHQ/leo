@@ -22,9 +22,7 @@ Unlike [`leo build`](./build.md), which automatically writes `build/abi.json` fo
 - tooling pipelines that consume raw `.aleo` bytecode and need the ABI separately,
 - comparing the ABI generated from local sources against the on-chain bytecode.
 
-By default, the command prints the ABI to standard output.
-If the program declares imports, it prints the main ABI first.
-Then, it prints each dependency ABI under a `=== <name> ===` header:
+By default, the command prints the ABI to standard output. If the program declares imports, it prints the main ABI first. Then, it prints each dependency ABI under a `=== <name> ===` header:
 
 ```text
 { ... main program ABI ... }
@@ -48,11 +46,7 @@ leo abi credits.aleo --output ./abis
 
 For a program with imports, one `<DIR>/<program>.abi.json` file is written for the main program and one for each dependency.
 
-By default, `leo abi` resolves imported `.aleo` files relative to the input file.
-For the per-unit build layout (`<root>/<unit>/<unit>.aleo`), it uses `<root>`.
-For other layouts, it uses a sibling `imports/` directory.
-Use `--imports-dir <DIR>` to specify a different location.
-Network built-ins such as `credits.aleo` do not need to be on the disk.
+By default, `leo abi` resolves imported `.aleo` files relative to the input file. For the per-unit build layout (`<root>/<unit>/<unit>.aleo`), it uses `<root>`. For other layouts, it uses a sibling `imports/` directory. Use `--imports-dir <DIR>` to specify a different location. Network built-ins such as `credits.aleo` do not need to be on the disk.
 
 The output is the same JSON shape that `leo build` produces in `build/abi.json`. See the [ABI Generation guide](../guides/abi.md) for the format reference and type-lowering specification.
 
@@ -64,11 +58,7 @@ Pass `--satisfies <FILE>` to check whether the input program's public interface 
 leo abi token.aleo --satisfies token_standard.abi.json
 ```
 
-The program *satisfies* the standard when it declares each required item with a matching signature.
-Required items can be functions, views, mappings, storage variables, records, and structs.
-The program can declare additional items.
-Leo compares type references relative to the program that owns each side.
-Thus, corresponding type references match even when the standard and program have different names.
+The program *satisfies* the standard when it declares each required item with a matching signature. Required items can be functions, views, mappings, storage variables, records, and structs. The program can declare additional items. Leo compares type references relative to the program that owns each side. Thus, corresponding type references match even when the standard and program have different names.
 
 On success a one-line confirmation is printed. Otherwise the unsatisfied items are listed and the command exits non-zero:
 

@@ -113,13 +113,11 @@ Output
 }
 ```
 
-The output contains a new record with the proposal information.
-It also sets a public mapping with the proposal ID as an input. You can query the public mapping on-chain.
+The output contains a new record with the proposal information. It also sets a public mapping with the proposal ID as an input. You can query the public mapping on-chain.
 
 ## <a id="step1"></a> Voter 1 makes a vote
 
-Create a private ticket for a vote. Act as voter 1. Run the `new_ticket` function.
-Specify a unique ticket ID and the voter's public address.
+Create a private ticket for a vote. Act as voter 1. Run the `new_ticket` function. Specify a unique ticket ID and the voter's public address.
 
 ```bash
 echo "
@@ -147,8 +145,7 @@ Output
 }
 ```
 
-The output contains a new private ticket that belongs to the owner.
-A public mapping in the vote program tracks the ticket ID.
+The output contains a new private ticket that belongs to the owner. A public mapping in the vote program tracks the ticket ID.
 
 Voter 1 can now vote privately on their ticket. Call the `agree` or `disagree` function, which takes the voter's ticket output as the input.
 
@@ -175,8 +172,7 @@ Output
 
 ## <a id="step2"></a> Voter 2 makes a vote
 
-Create a private ticket for voter 2. Act as voter 2. Run the `new_ticket` function.
-Specify a unique ticket ID and the voter's public address.
+Create a private ticket for voter 2. Act as voter 2. Run the `new_ticket` function. Specify a unique ticket ID and the voter's public address.
 
 ```bash
 echo "

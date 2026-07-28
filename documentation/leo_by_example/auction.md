@@ -9,9 +9,7 @@ title: A Private Auction using Leo
 
 ## Summary
 
-A first-price sealed-bid auction is also called a blind auction.
-Each participant submits a bid without information about the other bids.
-The bidder with the highest bid wins the auction.
+A first-price sealed-bid auction is also called a blind auction. Each participant submits a bid without information about the other bids. The bidder with the highest bid wins the auction.
 
 In this model, there are two kinds of parties: the auctioneer and the bidders.
 

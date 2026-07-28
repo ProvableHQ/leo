@@ -36,9 +36,7 @@ The primitive types are: `address`, `bool`, `field`, `group`, `i8`, `i16`, `i32`
 
 We can cast between all of these types except `signature`.
 
-Casts between `address` and `field` are permitted in both directions.
-The `field` to `address` cast halts if the field does not encode a valid Aleo address.
-See [Type Casting](./data_types.md#type-casting) for the complete runtime rules.
+Casts between `address` and `field` are permitted in both directions. The `field` to `address` cast halts if the field does not encode a valid Aleo address. See [Type Casting](./data_types.md#type-casting) for the complete runtime rules.
 
 ### Option Types
 
@@ -83,8 +81,7 @@ Accessing `struct` Fields:
 
 A struct `ExternalStruct` defined in program `external_program.aleo` can be referred to outside the program using the syntax `external_program.aleo::ExternalStruct`.
 
-Update a `struct` from an existing value with `..base`.
-This syntax copies each field that you do not list. Put `..base` last:
+Update a `struct` from an existing value with `..base`. This syntax copies each field that you do not list. Put `..base` last:
 
 ```leo file=../code_snippets/cheatsheet/main/src/main.leo#struct_update
 ```
@@ -94,9 +91,7 @@ This syntax copies each field that you do not list. Put `..base` last:
 ```leo file=../code_snippets/cheatsheet/main/src/main.leo#const_generics_struct
 ```
 
-Const generic parameters accept integer types, `bool`, `scalar`, `group`, `field`, and `address`.
-You can declare a generic struct in a program, submodule, or library.
-Any consumer can use its fully qualified path to reference it.
+Const generic parameters accept integer types, `bool`, `scalar`, `group`, `field`, and `address`. You can declare a generic struct in a program, submodule, or library. Any consumer can use its fully qualified path to reference it.
 
 ### Option Types
 
@@ -105,8 +100,7 @@ Creating an option type instance of a `struct`
 ```leo file=../code_snippets/cheatsheet/main/src/main.leo#option_struct
 ```
 
-The `address` and `signature` types do not have option variants.
-Thus, a `struct` that contains these types cannot have an option variant.
+The `address` and `signature` types do not have option variants. Thus, a `struct` that contains these types cannot have an option variant.
 
 ## 6. Arrays
 

@@ -1,21 +1,16 @@
 # Documentation
 
-This directory contains the source for [docs.leo-lang.org](https://docs.leo-lang.org).
-It contains Markdown files and compilable Leo example projects in [`code_snippets/`](./code_snippets/).
+This directory contains the source for [docs.leo-lang.org](https://docs.leo-lang.org). It contains Markdown files and compilable Leo example projects in [`code_snippets/`](./code_snippets/).
 
-Markdown files import snippets with `` ```leo file=../code_snippets/<project>/src/main.leo[#anchor] ``.
-The `.leo` source uses `// ANCHOR: <name>` and `// ANCHOR_END: <name>` comments for anchors.
+Markdown files import snippets with `` ```leo file=../code_snippets/<project>/src/main.leo[#anchor] ``. The `.leo` source uses `// ANCHOR: <name>` and `// ANCHOR_END: <name>` comments for anchors.
 
 ## Writing standard
 
-Use [ASD-STE100 Simplified Technical English, Issue 9](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf) for all authored prose in this directory.
-Use the official standard as the primary reference.
+Use [ASD-STE100 Simplified Technical English, Issue 9](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf) for all authored prose in this directory. Use the official standard as the primary reference.
 
-Do not change code, commands, identifiers, literal output, or error messages to comply with the writing standard.
-These items must remain technically correct.
+Do not change code, commands, identifiers, literal output, or error messages to comply with the writing standard. These items must remain technically correct.
 
-Names from Leo, the Leo CLI, Aleo, snarkVM, APIs, and cryptography are approved technical terms.
-Use the official spelling of each term. Use one term for one concept.
+Names from Leo, the Leo CLI, Aleo, snarkVM, APIs, and cryptography are approved technical terms. Use the official spelling of each term. Use one term for one concept.
 
 ### Procedures
 
