@@ -1138,6 +1138,16 @@ pub(crate) fn offchain_op_in_view(operation: impl Display, span: Span) -> Format
         .with_help("Read the value in an off-chain scope and pass it in.")
 }
 
+pub(crate) fn external_final_fn_writes_state(function: impl Display, span: Span) -> Formatted {
+    Formatted::error(
+        CODE_PREFIX,
+        CODE_MASK + 197,
+        format!("`{function}` cannot be called from another program because it may write on-chain state"),
+        span,
+    )
+    .with_help("Call a transition in that program instead, or make the `final fn` read-only.")
+}
+
 // TypeCheckerWarning builder functions
 
 pub(crate) fn caller_as_record_owner(record_name: impl Display, span: Span) -> Formatted {

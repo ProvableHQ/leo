@@ -40,331 +40,17 @@
 //! interaction. The [`classify_intrinsic`] match is the single source of
 //! truth for this categorization and is exhaustive over `Intrinsic`.
 
-use crate::{CompilerState, SymbolTable, VariableType, errors::cei_analyzer};
+use crate::{
+    CompilerState,
+    common::function_effects::{Op, Summarizer, Summary, classify_intrinsic, is_storage_var, peel_assign_root},
+    errors::cei_analyzer,
+};
 
 use leo_ast::*;
 use leo_errors::Formatted;
 use leo_span::{Span, Symbol};
 
 use indexmap::{IndexMap, IndexSet};
-
-// ---------------------------------------------------------------------------
-// Classifier — the single VM-facing surface of this analysis.
-
-/// The CEI category of an operation.
-///
-/// `Read` and `Write` refer specifically to *mutable persistent state*
-/// (mappings, vectors, storage variables, dynamic external storage) that a
-/// rival program's finalize could observe or alter. Immutable environment
-/// queries and pure computations are `None`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Op {
-    /// A read of mutable persistent state.
-    Read,
-    /// A write to mutable persistent state.
-    Write,
-    /// Yields control to another program's finalize.
-    Interaction,
-}
-
-/// Classify an intrinsic. Exhaustive `match` — a new `Intrinsic` variant is a
-/// compile error until it is categorized here.
-fn classify_intrinsic(i: &Intrinsic) -> Option<Op> {
-    use Intrinsic::*;
-    match i {
-        // Mutable-state reads
-        MappingGet | MappingGetOrUse | MappingContains | VectorGet | VectorLen | DynamicContains | DynamicGet
-        | DynamicGetOrUse => Some(Op::Read),
-
-        // Mutable-state writes
-        MappingSet | MappingRemove | VectorSet | VectorPush | VectorPop | VectorClear | VectorSwapRemove => {
-            Some(Op::Write)
-        }
-
-        // Interactions
-        FinalRun => Some(Op::Interaction),
-
-        // Immutable-within-a-transaction environment queries: a rival
-        // finalize cannot change these, so a late read carries no
-        // reentrancy risk.
-        BlockHeight | BlockTimestamp | NetworkId | SelfProgramOwner | SelfAddress | SelfCaller | SelfChecksum
-        | SelfEdition | SelfId | SelfSigner | ProgramOwner | ProgramChecksum | ProgramEdition | FunctionChecksum => {
-            None
-        }
-
-        // SNARK verifications compute a boolean from arguments. If a
-        // verifying key comes from a mapping, that mapping read fires
-        // on its own.
-        SnarkVerify | SnarkVerifyBatch => None,
-
-        // Pure computations.
-        ChaChaRand(_)
-        | Commit(_, _)
-        | ECDSAVerify(_)
-        | Hash(_, _)
-        | OptionalUnwrap
-        | OptionalUnwrapOr
-        | GroupToXCoordinate
-        | GroupToYCoordinate
-        | GroupGen
-        | AleoGenerator
-        | AleoGeneratorPowers
-        | SignatureVerify
-        | Serialize(_)
-        | Deserialize(_, _) => None,
-
-        // Transition-only. Unreachable in a finalize context; earlier
-        // passes reject it there.
-        DynamicCall => None,
-    }
-}
-
-/// A plain storage variable — not a mapping and not a vector, which are
-/// only ever accessed through intrinsics.
-fn is_storage_var(sym: &SymbolTable, prog: Symbol, p: &Path) -> bool {
-    if let Some(loc) = p.try_global_location()
-        && let Some(var) = sym.lookup_global(prog, loc)
-        && var.declaration == VariableType::Storage
-    {
-        if let Some(ty) = &var.type_ {
-            return !ty.is_mapping() && !ty.is_vector();
-        }
-        return true;
-    }
-    false
-}
-
-/// Peel wrappers on an assignment LHS to find the root `Path` (the write
-/// target). Returns `None` if the root is not a `Path`.
-fn peel_assign_root(expr: &Expression) -> Option<&Path> {
-    match expr {
-        Expression::Path(p) => Some(p),
-        Expression::MemberAccess(a) => peel_assign_root(&a.inner),
-        Expression::TupleAccess(a) => peel_assign_root(&a.tuple),
-        Expression::ArrayAccess(a) => peel_assign_root(&a.array),
-        _ => None,
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Effect summaries
-
-/// What CEI operations a callee transitively performs.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
-struct Summary {
-    reads: bool,
-    writes: bool,
-    interacts: bool,
-}
-
-impl Summary {
-    fn merge(&mut self, other: Summary) {
-        self.reads |= other.reads;
-        self.writes |= other.writes;
-        self.interacts |= other.interacts;
-    }
-}
-
-/// Computes callee [`Summary`]s with an order-insensitive walk. It borrows only
-/// the symbol table (read) and the memo map (write) — disjoint from the rest of
-/// the [`Scanner`] — and reborrows the symbol table through its own `&'a` field,
-/// so callee bodies are summarized in place rather than cloned out.
-struct Summarizer<'a> {
-    sym: &'a SymbolTable,
-    summaries: &'a mut IndexMap<Location, Summary>,
-}
-
-impl Summarizer<'_> {
-    /// Get or compute a callee's summary. Off-chain callees (regular `fn`)
-    /// and unresolved paths return the empty summary.
-    fn summary_of(&mut self, callee: &Path) -> Summary {
-        // Copy of the shared symbol-table ref, lifetime-independent of the
-        // `&mut self` borrows below, so `func`/`block` outlive `summarize_block`.
-        let sym = self.sym;
-        let Some(loc) = callee.try_global_location() else { return Summary::default() };
-        if let Some(s) = self.summaries.get(loc) {
-            return *s;
-        }
-        let loc = loc.clone();
-        // Seed with default so any self-reference terminates. Recursion is
-        // rejected by earlier passes; this is defensive.
-        self.summaries.insert(loc.clone(), Summary::default());
-        let Some(func) = sym.lookup_function(loc.program, &loc) else {
-            return Summary::default();
-        };
-        if !func.function.variant.is_onchain() {
-            // Regular helper `fn`s can't touch state or interact.
-            return Summary::default();
-        }
-        let variant = func.function.variant;
-        let s = if func.is_stub {
-            // Callee is an external stub. Its body isn't visible as Leo AST, so
-            // we can't summarize it. Fall back to a conservative summary based
-            // on the variant, so callee-has-effects warnings still fire against
-            // externals. (A local function with a genuinely empty body is not a
-            // stub and correctly summarizes to no effects.)
-            match variant {
-                Variant::View => Summary { reads: true, writes: false, interacts: false },
-                Variant::FinalFn | Variant::Finalize => Summary { reads: true, writes: true, interacts: true },
-                Variant::Fn | Variant::EntryPoint => Summary::default(),
-            }
-        } else {
-            self.summarize_block(&func.function.block, loc.program)
-        };
-        self.summaries.insert(loc, s);
-        s
-    }
-
-    fn summarize_block(&mut self, b: &Block, prog: Symbol) -> Summary {
-        let mut s = Summary::default();
-        for stmt in &b.statements {
-            self.summarize_stmt(stmt, prog, &mut s);
-        }
-        s
-    }
-
-    fn summarize_stmt(&mut self, stmt: &Statement, prog: Symbol, s: &mut Summary) {
-        match stmt {
-            Statement::Assert(a) => match &a.variant {
-                AssertVariant::Assert(e) => self.summarize_expr(e, prog, s),
-                AssertVariant::AssertEq(l, r) | AssertVariant::AssertNeq(l, r) => {
-                    self.summarize_expr(l, prog, s);
-                    self.summarize_expr(r, prog, s);
-                }
-            },
-            Statement::Assign(a) => {
-                if let Some(root) = peel_assign_root(&a.place)
-                    && is_storage_var(self.sym, prog, root)
-                {
-                    s.writes = true;
-                }
-                self.summarize_lhs_indices(&a.place, prog, s);
-                self.summarize_expr(&a.value, prog, s);
-            }
-            Statement::Block(b) => s.merge(self.summarize_block(b, prog)),
-            Statement::Conditional(c) => {
-                self.summarize_expr(&c.condition, prog, s);
-                s.merge(self.summarize_block(&c.then, prog));
-                if let Some(o) = &c.otherwise {
-                    self.summarize_stmt(o, prog, s);
-                }
-            }
-            Statement::Const(d) => self.summarize_expr(&d.value, prog, s),
-            Statement::Definition(d) => self.summarize_expr(&d.value, prog, s),
-            Statement::Expression(e) => self.summarize_expr(&e.expression, prog, s),
-            Statement::Iteration(it) => {
-                self.summarize_expr(&it.start, prog, s);
-                self.summarize_expr(&it.stop, prog, s);
-                s.merge(self.summarize_block(&it.block, prog));
-            }
-            Statement::Return(r) => self.summarize_expr(&r.expression, prog, s),
-        }
-    }
-
-    fn summarize_lhs_indices(&mut self, expr: &Expression, prog: Symbol, s: &mut Summary) {
-        match expr {
-            Expression::Path(_) => {}
-            Expression::MemberAccess(a) => self.summarize_lhs_indices(&a.inner, prog, s),
-            Expression::TupleAccess(a) => self.summarize_lhs_indices(&a.tuple, prog, s),
-            Expression::ArrayAccess(a) => {
-                self.summarize_lhs_indices(&a.array, prog, s);
-                self.summarize_expr(&a.index, prog, s);
-            }
-            _ => {}
-        }
-    }
-
-    fn summarize_expr(&mut self, e: &Expression, prog: Symbol, s: &mut Summary) {
-        match e {
-            Expression::Intrinsic(i) => {
-                for arg in &i.arguments {
-                    self.summarize_expr(arg, prog, s);
-                }
-                if let Some(intr) = Intrinsic::from_symbol(i.name, &i.type_parameters)
-                    && let Some(op) = classify_intrinsic(&intr)
-                {
-                    match op {
-                        Op::Read => s.reads = true,
-                        Op::Write => s.writes = true,
-                        Op::Interaction => s.interacts = true,
-                    }
-                }
-            }
-            Expression::Call(c) => {
-                for arg in &c.arguments {
-                    self.summarize_expr(arg, prog, s);
-                }
-                let cs = self.summary_of(&c.function);
-                s.merge(cs);
-            }
-            Expression::DynamicOp(d) => {
-                self.summarize_expr(&d.target_program, prog, s);
-                if let Some(n) = &d.network {
-                    self.summarize_expr(n, prog, s);
-                }
-                match &d.kind {
-                    DynamicOpKind::Call { arguments, .. } => {
-                        for arg in arguments {
-                            self.summarize_expr(arg, prog, s);
-                        }
-                    }
-                    DynamicOpKind::Read { .. } => s.reads = true,
-                    DynamicOpKind::Op { arguments, .. } => {
-                        s.reads = true;
-                        for arg in arguments {
-                            self.summarize_expr(arg, prog, s);
-                        }
-                    }
-                }
-            }
-            Expression::Path(p) => {
-                if is_storage_var(self.sym, prog, p) {
-                    s.reads = true;
-                }
-            }
-            Expression::Binary(b) => {
-                self.summarize_expr(&b.left, prog, s);
-                self.summarize_expr(&b.right, prog, s);
-            }
-            Expression::Unary(u) => self.summarize_expr(&u.receiver, prog, s),
-            Expression::Ternary(t) => {
-                self.summarize_expr(&t.condition, prog, s);
-                self.summarize_expr(&t.if_true, prog, s);
-                self.summarize_expr(&t.if_false, prog, s);
-            }
-            Expression::Cast(c) => self.summarize_expr(&c.expression, prog, s),
-            Expression::Tuple(t) => {
-                for e in &t.elements {
-                    self.summarize_expr(e, prog, s);
-                }
-            }
-            Expression::Array(a) => {
-                for e in &a.elements {
-                    self.summarize_expr(e, prog, s);
-                }
-            }
-            Expression::ArrayAccess(a) => {
-                self.summarize_expr(&a.array, prog, s);
-                self.summarize_expr(&a.index, prog, s);
-            }
-            Expression::MemberAccess(a) => self.summarize_expr(&a.inner, prog, s),
-            Expression::TupleAccess(a) => self.summarize_expr(&a.tuple, prog, s),
-            Expression::Composite(c) => {
-                for m in &c.members {
-                    if let Some(e) = &m.expression {
-                        self.summarize_expr(e, prog, s);
-                    }
-                }
-            }
-            Expression::Repeat(r) => {
-                self.summarize_expr(&r.expr, prog, s);
-                self.summarize_expr(&r.count, prog, s);
-            }
-            Expression::Async(a) => s.merge(self.summarize_block(&a.block, prog)),
-            Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) => {}
-        }
-    }
-}
 
 // ---------------------------------------------------------------------------
 // Scanner
@@ -450,7 +136,7 @@ impl<'a> Scanner<'a> {
     // from the rest of the scanner so callee bodies need not be cloned.
 
     fn summarizer(&mut self) -> Summarizer<'_> {
-        Summarizer { sym: &self.state.symbol_table, summaries: &mut self.summaries }
+        Summarizer::new(&self.state.symbol_table, &mut self.summaries)
     }
 
     // -----------------------------------------------------------------
@@ -524,15 +210,8 @@ impl<'a> Scanner<'a> {
 
         // Iteration i's non-interactions come after iteration i-1's
         // interaction, so a body containing both violates CEI.
-        let body_summary = {
-            let mut s = Summary::default();
-            let prog = self.program;
-            let mut summarizer = self.summarizer();
-            for st in &it.block.statements {
-                summarizer.summarize_stmt(st, prog, &mut s);
-            }
-            s
-        };
+        let prog = self.program;
+        let body_summary = self.summarizer().summarize_block(&it.block, prog);
         if body_summary.interacts && (body_summary.reads || body_summary.writes) {
             let span = it.variable.span();
             self.emit(span, Warning::Loop, cei_analyzer::cei_violation_in_loop(span));
@@ -593,6 +272,9 @@ impl<'a> Scanner<'a> {
                     if let Some(e) = &m.expression {
                         post = self.scan_expr(e, post);
                     }
+                }
+                if let Some(base) = &c.base {
+                    post = self.scan_expr(base, post);
                 }
                 post
             }

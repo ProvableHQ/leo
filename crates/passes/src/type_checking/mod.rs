@@ -109,6 +109,7 @@ impl Pass for TypeChecking {
             async_function_input_types: IndexMap::new(),
             async_function_callers: IndexMap::new(),
             used_composites: IndexSet::new(),
+            function_effect_summaries: IndexMap::new(),
             conditional_scopes: Vec::new(),
             limits: input,
             async_block_id: None,

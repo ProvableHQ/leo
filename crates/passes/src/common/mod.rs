@@ -23,6 +23,9 @@ pub use assigner::*;
 mod block_to_function_rewriter;
 pub use block_to_function_rewriter::*;
 
+pub(crate) mod function_effects;
+pub(crate) use function_effects::function_writes_state;
+
 mod rename_table;
 pub use rename_table::*;
 

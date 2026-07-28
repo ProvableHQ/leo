@@ -1,0 +1,54 @@
+[ETYC0372197] Error: `registry.aleo::maybe_register` cannot be called from another program because it may write on-chain state
+   ╭─[ compiler-test:8:13 ]
+   │
+ 8 │             registry.aleo::maybe_register::[false](addr);
+   │ 
+   │ Help: Call a transition in that program instead, or make the `final fn` read-only.
+───╯
+[ETYC0372197] Error: `registry.aleo::maybe_register` cannot be called from another program because it may write on-chain state
+   ╭─[ compiler-test:9:13 ]
+   │
+ 9 │             registry.aleo::maybe_register::[true](addr);
+   │ 
+   │ Help: Call a transition in that program instead, or make the `final fn` read-only.
+───╯
+[ETYC0372197] Error: `registry.aleo::finalize_register_wrapper` cannot be called from another program because it may write on-chain state
+    ╭─[ compiler-test:10:13 ]
+    │
+ 10 │             registry.aleo::finalize_register_wrapper(addr);
+    │ 
+    │ Help: Call a transition in that program instead, or make the `final fn` read-only.
+────╯
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372005] Error: unknown function `registry.aleo::is_registered`
+   ╭─[ compiler-test:7:23 ]
+   │
+ 7 │             assert_eq(registry.aleo::is_registered(addr), true);
+   │ 
+   │ Help: Check `registry.aleo::is_registered` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯
+[ETYC0372005] Error: unknown function `registry.aleo::maybe_register`
+   ╭─[ compiler-test:8:13 ]
+   │
+ 8 │             registry.aleo::maybe_register::[false](addr);
+   │ 
+   │ Help: Check `registry.aleo::maybe_register` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯
+[ETYC0372005] Error: unknown function `registry.aleo::maybe_register`
+   ╭─[ compiler-test:9:13 ]
+   │
+ 9 │             registry.aleo::maybe_register::[true](addr);
+   │ 
+   │ Help: Check `registry.aleo::maybe_register` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+───╯
+[ETYC0372005] Error: unknown function `registry.aleo::finalize_register_wrapper`
+    ╭─[ compiler-test:10:13 ]
+    │
+ 10 │             registry.aleo::finalize_register_wrapper(addr);
+    │ 
+    │ Help: Check `registry.aleo::finalize_register_wrapper` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+────╯
