@@ -36,6 +36,38 @@
           "ty": {
             "Primitive": "Address"
           },
+          "mode": "Private"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "tag",
+          "ty": {
+            "Primitive": {
+              "UInt": "U8"
+            }
+          },
+          "mode": "Constant"
+        }
+      ]
+    },
+    {
+      "path": [
+        "PublicToken"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
           "mode": "Public"
         },
         {
@@ -152,6 +184,29 @@
           "Record": {
             "path": [
               "Token"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_public_token",
+      "inputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
             ],
             "program": "simple.aleo"
           }
