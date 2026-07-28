@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CompilerState, type_checking::scope_state::ScopeState};
+use crate::{CompilerState, common::function_effects::Summary, type_checking::scope_state::ScopeState};
 
 use super::*;
 
@@ -66,6 +66,8 @@ pub struct TypeCheckingVisitor<'a> {
     pub async_function_callers: IndexMap<Location, IndexSet<Location>>,
     /// The set of used composites.
     pub used_composites: IndexSet<Location>,
+    /// Function-effect summaries cached for this type-checking run.
+    pub function_effect_summaries: IndexMap<Location, Summary>,
     /// So we can check if we exceed limits on array size, number of mappings, or number of functions.
     pub limits: TypeCheckingInput,
     /// For detecting the error `crate::errors::type_checker::async_cannot_assign_outside_conditional`.

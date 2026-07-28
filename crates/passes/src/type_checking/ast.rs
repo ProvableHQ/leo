@@ -1255,7 +1255,11 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
         // Check the declared body so const specialization cannot erase state writes.
         if matches!(func.variant, Variant::FinalFn)
             && callee_program != current_program
-            && crate::common::function_writes_state(&self.state.symbol_table, &input.function)
+            && crate::common::function_writes_state(
+                &self.state.symbol_table,
+                &mut self.function_effect_summaries,
+                &input.function,
+            )
         {
             self.emit_err(crate::errors::type_checker::external_final_fn_writes_state(&input.function, input.span));
         }

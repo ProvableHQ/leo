@@ -124,8 +124,12 @@ impl Summary {
     }
 }
 
-pub(crate) fn function_writes_state(symbol_table: &SymbolTable, function: &Path) -> bool {
-    Summarizer::new(symbol_table, &mut IndexMap::new()).summary_of(function).writes
+pub(crate) fn function_writes_state(
+    symbol_table: &SymbolTable,
+    summaries: &mut IndexMap<Location, Summary>,
+    function: &Path,
+) -> bool {
+    Summarizer::new(symbol_table, summaries).summary_of(function).writes
 }
 
 /// Computes function summaries with an order-insensitive walk, borrowing
