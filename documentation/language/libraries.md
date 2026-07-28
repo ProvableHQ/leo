@@ -70,7 +70,7 @@ leo add math_utils --local ../math_utils
 
 ## Using a Library
 
-Reference library items with the `{library_name}::{item}` path syntax. No `import` statement is required; the dependency entry in `program.json` is sufficient.
+Reference library items with the `{library_name}::{item}` path syntax. No `import` statement is required. The dependency entry in `program.json` is sufficient.
 
 ```leo file=../code_snippets/libraries/my_app_closest/src/main.leo#program title="src/main.leo"
 ```
@@ -90,7 +90,12 @@ Library functions support const generic parameters, just like regular helper fun
 ```leo file=../code_snippets/libraries/my_app_normalize/src/main.leo title="src/main.leo"
 ```
 
-Const-generic library functions work the same way as their in-program counterparts: each call site `library::fn::[const_args](runtime_args)` is monomorphized for the supplied const arguments and then inlined into the caller. There is no cross-package boundary to worry about — library code is always inlined regardless of generics. Const-generic structs declared in a library can also be referenced and instantiated from a consuming program through their fully qualified path (e.g. `math_utils::Vec::[10]`).
+Const-generic library functions operate like const-generic functions in a program.
+The compiler monomorphizes each `library::fn::[const_args](runtime_args)` call for its const arguments.
+Then, it puts the function code in the caller.
+Library code always uses this process, including code across package boundaries.
+A consuming program can reference and instantiate const-generic library structs with a fully qualified path.
+For example, use `math_utils::Vec::[10]`.
 
 ## Submodules
 
@@ -111,7 +116,9 @@ math_utils/
 
 ## Name Resolution and Path Precedence
 
-When a library dependency and a local submodule share the same name, paths beginning with that name resolve to the **library** first. For example, if your project declares a library dependency called `foo` and also has a local submodule `src/foo.leo`, then `foo::bar` refers to the item `bar` from the library, not from the submodule.
+When a library dependency and local submodule have the same name, paths with that name resolve to the **library** first.
+For example, assume that a library dependency is named `foo` and a local submodule is `src/foo.leo`.
+In this case, `foo::bar` refers to `bar` in the library, not the submodule.
 
 :::note
 Explicit disambiguation using absolute paths (similar to Rust's `crate::foo::…` for local modules) is planned for a future release.
@@ -131,10 +138,14 @@ leo build
        Leo ✅ Validated 'math_utils'.
 ```
 
-No bytecode is produced — libraries are inlined at the point of use and have no on-chain footprint — but any frontend errors are reported with spans pointing into the library's own source files.
+The build does not produce bytecode because libraries have no on-chain footprint.
+However, Leo reports frontend errors with spans that point to the library source files.
 
 :::note
-When a program that depends on a library is built, library sources are compiled holistically with the program — any errors in the library still surface, but as part of the consuming program's build. Running `leo build` inside the library package itself validates it in isolation, so problems are caught at the source before any consumer tries to use it.
+Leo compiles library sources with each program that depends on the library.
+Thus, the consuming program build reports errors in the library.
+Run `leo build` in the library package to validate it separately.
+This operation finds problems before a consumer uses the library.
 :::
 
 ## Testing
@@ -157,7 +168,7 @@ See the [Testing guide](../guides/testing.md) for more details.
 Libraries are **inlined at compile time**. The Leo compiler resolves all library references before emitting Aleo bytecode — no library code appears as a separate program on-chain. This means:
 
 - Calling a library function has the same cost as calling an inline helper function.
-- Libraries cannot be deployed independently; they exist only as source-level abstractions.
+- Libraries cannot be deployed independently. They exist only as source-level abstractions.
 - Circular dependencies between libraries are not allowed.
 
 For more on how dependencies are resolved and cached, see [Dependency Management](../guides/dependencies.md).

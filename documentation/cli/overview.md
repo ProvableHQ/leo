@@ -88,7 +88,7 @@ Saves structured JSON output to disk.
 - **Default location**: `build/json-outputs/<command>.json`
 - **Custom file**: `--json-output=my-results.json`
 
-The value must be attached with `=` (e.g. `--json-output=my-results.json`); with no value, the default location is used.
+The value must be attached with `=` (for example `--json-output=my-results.json`). With no value, the default location is used.
 
 Supported commands: `build`, `deploy`, `upgrade`, `run`, `execute`, `test`, `query`, `synthesize`. For `build`, the JSON contains the program checksum and each entry/view function checksum (see [`leo build --checksums`](./build.md#checksums)).
 
@@ -107,4 +107,7 @@ leo build --json-output
 
 ### `-p <NAME>`
 
-Target a specific [workspace](../guides/workspaces.md) member by name. Matches the member's directory name, program name (e.g., `token.aleo`), or program name without the `.aleo` suffix. Only valid inside a workspace - errors if no `workspace.json` is found.
+Targets a specific [workspace](../guides/workspaces.md) member by name.
+The name can be the member directory, program name, or program name without the `.aleo` suffix.
+For example, use `token.aleo`. Use this option only in a workspace.
+If `workspace.json` does not exist, the command reports an error.

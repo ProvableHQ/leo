@@ -13,7 +13,7 @@ mdx:
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-There are a number of ways to install Leo, depending on your platform and preferences. Take your pick!
+Select an installation method for your platform:
 
 <Tabs defaultValue="cargo"
 values={[
@@ -83,7 +83,7 @@ Each release publishes a ZIP archive per platform:
 | macOS (Apple Silicon) | `aarch64-apple-darwin`       |
 | Windows (x86_64)      | `x86_64-pc-windows-msvc`     |
 
-Archives are named `leo-lang-v{version}-{target}.zip` (e.g. `leo-lang-v4.0.1-aarch64-apple-darwin.zip`).
+Archives are named `leo-lang-v{version}-{target}.zip` (for example `leo-lang-v4.0.1-aarch64-apple-darwin.zip`).
 
 ## Install
 
@@ -103,7 +103,7 @@ Archives are named `leo-lang-v{version}-{target}.zip` (e.g. `leo-lang-v4.0.1-aar
    ```
 
 :::note
-Plugin binaries such as `leo-fmt` and `leo-lsp` are released under their own crate tags (e.g. `leo-fmt-v4.1.0`, `leo-lsp-v4.1.0`). Download the matching plugin archives from the same [releases page](https://github.com/ProvableHQ/leo/releases).
+Plugin binaries such as `leo-fmt` and `leo-lsp` are released under their own crate tags (for example `leo-fmt-v4.1.0`, `leo-lsp-v4.1.0`). Download the matching plugin archives from the same [releases page](https://github.com/ProvableHQ/leo/releases).
 :::
 
 </TabItem>

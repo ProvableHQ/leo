@@ -9,13 +9,18 @@ sidebar_label: Dependency Management
 Leo programs can import functionality from other programs and libraries. Any imported program or library is referred to as a dependency. There are four types of dependencies:
 
 - **Network dependencies**: Programs already deployed on the Aleo network, fetched as pre-compiled bytecode.
-- **Local dependencies**: Code on your filesystem; either Leo code compiled from source, Aleo Instructions code, or a Leo library.
+- **Local dependencies**: Code on your filesystem. The code can be compiled Leo code, Aleo Instructions code, or a Leo library.
 - **Workspace dependencies**: Other members of the same [workspace](./workspaces.md), resolved automatically from `workspace.json`.
 - **Git dependencies**: Packages fetched from a git repository (a Leo program, a Leo library, or an Aleo Instructions file), pinned to an exact commit.
 
 ## Programs vs. Libraries
 
-A regular Leo **program** has an on-chain identity (`program foo.aleo { }`), can hold mappings and records, and is deployed to the Aleo network. A Leo **library** is a source-only package containing structs, constants, and helper functions with no on-chain footprint — all library code is inlined into programs that use it at compile time. Libraries can only be local or git dependencies; they are never deployed.
+A regular Leo **program** has an on-chain identity (`program foo.aleo { }`). It can contain mappings and records.
+You can deploy a program to the Aleo network.
+
+A Leo **library** is a source-only package with structs, constants, and helper functions.
+During compilation, Leo puts the library code in each program that uses it.
+Libraries can only be local or git dependencies. You cannot deploy a library.
 
 See [Leo Libraries](../language/libraries.md) for details on how to write and use libraries.
 
@@ -137,20 +142,32 @@ This records a git dependency in `program.json`. For a concrete, working example
 ```json file=../code_snippets/dependencies/git_dep/program.json title="program.json"
 ```
 
-A git repository may contain a Leo program, a Leo library, or an Aleo Instructions (`.aleo`) file. Leo locates the package inside the checkout by name: it looks for a `program.json` whose `program` field matches the dependency name (searching the repository root and its subdirectories), and otherwise for a `<name>.aleo` bytecode file at the root.
+A git repository can contain a Leo program, a Leo library, or an Aleo Instructions (`.aleo`) file.
+Leo uses the dependency name to find the package in the checkout.
+It searches the repository for a `program.json` with a matching `program` field.
+If it does not find one, it searches the repository root for a `<name>.aleo` bytecode file.
 
 Only public repositories are supported, fetched over HTTP(S). Leo never sends credentials, so private repositories and SSH URLs (`git@…`) are not supported.
 
 #### The lock file
 
-The first time a git dependency is resolved, Leo writes a `leo.lock` file next to `program.json` (or at the workspace root) recording the exact commit each git dependency resolved to. For the example above:
+When Leo first resolves a git dependency, it writes a `leo.lock` file.
+This file is next to `program.json` or at the workspace root. It records the exact commit for each git dependency.
+For the preceding example:
 
 ```json file=../code_snippets/dependencies/git_dep/leo.lock title="leo.lock"
 ```
 
-Subsequent builds reuse the locked commit, so builds are reproducible. Commit `leo.lock` to version control to share the exact dependency versions with your team. Changing the requested `branch`/`tag`/`rev` in `program.json` causes the dependency to be re-resolved and the lock updated. Whether a rebuild contacts the network depends on the reference kind (see below): a `tag` or `rev` is served from the cache without any network access, while a `branch` or the default branch is re-resolved against the remote on every build with network access.
+Subsequent builds reuse the locked commit, so builds are reproducible. Commit `leo.lock` to version control to share exact dependency versions.
+A change to `branch`, `tag`, or `rev` in `program.json` makes Leo resolve the dependency again and update the lock.
+The reference kind determines if a rebuild uses the network.
+A `tag` or `rev` uses the cache without network access.
+A `branch`, including the default branch, uses the remote during each build that has network access.
 
-A `tag` or `rev` is immutable: once locked, it is reused from the cache and never re-fetched. A `branch` (or the default branch, when none is specified) is mutable: on every build **with** network access it is re-resolved to the branch's latest commit and the lock advances, so two builds at different times may pin different commits. Pin a `tag` or `rev` if you need a branch dependency to stay fixed.
+A `tag` or `rev` is immutable. After the lock operation, Leo reuses it from the cache.
+A `branch`, including the default branch, is mutable.
+During each build with network access, Leo resolves the latest branch commit and updates the lock.
+Thus, builds at different times can use different commits. Pin a `tag` or `rev` when you need a fixed dependency.
 
 Pass `--offline` to `leo build` to skip all git fetching and build from the locked commits and the local cache, even for branch references. `leo remove` deletes the removed dependency's entries from `leo.lock`.
 
@@ -161,11 +178,14 @@ A manifest has two dependency lists, and they differ only in what can see them:
 - **`dependencies`** are visible to your `src` program **and** to the package's in-package [tests](./testing.md). A dependency your program is built from is automatically available to the tests too.
 - **`dev_dependencies`** are visible **only** to the in-package tests, never to `src`. Use this list for libraries or programs that the tests need but the program itself does not.
 
-Because `dependencies` are already visible to the tests, a library used by both `src` and the tests belongs in `dependencies` alone — you do not repeat it under `dev_dependencies`. (Listing the same local library in both lists is allowed and simply deduplicates, but it is redundant.)
+Tests can already use `dependencies`. Thus, put a library that `src` and tests use only in `dependencies`.
+Do not repeat it in `dev_dependencies`. Leo permits and deduplicates a repeated local library, but the entry is redundant.
 
 ## Manifest field reference
 
-This applies to every kind of dependency, not just workspace members. `leo add` fills in these fields for you, but if you edit `program.json` by hand Leo validates each dependency entry when it loads the manifest and rejects incompatible combinations. Every entry has a `location`; the other fields depend on it:
+This reference applies to each dependency kind, not only workspace members. `leo add` completes these fields.
+If you edit `program.json` manually, Leo validates each dependency when it loads the manifest.
+Leo rejects incompatible field combinations. Each entry has a `location`, and the other fields depend on it:
 
 | `location`  | `path`      | `edition`   | `network`            |
 | ----------- | ----------- | ----------- | -------------------- |
@@ -198,7 +218,7 @@ When you run a Leo command, dependencies are resolved as follows:
    - **Workspace**: Look up the member in `workspace.json` and resolve to a local path
    - **Local**: Read the Leo source from the specified path and compile it, or use Aleo Instructions file
    - **Network**: Fetch the bytecode from the Aleo network (or cache)
-   - **Git**: Reuse the commit pinned in `leo.lock` if present; otherwise clone the repository, resolve the reference to a commit, and check it out. The checked-out package is then treated exactly like a local one.
+   - **Git**: Reuse the commit pinned in `leo.lock` if present. Otherwise clone the repository, resolve the reference to a commit, and check it out. The checked-out package is then treated exactly like a local one.
 3. **Resolve transitive dependencies** - if your dependency imports other programs, those are fetched too
 4. **Topologically sort** all programs so dependencies are processed before dependents
 
@@ -260,7 +280,7 @@ This records the pinned edition in the manifest:
 - When a dependency upgrade would break your program
 - When you want to avoid unexpected behavior changes
 
-**Note:** Local dependencies don't have editions - they're always compiled from your current source code.
+**Note:** Local dependencies do not have editions - they are always compiled from your current source code.
 
 ## Deploying Programs with Dependencies
 
@@ -276,4 +296,7 @@ This deploys all local dependencies in topological order, then deploys your main
 
 ### Network Dependencies at Deploy Time
 
-When you deploy, Leo fetches fresh bytecode for all network dependencies to ensure your deployment transaction references the current on-chain editions. If a network dependency is at edition 0 and lacks a constructor (required since the V8 consensus upgrade), Leo will error with a clear message explaining that the dependency needs to be upgraded on-chain first.
+During deployment, Leo gets current bytecode for all network dependencies.
+This operation makes the deployment transaction reference the current on-chain editions.
+Since the V8 consensus upgrade, an edition 0 network dependency must have a constructor.
+If the constructor does not exist, Leo reports that you must first upgrade the dependency on-chain.

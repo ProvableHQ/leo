@@ -17,19 +17,23 @@ If you need a declaration from another Leo file, you must import it.
 
 A program is a collection of code (its functions) and data (its types) that resides at a program ID on the Aleo blockchain. A program is declared as `program {name}.{network} { ... }`, with the body delimited by curly braces.
 
-For the canonical list of which declarations belong inside vs. outside the `program { ... }` block, the program-ID naming rules, and import semantics, see [Project Layout](./layout.md#programs).
+For the canonical list of which declarations belong inside vs. Outside the `program { ... }` block, the program-ID naming rules, and import semantics, see [Project Layout](./layout.md#programs).
 
 ```leo file=../code_snippets/layout/main_example/src/main.leo#file
 ```
 
 ### Constructor
 
-A `constructor` is a special, mandatory function declared inside the `program { ... }` block as `constructor() { ... }`. Every program must declare exactly one. It takes no parameters and returns no value, and it is not a regular `fn`: you never call it directly. Instead, the network runs it on-chain during the program's initial deployment and on every subsequent upgrade, where it acts as the gatekeeper for the program's upgrade policy.
+A `constructor` is a special, mandatory function in the `program { ... }` block.
+Declare it as `constructor() { ... }`. Each program must declare exactly one constructor.
+
+It has no parameters or return value, and it is not a regular `fn`. Do not call it directly.
+The network runs it on-chain during the initial deployment and each upgrade. It controls the program upgrade policy.
 
 Two properties set a `constructor` apart from an ordinary function:
 
 - **Immutable.** The logic set at first deployment can never be changed, modified, or deleted by a future upgrade.
-- **Policy-bearing.** It carries exactly one upgrade annotation — `@noupgrade`, `@admin`, `@checksum`, or `@custom` — that selects how the program may be upgraded. The managed modes (`@noupgrade`, `@admin`, `@checksum`) require an **empty** body, since the compiler generates their logic; `@custom` requires a **non-empty** body that you write yourself. A constructor with no annotation, or with more than one, is a compile error.
+- **Policy-bearing.** It carries exactly one upgrade annotation — `@noupgrade`, `@admin`, `@checksum`, or `@custom` — that selects how the program may be upgraded. The managed modes (`@noupgrade`, `@admin`, `@checksum`) require an **empty** body, since the compiler generates their logic. `@custom` requires a **non-empty** body that you write yourself. A constructor with no annotation, or with more than one, is a compile error.
 
 ```leo file=../code_snippets/upgradability/noupgrade/src/main.leo#file
 ```
@@ -50,22 +54,28 @@ Constants can be declared in three scopes:
 
 - **Global scope** (outside the `program` block in `main.leo`): accessible anywhere in the same file.
 - **Local scope** (inside a function body): accessible only within that function.
-- **Module scope** (any non-`main.leo` source file in the package; module files do not contain a `program` block and may only declare `const`, `struct`, `fn`, and `interface`): accessible within the same package via `path::to::module::CONST_NAME`. See [Modules](./layout.md#modules) for details.
+- **Module scope**: applies to each non-`main.leo` source file in the package.
+  Module files do not contain a `program` block. They can only declare `const`, `struct`, `fn`, and `interface`.
+  Use `path::to::module::CONST_NAME` to access the constant in the same package. See [Modules](./layout.md#modules).
 
 Constants are also supported in [libraries](./libraries.md), which are separate packages containing reusable code. A library's root file and its submodules may declare constants, accessible from any dependent package as `library::CONST_NAME` or `library::path::to::submodule::CONST_NAME`.
 
-**Accessibility across packages:** Global constants in a program are accessible from other programs that import it, using `program_name.aleo::CONST_NAME`. Constants declared in a submodule of an imported program are reachable through their full module path — `program_name.aleo::path::to::submodule::CONST_NAME` — provided the dependency is compiled from Leo source (pre-compiled `.aleo` stubs do not carry the submodule type information needed for resolution).
+**Accessibility across packages:** An importing program can access global constants with `program_name.aleo::CONST_NAME`.
+Use `program_name.aleo::path::to::submodule::CONST_NAME` to access a constant in an imported program submodule.
+This access requires a dependency compiled from Leo source.
+Precompiled `.aleo` stubs do not contain the submodule type information that resolution requires.
 
 ```leo file=../code_snippets/structure/constants/src/main.leo#scopes
 ```
 
-**Supported types:** All integer types (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`, `i64`, `i128`), `bool`, `field`, `group`, `scalar`, `address`, and tuples, arrays, and structs composed of these types.
+**Supported types:** Constants support all integer types, `bool`, `field`, `group`, `scalar`, and `address`.
+They also support tuples, arrays, and structs composed of these types.
 
 **Compile-time expressions:** The right-hand side of a constant declaration must be evaluatable at compile time. Valid right-hand sides include:
 
-- Literal values (e.g., `42u32`, `true`, `1field`)
+- Literal values (for example, `42u32`, `true`, `1field`)
 - References to previously declared constants
-- Arithmetic, bitwise, and comparison expressions over constants (e.g., `MAX * 2u64`, `!FLAG`)
+- Arithmetic, bitwise, and comparison expressions over constants (for example, `MAX * 2u64`, `!FLAG`)
 - Tuple, array, and struct expressions whose components are themselves compile-time constants
 
 ```leo file=../code_snippets/structure/constants/src/main.leo#expressions
@@ -108,13 +118,17 @@ Structs contain component declarations `{name}: {type},`.
 
 ### Record
 
-A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`. A record name must not contain the keyword `aleo`, and must not be a prefix of any other record name **declared in the same program** (the check does not extend across imported programs). This is a snarkVM requirement.
+A [record](https://docs.aleo.org/learn/core-concepts/public-and-private-state#private-state) data type is declared as `record {name} {}`.
+A record name must not contain `aleo`. It must not prefix another record name **declared in the same program**.
+This check does not apply across imported programs. It is a snarkVM requirement.
 
 Records contain component declarations `{visibility} {name}: {type},`. Names of record components must not contain the keyword `aleo`.
 
 The visibility qualifier may be specified as `constant`, `public`, or `private`. If no qualifier is provided, Leo defaults to `private`.
 
-Record data structures must always contain a component named `owner` of type `address`, as shown below. When passing a record as input to a program function, the `_nonce: group` and `_version: u8` components are also required but do not need to be declared in the Leo program. They are inserted automatically by the compiler.
+Each record must contain an `owner` component of type `address`, as shown below.
+A record function input also requires the `_nonce: group` and `_version: u8` components.
+Do not declare these components in the Leo program. The compiler inserts them automatically.
 
 ```leo file=../code_snippets/data_types/demo/src/main.leo#token_record showLineNumbers
 ```

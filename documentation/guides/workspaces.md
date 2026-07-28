@@ -6,7 +6,9 @@ sidebar_label: Workspaces
 
 [general tags]: # "guides, workspace, workspaces, multi-program, monorepo"
 
-A Leo **workspace** groups multiple Leo packages (programs or libraries) under a single root directory. When you run commands like `leo build` or `leo test` from the workspace root, Leo operates on every member in the correct dependency order - no manual sequencing required.
+A Leo **workspace** groups multiple Leo packages under one root directory.
+Run commands such as `leo build` or `leo test` from the workspace root.
+Leo operates on each member in dependency order. You do not have to specify the sequence.
 
 Workspaces are useful when your application is made up of several interacting programs. For example, a DeFi protocol might have a `token` program and a `swap` program that depends on it. A workspace lets you build, test, and clean them all with a single command.
 
@@ -18,7 +20,9 @@ The quickest way to start a workspace is to scaffold one with `leo new`:
 leo new --workspace my_project
 ```
 
-This creates `my_project/` containing a `workspace.json` with an empty `members` array. The `--workspace` flag is mutually exclusive with `--library` - a workspace is just a root that groups packages, not a package itself, so it has no `src/`, `program.json`, or `tests/` directory.
+This creates `my_project/` with a `workspace.json` that has an empty `members` array.
+Do not use `--workspace` and `--library` together.
+A workspace groups packages, but it is not a package. Thus, it has no `src/`, `program.json`, or `tests/` directory.
 
 Equivalently, you can create `workspace.json` by hand in any directory. It contains a `members` array listing the relative paths to each member package:
 
@@ -40,7 +44,7 @@ Entries in `members` can also be glob patterns, resolved relative to the workspa
 }
 ```
 
-Standard `glob` syntax is supported, including `*` (matches a single path segment), `**` (matches recursively across directories), `?`, and character classes like `[abc]`. A glob match is included only if the matched directory contains a `program.json`; other matches (files, directories without a manifest, non-UTF-8 paths) are silently skipped.
+Standard `glob` syntax is supported, including `*` (matches a single path segment), `**` (matches recursively across directories), `?`, and character classes like `[abc]`. A glob match is included only if the matched directory contains a `program.json`. Other matches (files, directories without a manifest, non-UTF-8 paths) are silently skipped.
 
 A glob that matches zero packages logs a warning and continues - it is not an error:
 
@@ -48,7 +52,9 @@ A glob that matches zero packages logs a warning and continues - it is not an er
 workspace member glob `programs/*` in <root> matched no packages
 ```
 
-A literal entry pointing at a missing directory still errors, so explicit paths remain strictly validated. Literal entries are resolved before globs and members are deduplicated by canonical path, so a directory matched by both a literal entry and a glob is only included once.
+A literal entry for a missing directory still causes an error. Thus, Leo strictly validates explicit paths.
+Leo resolves literal entries before globs and removes duplicate canonical paths.
+It includes a directory only once when a literal entry and glob both match it.
 
 ### Adding Members
 
@@ -58,13 +64,18 @@ When `leo new <name>` is run anywhere inside a workspace, the new package's path
 Added <name> to the enclosing workspace.
 ```
 
-The append is skipped silently if the new package is already covered by an existing entry - either a literal path equal to the new package's relative path, or a glob that matches it. If the new package ends up outside the discovered workspace root (for example, `leo new ../sibling`), Leo prints a warning and leaves `workspace.json` untouched:
+Leo does not append a package that an existing entry includes.
+The existing entry can be an equal literal path or a matching glob.
+If the new package is outside the workspace root, Leo prints a warning and does not change `workspace.json`.
+For example, `leo new ../sibling` causes this warning:
 
 ```text
 new package at `...` is not inside the discovered workspace root `...`; skipping auto-add
 ```
 
-Existing `members` order is preserved; new entries are appended at the end. If you would rather not edit `members` by hand at all, use a glob entry such as `programs/*` (see [Glob Members](#glob-members)) - new packages created inside that directory are picked up without modifying `workspace.json`.
+Leo keeps the existing `members` order and puts new entries at the end.
+To avoid manual changes to `members`, use a glob entry such as `programs/*`. See [Glob Members](#glob-members).
+Leo finds new packages in that directory without a change to `workspace.json`.
 
 ## Directory Structure
 
@@ -91,11 +102,10 @@ my_project/
         └── main.leo
 ```
 
-Build artifacts live in a single `build/` directory at the workspace root,
-keyed by compilation unit name. A unit built once - whether as a member's own
-program or as a dependency - is reused by every other member that imports it
-rather than being rebuilt per member. Running `leo clean` from anywhere
-inside the workspace removes the shared `build/` in one step.
+Build artifacts are in one `build/` directory at the workspace root.
+The compilation unit name identifies each artifact.
+After Leo builds a unit as a member or dependency, other members reuse it.
+Run `leo clean` from any workspace directory to remove the shared `build/` directory.
 
 ## Member Dependencies
 
@@ -121,7 +131,8 @@ Leo automatically determines the correct build order by analyzing the dependency
 
 In the example above, `token` has no dependencies and `swap` depends on `token`, so Leo builds `token` first, then `swap`. This ordering is computed automatically regardless of the order members are listed in `workspace.json`.
 
-If the dependency graph contains a cycle (e.g., A depends on B and B depends on A), Leo reports an error rather than attempting to build.
+If the dependency graph contains a cycle, Leo reports an error and does not build.
+For example, a cycle occurs when A depends on B and B depends on A.
 
 ## Working with Workspaces
 
@@ -198,9 +209,9 @@ leo clean -p swap
 
 The flag accepts any of:
 
-- The member's directory name (e.g., `token`)
-- The program name with `.aleo` suffix (e.g., `token.aleo`)
-- The program name without suffix (e.g., `token`)
+- The member's directory name (for example, `token`)
+- The program name with `.aleo` suffix (for example, `token.aleo`)
+- The program name without suffix (for example, `token`)
 
 If the name does not match any workspace member, Leo reports an error and suggests checking the `members` list in `workspace.json`.
 

@@ -6,7 +6,7 @@ sidebar_label: Migration Guide (3.5 → 4.0)
 
 [general tags]: # "guides, migration, upgrade, leo4, breaking_changes"
 
-Leo 4.0 redesigns the language surface to make Leo's **execution model** transparent. Every Leo program runs in two distinct contexts: a **proof context** (private, off-chain, generating ZK proofs) and a **finalization context** (public, on-chain, modifying state). The old keywords - `transition`, `function`, `async`, `Future` - obscured this distinction; 4.0 replaces them with a minimal set (`fn`, `final`, `Final`) that makes each function's execution context immediately clear. The `program {}` block now explicitly defines a program's public interface.
+Leo 4.0 redesigns the language surface to make Leo's **execution model** transparent. Every Leo program runs in two distinct contexts: a **proof context** (private, off-chain, generating ZK proofs) and a **finalization context** (public, on-chain, modifying state). The old keywords - `transition`, `function`, `async`, `Future` - obscured this distinction. 4.0 replaces them with a minimal set (`fn`, `final`, `Final`) that makes each function's execution context immediately clear. The `program {}` block now explicitly defines a program's public interface.
 
 This guide covers every breaking change and shows how to update your code.
 
@@ -101,7 +101,8 @@ In 3.5, all declarations - transitions, functions, structs, mappings - lived ins
 | `mapping` declarations        | `struct` definitions    |
 |                               | `interface` definitions |
 
-This separation makes it easy to see what a program exposes on-chain at a glance. Helper functions and types that support the implementation but aren't part of the on-chain interface live at module level.
+This separation clearly shows what a program exposes on-chain.
+Helper functions and types at module level support the implementation but are not part of the on-chain interface.
 
 ## Async/Finalize to Final
 
@@ -114,11 +115,17 @@ Leo programs execute in two distinct contexts:
 - **Proof context** - private, off-chain execution that generates ZK proofs. Regular `fn` declarations run here. Inputs can be private, and the computation is not visible on-chain.
 - **Finalization context** - public, on-chain execution that modifies state (mappings, storage). `final fn` definitions and `final { }` blocks run here. All inputs and operations are publicly visible.
 
-In 3.5, the "async" terminology (`async transition`, `async function`, `Future`) suggested asynchronous execution, but what it really meant was "runs on-chain during finalization." The 4.0 keyword `final` directly communicates this: a `final` block or `final fn` runs in the finalization context.
+In Leo 3.5, the "async" terminology suggested asynchronous execution.
+However, this code ran on-chain during finalization.
+Leo 4.0 uses `final` to communicate this behavior directly.
+A `final` block or `final fn` runs in the finalization context.
 
 In practice: 3.5 split on-chain logic across an `async transition` and a separate `async function`. In 4.0, on-chain logic lives inside `final { }` blocks within entry points.
 
-When the compiler processes a `final { }` block, it lifts it into a standalone finalization function - the on-chain equivalent of 3.5's `async function`. `final fn` definitions, by contrast, are always inlined into the caller's finalization block before this lifting occurs, making them a compile-time code reuse mechanism rather than standalone on-chain functions.
+The compiler converts a `final { }` block into a standalone finalization function.
+This function is the on-chain equivalent of the 3.5 `async function`.
+Before this conversion, Leo puts each `final fn` definition in the caller finalization block.
+Thus, a `final fn` reuses code during compilation and is not a standalone on-chain function.
 
 ### Inline finalize
 
@@ -216,7 +223,10 @@ program example.aleo {
 
 ## Module-Level Struct Declarations
 
-In both 3.5 and 4.0, structs can be declared inside or outside `program {}` blocks. The 4.0 convention is to place structs that aren't part of the on-chain interface (i.e. not records) at module level outside `program {}`. Records remain inside the program block since they are part of the public interface. Structs inside `program {}` still compile.
+In versions 3.5 and 4.0, you can declare structs inside or outside `program {}` blocks.
+In version 4.0, put structs outside `program {}` when they are not part of the on-chain interface.
+Records remain in the program block because they are part of the public interface.
+Structs in `program {}` still compile.
 
 **3.5:**
 
@@ -240,7 +250,7 @@ program test.aleo {
 
 ## Constructor
 
-The `async` keyword is removed from constructor declarations. In 3.5, constructors were declared with `async constructor`; in 4.0 the keyword is simply `constructor`:
+The `async` keyword is removed from constructor declarations. In 3.5, constructors were declared with `async constructor`. In 4.0 the keyword is simply `constructor`:
 
 ```leo
 // 3.5
@@ -276,7 +286,7 @@ This applies to all cross-program references: function calls, type annotations, 
 
 ### `script` functions, interpreter, and debugger
 
-The `script` keyword, the interpreter (`leo test` for script functions), and the interactive debugger (`leo debug`) have all been removed. The interpreter worked by traversing the AST directly - a custom evaluation model that didn't reflect how code actually executes on-chain via the VM. Tests could pass in the interpreter but behave differently when compiled and run on the real VM.
+The `script` keyword, the interpreter (`leo test` for script functions), and the interactive debugger (`leo debug`) have all been removed. The interpreter worked by traversing the AST directly - a custom evaluation model that did not reflect how code actually executes on-chain via the VM. Tests could pass in the interpreter but behave differently when compiled and run on the real VM.
 
 In 3.5, tests used `@test script` inside a program block:
 

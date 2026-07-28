@@ -156,10 +156,10 @@ Specifies the record(s) to pay for fees privately, delimited by `|` and used in 
 
 Specifies one or more additional programs to load into the VM at runtime. Each entry can be:
 
-- A path to a local `.aleo` bytecode file (e.g. `./extra_prog.aleo`)
+- A path to a local `.aleo` bytecode file (for example `./extra_prog.aleo`)
 - The name of a remote program to fetch from the network endpoint (along with its transitive dependencies)
 
-Multiple programs can be provided as a comma-separated list. When specifying local `.aleo` files, they must be listed in topological order — i.e. a dependency must appear before any program that depends on it.
+Multiple programs can be provided as a comma-separated list. When specifying local `.aleo` files, they must be listed in topological order — that is a dependency must appear before any program that depends on it.
 
 This is useful when a program has dynamic dependencies that are not declared in `program.json` and therefore cannot be resolved at build time.
 
@@ -176,7 +176,7 @@ When loading remote programs, an `--endpoint` must be set.
 
 Specifies the consensus heights to use, delimited by `,`. This should only be set if you are using a custom devnet.
 
-The following will enable Consensus_V0 at block 0, Consensus_V1 at block 1, etc.:
+The following settings enable each consensus version at its corresponding block:
 
 ```bash
 --consensus-heights 0,1,2,3....

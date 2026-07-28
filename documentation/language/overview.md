@@ -19,5 +19,5 @@ Leo does not support `undefined` or `null` values. When creating a new variable,
 
 ## Pass by Value
 
-Expressions in Leo are always **passed by value**, which means their values are always copied when they are used as
-function inputs or in right sides of assignments.
+Leo always **passes expressions by value**.
+Thus, it copies expression values when they are function inputs or appear on the right side of assignments.

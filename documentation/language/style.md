@@ -50,7 +50,8 @@ This greatly increases the constraint numbers and slows down the circuit.
 
 ### `final fn` vs. Inline `final` Blocks
 
-For code conciseness and readability, prefer using inline `final { }` blocks rather than a separately declared `final fn`, unless the finalization logic is shared across multiple entry points:
+Use an inline `final { }` block when one entry point uses the finalization logic.
+Use a separate `final fn` when multiple entry points share the logic:
 
 ```leo file=../code_snippets/style/final_fn/src/main.leo title="final fn (use only when shared across multiple entry points):"
 ```
@@ -86,7 +87,8 @@ Repeating a multi-step computation inline in several programs multiplies the con
 
 #### Use submodules for large libraries
 
-When a library grows beyond a few hundred lines, split it across submodules named after their responsibility (`geometry.leo`, `encoding.leo`, etc.) and keep `lib.leo` as the public surface re-exporting common items.
+When a library grows beyond a few hundred lines, divide it into submodules such as `geometry.leo` and `encoding.leo`.
+Keep `lib.leo` as the public surface that re-exports common items.
 
 ```text
 math_utils/
@@ -122,7 +124,8 @@ The goal is to only have the interface of the program in `main.leo`. Every funct
 
 ## Layout
 
-For whitespace, blank lines, brace placement, semicolons, and trailing commas, run [`leo fmt`](../cli/fmt.md) — it produces the canonical Leo formatting and will keep your code consistent across collaborators.
+Run [`leo fmt`](../cli/fmt.md) to format whitespace, blank lines, braces, semicolons, and trailing commas.
+It produces the canonical Leo format and keeps the code consistent.
 
 The examples below show the canonical style `leo fmt` produces:
 
@@ -183,8 +186,8 @@ Reducing the source code that caused the issue to a bare minimum is always very 
 
 Start by forking off of the `mainnet` branch to make your changes. Commit messages should clearly explain why and what you changed.
 
-If you need to pull in any changes from the `mainnet` branch after making your fork (for example, to resolve potential merge conflicts),
-please avoid using git merge and instead, git rebase your branch. Rebasing will help us review your changes easily.
+If you must get changes from `mainnet` after you make your fork, rebase your branch.
+Do not merge `mainnet` into your branch. A rebase makes the changes easier to review.
 
 For build, formatting, test, and grammar conventions, see [`CONTRIBUTING.md`](https://github.com/ProvableHQ/leo/blob/mainnet/CONTRIBUTING.md) in the repository root. The canonical commands for validation are:
 

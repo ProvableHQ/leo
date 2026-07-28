@@ -31,7 +31,7 @@ cd leo/examples/vote
 ./run.sh
 ```
 
-The `.env` file contains a private key and network type. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we've set things up in `./run.sh` for a full example of how to run the program as different parties.
+The `.env` file contains a private key and network type. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we have set things up in `./run.sh` for a full example of how to run the program as different parties.
 
 ## Walkthrough
 
@@ -51,7 +51,7 @@ Anyone can issue a new proposal publicly by calling the `propose` function.
 
 Proposers can create new tickets for proposals.
 
-A ticket is a record with an `owner` and a proposal id `pid`. A ticket can be used to vote for a proposal identified by `pid`; it **can only be used by the ticket owner**. That is, **only the owner can use that `ticket` to cast a vote**.
+A ticket is a record with an `owner` and a proposal id `pid`. A ticket can be used to vote for a proposal identified by `pid`. It **can only be used by the ticket owner**. That is, **only the owner can use that `ticket` to cast a vote**.
 
 ### Vote
 
@@ -75,7 +75,7 @@ private_key: APrivateKey1zkp6NHwbT7PkpnEFeBidz5ZkZ14W8WXZmJ6kjKbEHYdMmf2
 address: aleo1uc6jphye8y9gfqtezrz240ak963sdgugd7s96qpuw6k7jz9axs8q2qnhxc
 ```
 
-Let's propose a new ballot. Take on the role of the proposer and run the `propose` function. We've provided the necessary information as inputs to the `propose` function.
+Propose a new ballot. Act as the proposer. Run the `propose` function. The command contains the necessary inputs.
 
 ```bash
 echo "
@@ -113,11 +113,13 @@ Output
 }
 ```
 
-You'll see that the output generates a new record with the proposal information and sets a public mapping with the proposal id as an argument input. The public mapping will be queryable on-chain.
+The output contains a new record with the proposal information.
+It also sets a public mapping with the proposal ID as an input. You can query the public mapping on-chain.
 
 ## <a id="step1"></a> Voter 1 makes a vote
 
-Let's create a new private ticket to make a vote. Take on the role of voter 1 and run the `new_ticket` function. The inputs take a unique ticket ID and the voter's public address.
+Create a private ticket for a vote. Act as voter 1. Run the `new_ticket` function.
+Specify a unique ticket ID and the voter's public address.
 
 ```bash
 echo "
@@ -145,7 +147,8 @@ Output
 }
 ```
 
-You'll see a new private ticket created belonging to the owner, and a public mapping in the vote program to track the ID of that ticket.
+The output contains a new private ticket that belongs to the owner.
+A public mapping in the vote program tracks the ticket ID.
 
 Voter 1 can now vote privately on their ticket. Call the `agree` or `disagree` function, which takes the voter's ticket output as the input.
 
@@ -172,7 +175,8 @@ Output
 
 ## <a id="step2"></a> Voter 2 makes a vote
 
-Let's create a new private ticket for voter 2. Take on the role of voter 2 and run the `new_ticket` function. The inputs take a unique ticket ID and the voter's public address.
+Create a private ticket for voter 2. Act as voter 2. Run the `new_ticket` function.
+Specify a unique ticket ID and the voter's public address.
 
 ```bash
 echo "

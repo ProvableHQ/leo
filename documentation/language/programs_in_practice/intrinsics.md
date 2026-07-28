@@ -6,7 +6,9 @@ sidebar_label: Intrinsics
 
 [general tags]: # "intrinsic, dynamic_call, dynamic_contains, dynamic_get, dynamic_get_or_use, dynamic_dispatch, finalize"
 
-Intrinsics are low-level operations built into the compiler. They complement Leo's high-level abstractions and are useful when those abstractions aren't expressive enough for a particular use case. They are prefixed with `_` to make them visually distinct from user-defined functions.
+Intrinsics are low-level operations built into the compiler.
+They complement Leo's high-level abstractions when those abstractions do not support a use case.
+The `_` prefix distinguishes them from user-defined functions.
 
 ---
 
@@ -23,13 +25,15 @@ _dynamic_call::[TYPE_PARAMS](prog, net, func, ...args)
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
-- `net` — the network, as a value of type `identifier` or a `field` representing an identifier; currently only `'aleo'` is valid
+- `net` — the network, as a value of type `identifier` or a `field` representing an identifier. Currently only `'aleo'` is valid
 - `func` — the function name to call, as a value of type `identifier` or a `field` representing an identifier
 - `...args` — the function arguments, matching the input types declared in `TYPE_PARAMS`
 
 ### Type parameters
 
-Type parameters follow one rule: **the last entry is the return type; all preceding entries are input types** with an optional visibility modifier (`public` or `private`). Omitting type parameters entirely means void return with compiler-inferred input visibility.
+Type parameters follow one rule: **the last entry is the return type**.
+All preceding entries are input types with an optional `public` or `private` visibility modifier.
+If you omit type parameters, the return is void and the compiler infers input visibility.
 
 #### No type parameters — void return
 
@@ -88,7 +92,7 @@ Checks whether a key exists in a mapping belonging to another program, determine
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
-- `net` — the network, as a value of type `identifier` or a `field` representing an identifier; currently only `'aleo'` is valid
+- `net` — the network, as a value of type `identifier` or a `field` representing an identifier. Currently only `'aleo'` is valid
 - `mapping` — the mapping name on the target program, as a value of type `identifier` or a `field` representing an identifier
 - `key` — a value whose type matches the target mapping's key type
 
@@ -113,7 +117,7 @@ Fails at runtime if the key is not present — use [`_dynamic_get_or_use`](#_dyn
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
-- `net` — the network, as a value of type `identifier` or a `field` representing an identifier; currently only `'aleo'` is valid
+- `net` — the network, as a value of type `identifier` or a `field` representing an identifier. Currently only `'aleo'` is valid
 - `mapping` — the mapping name on the target program, as a value of type `identifier` or a `field` representing an identifier
 - `key` — a value whose type matches the target mapping's key type
 - `T` — must match the target mapping's value type
@@ -140,10 +144,10 @@ Reads a value from a mapping belonging to another program, determined at runtime
 ```
 
 - `prog` — the target program name, as a value of type `identifier` or a `field` representing an identifier
-- `net` — the network, as a value of type `identifier` or a `field` representing an identifier; currently only `'aleo'` is valid
+- `net` — the network, as a value of type `identifier` or a `field` representing an identifier. Currently only `'aleo'` is valid
 - `mapping` — the mapping name on the target program, as a value of type `identifier` or a `field` representing an identifier
 - `key` — a value whose type matches the target mapping's key type
-- `default` — the fallback value returned when `key` is absent; must be the same type as `T`
+- `default` — the fallback value returned when `key` is absent. Must be the same type as `T`
 - `T` — must match the target mapping's value type
 
 ### Example

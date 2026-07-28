@@ -6,7 +6,8 @@ sidebar_label: Testing
 
 [general tags]: # "guides, tests, testing, unit_testing, integration_testing, devnode, devnet, testnet"
 
-Once deployed, an application lives on the ledger forever. Consequently, it's important to consider every edge case and rigorously test your code. There are a number of tools and techniques you can use.
+After deployment, an application stays on the ledger permanently. Thus, consider each edge case and test your code fully.
+You can use the following tools and techniques.
 
 - [**Unit and Integration Testing**](#unit-and-integration-testing) - Validate Leo program logic through test cases.
 - [**Running a Devnode**](#running-a-devnode) - Deploy and execute against a lightweight local node.
@@ -18,12 +19,13 @@ Once deployed, an application lives on the ledger forever. Consequently, it's im
 
 | Tool | Best for | Notes |
 | ---- | -------- | ----- |
-| `leo test` | Logic, record fields, mappings | Fast; no network round-trip; no fee credits required |
-| `leo devnode` | End-to-end deploy/execute cycles, multi-program interaction | No snarkOS required; proof generation can be skipped |
-| `leo devnet` | Full consensus scenarios, multi-validator behaviour | Requires a snarkOS installation; heavier setup |
-| Testnet | Final validation before mainnet | Real credits required; use the [Aleo faucet](https://faucet.aleo.org/) |
+| `leo test` | Logic, record fields, mappings | Fast. No network round-trip. No fee credits required |
+| `leo devnode` | End-to-end deploy/execute cycles, multi-program interaction | No snarkOS required. Proof generation can be skipped |
+| `leo devnet` | Full consensus scenarios, multi-validator behavior | Requires a snarkOS installation. Heavier setup |
+| Testnet | Final validation before mainnet | Real credits required. Use the [Aleo faucet](https://faucet.aleo.org/) |
 
-Start with `leo test` for pure logic. Reach for `leo devnode` when you need to test deploy/execute cycles against a live node. Use `leo devnet` when your scenario requires full consensus behaviour. Promote to Testnet for final validation before mainnet.
+Start with `leo test` for pure logic. Use `leo devnode` to test deployment and execution cycles against a live node.
+Use `leo devnet` when the scenario requires full consensus behavior. Use Testnet for final validation before Mainnet.
 
 ## Unit and Integration Testing
 
@@ -46,12 +48,16 @@ example_program
 
 The test file is a Leo program that imports the program in `main.leo`. The test functions will all be annotated with `@test` above the function declaration.
 
-A test program can also name any library or program listed in the package's `dependencies`, so tests can construct a dependency's types or call its functions directly. See [`dependencies` vs. `dev_dependencies`](./dependencies.md#dependencies-vs-dev_dependencies) for what each dependency list makes visible.
+A test program can name a library or program in the package `dependencies`.
+Thus, tests can construct dependency types or call dependency functions directly.
+See [`dependencies` vs. `dev_dependencies`](./dependencies.md#dependencies-vs-dev_dependencies) for visibility rules.
 
 This tutorial will use an example program which can be found in the [example's repository](https://github.com/ProvableHQ/leo-examples/tree/main/example_with_test).
 
 :::info
-Developers can add multiple `leo` files to the test directory but must ensure that the name of the test file matches the program name within that test file. For example, if the name of the test file is `test_example_program.leo`, the program name in that file must be `test_example_program.aleo`.
+You can add multiple `.leo` files to the test directory.
+Each test file name must match the program name in that file.
+For example, `test_example_program.leo` must contain the program name `test_example_program.aleo`.
 :::
 
 ### Testing Entry Functions
@@ -61,7 +67,8 @@ The `example_program.leo` program contains an entry function which returns the s
 ```leo file=../code_snippets/testing/example_program/src/main.leo#simple_addition
 ```
 
-The `test_example_program.leo` contains two tests to ensure that the function logic returns a correct output and fails when the output does not match the sum of the input values.
+`test_example_program.leo` contains two tests.
+They verify the correct sum and the failure that occurs when the output does not match the input sum.
 
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_simple_addition
 ```
@@ -84,12 +91,15 @@ To run a single test as a different account, pass a `private_key` argument to th
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_with_private_key
 ```
 
-This is the standard way to exercise access-controlled entry points: pair a privileged-account test that runs to success with a `@should_fail` counterpart that runs under the default (or any other non-privileged) account. The privileged test uses `@test(private_key = "...")` to override the caller; the failing counterpart uses bare `@test` so the default test account is the caller:
+To test an access-controlled entry point, pair a privileged test with a `@should_fail` test.
+Run the second test with the default or another nonprivileged account.
+The privileged test uses `@test(private_key = "...")` to override the caller.
+The failing test uses `@test`, so it uses the default test account:
 
 ```leo file=../code_snippets/testing/example_program/tests/test_example_program.leo#test_admin_pair
 ```
 
-`private_key` is the only recognized argument to `@test`; passing any other key (e.g. `@test(seed = ...)`) is a compile error. The value must be a string literal containing a valid Leo private key.
+`private_key` is the only recognized argument to `@test`. Passing any other key (for example `@test(seed = ...)`) is a compile error. The value must be a string literal containing a valid Leo private key.
 
 ### Testing Leo Types
 
@@ -109,7 +119,10 @@ Each test file is required to have at least one `@test fn` function.
 
 ### Modeling Onchain State
 
-The Leo test framework executes tests via the real VM, so on-chain state (mappings, storage) is fully supported in `@test fn` functions — no special syntax is required. Call entry functions that return `Final` the same way as any other function; the finalization will be executed as part of the test run.
+The Leo test framework executes tests in the real VM.
+Thus, `@test fn` functions fully support on-chain mappings and storage without special syntax.
+Call entry functions that return `Final` in the same way as other functions.
+The test run executes the finalization.
 
 For end-to-end and integration testing against a live network or a local devnet, use the [SDK](https://github.com/ProvableHQ/sdk) directly or `snarkVM` as a library.
 
@@ -127,7 +140,7 @@ cd my_lib
 leo test
 ```
 
-Submodule functions are accessible through their qualified path (e.g., `my_lib::math::triple(4u32)`).
+Submodule functions are accessible through their qualified path (for example, `my_lib::math::triple(4u32)`).
 
 ### Running Tests
 
@@ -163,13 +176,14 @@ See the [`leo devnode` CLI reference](./../cli/devnode.md) for setup instruction
 
 ## Running a Devnet
 
-`leo devnet` spins up a full multi-validator snarkOS network locally. It is heavier to set up than `leo devnode` but provides a closer approximation of consensus behaviour for scenarios that require it.
+`leo devnet` starts a full multi-validator snarkOS network locally.
+It requires more resources than `leo devnode` but provides a closer approximation of consensus behavior.
 
 See the [`leo devnet` CLI reference](./../cli/devnet.md) for setup instructions and flags.
 
 ## Deploying/Executing on Testnet
 
-To deploy and execute on Testnet, you'll need to set your endpoint back to one of the public facing options. Additionally, you'll need to obtain Testnet credits — visit [**https://faucet.aleo.org/**](https://faucet.aleo.org/) to request them.
+To deploy and execute on Testnet, you will need to set your endpoint back to one of the public facing options. Additionally, you will need to obtain Testnet credits — visit [**https://faucet.aleo.org/**](https://faucet.aleo.org/) to request them.
 
 ## Other Tools
 

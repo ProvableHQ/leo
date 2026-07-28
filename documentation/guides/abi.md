@@ -8,11 +8,13 @@ sidebar_label: ABI Generation
 
 ## Overview
 
-The Leo compiler generates an **Application Binary Interface (ABI)** alongside compiled bytecode. The ABI is a JSON file that describes the public interface of your program, enabling downstream tooling to interact with deployed programs without needing access to the original source code.
+The Leo compiler generates an **Application Binary Interface (ABI)** with compiled bytecode.
+The ABI is a JSON file that describes the public program interface.
+Tools can use it to interact with deployed programs without the original source code.
 
 **Use cases:**
 
-- SDK generation (Rust, TypeScript, etc.)
+- SDK generation for Rust, TypeScript, and other languages
 - Type-safe transaction construction
 - Program introspection and documentation
 - Tooling integration (explorers, wallets, IDEs)
@@ -46,7 +48,10 @@ ABI generation is automatic on every build - no flags required.
 
 ## Generating ABIs from Compiled Bytecode
 
-The standalone [`leo abi`](../cli/abi.md) command generates an ABI JSON document from any `.aleo` file — useful when you have a deployed program's bytecode but not its source. The same code path is exposed as a WebAssembly binding through the `leo-aleo-abi-wasm` crate, so browser tooling (wallets, explorers) can produce ABIs from bytecode without shelling out to the CLI.
+The standalone [`leo abi`](../cli/abi.md) command generates an ABI JSON document from an `.aleo` file.
+Use it when you have deployed program bytecode but not its source.
+The `leo-aleo-abi-wasm` crate provides the same operation as a WebAssembly binding.
+Thus, browser tools such as wallets and explorers can produce ABIs from bytecode without the CLI.
 
 ## ABI Format
 
@@ -64,15 +69,15 @@ The ABI is a JSON object with the following top-level structure:
 }
 ```
 
-| Field               | Description                                                              |
-| ------------------- | ------------------------------------------------------------------------ |
-| `program`           | Program identifier (e.g., `"token.aleo"`)                                |
-| `structs`           | Struct type definitions used in the public interface                     |
-| `records`           | Record type definitions                                                  |
-| `mappings`          | On-chain key-value storage declarations                                  |
-| `storage_variables` | Storage variable declarations                                            |
-| `functions`         | Public entry points (entry `fn` declarations, not helper functions)      |
-| `views`             | Read-only `view fn` entry points; same shape as `functions`              |
+| Field               | Description                                                         |
+| ------------------- | ------------------------------------------------------------------- |
+| `program`           | Program identifier (for example, `"token.aleo"`)                    |
+| `structs`           | Struct type definitions used in the public interface                |
+| `records`           | Record type definitions                                             |
+| `mappings`          | On-chain key-value storage declarations                             |
+| `storage_variables` | Storage variable declarations                                       |
+| `functions`         | Public entry points (entry `fn` declarations, not helper functions) |
+| `views`             | Read-only `view fn` entry points. Same shape as `functions`         |
 
 :::info
 The ABI only includes types that are referenced by the public interface. Internal helper structs not used in entry functions, mappings, or storage are automatically pruned.
@@ -196,9 +201,9 @@ Records are similar to structs but include a visibility mode for each field:
 - `"Private"` - Encrypted, visible only to owner
 - `"Public"` - Visible on-chain
 
-The ABI always records a concrete mode. Source items written without an explicit visibility are
-resolved the same way code generation lowers them (an unannotated record field becomes `Private`),
-so there is no `"None"` mode in the ABI.
+The ABI always records a concrete mode.
+Code generation determines the mode for source items without explicit visibility.
+For example, an unannotated record field becomes `Private`. Thus, the ABI does not have a `"None"` mode.
 
 ### Optional
 
@@ -270,7 +275,7 @@ Entry functions define the public entry points:
 ```
 
 Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility
-mode. A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`; a record is
+mode. A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`. A record is
 `{ "Record": { "path": [...], "program": "..." } }`.
 
 **Input types:**
@@ -425,7 +430,7 @@ When constructing transactions, tuple inputs/outputs become separate arguments i
 
 ## Example: Token Program
 
-Here's a complete example showing a Leo program and its generated ABI.
+Here is a complete example showing a Leo program and its generated ABI.
 
 **Leo source (`token.leo`):**
 

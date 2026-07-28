@@ -76,7 +76,7 @@ Do not use this feature unless you know what you are doing!
 
 ### `--skip-deploy-certificate`
 
-Skips deployment certificate generation, using placeholder certificate and verifying keys. Intended for testing; bumps the program edition by one and is not valid for production use.
+Skips deployment certificate generation, using placeholder certificate and verifying keys. Intended for testing. Bumps the program edition by one and is not valid for production use.
 
 ### `--priority-fees <PRIORITY_FEES>`
 
@@ -96,7 +96,7 @@ Specifies the record(s) to pay for fees privately, delimited by `|` and used in 
 
 Specifies the consensus heights to use, delimited by `,`. This should only be set if you are using a custom devnet.
 
-The following will enable Consensus_V0 at block 0, Consensus_V1 at block 1, etc.:
+The following settings enable each consensus version at its corresponding block:
 
 ```bash
 --consensus-heights 0,1,2,3....
