@@ -14,7 +14,6 @@ Use this page to select the applicable documentation section.
 
 - If you design a dApp, use **Leo By Example** as a reference.
 
-- For tutorials, use [**Guides**](./guides/overview.md) and
-  [**Core Aleo Concepts**](https://docs.aleo.org/learn/core-concepts/public-and-private-state).
+- For tutorials, use [**Guides**](./guides/overview.md) and [**Core Aleo Concepts**](https://docs.aleo.org/learn/core-concepts/public-and-private-state).
 
 - To deploy or run programs, use the [**CLI**](./cli/overview.md) reference.

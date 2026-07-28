@@ -183,8 +183,7 @@ A second program imports `logger.aleo` and reads its storage variables through t
 ```
 
 :::note
-Dynamic mapping reads are a type-checked alternative to the
-[`_dynamic_get`, `_dynamic_contains`, and `_dynamic_get_or_use`](./intrinsics.md) intrinsics.
+Dynamic mapping reads are a type-checked alternative to the [`_dynamic_get`, `_dynamic_contains`, and `_dynamic_get_or_use`](./intrinsics.md) intrinsics.
 The interface form verifies that the named mapping exists. It also verifies the key, value, and default types.
 The intrinsics accept arbitrary runtime identifiers, so the caller must do these checks.
 Use the interface form when an interface is available.

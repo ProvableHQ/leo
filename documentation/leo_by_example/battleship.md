@@ -45,8 +45,7 @@ In Battleship, two players put ships in secret positions on separate 8x8 grids.
 The players then take turns to fire at the other player's board.
 The game ends when one player has sunk all of the other player's ships.
 
-This application is a Leo translation of the Aleo community's
-[zk-battleship](https://github.com/demox-labs/zk-battleship) example.
+This application is a Leo translation of the Aleo community's [zk-battleship](https://github.com/demox-labs/zk-battleship) example.
 
 ## How to Run
 
@@ -695,8 +694,8 @@ If a ship is valid vertically or horizontally, then we know the ship is valid. W
 
 ### Bit Counting
 
-See the `c_bitcount` closure in the code. The MIT AI Laboratory published
-[HAKMEM](https://www.jjj.de/hakmem/hakmem.html), a collection of methods for fast bitwise operations.
+See the `c_bitcount` closure in the code.
+The MIT AI Laboratory published [HAKMEM](https://www.jjj.de/hakmem/hakmem.html), a collection of methods for fast bitwise operations.
 HAKMEM 169 is the basis for this bit-count method. The implementation uses a modified form that is easier to understand.
 
 Let a,b,c,d be either 0 or 1. Given a polynomial 8a + 4b + 2c + d, how do we find the summation of a + b + c + d? If we subtract subsets of this polynomial, we will be left with the summation.

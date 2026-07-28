@@ -274,9 +274,9 @@ Entry functions define the public entry points:
 }
 ```
 
-Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility
-mode. A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`. A record is
-`{ "Record": { "path": [...], "program": "..." } }`.
+Inputs and outputs do not carry parameter names — only the type and, for plaintext, the visibility mode.
+A plaintext input/output is `{ "Plaintext": { "ty": ..., "mode": ... } }`.
+A record is `{ "Record": { "path": [...], "program": "..." } }`.
 
 **Input types:**
 

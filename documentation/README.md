@@ -8,8 +8,8 @@ The `.leo` source uses `// ANCHOR: <name>` and `// ANCHOR_END: <name>` comments 
 
 ## Writing standard
 
-Use [ASD-STE100 Simplified Technical English, Issue 9](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf)
-for all authored prose in this directory. Use the official standard as the primary reference.
+Use [ASD-STE100 Simplified Technical English, Issue 9](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf) for all authored prose in this directory.
+Use the official standard as the primary reference.
 
 Do not change code, commands, identifiers, literal output, or error messages to comply with the writing standard.
 These items must remain technically correct.
