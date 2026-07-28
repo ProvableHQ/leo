@@ -16,7 +16,7 @@
 
 use crate::TypeKind;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A vector type.

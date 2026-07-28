@@ -17,7 +17,7 @@
 use crate::TypeKind;
 
 use itertools::Itertools as _;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A type list of at least two types.

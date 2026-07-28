@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use core::fmt;
-use serde::{Serialize};
+use serde::Serialize;
 
 /// The mode associated with a type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]

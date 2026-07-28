@@ -16,7 +16,7 @@
 
 use leo_errors::LeoError;
 
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::{CanaryV0, MainnetV0, Network, TestnetV0};
 use std::{fmt, str::FromStr};
 

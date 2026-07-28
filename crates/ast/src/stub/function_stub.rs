@@ -42,7 +42,7 @@ fn stub_type(kind: TypeKind) -> TypeNode {
 }
 
 use itertools::Itertools;
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::{
     console::program::RegisterType,
     prelude::{FinalizeType, Network, ValueType},

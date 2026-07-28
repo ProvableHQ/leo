@@ -24,7 +24,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-use serde::{Serialize};
+use serde::Serialize;
 
 /// An identifier in a program.
 ///

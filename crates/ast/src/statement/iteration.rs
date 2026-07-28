@@ -18,7 +18,7 @@ use crate::{Block, Expression, Identifier, Indent, Node, NodeID, Statement, Type
 
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A bounded `for` loop statement `for variable in start .. =? stop block`.

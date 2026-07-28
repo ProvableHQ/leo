@@ -16,7 +16,7 @@
 
 use leo_span::{Symbol, sym};
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Explicit integer type.

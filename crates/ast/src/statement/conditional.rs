@@ -17,7 +17,7 @@
 use crate::{Block, Expression, Indent, Node, NodeID, Statement};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An `if condition block (else next)?` statement.

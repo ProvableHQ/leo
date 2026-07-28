@@ -17,7 +17,7 @@
 use crate::{Expression, Node, NodeID};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An array access expression, e.g., `foo[index]`.

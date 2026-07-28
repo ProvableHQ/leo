@@ -17,7 +17,7 @@
 use crate::{Identifier, Node, NodeID, TypeNode};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A const parameter for a function or a composite.

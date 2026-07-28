@@ -16,7 +16,7 @@
 
 use crate::{Location, TypeKind};
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A future type consisting of the type of the inputs.

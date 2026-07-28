@@ -18,7 +18,7 @@ use crate::{Expression, Node, NodeID, Statement};
 
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A return statement `return expression;`.

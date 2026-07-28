@@ -45,7 +45,7 @@ use crate::{Expression, Node, NodeID};
 
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Program statement that defines some action (or expression) to be carried out.

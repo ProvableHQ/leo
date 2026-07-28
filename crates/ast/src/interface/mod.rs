@@ -16,7 +16,7 @@
 
 use crate::{Identifier, Node, NodeID, TypeKind, indent_display::Indent};
 use leo_span::{Span, Symbol};
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 pub use prototypes::{FunctionPrototype, MappingPrototype, RecordPrototype, StorageVariablePrototype};

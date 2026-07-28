@@ -17,7 +17,7 @@
 use crate::{Block, Expression, Indent, Node, NodeID};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An `async` block: e.g. `async { my_mapping.set(1, 2); }`.

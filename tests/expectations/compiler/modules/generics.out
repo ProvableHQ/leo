@@ -1,5 +1,11 @@
 program multifile.aleo;
 
+struct Baz__IS0I3ciAuv5:
+    x as u32;
+
+struct QQ:
+    y as Baz__IS0I3ciAuv5;
+
 struct Foo__DEaGXd8fTqV:
     a as [u32; 6u32];
 

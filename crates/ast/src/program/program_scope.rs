@@ -30,7 +30,7 @@ use crate::{
 };
 
 use leo_span::{Span, Symbol};
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Stores the Leo program scope abstract syntax tree.

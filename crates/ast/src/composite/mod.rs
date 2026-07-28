@@ -21,7 +21,7 @@ use crate::{ConstParameter, Identifier, Indent, Mode, Node, NodeID, ProgramId, T
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 use snarkvm::{

@@ -36,7 +36,7 @@ use crate::{Block, ConstParameter, FunctionStub, Identifier, Indent, Node, NodeI
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools as _;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A function definition.
@@ -121,6 +121,11 @@ impl Function {
     /// Returns `true` if any output of the function is a `Final`
     pub fn has_final_output(&self) -> bool {
         self.output.iter().any(|o| matches!(o.type_.kind(), TypeKind::Future(_)))
+    }
+
+    /// Returns `true` if the function carries an `@test` annotation.
+    pub fn is_test(&self) -> bool {
+        self.annotations.iter().any(|a| a.identifier.name == leo_span::sym::test)
     }
 }
 

@@ -755,15 +755,20 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
                 .iter()
                 .map(|input| {
                     match &input.type_.kind() {
-                        TypeKind::Future(f) => {
-                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                            TypeKind::Future(FutureType::new(
-                                finalize_input_map.get(f.location.as_ref().unwrap()).unwrap().clone(),
-                                f.location.clone(),
-                                true,
-                            ))
-                        }
-                        _ => input.type_.kind().clone(),
+                        TypeKind::Future(f) => match &f.location {
+                            Some(location) => {
+                                // Since we traverse stubs in post-order, the corresponding finalize stub has already
+                                // been traversed.
+                                TypeKind::Future(FutureType::new(
+                                    finalize_input_map.get(location).unwrap().clone(),
+                                    f.location.clone(),
+                                    true,
+                                ))
+                            }
+                            // Dynamic futures do not identify a concrete callee, so their inputs cannot be resolved.
+                            None => input.type_.kind().clone(),
+                        },
+                        _ => input.clone().type_.kind().clone(),
                     }
                 })
                 .collect();

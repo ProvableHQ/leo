@@ -18,7 +18,7 @@ use crate::{Expression, IntegerType, Literal, LiteralVariant, ProgramId, TypeKin
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
 use leo_span::Span;
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::Network;
 use std::fmt;
 

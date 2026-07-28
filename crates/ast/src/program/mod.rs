@@ -23,7 +23,7 @@ use leo_span::Symbol;
 
 use crate::{Module, ProgramId, Stub};
 use indexmap::IndexMap;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 /// Stores the Leo program abstract syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]

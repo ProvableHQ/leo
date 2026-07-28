@@ -16,7 +16,7 @@
 
 use crate::{Expression, Path, TypeKind};
 use itertools::Itertools as _;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A composite type of a identifier and external program name.

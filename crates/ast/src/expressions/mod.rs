@@ -17,7 +17,7 @@
 use crate::{Identifier, IntegerType, Intrinsic, Location, Mode, Node, NodeBuilder, NodeID, Path, TypeKind};
 use leo_span::{Span, Symbol, sym};
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 mod array_access;

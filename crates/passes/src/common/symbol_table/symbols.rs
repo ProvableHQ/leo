@@ -16,7 +16,7 @@
 
 use std::fmt::Display;
 
-use serde::{Serialize};
+use serde::Serialize;
 
 use leo_ast::{Function, Location, Mode, TypeKind};
 use leo_span::Span;
@@ -75,6 +75,8 @@ impl Display for VariableSymbol {
 pub struct FunctionSymbol {
     pub function: Function,
     pub finalizer: Option<Finalizer>,
+    /// True if this came from an external program stub, whose body is not visible as Leo AST.
+    pub is_stub: bool,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq)]

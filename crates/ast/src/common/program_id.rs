@@ -18,7 +18,7 @@ use crate::{Identifier, NetworkName};
 
 use core::fmt;
 use leo_span::{Span, Symbol};
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::{
     console::program::ProgramID,
     prelude::{CanaryV0, MainnetV0, Network, Result, TestnetV0},

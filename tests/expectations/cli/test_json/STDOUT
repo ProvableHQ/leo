@@ -14,8 +14,10 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
 
-1 / 1 tests passed.
-PASSED: test_main.aleo/test_addition
+     Running 1 test
+        PASS test_main.leo::test_addition
+────────────────────────
+     Summary 1 test run: 1 passed, 0 failed
 
 
 ➕ Adding programs to the VM in the following order:

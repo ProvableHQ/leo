@@ -185,7 +185,7 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
     fn visit_function(&mut self, input: &Function) {
         let full_name = self.module.iter().cloned().chain(std::iter::once(input.name())).collect::<Vec<Symbol>>();
         let loc = Location::new(self.unit_name, full_name);
-        if let Err(err) = self.state.symbol_table.insert_function(loc, input.clone()) {
+        if let Err(err) = self.state.symbol_table.insert_function(loc, input.clone(), false) {
             self.state.handler.emit_err(err);
         }
     }
@@ -224,7 +224,8 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
         // Construct the location for the function.
         let location = Location::new(self.unit_name, vec![input.name()]);
         // Initialize the function symbol.
-        if let Err(err) = self.state.symbol_table.insert_function(location.clone(), Function::from(input.clone())) {
+        if let Err(err) = self.state.symbol_table.insert_function(location.clone(), Function::from(input.clone()), true)
+        {
             self.state.handler.emit_err(err);
         }
 

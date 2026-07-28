@@ -18,7 +18,7 @@ use crate::{Identifier, Node, NodeID, ProgramId, TypeKind};
 
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::{Mapping as MappingCore, Network};
 use std::fmt;
 

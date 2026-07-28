@@ -18,7 +18,7 @@ use crate::{Annotation, Block, Indent, IntegerType, Location, NetworkName, Node,
 use leo_span::{Span, sym};
 
 use anyhow::{anyhow, bail};
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::{Address, Literal, Locator, Network};
 use std::{fmt, str::FromStr};
 

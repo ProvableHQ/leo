@@ -17,7 +17,7 @@
 use crate::{Indent, Node, NodeID, Statement};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A block `{ [stmt]* }` consisting of a list of statements to execute in order.

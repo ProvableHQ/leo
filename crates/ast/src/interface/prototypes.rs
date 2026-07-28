@@ -33,7 +33,7 @@ use crate::{
 };
 use itertools::Itertools;
 use leo_span::Span;
-use serde::{Serialize};
+use serde::Serialize;
 
 /// A mapping prototype in an interface, e.g. `mapping balances: address => u128;`.
 #[derive(Clone, Default, Debug, Serialize)]

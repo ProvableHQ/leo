@@ -33,7 +33,7 @@ use crate::{
 
 use itertools::Itertools;
 use leo_span::Span;
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::{
     LiteralType,
     Network,

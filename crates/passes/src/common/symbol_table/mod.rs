@@ -502,10 +502,11 @@ impl SymbolTable {
         Ok(())
     }
 
-    /// Insert a function at this location.
-    pub fn insert_function(&mut self, location: Location, function: Function) -> Result<()> {
+    /// Insert a function at this location. `is_stub` marks functions whose
+    /// body comes from an external program stub rather than local Leo source.
+    pub fn insert_function(&mut self, location: Location, function: Function, is_stub: bool) -> Result<()> {
         self.check_shadow_global(&location, function.identifier.span)?;
-        self.functions.insert(location, FunctionSymbol { function, finalizer: None });
+        self.functions.insert(location, FunctionSymbol { function, finalizer: None, is_stub });
         Ok(())
     }
 

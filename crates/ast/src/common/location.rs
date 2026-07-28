@@ -17,7 +17,7 @@ use crate::ProgramId;
 
 use itertools::Itertools;
 use leo_span::{Symbol, sym};
-use serde::{Serialize};
+use serde::Serialize;
 use snarkvm::prelude::{Locator, Network};
 use std::fmt::Display;
 

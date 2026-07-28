@@ -17,7 +17,7 @@
 use crate::{Expression, Node, NodeID, NonNegativeNumber};
 use leo_span::Span;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A tuple access expression, e.g., `tuple.index`.

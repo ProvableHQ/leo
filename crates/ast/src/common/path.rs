@@ -39,7 +39,7 @@ impl Canonicalize for Path {
 
 use indexmap::IndexSet;
 use itertools::Itertools;
-use serde::{Serialize};
+use serde::Serialize;
 use std::{fmt, hash::Hash};
 
 /// A Path in a program.

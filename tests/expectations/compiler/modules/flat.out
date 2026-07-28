@@ -6,6 +6,10 @@ struct Data__L3bYhFC4bsQ:
 struct Data__4KOghWdEoSH:
     values as [u32; 4u32];
 
+struct Merge:
+    a as Data__L3bYhFC4bsQ;
+    b as Data__4KOghWdEoSH;
+
 function main:
     cast 10u32 20u32 30u32 into r0 as [u32; 3u32];
     cast r0 into r1 as Data__L3bYhFC4bsQ;

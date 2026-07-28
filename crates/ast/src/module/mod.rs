@@ -32,7 +32,7 @@ use leo_span::Symbol;
 use std::fmt;
 
 use itertools::Itertools;
-use serde::{Serialize};
+use serde::Serialize;
 
 /// Stores the abstract syntax tree of a Leo module.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]

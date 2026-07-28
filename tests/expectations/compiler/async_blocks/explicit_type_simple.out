@@ -1,12 +1,3 @@
-[WCEI03713000] Warning: an `assert` runs after an interaction (`Final.run()`)
-    ╭─[ compiler-test:10:13 ]
-    │
- 10 │             assert_eq(a, c);
-    │ 
-    │ Help: Move this check above the `.run()` call to avoid reentrancy issues.
-    │ 
-    │ Note: Under the Checks-Effects-Interactions pattern, all checks (reads, asserts) must precede any `.run()` calls in the same execution path.
-────╯
 program test.aleo;
 
 mapping foo:

@@ -19,7 +19,7 @@ use crate::{Expression, Identifier, Node, NodeID, Statement, TypeKind, TypeNode}
 use leo_span::Span;
 
 use itertools::Itertools as _;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A `let` or `const` declaration statement.

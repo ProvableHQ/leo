@@ -63,12 +63,22 @@ use snarkvm::{
     synthesizer::program::{FinalizeStoreTrait, ProgramCore, StackTrait},
 };
 use std::{
+    cell::Cell,
     fmt,
     panic::{AssertUnwindSafe, catch_unwind},
     str::FromStr as _,
 };
 
 type CurrentNetwork = TestnetV0;
+
+thread_local! {
+    static HALT_EXPECTED: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Returns whether a caught program halt is expected on this thread.
+pub fn halt_expected() -> bool {
+    HALT_EXPECTED.with(Cell::get)
+}
 
 /// Programs and configuration to run.
 #[derive(Debug)]
@@ -526,8 +536,12 @@ fn failed_evaluation_outcome(case: &Case, e: String) -> EvaluationOutcome {
     }
 }
 
-/// Run the functions indicated by `cases` from the programs in `config`.
-pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<Vec<ExecutionOutcome>>> {
+/// Runs each case set on its own ledger and reports each set's outcomes in input order.
+pub fn run_with_ledger(
+    config: &Config,
+    case_sets: &[Vec<Case>],
+    mut on_case_set_done: impl FnMut(usize, &[ExecutionOutcome]),
+) -> Result<Vec<Vec<ExecutionOutcome>>> {
     if case_sets.is_empty() {
         return Ok(Vec::new());
     }
@@ -617,34 +631,29 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
         }
     }
 
-    // Initialize ledger instances for each case set.
-    let mut indexed_ledgers = vec![(0, ledger)];
-    indexed_ledgers.extend(
-        (1..case_sets.len())
-            .map(|i| {
-                // Initialize a `Ledger`. This should always succeed.
-                // Use `new_test` to avoid spurious block-tree persistence errors on drop.
-                let l = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
+    // Build each pristine post-deploy ledger only when its case set is ready to run.
+    let mut original_ledger = Some(ledger);
+    case_sets
+        .iter()
+        .enumerate()
+        .map(|(index, cases)| {
+            // Ledger 0 is the original (it already holds the deploys); later sets get a fresh
+            // copy with the setup blocks replayed in.
+            // Use `new_test` to avoid spurious block-tree persistence errors on drop.
+            let ledger = if index == 0 {
+                original_ledger.take().expect("ledger 0 is built exactly once")
+            } else {
+                let ledger = Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(
                     genesis_block.clone(),
                     StorageMode::new_test(None),
                 )
                 .expect("Failed to load copy of ledger");
-                // Add the setup blocks.
-                for block in blocks.iter() {
-                    l.advance_to_next_block(block).expect("Failed to add setup block to ledger");
+                for block in &blocks {
+                    ledger.advance_to_next_block(block).expect("Failed to add setup block to ledger");
                 }
+                ledger
+            };
 
-                (i, l)
-            })
-            .collect::<Vec<_>>(),
-    );
-
-    // For each of the case sets, run the cases sequentially.
-    let results = indexed_ledgers
-        .into_iter()
-        .map(|(index, ledger)| {
-            // Get the cases for this ledger.
-            let cases = &case_sets[index];
             // Clone the RNG.
             let mut rng = rng.clone();
 
@@ -729,34 +738,37 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 let mut abort_reason: Option<String> = None;
 
                 // Halts are handled by panics, so we need to catch them.
-                // I'm not thrilled about this usage of `AssertUnwindSafe`, but it seems to be
-                // used frequently in SnarkVM anyway.
-                let execute_output = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    if skip_proving {
-                        execute_without_proof(
-                            ledger.vm(),
-                            &private_key,
-                            &case.program_name,
-                            &case.function,
-                            case.input.iter(),
-                            latest_consensus_version,
-                            &mut rng,
-                        )
-                    } else {
-                        ledger
-                            .vm()
-                            .execute_with_response(
+                let execute_output = HALT_EXPECTED.with(|expected| {
+                    let previous = expected.replace(true);
+                    let result = catch_unwind(AssertUnwindSafe(|| {
+                        if skip_proving {
+                            execute_without_proof(
+                                ledger.vm(),
                                 &private_key,
-                                (&case.program_name, &case.function),
+                                &case.program_name,
+                                &case.function,
                                 case.input.iter(),
-                                None,
-                                0,
-                                None,
+                                latest_consensus_version,
                                 &mut rng,
                             )
-                            .map_err(anyhow::Error::from)
-                    }
-                }));
+                        } else {
+                            ledger
+                                .vm()
+                                .execute_with_response(
+                                    &private_key,
+                                    (&case.program_name, &case.function),
+                                    case.input.iter(),
+                                    None,
+                                    0,
+                                    None,
+                                    &mut rng,
+                                )
+                                .map_err(anyhow::Error::from)
+                        }
+                    }));
+                    expected.set(previous);
+                    result
+                });
 
                 if let Err(payload) = execute_output {
                     let s1 = payload.downcast_ref::<&str>().map(|s| s.to_string());
@@ -835,15 +847,9 @@ pub fn run_with_ledger(config: &Config, case_sets: &[Vec<Case>]) -> Result<Vec<V
                 });
             }
 
-            Ok((index, case_outcomes))
+            on_case_set_done(index, &case_outcomes);
+
+            Ok(case_outcomes)
         })
-        .collect::<Result<Vec<_>>>()?;
-
-    // Reorder results to match input order.
-    let mut ordered_results: Vec<Vec<ExecutionOutcome>> = vec![Default::default(); case_sets.len()];
-    for (index, outcomes) in results.into_iter() {
-        ordered_results[index] = outcomes;
-    }
-
-    Ok(ordered_results)
+        .collect()
 }

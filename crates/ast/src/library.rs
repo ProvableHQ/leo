@@ -18,7 +18,7 @@ use leo_span::Symbol;
 
 use crate::{Composite, ConstDeclaration, Function, Indent, Interface, Module, Stub};
 use indexmap::IndexMap;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// Stores the Leo library abstract syntax tree.

@@ -14,13 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! The CEI analysis pass.
+//!
+//! Two independent sub-analyses share this module:
+//!
+//! - [`ordering`]: within a single finalize execution path, mutable-state
+//!   reads and writes must precede any `Final::run()` interactions.
+//! - [`cross_layer_taint`]: values produced in the proof-time transition
+//!   body from external calls may be stale by finalize time.
+
 pub(crate) mod cross_layer_taint;
-pub(crate) mod effect_summary;
-pub(crate) mod finalize_visitor;
+pub(crate) mod ordering;
 
 use crate::Pass;
-
-use effect_summary::AutomatonState;
 
 use leo_ast::UnitVisitor;
 use leo_errors::Result;
@@ -37,35 +43,19 @@ impl Pass for CeiAnalyzing {
     const NAME: &str = "CeiAnalyzing";
 
     fn do_pass(_input: Self::Input, state: &mut crate::CompilerState) -> Result<Self::Output> {
+        // Phase 1: CEI ordering (reads/writes vs. interactions in finalize).
+        ordering::run(state);
+
+        // Phase 2: Cross-layer taint (proof-time staleness reaching finalize).
         let ast = std::mem::take(&mut state.ast);
-
-        // Phase 0: Compute effect summaries bottom-up over the call graph.
-        let effect_summaries = effect_summary::compute_effect_summaries(state);
-
-        // Phase 1: Finalize-time CEI analysis.
-        let mut cei_visitor = finalize_visitor::FinalizeCeiVisitor {
-            state,
-            current_program: Symbol::intern(""),
-            effect_summaries,
-            automaton_state: AutomatonState::BeforeInteraction,
-            interaction_span: None,
-            current_variant: None,
-            in_finalize: false,
-        };
-
-        ast.visit(|program| cei_visitor.visit_program(program), |_library| {});
-
-        // Phase 2: Cross-layer taint analysis.
         let mut taint_visitor = cross_layer_taint::CrossLayerTaintVisitor {
-            state: cei_visitor.state,
+            state,
             current_program: Symbol::intern(""),
             taint_map: IndexMap::new(),
             in_transition: false,
             implicit_taint: cross_layer_taint::TaintInfo::default(),
         };
-
         ast.visit(|program| taint_visitor.visit_program(program), |_library| {});
-
         taint_visitor.state.handler.last_err()?;
         taint_visitor.state.ast = ast;
 

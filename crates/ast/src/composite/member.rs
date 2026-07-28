@@ -18,7 +18,7 @@ use crate::{Identifier, Mode, Node, NodeID, TypeNode};
 
 use leo_span::{Span, Symbol};
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// A member of a composite data type, e.g `foobar: u8` or `private baz: bool` .

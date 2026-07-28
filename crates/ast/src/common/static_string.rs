@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, Serialize)]

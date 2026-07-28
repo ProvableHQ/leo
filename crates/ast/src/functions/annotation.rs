@@ -19,7 +19,7 @@ use crate::{Identifier, Node, NodeID, simple_node_impl};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An annotation, e.g. @program.

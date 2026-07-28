@@ -22,7 +22,7 @@ pub use function_stub::*;
 use crate::{Composite, ConstDeclaration, Identifier, Indent, Library, Mapping, NodeID, Program, ProgramId};
 use indexmap::{IndexMap, IndexSet};
 use leo_span::{Span, Symbol};
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]

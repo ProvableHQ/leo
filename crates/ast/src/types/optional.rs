@@ -16,7 +16,7 @@
 
 use crate::TypeKind;
 
-use serde::{Serialize};
+use serde::Serialize;
 use std::fmt;
 
 /// An optional type. For example `u32?` where `inner` refers to `u32`.
