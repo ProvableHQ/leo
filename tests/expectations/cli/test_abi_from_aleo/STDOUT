@@ -37,7 +37,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "Public"
+          "mode": "Private"
         },
         {
           "name": "amount",
@@ -46,155 +46,22 @@
               "UInt": "U64"
             }
           },
-          "mode": "Private"
-        }
-      ]
-    }
-  ],
-  "mappings": [
-    {
-      "name": "balances",
-      "key": {
-        "Primitive": "Address"
-      },
-      "value": {
-        "Primitive": {
-          "UInt": "U64"
-        }
-      }
-    }
-  ],
-  "storage_variables": [],
-  "functions": [
-    {
-      "name": "add_numbers",
-      "inputs": [
-        {
-          "Plaintext": {
-            "ty": {
-              "Primitive": {
-                "UInt": "U32"
-              }
-            },
-            "mode": "Private"
-          }
+          "mode": "Public"
         },
         {
-          "Plaintext": {
-            "ty": {
-              "Primitive": {
-                "UInt": "U32"
-              }
-            },
-            "mode": "Private"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "Plaintext": {
-            "ty": {
-              "Primitive": {
-                "UInt": "U32"
-              }
-            },
-            "mode": "Private"
-          }
+          "name": "tag",
+          "ty": {
+            "Primitive": {
+              "UInt": "U8"
+            }
+          },
+          "mode": "Constant"
         }
       ]
     },
     {
-      "name": "get_point",
-      "inputs": [
-        {
-          "Plaintext": {
-            "ty": {
-              "Struct": {
-                "path": [
-                  "Point"
-                ],
-                "program": "simple.aleo"
-              }
-            },
-            "mode": "Private"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "Plaintext": {
-            "ty": {
-              "Struct": {
-                "path": [
-                  "Point"
-                ],
-                "program": "simple.aleo"
-              }
-            },
-            "mode": "Private"
-          }
-        }
-      ]
-    },
-    {
-      "name": "get_token",
-      "inputs": [
-        {
-          "Record": {
-            "path": [
-              "Token"
-            ],
-            "program": "simple.aleo"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "Record": {
-            "path": [
-              "Token"
-            ],
-            "program": "simple.aleo"
-          }
-        }
-      ]
-    }
-  ]
-}
-
-=== simple.aleo with --output ===
-       Leo ABI written to 'simple_out/simple.aleo.abi.json'.
-{
-  "program": "simple.aleo",
-  "structs": [
-    {
       "path": [
-        "Point"
-      ],
-      "fields": [
-        {
-          "name": "x",
-          "ty": {
-            "Primitive": {
-              "Int": "I32"
-            }
-          }
-        },
-        {
-          "name": "y",
-          "ty": {
-            "Primitive": {
-              "Int": "I32"
-            }
-          }
-        }
-      ]
-    }
-  ],
-  "records": [
-    {
-      "path": [
-        "Token"
+        "PublicToken"
       ],
       "fields": [
         {
@@ -318,6 +185,249 @@
           "Record": {
             "path": [
               "Token"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_public_token",
+      "inputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+=== simple.aleo with --output ===
+       Leo ABI written to 'simple_out/simple.aleo.abi.json'.
+{
+  "program": "simple.aleo",
+  "structs": [
+    {
+      "path": [
+        "Point"
+      ],
+      "fields": [
+        {
+          "name": "x",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        },
+        {
+          "name": "y",
+          "ty": {
+            "Primitive": {
+              "Int": "I32"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "path": [
+        "Token"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
+          "mode": "Private"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "tag",
+          "ty": {
+            "Primitive": {
+              "UInt": "U8"
+            }
+          },
+          "mode": "Constant"
+        }
+      ]
+    },
+    {
+      "path": [
+        "PublicToken"
+      ],
+      "fields": [
+        {
+          "name": "owner",
+          "ty": {
+            "Primitive": "Address"
+          },
+          "mode": "Public"
+        },
+        {
+          "name": "amount",
+          "ty": {
+            "Primitive": {
+              "UInt": "U64"
+            }
+          },
+          "mode": "Private"
+        }
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "name": "balances",
+      "key": {
+        "Primitive": "Address"
+      },
+      "value": {
+        "Primitive": {
+          "UInt": "U64"
+        }
+      }
+    }
+  ],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "add_numbers",
+      "inputs": [
+        {
+          "Plaintext": {
+            "ty": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            },
+            "mode": "Private"
+          }
+        },
+        {
+          "Plaintext": {
+            "ty": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            },
+            "mode": "Private"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Plaintext": {
+            "ty": {
+              "Primitive": {
+                "UInt": "U32"
+              }
+            },
+            "mode": "Private"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_point",
+      "inputs": [
+        {
+          "Plaintext": {
+            "ty": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "simple.aleo"
+              }
+            },
+            "mode": "Private"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Plaintext": {
+            "ty": {
+              "Struct": {
+                "path": [
+                  "Point"
+                ],
+                "program": "simple.aleo"
+              }
+            },
+            "mode": "Private"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_token",
+      "inputs": [
+        {
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Record": {
+            "path": [
+              "Token"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ]
+    },
+    {
+      "name": "get_public_token",
+      "inputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
+            ],
+            "program": "simple.aleo"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "Record": {
+            "path": [
+              "PublicToken"
             ],
             "program": "simple.aleo"
           }
@@ -511,7 +621,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "Public"
+          "mode": "Private"
         },
         {
           "name": "amount",
@@ -520,7 +630,7 @@
               "UInt": "U64"
             }
           },
-          "mode": "Private"
+          "mode": "Public"
         },
         {
           "name": "data",

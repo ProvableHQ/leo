@@ -36,7 +36,7 @@
           "ty": {
             "Primitive": "Address"
           },
-          "mode": "Public"
+          "mode": "Private"
         },
         {
           "name": "amount",

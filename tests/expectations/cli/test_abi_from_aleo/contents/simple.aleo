@@ -7,6 +7,11 @@ struct Point:
 record Token:
     owner as address.private;
     amount as u64.public;
+    tag as u8.constant;
+
+record PublicToken:
+    owner as address.public;
+    amount as u64.private;
 
 mapping balances:
     key as address.public;
@@ -25,3 +30,7 @@ function get_point:
 function get_token:
     input r0 as Token.record;
     output r0 as Token.record;
+
+function get_public_token:
+    input r0 as PublicToken.record;
+    output r0 as PublicToken.record;
