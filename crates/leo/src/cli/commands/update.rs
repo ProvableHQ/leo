@@ -23,8 +23,8 @@ pub struct LeoUpdate {
     /// Lists all available versions of Leo
     #[clap(short = 'l', long, help = "List all available releases.")]
     list: bool,
-    /// Update to a specific named release
-    #[clap(short = 'n', long, help = "An optional release name.")]
+    /// Update to a specific released version
+    #[clap(short = 'n', long, help = concat!("An optional release version, e.g. `", env!("CARGO_PKG_VERSION"), "`."))]
     name: Option<String>,
     /// Suppress outputs to terminal
     #[clap(short = 'q', long, help = "Suppress download logs.")]
@@ -54,10 +54,13 @@ impl Command for LeoUpdate {
             },
             false => {
                 let show_output = !self.quiet;
-                let result = Updater::update(show_output, self.name.clone());
+                // Fetch the release list once; version resolution and the plugin updates share it.
+                let result = Updater::fetch_releases().and_then(|releases| {
+                    Updater::update(show_output, self.name.clone(), &releases).map(|status| (status, releases))
+                });
                 if show_output {
                     match &result {
-                        Ok(status) => {
+                        Ok((status, _)) => {
                             if status.uptodate() {
                                 tracing::info!("\nLeo is already on the latest version")
                             } else if status.updated() {
@@ -67,8 +70,8 @@ impl Command for LeoUpdate {
                         Err(e) => tracing::info!("\nFailed to update Leo to the latest version\n{e}\n"),
                     }
                 }
-                if result.is_ok() {
-                    Updater::update_bundled_plugins(show_output, self.name.as_deref());
+                if let Ok((_, releases)) = &result {
+                    Updater::update_bundled_plugins(show_output, self.name.as_deref(), releases);
                 }
             }
         }

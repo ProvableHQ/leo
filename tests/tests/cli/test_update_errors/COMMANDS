@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# `leo update` error paths: empty release list, missing API endpoint, unknown
+# `--name` version, and missing plugin releases or archives.
+
+. "$LEO_CLI_TESTS_DIR/update_mock.sh"
+
+echo "--- empty release list ---" | tee /dev/stderr
+write_release_list
+fresh_leo
+run_leo update -l
+run_leo update
+
+echo "--- unknown --name version ---" | tee /dev/stderr
+run_leo update -n 77.0.0
+
+echo "--- missing releases endpoint (404) ---" | tee /dev/stderr
+rm "$API/releases.json"
+run_leo update -l
+run_leo update
+run_leo update -n 77.0.0
+
+echo "--- plugin release missing ---" | tee /dev/stderr
+reset_releases
+add_release "leo-lang-v99.1.0" "leo" "fake leo v99.1.0"
+add_release "leo-lsp-v99.1.0" "leo-lsp" "fake leo-lsp v99.1.0"
+write_release_list
+fresh_leo
+run_leo update
+"$WORK/leo"
+"$WORK/leo-lsp"
+
+echo "--- plugin archive missing (404) ---" | tee /dev/stderr
+reset_releases
+add_release "leo-lang-v99.2.0" "leo" "fake leo v99.2.0"
+add_release "leo-fmt-v99.2.0" "leo-fmt" "fake leo-fmt v99.2.0"
+add_release "leo-lsp-v99.2.0" "leo-lsp" "fake leo-lsp v99.2.0"
+write_release_list
+rm "$DOWNLOADS/leo-fmt-v99.2.0/leo-fmt-v99.2.0-$TARGET.zip"
+fresh_leo
+run_leo update
+"$WORK/leo"
+"$WORK/leo-lsp"

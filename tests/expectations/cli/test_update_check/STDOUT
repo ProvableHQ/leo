@@ -1,0 +1,41 @@
+--- fresh check finds a newer version and prints the banner ---
+
+🟢 A new version is available! Run `leo update` to update to v99.1.0.
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v99.1.0
+
+--- cached result still prints the banner without refetching ---
+
+🟢 A new version is available! Run `leo update` to update to v99.1.0.
+       Leo Failed to list the available versions of Leo
+Error [ECLI0377003]: could not fetch Leo release versions: ReqwestError: error decoding response body for url (http://localhost:3030/repos/ProvableHQ/leo/releases/?per_page=100)
+     |
+     = Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.
+
+--- cached newer version ---
+99.1.0
+--- --disable-update-check suppresses the banner ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v99.1.0
+
+--- no banner when up to date ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v0.1.0
+
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v0.1.0
+
+--- cached current version ---
+vCURRENT

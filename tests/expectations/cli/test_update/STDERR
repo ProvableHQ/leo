@@ -1,0 +1,6 @@
+--- up to date; missing plugins are installed ---
+--- up to date; installed plugins are skipped ---
+--- newer release; leo and plugins are updated ---
+--- --quiet update prints nothing ---
+--- -q up-to-date prints nothing ---
+--- stale plugin binary is repaired ---

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# The daily update check: a newer release produces the `leo update` banner, the result
+# is cached in `$HOME/.aleo/leo`, and `--disable-update-check` suppresses the check.
+
+. "$LEO_CLI_TESTS_DIR/update_mock.sh"
+
+add_release "leo-lang-v99.1.0" "leo" "fake leo v99.1.0"
+write_release_list
+
+fresh_leo
+
+echo "--- fresh check finds a newer version and prints the banner ---" | tee /dev/stderr
+run_leo_with_update_check update -l
+
+echo "--- cached result still prints the banner without refetching ---" | tee /dev/stderr
+# Remove the list endpoint to prove the banner comes from the cache; only the
+# subsequent `--list` fetch fails.
+rm "$API/releases.json"
+run_leo_with_update_check update -l
+
+echo "--- cached newer version ---" | tee /dev/stderr
+cat "$HOME/.aleo/leo/leo_cache_latest_version"
+echo
+
+echo "--- --disable-update-check suppresses the banner ---" | tee /dev/stderr
+write_release_list
+run_leo update -l
+
+echo "--- no banner when up to date ---" | tee /dev/stderr
+export HOME="$WORK/home2"
+mkdir -p "$HOME"
+reset_releases
+add_release "leo-lang-v0.1.0" "leo" "fake leo v0.1.0"
+write_release_list
+run_leo_with_update_check update -l
+run_leo_with_update_check update -l
+
+echo "--- cached current version ---" | tee /dev/stderr
+cat "$HOME/.aleo/leo/leo_cache_latest_version"
+echo

@@ -1,0 +1,6 @@
+--- fresh check finds a newer version and prints the banner ---
+--- cached result still prints the banner without refetching ---
+--- cached newer version ---
+--- --disable-update-check suppresses the banner ---
+--- no banner when up to date ---
+--- cached current version ---

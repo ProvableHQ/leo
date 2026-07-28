@@ -1,0 +1,10 @@
+--- empty release list ---
+--- unknown --name version ---
+--- missing releases endpoint (404) ---
+--- plugin release missing ---
+       Leo Failed to update bundled plugin 'leo-fmt': Error [ECLI0377045]: could not find a `leo-fmt` release for this platform
+
+--- plugin archive missing (404) ---
+       Leo Failed to update bundled plugin 'leo-fmt': Error [ECLI0377005]: self-update failed: NetworkError: api request failed with status: 404 - for: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-fmt-v99.2.0/leo-fmt-v99.2.0-TARGET.zip"
+     |
+     = Retry the update, or download the latest release manually from https://github.com/ProvableHQ/leo/releases.

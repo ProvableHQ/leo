@@ -189,6 +189,9 @@ fn run_test(test: &Test, force_rewrite: bool, port: u16) -> Option<String> {
     let output = Command::new(&commands_path)
         .arg(BINARY_PATH)
         .env("PATH", &path_with_leo_dir)
+        // The source `tests/tests/cli` directory, so COMMANDS can source shared
+        // scripts from `_shared/` (the context directory only holds the test's own files).
+        .env("LEO_CLI_TESTS_DIR", test.test_directory.parent().expect("test directory must have a parent"))
         .env("LEO_DEVNODE_PORT", port.to_string())
         .env("LEO_DEVNET_REST_PORT", devnet_base.to_string())
         .env("LEO_DEVNET_NODE_PORT", (devnet_base + 4).to_string())
@@ -288,7 +291,7 @@ fn filter_stdout(data: &str) -> String {
         }
     }
 
-    cow.into_owned()
+    redact_crate_version(&redact_target_triple(&cow))
 }
 
 /// Replace strings in the stderr of a Leo execution that we don't need to match exactly.
@@ -327,7 +330,25 @@ fn filter_stderr(data: &str, temp_dir: &Path) -> String {
         }
     }
 
-    cow.into_owned()
+    redact_crate_version(&redact_target_triple(&cow))
+}
+
+/// Rewrite occurrences of the current crate version (e.g. in `leo update`, `leo --version`,
+/// and `program.json` output) to a stable `vCURRENT` placeholder, so expectations survive
+/// version bumps.
+fn redact_crate_version(data: &str) -> String {
+    use regex::Regex;
+    let version_regex = Regex::new(&format!(r"\bv?{}\b", env!("CARGO_PKG_VERSION").replace('.', r"\."))).unwrap();
+    version_regex.replace_all(data, "vCURRENT").into_owned()
+}
+
+/// Rewrite compilation target triples (e.g. in `leo update` output) to a stable
+/// `TARGET` placeholder, since they differ between platforms.
+fn redact_target_triple(data: &str) -> String {
+    use regex::Regex;
+    let target_regex =
+        Regex::new(r"(aarch64|x86_64)-(apple-darwin|unknown-linux-gnu|unknown-linux-musl|pc-windows-msvc)").unwrap();
+    target_regex.replace_all(data, "TARGET").into_owned()
 }
 
 /// Rewrite every occurrence of the test's temporary directory in `data` to a

@@ -1,0 +1,76 @@
+--- empty release list ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+
+       Leo 
+Failed to update Leo to the latest version
+Error [ECLI0377045]: could not find a `leo` release for this platform
+
+
+--- unknown --name version ---
+       Leo 
+Failed to update Leo to the latest version
+Error [ECLI0377045]: could not find a `leo` release matching `77.0.0`; run `leo update --list` to see available versions
+
+
+--- missing releases endpoint (404) ---
+       Leo Failed to list the available versions of Leo
+Error [ECLI0377003]: could not fetch Leo release versions: ReqwestError: error decoding response body for url (http://localhost:3030/repos/ProvableHQ/leo/releases/?per_page=100)
+     |
+     = Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.
+
+       Leo 
+Failed to update Leo to the latest version
+Error [ECLI0377003]: could not fetch Leo release versions: ReqwestError: error decoding response body for url (http://localhost:3030/repos/ProvableHQ/leo/releases/?per_page=100)
+     |
+     = Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.
+
+       Leo 
+Failed to update Leo to the latest version
+Error [ECLI0377003]: could not fetch Leo release versions: ReqwestError: error decoding response body for url (http://localhost:3030/repos/ProvableHQ/leo/releases/?per_page=100)
+     |
+     = Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.
+
+--- plugin release missing ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v99.1.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v99.1.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v99.1.0/leo-lang-v99.1.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 99.1.0
+       Leo Updating bundled plugin 'leo-lsp' to v99.1.0...
+       Leo Successfully updated 'leo-lsp' to v99.1.0
+fake leo v99.1.0
+fake leo-lsp v99.1.0
+--- plugin archive missing (404) ---
+Checking target-arch... TARGET
+Checking current version... vCURRENT
+Looking for tag: leo-lang-v99.2.0
+
+leo release status:
+  * Current exe: "WORKDIR/leo"
+  * New exe release: "leo-lang-v99.2.0-TARGET.zip"
+  * New exe download url: "http://localhost:3030/ProvableHQ/leo/releases/download/leo-lang-v99.2.0/leo-lang-v99.2.0-TARGET.zip"
+
+The new release will be downloaded/extracted and the existing binary will be replaced.
+Downloading...
+Extracting archive... Done
+Replacing binary file... Done
+       Leo 
+Leo has updated to version 99.2.0
+       Leo Updating bundled plugin 'leo-fmt' to v99.2.0...
+       Leo Updating bundled plugin 'leo-lsp' to v99.2.0...
+       Leo Successfully updated 'leo-lsp' to v99.2.0
+fake leo v99.2.0
+fake leo-lsp v99.2.0

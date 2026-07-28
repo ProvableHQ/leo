@@ -1,0 +1,40 @@
+--- update --help ---
+Update the Leo CLI
+
+Usage: leo update [OPTIONS]
+
+Options:
+  -d                                 Print additional information for debugging
+  -l, --list                         List all available releases.
+  -n, --name <NAME>                  An optional release version, e.g. `vCURRENT`.
+      --json-output[=<JSON_OUTPUT>]  Write command results as JSON. Pass `--json-output=<FILE>` for a custom path; with no value it defaults to build/json-outputs/<command>.json.
+  -q, --quiet                        Suppress download logs.
+      --disable-update-check         Disable Leo's daily check for version updates
+      --path <PATH>                  Path to Leo program root folder
+      --home <HOME>                  Path to aleo program registry
+  -p, --package <PACKAGE>            Target a specific workspace member by name
+  -h, --help                         Print help
+--- update --list ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v99.2.0
+  * v99.1.0
+
+--- update -l ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v99.2.0
+  * v99.1.0
+
+--- update -l takes precedence over -n ---
+       Leo 
+List of available `leo` versions for: TARGET.
+Use `leo update --name <version>` to install a specific version.
+
+  * v99.2.0
+  * v99.1.0
+
