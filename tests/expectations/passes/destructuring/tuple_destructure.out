@@ -26,8 +26,7 @@ program tuple_pass_tests.aleo {
         let t2#tuple0$8: u32 = a + 1u32;
         let t2#tuple1$9: u32 = b;
         assert((t1#tuple0$6 != t2#tuple0$8) || (t1#tuple1$7 != t2#tuple1$9));
-        assert_neq(t1#tuple0$6, t2#tuple0$8);
-        assert_neq(t1#tuple1$7, t2#tuple1$9);
+        assert((t1#tuple0$6 != t2#tuple0$8) || (t1#tuple1$7 != t2#tuple1$9));
         let flag = (t1#tuple0$6 != t2#tuple0$8) || (t1#tuple1$7 != t2#tuple1$9);
         assert(flag);
     }
@@ -42,8 +41,7 @@ program tuple_pass_tests.aleo {
         let t#tuple0$10: u32 = a;
         let t#tuple1$11: u32 = b;
         assert((t#tuple0$10 == t#tuple0$10) && (t#tuple1$11 == t#tuple1$11));
-        assert_neq(t#tuple0$10 + 1u32, t#tuple0$10);
-        assert_neq(t#tuple1$11, t#tuple1$11);
+        assert((t#tuple0$10 + 1u32 != t#tuple0$10) || (t#tuple1$11 != t#tuple1$11));
         let ok = (t#tuple0$10 == t#tuple0$10) && (t#tuple1$11 == t#tuple1$11);
         assert(ok);
     }
