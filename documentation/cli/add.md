@@ -23,10 +23,11 @@ where `<NAME>` is the name of the imported program or library, and `<LOCAL>` is 
 To add a program already deployed onchain as a dependency to your project, run the following command:
 
 ```bash
-leo add --network <NAME>
+leo add <NAME> --network
 ```
 
-where `<NAME>` is the name of the imported program.
+where `<NAME>` is the name of the imported program. Leo verifies that the program exists before it updates
+`program.json`.
 
 To add another member of the enclosing workspace as a dependency:
 
@@ -61,6 +62,16 @@ Specifies a local program or library dependency at `<LOCAL>`. The path can be a 
 ### `-n`
 
 Specifies that the dependency to be added is a remote program currently deployed onchain. The network that it will be pulled from will be the same as the one specified in by the `NETWORK` variable in `.env`
+
+### `--endpoint <ENDPOINT>`
+
+Specifies the endpoint that Leo uses to verify a network dependency. This option overrides the `ENDPOINT` environment
+variable.
+
+### `--network-retries <N>`
+
+Specifies how many times Leo retries a failed request while it verifies a network dependency. This option overrides the
+`NETWORK_RETRIES` environment variable and defaults to `2`.
 
 ### `--workspace`
 

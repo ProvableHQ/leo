@@ -14,10 +14,10 @@ A program can opt out of the implicit injection by setting `"no_std": true` in i
 
 Functions in `std` come in two flavors:
 
-- A plain `fn` is callable from any transition function and from inside a
-  `final { ... }` block.
+- A plain `fn` is callable where its underlying operation is valid. Most are available in transition and finalize
+  contexts. On-chain context accessors are available in finalize contexts and views.
 - A `final fn` may only be called from inside another `final fn` body or
-  a `final { ... }` async block. These functions touch on-chain operands
+  a `final { ... }` block. These functions touch on-chain operands
   (block height, randomness, mappings, signature verifiers) that the
   off-chain prover has no access to.
 
@@ -224,10 +224,8 @@ Group operations on the Aleo curve. The curve's elements support addition, scala
 
 ## `std::ctx`
 
-This module provides execution-context accessors for the current transition. Its functions provide the caller, transaction signer, block height, block timestamp, and other program information.
-
-The module is split between off-chain wrappers (plain `fn`) and on-chain
-wrappers (`final fn`).
+This module provides execution-context accessors for the current program. Its functions provide the caller, transaction
+signer, block height, block timestamp, and other program information.
 
 ### Off-chain (usable from any transition body)
 
@@ -239,19 +237,19 @@ wrappers (`final fn`).
 | `addr()`    | `address`  | The Aleo address of the program this transition belongs to.                                                                 |
 | `caller()`  | `address`  | The immediate caller. Equal to `signer()` when invoked directly. Equal to another program's address on cross-program calls. |
 | `signer()`  | `address`  | The address that signed the outer transaction. Unchanged across cross-program calls.                                        |
+| `id()`      | `address`  | The identifier of the current program.                                                                                      |
 
 Use `caller()` for trust decisions about who is asking for the current
 operation. Use `signer()` when the decision should track the originator
 of the entire transaction.
 
-### On-chain (finalize context only)
+### On-chain reads (finalize contexts and views)
 
 ```leo file=../code_snippets/standard_library/src/main.leo#std_ctx_onchain
 ```
 
 | Function           | Returns     | Description                                                                                |
 | ------------------ | ----------- | ------------------------------------------------------------------------------------------ |
-| `id()`             | `address`   | On-chain identifier of this program (the value users see in block explorers).              |
 | `checksum()`       | `[u8; 32]`  | 32-byte deployment checksum. Changes only when the program is upgraded with new bytecode.  |
 | `edition()`        | `u16`       | Deployment edition. `0` is the initial deployment, each upgrade increments it by one.      |
 | `program_owner()`  | `address`   | The address that owns this program (typically the deployer).                               |

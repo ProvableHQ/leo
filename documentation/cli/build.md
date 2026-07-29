@@ -19,11 +19,14 @@ leo build
 The build command automatically creates a `build/` directory. For a single project, this directory is in the project directory. For a [workspace](../guides/workspaces.md), it is at the workspace root and is shared by all members. Each program and dependency gets a `build/{program}/` directory with its compiled `.aleo` bytecode and ABI.
 
 ```bash title="console output:"
-  Leo     2 statements before dead code elimination.
-  Leo     2 statements after dead code elimination.
+  Leo 🔨 Compiling '{PROGRAM_NAME}.aleo'
+  Leo     Program size: 0.20 KB / 2000.00 KB
   Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
+  Leo     Import '{DEPENDENCY}.aleo': program size: 0.17 KB / 2000.00 KB
   Leo ✅ Generated ABI for program '{PROGRAM_NAME}.aleo'.
 ```
+
+The import line appears once for each imported program. It is omitted when the program has no imports.
 
 The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/abi.md) for details on the format and type lowering specification.
 

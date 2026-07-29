@@ -3,7 +3,7 @@
     "address": "XXXXXX",
     "network": "testnet",
     "endpoint": "http://localhost:3030",
-    "consensus_version": 17
+    "consensus_version": 18
   },
   "deployments": [
     {
@@ -18,10 +18,10 @@
         "max_constraints": 2097152,
         "storage_cost": 956000,
         "namespace_cost": 1000000,
-        "synthesis_cost": 30203,
+        "synthesis_cost": 95589,
         "constructor_cost": 10440,
         "priority_fee": 0,
-        "total_cost": 1996643,
+        "total_cost": 2062029,
         "function_costs": [
           {
             "name": "main",

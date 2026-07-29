@@ -20,6 +20,14 @@ leo test <TEST_NAME>
 
 where `<TEST_NAME>` is the string to match against the qualified name of each test.
 
+Leo compiles each `.leo` file in `tests/` as an independent test program. Test output uses the qualified name
+`file.leo::test_name`. Filters match that form and the compiled form `program.aleo/test_name`.
+
+```bash
+leo test test_math.leo::adds
+leo test test_math.aleo/adds
+```
+
 Check out the [**Testing**](./../guides/testing.md) guide for more information.
 
 ## Flags

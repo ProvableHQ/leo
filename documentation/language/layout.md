@@ -120,17 +120,28 @@ A module file may only contain `struct`, `const`, and `fn` definitions.
 
 ### Visibility
 
-Leo has no `pub`/private keywords for module items. The visibility rules are:
+Module-level `struct`, `const`, `fn`, and `interface` declarations are private by default. Add the `export` modifier to
+make an item accessible from another source file or compilation unit:
 
-- Every `struct`, `const`, and `fn` declared in a module is accessible from anywhere in the **same package** via its fully qualified path.
-- **Other packages** that depend on this package can access the same items. See [Accessing Submodules of Imported Programs](#accessing-submodules-of-imported-programs) and [Leo Libraries](./libraries.md).
-- The on-chain "interface" of a program is exactly the entry `fn`, `record`, `mapping`, and `storage` declarations inside its `program { … }` block. Helper `fn`s in modules can be reached by name from importers but are inlined into their bytecode rather than deployed as separate AVM functions.
+```leo
+export const MAX_VALUE: u32 = 100u32;
+export struct SharedValue {
+    value: u32,
+}
+export fn clamp(value: u32) -> u32 {
+    return value > MAX_VALUE ? MAX_VALUE : value;
+}
+```
 
-To keep an item private to one module, put it in that module file and do not reference it elsewhere. The compiler does not enforce a privacy boundary.
+- An unqualified item is accessible only from its defining source file.
+- An `export` item is accessible from other modules in the same package and from dependent packages.
+- Items declared inside `program { … }` are already part of the program interface and cannot use `export`.
+- Exported helper functions are inlined into importer bytecode. They are not separate on-chain functions.
 
 ### Accessing Submodules of Imported Programs
 
-An imported program can organize its source across submodules. Use an extended locator path to access a `struct`, `const`, or helper `fn` in those submodules:
+An imported program can organize its source across submodules. Use an extended locator path to access an exported
+`struct`, `const`, `interface`, or helper `fn` in those submodules:
 
 ```text
 program.aleo::submodule::item
