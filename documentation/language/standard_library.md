@@ -14,12 +14,8 @@ A program can opt out of the implicit injection by setting `"no_std": true` in i
 
 Functions in `std` come in two flavors:
 
-- A plain `fn` is callable where its underlying operation is valid. Most are available in transition and finalize
-  contexts. On-chain context accessors are available in finalize contexts and views.
-- A `final fn` may only be called from inside another `final fn` body or
-  a `final { ... }` block. These functions touch on-chain operands
-  (block height, randomness, mappings, signature verifiers) that the
-  off-chain prover has no access to.
+- A plain `fn` is callable where its underlying operation is valid. Most are available in transition and finalize contexts. On-chain context accessors are available in finalize contexts and views.
+- A `final fn` may only be called from inside another `final fn` body or a `final { ... }` block. These functions touch on-chain operands (block height, randomness, mappings, signature verifiers) that the off-chain prover has no access to.
 
 This page calls out the scope of every module that contains `final fn`
 entries.
@@ -224,8 +220,7 @@ Group operations on the Aleo curve. The curve's elements support addition, scala
 
 ## `std::ctx`
 
-This module provides execution-context accessors for the current program. Its functions provide the caller, transaction
-signer, block height, block timestamp, and other program information.
+This module provides execution-context accessors for the current program. Its functions provide the caller, transaction signer, block height, block timestamp, and other program information.
 
 ### Off-chain (usable from any transition body)
 

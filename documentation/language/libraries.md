@@ -38,8 +38,7 @@ A library source file (`lib.leo`) may contain `struct` definitions, `const` decl
 ```leo file=../code_snippets/libraries/math_utils/src/lib.leo#basics title="src/lib.leo"
 ```
 
-Library items are private to their source file by default. Add `export` to any `struct`, `const`, `fn`, or `interface`
-that another source file or package must use. Private items remain available to other declarations in the same file.
+Library items are private to their source file by default. Add `export` to any `struct`, `const`, `fn`, or `interface` that another source file or package must use. Private items remain available to other declarations in the same file.
 
 ### What a library may contain
 
@@ -73,8 +72,7 @@ leo add math_utils --local ../math_utils
 
 ## Using a Library
 
-Reference exported library items with the `{library_name}::{item}` path syntax. No `import` statement is required. The
-dependency entry in `program.json` is sufficient.
+Reference exported library items with the `{library_name}::{item}` path syntax. No `import` statement is required. The dependency entry in `program.json` is sufficient.
 
 ```leo file=../code_snippets/libraries/my_app_closest/src/main.leo#program title="src/main.leo"
 ```
@@ -98,9 +96,7 @@ Const-generic library functions operate like const-generic functions in a progra
 
 ## Submodules
 
-A library can span multiple source files. Place additional `.leo` files alongside `lib.leo` in `src/` to create
-submodules. Each file becomes a submodule named after the file. Export its items before accessing them through the extra
-path segment.
+A library can span multiple source files. Place additional `.leo` files alongside `lib.leo` in `src/` to create submodules. Each file becomes a submodule named after the file. Export its items before accessing them through the extra path segment.
 
 ```text
 math_utils/

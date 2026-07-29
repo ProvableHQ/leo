@@ -120,8 +120,7 @@ A module file may only contain `struct`, `const`, and `fn` definitions.
 
 ### Visibility
 
-Module-level `struct`, `const`, `fn`, and `interface` declarations are private by default. Add the `export` modifier to
-make an item accessible from another source file or compilation unit:
+Module-level `struct`, `const`, `fn`, and `interface` declarations are private by default. Add the `export` modifier to make an item accessible from another source file or compilation unit:
 
 ```leo
 export const MAX_VALUE: u32 = 100u32;
@@ -140,8 +139,7 @@ export fn clamp(value: u32) -> u32 {
 
 ### Accessing Submodules of Imported Programs
 
-An imported program can organize its source across submodules. Use an extended locator path to access an exported
-`struct`, `const`, `interface`, or helper `fn` in those submodules:
+An imported program can organize its source across submodules. Use an extended locator path to access an exported `struct`, `const`, `interface`, or helper `fn` in those submodules:
 
 ```text
 program.aleo::submodule::item

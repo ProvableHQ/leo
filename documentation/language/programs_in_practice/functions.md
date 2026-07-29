@@ -67,8 +67,7 @@ A `view fn` body sees the same on-chain context as a `final {}` block — it can
 
 - **Read-only.** All state writes are rejected — both singleton storage assignment (`counter = 5u64;`, `counter = none;`) and the mutating intrinsics `Mapping::set`, `Mapping::remove`, `Vector::set`, `Vector::push`, `Vector::pop`, `Vector::swap_remove`, `Vector::clear`.
 - **Leaf in the emitted bytecode.** A view can call a helper `fn`, and Leo puts the helper body in the view. A view cannot call another `view fn`, a `final fn`, or an entry point. Thus, the Aleo `view` block has no `call` instructions, as snarkVM requires. The compiler also rejects dynamic calls in the `dyn ...` form.
-- **On-chain reads and proof verification.** A view can use `std::ctx::block_timestamp()`,
-  `std::ctx::program_owner()`, `Snark::verify`, and `Snark::verify_batch`. These operations do not write state.
+- **On-chain reads and proof verification.** A view can use `std::ctx::block_timestamp()`, `std::ctx::program_owner()`, `Snark::verify`, and `Snark::verify_batch`. These operations do not write state.
 - Returns plaintext only (no records). Cannot be combined with `final`.
 
 ### Calling Views from On-chain Code
@@ -151,5 +150,4 @@ The default behavior is the same with or without `@inline`. Do not put `@inline`
 - A `view fn` can only call helper `fn`s (which get inlined). Other `view fn`s, `final fn`s, and entry points are rejected.
 - Recursive calls (direct or indirect) are not allowed.
 
-A cross-program `final fn` call is allowed only when the function and its transitive calls do not write on-chain state.
-Call an entry function in the other program when the operation must write its state.
+A cross-program `final fn` call is allowed only when the function and its transitive calls do not write on-chain state. Call an entry function in the other program when the operation must write its state.

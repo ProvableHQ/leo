@@ -1217,8 +1217,7 @@ Returns `bool`.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#snark_verify_batch
 ```
 
-Batch-verifies multiple Varuna ZK proofs on-chain. Callable from a finalize context or a `view fn`. The number of
-verifying keys (`M`) must equal the number of circuits in `inputs` (`K`).
+Batch-verifies multiple Varuna ZK proofs on-chain. Callable from a finalize context or a `view fn`. The number of verifying keys (`M`) must equal the number of circuits in `inputs` (`K`).
 
 | Argument  | Type                   | Description                                                      |
 | --------- | ---------------------- | ---------------------------------------------------------------- |

@@ -151,8 +151,7 @@ or
 leo test addition
 ```
 
-Results use nextest-style qualified names such as `test_example_program.leo::test_addition`. A filter can match that
-name or the compiled form `test_example_program.aleo/test_addition`:
+Results use qualified names such as `test_example_program.leo::test_addition`. A filter can match that name or the compiled form `test_example_program.aleo/test_addition`:
 
 ```bash
 leo test test_example_program.leo::test_addition
