@@ -371,9 +371,33 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     panic!("Vector::set can only be called with `Expression::Path`");
                 };
 
-                // Reconstruct key/index and value
-                let (reconstructed_key_expr, key_stmts) =
+                // Reconstruct key/index.
+                let key_type = self
+                    .state
+                    .type_table
+                    .get(&index_expr.id())
+                    .expect("type checking should assign a type to the vector index");
+                let key_must_be_evaluated_once = !expression_can_be_discarded(index_expr, self.state);
+                let (reconstructed_key_expr, mut key_stmts) =
                     self.reconstruct_expression(index_expr.clone(), &Default::default());
+                self.state.type_table.insert(reconstructed_key_expr.id(), key_type);
+                let reconstructed_key_expr = if key_must_be_evaluated_once {
+                    let key_var_sym = self.state.assigner.unique_symbol("$index", "$");
+                    let key_var_ident = Identifier {
+                        name: key_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.state.type_table.insert(key_var_ident.id, key_type);
+                    key_stmts.push(self.state.assigner.simple_definition(
+                        key_var_ident,
+                        reconstructed_key_expr,
+                        self.state.node_builder.next_id(),
+                    ));
+                    key_var_ident.into()
+                } else {
+                    reconstructed_key_expr
+                };
                 let (reconstructed_value_expr, value_stmts) =
                     self.reconstruct_expression(value_expr.clone(), &Default::default());
 
@@ -475,9 +499,33 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                     panic!("Vector::swap_remove can only be called with `Expression::Path`");
                 };
 
-                // Reconstruct index
-                let (reconstructed_index_expr, index_stmts) =
+                // Reconstruct index.
+                let index_type = self
+                    .state
+                    .type_table
+                    .get(&index_expr.id())
+                    .expect("type checking should assign a type to the vector index");
+                let index_must_be_evaluated_once = !expression_can_be_discarded(index_expr, self.state);
+                let (reconstructed_index_expr, mut index_stmts) =
                     self.reconstruct_expression(index_expr.clone(), &Default::default());
+                self.state.type_table.insert(reconstructed_index_expr.id(), index_type);
+                let reconstructed_index_expr = if index_must_be_evaluated_once {
+                    let index_var_sym = self.state.assigner.unique_symbol("$index", "$");
+                    let index_var_ident = Identifier {
+                        name: index_var_sym,
+                        span: Default::default(),
+                        id: self.state.node_builder.next_id(),
+                    };
+                    self.state.type_table.insert(index_var_ident.id, index_type);
+                    index_stmts.push(self.state.assigner.simple_definition(
+                        index_var_ident,
+                        reconstructed_index_expr,
+                        self.state.node_builder.next_id(),
+                    ));
+                    index_var_ident.into()
+                } else {
+                    reconstructed_index_expr
+                };
 
                 // Input:
                 //   Vector::swap_remove(v, index)

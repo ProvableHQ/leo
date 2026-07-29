@@ -6,6 +6,7 @@ program singleton_storage.aleo {
 
     storage vec: [u8];
     storage nums: [u32];
+    mapping calls: u32 => u32;
 
     fn push() -> Final {
         return final { vec.push(42u8); };
@@ -50,5 +51,34 @@ program singleton_storage.aleo {
 
     fn push_fallible_value(public x: u32) -> Final {
         return final { nums.push(1u32 / x); };
+    }
+
+    fn set_statement_fallible_index(public x: u32) -> Final {
+        return final { nums.set(1u32 / x, 42u32); };
+    }
+
+    fn swap_remove_fallible_index(public x: u32) -> Final {
+        return final { nums.swap_remove(1u32 / x); };
+    }
+
+    fn set_effectful_index() -> Final {
+        return final {
+            nums.push(0u32);
+            nums.set(next_index(), 42u32);
+        };
+    }
+
+    fn swap_remove_effectful_index() -> Final {
+        return final {
+            nums.push(0u32);
+            nums.swap_remove(next_index());
+        };
+    }
+
+    // This counter write makes repeated index evaluation observable.
+    final fn next_index() -> u32 {
+        let count: u32 = calls.get_or_use(0u32, 0u32);
+        calls.set(0u32, count + 1u32);
+        return 0u32;
     }
 }

@@ -2,6 +2,7 @@ program singleton_storage.aleo {
     @noupgrade
     async constructor() {
     }
+    mapping calls: u32 => u32;
     mapping counter__: bool => u8;
     mapping vec__: u32 => u8;
     mapping vec__len__: bool => u32;
@@ -75,5 +76,54 @@ program singleton_storage.aleo {
             _mapping_set(singleton_storage.aleo::nums__, $len_var$12, $push_value$11);
         };
     }
+    fn set_statement_fallible_index(public x: u32) -> Final<Fn()> {
+        return async {
+            let $index$13 = 1u32 / x;
+            let $len_var$14 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$13 < $len_var$14);
+            _mapping_set(singleton_storage.aleo::nums__, $index$13, 42u32);
+        };
+    }
+    fn swap_remove_fallible_index(public x: u32) -> Final<Fn()> {
+        return async {
+            let $index$15 = 1u32 / x;
+            let $len_var$16 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$15 < $len_var$16);
+            let $removed$17 = _mapping_get(singleton_storage.aleo::nums__, $index$15);
+            _mapping_set(singleton_storage.aleo::nums__, $index$15, _mapping_get(singleton_storage.aleo::nums__, $len_var$16 - 1u32));
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$16 - 1u32);
+            let $discard$18 = $removed$17;
+        };
+    }
+    fn set_effectful_index() -> Final<Fn()> {
+        return async {
+            let $len_var$19 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$19 + 1u32);
+            _mapping_set(singleton_storage.aleo::nums__, $len_var$19, 0u32);
+            let $index$20 = singleton_storage.aleo::next_index();
+            let $len_var$21 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$20 < $len_var$21);
+            _mapping_set(singleton_storage.aleo::nums__, $index$20, 42u32);
+        };
+    }
+    fn swap_remove_effectful_index() -> Final<Fn()> {
+        return async {
+            let $len_var$22 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$22 + 1u32);
+            _mapping_set(singleton_storage.aleo::nums__, $len_var$22, 0u32);
+            let $index$23 = singleton_storage.aleo::next_index();
+            let $len_var$24 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+            assert($index$23 < $len_var$24);
+            let $removed$25 = _mapping_get(singleton_storage.aleo::nums__, $index$23);
+            _mapping_set(singleton_storage.aleo::nums__, $index$23, _mapping_get(singleton_storage.aleo::nums__, $len_var$24 - 1u32));
+            _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$24 - 1u32);
+            let $discard$26 = $removed$25;
+        };
+    }
 }
+    final fn next_index() -> u32 {
+        let count: u32 = _mapping_get_or_use(singleton_storage.aleo::calls, 0u32, 0u32);
+        _mapping_set(singleton_storage.aleo::calls, 0u32, count + 1u32);
+        return 0u32;
+    }
 
