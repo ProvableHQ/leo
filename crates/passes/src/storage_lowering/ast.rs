@@ -380,7 +380,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let key_must_be_evaluated_once = !expression_can_be_discarded(index_expr, self.state);
                 let (reconstructed_key_expr, mut key_stmts) =
                     self.reconstruct_expression(index_expr.clone(), &Default::default());
-                self.state.type_table.insert(reconstructed_key_expr.id(), key_type.clone());
+                self.state.type_table.insert(reconstructed_key_expr.id(), key_type);
                 let reconstructed_key_expr = if key_must_be_evaluated_once {
                     let key_var_sym = self.state.assigner.unique_symbol("$index", "$");
                     let key_var_ident = Identifier {
@@ -508,7 +508,7 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
                 let index_must_be_evaluated_once = !expression_can_be_discarded(index_expr, self.state);
                 let (reconstructed_index_expr, mut index_stmts) =
                     self.reconstruct_expression(index_expr.clone(), &Default::default());
-                self.state.type_table.insert(reconstructed_index_expr.id(), index_type.clone());
+                self.state.type_table.insert(reconstructed_index_expr.id(), index_type);
                 let reconstructed_index_expr = if index_must_be_evaluated_once {
                     let index_var_sym = self.state.assigner.unique_symbol("$index", "$");
                     let index_var_ident = Identifier {
