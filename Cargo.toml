@@ -83,10 +83,10 @@ similar            = "3.1"
 # `test_consensus_heights` lets developers set custom consensus version upgrade heights;
 # `test_targets` matches the flag the devnode's genesis block was created with; `history` is
 # needed to compile `Process::evaluate_view_with_history`.
-snarkvm            = { version = "4.8.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+snarkvm            = { version = "4.9.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
 # Wasm-friendly subsets for `leo-ast`/`leo-disassembler` on `wasm32-unknown-unknown`.
-snarkvm-console = { version = "4.8.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { version = "4.8.1", features = [ "wasm" ] }
+snarkvm-console = { version = "4.9.0", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { version = "4.9.0", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.27"
 thiserror          = "2.0"

@@ -14,7 +14,7 @@
        Leo     Import 'token.aleo': checksum = '[3u8, 95u8, 196u8, 87u8, 201u8, 25u8, 21u8, 148u8, 199u8, 65u8, 183u8, 183u8, 245u8, 253u8, 162u8, 121u8, 112u8, 233u8, 65u8, 132u8, 7u8, 239u8, 243u8, 9u8, 88u8, 169u8, 25u8, 111u8, 5u8, 98u8, 6u8, 94u8]'
        Leo ✅ Generated ABI for program 'swap.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -26,7 +26,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 📦 Workspace Members:
   token:
@@ -64,11 +64,11 @@ Once it is deployed, it CANNOT be changed.
 
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.864000
-  Program Synthesis:    0.032226
+  Program Synthesis:    0.108124
   Namespace:            100000.000000
   Constructor:          0.002000
   Priority Fee:         0.000000
-  Total Fee:            100000.898226
+  Total Fee:            100000.974124
   Function 'mint'
     Total Execution Cost:   0.001375
     |- Storage Cost:        0.001375
@@ -97,11 +97,11 @@ Once it is deployed, it CANNOT be changed.
 
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.909000
-  Program Synthesis:    0.042083
+  Program Synthesis:    0.159677
   Namespace:            1000000.000000
   Constructor:          0.002000
   Priority Fee:         0.000000
-  Total Fee:            1000000.953083
+  Total Fee:            1000001.070677
   Function 'do_swap'
     Total Execution Cost:   0.002248
     |- Storage Cost:        0.002248

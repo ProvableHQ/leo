@@ -6,7 +6,7 @@
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -18,7 +18,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 📦 Deployment Tasks:
   • persistent_counter.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -50,11 +50,11 @@ Once it is deployed, it CANNOT be changed.
 
 💰 Cost Breakdown (credits)
   Transaction Storage:  1.014000
-  Program Synthesis:    0.026366
+  Program Synthesis:    0.066328
   Namespace:            1.000000
   Constructor:          0.002000
   Priority Fee:         0.000000
-  Total Fee:            2.042366
+  Total Fee:            2.082328
   Function 'increment'
     Total Execution Cost:   0.001916
     |- Storage Cost:        0.001264
@@ -81,7 +81,7 @@ Transaction accepted.
        Leo ✅ Compiled 'persistent_counter.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'persistent_counter.aleo'.
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -93,7 +93,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1rhgdu77hgyqd3xjj8uc...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 🎯 Execution Target:
   Program:        persistent_counter.aleo
