@@ -79,7 +79,7 @@ When you run `leo new`, it creates a new Leo project with default files and dire
 The defaults in the `.env` file are set to deploy on a testnet devnet using a local node API endpoint.
 The defaults are set to deploy on a local devnet with the `testnet` configuration using a local node API endpoint.
 
-To test the deployment, run a devnet via `leo devnet` (you'll need to configure it appropriately and run it in a separate terminal) and then run:
+To test the deployment, configure and start `leo devnet` in a separate terminal. Then, run:
 
 ```bash
 > leo deploy  --devnet --broadcast
@@ -240,7 +240,7 @@ The target network, the Private Key, and a node API endpoint need to be specifie
 They can be set in one of the following ways, in order of precedence:
 
 1. CLI options,
-2. environment variables, or
+2. Environment variables, or
 3. `.env` file:
 
 The options are selected in that order of precedence.

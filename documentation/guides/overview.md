@@ -6,7 +6,7 @@ sidebar_label: Overview
 
 [general tags]: # "guides"
 
-There's a lot to learn about Leo! To help tame the complexity, we've put together some explainers that you may find helpful.
+The following guides explain Leo concepts and procedures.
 
 ## Basic
 

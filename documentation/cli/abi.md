@@ -22,7 +22,7 @@ Unlike [`leo build`](./build.md), which automatically writes `build/abi.json` fo
 - tooling pipelines that consume raw `.aleo` bytecode and need the ABI separately,
 - comparing the ABI generated from local sources against the on-chain bytecode.
 
-By default the ABI is printed to stdout. If the program declares imports, the main ABI is printed first, followed by each dependency's ABI under a `=== <name> ===` header so a single invocation produces the full set:
+By default, the command prints the ABI to standard output. If the program declares imports, it prints the main ABI first. Then, it prints each dependency ABI under a `=== <name> ===` header:
 
 ```text
 { ... main program ABI ... }
@@ -34,7 +34,7 @@ By default the ABI is printed to stdout. If the program declares imports, the ma
 { ... dep_two ABI ... }
 ```
 
-Pass `--output <DIR>` to write each ABI as a separate file under that directory instead. The directory is created if missing; existing files are overwritten.
+Pass `--output <DIR>` to write each ABI as a separate file under that directory instead. The directory is created if missing. Existing files are overwritten.
 
 ```bash
 leo abi credits.aleo --output ./abis
@@ -46,7 +46,7 @@ leo abi credits.aleo --output ./abis
 
 For a program with imports, one `<DIR>/<program>.abi.json` file is written for the main program and one for each dependency.
 
-By default `leo abi` resolves imported `.aleo` files relative to the input file: for the per-unit build layout (`<root>/<unit>/<unit>.aleo`) it uses `<root>`, otherwise it falls back to a sibling `imports/` directory. Use `--imports-dir <DIR>` to point at a different location. Network builtins such as `credits.aleo` do not need to be present on disk.
+By default, `leo abi` resolves imported `.aleo` files relative to the input file. For the per-unit build layout (`<root>/<unit>/<unit>.aleo`), it uses `<root>`. For other layouts, it uses a sibling `imports/` directory. Use `--imports-dir <DIR>` to specify a different location. Network built-ins such as `credits.aleo` do not need to be on the disk.
 
 The output is the same JSON shape that `leo build` produces in `build/abi.json`. See the [ABI Generation guide](../guides/abi.md) for the format reference and type-lowering specification.
 
@@ -58,9 +58,9 @@ Pass `--satisfies <FILE>` to check whether the input program's public interface 
 leo abi token.aleo --satisfies token_standard.abi.json
 ```
 
-The program *satisfies* the standard when it declares every function, view, mapping, storage variable, record, and struct the standard requires, with matching signatures. The program may declare additional items beyond the standard. Type references are compared relative to each side's owning program, so a standard's reference to one of its own types matches the program's reference to the corresponding type even though the two programs have different names.
+The program *satisfies* the standard when it declares each required item with a matching signature. Required items can be functions, views, mappings, storage variables, records, and structs. The program can declare additional items. Leo compares type references relative to the program that owns each side. Thus, corresponding type references match even when the standard and program have different names.
 
-On success a one-line confirmation is printed; otherwise the unsatisfied items are listed and the command exits non-zero:
+On success a one-line confirmation is printed. Otherwise the unsatisfied items are listed and the command exits non-zero:
 
 ```text
 `token.aleo` does not satisfy `token_standard.aleo`:

@@ -22,7 +22,7 @@ cd leo/examples/token
 ./run.sh
 ```
 
-The `.env` file contains a private key and network type. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we've set things up in `./run.sh` for a full example of how to run the program as different parties.
+The `.env` file contains a private key and network type. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we have set things up in `./run.sh` for a full example of how to run the program as different parties.
 
 ## Walkthrough
 
@@ -33,7 +33,7 @@ The `.env` file contains a private key and network type. This is the account tha
 - [Step 4: Public to Private Transfer](#step4)
 - [Step 5: Private to Public Transfer](#step5)
 
-We'll be conducting a transfer between two parties.
+We will be conducting a transfer between two parties.
 
 ```bash
 The private key and address of Alice.
@@ -47,7 +47,7 @@ address: aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqyshdsf5z
 
 ## <a id="step0"></a> Public Mint
 
-Let's play Alice. Swap in her private key and publicly mint 100 tokens.
+Act as Alice. Put her private key in `.env`. Publicly mint 100 tokens.
 
 ```bash
 echo "
@@ -75,7 +75,7 @@ You can see the output of `mint_public`, which takes the arguments Alice's addre
 
 ## <a id="step1"></a> Private Mint
 
-Now let's privately mint 100 tokens for Bob. Switch to Bob's private key and privately mint 100 tokens for Bob.
+Now, privately mint 100 tokens for Bob. Put Bob's private key in `.env`. Run the private mint function.
 
 ```bash
 echo "
@@ -100,7 +100,7 @@ The output is a private record.
 
 ## <a id="step2"></a> Public Transfer
 
-Let's publicly transfer 10 tokens from Alice to Bob. Swap the private key back to Alice and call the public transfer function.
+Publicly transfer 10 tokens from Alice to Bob. Put Alice's private key in `.env`. Call the public transfer function.
 
 ```bash
 echo "
@@ -129,7 +129,7 @@ Again, we see the arguments used for the `final` block of `transfer_public` - Al
 
 ## <a id="step3"></a> Private Transfer
 
-Let's privately transfer 20 tokens from Bob to Alice. Switch to Bob's private key and call the private transfer function.
+Privately transfer 20 tokens from Bob to Alice. Put Bob's private key in `.env`. Call the private transfer function.
 
 ```bash
 echo "
@@ -159,11 +159,11 @@ Output
 }
 ```
 
-The output of `transfer_private` is a record owned by Bob less the 20 tokens he privately transferred to Alice, and a record owned by Alice with the 20 tokens Bob transferred to Alice.
+`transfer_private` outputs two records. Bob owns the first record, which contains the balance after the 20-token transfer. Alice owns the second record, which contains the 20 transferred tokens.
 
 ## <a id="step4"></a> Public to Private Transfer
 
-Let's convert 30 of Alice's public tokens into 30 private tokens for Bob. Switch the private key back to Alice.
+Convert 30 of Alice's public tokens into 30 private tokens for Bob. Put Alice's private key in `.env`.
 
 ```bash
 echo "
@@ -196,7 +196,7 @@ Calling `transfer_public_to_private` outputs finalization data, which indicates 
 
 ## <a id="step5"></a> Private to Public Transfer
 
-Let's convert 40 of Bob's private tokens into 40 public tokens for Alice. Switch the private key back to Bob.
+Convert 40 of Bob's private tokens into 40 public tokens for Alice. Put Bob's private key in `.env`.
 
 ```bash
 echo "
@@ -229,4 +229,4 @@ Output
 }
 ```
 
-When we call `transfer_private_to_public`, we take Bob's private record that contains 110 tokens, and outputs a record owned by Bob with 70 tokens, and then outputs finalization data which will be run on-chain.
+`transfer_private_to_public` consumes Bob's private record with 110 tokens. It outputs Bob's private record with 70 tokens and the finalization data that runs on-chain.

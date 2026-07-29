@@ -69,7 +69,7 @@ Storage variables behave similar to option types. There are several functions av
 
 Singleton storage variables are **uninitialized** when a program is first deployed — declaring `storage counter: u32;` does not give `counter` a value. The variable becomes defined the first time something writes to it (`counter = 1u32;` inside a `final { }` block) and stays defined thereafter unless explicitly unset (`counter = none;`).
 
-Reading an uninitialized singleton with `.unwrap()` halts at runtime; reading with `.unwrap_or(default)` returns the supplied default. The two common patterns are:
+Reading an uninitialized singleton with `.unwrap()` halts at runtime. Reading with `.unwrap_or(default)` returns the supplied default. The two common patterns are:
 
 - **Initialize in the `constructor`.** The `constructor` runs once at deploy time and may set storage variables, so every read after deployment sees a defined starting value:
 
@@ -237,10 +237,11 @@ external_program.aleo::id_numbers.clear();           // invalid
 
 Singleton storage variables and storage vectors can hold:
 
-- the primitive types `address`, `bool`, `field`, `group`, `scalar`, `signature`, and the integer types `i8`–`i128` and `u8`–`u128`;
-- fixed-length arrays whose element type is itself supported;
-- structs whose fields are all supported types (checked recursively).
+- The primitive types `address`, `bool`, `field`, `group`, `scalar`, and `signature`
+- The integer types `i8`–`i128` and `u8`–`u128`
+- Fixed-length arrays whose element type is supported
+- Structs whose fields are all supported types
 
 They may **not** hold records, `dyn record`, futures, optionals (`T?`), tuples, mappings, the unit type `()`, or any zero-sized type.
 
-A storage vector `Vector<T>` lowers to a `u32 => T` mapping, so its element type `T` is one of the value types above — a primitive, array, or struct — and cannot itself be another vector or a mapping. Mapping keys and values accept the same primitive, array, and struct types.
+A storage vector `Vector<T>` lowers to a `u32 => T` mapping. Its element type `T` must be a primitive, array, or struct from the preceding list. The element cannot be another vector or a mapping. Mapping keys and values accept the same primitive, array, and struct types.

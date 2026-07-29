@@ -12,7 +12,7 @@ For installation instructions, see [Getting Started - Installation](../getting_s
 
 ## Release Model
 
-Leo uses a per-crate release model. Each publishable crate in the [Leo repository](https://github.com/ProvableHQ/leo) is released independently via git tags matching the pattern `{crate-name}-v{version}` (e.g. `leo-lang-v4.0.1`, `leo-fmt-v4.1.0`).
+Leo uses a per-crate release model. Each publishable crate in the [Leo repository](https://github.com/ProvableHQ/leo) is released independently via git tags matching the pattern `{crate-name}-v{version}` (for example `leo-lang-v4.0.1`, `leo-fmt-v4.1.0`).
 
 When a tag is pushed, CI builds cross-platform binaries and publishes them as a GitHub Release under that tag.
 
@@ -44,13 +44,13 @@ For example, `leo-lang-v4.0.1` produces:
 
 ## Supported Targets
 
-| Target Triple                | OS      | Architecture   | Notes                                                |
-| ---------------------------- | ------- | -------------- | ---------------------------------------------------- |
-| `x86_64-unknown-linux-gnu`   | Linux   | x86_64         | Dynamically linked against glibc                     |
-| `x86_64-unknown-linux-musl`  | Linux   | x86_64         | Statically linked (Alpine, scratch containers, etc.) |
-| `x86_64-apple-darwin`        | macOS   | Intel          |                                                      |
-| `aarch64-apple-darwin`       | macOS   | Apple Silicon  |                                                      |
-| `x86_64-pc-windows-msvc`     | Windows | x86_64         |                                                      |
+| Target Triple               | OS      | Architecture  | Notes                                                               |
+| --------------------------- | ------- | ------------- | ------------------------------------------------------------------- |
+| `x86_64-unknown-linux-gnu`  | Linux   | x86_64        | Dynamically linked against glibc                                    |
+| `x86_64-unknown-linux-musl` | Linux   | x86_64        | Statically linked (Alpine, scratch containers, and similar systems) |
+| `x86_64-apple-darwin`       | macOS   | Intel         |                                                                     |
+| `aarch64-apple-darwin`      | macOS   | Apple Silicon |                                                                     |
+| `x86_64-pc-windows-msvc`    | Windows | x86_64        |                                                                     |
 
 ## Archive Contents
 
@@ -66,7 +66,9 @@ Future plugin crates will follow the same pattern.
 
 ## Plugin Versioning
 
-Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`. Each crate has its own git tag and release cadence, allowing tooling updates to ship without requiring a new compiler release. As a result, the installed versions need not match — for example, a formatter fix can ship as `leo-fmt` 4.1.0 while `leo-lang` is still at 4.0.1 (`cargo binstall leo-lang@4.0.1 leo-fmt@4.1.0`).
+Plugin crates (`leo-fmt`, `leo-lsp`) are versioned independently from `leo-lang`. Each crate has its own git tag and release schedule. Thus, a tool update does not require a new compiler release.
+
+The installed versions do not have to match. For example, `leo-fmt` 4.1.0 can contain a formatter fix while `leo-lang` remains at 4.0.1. Install these versions with `cargo binstall leo-lang@4.0.1 leo-fmt@4.1.0`.
 
 When packaging Leo, ensure the installed plugin versions are compatible with the installed `leo-lang` version.
 
@@ -76,7 +78,7 @@ A machine-readable `releases.toml` manifest is planned to track version compatib
 
 ## Packaging Guidelines
 
-Downstream packages (Homebrew taps, AUR PKGBUILDs, distribution packages, etc.) should follow these guidelines:
+Downstream packages, such as Homebrew taps, AUR PKGBUILDs, and distribution packages, must follow these guidelines:
 
 - **Install all binaries together.** A complete Leo installation includes `leo`, `leo-fmt`, and `leo-lsp`. Users expect the full toolchain.
 - **Place all binaries on `PATH`.** Leo discovers plugins by searching `PATH` for executables matching the `leo-<name>` convention.

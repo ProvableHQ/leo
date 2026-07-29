@@ -12,9 +12,9 @@ toc_max_heading_level: 3
 
 Many of the cryptographic operators have both `hash` and `commit` variants.
 
-The `hash` variant is a one-way function that takes an input and produces a fixed-size output called a "hash" or "digest." It has a unique property that if even one bit of the input changes, the output hash will change completely, making it easy to see if data has been tampered with.
+The `hash` variant is a one-way function. It takes an input and produces a fixed-size hash or digest. If one input bit changes, the output hash changes completely. Thus, a hash can show a change to the data.
 
-The `commit` variant is a wrapper around the `hash` variant that takes an additional parameter called a blinding factor, otherwise known as a **salt**. The **salt** is appended to the input value before hashing it, ensuring the output will be unique from just the simple hash of the raw input. So long as a different salt is used each time, this allows a user to commit to the same value multiple times without revealing that they've done so.
+The `commit` variant wraps the `hash` variant and takes an additional blinding factor, or **salt**. The function adds the salt to the input before it calculates the hash. This operation gives a different output for the raw input. If you use a different salt each time, you can commit the same value more than once without disclosure.
 
 ## Table of Contents
 
@@ -66,7 +66,7 @@ The `commit` variant is a wrapper around the `hash` variant that takes an additi
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#bhp256_hash
 ```
 
-Computes a Bowe-Hopwood-Pedersen hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`. The produced hash will be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Bowe-Hopwood-Pedersen hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -136,7 +136,7 @@ The instruction will halt if the given input is smaller than 129 bits.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#bhp512_hash
 ```
 
-Computes a Bowe-Hopwood-Pedersen hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Bowe-Hopwood-Pedersen hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -206,7 +206,7 @@ The instruction will halt if the given input is smaller than 171 bits.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#bhp768_hash
 ```
 
-Computes a Bowe-Hopwood-Pedersen hash on inputs of 768-bit chunks in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Bowe-Hopwood-Pedersen hash on inputs of 768-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -276,7 +276,7 @@ The instruction will halt if the given input is smaller than 129 bits.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#bhp1024_hash
 ```
 
-Computes a Bowe-Hopwood-Pedersen hash on inputs of 1024-bit chunks in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Bowe-Hopwood-Pedersen hash on inputs of 1024-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -348,7 +348,7 @@ The instruction will halt if the given input is smaller than 171 bits.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#pedersen64_hash
 ```
 
-Computes a Pedersen hash up to a 64-bit input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Pedersen hash up to a 64-bit input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -402,7 +402,7 @@ The instruction will halt if the given `struct` value exceeds the 64-bit limit.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#pedersen128_hash
 ```
 
-Computes a Pedersen hash up to a 128-bit input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Pedersen hash up to a 128-bit input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -462,10 +462,9 @@ The instruction will halt if the given `struct` value exceeds the 128-bit limit.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#poseidon2_hash
 ```
 
-Calculates a Poseidon hash with an input rate of 2, from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a Poseidon hash with an input rate of 2, from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
-s
 
 #### Supported Types
 
@@ -497,7 +496,7 @@ s
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#poseidon4_hash
 ```
 
-Calculates a Poseidon hash with an input rate of 4, from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a Poseidon hash with an input rate of 4, from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -531,7 +530,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#poseidon8_hash
 ```
 
-Calculates a Poseidon hash with an input rate of 8, from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a Poseidon hash with an input rate of 8, from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -601,8 +600,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak256_hash
 ```
 
-Computes a Keccak256 hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`.
-The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Keccak256 hash on inputs of 256-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -670,8 +668,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak384_hash
 ```
 
-Computes a Keccak384 hash on inputs of 384-bit chunks in `first`, storing the hash in `destination`.
-The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Keccak384 hash on inputs of 384-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -739,8 +736,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#keccak512_hash
 ```
 
-Computes a Keccak512 hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`.
-The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Computes a Keccak512 hash on inputs of 512-bit chunks in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -810,7 +806,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#sha3_256_hash
 ```
 
-Calculates a SHA3_256 hash from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a SHA3_256 hash from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -878,7 +874,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#sha3_384_hash
 ```
 
-Calculates a SHA3_384 hash from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a SHA3_384 hash from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -946,7 +942,7 @@ By appending `_raw` to the end of the function, the hash function will omit meta
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#sha3_512_hash
 ```
 
-Calculates a SHA3_512 hash from an input in `first`, storing the hash in `destination`. The produced hash will always be an arithmetic (`u8`, `u16`, `u32`, `u64`, `u128`, `i8`, `i16`, `i32`,`i64`,`i128`, `field`, `group`, or `scalar`) or `address` value, as specified via `hash_to_TYPE` at the end of the function.
+Calculates a SHA3_512 hash from an input in `first`, storing the hash in `destination`. The `hash_to_TYPE` suffix specifies the output type. The supported types table gives all valid output types.
 
 By appending `_raw` to the end of the function, the hash function will omit metadata of a variable and directly hash the input bits.
 
@@ -1019,7 +1015,9 @@ This operation can only be used inside a `final { }` block or inside a `final fn
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#signature_verify
 ```
 
-Verifies that the signature `first` was signed by the address `second` with respect to the field `third`, storing the result in `destination`. This verification follows the [Schnorr signature scheme](https://en.wikipedia.org/wiki/Schnorr_signature), which is a digital signature algorithm where the signer generates a random nonce, commits to it, computes a challenge using a hash function, and produces a signature by combining the nonce, challenge, and private key. The verifier checks the validity by reconstructing the challenge and ensuring consistency with the public key and message.
+Verifies signature `first` against address `second` and field `third`. The function stores the result in `destination`. This verification uses the [Schnorr signature scheme](https://en.wikipedia.org/wiki/Schnorr_signature). The signer generates a random nonce and commits to it. Then, the signer calculates a hash challenge.
+
+The signer combines the nonce, challenge, and private key to produce the signature. The verifier reconstructs the challenge and compares it with the public key and message.
 
 #### Supported Types
 
@@ -1040,9 +1038,9 @@ A `Message` is any literal or `struct` type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_digest
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the output from a hash function that was previously computed. The standard version of `verify_digest` assume that `second` is a 33-byte ECDSA public key, while the `verify_digest_eth` version assumes that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as a precalculated hash. `verify_digest` treats `second` as a 33-byte ECDSA public key. `verify_digest_eth` treats `second` as a 20-byte Ethereum address.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1059,9 +1057,11 @@ This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_keccak256
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the Keccak256 algorithm. The standard version of `verify_keccak256` will include the Aleo specific metadata alongside the input, while the `verify_keccak256_raw` version will exclude the metadata. The `verify_keccak256_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with Keccak256.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_keccak256` includes the Aleo-specific metadata. `verify_keccak256_raw` excludes this metadata. `verify_keccak256_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1080,9 +1080,11 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_keccak384
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the Keccak384 algorithm. The standard version of `verify_keccak384` will include the Aleo specific metadata alongside the input, while the `verify_keccak384_raw` version will exclude the metadata. The `verify_keccak384_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with Keccak384.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_keccak384` includes the Aleo-specific metadata. `verify_keccak384_raw` excludes this metadata. `verify_keccak384_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1101,9 +1103,11 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_keccak512
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the Keccak512 algorithm. The standard version of `verify_keccak512` will include the Aleo specific metadata alongside the input, while the `verify_keccak512_raw` version will exclude the metadata. The `verify_keccak512_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with Keccak512.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_keccak512` includes the Aleo-specific metadata. `verify_keccak512_raw` excludes this metadata. `verify_keccak512_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1122,9 +1126,11 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_sha3_256
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the SHA3_256 algorithm. The standard version of `verify_sha3_256` will include the Aleo specific metadata alongside the input, while the `verify_sha3_256_raw` version will exclude the metadata. The `verify_sha3_256_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with SHA3_256.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_sha3_256` includes the Aleo-specific metadata. `verify_sha3_256_raw` excludes this metadata. `verify_sha3_256_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1143,9 +1149,11 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_sha3_384
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the SHA3_384 algorithm. The standard version of `verify_sha3_384` will include the Aleo specific metadata alongside the input, while the `verify_sha3_384_raw` version will exclude the metadata. The `verify_sha3_384_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with SHA3_384.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_sha3_384` includes the Aleo-specific metadata. `verify_sha3_384_raw` excludes this metadata. `verify_sha3_384_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 
@@ -1164,9 +1172,11 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#ecdsa_verify_sha3_512
 ```
 
-Verifies that the signature `first` was signed by the private key corresponding to the address `second` with respect to the field `third`, storing the result in `destination`. This function assumes that value passed as `third` is the plaintext message bytes, which will be hashed using the SHA3_512 algorithm. The standard version of `verify_sha3_512` will include the Aleo specific metadata alongside the input, while the `verify_sha3_512_raw` version will exclude the metadata. The `verify_sha3_512_eth` will both exclude the metadata and assume that `second` is a 20-byte Ethereum address.
+Verifies signature `first` against key or address `second` and value `third`. The function stores the result in `destination`. The function treats `third` as plaintext message bytes. It hashes these bytes with SHA3_512.
 
-This verification follows the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm); an algorithm widely used across many other blockchains and legacy systems.
+`verify_sha3_512` includes the Aleo-specific metadata. `verify_sha3_512_raw` excludes this metadata. `verify_sha3_512_eth` excludes the metadata and treats `second` as a 20-byte Ethereum address.
+
+This verification uses the [ECDSA signature scheme](https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm). Many blockchains and legacy systems use this algorithm.
 
 #### Supported Types
 

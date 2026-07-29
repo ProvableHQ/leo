@@ -15,9 +15,9 @@ This program implements a bank that issues tokens to users and allows users to d
 
 1. The bank issues users tokens via the `issue` function.
 2. A user deposits tokens via the `deposit` function.
-3. Upon a user's request to withdraw, the bank calculates the appropriate amount of compound interest and pays the user the principal and interest via the `withdraw` function.
+3. When a user requests a withdrawal, the bank calculates the compound interest. The `withdraw` function pays the principal and interest to the user.
 
-Note that the program can be easily extended to include additional features such as a `transfer` function, which would allow users to transfer tokens to other users.
+You can extend the program with more features. For example, a `transfer` function can let users send tokens to other users.
 
 ## Bugs
 
@@ -26,7 +26,7 @@ You may have already guessed that this program has a few bugs. We list some of t
 - `withdraw` can only be invoked by the bank. A malicious bank could lock users' tokens by not invoking `withdraw`.
 - `withdraw` fails if the sum of the interest and principal is greater than the user's balance.
 - Users can increase their principal by depositing tokens multiple times, including immediately before withdrawal.
-- Integer division rounds down; if the calculated interest is too small, then it will be rounded down to zero.
+- Integer division rounds down. If the calculated interest is too small, then it will be rounded down to zero.
 
 Can you find any others?
 
@@ -36,7 +36,7 @@ There are, of course, ways to write a version of this application without these 
 
 - `record` declarations
 - `assert_eq`
-- core functions, e.g. `BHP256::hash`
+- core functions, for example `BHP256::hash`
 - record ownership
 - loops and bounded iteration
 - mappings
@@ -53,7 +53,7 @@ cd leo/examples/basic_bank
 ./run.sh
 ```
 
-The `.env` file contains a private key and address. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we've set things up in `./run.sh` for a full example of how to run the program as different parties.
+The `.env` file contains a private key and address. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we have set things up in `./run.sh` for a full example of how to run the program as different parties.
 
 ## Walkthrough
 
@@ -76,7 +76,7 @@ private_key: APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc
 address: aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg
 ```
 
-Let's make some bank transactions. We'll take the role of the bank and issue 100 tokens to the user. We swap the private key into `.env` and run the `issue` function. The inputs are simply the recipient of the issuance and the amount.
+Make some bank transactions. First, act as the bank. Issue 100 tokens to the user. Put the bank's private key in `.env`. Run the `issue` function. Specify the recipient and the amount.
 
 ```bash
 echo "
@@ -99,7 +99,7 @@ Output
 
 ## <a id="deposit"></a> Deposit Tokens
 
-Now, let's have the user deposit 50 of their tokens with the bank. We'll take the role of the user and call the deposit function, having the user use the output record that was issued to them by the bank. The inputs are the output record from the `issue` function and the amount the user wishes to deposit.
+Now, deposit 50 of the user's tokens with the bank. Act as the user. Call the `deposit` function. Use the output record from the `issue` function. Specify the deposit amount.
 
 ```bash
 echo "
@@ -132,17 +132,17 @@ Output
 }
 ```
 
-You'll see that the output contains a new private record belonging to the user with 50 credits, and finalization data indicating code to be run on-chain and its associated inputs.
+The output contains a new private record with 50 credits that belongs to the user. It also contains the on-chain finalization code and its inputs.
 
 ## <a id="wait"></a> Wait
 
-With the 50 token deposit, let's say 15 periods of time pass with compounding interest at a rate of 12.34% on the principal amount.
+Assume that 15 periods pass after the 50-token deposit. The principal has a compound interest rate of 12.34 percent.
 
 You can run the calculation yourself, it comes out to 266 tokens accrued using those numbers.
 
 ## <a id="withdraw"></a> Withdraw Tokens
 
-Now, let's have the bank withdraw all tokens after 15 periods. Let's switch to the bank role, and call the `withdraw` function. The inputs are the recipient's address, amount, rate, and periods.
+After 15 periods, withdraw all tokens. Act as the bank. Call the `withdraw` function. Specify the recipient's address, amount, rate, and number of periods.
 
 ```bash
 echo "
@@ -171,4 +171,4 @@ Output
 }
 ```
 
-You'll see here the withdrawal function creates a new private record for the user containing all 266 withdrawn tokens, and then outputs finalization data which will be run on-chain.
+The `withdraw` function creates a private record for the user with all 266 withdrawn tokens. It also outputs the finalization data that runs on-chain.

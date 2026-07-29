@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # `leo devnode`
 
-A devnode is a lightweight-node network that bypasses the consensus algorithm and the requirement to generate proofs for deployment and execution transactions. It is a development tool intended for rapidly iterating on Aleo program design and running end-to-end tests prior to deploying Aleo programs to Testnet and Mainnet.
+A devnode is a lightweight-node network. It does not use the consensus algorithm or require proofs for deployment and execution transactions. Use it to develop Aleo programs and run end-to-end tests before deployment to Testnet or Mainnet.
 
 :::note
 `leo devnode` is the recommended local development tool for lightweight testing. The older [`leo devnet`](./devnet.md) command (which requires a full snarkOS installation and spins up a multi-validator network) remains available for more complex testing scenarios.
@@ -124,7 +124,7 @@ leo upgrade --skip-deploy-certificate --endpoint http://localhost:3030
 
 A devnode exposes two REST endpoints for evaluating a program's [`view fn`](../language/programs_in_practice/functions.md) against the current ledger state. View functions are read-only: they compute a result from on-chain state without producing a transaction, so no key, signature, or proof is required.
 
-Both endpoints are mounted under the network prefix (e.g. `testnet`) and are also available behind the `v1` and `v2` API version prefixes:
+Both endpoints are mounted under the network prefix (for example `testnet`) and are also available behind the `v1` and `v2` API version prefixes:
 
 | Method | Path                                               | Description                                          |
 | ------ | -------------------------------------------------- | ---------------------------------------------------- |
@@ -133,7 +133,7 @@ Both endpoints are mounted under the network prefix (e.g. `testnet`) and are als
 
 The request body is a JSON array of the view function's inputs, each encoded as an Aleo value string. Pass `[]` when the function takes no inputs. The response is a JSON array of the function's outputs.
 
-The latest-height endpoint accepts an optional `?metadata=true` query parameter; when set, the response is wrapped as `{ "data": [...], "height": <block_height> }` instead of a bare output array.
+The latest-height endpoint accepts an optional `?metadata=true` query parameter. When set, the response is wrapped as `{ "data": [...], "height": <block_height> }` instead of a bare output array.
 
 ### **Examples**
 
@@ -154,7 +154,7 @@ curl -X POST http://localhost:3030/testnet/program/my_program.aleo/view/my_view/
   -d '[]'
 ```
 
-Under the `v2` prefix the endpoints return `422 Unprocessable Entity` for malformed inputs and `400 Bad Request` for an unknown view function or a height before the program was deployed.
+Under the `v2` prefix, malformed inputs return `422 Unprocessable Entity`. An unknown view function or a height before program deployment returns `400 Bad Request`.
 
 ## Typical Workflow
 

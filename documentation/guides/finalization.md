@@ -28,7 +28,7 @@ Entry functions with on-chain logic return `Final` and embed the finalization co
 
 ## External Calls
 
-Leo enables developers to call entry functions from imported programs. A call to an external entry function that returns `Final` produces a `Final` value which can be composed inside a `final { }` block using the `.run()` method:
+Leo lets you call entry functions from imported programs. An external entry function that returns `Final` produces a `Final` value. Use `.run()` to compose this value in a `final { }` block:
 
 ```leo file=../code_snippets/finalization/external_call/src/main.leo#file
 ```
@@ -47,7 +47,7 @@ Inside a `final { }` block, the order of state reads, state writes, and external
 2. **Effects** — writes via `set`, `remove`, or storage assignments.
 3. **Interactions** — external finalize executions via `Final::run()`.
 
-Within a single execution path, all checks and effects must precede any `.run()` call. Performing a check or effect *after* an interaction is flagged because the external program's finalize may have already modified the state your check reads or your effect writes against, opening a reentrancy-style class of bugs.
+In one execution path, all checks and effects must occur before a `.run()` call. The compiler warns about a check or effect after an interaction. The external finalization can change state that a later check reads or a later effect writes. This order can cause reentrancy-type bugs.
 
 The pass emits warnings (code prefix `CEI`) in the following situations:
 
@@ -61,7 +61,7 @@ The pass also performs a **cross-layer taint analysis** on values returned from 
 - A tainted value is used inside the finalize block — re-read the value on-chain instead of relying on the cached one.
 - A tainted value is passed as an argument to another external finalize — pass the value through an on-chain read inside the receiving finalize.
 
-These warnings are advisory and do not block compilation, but ignoring them is rarely correct. If you intend the ordering, restructure the code so the warning no longer triggers; suppressing it should be a last resort.
+These warnings are advisory and do not block compilation, but ignoring them is rarely correct. If you intend the ordering, restructure the code so the warning no longer triggers. Suppressing it should be a last resort.
 
 ## Managing Both Public and Private State
 

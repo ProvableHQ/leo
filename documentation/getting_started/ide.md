@@ -13,7 +13,7 @@ Developers can choose from a wide variety of development environments.
 Leo ships a Language Server Protocol (LSP) implementation (`leo-lsp`) that powers the editor plugins listed below. The server exposes the following capabilities:
 
 - **Semantic highlighting** — token classification driven by the compiler's own analysis, so keywords, types, and identifiers are highlighted consistently with how Leo actually parses your code.
-- **Push diagnostics** — compile errors and warnings (including the CEI analysis warnings described in the [Finalization Model guide](../guides/finalization.md#checks-effects-interactions-cei)) are surfaced inline as you edit, using the same ariadne-rendered messages you see on the command line.
+- **Push diagnostics** — shows compile errors and warnings while you edit. This includes the CEI warnings in the [Finalization Model guide](../guides/finalization.md#checks-effects-interactions-cei). The messages use the same ariadne format as the command line.
 - **Go to definition** — jump from any identifier to where it is defined, including across module and library boundaries.
 - **Find all references** — list every use of a symbol across the package.
 - **Rename** — rename a symbol everywhere it is used. The server uses `prepare-rename` to validate the target before applying the edit.
@@ -42,7 +42,7 @@ Download the editor here: <https://code.visualstudio.com/download>.
 
 ### Cursor
 
-[Cursor](https://www.cursor.com/) reuses the VSCode extension surface. The Leo client is implemented and pending publication to [Open VSX](https://open-vsx.org/); once published, install it from Cursor's Extensions panel by searching for "Leo". Progress is tracked in [leo-lsp-clients#10](https://github.com/ProvableHQ/leo-lsp-clients/issues/10).
+[Cursor](https://www.cursor.com/) reuses the VSCode extension surface. The Leo client is implemented and pending publication to [Open VSX](https://open-vsx.org/). Once published, install it from Cursor's Extensions panel by searching for "Leo". Progress is tracked in [leo-lsp-clients#10](https://github.com/ProvableHQ/leo-lsp-clients/issues/10).
 
 ### Google Antigravity
 

@@ -9,8 +9,7 @@ title: A Private Auction using Leo
 
 ## Summary
 
-A first-price sealed-bid auction (or blind auction) is a type of auction in which each participant submits a bid without knowing the bids of the other participants.
-The bidder with the highest bid wins the auction.
+A first-price sealed-bid auction is also called a blind auction. Each participant submits a bid without information about the other bids. The bidder with the highest bid wins the auction.
 
 In this model, there are two kinds of parties: the auctioneer and the bidders.
 
@@ -52,7 +51,7 @@ cd leo/examples/auction
 ./run.sh
 ```
 
-The `.env` file contains a private key and address. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we've set things up in `./run.sh` for a full example of how to run the program as different parties.
+The `.env` file contains a private key and address. This is the account that will be used to sign transactions and is checked for record ownership. When executing programs as different parties, be sure to set the `private_key` field in `.env` to the appropriate value. You can check out how we have set things up in `./run.sh` for a full example of how to run the program as different parties.
 
 ## Walkthrough
 
@@ -63,7 +62,7 @@ The `.env` file contains a private key and address. This is the account that wil
 
 ## <a id="step0"></a> Step 0: Initializing the Auction
 
-The three parties we'll be emulating are as follows:
+The three parties we will be emulating are as follows:
 
 ```markdown
 Bidder 1 Private Key:  
@@ -192,4 +191,4 @@ leo run finish "{
 }"
 ```
 
-Congratulations! You've run a private auction. We recommend going to [provable.tools](https://provable.tools) to generate new accounts and trying the same commands with those addresses.
+Congratulations! You have run a private auction. We recommend going to [provable.tools](https://provable.tools) to generate new accounts and trying the same commands with those addresses.

@@ -13,7 +13,7 @@ It abstracts the complexities of zero-knowledge cryptography, enabling developer
 
 - **Intuitive Syntax.** Influenced by languages like JavaScript and Rust, Leo offers a familiar and readable syntax, making it accessible to a wide range of developers.
 - **Seamless Aleo Integration.** Specifically designed for the Aleo blockchain, Leo ensures smooth deployment and management of applications within Aleo's zero-knowledge ecosystem.
-- **Robust Tooling.** Leo provides a comprehensive suite of tools, including a command-line interface and integrated development environment (IDE) plugins for Visual Studio Code, Sublime Text 3, and IntelliJ, enhancing the developer experience.
+- **Robust Tooling.** Leo provides a command-line interface and IDE plugins for Visual Studio Code, Sublime Text 3, and IntelliJ.
 - **Formal Verification.** With a formally defined language structure, Leo enables developers to perform formal verification of their programs, ensuring correctness and security in application logic.
 
 ## Overview

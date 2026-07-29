@@ -18,7 +18,7 @@ leo devnet --snarkos <SNARKOS>
 
 where `<SNARKOS>` should be the path to an installed binary of snarkOS.
 
-If you don't have snarkOS installed, you can do so by passing the `--install` flag, which will install the binary at the path specified above.
+If snarkOS is not installed, pass `--install`. This option installs the binary at the specified path.
 
 <!-- markdown-link-check-disable -->
 
@@ -40,7 +40,7 @@ This flag is required!
 
 ### `--snarkos-features <FEATURES>`
 
-Specifies which features of snarkOS to use (e.g. `test_network`)
+Specifies which features of snarkOS to use (for example `test_network`)
 
 ### `--install`
 
@@ -58,7 +58,7 @@ Specifies which version of snarkOS to use or install. Defaults to latest version
 
 Optional blocks heights to use for each successive consensus upgrade. Must have `--snarkos-features test_network` enabled as well.
 
-The following will enable Consensus_V0 at block 0, Consensus_V1 at block 1, etc.:
+The following settings enable each consensus version at its corresponding block:
 
 ```bash
 --consensus-heights 0,1,2,3....
@@ -106,19 +106,19 @@ Skips confirmation prompts and proceeds with the devnet startup.
 
 ### `--rest-port <REST_PORT>`
 
-Base REST port; each node uses `base + dev_index`.
+Base REST port. Each node uses `base + dev_index`.
 
 ### `--node-port <NODE_PORT>`
 
-Base node port; each node uses `base + dev_index`.
+Base node port. Each node uses `base + dev_index`.
 
 ### `--bft-port <BFT_PORT>`
 
-Base BFT port; each node uses `base + dev_index`.
+Base BFT port. Each node uses `base + dev_index`.
 
 ### `--metrics-port <METRICS_PORT>`
 
-Base metrics port; each validator uses `base + dev_index`.
+Base metrics port. Each validator uses `base + dev_index`.
 
 ### `--clean-only`
 

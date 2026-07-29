@@ -6,7 +6,7 @@ sidebar_label: Upgrading Programs
 
 [general tags]: # "guides, upgrade, program, transaction, constructor"
 
-This guide provides a practical overview of Aleo's program upgradability framework, tailored for developers using the Leo language. You'll learn how to configure your program, implement common upgrade patterns, and follow best practices for writing secure, maintainable applications.
+This guide provides a practical overview of Aleo's program upgradability framework, tailored for developers using the Leo language. You will learn how to configure your program, implement common upgrade patterns, and follow best practices for writing secure, maintainable applications.
 
 ## Getting Started: The Upgrade Policy
 
@@ -15,12 +15,12 @@ The Leo compiler reads the annotation to understand your intent and generates th
 
 There are four primary upgrade modes:
 
-| Mode         | Description                                                                                       |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| `@noupgrade` | The program is not upgradable.                                                                    |
-| `@admin`     | Upgrades are controlled by a single, hardcoded admin address.                                     |
-| `@checksum`  | Upgrades are governed by an on-chain checksum, often managed by a separate program (e.g., a DAO). |
-| `@custom`    | You write the entire upgrade logic from scratch in the `constructor`.                             |
+| Mode         | Description                                                                                              |
+| ------------ | -------------------------------------------------------------------------------------------------------- |
+| `@noupgrade` | The program is not upgradable.                                                                           |
+| `@admin`     | Upgrades are controlled by a single, hardcoded admin address.                                            |
+| `@checksum`  | Upgrades are governed by an on-chain checksum, often managed by a separate program (for example, a DAO). |
+| `@custom`    | You write the entire upgrade logic from scratch in the `constructor`.                                    |
 
 ### Annotation Syntax
 
@@ -37,11 +37,11 @@ Every constructor must carry **exactly one** of the four upgrade annotations. Th
 - **`@admin`** takes a single `address` argument — a string literal containing a valid Aleo address (`aleo1…`).
 - **`@checksum`** takes two arguments:
   - `mapping` — a string locator naming the mapping that holds the approved checksum. Both `prog.aleo::mapping_name` (Leo path syntax) and `prog.aleo/mapping_name` (AVM locator syntax) are accepted.
-  - `key` — a string containing a Leo plaintext literal of any primitive type (`field`, `group`, `address`, `scalar`, `bool`, integer types, `signature`, `identifier`). The compiler infers the key's type from the literal's suffix, so include the suffix when the literal needs one (e.g. `"5u32"`, `"1field"`).
+  - `key` — a string containing a Leo plaintext literal of any primitive type (`field`, `group`, `address`, `scalar`, `bool`, integer types, `signature`, `identifier`). The compiler infers the key's type from the literal's suffix, so include the suffix when the literal needs one (for example `"5u32"`, `"1field"`).
 
-All argument values are written as string literals; the compiler parses the contained text against the expected sub-grammar (address, locator, plaintext literal). Whitespace around the `=` is optional — `@admin(address="aleo1…")` and `@admin(address = "aleo1…")` are equivalent.
+All argument values are written as string literals. The compiler parses the contained text against the expected sub-grammar (address, locator, plaintext literal). Whitespace around the `=` is optional — `@admin(address="aleo1…")` and `@admin(address = "aleo1…")` are equivalent.
 
-A constructor with **no annotation**, with **multiple annotations**, or with an unknown key (e.g. `@admin(owner = "…")`) is a compile error.
+A constructor with **no annotation**, with **multiple annotations**, or with an unknown key (for example `@admin(owner = "…")`) is a compile error.
 
 ## Core Mechanics
 
@@ -52,7 +52,7 @@ Upgradability revolves around a special `constructor` function and on-chain prog
 The `constructor` is a special function that runs on-chain during every deployment and upgrade. Think of it as the gatekeeper for your program.
 There are two key properties of the `constructor` related to upgradability:
 
-- **Foundational:** All programs must be deployed with a `constructor`. If the `constructor` logic fails (e.g., a failed `assert`), the entire deployment or upgrade transaction is rejected.
+- **Foundational:** All programs must be deployed with a `constructor`. If the `constructor` logic fails (for example, a failed `assert`), the entire deployment or upgrade transaction is rejected.
 - **Immutable:** The logic inside the `constructor` is set in stone at the first deployment. It can never be changed by a future upgrade. Any bugs introduced here are permanent, so audit your constructor carefully.
 
 ### Program Metadata Operands
@@ -69,7 +69,7 @@ Within a `constructor`, you can access on-chain metadata about the program throu
 You may also refer to another program's metadata through the [`std::prog`](../language/standard_library.md#stdprog) module — for example `std::prog::edition::[credits.aleo]()` or `std::prog::program_owner::[foo.aleo]()`.
 You will need to import the program in your Leo file to use this syntax.
 
-Note. Programs deployed before the upgradability feature (i.e. using Leo version < v3.1.0) do not have a `program_owner`. Attempting to access it will result in a runtime error.
+Note. Programs deployed before the upgradability feature (that is using Leo version < v3.1.0) do not have a `program_owner`. Attempting to access it will result in a runtime error.
 
 ---
 
@@ -136,7 +136,7 @@ constructor:
 
 ### Warning: Keep Compiler Versions Consistent
 
-Checksum-governed upgrades are bytecode-sensitive. Do not assume bytecode is stable across Leo compiler versions: different compiler versions can produce different bytecode for identical source, which can cause a checksum-governed upgrade to fail.
+Checksum-governed upgrades are bytecode-sensitive. Do not assume that bytecode is stable across Leo compiler versions. Different compiler versions can produce different bytecode for identical source. This difference can cause a checksum-governed upgrade to fail.
 
 Version consistency matters beyond checksums, though. A program's constructor cannot change between upgrades, and compiler behavior or supported features can change (or even break) across versions. Building every edition with the same pinned toolchain avoids both bytecode drift and subtle semantic differences a different compiler version could introduce.
 
@@ -153,11 +153,11 @@ leo query program <NAME>
 leo query program <NAME> --edition <N>
 ```
 
-The query returns deployed source; it does not print the compiler version. Use it with your pinned toolchain record and rebuild with the same Leo version to avoid bytecode drift.
+The query returns deployed source. It does not print the compiler version. Use it with your pinned toolchain record and rebuild with the same Leo version to avoid bytecode drift.
 
 ### Pattern 4: Custom Logic (Time-lock Example)
 
-**Goal:** Enforce a time delay before an upgrade is allowed. No pre-defined mode is available for this so we'll have to write our own upgrade policy
+**Goal:** Enforce a time delay before an upgrade is allowed. No pre-defined mode is available for this so we will have to write our own upgrade policy
 
 **`main.leo`**
 
@@ -183,7 +183,7 @@ constructor:
 
 ## The Rules: What You Can and Cannot Change
 
-The protocol enforces strict rules to ensure that upgrades don't break dependent applications or corrupt existing state.
+The protocol enforces strict rules to ensure that upgrades do not break dependent applications or corrupt existing state.
 
 An upgrade **can**:
 
@@ -217,7 +217,7 @@ Program mutability introduces new risks. Keep these points in mind:
 - **Audit the `constructor` intensely.** Its logic is permanent and cannot be fixed after deployment.
 - **Prefer multi-sig or DAO governance over a single admin.** A single point of failure is risky.
 - **Implement time-locks for major upgrades.** Giving users a window to react builds trust.
-- **Plan for "ossification".** Provide a way to make your program immutable (e.g., by transferring admin rights to a burn address) to give users long-term certainty.
+- **Plan for "ossification".** Provide a way to make your program immutable (for example, by transferring admin rights to a burn address) to give users long-term certainty.
 
 ## Legacy Programs
 

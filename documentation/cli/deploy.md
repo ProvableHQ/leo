@@ -112,7 +112,7 @@ jq '.deployments[0].transaction_id' build/json-outputs/deploy.json
 
 When run inside a [workspace](../guides/workspaces.md):
 
-- **From workspace root:** Builds and deploys all members in dependency order. Programs shared between members (e.g. a dependency that appears in multiple members) are deployed only once.
+- **From workspace root:** Builds and deploys all members in dependency order. Programs shared between members (for example a dependency that appears in multiple members) are deployed only once.
 - **From a member directory:** Deploys only that member.
 - **With `--package <NAME>`:** Deploys only the specified member.
 
@@ -204,13 +204,13 @@ Only the project's own (primary) program is renamed. Programs that `import` the 
 
 `--rename` is rejected, before any network interaction, when:
 
-- the name is not a valid Aleo program name;
-- the target collides with another program or dependency in the package (build artifacts are keyed by name, so this would be ambiguous);
-- the target is the program's current name (a no-op rename);
-- it is combined with `--build-tests` (tests keep their original names and would dangle against the renamed primary);
+- the name is not a valid Aleo program name.
+- the target collides with another program or dependency in the package (build artifacts are keyed by name, so this would be ambiguous).
+- the target is the program's current name (a no-op rename).
+- it is combined with `--build-tests` (tests keep their original names and would dangle against the renamed primary).
 - deploying multiple [workspace](../guides/workspaces.md) members at once (deploy a single program instead).
 
-**Executing a renamed program.** Because your local package keeps its original identity, run the renamed program by its **fully qualified** on-chain name so it resolves to the deployed copy on the network:
+**Executing a renamed program.** Your local package keeps its original identity. Run the renamed program by its **fully qualified** on-chain name. This name resolves to the deployed network copy:
 
 ```bash
 leo execute --broadcast renamed_prog.aleo::main 1u32 2u32
@@ -230,7 +230,7 @@ Do not use this feature unless you know what you are doing!
 
 ### `--skip-deploy-certificate`
 
-Uses placeholder certificate and verifying keys instead of synthesizing them during deployment. Intended for testing; the resulting deployment is not valid for production use.
+Uses placeholder certificate and verifying keys instead of synthesizing them during deployment. Intended for testing. The resulting deployment is not valid for production use.
 
 ### `--priority-fees <PRIORITY_FEES>`
 
@@ -250,7 +250,7 @@ Specifies the record(s) to pay for fees privately, delimited by `|` and used in 
 
 Specifies the consensus heights to use, delimited by `,`. This should only be set if you are using a custom devnet.
 
-The following will enable Consensus_V0 at block 0, Consensus_V1 at block 1, etc.:
+The following settings enable each consensus version at its corresponding block:
 
 ```bash
 --consensus-heights 0,1,2,3....

@@ -118,7 +118,7 @@ Endpoint to record in the generated `.env` file. Only used when `--write` is set
 
 Use this command to sign a message using your Aleo private key.
 
-Assuming either the current working directory is a Leo project or the `$PRIVATE_KEY` environment variable has been set, you can sign a message using the following command:
+If the current directory is a Leo project, use the following command to sign a message. You can also use the command when `$PRIVATE_KEY` is set:
 
 ```bash
 leo account sign --message <MESSAGE>

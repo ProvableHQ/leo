@@ -1,7 +1,7 @@
 ---
 id: new
-title: What's new on Leo?
-sidebar_label: What's new?
+title: New in Leo
+sidebar_label: New in Leo
 ---
 
 [general tags]: # "whats_new, leo"

@@ -6,7 +6,7 @@ sidebar_label: Curated
 
 [general tags]: # "resources, links"
 
-There's a lot more on Leo and Aleo out there! Here are some things you might find interesting.
+The following resources provide more information about Leo and Aleo.
 
 ## The Community
 
@@ -14,7 +14,7 @@ There's a lot more on Leo and Aleo out there! Here are some things you might fin
 
 <https://discord.gg/aleo>
 
-If you're interested in learning more about Aleo:
+To learn more about Aleo, use these resources:
 
 <!-- markdown-link-check-disable -->
 

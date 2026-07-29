@@ -89,6 +89,6 @@ leo run make_move 1u8 3u8 1u8 "{ r1: { c1: 1u8, c2: 0u8, c3: 0u8 }, r2: { c1: 0u
 
 ## <a id="step4"></a> and so on
 
-If you follow the run script till the end, you'll see the players make a draw, with an output of `0u64`.
+If you follow the run script till the end, you will see the players make a draw, with an output of `0u64`.
 
-This example does not utilize records, as it is primarily designed to demonstrate Leo language features rather than serve as a fully realistic example of a ZK game. A more complete implementation would involve passing records between players to maintain game state securely.
+This example does not use records. Its primary purpose is to show Leo language features, not a complete zero-knowledge game. A more complete implementation can send records between players to keep the game state secure.
