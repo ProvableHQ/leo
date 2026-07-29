@@ -103,7 +103,7 @@ When you start the devnet, the CLI will actually spin up a new instance of the b
 
 The height of the chain will increase as blocks are produced. At various different heights, a new consensus version will activate, which will unlock various features that have been implemented as the Aleo network has matured. By default, snarkOS built with `--features test_network` will fast forward to the highest `ConsensusVersion` on a Testnet ledger within a few blocks. You can get more insights by calling `curl localhost:3030/testnet/version`.
 
-To test an older `ConsensusVersion`, pass a comma-separated list of heights with `--consensus-heights`. For example, use `0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,$((2**32 - 1))` to activate V17 at height 20 and leave V18 inactive. The list length must equal the number of consensus versions in the VM.
+To test an older `ConsensusVersion`, give a comma-separated height list to `--consensus-heights`. For example, use `0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,20,$((2**32 - 1))` to activate V17 at height 20. V18 then stays inactive. The list must have one height for each consensus version in the VM.
 
 Each time you stop and restart the chain, the prior state and history will be saved. You can clear any prior history by passing the `--clear-storage` flag:
 

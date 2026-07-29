@@ -53,7 +53,7 @@ This tutorial will use an example program which can be found in the [example's r
 :::info
 You can add multiple `.leo` files to the test directory. Each test file name must match the program name in that file. For example, `test_example_program.leo` must contain the program name `test_example_program.aleo`.
 
-Leo compiles each test file independently. Test files are separate test programs, not modules of one combined program.
+Leo compiles each test file separately. Each test file is a separate test program. Test files are not modules in one program.
 :::
 
 ### Testing Entry Functions
@@ -151,7 +151,7 @@ or
 leo test addition
 ```
 
-Results use qualified names such as `test_example_program.leo::test_addition`. A filter can match that name or the compiled form `test_example_program.aleo/test_addition`:
+The results use qualified names such as `test_example_program.leo::test_addition`. A filter can match this name. It can also match the compiled name `test_example_program.aleo/test_addition`:
 
 ```bash
 leo test test_example_program.leo::test_addition

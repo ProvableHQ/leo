@@ -26,7 +26,7 @@ The build command automatically creates a `build/` directory. For a single proje
   Leo ✅ Generated ABI for program '{PROGRAM_NAME}.aleo'.
 ```
 
-The import line appears once for each imported program. It is omitted when the program has no imports.
+The output has one import line for each imported program. Leo does not show this line when the program has no imports.
 
 The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/abi.md) for details on the format and type lowering specification.
 

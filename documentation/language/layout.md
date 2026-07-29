@@ -120,7 +120,7 @@ A module file may only contain `struct`, `const`, and `fn` definitions.
 
 ### Visibility
 
-Module-level `struct`, `const`, `fn`, and `interface` declarations are private by default. Add the `export` modifier to make an item accessible from another source file or compilation unit:
+By default, module-level `struct`, `const`, `fn`, and `interface` declarations are private. Add the `export` modifier to give access to another source file or compilation unit:
 
 ```leo
 export const MAX_VALUE: u32 = 100u32;
@@ -132,14 +132,14 @@ export fn clamp(value: u32) -> u32 {
 }
 ```
 
-- An unqualified item is accessible only from its defining source file.
-- An `export` item is accessible from other modules in the same package and from dependent packages.
-- Items declared inside `program { … }` are already part of the program interface and cannot use `export`.
-- Exported helper functions are inlined into importer bytecode. They are not separate on-chain functions.
+- Only the source file can use an unqualified item.
+- Other modules in the same package and dependent packages can use an `export` item.
+- Items in `program { … }` are part of the program interface. Do not use `export` on these items.
+- Leo includes exported helper function bytecode in the importer. It does not deploy the functions separately.
 
 ### Accessing Submodules of Imported Programs
 
-An imported program can organize its source across submodules. Use an extended locator path to access an exported `struct`, `const`, `interface`, or helper `fn` in those submodules:
+An imported program can use submodules. Use an extended locator path to access an exported `struct`, `const`, `interface`, or helper `fn` in these submodules:
 
 ```text
 program.aleo::submodule::item

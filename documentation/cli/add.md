@@ -26,7 +26,7 @@ To add a program already deployed onchain as a dependency to your project, run t
 leo add <NAME> --network
 ```
 
-where `<NAME>` is the name of the imported program. Leo verifies that the program exists before it updates `program.json`.
+`<NAME>` is the name of the imported program. Leo makes sure that the program exists before it changes `program.json`.
 
 To add another member of the enclosing workspace as a dependency:
 
@@ -64,11 +64,11 @@ Specifies that the dependency to be added is a remote program currently deployed
 
 ### `--endpoint <ENDPOINT>`
 
-Specifies the endpoint that Leo uses to verify a network dependency. This option overrides the `ENDPOINT` environment variable.
+Use this option to specify the endpoint that Leo uses to verify a network dependency. This option overrides the `ENDPOINT` environment variable.
 
 ### `--network-retries <N>`
 
-Specifies how many times Leo retries a failed request while it verifies a network dependency. This option overrides the `NETWORK_RETRIES` environment variable and defaults to `2`.
+Use this option to specify how many times Leo retries a network request. This option overrides the `NETWORK_RETRIES` environment variable. The default value is `2`.
 
 ### `--workspace`
 

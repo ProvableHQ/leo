@@ -14,8 +14,8 @@ A program can opt out of the implicit injection by setting `"no_std": true` in i
 
 Functions in `std` come in two flavors:
 
-- A plain `fn` is callable where its underlying operation is valid. Most are available in transition and finalize contexts. On-chain context accessors are available in finalize contexts and views.
-- A `final fn` may only be called from inside another `final fn` body or a `final { ... }` block. These functions touch on-chain operands (block height, randomness, mappings, signature verifiers) that the off-chain prover has no access to.
+- You can call a plain `fn` where its underlying operation is valid. You can call most plain functions in transition and finalize contexts. You can use on-chain context accessors in finalize contexts and views.
+- You can call a `final fn` only from another `final fn` body or a `final { ... }` block. These functions use on-chain operands. The off-chain prover cannot access these operands.
 
 This page calls out the scope of every module that contains `final fn`
 entries.
@@ -234,9 +234,7 @@ This module provides execution-context accessors for the current program. Its fu
 | `signer()`  | `address`  | The address that signed the outer transaction. Unchanged across cross-program calls.                                        |
 | `id()`      | `address`  | The identifier of the current program.                                                                                      |
 
-Use `caller()` for trust decisions about who is asking for the current
-operation. Use `signer()` when the decision should track the originator
-of the entire transaction.
+Use `caller()` for decisions that depend on the immediate caller. Use `signer()` for decisions that depend on the transaction signer.
 
 ### On-chain reads (finalize contexts and views)
 
