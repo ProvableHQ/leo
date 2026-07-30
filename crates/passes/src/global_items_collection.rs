@@ -126,6 +126,7 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
         input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -138,7 +139,19 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
             input.functions.iter().for_each(|(_, c)| slf.visit_function(c));
             input.consts.iter().for_each(|(_, c)| slf.visit_const(c));
             input.interfaces.iter().for_each(|(_, c)| slf.visit_interface(c));
+            input.impls.iter().for_each(|i| slf.visit_impl(i));
         })
+    }
+
+    /// Registers each impl method under the type's namespace, so a method `m` in `impl Type`
+    /// becomes the symbol-table location `[..module, Type, m]`. This is what makes both static
+    /// (`Type::m`) and instance (`value.m`) calls resolve to the method.
+    fn visit_impl(&mut self, input: &leo_ast::Impl) {
+        let mut path = self.module.clone();
+        path.push(input.type_.name);
+        self.in_module_scope(&path, |slf| {
+            input.functions.iter().for_each(|(_, f)| slf.visit_function(f));
+        });
     }
 
     fn visit_composite(&mut self, input: &Composite) {
@@ -206,6 +219,7 @@ impl UnitVisitor for GlobalItemsCollectionVisitor<'_> {
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         input.modules.values().for_each(|m| {
             self.visit_module(m);
         });

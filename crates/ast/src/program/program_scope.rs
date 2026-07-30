@@ -21,6 +21,7 @@ use crate::{
     ConstDeclaration,
     Constructor,
     Function,
+    Impl,
     Indent,
     Interface,
     Mapping,
@@ -52,6 +53,8 @@ pub struct ProgramScope {
     pub functions: Vec<(Symbol, Function)>,
     /// A vector of interface definitions.
     pub interfaces: Vec<(Symbol, Interface)>,
+    /// A vector of `impl` blocks defining methods on this program's types.
+    pub impls: Vec<Impl>,
     /// An optional constructor.
     pub constructor: Option<Constructor>,
     /// The span associated with the program scope.
@@ -83,6 +86,9 @@ impl fmt::Display for ProgramScope {
 
         for (_, function) in self.functions.iter().filter(|f| !f.1.variant.is_entry() && !f.1.variant.is_view()) {
             writeln!(f, "{}", Indent(function))?;
+        }
+        for impl_ in self.impls.iter() {
+            writeln!(f, "{impl_}")?;
         }
         Ok(())
     }

@@ -159,6 +159,26 @@ impl MonomorphizationVisitor<'_> {
         new_composite_path
     }
 
+    /// Reassembles impl blocks from the already-populated `reconstructed_functions` map. Each
+    /// method was monomorphized under the location `prefix ++ [Type, method]`, mirroring how
+    /// module functions are re-placed. Methods never reached by the DFS are dropped as dead code.
+    pub(super) fn assemble_impls(
+        &self,
+        program: Symbol,
+        prefix: &[Symbol],
+        impls: Vec<leo_ast::Impl>,
+    ) -> Vec<leo_ast::Impl> {
+        impls
+            .into_iter()
+            .map(|imp| {
+                let mut path = prefix.to_vec();
+                path.push(imp.type_.name);
+                let functions = items_at_path(&self.reconstructed_functions, program, &path).collect();
+                leo_ast::Impl { functions, ..imp }
+            })
+            .collect()
+    }
+
     /// Assembles a `Module` from the already-populated `reconstructed_*` maps. Interfaces are
     /// reconstructed because they may reference composites that have been monomorphized.
     /// `input.unit_name` is used (not `self.program`) because a nested `reconstruct_program`
@@ -169,6 +189,7 @@ impl MonomorphizationVisitor<'_> {
             composites: items_at_path(&self.reconstructed_composites, input.unit_name, &input.path).collect(),
             functions: items_at_path(&self.reconstructed_functions, input.unit_name, &input.path).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: self.assemble_impls(input.unit_name, &input.path, input.impls),
             ..input
         }
     }
@@ -219,6 +240,7 @@ impl MonomorphizationVisitor<'_> {
             storage_variables,
             functions,
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: self.assemble_impls(program_name, &[], input.impls),
             constructor,
             consts,
             span: input.span,

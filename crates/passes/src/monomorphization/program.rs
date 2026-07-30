@@ -38,6 +38,7 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
                 .collect(),
             functions: items_at_path(&self.reconstructed_functions, input.name, &[]).collect(),
             interfaces: input.interfaces,
+            impls: self.assemble_impls(input.name, &[], input.impls),
             stubs: input.stubs,
         }
     }
@@ -162,6 +163,7 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
             storage_variables,
             functions,
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: self.assemble_impls(self.program, &[], input.impls),
             constructor,
             consts,
             span: input.span,

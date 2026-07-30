@@ -30,6 +30,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -141,6 +142,7 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         input.modules.values().for_each(|m| self.visit_module(m));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }

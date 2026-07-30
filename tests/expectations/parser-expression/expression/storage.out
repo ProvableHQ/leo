@@ -1,12 +1,12 @@
-_vector_push(v, y)
+v.push(y)
 
-_vector_pop(v)
+v.pop()
 
-__unresolved_get(v, y)
+v.get(y)
 
-__unresolved_set(v, y, z)
+v.set(y, z)
 
-_vector_len(v)
+v.len()
 
-_vector_swap_remove(v, y)
+v.swap_remove(y)
 

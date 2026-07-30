@@ -510,6 +510,18 @@ impl SymbolTable {
         Ok(())
     }
 
+    /// Replace the stored body of the function at `location` with `function`, preserving the
+    /// entry's `finalizer`/`is_stub` metadata. No-op if no function is registered there.
+    ///
+    /// Used to re-sync the symbol table with the AST after the Disambiguate pass, so analyses that
+    /// read callee bodies from the table (e.g. CEI) see the resolved forms rather than the
+    /// pre-Disambiguate ones registered during global-item collection.
+    pub fn update_function_body(&mut self, location: &Location, function: Function) {
+        if let Some(symbol) = self.functions.get_mut(location) {
+            symbol.function = function;
+        }
+    }
+
     /// Insert an interface at this location.
     pub fn insert_interface(&mut self, location: Location, int: Interface) -> Result<()> {
         self.check_shadow_global(&location, int.identifier.span)?;

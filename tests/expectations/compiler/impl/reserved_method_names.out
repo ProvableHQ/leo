@@ -1,0 +1,16 @@
+program test.aleo;
+
+struct Bag:
+    items as u32;
+
+function main:
+    input r0 as u32.private;
+    add r0 1u32 into r1;
+    cast r1 into r2 as Bag;
+    is.eq r2.items 3u32 into r3;
+    ternary r3 1u32 0u32 into r4;
+    add r2.items r4 into r5;
+    output r5 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;

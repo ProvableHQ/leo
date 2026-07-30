@@ -75,6 +75,7 @@ impl AstReconstructor for Duplicator<'_> {
             Expression::Intrinsic(e) => self.reconstruct_intrinsic(*e, &()),
             Expression::Literal(e) => self.reconstruct_literal(e, &()),
             Expression::MemberAccess(e) => self.reconstruct_member_access(*e, &()),
+            Expression::MethodCall(..) => unreachable!("MethodCall is removed by the Disambiguate pass"),
             Expression::Path(e) => self.reconstruct_path(e, &()),
             Expression::Repeat(e) => self.reconstruct_repeat(*e, &()),
             Expression::Ternary(e) => self.reconstruct_ternary(*e, &()),

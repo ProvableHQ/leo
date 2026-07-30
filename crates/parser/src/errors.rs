@@ -43,6 +43,9 @@ pub(crate) fn unexpected_str(found: impl Display, expected: impl Display, span: 
         .with_help(format!("Replace `{found}` with `{expected}`."))
 }
 
+// Retained for its error-code slot; user-defined instance-method calls are now deferred to the
+// type checker rather than rejected here (see `method_call_expr_to_expression`).
+#[allow(dead_code)]
 pub(crate) fn invalid_method_call(
     expr: impl Display,
     func: impl Display,

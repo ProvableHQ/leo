@@ -343,24 +343,6 @@ impl TypeCheckingVisitor<'_> {
     pub fn get_intrinsic(&mut self, intrinsic_expr: &IntrinsicExpression) -> Option<Intrinsic> {
         // Lookup core struct
         match Intrinsic::from_symbol(intrinsic_expr.name, &intrinsic_expr.type_parameters) {
-            None if intrinsic_expr.name == Symbol::intern("__unresolved_get") => {
-                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
-                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
-                match ty {
-                    TypeKind::Vector(_) => Some(Intrinsic::VectorGet),
-                    TypeKind::Mapping(_) => Some(Intrinsic::MappingGet),
-                    _ => None,
-                }
-            }
-            None if intrinsic_expr.name == Symbol::intern("__unresolved_set") => {
-                let ty = self.visit_expression(&intrinsic_expr.arguments[0], &None);
-                self.assert_vector_or_mapping_type(&ty, intrinsic_expr.arguments[0].span());
-                match ty {
-                    TypeKind::Vector(_) => Some(Intrinsic::VectorSet),
-                    TypeKind::Mapping(_) => Some(Intrinsic::MappingSet),
-                    _ => None,
-                }
-            }
             None => {
                 // Not a core library struct.
                 self.emit_err(crate::errors::type_checker::invalid_intrinsic(

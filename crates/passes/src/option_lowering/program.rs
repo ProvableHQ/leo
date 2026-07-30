@@ -109,10 +109,11 @@ impl UnitReconstructor for OptionLoweringVisitor<'_> {
             })
             .collect();
         let functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
+        let impls = input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect();
         let stubs = input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect();
         let structs = items_at_path(&self.composites, input.name, &[]).collect();
 
-        Library { name: input.name, modules, consts, structs, functions, interfaces: input.interfaces, stubs }
+        Library { name: input.name, modules, consts, structs, functions, interfaces: input.interfaces, impls, stubs }
     }
 
     fn reconstruct_program(&mut self, input: Program) -> Program {
@@ -147,10 +148,21 @@ impl UnitReconstructor for OptionLoweringVisitor<'_> {
             input.storage_variables.into_iter().map(|(id, v)| (id, self.reconstruct_storage_variable(v))).collect();
         let functions = input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect();
         let interfaces = input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect();
+        let impls = input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect();
         let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
         let composites = items_at_path(&self.composites, program_name, &[]).collect();
 
-        ProgramScope { consts, composites, mappings, storage_variables, functions, interfaces, constructor, ..input }
+        ProgramScope {
+            consts,
+            composites,
+            mappings,
+            storage_variables,
+            functions,
+            interfaces,
+            impls,
+            constructor,
+            ..input
+        }
     }
 
     fn reconstruct_module(&mut self, input: Module) -> Module {
@@ -167,6 +179,19 @@ impl UnitReconstructor for OptionLoweringVisitor<'_> {
             composites: items_at_path(&slf.composites, slf.program, &input.path).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| slf.reconstruct_impl(i)).collect(),
+            ..input
+        })
+    }
+
+    /// Reconstruct an impl block's methods with the module context extended by the type name, so
+    /// each method's own location reconstructs as `[..module, Type, method]` (matching how it was
+    /// registered). Without this, `reconstruct_return`'s self-location lookup would fail.
+    fn reconstruct_impl(&mut self, input: leo_ast::Impl) -> leo_ast::Impl {
+        let mut module = self.module.clone();
+        module.push(input.type_.name);
+        self.in_module_scope(&module, |slf| leo_ast::Impl {
+            functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             ..input
         })
     }

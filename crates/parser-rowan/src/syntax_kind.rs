@@ -191,6 +191,8 @@ define_syntax_kinds! {
     KW_CONSTRUCTOR,
     /// `interface`
     KW_INTERFACE,
+    /// `impl`
+    KW_IMPL,
 
     // ==========================================================================
     // Keywords - Program Structure
@@ -411,6 +413,8 @@ define_syntax_kinds! {
     GLOBAL_CONST,
     /// Interface declaration.
     INTERFACE_DEF,
+    /// Impl block: `impl Type { <methods> }`.
+    IMPL_DEF,
     /// Function prototype (in interface).
     FN_PROTOTYPE_DEF,
     /// Record prototype (in interface).
@@ -425,6 +429,8 @@ define_syntax_kinds! {
     ANNOTATION_PAIR,
     /// Parameter in a function signature.
     PARAM,
+    /// The `self` receiver parameter of an impl instance method.
+    SELF_PARAM,
     /// Public parameter: `public name: TypeKind`
     PARAM_PUBLIC,
     /// Private parameter: `private name: TypeKind`
@@ -645,6 +651,7 @@ impl SyntaxKind {
                 | KW_STRUCT
                 | KW_CONSTRUCTOR
                 | KW_INTERFACE
+                | KW_IMPL
                 | KW_PROGRAM
                 | KW_IMPORT
                 | KW_MAPPING
@@ -913,6 +920,7 @@ impl SyntaxKind {
             KW_STRUCT => "'struct'",
             KW_CONSTRUCTOR => "'constructor'",
             KW_INTERFACE => "'interface'",
+            KW_IMPL => "'impl'",
 
             // Program structure keywords
             KW_PROGRAM => "'program'",

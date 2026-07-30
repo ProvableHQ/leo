@@ -37,6 +37,7 @@ pub trait ExpressionConsumer {
             Expression::Path(path) => self.consume_path(path),
             Expression::Literal(value) => self.consume_literal(value),
             Expression::MemberAccess(access) => self.consume_member_access(*access),
+            Expression::MethodCall(method_call) => self.consume_method_call(*method_call),
             Expression::Repeat(repeat) => self.consume_repeat(*repeat),
             Expression::Ternary(ternary) => self.consume_ternary(*ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
@@ -50,6 +51,8 @@ pub trait ExpressionConsumer {
     fn consume_array_access(&mut self, _input: ArrayAccess) -> Self::Output;
 
     fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
+
+    fn consume_method_call(&mut self, _input: MethodCall) -> Self::Output;
 
     fn consume_tuple_access(&mut self, _input: TupleAccess) -> Self::Output;
 

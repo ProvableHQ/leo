@@ -179,6 +179,7 @@ impl CrossLayerTaintVisitor<'_> {
             }
             // Leaf / irrelevant nodes.
             Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) | Expression::Async(_) => {}
+            Expression::MethodCall(_) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         }
     }
 
@@ -274,6 +275,7 @@ impl CrossLayerTaintVisitor<'_> {
             | Expression::Unit(_)
             | Expression::Err(_)
             | Expression::Async(_) => {}
+            Expression::MethodCall(_) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         }
     }
 
@@ -475,6 +477,7 @@ impl CrossLayerTaintVisitor<'_> {
                 }
             }
             Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) | Expression::Async(_) => {}
+            Expression::MethodCall(_) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         }
     }
 }

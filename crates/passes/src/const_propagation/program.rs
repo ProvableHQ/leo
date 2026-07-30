@@ -50,6 +50,7 @@ impl UnitReconstructor for ConstPropagationVisitor<'_> {
             *c = self.reconstruct_constructor(std::mem::take(c));
         }
 
+        input.impls = input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect();
         input.composites = input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect();
         input.interfaces = input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect();
         input.mappings =
@@ -86,6 +87,7 @@ impl UnitReconstructor for ConstPropagationVisitor<'_> {
                     .collect(),
                 functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
                 interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
+                impls: input.impls.into_iter().map(|i| slf.reconstruct_impl(i)).collect(),
             }
         })
     }
@@ -115,6 +117,8 @@ impl UnitReconstructor for ConstPropagationVisitor<'_> {
             .into_iter()
             .map(|(i, f)| if f.const_parameters.is_empty() { (i, self.reconstruct_function(f)) } else { (i, f) })
             .collect();
+
+        input.impls = input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect();
 
         // Process submodules, applying the same const-propagation logic to their items.
         input.modules = input.modules.into_iter().map(|(id, m)| (id, self.reconstruct_module(m))).collect();

@@ -61,6 +61,7 @@ impl UnitReconstructor for ProcessingAsyncVisitor<'_> {
                 .collect(),
             functions: reconstructed_functions,
             interfaces: input.interfaces.into_iter().map(|(id, int)| (id, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             constructor: input.constructor,
             consts: input
                 .consts

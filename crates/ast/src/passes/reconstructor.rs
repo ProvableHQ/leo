@@ -148,6 +148,7 @@ pub trait AstReconstructor {
             Expression::Path(path) => self.reconstruct_path(path, additional),
             Expression::Literal(value) => self.reconstruct_literal(value, additional),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, additional),
+            Expression::MethodCall(method_call) => self.reconstruct_method_call(*method_call, additional),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, additional),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, additional),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, additional),
@@ -189,6 +190,29 @@ pub trait AstReconstructor {
     ) -> (Expression, Self::AdditionalOutput) {
         (
             MemberAccess { inner: self.reconstruct_expression(input.inner, &Default::default()).0, ..input }.into(),
+            Default::default(),
+        )
+    }
+
+    /// Default: reconstruct the receiver and arguments, leaving `method` untouched (it is resolved
+    /// against the receiver's type, not by name). Passes that resolve method calls (Disambiguate)
+    /// override this.
+    fn reconstruct_method_call(
+        &mut self,
+        input: MethodCall,
+        _additional: &Self::AdditionalInput,
+    ) -> (Expression, Self::AdditionalOutput) {
+        (
+            MethodCall {
+                receiver: self.reconstruct_expression(input.receiver, &Default::default()).0,
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg, &Default::default()).0)
+                    .collect(),
+                ..input
+            }
+            .into(),
             Default::default(),
         )
     }
@@ -633,6 +657,7 @@ pub trait UnitReconstructor: AstReconstructor {
             structs: input.structs.into_iter().map(|(i, s)| (i, self.reconstruct_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
         }
     }
@@ -670,6 +695,7 @@ pub trait UnitReconstructor: AstReconstructor {
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }
@@ -690,6 +716,16 @@ pub trait UnitReconstructor: AstReconstructor {
             composites: input.composites.into_iter().map(|(i, c)| (i, self.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
+        }
+    }
+
+    fn reconstruct_impl(&mut self, input: Impl) -> Impl {
+        Impl {
+            type_: input.type_,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            span: input.span,
+            id: input.id,
         }
     }
 

@@ -140,6 +140,14 @@ impl ProgramScopeConsumer for SsaFormingVisitor<'_> {
             storage_variables: input.storage_variables,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             interfaces: input.interfaces,
+            impls: input
+                .impls
+                .into_iter()
+                .map(|imp| leo_ast::Impl {
+                    functions: imp.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+                    ..imp
+                })
+                .collect(),
             constructor: input.constructor.map(|c| self.consume_constructor(c)),
             span: input.span,
         }
@@ -176,6 +184,14 @@ impl LibraryConsumer for SsaFormingVisitor<'_> {
             structs: input.structs,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             interfaces: input.interfaces,
+            impls: input
+                .impls
+                .into_iter()
+                .map(|imp| leo_ast::Impl {
+                    functions: imp.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+                    ..imp
+                })
+                .collect(),
             stubs: input.stubs,
         };
         self.program = prev_program;
@@ -208,6 +224,14 @@ impl ModuleConsumer for SsaFormingVisitor<'_> {
             composites: input.composites.into_iter().map(|(i, s)| (i, self.consume_composite(s))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             interfaces: input.interfaces,
+            impls: input
+                .impls
+                .into_iter()
+                .map(|imp| leo_ast::Impl {
+                    functions: imp.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+                    ..imp
+                })
+                .collect(),
             consts: input.consts,
         }
     }

@@ -1,4 +1,4 @@
-[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', found `|`
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', 'impl', found `|`
    ╭─[ test:6:5 ]
    │
  6 │     |

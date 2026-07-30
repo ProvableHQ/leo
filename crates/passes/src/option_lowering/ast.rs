@@ -105,6 +105,7 @@ impl leo_ast::AstReconstructor for OptionLoweringVisitor<'_> {
             Expression::Path(e) => self.reconstruct_path(e, additional),
             Expression::Literal(e) => self.reconstruct_literal(e, additional),
             Expression::MemberAccess(e) => self.reconstruct_member_access(*e, additional),
+            Expression::MethodCall(..) => unreachable!("MethodCall is removed by the Disambiguate pass"),
             Expression::Repeat(e) => self.reconstruct_repeat(*e, additional),
             Expression::Ternary(e) => self.reconstruct_ternary(*e, additional),
             Expression::Tuple(e) => self.reconstruct_tuple(e, additional),

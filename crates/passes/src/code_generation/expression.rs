@@ -103,6 +103,7 @@ impl CodeGeneratingVisitor<'_> {
             Expression::Err(..) => panic!("`ErrExpression`s should not be in the AST at this phase of compilation."),
             Expression::TupleAccess(..) => panic!("Tuple accesses should not appear in the AST at this point."),
             Expression::Unit(..) => panic!("`UnitExpression`s should not be visited during code generation."),
+            Expression::MethodCall(..) => panic!("Method calls should not appear in the AST at this point."),
         }
     }
 

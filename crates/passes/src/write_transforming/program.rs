@@ -44,6 +44,7 @@ impl UnitReconstructor for WriteTransformingVisitor<'_> {
         self.program = input.program_id.as_symbol();
         leo_ast::ProgramScope {
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             ..input
         }

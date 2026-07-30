@@ -1,0 +1,13 @@
+program test.aleo;
+
+record Token:
+    owner as address.private;
+    amount as u64.private;
+
+function main:
+    input r0 as u64.private;
+    add r0 1000000u64 into r1;
+    output r1 as u64.private;
+
+constructor:
+    assert.eq edition 0u16;

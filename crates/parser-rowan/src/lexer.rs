@@ -322,6 +322,7 @@ fn ident_to_kind(s: &str) -> SyntaxKind {
         "struct" => KW_STRUCT,
         "constructor" => KW_CONSTRUCTOR,
         "interface" => KW_INTERFACE,
+        "impl" => KW_IMPL,
         // Program structure keywords
         "program" => KW_PROGRAM,
         "import" => KW_IMPORT,

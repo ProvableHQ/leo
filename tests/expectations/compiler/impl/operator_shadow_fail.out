@@ -1,0 +1,5 @@
+[EPAR0370047] Error: instance method `add` collides with a built-in operator; `value.add(..)` would apply the operator. Rename it, or call it as `Point::add(..)`.
+   ╭─[ compiler-test:7:8 ]
+   │
+ 7 │     fn add(self, other: Point) -> u32 {
+───╯

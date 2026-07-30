@@ -1,7 +1,7 @@
 program test.aleo {
     fn baz(s: signature, a: address, v: value) {
         let a: bool = _signature_verify(s, a, v);
-        let b: bool = _signature_verify(s, a, v);
+        let b: bool = s.verify(a, v);
         assert_eq(a, b);
     }
     fn bar(x: u8) -> u8 {

@@ -55,6 +55,7 @@ const ALL_KEYWORDS = [
   'struct',
   'constructor',
   'interface',
+  'impl',
   'program',
   'import',
   'mapping',
@@ -136,6 +137,7 @@ module.exports = grammar({
       $.final_function_definition,
       $.view_function_definition,
       $.constructor_definition,
+      $.impl_definition,
     ),
 
     _file_item: $ => choice(
@@ -147,6 +149,7 @@ module.exports = grammar({
       $.final_function_definition,
       $.view_function_definition,
       $.const_declaration,
+      $.impl_definition,
     ),
 
     _program_item: $ => choice(
@@ -160,6 +163,7 @@ module.exports = grammar({
       $.view_function_definition,
       $.constructor_definition,
       $.interface_declaration,
+      $.impl_definition,
     ),
 
     import_declaration: $ => seq(
@@ -330,6 +334,35 @@ module.exports = grammar({
       field('parameters', $.parameter_list),
       field('body', $.block),
     ),
+
+    impl_definition: $ => seq(
+      'impl',
+      field('type', $.identifier),
+      '{',
+      repeat($.impl_method),
+      '}',
+    ),
+
+    // A method is a `fn` that may take a leading `self` receiver (instance method).
+    impl_method: $ => seq(
+      repeat($.annotation),
+      'fn',
+      field('name', $.identifier),
+      field('parameters', $.method_parameter_list),
+      optional(seq(token(prec(1, '->')), field('return_type', $.return_type))),
+      field('body', $.block),
+    ),
+
+    method_parameter_list: $ => seq(
+      '(',
+      optional(choice(
+        seq($.self_parameter, optional(seq(',', commaSep1($.parameter)))),
+        commaSep1($.parameter),
+      )),
+      ')',
+    ),
+
+    self_parameter: _ => 'self',
 
     const_param_list: $ => seq(
       token(prec(1, '::')),

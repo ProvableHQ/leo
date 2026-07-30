@@ -12,3 +12,10 @@
     │ 
     │ Help: Refactor the shared logic into a regular `fn` and call that from both entry points.
 ────╯
+[ETYC0372043] Error: cannot call a local entry point fn from an entry point fn
+    ╭─[ compiler-test:17:16 ]
+    │
+ 17 │         return find(key).unwrap();
+    │ 
+    │ Help: Refactor the shared logic into a regular `fn` and call that from both entry points.
+────╯

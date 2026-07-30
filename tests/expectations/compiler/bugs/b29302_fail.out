@@ -1,7 +1,7 @@
-[EPAR0370021] Error: the type of `2u32` has no associated function `exp` that takes 1 argument(s)
+[ETYC0372156] Error: the type `u32` has no method `exp`
    ╭─[ compiler-test:9:20 ]
    │
  9 │     fn main(x: S::[2u32.exp(2u32)]);
    │ 
-   │ Help: Check the method name for typos and confirm the argument count matches the function's signature.
+   │ Help: Methods can only be called on structs, records, and built-in types such as vectors, mappings, and optionals.
 ───╯
