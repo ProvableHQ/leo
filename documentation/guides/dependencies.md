@@ -40,8 +40,10 @@ leo add credits --network
 For mainnet dependencies:
 
 ```bash
-leo add credits --network mainnet
+NETWORK=mainnet leo add credits --network
 ```
+
+You can also set `NETWORK=mainnet` in `.env`. If you do not use `--endpoint`, Leo uses `ENDPOINT` from the environment. Leo makes sure that the program exists on the selected network before it changes `program.json`. Use `--network-retries` to set the number of retries.
 
 This adds an entry to your `program.json`:
 

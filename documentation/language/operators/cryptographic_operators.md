@@ -1197,7 +1197,7 @@ A `Message` is any byte-aligned type.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#snark_verify
 ```
 
-Verifies a single Varuna ZK proof on-chain. Only callable from inside a `final { }` block.
+The `Snark::verify` function verifies one Varuna ZK proof on-chain. You can call this function from a finalize context or a `view fn`.
 
 | Argument  | Type         | Description                               |
 | --------- | ------------ | ----------------------------------------- |
@@ -1217,7 +1217,7 @@ Returns `bool`.
 ```leo file=../../code_snippets/operators/crypto/src/main.leo#snark_verify_batch
 ```
 
-Batch-verifies multiple Varuna ZK proofs on-chain. Only callable from inside a `final { }` block. The number of verifying keys (`M`) must equal the number of circuits in `inputs` (`K`).
+The `Snark::verify_batch` function verifies multiple Varuna ZK proofs on-chain. You can call this function from a finalize context or a `view fn`. The number of verifying keys (`M`) must equal the number of circuits in `inputs` (`K`).
 
 | Argument  | Type                   | Description                                                      |
 | --------- | ---------------------- | ---------------------------------------------------------------- |

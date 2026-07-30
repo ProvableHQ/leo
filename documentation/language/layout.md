@@ -120,17 +120,26 @@ A module file may only contain `struct`, `const`, and `fn` definitions.
 
 ### Visibility
 
-Leo has no `pub`/private keywords for module items. The visibility rules are:
+By default, module-level `struct`, `const`, `fn`, and `interface` declarations are private. Add the `export` modifier to give access to another source file or compilation unit:
 
-- Every `struct`, `const`, and `fn` declared in a module is accessible from anywhere in the **same package** via its fully qualified path.
-- **Other packages** that depend on this package can access the same items. See [Accessing Submodules of Imported Programs](#accessing-submodules-of-imported-programs) and [Leo Libraries](./libraries.md).
-- The on-chain "interface" of a program is exactly the entry `fn`, `record`, `mapping`, and `storage` declarations inside its `program { … }` block. Helper `fn`s in modules can be reached by name from importers but are inlined into their bytecode rather than deployed as separate AVM functions.
+```leo
+export const MAX_VALUE: u32 = 100u32;
+export struct SharedValue {
+    value: u32,
+}
+export fn clamp(value: u32) -> u32 {
+    return value > MAX_VALUE ? MAX_VALUE : value;
+}
+```
 
-To keep an item private to one module, put it in that module file and do not reference it elsewhere. The compiler does not enforce a privacy boundary.
+- Only the source file can use an unqualified item.
+- Other modules in the same package and dependent packages can use an `export` item.
+- Items in `program { … }` are part of the program interface. Do not use `export` on these items.
+- Leo includes exported helper function bytecode in the importer. It does not deploy the functions separately.
 
 ### Accessing Submodules of Imported Programs
 
-An imported program can organize its source across submodules. Use an extended locator path to access a `struct`, `const`, or helper `fn` in those submodules:
+An imported program can use submodules. Use an extended locator path to access an exported `struct`, `const`, `interface`, or helper `fn` in these submodules:
 
 ```text
 program.aleo::submodule::item

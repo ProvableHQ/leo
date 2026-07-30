@@ -37,7 +37,7 @@
     - Circuit ID: XXXXXX
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -49,7 +49,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 📦 Deployment Tasks:
   • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -84,11 +84,11 @@ Once it is deployed, it CANNOT be changed.
 
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.956000
-  Program Synthesis:    0.030203
+  Program Synthesis:    0.095589
   Namespace:            1.000000
   Constructor:          0.010440
   Priority Fee:         0.000000
-  Total Fee:            1.996643
+  Total Fee:            2.062029
   Function 'main'
     Total Execution Cost:   0.001328
     |- Storage Cost:        0.001328
@@ -110,7 +110,7 @@ Transaction accepted.
 ✅ Deployment confirmed!
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -122,7 +122,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 🎯 Execution Target:
   Program:        test_json_program.aleo
@@ -192,7 +192,7 @@ constructor:
 
 
 
-📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
+📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
@@ -204,7 +204,7 @@ Attempting to determine the consensus version from the latest block height at ht
   Address:            aleo1s3ws5tra87fjycnjrws...
   Endpoint:           http://localhost:3030
   Network:            testnet
-  Consensus Version:  17
+  Consensus Version:  18
 
 📦 Deployment Tasks:
   • test_json_program.aleo  │ priority fee: 0  │ fee record: no (public fee)
@@ -232,11 +232,11 @@ Loaded the following programs into the VM:
 
 💰 Cost Breakdown (credits)
   Transaction Storage:  0.956000
-  Program Synthesis:    0.030203
+  Program Synthesis:    0.095589
   Namespace:            1.000000
   Constructor:          0.010440
   Priority Fee:         0.000000
-  Total Fee:            1.996643
+  Total Fee:            2.062029
   Function 'main'
     Total Execution Cost:   0.001328
     |- Storage Cost:        0.001328

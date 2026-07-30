@@ -4,20 +4,20 @@ resolver = "3"
 
 [workspace.dependencies]
 # leo dependencies
-leo-abi             = { path = "./crates/abi", version = "=4.3.2" }
-leo-abi-types       = { path = "./crates/abi-types", version = "=4.3.2" }
-leo-ast             = { path = "./crates/ast", version = "=4.3.2" }
-leo-compiler        = { path = "./crates/compiler", version = "=4.3.2" }
-leo-disassembler    = { path = "./crates/disassembler", version = "=4.3.2" }
-leo-errors          = { path = "./crates/errors", version = "=4.3.2" }
-leo-fmt             = { path = "./crates/fmt", version = "=4.3.2" }
-leo-lsp             = { path = "./crates/lsp", version = "=4.3.2" }
-leo-package         = { path = "./crates/package", version = "=4.3.2" }
-leo-parser          = { path = "./crates/parser", version = "=4.3.2" }
-leo-parser-rowan    = { path = "./crates/parser-rowan", version = "=4.3.2" }
-leo-passes          = { path = "./crates/passes", version = "=4.3.2" }
-leo-span            = { path = "./crates/span", version = "=4.3.2" }
-leo-std             = { path = "./crates/leo-std", version = "=4.3.2" }
+leo-abi             = { path = "./crates/abi", version = "=4.4.0" }
+leo-abi-types       = { path = "./crates/abi-types", version = "=4.4.0" }
+leo-ast             = { path = "./crates/ast", version = "=4.4.0" }
+leo-compiler        = { path = "./crates/compiler", version = "=4.4.0" }
+leo-disassembler    = { path = "./crates/disassembler", version = "=4.4.0" }
+leo-errors          = { path = "./crates/errors", version = "=4.4.0" }
+leo-fmt             = { path = "./crates/fmt", version = "=4.4.0" }
+leo-lsp             = { path = "./crates/lsp", version = "=4.4.0" }
+leo-package         = { path = "./crates/package", version = "=4.4.0" }
+leo-parser          = { path = "./crates/parser", version = "=4.4.0" }
+leo-parser-rowan    = { path = "./crates/parser-rowan", version = "=4.4.0" }
+leo-passes          = { path = "./crates/passes", version = "=4.4.0" }
+leo-span            = { path = "./crates/span", version = "=4.4.0" }
+leo-std             = { path = "./crates/leo-std", version = "=4.4.0" }
 leo-test-framework  = { path = "./crates/test-framework" }
 # third party dependencies
 aleo-std           = { version = "1.0.3"}
@@ -82,10 +82,10 @@ signal-hook        = { version = "0.4", features = [ "iterator" ] }
 similar            = "3.1"
 # Custom consensus heights support local devnets, and `test_targets` matches the devnode genesis block.
 # `history` exposes the public view-evaluation entry point.
-snarkvm            = { version = "4.8.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+snarkvm            = { version = "4.9.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
 # Wasm builds use smaller snarkVM subsets to avoid native-only ledger and package code.
-snarkvm-console = { version = "4.8.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { version = "4.8.1", features = [ "wasm" ] }
+snarkvm-console = { version = "4.9.0", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { version = "4.9.0", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.27"
 thiserror          = "2.0"
