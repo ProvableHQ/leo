@@ -146,6 +146,9 @@ impl UnitReconstructor for TransformVisitor<'_> {
             constructor,
             functions,
             interfaces: input.interfaces,
+            // Impl methods are non-entry helpers: they were inlined at their call sites (via the
+            // multi-segment paths in `function_map`) and must not appear as standalone items.
+            impls: Vec::new(),
             consts: input.consts,
             span: input.span,
         }
@@ -501,6 +504,7 @@ impl TransformVisitor<'_> {
             storage_variables: input.storage_variables,
             functions,
             interfaces: input.interfaces,
+            impls: Vec::new(),
             constructor: input.constructor,
             consts: input.consts,
             span: input.span,
@@ -511,6 +515,7 @@ impl TransformVisitor<'_> {
     fn assemble_module(&self, input: Module) -> Module {
         Module {
             functions: items_at_path(&self.reconstructed_functions, input.unit_name, &input.path).collect(),
+            impls: Vec::new(),
             ..input
         }
     }

@@ -25,7 +25,7 @@
 //! - A list of function definitions (`functions`)
 //! - A list of interface definitions (`interfaces`)
 
-use crate::{Composite, ConstDeclaration, Function, Indent, Interface};
+use crate::{Composite, ConstDeclaration, Function, Impl, Indent, Interface};
 
 use leo_span::Symbol;
 
@@ -49,6 +49,8 @@ pub struct Module {
     pub functions: Vec<(Symbol, Function)>,
     /// A vector of interface definitions.
     pub interfaces: Vec<(Symbol, Interface)>,
+    /// A vector of `impl` blocks defining methods on this module's types.
+    pub impls: Vec<Impl>,
 }
 
 impl fmt::Display for Module {
@@ -62,6 +64,9 @@ impl fmt::Display for Module {
         }
         for (_, function) in self.functions.iter() {
             writeln!(f, "{}", Indent(function))?;
+        }
+        for impl_ in self.impls.iter() {
+            writeln!(f, "{}", Indent(impl_))?;
         }
         writeln!(f, "}}")
     }

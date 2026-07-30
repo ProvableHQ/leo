@@ -1,0 +1,20 @@
+library test_lib {
+    struct Point {
+        x: u32,
+        y: u32,
+    }
+}
+
+
+library test_lib {
+    impl Point {
+        export fn new(x: u32, y: u32) -> Point {
+            return Point { x, y };
+        }
+        export fn sum(self: Point) -> u32 {
+            return self.x + self.y;
+        }
+    }
+}
+
+

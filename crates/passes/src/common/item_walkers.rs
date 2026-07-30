@@ -48,12 +48,14 @@ pub fn items_at_path<'a, V: Clone + 'a>(
     })
 }
 
-/// Yields `(Location, &Function)` for every function defined in `program`, including those in
-/// nested modules. `program.stubs` is not traversed.
+/// Yields `(Location, &Function)` for every function defined in `program`, including impl-block
+/// methods and those in nested modules. `program.stubs` is not traversed.
 pub fn program_functions(program: &Program) -> impl Iterator<Item = (Location, &Function)> {
     let scopes = program.program_scopes.iter().flat_map(|(_, scope)| {
         let prog = scope.program_id.as_symbol();
-        scope.functions.iter().map(move |(name, f)| (Location::new(prog, vec![*name]), f))
+        let functions = scope.functions.iter().map(move |(name, f)| (Location::new(prog, vec![*name]), f));
+        let impls = scope.impls.iter().flat_map(move |imp| impl_functions(prog, &[], imp));
+        functions.chain(impls)
     });
     let modules = program.modules.iter().flat_map(module_functions);
     scopes.chain(modules)
@@ -70,13 +72,14 @@ pub fn program_composites(program: &Program) -> impl Iterator<Item = (Location, 
     scopes.chain(modules)
 }
 
-/// Yields `(Location, &Function)` for every function defined in `library`, including those in
-/// nested modules.
+/// Yields `(Location, &Function)` for every function defined in `library`, including impl-block
+/// methods and those in nested modules.
 pub fn library_functions(library: &Library) -> impl Iterator<Item = (Location, &Function)> {
     let name = library.name;
     let top = library.functions.iter().map(move |(sym, f)| (Location::new(name, vec![*sym]), f));
+    let impls = library.impls.iter().flat_map(move |imp| impl_functions(name, &[], imp));
     let modules = library.modules.iter().flat_map(module_functions);
-    top.chain(modules)
+    top.chain(impls).chain(modules)
 }
 
 /// Yields `(Location, &Composite)` for every composite defined in `library`, including those in
@@ -108,13 +111,29 @@ pub fn stub_composites(stub: &Stub) -> Box<dyn Iterator<Item = (Location, &Compo
     }
 }
 
+/// Yields `(Location, &Function)` for every method in an impl block, keyed at
+/// `module_prefix ++ [Type, method]` within `program`.
+fn impl_functions<'a>(
+    program: Symbol,
+    module_prefix: &'a [Symbol],
+    imp: &'a leo_ast::Impl,
+) -> impl Iterator<Item = (Location, &'a Function)> {
+    let type_name = imp.type_.name;
+    imp.functions.iter().map(move |(name, f)| {
+        let full: Vec<Symbol> = module_prefix.iter().copied().chain([type_name, *name]).collect();
+        (Location::new(program, full), f)
+    })
+}
+
 fn module_functions<'a>(
     (path, m): (&'a Vec<Symbol>, &'a leo_ast::Module),
 ) -> impl Iterator<Item = (Location, &'a Function)> {
-    m.functions.iter().map(move |(name, f)| {
+    let funcs = m.functions.iter().map(move |(name, f)| {
         let full: Vec<Symbol> = path.iter().copied().chain(std::iter::once(*name)).collect();
         (Location::new(m.unit_name, full), f)
-    })
+    });
+    let impls = m.impls.iter().flat_map(move |imp| impl_functions(m.unit_name, path, imp));
+    funcs.chain(impls)
 }
 
 fn module_composites<'a>(

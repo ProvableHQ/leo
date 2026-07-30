@@ -123,7 +123,8 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             | Expression::TupleAccess(_)
             | Expression::Unary(_)
             | Expression::Unit(_)
-            | Expression::DynamicOp(_) => return None,
+            | Expression::DynamicOp(_)
+            | Expression::MethodCall(_) => return None,
         };
 
         Some(value)
@@ -244,6 +245,7 @@ impl CommonSubexpressionEliminatingVisitor<'_> {
             }
 
             Expression::TupleAccess(_) => panic!("Tuple access expressions should not exist in this pass."),
+            Expression::MethodCall(_) => unreachable!("MethodCall is removed by the Disambiguate pass"),
 
             Expression::DynamicOp(op) => {
                 self.try_atom(&mut op.target_program)?;

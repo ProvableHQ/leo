@@ -40,73 +40,73 @@
     │ 
     │ Help: Change the expression to produce type `[u32; 2]`.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `field` was found
+[ETYC0372156] Error: expected a vector, but type `field` was found
     ╭─[ compiler-test:31:13 ]
     │
  31 │             x.push(3field); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `push` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `field` was found
+[ETYC0372156] Error: expected a vector, but type `field` was found
     ╭─[ compiler-test:32:13 ]
     │
  32 │             x.pop(); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `pop` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `field` was found
+[ETYC0372156] Error: expected a vector, but type `field` was found
     ╭─[ compiler-test:33:13 ]
     │
  33 │             x.len(); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `len` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `field` was found
+[ETYC0372156] Error: expected a vector, but type `field` was found
     ╭─[ compiler-test:34:13 ]
     │
  34 │             x.swap_remove(0u32); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `swap_remove` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector or a mapping, but type `field` was found
+[ETYC0372156] Error: expected a vector or a mapping, but type `field` was found
     ╭─[ compiler-test:35:13 ]
     │
  35 │             x.set(0u32, 1field); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector or a mapping.
+    │ Help: `set` is a built-in method that can only be called on a vector or a mapping.
 ────╯
-[ETYC0372117] Error: expected a vector or a mapping, but type `field` was found
+[ETYC0372156] Error: expected a vector or a mapping, but type `field` was found
     ╭─[ compiler-test:36:13 ]
     │
  36 │             x.get(0u32); // ❌ not a vector
     │ 
-    │ Help: Change the expression to produce a vector or a mapping.
+    │ Help: `get` is a built-in method that can only be called on a vector or a mapping.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `field?` was found
+[ETYC0372156] Error: expected a vector, but type `field?` was found
     ╭─[ compiler-test:42:13 ]
     │
  42 │             s_field.push(10field); // ❌ cannot push to non-vector storage
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `push` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector, but type `(u32 => u32)` was found
+[ETYC0372156] Error: expected a vector, but type `(u32 => u32)` was found
     ╭─[ compiler-test:43:13 ]
     │
  43 │             s_map.push(5u32); // ❌ cannot push to mapping
     │ 
-    │ Help: Change the expression to produce a vector.
+    │ Help: `push` is a built-in method that can only be called on a vector.
 ────╯
-[ETYC0372117] Error: expected a vector or a mapping, but type `field?` was found
+[ETYC0372156] Error: expected a vector or a mapping, but type `field?` was found
     ╭─[ compiler-test:49:13 ]
     │
  49 │             s_field.set(0u32, 10field); // ❌ not a vector or mapping
     │ 
-    │ Help: Change the expression to produce a vector or a mapping.
+    │ Help: `set` is a built-in method that can only be called on a vector or a mapping.
 ────╯
-[ETYC0372117] Error: expected a vector or a mapping, but type `field?` was found
+[ETYC0372156] Error: expected a vector or a mapping, but type `field?` was found
     ╭─[ compiler-test:50:13 ]
     │
  50 │             s_field.get(0u32); // ❌ not a vector or mapping
     │ 
-    │ Help: Change the expression to produce a vector or a mapping.
+    │ Help: `get` is a built-in method that can only be called on a vector or a mapping.
 ────╯

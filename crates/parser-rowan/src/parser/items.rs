@@ -31,7 +31,7 @@ impl Parser<'_, '_> {
     /// Recovery set for struct/record fields.
     const FIELD_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_BRACE, KW_PUBLIC, KW_PRIVATE, KW_CONSTANT];
     /// Tokens that can start a module-level item (for error recovery).
-    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_EXPORT, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, AT];
+    const MODULE_ITEM_RECOVERY: &'static [SyntaxKind] = &[KW_EXPORT, KW_CONST, KW_STRUCT, KW_FN, KW_FINAL, KW_IMPL, AT];
     /// Expected items within a `program { ... }` block.
     const PROGRAM_ITEM_EXPECTED: &'static [SyntaxKind] = &[
         R_BRACE,
@@ -45,6 +45,7 @@ impl Parser<'_, '_> {
         KW_STORAGE,
         KW_SCRIPT,
         KW_INTERFACE,
+        KW_IMPL,
     ];
     /// Recovery set for return type parsing.
     const RETURN_TYPE_RECOVERY: &'static [SyntaxKind] = &[COMMA, R_PAREN, L_BRACE];
@@ -64,6 +65,7 @@ impl Parser<'_, '_> {
         KW_STORAGE,
         KW_SCRIPT,
         KW_INTERFACE,
+        KW_IMPL,
         AT,
     ];
 
@@ -112,7 +114,7 @@ impl Parser<'_, '_> {
                 }
                 // Module-level items at top level (for module files and
                 // multi-section test files with `// --- Next Module:` separators).
-                KW_EXPORT | KW_CONST | KW_STRUCT | KW_FN | KW_FINAL | AT | KW_INTERFACE | KW_VIEW => {
+                KW_EXPORT | KW_CONST | KW_STRUCT | KW_FN | KW_FINAL | AT | KW_INTERFACE | KW_IMPL | KW_VIEW => {
                     if self.parse_module_item().is_none() {
                         self.error_and_bump("expected module item");
                     }
@@ -129,6 +131,7 @@ impl Parser<'_, '_> {
                         KW_FINAL,
                         KW_VIEW,
                         KW_INTERFACE,
+                        KW_IMPL,
                         AT,
                     ]);
                 }
@@ -168,10 +171,11 @@ impl Parser<'_, '_> {
             KW_CONST => self.parse_global_const(),
             KW_STRUCT => self.parse_composite_def(STRUCT_DEF),
             KW_INTERFACE => self.parse_interface_def(),
+            KW_IMPL => self.parse_impl_def(),
             AT | KW_FN | KW_FINAL | KW_VIEW => self.parse_function_or_constructor(false),
             _ => {
                 if self.at(KW_EXPORT) {
-                    self.error("expected `fn`, `struct`, `const`, or `interface` after `export`");
+                    self.error("expected `fn`, `struct`, `const`, `interface`, or `impl` after `export`");
                     self.bump_any();
                 }
                 None
@@ -270,6 +274,7 @@ impl Parser<'_, '_> {
                 None
             }
             KW_INTERFACE => self.parse_interface_def(),
+            KW_IMPL => self.parse_impl_def(),
             _ => {
                 let expected: Vec<&str> = Self::PROGRAM_ITEM_EXPECTED.iter().map(|k| k.user_friendly_name()).collect();
                 self.error_unexpected(self.current(), &expected);
@@ -380,6 +385,56 @@ impl Parser<'_, '_> {
         self.expect(R_BRACE);
 
         Some(m.complete(self, kind))
+    }
+
+    /// Parse an impl block: `impl Type { <methods> }`.
+    ///
+    /// Methods are plain `fn`s that may take a leading `self` receiver (instance methods) or not
+    /// (static/associated methods). Const generics and `final`/`view` methods are not supported in
+    /// the first version.
+    fn parse_impl_def(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+        self.bump_any(); // impl
+
+        // Target type name.
+        self.skip_trivia();
+        if self.at(IDENT) {
+            self.bump_any();
+        } else {
+            self.error("expected type name after `impl`");
+            self.recover(Self::STRUCT_NAME_RECOVERY);
+            return Some(m.complete(self, ERROR));
+        }
+
+        self.expect(L_BRACE);
+        while !self.at(R_BRACE) && !self.at_eof() {
+            // Clear error state so each method gets fresh error reporting.
+            self.erroring = false;
+            if self.parse_impl_method().is_none() {
+                self.recover(ITEM_RECOVERY);
+            }
+        }
+        self.expect(R_BRACE);
+
+        Some(m.complete(self, IMPL_DEF))
+    }
+
+    /// Parse a single method inside an impl block: `[@annotation] fn name(...) -> Type { ... }`.
+    fn parse_impl_method(&mut self) -> Option<CompletedMarker> {
+        let m = self.start();
+
+        while self.at(AT) {
+            self.parse_annotation();
+        }
+
+        if self.at(KW_FN) {
+            self.parse_function_body(true);
+            Some(m.complete(self, FUNCTION_DEF))
+        } else {
+            self.error("expected `fn` in impl block");
+            m.abandon(self);
+            None
+        }
     }
 
     /// Parse struct/record fields.
@@ -557,7 +612,7 @@ impl Parser<'_, '_> {
         // Dispatch based on what follows.
         match self.current() {
             KW_FN => {
-                self.parse_function_body();
+                self.parse_function_body(false);
                 let kind = match (ate_final, ate_view) {
                     (true, _) => FINAL_FN_DEF,
                     (false, true) => VIEW_FN_DEF,
@@ -577,8 +632,11 @@ impl Parser<'_, '_> {
         }
     }
 
-    /// Parse function body (after final/fn keyword marker started)
-    fn parse_function_body(&mut self) {
+    /// Parse function body (after final/fn keyword marker started).
+    ///
+    /// `allow_self` permits a leading `self` receiver parameter, which is only valid for impl
+    /// methods.
+    fn parse_function_body(&mut self, allow_self: bool) {
         // Function keyword
         if !self.eat(KW_FN) {
             self.error("expected 'fn'");
@@ -599,7 +657,7 @@ impl Parser<'_, '_> {
         }
 
         // Parameters
-        self.parse_param_list();
+        self.parse_param_list(allow_self);
 
         // Return type: `-> [visibility] TypeKind` or `-> (vis TypeKind, vis TypeKind)`
         if self.eat(ARROW) {
@@ -653,16 +711,27 @@ impl Parser<'_, '_> {
         self.bump_any(); // constructor
 
         // Parameters
-        self.parse_param_list();
+        self.parse_param_list(false);
 
         // Body
         self.parse_block();
     }
 
-    /// Parse a parameter list: `(a: TypeKind, b: TypeKind)`
-    fn parse_param_list(&mut self) {
+    /// Parse a parameter list: `(a: TypeKind, b: TypeKind)`.
+    ///
+    /// When `allow_self` is set (impl methods), an optional leading `self` receiver is accepted.
+    fn parse_param_list(&mut self, allow_self: bool) {
         let m = self.start();
         self.expect(L_PAREN);
+
+        // Optional leading `self` receiver of an impl instance method.
+        if allow_self && self.at(KW_SELF) {
+            let sm = self.start();
+            self.bump_any(); // self
+            sm.complete(self, SELF_PARAM);
+            // A trailing comma separates `self` from the remaining parameters.
+            self.eat(COMMA);
+        }
 
         while !self.at(R_PAREN) && !self.at_eof() {
             // Clear error state so each parameter gets fresh error reporting.
@@ -809,7 +878,7 @@ impl Parser<'_, '_> {
         }
 
         // Parameters
-        self.parse_param_list();
+        self.parse_param_list(false);
 
         // Return type
         if self.eat(ARROW) {

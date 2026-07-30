@@ -297,6 +297,7 @@ impl<'a> Scanner<'a> {
                 }
             }
             Expression::Literal(_) | Expression::Unit(_) | Expression::Err(_) => post,
+            Expression::MethodCall(_) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         }
     }
 

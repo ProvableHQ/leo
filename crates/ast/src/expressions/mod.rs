@@ -50,6 +50,9 @@ pub use err::*;
 mod member_access;
 pub use member_access::*;
 
+mod method_call;
+pub use method_call::*;
+
 mod intrinsic;
 pub use intrinsic::*;
 
@@ -105,6 +108,8 @@ pub enum Expression {
     Literal(Literal),
     /// An access of a composite member, e.g. `composite.member`.
     MemberAccess(Box<MemberAccess>),
+    /// A method call `receiver.method(args)`, resolved by receiver type and removed by Disambiguate.
+    MethodCall(Box<MethodCall>),
     /// An array expression constructed from one repeated element, e.g., `[1u32; 5]`.
     Repeat(Box<RepeatExpression>),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
@@ -142,6 +147,7 @@ impl Node for Expression {
             Path(n) => n.span(),
             Literal(n) => n.span(),
             MemberAccess(n) => n.span(),
+            MethodCall(n) => n.span(),
             Repeat(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
@@ -167,6 +173,7 @@ impl Node for Expression {
             Path(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             MemberAccess(n) => n.set_span(span),
+            MethodCall(n) => n.set_span(span),
             Repeat(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
@@ -190,6 +197,7 @@ impl Node for Expression {
             Path(n) => n.id(),
             Literal(n) => n.id(),
             MemberAccess(n) => n.id(),
+            MethodCall(n) => n.id(),
             Repeat(n) => n.id(),
             Err(n) => n.id(),
             Intrinsic(n) => n.id(),
@@ -215,6 +223,7 @@ impl Node for Expression {
             Path(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
             MemberAccess(n) => n.set_id(id),
+            MethodCall(n) => n.set_id(id),
             Repeat(n) => n.set_id(id),
             Err(n) => n.set_id(id),
             Intrinsic(n) => n.set_id(id),
@@ -244,6 +253,7 @@ impl fmt::Display for Expression {
             Path(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
             MemberAccess(n) => n.fmt(f),
+            MethodCall(n) => n.fmt(f),
             Repeat(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
@@ -269,7 +279,8 @@ impl Expression {
             Cast(_) => 12,
             Ternary(_) => 0,
             Array(_) | ArrayAccess(_) | Async(_) | Call(_) | DynamicOp(_) | Composite(_) | Err(_) | Intrinsic(_)
-            | Path(_) | Literal(_) | MemberAccess(_) | Repeat(_) | Tuple(_) | TupleAccess(_) | Unary(_) | Unit(_) => 20,
+            | Path(_) | Literal(_) | MemberAccess(_) | MethodCall(_) | Repeat(_) | Tuple(_) | TupleAccess(_)
+            | Unary(_) | Unit(_) => 20,
         }
     }
 
@@ -377,6 +388,9 @@ impl Expression {
                 expr.condition.is_pure(get_type) && expr.if_true.is_pure(get_type) && expr.if_false.is_pure(get_type)
             }
             Expression::Tuple(expr) => expr.elements.iter().all(|e| e.is_pure(get_type)),
+
+            // Removed by the Disambiguate pass, long before purity analysis runs.
+            Expression::MethodCall(..) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         }
     }
 

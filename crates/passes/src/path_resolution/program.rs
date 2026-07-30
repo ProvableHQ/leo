@@ -65,6 +65,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
         }
     }
@@ -93,6 +94,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }
@@ -106,6 +108,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
             composites: input.composites.into_iter().map(|(i, c)| (i, slf.reconstruct_composite(c))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, slf.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, slf.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| slf.reconstruct_impl(i)).collect(),
             consts: input
                 .consts
                 .into_iter()

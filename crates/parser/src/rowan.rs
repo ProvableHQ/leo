@@ -66,6 +66,13 @@ struct ConversionContext<'a> {
     /// only fails when the CST contains ERROR nodes from parse recovery), so
     /// reporting them would be duplicative.
     suppress_cascade: bool,
+    /// The type name of the impl instance method currently being converted, if any.
+    ///
+    /// `Some(Type)` while converting the body (and `self` parameter) of an instance method in
+    /// `impl Type { .. }`. In that context `self` is a valid local of type `Type` rather than the
+    /// removed execution-context keyword, so `self` and `self.field` are lowered as ordinary
+    /// references instead of migration errors. `None` everywhere else preserves those diagnostics.
+    self_type: std::cell::Cell<Option<Symbol>>,
 }
 
 impl<'a> ConversionContext<'a> {
@@ -77,7 +84,7 @@ impl<'a> ConversionContext<'a> {
         start_pos: u32,
         suppress_cascade: bool,
     ) -> Self {
-        Self { handler, builder, interner, start_pos, suppress_cascade }
+        Self { handler, builder, interner, start_pos, suppress_cascade, self_type: std::cell::Cell::new(None) }
     }
 
     /// Emit an `unexpected_str` error, unless cascade suppression is active.
@@ -573,7 +580,7 @@ impl<'a> ConversionContext<'a> {
             PATH_EXPR => self.path_expr_to_expression(node)?,
             PATH_LOCATOR_EXPR => self.path_locator_expr_to_expression(node)?,
             PROGRAM_REF_EXPR => self.program_ref_expr_to_expression(node)?,
-            SELF_EXPR => self.error_removed_context_keyword(node, sym::SelfLower),
+            SELF_EXPR => self.self_expr_to_expression(node),
             BLOCK_KW_EXPR => self.error_removed_context_keyword(node, sym::block),
             NETWORK_KW_EXPR => self.error_removed_context_keyword(node, sym::network),
             SELF_UPPER_EXPR => {
@@ -1066,7 +1073,8 @@ impl<'a> ConversionContext<'a> {
         // Remaining expression children are the arguments.
         let mut args: Vec<_> = expr_children.map(|n| self.to_expression(&n)).collect::<Result<Vec<_>>>()?;
 
-        // Check for known methods that map to unary/binary operations or intrinsics
+        // Operators are universal and syntactic, so they are desugared here at parse time,
+        // regardless of receiver type. (Operator overloading is planned via traits later.)
         if args.is_empty() {
             if let Some(op) = leo_ast::UnaryOperation::from_symbol(method_name.name) {
                 return Ok(leo_ast::UnaryExpression { span, op, receiver, id }.into());
@@ -1077,45 +1085,11 @@ impl<'a> ConversionContext<'a> {
             return Ok(leo_ast::BinaryExpression { span, op, left: receiver, right: args.pop().unwrap(), id }.into());
         }
 
-        // Check for known intrinsic method calls.
-        // Ordering follows the lossless parser (conversions.rs):
-        // 1. Specific intrinsics (signature, Future, Optional)
-        // 2. Unresolved `.get()`/`.set()` (deferred to type checker)
-        // 3. Vector/Mapping methods
-        let method = method_name.name;
-        let all_args = || std::iter::once(receiver.clone()).chain(args.clone()).collect::<Vec<_>>();
-
-        // Known module-specific intrinsics matched by name and arg count.
-        let intrinsic_name = match args.len() {
-            2 => leo_ast::Intrinsic::convert_path_symbols(sym::signature, method),
-            0 => leo_ast::Intrinsic::convert_path_symbols(sym::Final, method)
-                .or_else(|| leo_ast::Intrinsic::convert_path_symbols(sym::Optional, method)),
-            1 => leo_ast::Intrinsic::convert_path_symbols(sym::Optional, method),
-            _ => None,
-        };
-        if let Some(intrinsic_name) = intrinsic_name {
-            return Ok(self.intrinsic_expression(intrinsic_name, all_args(), span));
-        }
-
-        // Unresolved `.get()` / `.set()` — the receiver type is unknown at
-        // parse time, so defer resolution to the type checker.
-        if method == sym::get && args.len() == 1 {
-            return Ok(self.intrinsic_expression(Symbol::intern("__unresolved_get"), all_args(), span));
-        }
-        if method == sym::set && args.len() == 2 {
-            return Ok(self.intrinsic_expression(Symbol::intern("__unresolved_set"), all_args(), span));
-        }
-
-        // Remaining Vector/Mapping method intrinsics.
-        for module in [sym::Vector, sym::Mapping] {
-            if let Some(intrinsic_name) = leo_ast::Intrinsic::convert_path_symbols(module, method) {
-                return Ok(self.intrinsic_expression(intrinsic_name, all_args(), span));
-            }
-        }
-
-        // Unknown method call - emit error
-        self.handler.emit_err(crate::errors::invalid_method_call(receiver, method_name, args.len(), span));
-        Ok(self.error_expression(span))
+        // Everything else is a method call resolved by the receiver's type. Built-in methods on
+        // `Vector`/`Mapping`/`Optional`/`signature`/`Future` and user methods on structs/records are
+        // all resolved in the type checker (and rewritten by the Disambiguate pass); the receiver
+        // type is unknown here, so we cannot resolve by name.
+        Ok(leo_ast::MethodCall { receiver, method: method_name, arguments: args, span, id }.into())
     }
 
     /// Convert a TUPLE_ACCESS_EXPR node to a TupleAccess expression.
@@ -1160,7 +1134,11 @@ impl<'a> ConversionContext<'a> {
         let (inner, first_child_kind) = match children(node).find(|n| n.kind().is_expression()) {
             Some(n) => {
                 let kind = n.kind();
-                let lowered = if matches!(kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+                // In an impl instance method, `self.field` is an ordinary member access on the
+                // receiver, so lower `self` to its path rather than an error placeholder.
+                let lowered = if kind == SELF_EXPR && self.self_type.get().is_some() {
+                    self.self_expr_to_expression(&n)
+                } else if matches!(kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
                     self.error_expression(self.trimmed_span(&n))
                 } else {
                     self.to_expression(&n)?
@@ -1200,24 +1178,31 @@ impl<'a> ConversionContext<'a> {
         // through the `std::ctx` module. Emit a targeted migration error that names
         // the replacement.
         let field_name = Symbol::intern(field_token.text());
-        let removed_access = match (first_child_kind, field_name) {
-            (SELF_EXPR, sym::address) => Some(("self.address", "std::ctx::addr()")),
-            (SELF_EXPR, sym::caller) => Some(("self.caller", "std::ctx::caller()")),
-            (SELF_EXPR, sym::checksum) => Some(("self.checksum", "std::ctx::checksum()")),
-            (SELF_EXPR, sym::edition) => Some(("self.edition", "std::ctx::edition()")),
-            (SELF_EXPR, sym::id) => Some(("self.id", "std::ctx::id()")),
-            (SELF_EXPR, sym::program_owner) => Some(("self.program_owner", "std::ctx::program_owner()")),
-            (SELF_EXPR, sym::signer) => Some(("self.signer", "std::ctx::signer()")),
-            (BLOCK_KW_EXPR, sym::height) => Some(("block.height", "std::ctx::block_height()")),
-            (BLOCK_KW_EXPR, sym::timestamp) => Some(("block.timestamp", "std::ctx::block_timestamp()")),
-            (NETWORK_KW_EXPR, sym::id) => Some(("network.id", "std::ctx::network_id()")),
-            _ => None,
+        // Inside an impl instance method, `self.field` is a real field access — skip both the
+        // removed-context-keyword sugar and the migration diagnostic below.
+        let self_field_in_method = first_child_kind == SELF_EXPR && self.self_type.get().is_some();
+        let removed_access = if self_field_in_method {
+            None
+        } else {
+            match (first_child_kind, field_name) {
+                (SELF_EXPR, sym::address) => Some(("self.address", "std::ctx::addr()")),
+                (SELF_EXPR, sym::caller) => Some(("self.caller", "std::ctx::caller()")),
+                (SELF_EXPR, sym::checksum) => Some(("self.checksum", "std::ctx::checksum()")),
+                (SELF_EXPR, sym::edition) => Some(("self.edition", "std::ctx::edition()")),
+                (SELF_EXPR, sym::id) => Some(("self.id", "std::ctx::id()")),
+                (SELF_EXPR, sym::program_owner) => Some(("self.program_owner", "std::ctx::program_owner()")),
+                (SELF_EXPR, sym::signer) => Some(("self.signer", "std::ctx::signer()")),
+                (BLOCK_KW_EXPR, sym::height) => Some(("block.height", "std::ctx::block_height()")),
+                (BLOCK_KW_EXPR, sym::timestamp) => Some(("block.timestamp", "std::ctx::block_timestamp()")),
+                (NETWORK_KW_EXPR, sym::id) => Some(("network.id", "std::ctx::network_id()")),
+                _ => None,
+            }
         };
         if let Some((old, replacement)) = removed_access {
             self.handler.emit_err(crate::errors::obsolete_context_access(old, replacement, span));
             return Ok(self.error_expression(span));
         }
-        if matches!(first_child_kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
+        if !self_field_in_method && matches!(first_child_kind, SELF_EXPR | BLOCK_KW_EXPR | NETWORK_KW_EXPR) {
             let keyword = match first_child_kind {
                 SELF_EXPR => "self",
                 BLOCK_KW_EXPR => "block",
@@ -1589,6 +1574,21 @@ impl<'a> ConversionContext<'a> {
         };
         self.handler.emit_err(crate::errors::obsolete_context_keyword(keyword, span));
         self.error_expression(span)
+    }
+
+    /// Convert a bare `self` expression.
+    ///
+    /// Inside an impl instance method (`self_type` is set), `self` refers to the receiver local,
+    /// so it lowers to an unresolved path that path resolution binds to the `self` parameter.
+    /// Everywhere else `self` is the removed context keyword and produces a migration error.
+    fn self_expr_to_expression(&self, node: &SyntaxNode) -> leo_ast::Expression {
+        if self.self_type.get().is_some() {
+            let span = self.trimmed_span(node);
+            let ident = leo_ast::Identifier { name: sym::SelfLower, span, id: self.builder.next_id() };
+            leo_ast::Path::new(None, Vec::new(), ident, span, self.builder.next_id()).into()
+        } else {
+            self.error_removed_context_keyword(node, sym::SelfLower)
+        }
     }
 
     /// Convert a FINAL_EXPR node to an Expression.
@@ -2015,6 +2015,7 @@ impl<'a> ConversionContext<'a> {
     // =========================================================================
 
     /// Collect a single program item (function, struct/record, const, interface) into the given vectors.
+    #[allow(clippy::too_many_arguments)]
     fn collect_program_item(
         &self,
         item: &SyntaxNode,
@@ -2023,6 +2024,7 @@ impl<'a> ConversionContext<'a> {
         composites: &mut Vec<(Symbol, leo_ast::Composite)>,
         consts: &mut Vec<(Symbol, leo_ast::ConstDeclaration)>,
         interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
+        impls: &mut Vec<leo_ast::Impl>,
     ) -> Result<()> {
         match item.kind() {
             FUNCTION_DEF | FINAL_FN_DEF | VIEW_FN_DEF => {
@@ -2079,6 +2081,9 @@ impl<'a> ConversionContext<'a> {
                 let interface = self.to_interface(item, is_in_program_block)?;
                 interfaces.push((interface.identifier.name, interface));
             }
+            IMPL_DEF => {
+                impls.push(self.to_impl(item)?);
+            }
             _ => {}
         }
         Ok(())
@@ -2092,6 +2097,7 @@ impl<'a> ConversionContext<'a> {
         structs: &mut Vec<(Symbol, leo_ast::Composite)>,
         functions: &mut Vec<(Symbol, leo_ast::Function)>,
         interfaces: &mut Vec<(Symbol, leo_ast::Interface)>,
+        impls: &mut Vec<leo_ast::Impl>,
     ) -> Result<()> {
         if is_library_item(item.kind()) {
             match item.kind() {
@@ -2111,6 +2117,9 @@ impl<'a> ConversionContext<'a> {
                 INTERFACE_DEF => {
                     let interface = self.to_interface(item, false)?;
                     interfaces.push((interface.identifier.name, interface));
+                }
+                IMPL_DEF => {
+                    impls.push(self.to_impl(item)?);
                 }
                 _ => {}
             }
@@ -2132,6 +2141,60 @@ impl<'a> ConversionContext<'a> {
         Ok(())
     }
 
+    /// Convert an `IMPL_DEF` node to an `Impl`.
+    ///
+    /// Each method is a `Variant::Fn` helper. Instance methods (those with a `self` receiver) are
+    /// converted with `self_type` set so `self`/`self.field` lower as ordinary references.
+    fn to_impl(&self, node: &SyntaxNode) -> Result<leo_ast::Impl> {
+        debug_assert_eq!(node.kind(), IMPL_DEF);
+        let span = self.non_trivia_span(node);
+        let id = self.builder.next_id();
+
+        // The target type is the first direct IDENT token of the impl block.
+        let type_ = self.require_ident(node, "impl target type");
+        self.validate_identifier(&type_);
+
+        let mut functions = Vec::new();
+        for item in children(node).filter(|n| n.kind() == FUNCTION_DEF) {
+            // Enable `self` handling only for instance methods (those with a `self` receiver).
+            let has_self = children(&item)
+                .find(|n| n.kind() == PARAM_LIST)
+                .map(|pl| children(&pl).any(|c| c.kind() == SELF_PARAM))
+                .unwrap_or(false);
+            let prev = self.self_type.replace(if has_self { Some(type_.name) } else { None });
+            // Impl methods are always `Variant::Fn`, never entry points, so pass `false`.
+            let func = self.to_function(&item, false);
+            self.self_type.set(prev);
+            let mut func = func?;
+
+            // An instance method whose name is an operator is unreachable through
+            // `value.method(..)`: operator names are desugared to the operator at parse time, before
+            // any type is known. (Built-in *methods* like `get`/`set`/`unwrap` are fine now — they
+            // are resolved by receiver type, so a struct/record may define them.) Reject only
+            // operator names; the static form `Type::method(..)` remains the escape hatch.
+            let name = func.identifier.name;
+            if has_self
+                && (leo_ast::UnaryOperation::from_symbol(name).is_some()
+                    || leo_ast::BinaryOperation::from_symbol(name).is_some())
+            {
+                self.handler.emit_err(crate::errors::custom(
+                    format!(
+                        "instance method `{name}` collides with a built-in operator; `value.{name}(..)` would apply the operator. Rename it, or call it as `{}::{name}(..)`.",
+                        type_.name
+                    ),
+                    func.identifier.span,
+                ));
+            }
+
+            // Methods form the type's public API, so they are reachable from other modules (e.g. the
+            // program block that uses the type). Mark them exported so accessibility checks pass.
+            func.is_exported = Some(true);
+            functions.push((func.identifier.name, func));
+        }
+
+        Ok(leo_ast::Impl { type_, functions, span, id })
+    }
+
     /// Convert a syntax node to a module.
     fn to_module(&self, node: &SyntaxNode, program_name: Symbol, path: Vec<Symbol>) -> Result<leo_ast::Module> {
         // Module nodes are ROOT nodes containing items (functions, structs, consts, interfaces)
@@ -2139,6 +2202,7 @@ impl<'a> ConversionContext<'a> {
         let mut composites = Vec::new();
         let mut consts = Vec::new();
         let mut interfaces = Vec::new();
+        let mut impls = Vec::new();
 
         for child in children(node) {
             if child.kind() == PROGRAM_DECL {
@@ -2150,6 +2214,7 @@ impl<'a> ConversionContext<'a> {
                         &mut composites,
                         &mut consts,
                         &mut interfaces,
+                        &mut impls,
                     )?;
                 }
             } else {
@@ -2160,6 +2225,7 @@ impl<'a> ConversionContext<'a> {
                     &mut composites,
                     &mut consts,
                     &mut interfaces,
+                    &mut impls,
                 )?;
             }
         }
@@ -2167,7 +2233,7 @@ impl<'a> ConversionContext<'a> {
         // Sort functions: entry points first
         functions.sort_by_key(|func| if func.1.variant.is_entry() { 0u8 } else { 1u8 });
 
-        Ok(leo_ast::Module { unit_name: program_name, path, consts, composites, functions, interfaces })
+        Ok(leo_ast::Module { unit_name: program_name, path, consts, composites, functions, interfaces, impls })
     }
 
     /// Convert a syntax node to a program (main file).
@@ -2181,6 +2247,7 @@ impl<'a> ConversionContext<'a> {
         let mut storage_variables = Vec::new();
         let mut constructors = Vec::new();
         let mut interfaces = Vec::new();
+        let mut impls = Vec::new();
         let mut program_name = None;
         let mut network = None;
         let mut parents = Vec::new();
@@ -2214,6 +2281,7 @@ impl<'a> ConversionContext<'a> {
                             &mut composites,
                             &mut consts,
                             &mut interfaces,
+                            &mut impls,
                         )?;
                         match item.kind() {
                             MAPPING_DEF => {
@@ -2239,6 +2307,7 @@ impl<'a> ConversionContext<'a> {
                         &mut composites,
                         &mut consts,
                         &mut interfaces,
+                        &mut impls,
                     )?;
                 }
             }
@@ -2266,6 +2335,7 @@ impl<'a> ConversionContext<'a> {
             storage_variables,
             functions,
             interfaces,
+            impls,
             constructor: constructors.pop(),
             span,
         };
@@ -2284,9 +2354,10 @@ impl<'a> ConversionContext<'a> {
         let mut structs = Vec::new();
         let mut functions = Vec::new();
         let mut interfaces = Vec::new();
+        let mut impls = Vec::new();
 
         for child in children(node) {
-            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions, &mut interfaces)?;
+            self.collect_library_item(&child, &mut consts, &mut structs, &mut functions, &mut interfaces, &mut impls)?;
         }
 
         Ok(leo_ast::Library {
@@ -2296,6 +2367,7 @@ impl<'a> ConversionContext<'a> {
             structs,
             functions,
             interfaces,
+            impls,
             stubs: indexmap::IndexMap::new(),
         })
     }
@@ -2599,9 +2671,33 @@ impl<'a> ConversionContext<'a> {
         debug_assert_eq!(node.kind(), PARAM_LIST);
 
         children(node)
-            .filter(|n| matches!(n.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT))
-            .map(|n| self.param_to_input(&n))
+            .filter(|n| matches!(n.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | SELF_PARAM))
+            .map(|n| if n.kind() == SELF_PARAM { self.self_param_to_input(&n) } else { self.param_to_input(&n) })
             .collect()
+    }
+
+    /// Convert a `SELF_PARAM` node to an `Input` named `self` whose type is the enclosing impl
+    /// type. The composite type path is left unresolved for path resolution to bind.
+    fn self_param_to_input(&self, node: &SyntaxNode) -> Result<leo_ast::Input> {
+        debug_assert_eq!(node.kind(), SELF_PARAM);
+        let span = self.non_trivia_span(node);
+        let id = self.builder.next_id();
+
+        let type_ = match self.self_type.get() {
+            Some(type_name) => {
+                let type_ident = leo_ast::Identifier { name: type_name, span, id: self.builder.next_id() };
+                let path = leo_ast::Path::new(None, Vec::new(), type_ident, span, self.builder.next_id());
+                leo_ast::Type::Composite(leo_ast::CompositeType { path, const_arguments: Vec::new() })
+            }
+            None => {
+                // `self` outside an impl method is rejected by the grammar; be defensive.
+                self.emit_unexpected_str("`self` outside an impl method", node.text(), span);
+                leo_ast::Type::Err
+            }
+        };
+
+        let identifier = leo_ast::Identifier { name: sym::SelfLower, span, id: self.builder.next_id() };
+        Ok(leo_ast::Input { identifier, mode: leo_ast::Mode::None, type_, span, id })
     }
 
     /// Convert a PARAM node to an Input.
@@ -3439,7 +3535,7 @@ fn compute_module_key(name: &FileName, root_dir: Option<&std::path::Path>) -> Op
 
 /// Returns `true` for syntax node kinds that are valid inside a library (`lib.leo`).
 fn is_library_item(kind: SyntaxKind) -> bool {
-    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF | INTERFACE_DEF)
+    matches!(kind, GLOBAL_CONST | STRUCT_DEF | FUNCTION_DEF | INTERFACE_DEF | IMPL_DEF)
 }
 
 /// Returns `true` for syntax node kinds that are valid inside a program (`main.leo`).
@@ -3456,6 +3552,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
             | MAPPING_DEF
             | STORAGE_DEF
             | CONSTRUCTOR_DEF
+            | IMPL_DEF
             | PROGRAM_DECL
             | IMPORT
     )

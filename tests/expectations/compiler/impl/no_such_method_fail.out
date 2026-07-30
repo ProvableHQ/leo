@@ -1,0 +1,7 @@
+[ETYC0372156] Error: the type `test.aleo::Point` has no method `nonexistent`
+    ╭─[ compiler-test:15:16 ]
+    │
+ 15 │         return p.nonexistent();
+    │ 
+    │ Help: Check the method name for typos, or define `nonexistent` in an `impl Point` block.
+────╯

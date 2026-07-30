@@ -93,6 +93,9 @@ where
                 Expression::Path(path) => self.reconstruct_path(path, &()),
                 Expression::Literal(value) => self.reconstruct_literal(value, &()),
                 Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+                // The replacer runs during type checking (via `BlockToFunctionRewriter`), before
+                // Disambiguate, so a `MethodCall` may still be present — recurse into it.
+                Expression::MethodCall(method_call) => self.reconstruct_method_call(*method_call, &()),
                 Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
                 Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
                 Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),

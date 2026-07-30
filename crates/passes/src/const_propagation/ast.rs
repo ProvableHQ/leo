@@ -67,6 +67,7 @@ impl AstReconstructor for ConstPropagationVisitor<'_> {
             Expression::Path(path) => self.reconstruct_path(path, &()),
             Expression::Literal(value) => self.reconstruct_literal(value, &()),
             Expression::MemberAccess(access) => self.reconstruct_member_access(*access, &()),
+            Expression::MethodCall(..) => unreachable!("MethodCall is removed by the Disambiguate pass"),
             Expression::Repeat(repeat) => self.reconstruct_repeat(*repeat, &()),
             Expression::Ternary(ternary) => self.reconstruct_ternary(*ternary, &()),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple, &()),

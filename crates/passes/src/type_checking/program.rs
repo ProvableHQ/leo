@@ -170,6 +170,10 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             }
         }
 
+        // Typecheck each impl block's methods. They resolve at the enclosing (program) scope, so
+        // `module_name` stays cleared; their paths were already resolved to `[Type, method]`.
+        input.impls.iter().for_each(|i| self.visit_impl(i));
+
         if let Some(constructor) = &input.constructor {
             self.visit_constructor(constructor);
         }
@@ -221,6 +225,36 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
             self.visit_function(function);
         }
 
+        input.impls.iter().for_each(|i| self.visit_impl(i));
+
+        self.scope_state.module_name = parent_module;
+    }
+
+    /// Type-check an impl block's methods with `module_name` extended by the type name, so each
+    /// method's own location reconstructs as `[..module, Type, method]` — matching how
+    /// `GlobalItemsCollection` registered it. Reference paths in the body were already resolved by
+    /// path resolution, so this only affects self-location reconstruction, not name lookup.
+    fn visit_impl(&mut self, input: &leo_ast::Impl) {
+        // The impl target must be a struct or record declared in this program.
+        let unit = self.scope_state.unit_name.unwrap();
+        let type_path: Vec<Symbol> =
+            self.scope_state.module_name.iter().cloned().chain(std::iter::once(input.type_.name)).collect();
+        let type_loc = Location::new(unit, type_path);
+        if self.state.symbol_table.lookup_struct(unit, &type_loc).is_none()
+            && self.state.symbol_table.lookup_record(unit, &type_loc).is_none()
+        {
+            self.emit_err(crate::errors::type_checker::custom(
+                format!(
+                    "cannot implement methods for `{}`: no struct or record with that name in this program",
+                    input.type_.name
+                ),
+                input.type_.span,
+            ));
+        }
+
+        let parent_module = self.scope_state.module_name.clone();
+        self.scope_state.module_name.push(input.type_.name);
+        input.functions.iter().for_each(|(_, f)| self.visit_function(f));
         self.scope_state.module_name = parent_module;
     }
 
@@ -234,6 +268,7 @@ impl UnitVisitor for TypeCheckingVisitor<'_> {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.interfaces.iter().for_each(|(_, i)| self.visit_interface(i));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         input.modules.values().for_each(|m| {
             self.visit_module(m);
         });

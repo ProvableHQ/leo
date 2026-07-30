@@ -42,6 +42,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         FUNCTION_DEF | FINAL_FN_DEF | VIEW_FN_DEF | CONSTRUCTOR_DEF => format_function(node, out),
         STRUCT_DEF | RECORD_DEF => format_composite(node, out),
         INTERFACE_DEF => format_interface(node, out),
+        IMPL_DEF => format_impl(node, out),
         FN_PROTOTYPE_DEF => format_fn_prototype(node, out),
         RECORD_PROTOTYPE_DEF => format_record_prototype(node, out),
         IMPORT => format_import(node, out),
@@ -51,6 +52,7 @@ pub fn format_node(node: &SyntaxNode, out: &mut Output) {
         ANNOTATION => format_annotation(node, out),
         PARAM_LIST => format_parameter_list(node, out),
         PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT => format_parameter(node, out),
+        SELF_PARAM => out.write("self"),
         RETURN_TYPE => format_return_type(node, out),
         CONST_PARAM => format_const_parameter(node, out),
         CONST_PARAM_LIST => format_const_parameter_list(node, out),
@@ -416,6 +418,7 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
             | STORAGE_DEF
             | GLOBAL_CONST
             | INTERFACE_DEF
+            | IMPL_DEF
     )
 }
 
@@ -423,7 +426,14 @@ fn is_program_item_non_annotation(kind: SyntaxKind) -> bool {
 fn is_block_item(kind: SyntaxKind) -> bool {
     matches!(
         kind,
-        FUNCTION_DEF | FINAL_FN_DEF | VIEW_FN_DEF | CONSTRUCTOR_DEF | STRUCT_DEF | RECORD_DEF | INTERFACE_DEF
+        FUNCTION_DEF
+            | FINAL_FN_DEF
+            | VIEW_FN_DEF
+            | CONSTRUCTOR_DEF
+            | STRUCT_DEF
+            | RECORD_DEF
+            | INTERFACE_DEF
+            | IMPL_DEF
     )
 }
 
@@ -810,6 +820,89 @@ fn format_interface(node: &SyntaxNode, out: &mut Output) {
                     if n.next_sibling().is_some() {
                         out.newline();
                     }
+                }
+                ERROR => {
+                    let text = n.text().to_string();
+                    let text = text.trim();
+                    if !text.is_empty() {
+                        out.indented(|out| {
+                            out.write(text);
+                            out.newline();
+                        });
+                    }
+                }
+                _ => {}
+            },
+        }
+    }
+
+    if has_token(node, R_BRACE) {
+        out.write("}");
+        if let Some(idx) = rbrace_idx {
+            emit_comments_after(&elems, idx, out);
+        }
+    }
+    if let Some(next) = node.next_sibling() {
+        emit_stolen_trailing_comments(&next, out);
+    }
+    out.set_mark();
+    out.ensure_newline();
+}
+
+fn format_impl(node: &SyntaxNode, out: &mut Output) {
+    let elems = elements(node);
+    let rbrace_idx = find_last_token_index(&elems, R_BRACE);
+
+    emit_leading_comments(node, out);
+
+    let mut after_lbrace = false;
+    let mut first_method = true;
+    for elem in &elems {
+        match elem {
+            SyntaxElement::Token(tok) => match tok.kind() {
+                KW_IMPL => {
+                    out.write("impl");
+                    out.space();
+                }
+                IDENT if !after_lbrace => {
+                    out.write(tok.text());
+                }
+                L_BRACE => {
+                    out.space();
+                    out.write("{");
+                    if let Some(first_item) = node.children().find(|child| matches!(child.kind(), FUNCTION_DEF | ERROR))
+                    {
+                        emit_stolen_trailing_comments(&first_item, out);
+                    }
+                    out.newline();
+                    after_lbrace = true;
+                }
+                R_BRACE => {}
+                COMMENT_LINE if after_lbrace => {
+                    out.indented(|out| {
+                        out.write(tok.text().trim_end());
+                    });
+                    out.newline();
+                }
+                COMMENT_BLOCK if after_lbrace => {
+                    out.indented(|out| {
+                        out.write(tok.text());
+                    });
+                    out.newline();
+                }
+                WHITESPACE | LINEBREAK => {}
+                _ if !after_lbrace => out.write(tok.text()),
+                _ => {}
+            },
+            SyntaxElement::Node(n) => match n.kind() {
+                FUNCTION_DEF => {
+                    // Blank line between methods (inserted at the previous method's mark, before any
+                    // trailing comment), matching how top-level functions are spaced.
+                    if !first_method {
+                        out.insert_newline_at_mark();
+                    }
+                    first_method = false;
+                    out.indented(|out| format_node(n, out));
                 }
                 ERROR => {
                     let text = n.text().to_string();
@@ -1270,7 +1363,9 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
         SyntaxElement::Token(tok) => {
             !matches!(tok.kind(), L_PAREN | R_PAREN | COMMA | WHITESPACE | LINEBREAK | COMMENT_LINE | COMMENT_BLOCK)
         }
-        SyntaxElement::Node(n) => !matches!(n.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR),
+        SyntaxElement::Node(n) => {
+            !matches!(n.kind(), SELF_PARAM | PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR)
+        }
     });
 
     if has_error_descendant(node) || has_direct_non_list_tokens {
@@ -1280,7 +1375,7 @@ fn format_parameter_list_with_suffix(node: &SyntaxNode, out: &mut Output, suffix
 
     let params: Vec<_> = node
         .children()
-        .filter(|c| matches!(c.kind(), PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR))
+        .filter(|c| matches!(c.kind(), SELF_PARAM | PARAM | PARAM_PUBLIC | PARAM_PRIVATE | PARAM_CONSTANT | ERROR))
         .collect();
 
     if params.is_empty() {
@@ -3845,6 +3940,7 @@ fn is_program_item(kind: SyntaxKind) -> bool {
             | STORAGE_DEF
             | GLOBAL_CONST
             | INTERFACE_DEF
+            | IMPL_DEF
             | ANNOTATION
     )
 }

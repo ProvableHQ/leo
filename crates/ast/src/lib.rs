@@ -50,6 +50,9 @@ pub use self::expressions::*;
 mod functions;
 pub use self::functions::*;
 
+mod impl_block;
+pub use self::impl_block::*;
+
 mod interface;
 pub use self::interface::*;
 

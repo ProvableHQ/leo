@@ -17,7 +17,7 @@
    │ 
    │ Help: Replace the highlighted token with what the parser expects, or insert the missing syntax before it.
 ───╯
-[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', found `)`
+[EPAR0370005] Error: expected '}', '@', 'record', 'struct', 'fn', 'final', 'const', 'mapping', 'storage', 'script', 'interface', 'impl', found `)`
    ╭─[ test:6:29 ]
    │
  6 │     mapping foo: (bar => baz);

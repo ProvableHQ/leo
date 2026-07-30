@@ -1218,6 +1218,51 @@ impl Intrinsic {
         })
     }
 
+    /// Resolves a `receiver.method(..)` call against the receiver's TYPE to the concrete low-level
+    /// intrinsic symbol, or `None` if the receiver type has no built-in method by that name.
+    ///
+    /// `None` means "not a built-in" — for a struct/record receiver that is a user method, resolved
+    /// elsewhere. This is the type-directed replacement for the old parse-time name matching, and is
+    /// shared by the type checker (to validate) and the Disambiguate pass (to rewrite), so both agree
+    /// on the target.
+    pub fn builtin_method_symbol(receiver_ty: &Type, method: Symbol) -> Option<Symbol> {
+        match receiver_ty {
+            // `get`/`set` are the only names claimed by both Vector and Mapping. `convert_path_symbols`
+            // maps `(Vector, get/set)` to the *mapping* symbol, so special-case the vector case here.
+            Type::Vector(_) if method == sym::get => Some(sym::_vector_get),
+            Type::Vector(_) if method == sym::set => Some(sym::_vector_set),
+            Type::Vector(_) => Self::convert_path_symbols(sym::Vector, method),
+            Type::Mapping(_) => Self::convert_path_symbols(sym::Mapping, method),
+            Type::Optional(_) => Self::convert_path_symbols(sym::Optional, method),
+            Type::Signature => Self::convert_path_symbols(sym::signature, method),
+            Type::Future(_) => Self::convert_path_symbols(sym::Final, method),
+            _ => None,
+        }
+    }
+
+    /// If `method` is the name of a built-in method, returns a human-readable description of the
+    /// receiver type it expects (for diagnostics when it is called on the wrong type). Returns
+    /// `None` for names that are not built-in methods (candidate user methods).
+    pub fn builtin_method_receiver_hint(method: Symbol) -> Option<&'static str> {
+        // Names owned by more than one built-in type are described with both.
+        if method == sym::get || method == sym::set {
+            return Some("a vector or a mapping");
+        }
+        if Self::convert_path_symbols(sym::Vector, method).is_some() {
+            Some("a vector")
+        } else if Self::convert_path_symbols(sym::Mapping, method).is_some() {
+            Some("a mapping")
+        } else if Self::convert_path_symbols(sym::Optional, method).is_some() {
+            Some("an optional")
+        } else if Self::convert_path_symbols(sym::signature, method).is_some() {
+            Some("a signature")
+        } else if Self::convert_path_symbols(sym::Final, method).is_some() {
+            Some("a future")
+        } else {
+            None
+        }
+    }
+
     /// Returns the number of arguments required by the instruction.
     pub fn num_args(&self) -> usize {
         match self {

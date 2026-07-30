@@ -1,0 +1,5 @@
+[ETYC0372156] Error: cannot implement methods for `Ghost`: no struct or record with that name in this program
+   ╭─[ compiler-test:1:6 ]
+   │
+ 1 │ impl Ghost {
+───╯

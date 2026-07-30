@@ -50,6 +50,114 @@ pub enum AssignTargetKind {
 }
 
 impl TypeCheckingVisitor<'_> {
+    /// Type-check a method call `receiver.method(args)`, resolved by the receiver's type.
+    ///
+    /// - Built-in method on `Vector`/`Mapping`/`Optional`/`signature`/`Future`: synthesize the
+    ///   corresponding `IntrinsicExpression` (receiver prepended to args) and delegate to
+    ///   `visit_intrinsic`, so every existing storage/finalize/path-receiver/arity diagnostic fires
+    ///   unchanged.
+    /// - User method on a struct/record: look up `[Type, method]`, require a `self` receiver, and
+    ///   synthesize a resolved `CallExpression` (receiver as the `self` argument) checked via
+    ///   `visit_call`.
+    ///
+    /// `id` is preserved so the type recorded here stays valid after the Disambiguate pass rewrites
+    /// the node into the concrete form.
+    fn check_method_call(&mut self, input: &MethodCall, expected: &Option<Type>) -> Type {
+        let current_program = self.scope_state.unit_name.unwrap();
+        let span = input.span;
+        let method = input.method.name;
+
+        // Learn the receiver type (this also records it in the type table for the Disambiguate pass).
+        let receiver_ty = self.visit_expression(&input.receiver, &None);
+        if matches!(receiver_ty, Type::Err) {
+            return Type::Err;
+        }
+
+        // `[receiver, ..args]` — the receiver becomes the intrinsic's first operand / the `self` arg.
+        let arguments: Vec<Expression> =
+            std::iter::once(input.receiver.clone()).chain(input.arguments.iter().cloned()).collect();
+
+        // Built-in method on a Vector/Mapping/Optional/signature/Future receiver.
+        if let Some(intrinsic_sym) = Intrinsic::builtin_method_symbol(&receiver_ty, method) {
+            let synth = IntrinsicExpression {
+                name: intrinsic_sym,
+                type_parameters: Vec::new(),
+                input_types: Vec::new(),
+                return_types: Vec::new(),
+                arguments,
+                span,
+                id: input.id,
+            };
+            return self.visit_intrinsic(&synth, expected);
+        }
+
+        // User method on a struct/record, registered at `[Type, method]`.
+        let Type::Composite(ct) = &receiver_ty else {
+            // A built-in method name used on the wrong type: name the type it belongs to. Otherwise
+            // it is an unknown method on a type that can't have methods.
+            let err = match Intrinsic::builtin_method_receiver_hint(method) {
+                Some(hint) => crate::errors::type_checker::custom(
+                    format!("expected {hint}, but type `{receiver_ty}` was found"),
+                    span,
+                )
+                .with_help(format!("`{method}` is a built-in method that can only be called on {hint}.")),
+                None => crate::errors::type_checker::custom(
+                    format!("the type `{receiver_ty}` has no method `{method}`"),
+                    span,
+                )
+                .with_help(
+                    "Methods can only be called on structs, records, and built-in types such as vectors, mappings, and optionals.",
+                ),
+            };
+            self.emit_err(err);
+            return Type::Err;
+        };
+        let Some(base) = ct.path.try_global_location() else {
+            return Type::Err;
+        };
+
+        // Cascade suppression: if the receiver's own type is not a defined struct or record, that
+        // was already reported at its declaration/use site, so don't add a spurious
+        // method-resolution error on top of it (e.g. `f.run()` where `f`'s type is undefined).
+        if self.state.symbol_table.lookup_struct(current_program, base).is_none()
+            && self.state.symbol_table.lookup_record(current_program, base).is_none()
+        {
+            return Type::Err;
+        }
+
+        let mut path = base.path.clone();
+        path.push(method);
+        let location = Location::new(base.program, path);
+
+        // The method must exist and be an instance method (its first parameter is `self`).
+        let type_name = ct.path.identifier();
+        let Some(func_symbol) = self.state.symbol_table.lookup_function(current_program, &location) else {
+            self.emit_err(
+                crate::errors::type_checker::custom(format!("the type `{receiver_ty}` has no method `{method}`"), span)
+                    .with_help(format!(
+                        "Check the method name for typos, or define `{method}` in an `impl {type_name}` block."
+                    )),
+            );
+            return Type::Err;
+        };
+        let is_instance = func_symbol.function.input.first().is_some_and(|p| p.identifier.name == sym::SelfLower);
+        if !is_instance {
+            self.emit_err(
+                crate::errors::type_checker::custom(
+                    format!("`{method}` is a static method on `{type_name}` and cannot be called on a value"),
+                    span,
+                )
+                .with_help(format!("Call it with `::` instead, e.g. `{type_name}::{method}(...)`.")),
+            );
+            return Type::Err;
+        }
+
+        let ident = Identifier { name: method, span, id: self.state.node_builder.next_id() };
+        let function = Path::new(None, Vec::new(), ident, span, self.state.node_builder.next_id()).to_global(location);
+        let call = CallExpression { function, const_arguments: Vec::new(), arguments, span, id: input.id };
+        self.visit_call(&call, expected)
+    }
+
     /// Returns information about an expression when used as the LHS of an assignment.
     ///
     /// Specifically, this function returns an `AssignTargetInfo` containing:
@@ -454,6 +562,7 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::MemberAccess(access) => self.visit_member_access_general(access, false, additional),
+            Expression::MethodCall(method_call) => self.visit_method_call(method_call, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
@@ -579,6 +688,10 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         self.maybe_assert_type(&type_, additional, input.span());
         type_
+    }
+
+    fn visit_method_call(&mut self, input: &MethodCall, expected: &Self::AdditionalInput) -> Self::Output {
+        self.check_method_call(input, expected)
     }
 
     fn visit_intrinsic(&mut self, input: &IntrinsicExpression, expected: &Self::AdditionalInput) -> Self::Output {
@@ -2563,10 +2676,15 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
     }
 
     fn visit_expression_statement(&mut self, input: &ExpressionStatement) {
-        // Expression statements can only be function calls.
+        // Expression statements can only be function calls. `MethodCall` is a call form that the
+        // type checker resolves (and Disambiguate rewrites to a `Call`/`Intrinsic`), so allow it too.
         if !matches!(
             input.expression,
-            Expression::Call(_) | Expression::DynamicOp(_) | Expression::Intrinsic(_) | Expression::Unit(_)
+            Expression::Call(_)
+                | Expression::DynamicOp(_)
+                | Expression::Intrinsic(_)
+                | Expression::MethodCall(_)
+                | Expression::Unit(_)
         ) {
             self.emit_err(crate::errors::type_checker::expression_statement_must_be_function_call(input.span()));
         } else {

@@ -39,6 +39,7 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
             structs: input.structs,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces,
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             stubs: input.stubs,
         };
         self.program = prev_program;
@@ -68,6 +69,7 @@ impl UnitReconstructor for FlatteningVisitor<'_> {
                 .collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            impls: input.impls.into_iter().map(|i| self.reconstruct_impl(i)).collect(),
             constructor: input.constructor.map(|c| self.reconstruct_constructor(c)),
             span: input.span,
         }

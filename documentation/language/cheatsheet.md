@@ -102,6 +102,45 @@ Creating an option type instance of a `struct`
 
 The `address` and `signature` types do not have option variants. Thus, a `struct` that contains these types cannot have an option variant.
 
+### Methods (`impl` blocks)
+
+Methods are associated with a `struct` or `record` in an `impl` block. A method with no `self`
+parameter is a static/associated method, called with `::`. A method whose first parameter is
+`self` is an instance method, called with `.` on a value:
+
+```leo
+struct Point {
+    x: u32,
+    y: u32,
+}
+
+impl Point {
+    // Static method — called as `Point::new(..)`.
+    fn new(x: u32, y: u32) -> Point {
+        return Point { x, y };
+    }
+
+    // Instance method — called as `p.sum()`. `self` is the receiver of type `Point`.
+    fn sum(self) -> u32 {
+        return self.x + self.y;
+    }
+}
+
+// let p = Point::new(1u32, 2u32);
+// let s = p.sum();
+```
+
+Notes and limitations (first version):
+- `impl` blocks are supported for user-defined `struct`s and `record`s in the same program
+  (non-generic).
+- Methods are inlined at their call sites, like other helper `fn`s.
+- Because a method on a `record` would take/return that record, and only entry-point functions may
+  have a record as input or output, instance methods on records are limited; static methods whose
+  signatures avoid the record type work.
+- An instance method may not be named after a built-in operator/intrinsic (e.g. `add`, `sub`,
+  `pow`), because `value.add(..)` desugars to the operator. Use a different name, or the static form
+  `Type::add(..)`.
+
 ## 6. Arrays
 
 Declaring `arrays`:

@@ -84,6 +84,7 @@ fn contains_non_discardable_operation(expr: &Expression, state: &CompilerState) 
                     .any(|member| contains_non_discardable_operation(member, state))
         }
         Expression::MemberAccess(expr) => contains_non_discardable_operation(&expr.inner, state),
+        Expression::MethodCall(..) => unreachable!("MethodCall is removed by the Disambiguate pass"),
         Expression::Repeat(expr) => {
             contains_non_discardable_operation(&expr.expr, state)
                 || contains_non_discardable_operation(&expr.count, state)

@@ -71,15 +71,12 @@ impl ExpressionConsumer for SsaFormingVisitor<'_> {
     }
 
     fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
-        // If the access expression is of the form `self.<name>`, then don't rename it.
-        if let Expression::Path(path) = &input.inner
-            && path.identifier().name == sym::SelfLower
-        {
-            return (input.into(), Vec::new());
-        }
-
         let (inner, statements) = self.consume_expression_and_define(input.inner);
         (MemberAccess { inner, ..input }.into(), statements)
+    }
+
+    fn consume_method_call(&mut self, _input: leo_ast::MethodCall) -> Self::Output {
+        unreachable!("MethodCall is removed by the Disambiguate pass")
     }
 
     fn consume_tuple_access(&mut self, input: TupleAccess) -> Self::Output {

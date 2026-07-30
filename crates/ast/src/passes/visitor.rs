@@ -121,6 +121,7 @@ pub trait AstVisitor {
             Expression::Path(path) => self.visit_path(path, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
             Expression::MemberAccess(access) => self.visit_member_access(access, additional),
+            Expression::MethodCall(method_call) => self.visit_method_call(method_call, additional),
             Expression::Repeat(repeat) => self.visit_repeat(repeat, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
@@ -139,6 +140,14 @@ pub trait AstVisitor {
 
     fn visit_member_access(&mut self, input: &MemberAccess, _additional: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.inner, &Default::default());
+        Default::default()
+    }
+
+    fn visit_method_call(&mut self, input: &MethodCall, _additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.receiver, &Default::default());
+        input.arguments.iter().for_each(|arg| {
+            self.visit_expression(arg, &Default::default());
+        });
         Default::default()
     }
 
@@ -362,6 +371,7 @@ pub trait UnitVisitor: AstVisitor {
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
         input.structs.iter().for_each(|(_, s)| self.visit_composite(s));
         input.functions.iter().for_each(|(_, f)| self.visit_function(f));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         input.modules.values().for_each(|m| self.visit_module(m));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
@@ -381,6 +391,7 @@ pub trait UnitVisitor: AstVisitor {
         input.mappings.iter().for_each(|(_, c)| self.visit_mapping(c));
         input.storage_variables.iter().for_each(|(_, c)| self.visit_storage_variable(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
         if let Some(c) = input.constructor.as_ref() {
             self.visit_constructor(c);
         }
@@ -391,6 +402,11 @@ pub trait UnitVisitor: AstVisitor {
         input.composites.iter().for_each(|(_, c)| self.visit_composite(c));
         input.interfaces.iter().for_each(|(_, c)| self.visit_interface(c));
         input.functions.iter().for_each(|(_, c)| self.visit_function(c));
+        input.impls.iter().for_each(|i| self.visit_impl(i));
+    }
+
+    fn visit_impl(&mut self, input: &Impl) {
+        input.functions.iter().for_each(|(_, f)| self.visit_function(f));
     }
 
     fn visit_composite(&mut self, input: &Composite) {

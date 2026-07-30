@@ -1,4 +1,4 @@
-_optional_unwrap(x)
+x.unwrap()
 
-_optional_unwrap_or(x, y)
+x.unwrap_or(y)
 

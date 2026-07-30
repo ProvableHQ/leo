@@ -1,0 +1,7 @@
+[ETYC0372156] Error: `origin` is a static method on `Point` and cannot be called on a value
+    ╭─[ compiler-test:15:16 ]
+    │
+ 15 │         return p.origin().x;
+    │ 
+    │ Help: Call it with `::` instead, e.g. `Point::origin(...)`.
+────╯
