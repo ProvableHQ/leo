@@ -26,14 +26,22 @@ use std::{
 
 const PLUGIN_PREFIX: &str = "leo-";
 
-/// Scan `PATH` for an executable named `name`.
+/// Find an executable named `name` next to the current Leo binary or on `PATH`.
 pub fn find_exe(name: &str) -> Option<PathBuf> {
     let filename = format!("{name}{}", std::env::consts::EXE_SUFFIX);
+    if let Some(path) = std::env::current_exe().ok().and_then(|path| find_sibling_exe(&filename, &path)) {
+        return Some(path);
+    }
     let var = std::env::var_os("PATH")?;
     std::env::split_paths(&var).find_map(|dir| {
         let candidate = dir.join(&filename);
         if is_executable(&candidate) { Some(candidate) } else { None }
     })
+}
+
+fn find_sibling_exe(filename: &str, current_exe: &Path) -> Option<PathBuf> {
+    let candidate = current_exe.parent()?.join(filename);
+    is_executable(&candidate).then_some(candidate)
 }
 
 /// Find and execute a plugin binary, forwarding `args` and optionally setting
@@ -133,4 +141,28 @@ fn is_executable(path: &Path) -> bool {
 #[cfg(not(unix))]
 fn is_executable(path: &Path) -> bool {
     path.is_file()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_sibling_plugin() {
+        let directory = tempfile::tempdir().unwrap();
+        let current_exe = directory.path().join(format!("leo{}", std::env::consts::EXE_SUFFIX));
+        let plugin = directory.path().join(format!("leo-fmt{}", std::env::consts::EXE_SUFFIX));
+        std::fs::write(&current_exe, "").unwrap();
+        std::fs::write(&plugin, "").unwrap();
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mut permissions = std::fs::metadata(&plugin).unwrap().permissions();
+            permissions.set_mode(0o755);
+            std::fs::set_permissions(&plugin, permissions).unwrap();
+        }
+
+        assert_eq!(find_sibling_exe(plugin.file_name().unwrap().to_str().unwrap(), &current_exe), Some(plugin));
+    }
 }
