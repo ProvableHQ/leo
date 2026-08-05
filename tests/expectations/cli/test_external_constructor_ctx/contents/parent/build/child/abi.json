@@ -1,0 +1,14 @@
+{
+  "program": "child.aleo",
+  "structs": [],
+  "records": [],
+  "mappings": [],
+  "storage_variables": [],
+  "functions": [
+    {
+      "name": "ping",
+      "inputs": [],
+      "outputs": []
+    }
+  ]
+}

@@ -475,15 +475,19 @@ impl TransformVisitor<'_> {
     /// Assembles a `FromLeo` stub's program from `reconstructed_functions`. `input.stubs` is
     /// always empty on a stub's program (only the top-level `Program` carries stubs), so it
     /// passes through unchanged.
-    fn assemble_from_leo_program(&self, input: Program) -> Program {
+    fn assemble_from_leo_program(&mut self, input: Program) -> Program {
+        let caller_program = self.program;
         let program_scopes =
             input.program_scopes.into_iter().map(|(id, scope)| (id, self.assemble_from_leo_scope(id, scope))).collect();
         let modules = input.modules.into_iter().map(|(mid, m)| (mid, self.assemble_module(m))).collect();
+        self.program = caller_program;
         Program { program_scopes, modules, stubs: input.stubs, imports: input.imports }
     }
 
     /// Assembles a single ProgramScope for a FromLeo stub from reconstructed_functions.
-    fn assemble_from_leo_scope(&self, program_name: Symbol, input: ProgramScope) -> ProgramScope {
+    fn assemble_from_leo_scope(&mut self, program_name: Symbol, input: ProgramScope) -> ProgramScope {
+        self.program = program_name;
+
         // Entry-point functions must appear before finalize functions so the type checker
         // can populate async_function_callers before visiting finalizers. Top-level closures
         // stay in the stub — same-program callers (in the stub's own entry points) and cross-
@@ -501,7 +505,7 @@ impl TransformVisitor<'_> {
             storage_variables: input.storage_variables,
             functions,
             interfaces: input.interfaces,
-            constructor: input.constructor,
+            constructor: input.constructor.map(|constructor| self.reconstruct_constructor(constructor)),
             consts: input.consts,
             span: input.span,
         }
