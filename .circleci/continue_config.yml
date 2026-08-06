@@ -200,9 +200,10 @@ commands:
           name: Install libclang
           command: |
             if [[ "$OSTYPE" == "darwin"* ]]; then
-              # libclang ships with Xcode — locate it and export the path for bindgen.
+              # Xcode supplies libclang. clang-sys uses LIBCLANG_PATH at compile time and DYLD_LIBRARY_PATH at run time.
               LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
               echo "export LIBCLANG_PATH=$LIBCLANG_PATH" >> "$BASH_ENV"
+              echo "export DYLD_LIBRARY_PATH=$LIBCLANG_PATH:\${DYLD_LIBRARY_PATH:-}" >> "$BASH_ENV"
             else
               sudo apt-get update -qq
               sudo apt-get install -y libclang-dev
