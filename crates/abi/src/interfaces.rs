@@ -439,10 +439,11 @@ fn convert_output(
     convert_function_output(output.type_.kind(), prototype_record_locations, cs, resolve_io_mode(output.mode, is_view))
 }
 
-/// Checks if a composite type is a record in the context of an interface.
+/// Checks if a composite type is a record in the context of an interface ABI.
 ///
-/// Checks the interface's exact record prototype locations first, then falls back to the
-/// composite source for records from the surrounding scope.
+/// Direct record prototype locations are checked first. Those locations use the interface's
+/// owning program and containing module path; inherited parent prototypes are not added here.
+/// Concrete composites are then resolved from the surrounding source by their complete location.
 fn is_record_for_interface(
     comp_ty: &ast::CompositeType,
     prototype_record_locations: &HashSet<ast::Location>,

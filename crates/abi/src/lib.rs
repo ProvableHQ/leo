@@ -251,7 +251,9 @@ fn convert_function_output(ty: &ast::TypeKind, ctx: &Ctx, mode: abi::Mode) -> ab
     }
 }
 
-/// Finds a composite by its complete path within one compilation unit.
+/// Finds a composite by its exact module path and terminal name within one compilation unit.
+/// A non-empty module path must match a module entry; the root path searches only top-level
+/// composites.
 fn find_composite_at_path<'a>(
     path: &[Symbol],
     composites: &'a [(Symbol, ast::Composite)],
@@ -268,7 +270,10 @@ fn find_composite_at_path<'a>(
     composites.iter().find(|(symbol, _)| *symbol == name).map(|(_, composite)| composite)
 }
 
-/// Finds a composite by its canonical program and path identity.
+/// Finds a composite by its canonical `(program, path)` identity.
+///
+/// Leo and library sources resolve the path inside the exact module selected by the location.
+/// Aleo stubs expose root composites only, so a module-qualified Aleo location returns `None`.
 fn find_composite_at_location<'a>(
     location: &ast::Location,
     current_program: Symbol,
