@@ -1,0 +1,22 @@
+--- leo build child ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'child.aleo'
+       Leo     The program checksum is: '[55u8, 104u8, 6u8, 16u8, 230u8, 251u8, 235u8, 16u8, 71u8, 104u8, 49u8, 142u8, 36u8, 24u8, 159u8, 128u8, 181u8, 244u8, 99u8, 249u8, 46u8, 251u8, 159u8, 84u8, 49u8, 140u8, 186u8, 23u8, 248u8, 147u8, 16u8, 230u8]'.
+       Leo       `ping` function checksum is: '[171u8, 122u8, 248u8, 123u8, 163u8, 240u8, 144u8, 229u8, 59u8, 128u8, 198u8, 185u8, 25u8, 2u8, 127u8, 254u8, 243u8, 6u8, 155u8, 252u8, 38u8, 148u8, 175u8, 0u8, 84u8, 167u8, 148u8, 49u8, 217u8, 143u8, 3u8, 110u8]'.
+       Leo     Program size: 0.21 KB / 2000.00 KB
+       Leo ✅ Compiled 'child.aleo' into Aleo instructions.
+       Leo ✅ Generated ABI for program 'child.aleo'.
+--- leo build parent ---
+⚠️ No network specified, defaulting to 'testnet'.
+⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
+
+       Leo 🔨 Compiling 'parent.aleo'
+       Leo     The program checksum is: '[252u8, 179u8, 50u8, 104u8, 166u8, 48u8, 222u8, 87u8, 171u8, 62u8, 78u8, 6u8, 173u8, 196u8, 227u8, 174u8, 230u8, 147u8, 160u8, 140u8, 110u8, 44u8, 132u8, 153u8, 11u8, 84u8, 3u8, 15u8, 125u8, 74u8, 65u8, 120u8]'.
+       Leo       `ping` function checksum is: '[171u8, 122u8, 248u8, 123u8, 163u8, 240u8, 144u8, 229u8, 59u8, 128u8, 198u8, 185u8, 25u8, 2u8, 127u8, 254u8, 243u8, 6u8, 155u8, 252u8, 38u8, 148u8, 175u8, 0u8, 84u8, 167u8, 148u8, 49u8, 217u8, 143u8, 3u8, 110u8]'.
+       Leo     Program size: 0.10 KB / 2000.00 KB
+       Leo ✅ Compiled 'parent.aleo' into Aleo instructions.
+       Leo     Import 'child.aleo': checksum = '[55u8, 104u8, 6u8, 16u8, 230u8, 251u8, 235u8, 16u8, 71u8, 104u8, 49u8, 142u8, 36u8, 24u8, 159u8, 128u8, 181u8, 244u8, 99u8, 249u8, 46u8, 251u8, 159u8, 84u8, 49u8, 140u8, 186u8, 23u8, 248u8, 147u8, 16u8, 230u8]'
+       Leo     Import 'child.aleo': program size: 0.21 KB / 2000.00 KB
+       Leo ✅ Generated ABI for program 'parent.aleo'.

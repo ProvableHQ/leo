@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Verify context accessors in a local dependency constructor.
+
+LEO_BIN=${1}
+
+cd child || exit 1
+
+echo "--- leo build child ---"
+${LEO_BIN} --disable-update-check build --checksums
+
+cd ../parent || exit 1
+
+echo "--- leo build parent ---"
+${LEO_BIN} --disable-update-check build --checksums

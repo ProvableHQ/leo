@@ -1,0 +1,8 @@
+{
+  "program": "child.aleo",
+  "version": "0.1.0",
+  "description": "Local dependency with constructor context accessors.",
+  "license": "MIT",
+  "dependencies": null,
+  "dev_dependencies": null
+}
