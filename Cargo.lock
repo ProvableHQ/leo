@@ -19,9 +19,9 @@ checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
 name = "aho-corasick"
-version = "1.1.4"
+version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ddd31a130427c27518df266943a5308ed92d4b226cc639f5a8f1002816174301"
+checksum = "c982642fa9e8606056828ee9a8505737230110bb1099153c79efe865c59d12ba"
 dependencies = [
  "memchr",
 ]
@@ -99,9 +99,9 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "android_system_properties"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
+checksum = "ae221649c9976a6f6c56ae1facf410f3ddb33cc661c4b7b61020a912d4237fbc"
 dependencies = [
  "libc",
 ]
@@ -520,9 +520,9 @@ checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
 
 [[package]]
 name = "bytesize"
-version = "2.4.2"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d7c8918969267b2932ffd5655509bbbea0833823058c378876953217f5fc50e"
+checksum = "7354288c522e7e980fafd2075d63d1285794c3a6a16cdd492f189ea406e5f18b"
 
 [[package]]
 name = "bzip2-sys"
@@ -637,9 +637,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.6.4"
+version = "4.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d91e0c145792ef73a6ad36d27c75ac09f1832222a3c209689d90f534685ee5b7"
+checksum = "301b56658598e48f3648647ac6fc887be7e7108eddfa4e9b63fcf3ec58c0cadf"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -647,9 +647,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.6.2"
+version = "4.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f09628afdcc538b57f3c6341e9c8e9970f18e4a481690a64974d7023bd33548b"
+checksum = "94a65403d1a1bd28f7dc68eb8506e8874808ee5eecb59298de588e2e1407a078"
 dependencies = [
  "anstream",
  "anstyle",
@@ -759,9 +759,9 @@ dependencies = [
 
 [[package]]
 name = "color-backtrace"
-version = "0.7.2"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "308329d5d62e877ba02943db3a8e8c052de9fde7ab48283395ba0e6494efbabd"
+checksum = "01fd62bba8d0ebaacae8e3faf5c05d3c80b215ea6a5dfe6069619bcd8d72451d"
 dependencies = [
  "backtrace",
  "termcolor",
@@ -1923,9 +1923,9 @@ dependencies = [
 
 [[package]]
 name = "gix-command"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00706d4fef135ef4b01680d5218c6ee40cda8baf697b864296cbc887d19118f6"
+checksum = "cf4363accdf6ef7ba861871d2d521ab7418a04aaaed919fadb022af71d379b12"
 dependencies = [
  "bstr",
  "gix-path",
@@ -2333,9 +2333,9 @@ dependencies = [
 
 [[package]]
 name = "gix-path"
-version = "0.12.3"
+version = "0.12.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ed3e8d7a82e886e17a72e03d4ba0c13db6f2219b6cd4e2900b4cae426ec20c9"
+checksum = "751d6bd162106f8c1e7e9aaccb5bbdd605267e91a930a17a4560c46e33a9100c"
 dependencies = [
  "bstr",
  "gix-trace",
@@ -2918,9 +2918,9 @@ checksum = "eaec953f16e5bcf6b8a3cb3aa959b17e5577dbd2693e94554c462c08be22624b"
 
 [[package]]
 name = "hybrid-array"
-version = "0.4.13"
+version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "818356c5132c1fede50f837ca96afbe78ff42413047f4abb886217845e1b6c8c"
+checksum = "707114b52a152fa7bdb290cd7cd5912d9467273b6d74e21b8d81aca1f8533f6b"
 dependencies = [
  "subtle",
  "typenum",
@@ -3183,9 +3183,9 @@ dependencies = [
 
 [[package]]
 name = "ipnet"
-version = "2.12.0"
+version = "2.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d98f6fed1fde3f8c21bc40a1abb88dd75e67924f9cffc3ef95607bad8017f8e2"
+checksum = "6a756c3fac73139e83f14c2d742155dd2b78d3ee56597b419a0579b7bdd6dd78"
 
 [[package]]
 name = "is-terminal"
@@ -3391,7 +3391,7 @@ checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leo-abi"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -3404,14 +3404,14 @@ dependencies = [
 
 [[package]]
 name = "leo-abi-types"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "leo-aleo-abi-wasm"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "getrandom 0.4.3",
  "leo-abi",
@@ -3422,7 +3422,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "anyhow",
  "fxhash",
@@ -3440,7 +3440,7 @@ dependencies = [
 
 [[package]]
 name = "leo-benchmarks"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "aleo-std",
  "codspeed-criterion-compat",
@@ -3459,7 +3459,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -3488,7 +3488,7 @@ dependencies = [
 
 [[package]]
 name = "leo-disassembler"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "getrandom 0.4.3",
  "leo-ast",
@@ -3501,7 +3501,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "anyhow",
  "ariadne",
@@ -3517,7 +3517,7 @@ dependencies = [
 
 [[package]]
 name = "leo-fmt"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "clap",
  "colored 3.1.1",
@@ -3533,7 +3533,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "aleo-std",
  "aleo-std-storage",
@@ -3598,7 +3598,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lsp"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -3623,7 +3623,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "gix",
  "glob",
@@ -3641,7 +3641,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "indexmap",
  "itertools 0.14.0",
@@ -3656,7 +3656,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser-rowan"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "expect-test",
  "leo-errors",
@@ -3667,7 +3667,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "anyhow",
  "base62",
@@ -3692,7 +3692,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "ariadne",
  "fxhash",
@@ -3703,11 +3703,11 @@ dependencies = [
 
 [[package]]
 name = "leo-std"
-version = "4.4.0"
+version = "4.4.1"
 
 [[package]]
 name = "leo-test-framework"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "rayon",
  "similar",
@@ -3732,9 +3732,9 @@ dependencies = [
 
 [[package]]
 name = "libredox"
-version = "0.1.18"
+version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c943259e342f1e06ff2da7a83eabdfe7f92ce10262688dbf1895ff0b3e6e4652"
+checksum = "2026a5056764a10b2bf5d56488cba40da507f5493a6a429340e2004d9ed085fa"
 dependencies = [
  "libc",
 ]
@@ -4639,9 +4639,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.16"
+version = "0.4.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fcfdb36bda0c880c5931cdc7a2bcdc8ba4556847b9d912bca70bc94708711ad"
+checksum = "ad8553b9b26413251cbf30e620595c7a41b3887f03da04579c0e6b0d6a06b4b2"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -5266,9 +5266,9 @@ checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 
 [[package]]
 name = "similar"
-version = "3.1.1"
+version = "3.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6505efef05804732ed8a3f2d4f279429eb485bd69d5b0cc6b19cc02005cda16"
+checksum = "85ee016af5d736b69fc89e19254540fa4b5f5492853fb5503920f084011c78b6"
 dependencies = [
  "bstr",
 ]
@@ -6496,9 +6496,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.54"
+version = "0.3.55"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e1d5e639ff6bab73cb6885cc7e7b1de96c3f32c68ec55f3952614bec1092244"
+checksum = "cdb87b95ec50ddfa440816d227a17b2ccbdda963a316a727fda0fc4334f7d134"
 dependencies = [
  "deranged",
  "num-conv",
@@ -6821,7 +6821,7 @@ checksum = "009994f150cc0cd50ff54917d5bc8bffe8cad10ca10d81c34da2ec421ae61782"
 
 [[package]]
 name = "tree-sitter-leo"
-version = "4.4.0"
+version = "4.4.1"
 dependencies = [
  "cc",
  "leo-parser-rowan",
@@ -7390,18 +7390,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.55"
+version = "0.8.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5a105cd7b140f6eeec8acff2ea38135d3cab283ada58540f629fe51e46696eb"
+checksum = "556764e583adb45a9f8d413c2a147fa7e8d821e48e12b14fd560b607998b75eb"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.55"
+version = "0.8.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fe976fb70c78cd64cccfe3a6fc142244e8a77b70959b30faf9d0ac37ee228eb"
+checksum = "f2ab42fc20575779bd240faa45f94a74256f755c0fa9e89f0ede20d91d0cdfc1"
 dependencies = [
  "proc-macro2",
  "quote 1.0.47",
@@ -7509,9 +7509,9 @@ dependencies = [
 
 [[package]]
 name = "zlib-rs"
-version = "0.6.6"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b142a20ec14a91d5bc708c1dc21b080c550113d8aa77afa29635673a65dd02c5"
+checksum = "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12"
 
 [[package]]
 name = "zmij"
