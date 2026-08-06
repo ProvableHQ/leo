@@ -56,6 +56,8 @@ impl Interface {
     /// Returns `true` if `ty` resolves to a record declared directly in this interface.
     ///
     /// `interface_location` must be the canonical location used to retrieve this interface.
+    /// This context is required because an `Interface` value does not carry its defining
+    /// program or containing module path.
     /// Record identity includes the defining program, module path, and record name.
     /// Inherited record prototypes are not included.
     pub fn is_record_type(&self, ty: &TypeKind, interface_location: &Location) -> bool {
