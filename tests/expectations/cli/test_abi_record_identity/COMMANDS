@@ -27,6 +27,8 @@ for file in build/foo/abi.json build/foo/interfaces/CompositeKinds.json; do
     check_kind "${file}" echo_struct Struct Record
 done
 
+check_kind build/foo/interfaces/PrototypeOnly.json echo_prototype Record Struct
+
 rm -rf build
 
 echo "ABI record lookup uses resolved locations"

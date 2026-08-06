@@ -5,6 +5,12 @@ export interface CompositeKinds {
     fn echo_struct(value: types::Token) -> types::Token;
 }
 
+export interface PrototypeOnly {
+    record PrototypeToken;
+
+    fn echo_prototype(token: PrototypeToken) -> PrototypeToken;
+}
+
 program foo.aleo : CompositeKinds {
     record Token {
         owner: address,
