@@ -317,16 +317,160 @@ mod tests {
         commands::LeoNew,
         run_with_args,
     };
-    use clap::Parser;
+    use clap::{CommandFactory, Parser};
     use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::env::temp_dir;
 
+    #[test]
+    fn add_onchain_source_and_network_target_parse_separately() {
+        for args in [
+            ["leo", "add", "--network", "mainnet", "--onchain", "credits"],
+            ["leo", "add", "--network", "mainnet", "-n", "credits"],
+            ["leo", "add", "credits", "--onchain", "--network", "mainnet"],
+        ] {
+            let cli = CLI::try_parse_from(args).expect("an on-chain source and explicit network should parse");
+            let Commands::Add { command } = cli.command else { panic!("expected `leo add`") };
+            assert!(command.source.onchain);
+            assert_eq!(command.env_override.network, Some(NetworkName::MainnetV0));
+        }
+
+        let cli = CLI::try_parse_from(["leo", "add", "credits", "--onchain"])
+            .expect("`--onchain` should retain environment/default network fallback");
+        let Commands::Add { command } = cli.command else { panic!("expected `leo add`") };
+        assert!(command.source.onchain);
+        assert_eq!(command.env_override.network, None);
+
+        let cli = CLI::try_parse_from(["leo", "add", "--network", "mainnet", "--edition", "3", "credits"])
+            .expect("an edition source and explicit network should parse");
+        let Commands::Add { command } = cli.command else { panic!("expected `leo add`") };
+        assert!(!command.source.onchain);
+        assert_eq!(command.source.edition, Some(3));
+        assert_eq!(command.env_override.network, Some(NetworkName::MainnetV0));
+
+        for args in [
+            vec!["leo", "add", "--network", "mainnet", "credits"],
+            vec!["leo", "add", "--network"],
+            vec!["leo", "add", "--network", "unknown", "--onchain", "credits"],
+            vec!["leo", "add", "credits", "--onchain", "--edition", "3"],
+            vec!["leo", "add", "credits", "--onchain", "--local", "../credits"],
+        ] {
+            assert!(CLI::try_parse_from(args).is_err());
+        }
+    }
+
+    #[test]
+    fn add_help_describes_shared_network_options() {
+        let mut command = CLI::command();
+        let help = command
+            .find_subcommand_mut("add")
+            .expect("`leo` should provide an `add` subcommand")
+            .render_long_help()
+            .to_string();
+
+        assert!(help.contains("The network endpoint to use."));
+        assert!(help.contains("`mainnet`, `testnet`, and `canary`."));
+    }
+
+    // A cache hit in only the explicitly selected network proves that the CLI value reaches
+    // `CompilationUnit::fetch`, rather than only the parser or outer error message.
+    #[test]
+    #[serial]
+    fn add_explicit_network_selects_matching_cache() {
+        let temp_dir = temp_dir();
+        let project_directory = temp_dir.join("add_explicit_network");
+        let home = temp_dir.join(".aleo_add_explicit_network");
+        for path in [&project_directory, &home] {
+            if path.exists() {
+                std::fs::remove_dir_all(path).unwrap();
+            }
+        }
+
+        let new = CLI {
+            debug: false,
+            quiet: true,
+            json_output: None,
+            disable_update_check: true,
+            command: Commands::New {
+                command: LeoNew { name: "add_explicit_network".to_string(), library: false, workspace: false },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+            package: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new).expect("failed to create the test package");
+
+            dotenvy::dotenv().ok();
+            let implicit_network = crate::cli::commands::get_network(&None).unwrap_or(NetworkName::TestnetV0);
+            let explicit_network = if implicit_network == NetworkName::MainnetV0 {
+                NetworkName::TestnetV0
+            } else {
+                NetworkName::MainnetV0
+            };
+
+            let dependency = "network_override";
+            let cache_directory = home.join("registry").join(explicit_network.to_string()).join(dependency).join("0");
+            std::fs::create_dir_all(&cache_directory).unwrap();
+            std::fs::write(
+                cache_directory.join(format!("{dependency}.aleo")),
+                format!(
+                    "program {dependency}.aleo;\n\nfunction main:\n    input r0 as u32.public;\n    input r1 as u32.private;\n    add r0 r1 into r2;\n    output r2 as u32.private;\n"
+                ),
+            )
+            .unwrap();
+
+            let add = CLI {
+                debug: false,
+                quiet: true,
+                json_output: None,
+                disable_update_check: true,
+                command: Commands::Add {
+                    command: LeoAdd {
+                        name: dependency.to_string(),
+                        source: DependencySource {
+                            local: None,
+                            onchain: true,
+                            edition: None,
+                            workspace: false,
+                            git: None,
+                        },
+                        git_ref: GitRef { branch: None, tag: None, rev: None },
+                        env_override: crate::cli::commands::EnvOptions {
+                            network: Some(explicit_network),
+                            endpoint: Some("http://localhost:1".to_string()),
+                            network_retries: 0,
+                        },
+                        dev: false,
+                    },
+                },
+                path: Some(project_directory.clone()),
+                home: Some(home.clone()),
+                package: None,
+            };
+
+            run_with_args(add).expect("the explicit network should select its matching cached program");
+
+            let manifest =
+                leo_package::Manifest::read_from_file(project_directory.join(leo_package::MANIFEST_FILENAME)).unwrap();
+            let dependencies = manifest.dependencies.as_ref().expect("the dependency should be recorded");
+            assert_eq!(dependencies.len(), 1);
+            let dependency = dependencies.iter().next().unwrap();
+            assert_eq!(dependency.name, "network_override.aleo");
+            assert_eq!(dependency.location, leo_package::Location::Network);
+            assert_eq!(dependency.edition, None);
+        });
+
+        let _ = std::fs::remove_dir_all(project_directory);
+        let _ = std::fs::remove_dir_all(home);
+    }
+
     // An unreachable endpoint with no retries stands in for a program that isn't on the network.
     #[test]
     #[serial]
-    fn add_network_dependency_rejects_missing_program() {
+    fn add_onchain_dependency_rejects_missing_program() {
         let temp_dir = temp_dir();
         let project_directory = temp_dir.join("add_missing_network_dep");
         if project_directory.exists() {
@@ -354,10 +498,13 @@ mod tests {
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nonexistent_program".to_string(),
-                    source: DependencySource { local: None, network: true, edition: None, workspace: false, git: None },
+                    source: DependencySource { local: None, onchain: true, edition: None, workspace: false, git: None },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: Some("http://localhost:1".to_string()),
-                    network_retries: 0,
+                    env_override: crate::cli::commands::EnvOptions {
+                        network: None,
+                        endpoint: Some("http://localhost:1".to_string()),
+                        network_retries: 0,
+                    },
                     dev: false,
                 },
             },
@@ -1875,7 +2022,7 @@ function external_nested_function:
         // Overwrite `src/main.leo` file
         std::fs::write(project_directory.join("src").join("main.leo"), program_str).unwrap();
 
-        // Cache the program before the add: `leo add --network` verifies existence by fetching,
+        // Cache the program before the add: `leo add --onchain` verifies existence by fetching,
         // and a cached copy satisfies that check offline.
         let registry = temp_dir.join(".aleo").join("registry").join("testnet");
         std::fs::create_dir_all(&registry).unwrap();
@@ -1903,14 +2050,13 @@ function external_nested_function:
                     name: "nested_example_layer_0".to_string(),
                     source: DependencySource {
                         local: None,
-                        network: true,
+                        onchain: false,
                         edition: Some(0),
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2021,14 +2167,13 @@ program child.aleo {
                     name: "parent".to_string(),
                     source: DependencySource {
                         local: Some(parent_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2047,14 +2192,13 @@ program child.aleo {
                     name: "child".to_string(),
                     source: DependencySource {
                         local: Some(child_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2073,14 +2217,13 @@ program child.aleo {
                     name: "child".to_string(),
                     source: DependencySource {
                         local: Some(child_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2230,14 +2373,13 @@ program inner_2.aleo {
                     name: "inner_1".to_string(),
                     source: DependencySource {
                         local: Some(inner_1_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2256,14 +2398,13 @@ program inner_2.aleo {
                     name: "inner_2".to_string(),
                     source: DependencySource {
                         local: Some(inner_2_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2448,14 +2589,13 @@ program inner_2.aleo {
                     name: "inner_1".to_string(),
                     source: DependencySource {
                         local: Some(inner_1_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },
@@ -2474,14 +2614,13 @@ program inner_2.aleo {
                     name: "inner_2".to_string(),
                     source: DependencySource {
                         local: Some(inner_2_directory.clone()),
-                        network: false,
+                        onchain: false,
                         edition: None,
                         workspace: false,
                         git: None,
                     },
                     git_ref: GitRef { branch: None, tag: None, rev: None },
-                    endpoint: None,
-                    network_retries: 2,
+                    env_override: Default::default(),
                     dev: false,
                 },
             },

@@ -56,13 +56,13 @@ pub struct BuildOptions {
 pub struct EnvOptions {
     #[clap(
         long,
-        help = "The network type to use. e.g `mainnet`, `testnet, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
+        help = "The network type to use, e.g. `mainnet`, `testnet`, and `canary`. Overrides the `NETWORK` environment variable in your shell or `.env` file.",
         global = true
     )]
     pub(crate) network: Option<NetworkName>,
     #[clap(
         long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
+        help = "The network endpoint to use. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
         global = true
     )]
     pub(crate) endpoint: Option<String>,

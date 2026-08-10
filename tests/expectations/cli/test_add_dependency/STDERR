@@ -1,18 +1,17 @@
 --- 1. leo add with no source flag (should fail) ---
 error: the following required arguments were not provided:
-  <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>>
+  <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>>
 
-Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+Usage: leo add <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
 
 For more information, try '--help'.
 --- 2. leo add with multiple flags (should fail) ---
-error: the argument '--network' cannot be used with '--local <LOCAL>'
+error: the argument '--onchain' cannot be used with '--local <LOCAL>'
 
-Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+Usage: leo add <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
 
 For more information, try '--help'.
---- 3. leo add --network (should succeed) ---
-       Leo ⚠️ No network specified, defaulting to 'testnet'.
+--- 3. leo add --onchain --network testnet (should succeed) ---
 --- 4. leo add --local (should succeed) ---
 Error [ECLI0377045]: Could not read `../some_local/program.json` — is `../some_local` a valid Leo package?
 
@@ -21,13 +20,11 @@ Error [ECLI0377045]: Could not read `../some_local/program.json` — is `../some
 Error [ECLI0377045]: Could not read `../credits/program.json` — is `../credits` a valid Leo package?
 
 --- 7. leo add --dev for a program not on the network (should fail) ---
-       Leo ⚠️ No network specified, defaulting to 'testnet'.
 Error [ECLI0377045]: Could not find program `dev_dep.aleo` on network `testnet` at `http://localhost:3030`: Error [EPAK0375067]: network request to `http://localhost:3030/testnet/program/dev_dep.aleo/latest_edition` failed with status `500 Internal Server Error`
      |
      = Verify that `--network` and `--endpoint` point to a running node and that you have connectivity.
 
 --- 8. leo add --dev for a program on the network (should succeed) ---
-       Leo ⚠️ No network specified, defaulting to 'testnet'.
 --- 9. leo remove library dep by bare name (should succeed) ---
        Leo ✅ Successfully removed the local dependency my_lib with path ../my_lib.
 --- 10. leo remove program dep by bare name (should succeed) ---

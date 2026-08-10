@@ -33,19 +33,8 @@ pub struct LeoAdd {
     #[clap(flatten)]
     pub(crate) git_ref: GitRef,
 
-    #[clap(
-        long,
-        help = "Endpoint used to verify a network dependency exists. Overrides the `ENDPOINT` environment variable."
-    )]
-    pub(crate) endpoint: Option<String>,
-
-    #[clap(
-        long,
-        env = "NETWORK_RETRIES",
-        help = "Number of times to retry a failed network request when verifying a network dependency.",
-        default_value = "2"
-    )]
-    pub(crate) network_retries: u32,
+    #[clap(flatten)]
+    pub(crate) env_override: EnvOptions,
 
     #[clap(long, help = "This is a development dependency.", default_value = "false")]
     pub(crate) dev: bool,
@@ -62,8 +51,8 @@ pub struct DependencySource {
     )]
     pub(crate) local: Option<PathBuf>,
 
-    #[clap(short = 'n', long, help = "Whether the dependency is on a live network.", group = "source")]
-    pub(crate) network: bool,
+    #[clap(short = 'n', long = "onchain", help = "Use a program deployed on-chain.", group = "source")]
+    pub(crate) onchain: bool,
 
     #[clap(
         short = 'e',
@@ -238,13 +227,11 @@ impl Command for LeoAdd {
             let name = normalize_program_name(&self.name)?;
 
             // Verify the program exists before recording it, reusing the build's fetch path.
-            // Network/endpoint default like `build`; the name comes from the env because
-            // `--network` here selects the source rather than a network name.
-            let network = get_network(&None).unwrap_or_else(|_| {
+            let network = get_network(&self.env_override.network).unwrap_or_else(|_| {
                 tracing::warn!("⚠️ No network specified, defaulting to 'testnet'.");
                 NetworkName::TestnetV0
             });
-            let endpoint = get_endpoint(&self.endpoint).unwrap_or_else(|_| {
+            let endpoint = get_endpoint(&self.env_override.endpoint).unwrap_or_else(|_| {
                 tracing::warn!("⚠️ No endpoint specified, defaulting to '{DEFAULT_ENDPOINT}'.");
                 DEFAULT_ENDPOINT.to_string()
             });
@@ -256,7 +243,7 @@ impl Command for LeoAdd {
                 network,
                 &endpoint,
                 false,
-                self.network_retries,
+                self.env_override.network_retries,
             )
             .map_err(|err| {
                 crate::errors::custom(format!(

@@ -125,7 +125,7 @@ offline build exit: 0
 exit: 2
 --- 6. multiple git references (should fail) ---
 exit: 2
---- 7. --git combined with --network (should fail) ---
+--- 7. --git combined with --onchain (should fail) ---
 exit: 2
 --- 8. add a library under a name ending in .aleo (should fail) ---
 exit: 213
