@@ -24,11 +24,10 @@ finalize area:
     ternary r0 r2.width r3.width into r4;
     ternary r0 r2.height r3.height into r5;
     cast r4 r5 into r6 as Rect__ANLpT5iOmJt;
-    cast r0 r6 into r7 as Optional__6BCOGVZlT0d;
-    assert.eq r7.is_some true;
-    mul r7.val.width r7.val.height into r8;
-    mul r7.val.width r7.val.height into r9;
-    assert.eq r8 r9;
+    assert.eq r0 true;
+    mul r6.width r6.height into r7;
+    mul r6.width r6.height into r8;
+    assert.eq r7 r8;
 
 constructor:
     assert.eq edition 0u16;

@@ -2,7 +2,7 @@
 ⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'storage_demo.aleo'
-       Leo     Program size: 5.43 KB / 2000.00 KB
+       Leo     Program size: 5.34 KB / 2000.00 KB
        Leo ✅ Compiled 'storage_demo.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'storage_demo.aleo'.
        Leo 🔨 Compiling 'test_storage_demo.aleo'
