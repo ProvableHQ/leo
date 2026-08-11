@@ -1,5 +1,6 @@
 // Regression: imported interface types are reconstructed before conformance checking.
-// Every type-bearing position uses the same concrete specialization.
+// Function signatures, record fields, mapping values, and storage use the same
+// concrete specialization.
 
 // --- library: generic_shapes --- //
 

@@ -1,5 +1,5 @@
-// Regression: a different specialization is rejected in function, record, mapping,
-// and storage interface types.
+// Regression: a different specialization is rejected in function signatures, record
+// fields, mapping values, and storage.
 
 // --- library: generic_shapes --- //
 
