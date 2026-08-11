@@ -9,6 +9,7 @@ export struct Slot::[N: u32] {
 
 export interface Storer {
     record Token {
+        owner: address,
         slot: Slot::[8u32],
         ..
     }
@@ -23,6 +24,7 @@ export interface Storer {
 
 program consumer.aleo: generic_shapes::Storer {
     record Token {
+        owner: address,
         slot: generic_shapes::Slot::[8u32],
     }
 
