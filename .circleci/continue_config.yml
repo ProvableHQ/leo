@@ -358,17 +358,6 @@ jobs:
       - run:
             name: Update Submodules
             command: git submodule update --init --recursive
-      - run:
-          name: Generate library interface expectations
-          command: |
-            UPDATE_EXPECT=1 TEST_FILTER=library_generic_struct_type_sites \
-              cargo test --locked -p leo-compiler --lib test_compiler::test_compiler -- --nocapture
-      - store_artifacts:
-          path: tests/expectations/compiler/interfaces/library_generic_struct_type_sites_valid.out
-          destination: library_generic_struct_type_sites_valid.out
-      - store_artifacts:
-          path: tests/expectations/compiler/interfaces/library_generic_struct_type_sites_mismatch_fail.out
-          destination: library_generic_struct_type_sites_mismatch_fail.out
       - build-and-test
       - save_cache:
           key: cargo-v4-test-linux-{{ arch }}-{{ .Branch }}-{{ checksum "Cargo.lock" }}-{{ .Revision }}
