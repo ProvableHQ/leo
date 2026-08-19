@@ -3,7 +3,7 @@
     "address": "XXXXXX",
     "network": "testnet",
     "endpoint": "http://localhost:3030",
-    "consensus_version": 18
+    "consensus_version": 19
   },
   "deployments": [
     {
@@ -14,8 +14,8 @@
         "max_program_size_bytes": 2048000,
         "total_variables": 17276,
         "total_constraints": 12927,
-        "max_variables": 2097152,
-        "max_constraints": 2097152,
+        "max_variables": 4194304,
+        "max_constraints": 4194304,
         "storage_cost": 956000,
         "namespace_cost": 1000000,
         "synthesis_cost": 95589,

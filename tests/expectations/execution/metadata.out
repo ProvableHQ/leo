@@ -25,26 +25,26 @@ status: rejected
 {
   "transitions": [
     {
-      "id": "au1czwgv7c8z4vyg5a3amxt42th8a85ru3d049jpj0axkwczvljm5psqun8ls",
+      "id": "au1tz09m6luc0r72gufqenskvugey72mzry2wfacgtjadt7vff09cxsq7j0su",
       "program": "metadata.aleo",
       "function": "is_block_height",
       "inputs": [
         {
           "type": "private",
-          "id": "2806600272468028179584034275476847478008949572592237953746025228539762676584field",
-          "value": "ciphertext1qyqwq77urp57ey7m7wzdzzgleundd5llecwztgnwxzhmecrqjze42qc7mkvwm"
+          "id": "4332630651513255075743041230566429757704584725664609082657096550015716091848field",
+          "value": "ciphertext1qyqgh703fhgcwj34jyse0gq77ffxdvzamtdrcyg5nzwtz8k9n9ye7ps73fu74"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "6100994665365201905777921975952587499007909084866389830147497740388723456213field",
+          "id": "4524754860321145930971502540198645929663430095189205426901892468866619097541field",
           "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    2u32\n  ]\n}"
         }
       ],
-      "tpk": "932902105444239517980596565691908870668917795454138192289088332646102103453group",
-      "tcm": "4534045528378062984919568849257618109414740950022974037600860386185923697801field",
-      "scm": "919245366506739687912770902847963156737622134026017456623407014687413152843field"
+      "tpk": "1962035629883110492835268746540797729827307009215256253229722488977834468919group",
+      "tcm": "4677669665021664332501674888426794874409902377954844861603588866965033210681field",
+      "scm": "981904492455942644106192059505375735473478543299950857514908454703405250152field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -55,51 +55,21 @@ status: rejected
 {
   "transitions": [
     {
-      "id": "au1fky079mgqdrpskajtu48cg8f6lqnfugeue2y5rhvvg23cjtyvq9skxr9sk",
+      "id": "au1l7kcx9n992xs7gtr0u6654y4mlth0kd7wxc2d0p2faskyfl8c5zsem76m7",
       "program": "metadata.aleo",
       "function": "is_block_height",
       "inputs": [
         {
           "type": "private",
-          "id": "1152572801645690364084168578703616768243453877872009229932322986444109228639field",
-          "value": "ciphertext1qyqwsxtcl864sj9lsjgvza4zds5la3kz6e24lfsu342navvda8xu7pqpg6w05"
+          "id": "3017916303732777235034729448473148785328503547854275354503836244976340570377field",
+          "value": "ciphertext1qyqwlgaccjusmq0uy6yew8y3jjx7mrl8ada7c8d9lxq39ye7qk68xrq88dae6"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "2398721294068902606628247222745858629482591735653768163847724356378385737531field",
+          "id": "3496766174502289531698070539719600574948425774771339916532366540995287761623field",
           "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    3u32\n  ]\n}"
-        }
-      ],
-      "tpk": "4435182414136183130262225239916202916754973933386625330210643288715243337617group",
-      "tcm": "850142209754567944166319722250339409916042600529796761178314418357457776240field",
-      "scm": "6880818639492575671344261738303779886148232533224264415621330306086981058639field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: rejected
-{
-  "transitions": [
-    {
-      "id": "au1u4m90ht0fc442aekfrf2jzfcfedxzdlg34jce5jms0hrh0k7tsgq2geyr8",
-      "program": "metadata.aleo",
-      "function": "is_block_height",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "6243143690551895119897154506516614086668307098241161154610416722688440365270field",
-          "value": "ciphertext1qyqwlgacezusmq0uy6yew8y3jjx7mrl8ada7c8d9lxq39ye7qk68xrqhe3txx"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "7293491847660233412322839283713913395604036415364695644209672456407902665215field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    4u32\n  ]\n}"
         }
       ],
       "tpk": "2522887999940374826698654126645535027810075514268095352773581615775304946572group",
@@ -115,21 +85,21 @@ status: rejected
 {
   "transitions": [
     {
-      "id": "au1lvr3pmu2053kaaa3524ftx3uw5nplu53fzkpg94pvssld354gcqqwnlxgz",
+      "id": "au1pn487p0nmxk0z6nr35f7mzkd2ruf5fz5d20k5w9ndla0p8l025zsv9nr5z",
       "program": "metadata.aleo",
       "function": "is_block_height",
       "inputs": [
         {
           "type": "private",
-          "id": "3118103584890121377259779071033069659690436365266061153539449647141174439116field",
-          "value": "ciphertext1qyqgp4yehr5epaqhx58vfsz7x2rette7lu8wfh9vpj3hnw9cqkx6kpccgvqkf"
+          "id": "6581100497156858574312671454358324187023926014987104957052163489552422429327field",
+          "value": "ciphertext1qyqgp4yeer5epaqhx58vfsz7x2rette7lu8wfh9vpj3hnw9cqkx6kpcwe2qgf"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "6291511647542258334421914218093344478830336654576567330447742345869931305621field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    0u32\n  ]\n}"
+          "id": "1705077294299012917007775551833557076538583213311090734527128316754055036530field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    4u32\n  ]\n}"
         }
       ],
       "tpk": "6060197335674172363144850410502281312781694387277365216513387164100734934168group",
@@ -145,21 +115,21 @@ status: rejected
 {
   "transitions": [
     {
-      "id": "au1e63xzymj4pxkts6l3kp4sugtp6fgahnfu5h3knt38tc7e8znsv8qdsjzqw",
+      "id": "au1erjz8gycf6gjvlxvfrdu8adshkggdzjhpldez8zdgmwp4kq6qq8ssd5t6q",
       "program": "metadata.aleo",
-      "function": "is_network_id",
+      "function": "is_block_height",
       "inputs": [
         {
           "type": "private",
-          "id": "7440359877281077275961938632768297319030964260178903915506122748656293847193field",
-          "value": "ciphertext1qyqtwa9u6rhlx4uprvg7u809g4wfk4up4ft32kgh0lmaxw2yv9xxzqqzet8k8"
+          "id": "3280454000675718881911410260689563011884465580637098321329064322856126509876field",
+          "value": "ciphertext1qyq09v2z90kth6ynl4hlf3zn22v8t89zkqpp6zx5vnes0d2pvz686qst8fqzc"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "197280015773555224647674541745860549576230957562947980208333801244696077809field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    0u16\n  ]\n}"
+          "id": "7950802291306624755820200877268186153275481857173758321093555554415551007459field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_block_height,\n  arguments: [\n    0u32\n  ]\n}"
         }
       ],
       "tpk": "5501575527267754697309838948653136094413849704757357265871953615905434807714group",
@@ -171,25 +141,25 @@ status: rejected
 }
 
 verified: true
-status: accepted
+status: rejected
 {
   "transitions": [
     {
-      "id": "au1vaqzv66jg5vstmddjlpj208e0ycvv9vpfstqqxmxr43su6tgjvpqa68m2d",
+      "id": "au1sghy4k9zp0u4as7vvp0784nuwrjgrddwjvl5ts3gscxggsu30ufq9envu9",
       "program": "metadata.aleo",
       "function": "is_network_id",
       "inputs": [
         {
           "type": "private",
-          "id": "5109904408188451577258146970840570712088732383261330363764654868344980799689field",
-          "value": "ciphertext1qyqzvuneayvwnnkea2vmu3aknhan7xf9294uxtqmu2unz5j2tjsaxqqkarauz"
+          "id": "2730297639029048394301455726878744240742409344853907082533668716466725135845field",
+          "value": "ciphertext1qyqzvuneu5vwnnkea2vmu3aknhan7xf9294uxtqmu2unz5j2tjsaxqqxrltr7"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "5372829358732855434190096691463236911412145404939496665366545408648072474581field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    1u16\n  ]\n}"
+          "id": "7510863875302237407885332557688250142072078166361910817057066821800180595104field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    0u16\n  ]\n}"
         }
       ],
       "tpk": "3532762458625321599141060623467596614319941243060133069432406976651174585051group",
@@ -201,25 +171,25 @@ status: accepted
 }
 
 verified: true
-status: rejected
+status: accepted
 {
   "transitions": [
     {
-      "id": "au1ywdjgscmgv6z6k0sme95fsj59ldmhzlcfmyrguaft2elask76cxspskjnz",
+      "id": "au13hgxrdef2xkxrdw4ekpp6uelahclyajesvrhur08z02xjrc4ggqsuzpdzz",
       "program": "metadata.aleo",
       "function": "is_network_id",
       "inputs": [
         {
           "type": "private",
-          "id": "6778595217547686392092004900423101144111122623018866359376225099443225012337field",
-          "value": "ciphertext1qyqpasnkhs3xru436vqcpmu4f7txz8xgetggqmp6ppeud3msa9uuvrqw0404c"
+          "id": "7827397181290746331116747345186938373084361142226647127614994675998269153631field",
+          "value": "ciphertext1qyqpasnkhq3xru436vqcpmu4f7txz8xgetggqmp6ppeud3msa9uuvrqw48e4y"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "8440137648014346979550123162047783923863375620719134949721809398122534555362field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    2u16\n  ]\n}"
+          "id": "3574964895499389565718857228281770438054923683672541043011334829098908261687field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    1u16\n  ]\n}"
         }
       ],
       "tpk": "2957572463448044047572302283090774174789875296427157043680251670334182136991group",
@@ -235,26 +205,56 @@ status: rejected
 {
   "transitions": [
     {
-      "id": "au14f32sdx5tfjmz9ycrcwd4wwal2r2ju3wmv3cleygk7m4kx0htczq5n6ywr",
+      "id": "au1n8wrepw6g7t353e6rxdj9wrarv0qk6n7vrkykltaz0pvd6hy5vpqwjy8h4",
       "program": "metadata.aleo",
       "function": "is_network_id",
       "inputs": [
         {
           "type": "private",
-          "id": "3224824218152694628946296605337745626281029035450827361382466246521143424599field",
-          "value": "ciphertext1qyqwc08a798uc6tg34p5gg5ywt3at6fkduz3sn4kda420ufqzf2u6yglftf94"
+          "id": "3999768712169997451080724653230099521645868591423065291300133551604179329925field",
+          "value": "ciphertext1qyqwc08aa48uc6tg34p5gg5ywt3at6fkduz3sn4kda420ufqzf2u6ygxltldf"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "2540503567539455266608842428350541362600245255035542542673912184648864098994field",
-          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    3u16\n  ]\n}"
+          "id": "4634330291456371292879353438549722285869456122932391132021370495296230013273field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    2u16\n  ]\n}"
         }
       ],
       "tpk": "618463892478179654488510729354955405387729702799953179470949795558026296286group",
       "tcm": "3222863864947299824058145457944808101658067063756378963401609457144523851515field",
       "scm": "2751074422296527527690782501411707498196040280129501517996949701994551145022field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: rejected
+{
+  "transitions": [
+    {
+      "id": "au16mpe9lfcawvfp90r8uv5fms6sv8kztmh8wh6tegg6fgk683arygszny70j",
+      "program": "metadata.aleo",
+      "function": "is_network_id",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "891493834339818922493911349500826742210920422871076229812650982204874001987field",
+          "value": "ciphertext1qyqphnqypta337qjr76paflqytyq0wt235p38fcrk60nudlc0ejwqpqe8ejdq"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8135363746809057565895341293057609246832589093142785956104566466705044603534field",
+          "value": "{\n  program_id: metadata.aleo,\n  function_name: is_network_id,\n  arguments: [\n    3u16\n  ]\n}"
+        }
+      ],
+      "tpk": "815195102424593916417374359141594621217445601249218084764368770401727960483group",
+      "tcm": "1421878916639865453697563904549639732552805560417271260928563565322854483103field",
+      "scm": "408170323210860108853689046642492181908059222285900838261302998965028646359field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

@@ -365,7 +365,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
                 let stats =
                     compute_deployment_stats(&vm, deployment, priority_fee, consensus_version, bytecode_size, rng)?;
                 // Validate the deployment limits.
-                validate_deployment_limits(deployment, &id, &network)?;
+                validate_deployment_limits(deployment, &id, &network, consensus_version)?;
                 (transaction, stats)
             };
 

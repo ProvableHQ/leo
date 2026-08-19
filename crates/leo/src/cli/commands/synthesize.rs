@@ -237,7 +237,7 @@ fn handle_synthesize<A: Aleo>(
         println!("\n🔑 Synthesized {label} for {program_id}/{name} (edition {edition})");
         println!("ℹ️ Circuit Information:");
         println!("    - Public Inputs: {}", verifying_key.circuit_info.num_public_inputs);
-        println!("    - Variables: {}", verifying_key.circuit_info.num_public_and_private_variables);
+        println!("    - Variables: {}", verifying_key.num_variables());
         println!("    - Constraints: {}", verifying_key.circuit_info.num_constraints);
         println!("    - Non-Zero Entries in A: {}", verifying_key.circuit_info.num_non_zero_a);
         println!("    - Non-Zero Entries in B: {}", verifying_key.circuit_info.num_non_zero_b);
@@ -260,7 +260,7 @@ fn handle_synthesize<A: Aleo>(
 
         let circuit_info = CircuitInfo {
             num_public_inputs: verifying_key.circuit_info.num_public_inputs as u64,
-            num_variables: verifying_key.circuit_info.num_public_and_private_variables as u64,
+            num_variables: verifying_key.num_variables(),
             num_constraints: verifying_key.circuit_info.num_constraints as u64,
             num_non_zero_a: verifying_key.circuit_info.num_non_zero_a as u64,
             num_non_zero_b: verifying_key.circuit_info.num_non_zero_b as u64,
