@@ -82,10 +82,10 @@ signal-hook        = { version = "0.4", features = [ "iterator" ] }
 similar            = "3.1"
 # Custom consensus heights support local devnets, and `test_targets` matches the devnode genesis block.
 # `history` exposes the public view-evaluation entry point.
-snarkvm            = { version = "4.9.0", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
+snarkvm            = { version = "4.9.1", features = [ "test_consensus_heights", "dev_skip_checks", "test_targets", "history" ] }
 # Wasm builds use smaller snarkVM subsets to avoid native-only ledger and package code.
-snarkvm-console = { version = "4.9.0", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
-snarkvm-synthesizer-program = { version = "4.9.0", features = [ "wasm" ] }
+snarkvm-console = { version = "4.9.1", default-features = false, features = [ "account", "program", "types", "dev_skip_checks", "test_consensus_heights", "test_targets", "wasm" ] }
+snarkvm-synthesizer-program = { version = "4.9.1", features = [ "wasm" ] }
 sys-info           = "0.9"
 tempfile           = "3.27"
 thiserror          = "2.0"

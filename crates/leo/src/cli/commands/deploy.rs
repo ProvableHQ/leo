@@ -435,7 +435,7 @@ Once it is deployed, it CANNOT be changed.
                 // Validate the deployment limits for the current transaction.
                 let (program_id, transaction) = transactions.last().expect("Transaction was just pushed");
                 let deployment = transaction.deployment().expect("Expected a deployment in the transaction");
-                validate_deployment_limits(deployment, program_id, &setup.network)?;
+                validate_deployment_limits(deployment, program_id, &setup.network, setup.consensus_version)?;
             }
         }
 
@@ -1008,29 +1008,32 @@ pub(crate) fn validate_deployment_limits<N: Network>(
     deployment: &Deployment<N>,
     program_id: &ProgramID<N>,
     network: &NetworkName,
+    consensus_version: ConsensusVersion,
 ) -> Result<()> {
+    let (max_variables, max_constraints) = if consensus_version >= ConsensusVersion::V19 {
+        (Some(N::MAX_DEPLOYMENT_VARIABLES_V2), Some(N::MAX_DEPLOYMENT_CONSTRAINTS_V2))
+    } else if consensus_version >= ConsensusVersion::V18 {
+        (None, None)
+    } else {
+        (Some(N::MAX_DEPLOYMENT_VARIABLES), Some(N::MAX_DEPLOYMENT_CONSTRAINTS))
+    };
+
     // Check if the number of variables is within the limits.
     let combined_variables = deployment.num_combined_variables()?;
-    if combined_variables > N::MAX_DEPLOYMENT_VARIABLES {
-        return Err(crate::errors::variable_limit_exceeded(
-            program_id,
-            combined_variables,
-            N::MAX_DEPLOYMENT_VARIABLES,
-            network,
-        )
-        .into());
+    if let Some(max_variables) = max_variables
+        && combined_variables > max_variables
+    {
+        return Err(
+            crate::errors::variable_limit_exceeded(program_id, combined_variables, max_variables, network).into()
+        );
     }
 
     // Check if the number of constraints is within the limits.
     let constraints = deployment.num_combined_constraints()?;
-    if constraints > N::MAX_DEPLOYMENT_CONSTRAINTS {
-        return Err(crate::errors::constraint_limit_exceeded(
-            program_id,
-            constraints,
-            N::MAX_DEPLOYMENT_CONSTRAINTS,
-            network,
-        )
-        .into());
+    if let Some(max_constraints) = max_constraints
+        && constraints > max_constraints
+    {
+        return Err(crate::errors::constraint_limit_exceeded(program_id, constraints, max_constraints, network).into());
     }
 
     Ok(())
@@ -1143,13 +1146,21 @@ pub(crate) fn compute_deployment_stats<N: Network, R: Rng + CryptoRng>(
 
     let function_costs = calculate_function_costs(vm, deployment, consensus_version, rng)?;
 
+    let (max_variables, max_constraints) = if consensus_version >= ConsensusVersion::V19 {
+        (Some(N::MAX_DEPLOYMENT_VARIABLES_V2), Some(N::MAX_DEPLOYMENT_CONSTRAINTS_V2))
+    } else if consensus_version >= ConsensusVersion::V18 {
+        (None, None)
+    } else {
+        (Some(N::MAX_DEPLOYMENT_VARIABLES), Some(N::MAX_DEPLOYMENT_CONSTRAINTS))
+    };
+
     Ok(DeploymentStats {
         program_size_bytes: bytecode_size,
         max_program_size_bytes: max_program_size_for_consensus_version::<N>(consensus_version),
         total_variables: Some(variables),
         total_constraints: Some(constraints),
-        max_variables: Some(N::MAX_DEPLOYMENT_VARIABLES),
-        max_constraints: Some(N::MAX_DEPLOYMENT_CONSTRAINTS),
+        max_variables,
+        max_constraints,
         storage_cost,
         synthesis_cost,
         namespace_cost,

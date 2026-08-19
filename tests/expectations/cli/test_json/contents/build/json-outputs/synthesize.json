@@ -5,7 +5,7 @@
       "name": "main",
       "circuit_info": {
         "num_public_inputs": 16,
-        "num_variables": 12940,
+        "num_variables": 17276,
         "num_constraints": 12927,
         "num_non_zero_a": 32191,
         "num_non_zero_b": 46449,
