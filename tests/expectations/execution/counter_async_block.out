@@ -46,30 +46,6 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au18k62qtlhw0depj0km0k9f4qy2874zf54zuljwt6n2mdamqjlvugqlxsjwm",
-      "program": "test.aleo",
-      "function": "dubble",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "7356182158983275783393291609783542850358926383659608766706603213136751396271field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-        }
-      ],
-      "tpk": "608145357396533953183996771148350799807773296697308705020236916547260086269group",
-      "tcm": "836667812795059069750223608713475699856198610985900962912546206830625692954field",
-      "scm": "1552695584970933119046256526092615525589842484250537501873646236741765127250field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
       "id": "au15rxx6pah654c7t63956z20mxtfgd4t9j66sg9stzcdq054nk5vyqe7d3f7",
       "program": "test.aleo",
       "function": "dubble",
@@ -132,6 +108,30 @@ status: accepted
       "tpk": "4866139165152782731273009731288965219776786043571035013219406609236403594255group",
       "tcm": "2246901840394919875453262260420871337750629746568913796860527203244939654487field",
       "scm": "8242412588804963796805618214956092519227142989886478254402106982095481652880field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1exg3hklaxkj32mcxypt56eqrm80ja45d56nlk40kp0xdr9wt2qyss0g3wz",
+      "program": "test.aleo",
+      "function": "dubble",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "7796086657513901047870664529930038322127617998264223716934578616134414780813field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
+        }
+      ],
+      "tpk": "7761393387315057617628582812439270197087034733785022923927412534611159778401group",
+      "tcm": "7587558990710387704833255215655888813655496799704601982644555584853214223081field",
+      "scm": "7866959993391118943700142544076414438725352100325005212138962402514296524351field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"

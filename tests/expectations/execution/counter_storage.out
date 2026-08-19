@@ -42,30 +42,6 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1q5h844feu2yy82d45fyenh5ntu85p2xavp9slqx9kmt0su47zyxqs98wed",
-      "program": "test.aleo",
-      "function": "increment",
-      "inputs": [],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "6862072257790844739143719642389142432483579094822301487491612313549243972033field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
-        }
-      ],
-      "tpk": "608145357396533953183996771148350799807773296697308705020236916547260086269group",
-      "tcm": "836667812795059069750223608713475699856198610985900962912546206830625692954field",
-      "scm": "1552695584970933119046256526092615525589842484250537501873646236741765127250field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
       "id": "au1g396p4tcgfrkp3l40fxv4ug9f973p5ngqlt6wae2q40vkjk62gzq5q7akj",
       "program": "test.aleo",
       "function": "increment",
@@ -128,6 +104,30 @@ status: accepted
       "tpk": "4866139165152782731273009731288965219776786043571035013219406609236403594255group",
       "tcm": "2246901840394919875453262260420871337750629746568913796860527203244939654487field",
       "scm": "8242412588804963796805618214956092519227142989886478254402106982095481652880field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1xzspkmcdr3za8pvg5vpxz9vrzuq27u6sat67vuttkgyxfwxv7spqjvxrpr",
+      "program": "test.aleo",
+      "function": "increment",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "1757514079974719979350182957601875621505371308644489422054048264913315415415field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: increment,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "7761393387315057617628582812439270197087034733785022923927412534611159778401group",
+      "tcm": "7587558990710387704833255215655888813655496799704601982644555584853214223081field",
+      "scm": "7866959993391118943700142544076414438725352100325005212138962402514296524351field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
