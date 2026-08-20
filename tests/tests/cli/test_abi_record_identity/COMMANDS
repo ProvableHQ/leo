@@ -33,6 +33,6 @@ for file in build/foo/abi.json build/interface_dep/abi.json build/foo/interfaces
     check_kind "${file}" echo_external Record Struct
 done
 
-rm -rf build
-
 echo "ABI record lookup uses resolved locations"
+
+rm -rf build
