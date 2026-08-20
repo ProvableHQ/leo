@@ -29,7 +29,7 @@ done
 
 check_kind build/foo/interfaces/PrototypeOnly.json echo_prototype Record Struct
 
-for file in build/foo/abi.json build/foo/interfaces/interface_dep.aleo/ExternalRecords.json; do
+for file in build/foo/abi.json build/interface_dep/abi.json build/foo/interfaces/interface_dep.aleo/ExternalRecords.json; do
     check_kind "${file}" echo_external Record Struct
 done
 

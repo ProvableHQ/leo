@@ -54,8 +54,16 @@ struct Ctx<'a> {
 /// The returned ABI is pruned to only include types that appear in the public
 /// interface (functions, mappings, storage variables).
 pub fn generate(ast: &ast::Program) -> abi::Program {
+    generate_with_stubs(ast, &ast.stubs)
+}
+
+/// Generates the ABI for a Leo program using the compilation unit's reachable stubs.
+///
+/// A program imported from another compilation unit may carry only its nested stubs, while
+/// ABI conversion needs the outer unit's reachable map to resolve sibling dependencies.
+pub fn generate_with_stubs(ast: &ast::Program, stubs: &IndexMap<Symbol, ast::Stub>) -> abi::Program {
     let scope = ast.program_scopes.values().next().unwrap();
-    let ctx = Ctx { scope, stubs: &ast.stubs, modules: &ast.modules };
+    let ctx = Ctx { scope, stubs, modules: &ast.modules };
 
     let program = scope.program_id.to_string();
 

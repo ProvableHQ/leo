@@ -5,6 +5,10 @@ export interface ExternalRecords {
 }
 
 program interface_dep.aleo {
+    fn echo_external(token: record_dep.aleo::Token) -> record_dep.aleo::Token {
+        return token;
+    }
+
     @noupgrade
     constructor() {}
 }
