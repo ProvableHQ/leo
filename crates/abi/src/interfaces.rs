@@ -146,7 +146,7 @@ pub fn generate_program_interfaces(ast: &ast::Program) -> Vec<CompiledInterface>
         let Some(stub) = ast.stubs.get(&ext_program) else { continue };
         let Some(iface) = find_interface_in_stub(stub, &iface_path) else { continue };
 
-        let ext_cs = composite_source_for_stub(stub);
+        let ext_cs = composite_source_for_stub(stub, &ast.stubs);
         let module_path: Vec<Symbol> = iface_path[..iface_path.len().saturating_sub(1)].to_vec();
         let abi = build_interface(iface, ext_program, &module_path, &ext_cs);
         let key = (Some(owner_str.clone()), abi.path.clone());
@@ -267,13 +267,19 @@ impl<'a> CompositeSource<'a> {
 }
 
 /// Builds a `CompositeSource` for a stub (for looking up composites in an external dependency).
-fn composite_source_for_stub(stub: &ast::Stub) -> CompositeSource<'_> {
+///
+/// Use the compilation unit's reachable stubs because a dependency's nested `Program.stubs`
+/// map does not contain its sibling dependencies.
+fn composite_source_for_stub<'a>(
+    stub: &'a ast::Stub,
+    reachable_stubs: &'a IndexMap<Symbol, ast::Stub>,
+) -> CompositeSource<'a> {
     match stub {
         ast::Stub::FromLeo { program, .. } => {
             let scope = program.program_scopes.values().next().unwrap();
-            CompositeSource::Program { scope, modules: &program.modules, stubs: &program.stubs }
+            CompositeSource::Program { scope, modules: &program.modules, stubs: reachable_stubs }
         }
-        ast::Stub::FromLibrary { library, .. } => CompositeSource::Library { library, stubs: &library.stubs },
+        ast::Stub::FromLibrary { library, .. } => CompositeSource::Library { library, stubs: reachable_stubs },
         ast::Stub::FromAleo { .. } => {
             // Aleo stubs can't define interfaces, so this shouldn't be reached.
             // Use an empty library as a placeholder.
