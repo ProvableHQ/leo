@@ -4,6 +4,10 @@ program record_dep.aleo {
         amount: u32,
     }
 
+    fn echo_token(token: Token) -> Token {
+        return token;
+    }
+
     @noupgrade
     constructor() {}
 }
