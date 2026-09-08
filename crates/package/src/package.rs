@@ -401,14 +401,24 @@ impl Package {
             edition: None,
             ..Default::default()
         };
-        let mut declared_deps = IndexMap::new();
-        declared_deps.insert(program_symbol, main_dependency.clone());
-        if !no_local && let Some(imports_directory) = imports_directory {
-            let imports_directory = imports_directory
-                .canonicalize()
-                .map_err(|error| crate::errors::failed_path(imports_directory.display(), error))?;
-            collect_local_aleo_imports(&main_program, &imports_directory, &mut declared_deps)?;
-        }
+        let imports_directory = if no_local {
+            None
+        } else {
+            imports_directory
+                .map(|imports_directory| -> Result<PathBuf> {
+                    let imports_directory = imports_directory
+                        .canonicalize()
+                        .map_err(|error| crate::errors::failed_path(imports_directory.display(), error))?;
+                    if !imports_directory.is_dir() {
+                        return Err(
+                            anyhow!("Expected an Aleo imports directory: {}", imports_directory.display()).into()
+                        );
+                    }
+                    Ok(imports_directory)
+                })
+                .transpose()?
+        };
+        let declared_deps = IndexMap::from([(program_symbol, main_dependency.clone())]);
 
         let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
         let mut digraph = DiGraph::new(Default::default());
@@ -424,6 +434,7 @@ impl Package {
             &mut digraph,
             no_cache,
             false,
+            imports_directory.as_deref(),
             network_retries,
             &declared_deps,
             &old_lock,
@@ -547,6 +558,7 @@ impl Package {
                     &mut digraph,
                     no_cache,
                     no_local,
+                    None,
                     network_retries,
                     &declared_deps,
                     &old_lock,
@@ -601,12 +613,45 @@ impl Package {
         graph: &mut DiGraph<Symbol>,
         no_cache: bool,
         no_local: bool,
+        aleo_imports_directory: Option<&Path>,
         network_retries: u32,
         declared_deps: &IndexMap<Symbol, Dependency>,
         old_lock: &Lock,
         new_lock: &mut Lock,
         offline: bool,
     ) -> Result<()> {
+        let mut new = new;
+        if new.location == Location::Network
+            && let Some(imports_directory) = aleo_imports_directory
+        {
+            let path = aleo_import_path(imports_directory, &new.name);
+            if path.exists() {
+                if !path.is_file() {
+                    return Err(anyhow!("Expected Aleo import `{}` to be a file: {}", new.name, path.display()).into());
+                }
+                let bytecode = std::fs::read_to_string(&path).map_err(|error| {
+                    crate::errors::util_file_io_error(
+                        format_args!("Trying to read Aleo file at {}", path.display()),
+                        error,
+                    )
+                })?;
+                let imported: SvmProgram<TestnetV0> =
+                    bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(bare_unit_name(&new.name)))?;
+                if imported.id().to_string() != new.name {
+                    return Err(anyhow!(
+                        "Aleo import `{}` resolved to `{}`, but that file declares `{}`.",
+                        new.name,
+                        path.display(),
+                        imported.id()
+                    )
+                    .into());
+                }
+                new.location = Location::Local;
+                new.path = Some(path);
+                new.edition = None;
+            }
+        }
+
         let name_symbol = symbol(&new.name)?;
 
         let unit = match map.entry(name_symbol) {
@@ -725,6 +770,7 @@ impl Package {
                 graph,
                 no_cache,
                 no_local,
+                aleo_imports_directory,
                 network_retries,
                 declared_deps,
                 old_lock,
@@ -753,55 +799,6 @@ pub fn aleo_import_path(imports_directory: &Path, program_name: &str) -> PathBuf
     let bare_name = bare_unit_name(program_name);
     let per_unit_path = imports_directory.join(bare_name).join(program_name);
     if per_unit_path.exists() { per_unit_path } else { imports_directory.join(program_name) }
-}
-
-fn collect_local_aleo_imports(
-    program: &SvmProgram<TestnetV0>,
-    imports_directory: &Path,
-    declared_deps: &mut IndexMap<Symbol, Dependency>,
-) -> Result<()> {
-    let mut worklist = program.imports().keys().copied().collect::<Vec<_>>();
-    while let Some(program_id) = worklist.pop() {
-        let name = program_id.to_string();
-        let name_symbol = symbol(&name)?;
-        if declared_deps.contains_key(&name_symbol) {
-            continue;
-        }
-
-        let path = aleo_import_path(imports_directory, &name);
-        if !path.exists() {
-            continue;
-        }
-        if !path.is_file() {
-            return Err(anyhow!("Expected Aleo import `{name}` to be a file: {}", path.display()).into());
-        }
-
-        let dependency = Dependency {
-            name: name.clone(),
-            location: Location::Local,
-            path: Some(path.clone()),
-            edition: None,
-            ..Default::default()
-        };
-        declared_deps.insert(name_symbol, dependency);
-
-        let bytecode = std::fs::read_to_string(&path).map_err(|error| {
-            crate::errors::util_file_io_error(format_args!("Trying to read Aleo file at {}", path.display()), error)
-        })?;
-        let imported: SvmProgram<TestnetV0> =
-            bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(bare_unit_name(&name)))?;
-        if imported.id() != &program_id {
-            return Err(anyhow!(
-                "Aleo import `{name}` resolved to `{}`, but that file declares `{}`.",
-                path.display(),
-                imported.id()
-            )
-            .into());
-        }
-        worklist.extend(imported.imports().keys().copied());
-    }
-
-    Ok(())
 }
 
 fn main_template(name: &str) -> String {
@@ -1102,17 +1099,68 @@ function main:
             let program_path = root.join("standalone.aleo");
             crate::test_util::write_file(&program_path, MAIN_PROGRAM);
 
-            let main_program: SvmProgram<TestnetV0> = MAIN_PROGRAM.parse().expect("test Aleo program should parse");
-            let mut declared_deps = IndexMap::new();
-            collect_local_aleo_imports(&main_program, &root, &mut declared_deps)
-                .expect("missing local imports should not fail discovery");
             let unit =
-                CompilationUnit::from_aleo_path(Symbol::intern("standalone.aleo"), &program_path, &declared_deps)
+                CompilationUnit::from_aleo_path(Symbol::intern("standalone.aleo"), &program_path, &IndexMap::new())
                     .expect("test Aleo program should load");
 
             let dependency = unit.dependencies.first().expect("test program should have one direct import");
             assert_eq!(dependency.name, "dependency.aleo");
             assert_eq!(dependency.location, Location::Network);
+
+            std::fs::remove_dir_all(root).expect("test directory should be removed");
+        });
+    }
+
+    #[test]
+    fn aleo_file_resolves_local_import_below_network_import() {
+        create_session_if_not_set_then(|_| {
+            let root = crate::test_util::unique_dir("aleo-file-mixed-transitive-imports");
+            let program_path = root.join("standalone.aleo");
+            let imports = root.join("imports");
+            let home = root.join("home");
+            crate::test_util::write_file(&program_path, MAIN_PROGRAM);
+            crate::test_util::write_file(&imports.join("leaf.aleo"), LEAF_PROGRAM);
+            crate::test_util::write_file(
+                &home.join("registry/testnet/dependency/0/dependency.aleo"),
+                DEPENDENCY_PROGRAM,
+            );
+
+            let package = Package::from_aleo_file(
+                &program_path,
+                &home,
+                Some(&imports),
+                false,
+                false,
+                Some(NetworkName::TestnetV0),
+                Some("http://localhost:1"),
+                0,
+            )
+            .expect("a local transitive import below a network import should be used");
+
+            let units =
+                package.compilation_units.iter().map(|unit| (unit.name.to_string(), unit.is_local)).collect::<Vec<_>>();
+            assert_eq!(units, [
+                ("leaf.aleo".to_string(), true),
+                ("dependency.aleo".to_string(), false),
+                ("standalone.aleo".to_string(), true)
+            ]);
+
+            std::fs::remove_dir_all(root).expect("test directory should be removed");
+        });
+    }
+
+    #[test]
+    fn aleo_file_rejects_non_directory_imports_path() {
+        create_session_if_not_set_then(|_| {
+            let root = crate::test_util::unique_dir("aleo-file-invalid-imports-directory");
+            let program_path = root.join("standalone.aleo");
+            let home = root.join("home");
+            crate::test_util::write_file(&program_path, MAIN_PROGRAM);
+            std::fs::create_dir_all(&home).expect("test registry directory should be created");
+
+            let error = Package::from_aleo_file(&program_path, &home, Some(&program_path), false, false, None, None, 0)
+                .expect_err("an imports path that is not a directory should fail");
+            assert!(error.to_string().contains("Expected an Aleo imports directory"));
 
             std::fs::remove_dir_all(root).expect("test directory should be removed");
         });

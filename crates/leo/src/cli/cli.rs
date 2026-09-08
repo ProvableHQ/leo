@@ -1161,6 +1161,32 @@ mod tests {
 
     #[test]
     #[serial]
+    fn workspace_deploy_rejects_aleo_imports_directory() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "deploy_imports_directory");
+        let imports = ws_root.join("imports");
+        let deploy = CLI::try_parse_from([
+            "leo",
+            "--disable-update-check",
+            "--path",
+            ws_root.to_str().expect("workspace path should be UTF-8"),
+            "deploy",
+            "--imports-dir",
+            imports.to_str().expect("imports path should be UTF-8"),
+        ])
+        .expect("deploy arguments should parse");
+
+        create_session_if_not_set_then(|_| {
+            let error = run_with_args(deploy).expect_err("workspace deploy should reject an Aleo imports directory");
+            assert!(error.to_string().contains("`--imports-dir` requires `--path` to point to an Aleo bytecode file"));
+        });
+
+        assert!(!ws_root.join("build").exists(), "validation should happen before workspace members are built");
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
     fn workspace_deploy_package_flag_test() {
         // With --package, deploy should only build and deploy that member.
         let temp_dir = temp_dir();

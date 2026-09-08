@@ -203,11 +203,14 @@ impl Command for LeoDeploy {
 
     fn execute(self, context: Context) -> Result<Self::Output> {
         // Intercept workspace mode before the default prelude+apply flow.
-        let workspace_targets = if context.dir()?.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
-            None
-        } else {
-            context.resolve_targets()?
-        };
+        let path = context.dir()?;
+        let is_aleo_file = path.extension().and_then(|extension| extension.to_str()) == Some("aleo");
+        if self.imports_dir.is_some() && !is_aleo_file {
+            return Err(
+                crate::errors::custom("`--imports-dir` requires `--path` to point to an Aleo bytecode file.").into()
+            );
+        }
+        let workspace_targets = if is_aleo_file { None } else { context.resolve_targets()? };
         match workspace_targets {
             Some((_, targets)) if targets.len() > 1 => handle_workspace_deploy(self, context, targets),
             _ => {
