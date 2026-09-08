@@ -39,7 +39,7 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(long, global = true, help = "Path to Leo program root folder")]
+    #[clap(long, global = true, help = "Path to a Leo project, or an Aleo bytecode file for run, execute, or deploy")]
     path: Option<PathBuf>,
 
     #[clap(long, global = true, help = "Path to aleo program registry")]
@@ -281,6 +281,14 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
         let path = if json_output_arg.is_empty() {
             cli.path
+                .as_deref()
+                .map(|path| {
+                    if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+                        path.parent().unwrap_or(path).to_path_buf()
+                    } else {
+                        path.to_path_buf()
+                    }
+                })
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join("build")
                 .join("json-outputs")
@@ -321,7 +329,7 @@ mod tests {
     use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
-    use std::env::temp_dir;
+    use std::{env::temp_dir, path::PathBuf};
 
     // An unreachable endpoint with no retries stands in for a program that isn't on the network.
     #[test]
@@ -409,6 +417,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override,
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -459,6 +468,7 @@ mod tests {
                     ],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -503,6 +513,7 @@ mod tests {
                     name: "inner_1_main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     build_options: Default::default(),
+                    imports_dir: None,
                     env_override: Default::default(),
                     key_override: Default::default(),
                     with: vec![],
@@ -546,6 +557,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -673,6 +685,33 @@ mod tests {
         let cli = CLI::try_parse_from(["leo", "deploy"]).expect("`leo deploy` should parse");
         match cli.command {
             Commands::Deploy { command } => assert_eq!(command.rename, None),
+            _ => panic!("expected a deploy command"),
+        }
+    }
+
+    #[test]
+    #[serial]
+    fn aleo_imports_directory_flag_parses_for_supported_commands() {
+        let expected = PathBuf::from("imports");
+
+        let cli = CLI::try_parse_from(["leo", "run", "--imports-dir", "imports"])
+            .expect("run should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Run { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected a run command"),
+        }
+
+        let cli = CLI::try_parse_from(["leo", "execute", "--imports-dir", "imports"])
+            .expect("execute should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Execute { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected an execute command"),
+        }
+
+        let cli = CLI::try_parse_from(["leo", "deploy", "--imports-dir", "imports"])
+            .expect("deploy should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Deploy { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
             _ => panic!("expected a deploy command"),
         }
     }
@@ -1098,6 +1137,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1151,6 +1191,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1204,6 +1245,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1258,6 +1300,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },

@@ -95,16 +95,7 @@ impl Command for LeoAbi {
         let content = std::fs::read_to_string(&self.file).map_err(crate::errors::cli_io_error)?;
         let file_name = self.file.file_name().and_then(|s| s.to_str()).unwrap_or("unknown");
 
-        let imports_dir = self.imports_dir.clone().or_else(|| {
-            let parent = self.file.parent()?;
-            // Per-unit layout: file at `<root>/<unit>/<unit>.aleo` — use `<root>`.
-            if parent.file_name() == self.file.file_stem() {
-                return parent.parent().map(Path::to_path_buf);
-            }
-            // Legacy: sibling `imports/`.
-            let legacy = parent.join("imports");
-            legacy.is_dir().then_some(legacy)
-        });
+        let imports_dir = self.imports_dir.clone().or_else(|| leo_package::default_aleo_imports_directory(&self.file));
 
         // `Process::add_program` is contextual, so dependencies must be loaded in topological order before the main
         // program.
@@ -277,10 +268,7 @@ fn load_and_disassemble_imports<N: Network>(
         if parsed.contains_key(&name) {
             continue;
         }
-        // Try the per-unit layout (`<dir>/<bare>/<name>.aleo`) first, falling back to flat.
-        let bare = name.strip_suffix(".aleo").unwrap_or(&name);
-        let per_unit = imports_dir.join(bare).join(&name);
-        let path = if per_unit.exists() { per_unit } else { imports_dir.join(&name) };
+        let path = leo_package::aleo_import_path(imports_dir, &name);
         let text =
             std::fs::read_to_string(&path).map_err(|e| crate::errors::failed_to_read_import(path.display(), e))?;
         let imported = SvmProgram::<N>::from_str(&text)

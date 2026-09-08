@@ -87,6 +87,12 @@ pub struct LeoExecute {
     #[clap(flatten)]
     build_options: BuildOptions,
     #[clap(
+        long,
+        value_name = "DIR",
+        help = "Directory containing local .aleo imports when --path points to an Aleo bytecode file; other imports are fetched from the network"
+    )]
+    pub(crate) imports_dir: Option<PathBuf>,
+    #[clap(
         long = "with",
         help = "Additional programs to load into the VM (comma-separated). \
         If a path exists locally, it is read as an .aleo bytecode file; \
@@ -113,6 +119,27 @@ impl Command for LeoExecute {
         let network = get_network(&self.env_override.network)?;
         // Get the endpoint, accounting for overrides.
         let endpoint = get_endpoint(&self.env_override.endpoint)?;
+        if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            if context.package_filter.is_some() {
+                return Err(crate::errors::custom("`--package` cannot be used with an Aleo bytecode file.").into());
+            }
+            return Package::from_aleo_file(
+                path,
+                home_path,
+                self.imports_dir.as_deref(),
+                true,
+                self.build_options.no_local,
+                Some(network),
+                Some(&endpoint),
+                self.env_override.network_retries,
+            )
+            .map(Some);
+        }
+        if self.imports_dir.is_some() {
+            return Err(
+                crate::errors::custom("`--imports-dir` requires `--path` to point to an Aleo bytecode file.").into()
+            );
+        }
         // If the current directory is a valid Leo package, then build it.
         if Package::from_directory_no_graph(
             path,

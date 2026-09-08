@@ -680,6 +680,7 @@ impl From<&LeoUpgrade> for LeoDeploy {
             skip: upgrade.skip.clone(),
             rename: None,
             build_options: upgrade.build_options.clone(),
+            imports_dir: None,
             skip_deploy_certificate: upgrade.skip_deploy_certificate,
         }
     }

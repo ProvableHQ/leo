@@ -86,6 +86,12 @@ pub struct LeoDeploy {
     pub(crate) rename: Option<String>,
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
+    #[clap(
+        long,
+        value_name = "DIR",
+        help = "Directory containing local .aleo imports when --path points to an Aleo bytecode file; other imports are fetched from the network"
+    )]
+    pub(crate) imports_dir: Option<PathBuf>,
     #[clap(long, help = "Use placeholder certificate and verifying keys during deployment.", default_value = "false")]
     pub(crate) skip_deploy_certificate: bool,
 }
@@ -129,6 +135,34 @@ impl Command for LeoDeploy {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
+        let path = context.dir()?;
+        if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            if context.package_filter.is_some() {
+                return Err(crate::errors::custom("`--package` cannot be used with an Aleo bytecode file.").into());
+            }
+            if self.rename.is_some() {
+                return Err(crate::errors::custom("`--rename` is not supported when deploying Aleo bytecode.").into());
+            }
+            let home_path = context.home()?;
+            let network = get_network(&self.env_override.network)?;
+            let endpoint = get_endpoint(&self.env_override.endpoint)?;
+            return Package::from_aleo_file(
+                path,
+                home_path,
+                self.imports_dir.as_deref(),
+                true,
+                self.build_options.no_local,
+                Some(network),
+                Some(&endpoint),
+                self.env_override.network_retries,
+            );
+        }
+        if self.imports_dir.is_some() {
+            return Err(
+                crate::errors::custom("`--imports-dir` requires `--path` to point to an Aleo bytecode file.").into()
+            );
+        }
+
         LeoBuild {
             env_override: self.env_override.clone(),
             options: {
@@ -169,7 +203,12 @@ impl Command for LeoDeploy {
 
     fn execute(self, context: Context) -> Result<Self::Output> {
         // Intercept workspace mode before the default prelude+apply flow.
-        match context.resolve_targets()? {
+        let workspace_targets = if context.dir()?.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            None
+        } else {
+            context.resolve_targets()?
+        };
+        match workspace_targets {
             Some((_, targets)) if targets.len() > 1 => handle_workspace_deploy(self, context, targets),
             _ => {
                 // Single target or no workspace: use the standard flow.

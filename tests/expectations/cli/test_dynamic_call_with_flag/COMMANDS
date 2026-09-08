@@ -14,4 +14,12 @@ ${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
 echo "--- run WITH --with should succeed ---"
 ${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
 
+echo "--- run a standalone Aleo file ---"
+${LEO_BIN} ${COMMON_OPTS} --path ./extra_prog.aleo run dbl ${INPUT}
+
+echo "--- write standalone Aleo run JSON output ---"
+${LEO_BIN} ${COMMON_OPTS} --path ./extra_prog.aleo --json-output run dbl ${INPUT}
+cat ./build/json-outputs/run.json
+rm ./build/json-outputs/run.json
+
 exit 0
