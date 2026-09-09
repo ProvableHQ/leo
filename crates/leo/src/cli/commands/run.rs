@@ -23,6 +23,7 @@ use leo_package::{Package, ProgramData};
 use aleo_std::StorageMode;
 
 use clap::Parser;
+use std::path::PathBuf;
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::circuit::{AleoCanaryV0, AleoV0};
@@ -57,6 +58,12 @@ pub struct LeoRun {
     #[clap(flatten)]
     pub(crate) build_options: BuildOptions,
     #[clap(
+        long,
+        value_name = "DIR",
+        help = "Directory containing local .aleo imports when --path points to an Aleo bytecode file; other imports are fetched from the network"
+    )]
+    pub(crate) imports_dir: Option<PathBuf>,
+    #[clap(
         long = "with",
         help = "Additional programs to load into the VM (comma-separated). \
             If a path exists locally, it is read as an .aleo bytecode file; \
@@ -79,6 +86,41 @@ impl Command for LeoRun {
         let path = context.dir()?;
         // Get the path to the home directory.
         let home_path = context.home()?;
+        if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            if context.package_filter.is_some() {
+                return Err(crate::errors::custom("`--package` cannot be used with an Aleo bytecode file.").into());
+            }
+            let network = match get_network(&self.env_override.network) {
+                Ok(network) => network,
+                Err(_) => {
+                    println!("⚠️ No network specified, defaulting to 'testnet'.");
+                    NetworkName::TestnetV0
+                }
+            };
+            let endpoint = match get_endpoint(&self.env_override.endpoint) {
+                Ok(endpoint) => endpoint,
+                Err(_) => {
+                    println!("⚠️ No endpoint specified, defaulting to '{DEFAULT_ENDPOINT}'.");
+                    DEFAULT_ENDPOINT.to_string()
+                }
+            };
+            return Package::from_aleo_file(
+                path,
+                home_path,
+                self.imports_dir.as_deref(),
+                self.build_options.no_cache,
+                self.build_options.no_local,
+                Some(network),
+                Some(&endpoint),
+                self.env_override.network_retries,
+            )
+            .map(Some);
+        }
+        if self.imports_dir.is_some() {
+            return Err(
+                crate::errors::custom("`--imports-dir` requires `--path` to point to an Aleo bytecode file.").into()
+            );
+        }
         // If the current directory is a valid Leo package, then build it.
         if Package::from_directory_no_graph(
             path,

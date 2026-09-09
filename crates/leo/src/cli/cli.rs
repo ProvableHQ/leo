@@ -39,7 +39,7 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(long, global = true, help = "Path to Leo program root folder")]
+    #[clap(long, global = true, help = "Path to a Leo project, or an Aleo bytecode file for run, execute, or deploy")]
     path: Option<PathBuf>,
 
     #[clap(long, global = true, help = "Path to aleo program registry")]
@@ -281,6 +281,14 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
         let path = if json_output_arg.is_empty() {
             cli.path
+                .as_deref()
+                .map(|path| {
+                    if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+                        path.parent().unwrap_or(path).to_path_buf()
+                    } else {
+                        path.to_path_buf()
+                    }
+                })
                 .unwrap_or_else(|| PathBuf::from("."))
                 .join("build")
                 .join("json-outputs")
@@ -321,7 +329,7 @@ mod tests {
     use leo_ast::NetworkName;
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
-    use std::env::temp_dir;
+    use std::{env::temp_dir, path::PathBuf};
 
     // An unreachable endpoint with no retries stands in for a program that isn't on the network.
     #[test]
@@ -409,6 +417,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override,
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -459,6 +468,7 @@ mod tests {
                     ],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -503,6 +513,7 @@ mod tests {
                     name: "inner_1_main".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     build_options: Default::default(),
+                    imports_dir: None,
                     env_override: Default::default(),
                     key_override: Default::default(),
                     with: vec![],
@@ -546,6 +557,7 @@ mod tests {
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
                     env_override: Default::default(),
                     build_options: Default::default(),
+                    imports_dir: None,
                     key_override: Default::default(),
                     with: vec![],
                 },
@@ -674,6 +686,57 @@ mod tests {
         match cli.command {
             Commands::Deploy { command } => assert_eq!(command.rename, None),
             _ => panic!("expected a deploy command"),
+        }
+    }
+
+    #[test]
+    #[serial]
+    fn aleo_imports_directory_flag_parses_for_supported_commands() {
+        let expected = PathBuf::from("imports");
+
+        let cli = CLI::try_parse_from(["leo", "run", "--imports-dir", "imports"])
+            .expect("run should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Run { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected a run command"),
+        }
+
+        let cli = CLI::try_parse_from(["leo", "execute", "--imports-dir", "imports"])
+            .expect("execute should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Execute { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected an execute command"),
+        }
+
+        let cli = CLI::try_parse_from(["leo", "deploy", "--imports-dir", "imports"])
+            .expect("deploy should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Deploy { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected a deploy command"),
+        }
+    }
+
+    #[test]
+    #[serial]
+    fn aleo_file_path_is_rejected_by_build_test_clean_and_upgrade() {
+        let test_directory = tempfile::tempdir().expect("test directory should be creatable");
+        let aleo_file = test_directory.path().join("standalone.aleo");
+        std::fs::write(&aleo_file, "program standalone.aleo;\n").expect("Aleo fixture should be writable");
+        let aleo_path = aleo_file.to_str().expect("Aleo fixture path should be UTF-8");
+
+        for (command, expected_error) in [
+            ("build", "failed to load Leo project"),
+            ("test", "failed to load Leo project"),
+            ("clean", "doesn't appear to be a Leo package"),
+            ("upgrade", "failed to load Leo project"),
+        ] {
+            let cli = CLI::try_parse_from(["leo", "-q", "--disable-update-check", "--path", aleo_path, command])
+                .unwrap_or_else(|error| panic!("`leo {command}` arguments should parse: {error}"));
+
+            create_session_if_not_set_then(|_| {
+                let error = run_with_args(cli).expect_err("project-only command should reject an Aleo bytecode path");
+                assert!(error.to_string().contains(expected_error), "unexpected `leo {command}` error: {error}");
+            });
         }
     }
 
@@ -1098,6 +1161,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1116,6 +1180,32 @@ mod tests {
         assert!(ws_root.join("build/token/token.aleo").exists(), "token should be built");
         assert!(ws_root.join("build/swap/swap.aleo").exists(), "swap should be built");
 
+        let _ = std::fs::remove_dir_all(&ws_root);
+    }
+
+    #[test]
+    #[serial]
+    fn workspace_deploy_rejects_aleo_imports_directory() {
+        let temp_dir = temp_dir();
+        let ws_root = test_helpers::sample_workspace_with_workspace_deps(&temp_dir, "deploy_imports_directory");
+        let imports = ws_root.join("imports");
+        let deploy = CLI::try_parse_from([
+            "leo",
+            "--disable-update-check",
+            "--path",
+            ws_root.to_str().expect("workspace path should be UTF-8"),
+            "deploy",
+            "--imports-dir",
+            imports.to_str().expect("imports path should be UTF-8"),
+        ])
+        .expect("deploy arguments should parse");
+
+        create_session_if_not_set_then(|_| {
+            let error = run_with_args(deploy).expect_err("workspace deploy should reject an Aleo imports directory");
+            assert!(error.to_string().contains("`--imports-dir` requires `--path` to point to an Aleo bytecode file"));
+        });
+
+        assert!(!ws_root.join("build").exists(), "validation should happen before workspace members are built");
         let _ = std::fs::remove_dir_all(&ws_root);
     }
 
@@ -1151,6 +1241,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1204,6 +1295,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
@@ -1258,6 +1350,7 @@ mod tests {
                     skip: vec![],
                     rename: None,
                     build_options: Default::default(),
+                    imports_dir: None,
                     skip_deploy_certificate: true,
                 },
             },
