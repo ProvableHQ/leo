@@ -718,6 +718,30 @@ mod tests {
 
     #[test]
     #[serial]
+    fn aleo_file_path_is_rejected_by_build_test_clean_and_upgrade() {
+        let test_directory = tempfile::tempdir().expect("test directory should be creatable");
+        let aleo_file = test_directory.path().join("standalone.aleo");
+        std::fs::write(&aleo_file, "program standalone.aleo;\n").expect("Aleo fixture should be writable");
+        let aleo_path = aleo_file.to_str().expect("Aleo fixture path should be UTF-8");
+
+        for (command, expected_error) in [
+            ("build", "failed to load Leo project"),
+            ("test", "failed to load Leo project"),
+            ("clean", "doesn't appear to be a Leo package"),
+            ("upgrade", "failed to load Leo project"),
+        ] {
+            let cli = CLI::try_parse_from(["leo", "-q", "--disable-update-check", "--path", aleo_path, command])
+                .unwrap_or_else(|error| panic!("`leo {command}` arguments should parse: {error}"));
+
+            create_session_if_not_set_then(|_| {
+                let error = run_with_args(cli).expect_err("project-only command should reject an Aleo bytecode path");
+                assert!(error.to_string().contains(expected_error), "unexpected `leo {command}` error: {error}");
+            });
+        }
+    }
+
+    #[test]
+    #[serial]
     fn new_inside_workspace_auto_registers() {
         let temp_dir = temp_dir();
         let ws_root = temp_dir.join("ws_new_inside_test");
