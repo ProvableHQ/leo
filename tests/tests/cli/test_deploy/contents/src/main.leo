@@ -18,6 +18,6 @@ program some_sample_leo_program.aleo {
         return _dynamic_call::[dyn record, address, dyn record](target, 'aleo', 'transfer', token, to);
     }
 
-    @noupgrade
+    @admin(address="aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px")
     constructor() {}
 }
