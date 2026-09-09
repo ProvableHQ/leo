@@ -124,3 +124,19 @@ pub(crate) fn final_not_awaited_in_order(future_name: impl Display, span: Span) 
     )
     .with_help("Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.")
 }
+
+pub(crate) fn unvalidated_record_discriminator(
+    record: impl Display,
+    discriminator: impl Display,
+    span: Span,
+) -> Formatted {
+    Formatted::warning(
+        CODE_PREFIX,
+        CODE_MASK + 4,
+        format!("record `{record}` can select a different asset than the record released by this function"),
+        span,
+    )
+    .with_help(format!(
+        "Validate `{record}.{discriminator}` before consuming the record, or derive the released asset from that field."
+    ))
+}

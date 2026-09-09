@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::StaticAnalyzingVisitor;
+use super::{RecordDiscriminator, StaticAnalyzingVisitor};
 
 use crate::errors::static_analyzer;
 use leo_ast::{TypeKind, *};
@@ -47,6 +47,39 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
+        let discriminator_fields = [leo_span::Symbol::intern("token_id"), leo_span::Symbol::intern("asset_id")];
+        self.record_discriminators = function
+            .input
+            .iter()
+            .filter_map(|input| {
+                let TypeKind::Composite(composite_type) = input.type_.kind() else { return None };
+                let location = composite_type.path.expect_global_location();
+                if location.program == self.current_unit {
+                    return None;
+                }
+                let record = self.state.symbol_table.lookup_record(self.current_unit, location)?;
+                let field = record.members.iter().find(|member| discriminator_fields.contains(&member.name()))?.name();
+                let returns_other_record = StaticAnalyzingVisitor::type_contains_record_from_other_program(
+                    self.state,
+                    self.current_unit,
+                    &function.output_type,
+                    location.program,
+                );
+                Some(RecordDiscriminator {
+                    variable: input.identifier.name,
+                    aliases: vec![input.identifier.name],
+                    tuple_aliases: Vec::new(),
+                    record_program: location.program,
+                    field,
+                    consumed_at: None,
+                    returns_other_record,
+                    validated: false,
+                })
+            })
+            .collect();
+        self.conditional_depth = 0;
+        self.static_values = function.const_parameters.iter().map(|parameter| parameter.identifier.name).collect();
+
         if self.variant.is_some_and(|v| v.is_finalize_context()) | function.has_final_output() {
             super::future_checker::future_check_function(
                 function,
@@ -75,6 +108,18 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         self.visit_block(&function.block);
+
+        for discriminator in &self.record_discriminators {
+            if let Some(span) = discriminator.consumed_at
+                && discriminator.returns_other_record
+            {
+                self.emit_warning(static_analyzer::unvalidated_record_discriminator(
+                    discriminator.variable,
+                    discriminator.field,
+                    span,
+                ));
+            }
+        }
 
         // Check that all futures were awaited exactly once.
         if self.variant.is_some_and(|v| v.is_finalize_context()) {
