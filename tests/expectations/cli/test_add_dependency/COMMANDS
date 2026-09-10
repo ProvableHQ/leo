@@ -10,12 +10,12 @@ echo "no source exit code: $?"
 cat program.json
 
 echo "--- 2. leo add with multiple flags (should fail) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add some_dep --network --local ../some_path
+${LEO_BIN} --disable-update-check add some_dep --onchain --local ../some_path
 echo "multiple flags exit code: $?"
 cat program.json
 
-echo "--- 3. leo add --network (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+echo "--- 3. leo add --onchain --network testnet (should succeed) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} credits --onchain --network testnet
 cat program.json
 
 echo "--- 4. leo add --local (should succeed) ---" | tee /dev/stderr
@@ -31,12 +31,12 @@ ${LEO_BIN} --disable-update-check add credits --local ../credits
 cat program.json
 
 echo "--- 7. leo add --dev for a program not on the network (should fail) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --dev --network dev_dep --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+${LEO_BIN} --disable-update-check add --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --dev --onchain dev_dep
 echo "missing network dep exit code: $?"
 cat program.json
 
 echo "--- 8. leo add --dev for a program on the network (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --dev --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+${LEO_BIN} --disable-update-check add --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --dev -n credits
 echo "network dev dep exit code: $?"
 cat program.json
 
