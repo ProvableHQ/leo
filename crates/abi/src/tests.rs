@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Unit tests for [`crate::compatibility::check_compatibility`].
+//! Unit tests for ABI generation and compatibility checking.
 
+use super::find_composite_at_location;
 use crate::compatibility::check_compatibility;
 
 use abi::{
@@ -35,7 +36,10 @@ use abi::{
     StructRef,
     UInt,
 };
+use indexmap::{IndexMap, IndexSet};
 use leo_abi_types as abi;
+use leo_ast::{self as ast, Identifier, NodeID};
+use leo_span::Symbol;
 
 fn u64t() -> Plaintext {
     Plaintext::Primitive(Primitive::UInt(UInt::U64))
@@ -99,6 +103,185 @@ fn struct_ref(path: &str, program: &str) -> Plaintext {
 /// A function input that is a record `path` defined in `program`.
 fn record_input(path: &str, program: &str) -> FunctionInput {
     FunctionInput::Record(RecordRef { path: vec![path.into()], program: Some(program.into()) })
+}
+
+fn ast_composite(name: Symbol, is_record: bool, field: Symbol) -> ast::Composite {
+    ast::Composite {
+        is_exported: None,
+        identifier: Identifier::new(name, NodeID::default()),
+        const_parameters: Vec::new(),
+        members: vec![ast::Member {
+            mode: ast::Mode::None,
+            identifier: Identifier::new(field, NodeID::default()),
+            type_: ast::TypeNode::unchecked(ast::TypeKind::Boolean, Default::default()),
+            span: Default::default(),
+            id: NodeID::default(),
+        }],
+        is_record,
+        span: Default::default(),
+        id: NodeID::default(),
+    }
+}
+
+fn ast_module(unit_name: Symbol, path: &[Symbol], composites: Vec<(Symbol, ast::Composite)>) -> ast::Module {
+    ast::Module {
+        unit_name,
+        path: path.to_vec(),
+        consts: Vec::new(),
+        composites,
+        functions: Vec::new(),
+        interfaces: Vec::new(),
+    }
+}
+
+fn ast_program_scope(program_id: ast::ProgramId, composites: Vec<(Symbol, ast::Composite)>) -> ast::ProgramScope {
+    ast::ProgramScope {
+        program_id,
+        parents: Vec::new(),
+        consts: Vec::new(),
+        composites,
+        mappings: Vec::new(),
+        storage_variables: Vec::new(),
+        functions: Vec::new(),
+        interfaces: Vec::new(),
+        constructor: None,
+        span: Default::default(),
+    }
+}
+
+fn leo_stub(
+    program_name: Symbol,
+    types: Symbol,
+    sibling: Symbol,
+    types_field: Symbol,
+    sibling_field: Symbol,
+) -> (Symbol, ast::Stub) {
+    let program_id = ast::ProgramId::from(Identifier::new(program_name, NodeID::default()));
+    let program_symbol = program_id.as_symbol();
+    let token = Symbol::intern("Token");
+    let root_field = Symbol::intern("root_field");
+
+    let mut program = ast::Program::default();
+    program
+        .program_scopes
+        .insert(program_symbol, ast_program_scope(program_id, vec![(token, ast_composite(token, true, root_field))]));
+    program.modules.insert(
+        vec![types],
+        ast_module(program_name, &[types], vec![(token, ast_composite(token, false, types_field))]),
+    );
+    program.modules.insert(
+        vec![sibling],
+        ast_module(program_name, &[sibling], vec![(token, ast_composite(token, false, sibling_field))]),
+    );
+
+    (program_symbol, ast::Stub::FromLeo { program, parents: IndexSet::new() })
+}
+
+fn library_stub(
+    library_name: Symbol,
+    types: Symbol,
+    sibling: Symbol,
+    types_field: Symbol,
+    sibling_field: Symbol,
+) -> ast::Stub {
+    let token = Symbol::intern("Token");
+    let root_field = Symbol::intern("root_field");
+    let mut modules = IndexMap::new();
+    modules.insert(
+        vec![types],
+        ast_module(library_name, &[types], vec![(token, ast_composite(token, false, types_field))]),
+    );
+    modules.insert(
+        vec![sibling],
+        ast_module(library_name, &[sibling], vec![(token, ast_composite(token, false, sibling_field))]),
+    );
+
+    ast::Stub::FromLibrary {
+        library: ast::Library {
+            name: library_name,
+            modules,
+            consts: Vec::new(),
+            structs: vec![(token, ast_composite(token, false, root_field))],
+            functions: Vec::new(),
+            interfaces: Vec::new(),
+            stubs: IndexMap::new(),
+        },
+        parents: IndexSet::new(),
+    }
+}
+
+fn aleo_stub() -> ast::Stub {
+    let token = Symbol::intern("Token");
+    let root_field = Symbol::intern("root_field");
+    let mut aleo_program = ast::AleoProgram::default();
+    aleo_program.composites.push((token, ast_composite(token, true, root_field)));
+    ast::Stub::FromAleo { program: aleo_program, parents: IndexSet::new() }
+}
+
+fn lookup_composite(
+    location: ast::Location,
+    current_program: Symbol,
+    composites: &[(Symbol, ast::Composite)],
+    modules: &IndexMap<Vec<Symbol>, ast::Module>,
+    stubs: &IndexMap<Symbol, ast::Stub>,
+) -> Option<Symbol> {
+    find_composite_at_location(&location, current_program, composites, modules, stubs)
+        .and_then(|composite| composite.members.first())
+        .map(|member| member.identifier.name)
+}
+
+#[test]
+fn composite_lookup_uses_exact_locations_for_all_sources() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let caller = Symbol::intern("caller.aleo");
+        let types = Symbol::intern("types");
+        let sibling = Symbol::intern("sibling");
+        let token = Symbol::intern("Token");
+        let undeclared = Symbol::intern("Undeclared");
+        let root_field = Symbol::intern("root_field");
+        let types_field = Symbol::intern("types_field");
+        let sibling_field = Symbol::intern("sibling_field");
+        let other_types_field = Symbol::intern("other_types_field");
+
+        let current_composites = vec![(token, ast_composite(token, true, root_field))];
+        let mut current_modules = IndexMap::new();
+        current_modules
+            .insert(vec![types], ast_module(caller, &[types], vec![(token, ast_composite(token, false, types_field))]));
+        current_modules.insert(
+            vec![sibling],
+            ast_module(caller, &[sibling], vec![(token, ast_composite(token, false, sibling_field))]),
+        );
+
+        let mut stubs = IndexMap::new();
+        let (leo_program, leo) = leo_stub(Symbol::intern("leo_pkg"), types, sibling, types_field, sibling_field);
+        stubs.insert(leo_program, leo);
+        let (other_program, other) =
+            leo_stub(Symbol::intern("other_pkg"), types, sibling, other_types_field, sibling_field);
+        stubs.insert(other_program, other);
+        let library_program = Symbol::intern("shapes_lib");
+        stubs.insert(library_program, library_stub(library_program, types, sibling, types_field, sibling_field));
+        let aleo_program = Symbol::intern("credits.aleo");
+        stubs.insert(aleo_program, aleo_stub());
+
+        let lookup = |location| lookup_composite(location, caller, &current_composites, &current_modules, &stubs);
+
+        assert_eq!(lookup(ast::Location::new(caller, vec![types, token])), Some(types_field));
+        assert_eq!(lookup(ast::Location::new(caller, vec![token])), Some(root_field));
+        assert_eq!(lookup(ast::Location::new(caller, vec![sibling, token])), Some(sibling_field));
+
+        assert_eq!(lookup(ast::Location::new(leo_program, vec![token])), Some(root_field));
+        assert_eq!(lookup(ast::Location::new(leo_program, vec![types, token])), Some(types_field));
+        assert_eq!(lookup(ast::Location::new(other_program, vec![types, token])), Some(other_types_field));
+
+        assert_eq!(lookup(ast::Location::new(library_program, vec![types, token])), Some(types_field));
+        assert_eq!(lookup(ast::Location::new(library_program, vec![token])), Some(root_field));
+        assert_eq!(lookup(ast::Location::new(library_program, vec![sibling, token])), Some(sibling_field));
+
+        assert_eq!(lookup(ast::Location::new(aleo_program, vec![token])), Some(root_field));
+        assert_eq!(lookup(ast::Location::new(aleo_program, vec![types, token])), None);
+        assert_eq!(lookup(ast::Location::new(leo_program, vec![types, undeclared])), None);
+        assert_eq!(lookup(ast::Location::new(Symbol::intern("missing.aleo"), vec![token])), None);
+    });
 }
 
 #[test]
