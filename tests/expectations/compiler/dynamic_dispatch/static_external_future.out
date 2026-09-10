@@ -1,92 +1,106 @@
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-    ╭─[ compiler-test:19:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:24:13 ]
     │
- 19 │             token_registry.aleo::burn_private(input, amount as u128);
+ 24 │             token_registry.aleo::burn_private(input, amount as u128);
     │ 
-    │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+    │ Help: Make sure that this function checks `input` before it is consumed.
 ────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-    ╭─[ compiler-test:49:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:36:13 ]
     │
- 49 │             token_registry.aleo::burn_private(input, amount as u128);
+ 36 │             token_registry.aleo::burn_private(input, amount as u128);
     │ 
-    │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+    │ Help: Make sure that this function checks `input` before it is consumed.
 ────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-    ╭─[ compiler-test:61:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:54:13 ]
     │
- 61 │             token_registry.aleo::burn_private(alias, amount as u128);
+ 54 │             token_registry.aleo::burn_private(input, amount as u128);
     │ 
-    │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+    │ Help: Make sure that this function checks `input` before it is consumed.
 ────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-    ╭─[ compiler-test:75:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:66:13 ]
     │
- 75 │             token_registry.aleo::burn_private(input, amount as u128);
+ 66 │             token_registry.aleo::burn_private(alias, amount as u128);
     │ 
-    │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+    │ Help: Make sure that this function checks `input` before it is consumed.
 ────╯
-[WSAZ0374004] Warning: record `replacement` can select a different asset than the record released by this function
-    ╭─[ compiler-test:92:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:80:13 ]
     │
- 92 │             token_registry.aleo::burn_private(input, amount as u128);
+ 80 │             token_registry.aleo::burn_private(input, amount as u128);
     │ 
-    │ Help: Validate `replacement.token_id` before consuming the record, or derive the released asset from that field.
+    │ Help: Make sure that this function checks `input` before it is consumed.
 ────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-     ╭─[ compiler-test:121:13 ]
+[WSAZ0374004] Warning: external record `replacement` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:97:13 ]
+    │
+ 97 │             token_registry.aleo::burn_private(input, amount as u128);
+    │ 
+    │ Help: Make sure that this function checks `replacement` before it is consumed.
+────╯
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:110:13 ]
      │
- 121 │             token_registry.aleo::burn_private(input, amount as u128);
+ 110 │             token_registry.aleo::burn_private(input, amount as u128);
      │ 
-     │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `input` before it is consumed.
 ─────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-     ╭─[ compiler-test:132:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:137:13 ]
      │
- 132 │             token_registry.aleo::burn_private(alias, copied_amount as u128);
+ 137 │             token_registry.aleo::burn_private(alias, copied_amount as u128);
      │ 
-     │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `input` before it is consumed.
 ─────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-     ╭─[ compiler-test:142:13 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:147:13 ]
      │
- 142 │             token_registry.aleo::consume_private(input),
+ 147 │             token_registry.aleo::consume_private(input),
      │ 
-     │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `input` before it is consumed.
 ─────╯
-[WSAZ0374004] Warning: record `replacement` can select a different asset than the record released by this function
-     ╭─[ compiler-test:159:13 ]
+[WSAZ0374004] Warning: external record `replacement` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:164:13 ]
      │
- 159 │             token_registry.aleo::burn_private(input, amount as u128);
+ 164 │             token_registry.aleo::burn_private(input, amount as u128);
      │ 
-     │ Help: Validate `replacement.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `replacement` before it is consumed.
 ─────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-     ╭─[ compiler-test:168:27 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:175:17 ]
      │
- 168 │         let amount: u64 = token_registry.aleo::consume_private(pair.0);
+ 175 │         input = token_registry.aleo::refresh(input);
      │ 
-     │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `input` before it is consumed.
 ─────╯
-[WSAZ0374004] Warning: record `input` can select a different asset than the record released by this function
-     ╭─[ compiler-test:177:49 ]
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:185:27 ]
      │
- 177 │         let amount: u64 = _sha3_512_hash_to_u64(token_registry.aleo::consume_private(input));
+ 185 │         let amount: u64 = token_registry.aleo::consume_private(pair.0);
      │ 
-     │ Help: Validate `input.token_id` before consuming the record, or derive the released asset from that field.
+     │ Help: Make sure that this function checks `input` before it is consumed.
+─────╯
+[WSAZ0374004] Warning: external record `input` is consumed while this function returns a record from a different external program
+     ╭─[ compiler-test:194:49 ]
+     │
+ 194 │         let amount: u64 = _sha3_512_hash_to_u64(token_registry.aleo::consume_private(input));
+     │ 
+     │ Help: Make sure that this function checks `input` before it is consumed.
 ─────╯
 program token_registry.aleo;
 
 record Token:
     owner as address.private;
     amount as u128.private;
-    token_id as field.private;
+    metadata as field.private;
 
 function burn_private:
     input r0 as Token.record;
     input r1 as u128.private;
     sub r0.amount r1 into r2;
-    cast r0.owner r2 r0.token_id into r3 as Token.record;
+    cast r0.owner r2 r0.metadata into r3 as Token.record;
     async burn_private into r4;
     output r3 as Token.record;
     output r4 as token_registry.aleo/burn_private.future;
@@ -98,6 +112,11 @@ function consume_private:
     input r0 as Token.record;
     cast r0.amount into r1 as u64;
     output r1 as u64.private;
+
+function refresh:
+    input r0 as Token.record;
+    cast r0.owner r0.amount r0.metadata into r1 as Token.record;
+    output r1 as Token.record;
 
 constructor:
     assert.eq edition 0u16;
@@ -126,6 +145,10 @@ import credits.aleo;
 import token_registry.aleo;
 program test_static.aleo;
 
+record LocalReceipt:
+    owner as address.private;
+    amount as u64.private;
+
 function test_withdraw_private:
     input r0 as u64.private;
     call credits.aleo/transfer_public_to_private self.signer r0 into r1 r2;
@@ -137,135 +160,135 @@ finalize test_withdraw_private:
     input r0 as credits.aleo/transfer_public_to_private.future;
     await r0;
 
-function unchecked_asset_id:
+function direct_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async unchecked_asset_id r3 r6 into r7;
+    async direct_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/unchecked_asset_id.future;
+    output r7 as test_static.aleo/direct_record_conversion.future;
 
-finalize unchecked_asset_id:
+finalize direct_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function checked_asset_id:
+function asserted_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
-    assert.eq r0.token_id 0field;
+    assert.eq r0.metadata 0field;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async checked_asset_id r3 r6 into r7;
+    async asserted_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/checked_asset_id.future;
+    output r7 as test_static.aleo/asserted_record_conversion.future;
 
-finalize checked_asset_id:
+finalize asserted_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function conditionally_checked_asset_id:
+function conditional_assert_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     input r2 as boolean.private;
     not r2 into r3;
-    is.eq r0.token_id 0field into r4;
+    is.eq r0.metadata 0field into r4;
     or r4 r3 into r5;
     assert.eq r5 true;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r6 r7;
     cast r1 into r8 as u128;
     call token_registry.aleo/burn_private r0 r8 into r9 r10;
-    async conditionally_checked_asset_id r7 r10 into r11;
+    async conditional_assert_conversion r7 r10 into r11;
     output r9 as token_registry.aleo/Token.record;
     output r6 as credits.aleo/credits.record;
-    output r11 as test_static.aleo/conditionally_checked_asset_id.future;
+    output r11 as test_static.aleo/conditional_assert_conversion.future;
 
-finalize conditionally_checked_asset_id:
+finalize conditional_assert_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function aliased_asset_id:
+function aliased_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async aliased_asset_id r3 r6 into r7;
+    async aliased_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/aliased_asset_id.future;
+    output r7 as test_static.aleo/aliased_record_conversion.future;
 
-finalize aliased_asset_id:
+finalize aliased_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function loop_checked_asset_id:
+function loop_assert_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async loop_checked_asset_id r3 r6 into r7;
+    async loop_assert_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/loop_checked_asset_id.future;
+    output r7 as test_static.aleo/loop_assert_record_conversion.future;
 
-finalize loop_checked_asset_id:
+finalize loop_assert_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function reassigned_asset_id:
+function reassigned_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as token_registry.aleo/Token.record;
     input r2 as u64.private;
-    assert.eq r0.token_id 0field;
+    assert.eq r0.metadata 0field;
     call credits.aleo/transfer_public_to_private r1.owner r2 into r3 r4;
     cast r2 into r5 as u128;
     call token_registry.aleo/burn_private r1 r5 into r6 r7;
-    async reassigned_asset_id r4 r7 into r8;
+    async reassigned_record_conversion r4 r7 into r8;
     output r6 as token_registry.aleo/Token.record;
     output r3 as credits.aleo/credits.record;
-    output r8 as test_static.aleo/reassigned_asset_id.future;
+    output r8 as test_static.aleo/reassigned_record_conversion.future;
 
-finalize reassigned_asset_id:
+finalize reassigned_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function locally_checked_asset_id:
+function const_assert_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
-    assert.eq r0.token_id 0field;
+    assert.eq r0.metadata 0field;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async locally_checked_asset_id r3 r6 into r7;
+    async const_assert_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/locally_checked_asset_id.future;
+    output r7 as test_static.aleo/const_assert_record_conversion.future;
 
-finalize locally_checked_asset_id:
+finalize const_assert_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function dynamic_asset_id:
+function dynamic_record_output:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     input r2 as field.private;
@@ -274,85 +297,127 @@ function dynamic_asset_id:
     call.dynamic r2 r3 r4 with r1 (as u64.private) into r5 (as dynamic.record);
     cast r1 into r6 as u128;
     call token_registry.aleo/burn_private r0 r6 into r7 r8;
-    async dynamic_asset_id r8 into r9;
+    async dynamic_record_output r8 into r9;
     output r7 as token_registry.aleo/Token.record;
     output r5 as dynamic.record;
-    output r9 as test_static.aleo/dynamic_asset_id.future;
+    output r9 as test_static.aleo/dynamic_record_output.future;
 
-finalize dynamic_asset_id:
+finalize dynamic_record_output:
     input r0 as token_registry.aleo/burn_private.future;
     await r0;
 
-function tuple_aliased_asset_id:
+function tuple_alias_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as u64.private;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
     cast r1 into r4 as u128;
     call token_registry.aleo/burn_private r0 r4 into r5 r6;
-    async tuple_aliased_asset_id r3 r6 into r7;
+    async tuple_alias_record_conversion r3 r6 into r7;
     output r5 as token_registry.aleo/Token.record;
     output r2 as credits.aleo/credits.record;
-    output r7 as test_static.aleo/tuple_aliased_asset_id.future;
+    output r7 as test_static.aleo/tuple_alias_record_conversion.future;
 
-finalize tuple_aliased_asset_id:
+finalize tuple_alias_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function nested_asset_id:
+function nested_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     call token_registry.aleo/consume_private r0 into r1;
     call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
-    async nested_asset_id r3 into r4;
+    async nested_record_conversion r3 into r4;
     output r2 as credits.aleo/credits.record;
-    output r4 as test_static.aleo/nested_asset_id.future;
+    output r4 as test_static.aleo/nested_record_conversion.future;
 
-finalize nested_asset_id:
+finalize nested_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     await r0;
 
-function expression_reassigned_asset_id:
+function expr_reassign_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     input r1 as token_registry.aleo/Token.record;
     input r2 as u64.private;
-    assert.eq r0.token_id 0field;
+    assert.eq r0.metadata 0field;
     call credits.aleo/transfer_public_to_private r1.owner r2 into r3 r4;
     cast r2 into r5 as u128;
     call token_registry.aleo/burn_private r1 r5 into r6 r7;
-    async expression_reassigned_asset_id r4 r7 into r8;
+    async expr_reassign_record_conversion r4 r7 into r8;
     output r6 as token_registry.aleo/Token.record;
     output r3 as credits.aleo/credits.record;
-    output r8 as test_static.aleo/expression_reassigned_asset_id.future;
+    output r8 as test_static.aleo/expr_reassign_record_conversion.future;
 
-finalize expression_reassigned_asset_id:
+finalize expr_reassign_record_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     input r1 as token_registry.aleo/burn_private.future;
     await r0;
     await r1;
 
-function tuple_projected_asset_id:
+function reassign_call_conversion:
     input r0 as token_registry.aleo/Token.record;
-    call token_registry.aleo/consume_private r0 into r1;
-    call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
-    async tuple_projected_asset_id r3 into r4;
-    output r2 as credits.aleo/credits.record;
-    output r4 as test_static.aleo/tuple_projected_asset_id.future;
+    input r1 as u64.private;
+    call token_registry.aleo/refresh r0 into r2;
+    call credits.aleo/transfer_public_to_private r2.owner r1 into r3 r4;
+    async reassign_call_conversion r4 into r5;
+    output r2 as token_registry.aleo/Token.record;
+    output r3 as credits.aleo/credits.record;
+    output r5 as test_static.aleo/reassign_call_conversion.future;
 
-finalize tuple_projected_asset_id:
+finalize reassign_call_conversion:
     input r0 as credits.aleo/transfer_public_to_private.future;
     await r0;
 
-function intrinsic_nested_asset_id:
+function tuple_project_record_conversion:
+    input r0 as token_registry.aleo/Token.record;
+    call token_registry.aleo/consume_private r0 into r1;
+    call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
+    async tuple_project_record_conversion r3 into r4;
+    output r2 as credits.aleo/credits.record;
+    output r4 as test_static.aleo/tuple_project_record_conversion.future;
+
+finalize tuple_project_record_conversion:
+    input r0 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+
+function intrinsic_record_conversion:
     input r0 as token_registry.aleo/Token.record;
     call token_registry.aleo/consume_private r0 into r1;
     hash.sha3_512 r1 into r2 as u64;
     call credits.aleo/transfer_public_to_private r0.owner r2 into r3 r4;
-    async intrinsic_nested_asset_id r4 into r5;
+    async intrinsic_record_conversion r4 into r5;
     output r3 as credits.aleo/credits.record;
-    output r5 as test_static.aleo/intrinsic_nested_asset_id.future;
+    output r5 as test_static.aleo/intrinsic_record_conversion.future;
 
-finalize intrinsic_nested_asset_id:
+finalize intrinsic_record_conversion:
+    input r0 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+
+function local_record_output:
+    input r0 as token_registry.aleo/Token.record;
+    input r1 as u64.private;
+    cast r0.owner r1 into r2 as LocalReceipt.record;
+    cast r1 into r3 as u128;
+    call token_registry.aleo/burn_private r0 r3 into r4 r5;
+    async local_record_output r5 into r6;
+    output r4 as token_registry.aleo/Token.record;
+    output r2 as LocalReceipt.record;
+    output r6 as test_static.aleo/local_record_output.future;
+
+finalize local_record_output:
+    input r0 as token_registry.aleo/burn_private.future;
+    await r0;
+
+function external_output_no_consumption:
+    input r0 as token_registry.aleo/Token.record;
+    input r1 as u64.private;
+    call credits.aleo/transfer_public_to_private r0.owner r1 into r2 r3;
+    async external_output_no_consumption r3 into r4;
+    output r0 as token_registry.aleo/Token.record;
+    output r2 as credits.aleo/credits.record;
+    output r4 as test_static.aleo/external_output_no_consumption.future;
+
+finalize external_output_no_consumption:
     input r0 as credits.aleo/transfer_public_to_private.future;
     await r0;
 

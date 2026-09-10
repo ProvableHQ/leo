@@ -2,14 +2,14 @@ program token_registry.aleo {
     record Token {
         owner: address,
         amount: u128,
-        token_id: field,
+        metadata: field,
     }
 
     fn burn_private(input: Token, amount: u128) -> (Token, Final) {
         let change: Token = Token {
             owner: input.owner,
             amount: input.amount - amount,
-            token_id: input.token_id,
+            metadata: input.metadata,
         };
         let f: Final = final { finalize(); };
         return (change, f);
@@ -17,6 +17,10 @@ program token_registry.aleo {
 
     fn consume_private(input: Token) -> u64 {
         return input.amount as u64;
+    }
+
+    fn refresh(input: Token) -> Token {
+        return input;
     }
 
     @noupgrade
@@ -55,6 +59,11 @@ import credits.aleo;
 import token_registry.aleo;
 
 program test_static.aleo {
+    record LocalReceipt {
+        owner: address,
+        amount: u64,
+    }
+
     @noupgrade
     constructor() {}
 
@@ -63,7 +72,7 @@ program test_static.aleo {
         return (cred, final { f.run(); });
     }
 
-    fn unchecked_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+    fn direct_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
         let (change, burn_future): (token_registry.aleo::Token, Final) =
@@ -74,8 +83,8 @@ program test_static.aleo {
         });
     }
 
-    fn checked_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        assert_eq(input.token_id, 0field);
+    fn asserted_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+        assert_eq(input.metadata, 0field);
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
         let (change, burn_future): (token_registry.aleo::Token, Final) =
@@ -86,13 +95,13 @@ program test_static.aleo {
         });
     }
 
-    fn conditionally_checked_asset_id(
+    fn conditional_assert_conversion(
         input: token_registry.aleo::Token,
         amount: u64,
         should_check: bool,
     ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
         if should_check {
-            assert_eq(input.token_id, 0field);
+            assert_eq(input.metadata, 0field);
         }
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
@@ -104,7 +113,7 @@ program test_static.aleo {
         });
     }
 
-    fn aliased_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+    fn aliased_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
         let alias: token_registry.aleo::Token = input;
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(alias.owner, amount);
@@ -116,9 +125,9 @@ program test_static.aleo {
         });
     }
 
-    fn loop_checked_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+    fn loop_assert_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
         for i: u8 in 0u8..0u8 {
-            assert_eq(input.token_id, 0field);
+            assert_eq(input.metadata, 0field);
         }
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
@@ -130,12 +139,12 @@ program test_static.aleo {
         });
     }
 
-    fn reassigned_asset_id(
+    fn reassigned_record_conversion(
         input: token_registry.aleo::Token,
         replacement: token_registry.aleo::Token,
         amount: u64,
     ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        assert_eq(input.token_id, 0field);
+        assert_eq(input.metadata, 0field);
         input = replacement;
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
@@ -147,9 +156,9 @@ program test_static.aleo {
         });
     }
 
-    fn locally_checked_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        const EXPECTED_TOKEN_ID: field = 0field;
-        assert_eq(input.token_id, EXPECTED_TOKEN_ID);
+    fn const_assert_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+        const EXPECTED_METADATA: field = 0field;
+        assert_eq(input.metadata, EXPECTED_METADATA);
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
         let (change, burn_future): (token_registry.aleo::Token, Final) =
@@ -160,7 +169,7 @@ program test_static.aleo {
         });
     }
 
-    fn dynamic_asset_id(
+    fn dynamic_record_output(
         input: token_registry.aleo::Token,
         amount: u64,
         program_id: field,
@@ -175,7 +184,7 @@ program test_static.aleo {
         });
     }
 
-    fn tuple_aliased_asset_id(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+    fn tuple_alias_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
         let (alias, copied_amount): (token_registry.aleo::Token, u64) = (input, amount);
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(alias.owner, copied_amount);
@@ -187,7 +196,7 @@ program test_static.aleo {
         });
     }
 
-    fn nested_asset_id(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
+    fn nested_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
         let (cred, credits_future): (credits.aleo::credits, Final) = credits.aleo::transfer_public_to_private(
             input.owner,
             token_registry.aleo::consume_private(input),
@@ -197,12 +206,12 @@ program test_static.aleo {
         });
     }
 
-    fn expression_reassigned_asset_id(
+    fn expr_reassign_record_conversion(
         input: token_registry.aleo::Token,
         replacement: token_registry.aleo::Token,
         amount: u64,
     ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        assert_eq(input.token_id, 0field);
+        assert_eq(input.metadata, 0field);
         input = (replacement, amount).0;
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
@@ -214,7 +223,19 @@ program test_static.aleo {
         });
     }
 
-    fn tuple_projected_asset_id(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
+    fn reassign_call_conversion(
+        input: token_registry.aleo::Token,
+        amount: u64,
+    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+        input = token_registry.aleo::refresh(input);
+        let (cred, credits_future): (credits.aleo::credits, Final) =
+            credits.aleo::transfer_public_to_private(input.owner, amount);
+        return (input, cred, final {
+            credits_future.run();
+        });
+    }
+
+    fn tuple_project_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
         let pair: (token_registry.aleo::Token, u64) = (input, 0u64);
         let amount: u64 = token_registry.aleo::consume_private(pair.0);
         let (cred, credits_future): (credits.aleo::credits, Final) =
@@ -224,11 +245,34 @@ program test_static.aleo {
         });
     }
 
-    fn intrinsic_nested_asset_id(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
+    fn intrinsic_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
         let amount: u64 = _sha3_512_hash_to_u64(token_registry.aleo::consume_private(input));
         let (cred, credits_future): (credits.aleo::credits, Final) =
             credits.aleo::transfer_public_to_private(input.owner, amount);
         return (cred, final {
+            credits_future.run();
+        });
+    }
+
+    fn local_record_output(
+        input: token_registry.aleo::Token,
+        amount: u64,
+    ) -> (token_registry.aleo::Token, LocalReceipt, Final) {
+        let receipt: LocalReceipt = LocalReceipt { owner: input.owner, amount };
+        let (change, burn_future): (token_registry.aleo::Token, Final) =
+            token_registry.aleo::burn_private(input, amount as u128);
+        return (change, receipt, final {
+            burn_future.run();
+        });
+    }
+
+    fn external_output_no_consumption(
+        input: token_registry.aleo::Token,
+        amount: u64,
+    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
+        let (cred, credits_future): (credits.aleo::credits, Final) =
+            credits.aleo::transfer_public_to_private(input.owner, amount);
+        return (input, cred, final {
             credits_future.run();
         });
     }

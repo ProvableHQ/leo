@@ -20,15 +20,12 @@ use crate::errors::static_analyzer;
 use leo_ast::*;
 use leo_span::{Span, Symbol};
 
-pub(super) struct RecordDiscriminator {
+pub(super) struct ExternalRecordInput {
     pub(super) variable: Symbol,
     pub(super) aliases: Vec<Symbol>,
     pub(super) tuple_aliases: Vec<(Symbol, usize)>,
     pub(super) record_program: Symbol,
-    pub(super) field: Symbol,
     pub(super) consumed_at: Option<Span>,
-    pub(super) returns_other_record: bool,
-    pub(super) validated: bool,
 }
 
 pub struct StaticAnalyzingVisitor<'a> {
@@ -41,12 +38,10 @@ pub struct StaticAnalyzingVisitor<'a> {
     pub variant: Option<Variant>,
     /// Whether or not a non-async external call has been seen in this function.
     pub non_async_external_call_seen: bool,
-    /// External record inputs with an asset discriminator.
-    pub record_discriminators: Vec<RecordDiscriminator>,
+    /// Concrete records received from another program.
+    pub external_record_inputs: Vec<ExternalRecordInput>,
     /// The nesting depth of conditional control flow.
     pub conditional_depth: usize,
-    /// Local names that contain compile-time values.
-    pub static_values: Vec<Symbol>,
 }
 
 impl StaticAnalyzingVisitor<'_> {
@@ -59,33 +54,17 @@ impl StaticAnalyzingVisitor<'_> {
         self.state.handler.emit_warning(warning);
     }
 
-    fn discriminator_access(expression: &Expression) -> Option<(Symbol, Symbol)> {
-        let Expression::MemberAccess(access) = expression else { return None };
-        let Expression::Path(path) = &access.inner else { return None };
-        Some((path.try_local_symbol()?, access.name.name))
-    }
-
-    fn is_static_discriminator_value(&self, expression: &Expression) -> bool {
+    fn expression_uses_alias(record: &ExternalRecordInput, expression: &Expression) -> bool {
         match expression {
-            Expression::Literal(_) => true,
-            Expression::Path(path) => path.try_local_symbol().is_none_or(|symbol| self.static_values.contains(&symbol)),
-            _ => false,
-        }
-    }
-
-    fn expression_uses_alias(discriminator: &RecordDiscriminator, expression: &Expression) -> bool {
-        match expression {
-            Expression::Path(path) => {
-                path.try_local_symbol().is_some_and(|symbol| discriminator.aliases.contains(&symbol))
-            }
+            Expression::Path(path) => path.try_local_symbol().is_some_and(|symbol| record.aliases.contains(&symbol)),
             Expression::TupleAccess(access) => match &access.tuple {
                 Expression::Path(path) => path
                     .try_local_symbol()
-                    .is_some_and(|symbol| discriminator.tuple_aliases.contains(&(symbol, access.index.value()))),
+                    .is_some_and(|symbol| record.tuple_aliases.contains(&(symbol, access.index.value()))),
                 Expression::Tuple(tuple) => tuple
                     .elements
                     .get(access.index.value())
-                    .is_some_and(|element| Self::expression_uses_alias(discriminator, element)),
+                    .is_some_and(|element| Self::expression_uses_alias(record, element)),
                 _ => false,
             },
             _ => false,
@@ -94,34 +73,30 @@ impl StaticAnalyzingVisitor<'_> {
 
     fn clear_record_value(&mut self, target: Symbol) {
         if self.conditional_depth == 0 {
-            for candidate in &mut self.record_discriminators {
-                candidate.aliases.retain(|alias| *alias != target);
-                candidate.tuple_aliases.retain(|(alias, _)| *alias != target);
+            for record in &mut self.external_record_inputs {
+                record.aliases.retain(|alias| *alias != target);
+                record.tuple_aliases.retain(|(alias, _)| *alias != target);
             }
         }
     }
 
     fn assign_record_value(&mut self, target: Symbol, source: &Expression) {
         let origins = self
-            .record_discriminators
+            .external_record_inputs
             .iter()
             .enumerate()
-            .filter_map(|(index, candidate)| Self::expression_uses_alias(candidate, source).then_some(index))
+            .filter_map(|(index, record)| Self::expression_uses_alias(record, source).then_some(index))
             .collect::<Vec<_>>();
 
         if origins.is_empty() {
-            for candidate in &mut self.record_discriminators {
-                if candidate.aliases.contains(&target) {
-                    candidate.validated = false;
-                }
-            }
+            self.clear_record_value(target);
             return;
         }
 
         self.clear_record_value(target);
 
         for index in origins {
-            let aliases = &mut self.record_discriminators[index].aliases;
+            let aliases = &mut self.external_record_inputs[index].aliases;
             if !aliases.contains(&target) {
                 aliases.push(target);
             }
@@ -131,37 +106,17 @@ impl StaticAnalyzingVisitor<'_> {
     fn assign_tuple_value(&mut self, target: Symbol, tuple: &TupleExpression) {
         self.clear_record_value(target);
         for (tuple_index, element) in tuple.elements.iter().enumerate() {
-            for candidate in &mut self.record_discriminators {
-                if Self::expression_uses_alias(candidate, element)
-                    && !candidate.tuple_aliases.contains(&(target, tuple_index))
+            for record in &mut self.external_record_inputs {
+                if Self::expression_uses_alias(record, element)
+                    && !record.tuple_aliases.contains(&(target, tuple_index))
                 {
-                    candidate.tuple_aliases.push((target, tuple_index));
+                    record.tuple_aliases.push((target, tuple_index));
                 }
             }
         }
     }
 
-    fn mark_validated_discriminator(&mut self, left: &Expression, right: &Expression) {
-        if self.conditional_depth != 0 {
-            return;
-        }
-
-        for (access, expected) in [(left, right), (right, left)] {
-            let Some((variable, field)) = Self::discriminator_access(access) else { continue };
-            if !self.is_static_discriminator_value(expected) {
-                continue;
-            }
-            if let Some(discriminator) = self
-                .record_discriminators
-                .iter_mut()
-                .find(|candidate| candidate.aliases.contains(&variable) && candidate.field == field)
-            {
-                discriminator.validated = true;
-            }
-        }
-    }
-
-    pub(super) fn type_contains_record_from_other_program(
+    pub(super) fn type_contains_record_from_different_external_program(
         state: &CompilerState,
         current_unit: Symbol,
         type_: &TypeKind,
@@ -170,13 +125,13 @@ impl StaticAnalyzingVisitor<'_> {
         match type_ {
             TypeKind::Composite(composite) => {
                 let location = composite.path.expect_global_location();
-                location.program != program && state.symbol_table.lookup_record(current_unit, location).is_some()
+                location.program != current_unit
+                    && location.program != program
+                    && state.symbol_table.lookup_record(current_unit, location).is_some()
             }
-            TypeKind::Tuple(tuple) => tuple
-                .elements()
-                .iter()
-                .any(|element| Self::type_contains_record_from_other_program(state, current_unit, element, program)),
-            TypeKind::DynRecord => true,
+            TypeKind::Tuple(tuple) => tuple.elements().iter().any(|element| {
+                Self::type_contains_record_from_different_external_program(state, current_unit, element, program)
+            }),
             _ => false,
         }
     }
@@ -240,12 +195,11 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         let call_program = input.function.expect_global_location().program;
-        for discriminator in &mut self.record_discriminators {
-            if call_program == discriminator.record_program
-                && input.arguments.iter().any(|argument| Self::expression_uses_alias(discriminator, argument))
-                && !discriminator.validated
+        for record in &mut self.external_record_inputs {
+            if call_program == record.record_program
+                && input.arguments.iter().any(|argument| Self::expression_uses_alias(record, argument))
             {
-                discriminator.consumed_at.get_or_insert(input.span);
+                record.consumed_at.get_or_insert(input.span);
             }
         }
 
@@ -268,25 +222,10 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
         });
     }
 
-    fn visit_assert(&mut self, input: &AssertStatement) {
-        match &input.variant {
-            AssertVariant::Assert(Expression::Binary(binary)) if binary.op == BinaryOperation::Eq => {
-                self.mark_validated_discriminator(&binary.left, &binary.right);
-            }
-            AssertVariant::AssertEq(left, right) => self.mark_validated_discriminator(left, right),
-            _ => {}
-        }
-
-        match &input.variant {
-            AssertVariant::Assert(expression) => self.visit_expression(expression, &Default::default()),
-            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
-                self.visit_expression(left, &Default::default());
-                self.visit_expression(right, &Default::default());
-            }
-        }
-    }
-
     fn visit_assign(&mut self, input: &AssignStatement) {
+        self.visit_expression(&input.place, &Default::default());
+        self.visit_expression(&input.value, &Default::default());
+
         if let Expression::Path(target) = &input.place
             && let Some(target) = target.try_local_symbol()
         {
@@ -295,14 +234,6 @@ impl AstVisitor for StaticAnalyzingVisitor<'_> {
                 source => self.assign_record_value(target, source),
             }
         }
-        self.visit_expression(&input.place, &Default::default());
-        self.visit_expression(&input.value, &Default::default());
-    }
-
-    fn visit_const(&mut self, input: &ConstDeclaration) {
-        self.static_values.push(input.place.name);
-        self.visit_type(input.type_.kind());
-        self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_definition(&mut self, input: &DefinitionStatement) {
