@@ -3,7 +3,8 @@
 // `Optional__<hash>` (for `u32?`). A consumer importing only the Aleo bytecode
 // can construct and inspect that struct by spelling out the full mangled name.
 //
-// Note: this test only exercises the generated struct name. Reading the
+// This test also verifies that constructing the imported generated wrapper does
+// not make it compiler-generated provenance in the consumer. Reading the
 // dependency's `maybe__` mapping across programs (and the rejection of external
 // writes) is covered by `mappings/read_external_underscore_mapping.leo` and
 // `mappings/modify_external_underscore_mapping_fail.leo`.
@@ -44,6 +45,15 @@ program optconsumer.aleo {
         let o: optprod.aleo::Optional__JzunLORyB8U =
             optprod.aleo::Optional__JzunLORyB8U { is_some: true, val: v };
         return o.is_some ? o.val : 0u32;
+    }
+
+    // An imported wrapper with the generated name and layout is not compiler provenance.
+    fn build_from_condition(condition: bool, v: u32, fallback: u32) -> u32 {
+        let selected: u32 = condition ? v : 0u32;
+        let o: optprod.aleo::Optional__JzunLORyB8U =
+            optprod.aleo::Optional__JzunLORyB8U { is_some: condition, val: selected };
+        let alias: optprod.aleo::Optional__JzunLORyB8U = o;
+        return alias.is_some ? alias.val : fallback;
     }
 
     @noupgrade
