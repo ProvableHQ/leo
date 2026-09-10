@@ -12,6 +12,17 @@
     │ 
     │ Help: The external program's finalize runs concurrently and may invalidate assumptions about `mint_output`. Re-read the value on-chain inside the finalize block.
 ────╯
+[WSAZ0374004] Warning: external record `input_record` is consumed while this function returns a record from a different external program
+    ╭─[ compiler-test:10:63 ]
+    │
+ 10 │ ╭─▶         let transfer_output: (credits.aleo::credits, Final) = credits.aleo::transfer_private_to_public(
+    ┆ ┆   
+ 14 │ ├─▶         );
+    │ │                
+    │ ╰──────────────── here
+    │     
+    │     Help: Make sure that this function checks `input_record` before it is consumed.
+────╯
 program credits.aleo;
 
 record credits:

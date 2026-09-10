@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::StaticAnalyzingVisitor;
+use super::{ExternalRecordInput, StaticAnalyzingVisitor};
 
 use crate::errors::static_analyzer;
 use leo_ast::{TypeKind, *};
@@ -47,6 +47,37 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
+        self.external_record_inputs = function
+            .input
+            .iter()
+            .filter_map(|input| {
+                let TypeKind::Composite(composite_type) = input.type_.kind() else { return None };
+                let location = composite_type.path.expect_global_location();
+                if location.program == self.current_unit {
+                    return None;
+                }
+                self.state.symbol_table.lookup_record(self.current_unit, location)?;
+                let returns_different_external_record =
+                    StaticAnalyzingVisitor::type_contains_record_from_different_external_program(
+                        self.state,
+                        self.current_unit,
+                        &function.output_type,
+                        location.program,
+                    );
+                if !returns_different_external_record {
+                    return None;
+                }
+                Some(ExternalRecordInput {
+                    variable: input.identifier.name,
+                    aliases: vec![input.identifier.name],
+                    tuple_aliases: Vec::new(),
+                    record_program: location.program,
+                    consumed_at: None,
+                })
+            })
+            .collect();
+        self.conditional_depth = 0;
+
         if self.variant.is_some_and(|v| v.is_finalize_context()) | function.has_final_output() {
             super::future_checker::future_check_function(
                 function,
@@ -75,6 +106,12 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         self.visit_block(&function.block);
+
+        for record in &self.external_record_inputs {
+            if let Some(span) = record.consumed_at {
+                self.emit_warning(static_analyzer::external_record_conversion(record.variable, span));
+            }
+        }
 
         // Check that all futures were awaited exactly once.
         if self.variant.is_some_and(|v| v.is_finalize_context()) {
