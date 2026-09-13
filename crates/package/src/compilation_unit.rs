@@ -248,6 +248,8 @@ impl CompilationUnit {
         no_cache: bool,
         network_retries: u32,
     ) -> Result<Self> {
+        let edition_is_explicit = edition.is_some();
+
         // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
         // here so cache paths and network URLs are constructed consistently.
         let name = Symbol::intern(name.to_string().strip_suffix(".aleo").unwrap_or(&name.to_string()));
@@ -310,14 +312,19 @@ impl CompilationUnit {
                     format!("{endpoint}/{network}/program/{name}.aleo/{edition}")
                 };
                 let secondary_url = format!("{endpoint}/{network}/program/{name}.aleo");
-                let contents = fetch_from_network(&primary_url, network_retries)
-                    .or_else(|_| fetch_from_network(&secondary_url, network_retries))
-                    .map_err(|err| {
-                        crate::errors::failed_to_retrieve_from_endpoint(
-                            primary_url,
-                            format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
-                        )
-                    })?;
+                let contents = if edition_is_explicit {
+                    fetch_from_network(&primary_url, network_retries)
+                } else {
+                    // Retain the legacy unversioned route only for unpinned resolution.
+                    fetch_from_network(&primary_url, network_retries)
+                        .or_else(|_| fetch_from_network(&secondary_url, network_retries))
+                }
+                .map_err(|err| {
+                    crate::errors::failed_to_retrieve_from_endpoint(
+                        primary_url,
+                        format_args!("Failed to fetch program `{name}` from network `{network}`: {err}"),
+                    )
+                })?;
 
                 // If the file already exists, compare it to the new contents.
                 if let Some(existing_contents) = existing
