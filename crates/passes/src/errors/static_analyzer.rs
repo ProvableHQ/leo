@@ -125,12 +125,13 @@ pub(crate) fn final_not_awaited_in_order(future_name: impl Display, span: Span) 
     .with_help("Running `Final`s out of order is allowed but can change observable program semantics. See https://github.com/AleoNet/snarkVM/issues/2570 for context.")
 }
 
-pub(crate) fn external_record_conversion(record: impl Display, span: Span) -> Formatted {
+pub(crate) fn cross_program_record_output(span: Span) -> Formatted {
     Formatted::warning(
         CODE_PREFIX,
         CODE_MASK + 4,
-        format!("external record `{record}` is consumed while this function returns a record from a different external program"),
+        "function accepts an external record and returns a record defined by a different program",
         span,
     )
-    .with_help(format!("Make sure that this function checks `{record}` before it is consumed."))
+    .with_help("Check that the input records satisfy the requirements for producing the output records.")
+    .with_note("This warning compares record origins only. It does not verify record use or validation.")
 }

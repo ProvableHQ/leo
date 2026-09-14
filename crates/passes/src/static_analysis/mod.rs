@@ -47,8 +47,6 @@ impl Pass for StaticAnalyzing {
             current_unit: Symbol::intern(""),
             variant: None,
             non_async_external_call_seen: false,
-            external_record_inputs: Vec::new(),
-            conditional_depth: 0,
         };
 
         match &ast {

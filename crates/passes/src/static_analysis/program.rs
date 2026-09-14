@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::{ExternalRecordInput, StaticAnalyzingVisitor};
+use super::StaticAnalyzingVisitor;
 
 use crate::errors::static_analyzer;
 use leo_ast::{TypeKind, *};
+use leo_errors::Label;
+use leo_span::Symbol;
 
 impl UnitVisitor for StaticAnalyzingVisitor<'_> {
     fn visit_program_scope(&mut self, input: &ProgramScope) {
@@ -47,36 +49,34 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         // Set `non_async_external_call_seen` to false.
         self.non_async_external_call_seen = false;
 
-        self.external_record_inputs = function
-            .input
-            .iter()
-            .filter_map(|input| {
-                let TypeKind::Composite(composite_type) = input.type_.kind() else { return None };
-                let location = composite_type.path.expect_global_location();
-                if location.program == self.current_unit {
-                    return None;
-                }
-                self.state.symbol_table.lookup_record(self.current_unit, location)?;
-                let returns_different_external_record =
-                    StaticAnalyzingVisitor::type_contains_record_from_different_external_program(
-                        self.state,
-                        self.current_unit,
-                        &function.output_type,
-                        location.program,
-                    );
-                if !returns_different_external_record {
-                    return None;
-                }
-                Some(ExternalRecordInput {
-                    variable: input.identifier.name,
-                    aliases: vec![input.identifier.name],
-                    tuple_aliases: Vec::new(),
-                    record_program: location.program,
-                    consumed_at: None,
-                })
-            })
-            .collect();
-        self.conditional_depth = 0;
+        let external_inputs = function.input.iter().filter_map(|input| {
+            record_program(self.state, self.current_unit, input.type_.kind())
+                .filter(|program| *program != self.current_unit)
+                .map(|program| (input, program))
+        });
+        let record_outputs = function.output.iter().filter_map(|output| {
+            record_program(self.state, self.current_unit, output.type_.kind()).map(|program| (output, program))
+        });
+        let matching_inputs = external_inputs
+            .clone()
+            .filter(|(_, program)| record_outputs.clone().any(|(_, output_program)| *program != output_program));
+
+        if matching_inputs.clone().next().is_some() {
+            let input_labels = matching_inputs.map(|(input, _)| {
+                Label::new(input.span())
+                    .with_message(format!("external input `{}` of type `{}`", input.identifier, input.type_))
+            });
+            let output_labels = record_outputs
+                .clone()
+                .filter(|(_, program)| external_inputs.clone().any(|(_, input_program)| *program != input_program))
+                .map(|(output, _)| {
+                    Label::new(output.span()).with_message(format!("output record of type `{}`", output.type_))
+                });
+            self.emit_warning(
+                static_analyzer::cross_program_record_output(function.identifier.span())
+                    .with_labels(input_labels.chain(output_labels)),
+            );
+        }
 
         if self.variant.is_some_and(|v| v.is_finalize_context()) | function.has_final_output() {
             super::future_checker::future_check_function(
@@ -106,12 +106,6 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         }
 
         self.visit_block(&function.block);
-
-        for record in &self.external_record_inputs {
-            if let Some(span) = record.consumed_at {
-                self.emit_warning(static_analyzer::external_record_conversion(record.variable, span));
-            }
-        }
 
         // Check that all futures were awaited exactly once.
         if self.variant.is_some_and(|v| v.is_finalize_context()) {
@@ -181,4 +175,10 @@ impl UnitVisitor for StaticAnalyzingVisitor<'_> {
         input.modules.values().for_each(|m| self.visit_module(m));
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
     }
+}
+
+fn record_program(state: &crate::CompilerState, current_unit: Symbol, type_: &TypeKind) -> Option<Symbol> {
+    let TypeKind::Composite(composite) = type_ else { return None };
+    let location = composite.path.expect_global_location();
+    state.symbol_table.lookup_record(current_unit, location).map(|_| location.program)
 }

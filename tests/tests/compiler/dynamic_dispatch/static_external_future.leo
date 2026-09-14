@@ -1,8 +1,18 @@
+export struct Metadata {
+    recipient: address,
+    amount: u64,
+}
+
 program token_registry.aleo {
     record Token {
         owner: address,
         amount: u128,
         metadata: field,
+    }
+
+    record Permission {
+        owner: address,
+        allowed: bool,
     }
 
     fn burn_private(input: Token, amount: u128) -> (Token, Final) {
@@ -13,14 +23,6 @@ program token_registry.aleo {
         };
         let f: Final = final { finalize(); };
         return (change, f);
-    }
-
-    fn consume_private(input: Token) -> u64 {
-        return input.amount as u64;
-    }
-
-    fn refresh(input: Token) -> Token {
-        return input;
     }
 
     @noupgrade
@@ -95,80 +97,6 @@ program test_static.aleo {
         });
     }
 
-    fn conditional_assert_conversion(
-        input: token_registry.aleo::Token,
-        amount: u64,
-        should_check: bool,
-    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        if should_check {
-            assert_eq(input.metadata, 0field);
-        }
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn aliased_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        let alias: token_registry.aleo::Token = input;
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(alias.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(alias, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn loop_assert_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        for i: u8 in 0u8..0u8 {
-            assert_eq(input.metadata, 0field);
-        }
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn reassigned_record_conversion(
-        input: token_registry.aleo::Token,
-        replacement: token_registry.aleo::Token,
-        amount: u64,
-    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        assert_eq(input.metadata, 0field);
-        input = replacement;
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn const_assert_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        const EXPECTED_METADATA: field = 0field;
-        assert_eq(input.metadata, EXPECTED_METADATA);
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
     fn dynamic_record_output(
         input: token_registry.aleo::Token,
         amount: u64,
@@ -184,86 +112,12 @@ program test_static.aleo {
         });
     }
 
-    fn tuple_alias_record_conversion(input: token_registry.aleo::Token, amount: u64) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        let (alias, copied_amount): (token_registry.aleo::Token, u64) = (input, amount);
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(alias.owner, copied_amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(alias, copied_amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn nested_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
-        let (cred, credits_future): (credits.aleo::credits, Final) = credits.aleo::transfer_public_to_private(
-            input.owner,
-            token_registry.aleo::consume_private(input),
-        );
-        return (cred, final {
-            credits_future.run();
-        });
-    }
-
-    fn expr_reassign_record_conversion(
-        input: token_registry.aleo::Token,
-        replacement: token_registry.aleo::Token,
-        amount: u64,
-    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        assert_eq(input.metadata, 0field);
-        input = (replacement, amount).0;
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, cred, final {
-            credits_future.run();
-            burn_future.run();
-        });
-    }
-
-    fn reassign_call_conversion(
-        input: token_registry.aleo::Token,
-        amount: u64,
-    ) -> (token_registry.aleo::Token, credits.aleo::credits, Final) {
-        input = token_registry.aleo::refresh(input);
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        return (input, cred, final {
-            credits_future.run();
-        });
-    }
-
-    fn tuple_project_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
-        let pair: (token_registry.aleo::Token, u64) = (input, 0u64);
-        let amount: u64 = token_registry.aleo::consume_private(pair.0);
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        return (cred, final {
-            credits_future.run();
-        });
-    }
-
-    fn intrinsic_record_conversion(input: token_registry.aleo::Token) -> (credits.aleo::credits, Final) {
-        let amount: u64 = _sha3_512_hash_to_u64(token_registry.aleo::consume_private(input));
-        let (cred, credits_future): (credits.aleo::credits, Final) =
-            credits.aleo::transfer_public_to_private(input.owner, amount);
-        return (cred, final {
-            credits_future.run();
-        });
-    }
-
     fn local_record_output(
         input: token_registry.aleo::Token,
         amount: u64,
-    ) -> (token_registry.aleo::Token, LocalReceipt, Final) {
+    ) -> (token_registry.aleo::Token, LocalReceipt) {
         let receipt: LocalReceipt = LocalReceipt { owner: input.owner, amount };
-        let (change, burn_future): (token_registry.aleo::Token, Final) =
-            token_registry.aleo::burn_private(input, amount as u128);
-        return (change, receipt, final {
-            burn_future.run();
-        });
+        return (input, receipt);
     }
 
     fn external_output_no_consumption(
@@ -275,5 +129,70 @@ program test_static.aleo {
         return (input, cred, final {
             credits_future.run();
         });
+    }
+
+    fn multiple_inputs_local_output(
+        first: token_registry.aleo::Token,
+        second: token_registry.aleo::Token,
+    ) -> (token_registry.aleo::Token, token_registry.aleo::Token, LocalReceipt) {
+        let receipt: LocalReceipt = LocalReceipt {
+            owner: first.owner,
+            amount: (first.amount + second.amount) as u64,
+        };
+        return (first, second, receipt);
+    }
+
+    fn mixed_record_origins(
+        token: token_registry.aleo::Token,
+        cred: credits.aleo::credits,
+    ) -> (token_registry.aleo::Token, credits.aleo::credits, LocalReceipt) {
+        let receipt: LocalReceipt = LocalReceipt { owner: cred.owner, amount: token.amount as u64 };
+        return (token, cred, receipt);
+    }
+
+    fn same_program_records(
+        token: token_registry.aleo::Token,
+        permission: token_registry.aleo::Permission,
+    ) -> (token_registry.aleo::Token, token_registry.aleo::Permission) {
+        return (token, permission);
+    }
+
+    fn permission_local_output(
+        permission: token_registry.aleo::Permission,
+    ) -> (token_registry.aleo::Permission, LocalReceipt) {
+        let receipt: LocalReceipt = LocalReceipt { owner: permission.owner, amount: 0u64 };
+        return (permission, receipt);
+    }
+
+    fn local_input_external_output(input: LocalReceipt) -> (credits.aleo::credits, Final) {
+        let (cred, credits_future): (credits.aleo::credits, Final) =
+            credits.aleo::transfer_public_to_private(input.owner, input.amount);
+        return (cred, final {
+            credits_future.run();
+        });
+    }
+
+    fn external_struct_input(input: token_registry.aleo::Metadata) -> LocalReceipt {
+        return LocalReceipt { owner: input.recipient, amount: input.amount };
+    }
+
+    fn external_struct_output(input: credits.aleo::credits) -> token_registry.aleo::Metadata {
+        return token_registry.aleo::Metadata { recipient: input.owner, amount: 0u64 };
+    }
+
+    fn mixed_dynamic_origins(
+        input: token_registry.aleo::Token,
+        dynamic: dyn record,
+        receipt: LocalReceipt,
+    ) -> (token_registry.aleo::Token, dyn record, LocalReceipt) {
+        return (input, dynamic, receipt);
+    }
+
+    fn dynamic_input_concrete_output(input: dyn record, receipt: LocalReceipt) -> (dyn record, LocalReceipt) {
+        return (input, receipt);
+    }
+
+    fn record_input_scalar_output(input: token_registry.aleo::Token) -> u128 {
+        return input.amount;
     }
 }
