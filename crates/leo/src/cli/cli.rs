@@ -39,7 +39,11 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(long, global = true, help = "Path to a Leo project, or an Aleo bytecode file for run, execute, or deploy")]
+    #[clap(
+        long,
+        global = true,
+        help = "Path to a Leo project, or an Aleo bytecode file for run, execute, deploy, or upgrade"
+    )]
     path: Option<PathBuf>,
 
     #[clap(long, global = true, help = "Path to aleo program registry")]
@@ -714,11 +718,18 @@ mod tests {
             Commands::Deploy { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
             _ => panic!("expected a deploy command"),
         }
+
+        let cli = CLI::try_parse_from(["leo", "upgrade", "--imports-dir", "imports"])
+            .expect("upgrade should accept an Aleo imports directory");
+        match cli.command {
+            Commands::Upgrade { command } => assert_eq!(command.imports_dir.as_ref(), Some(&expected)),
+            _ => panic!("expected an upgrade command"),
+        }
     }
 
     #[test]
     #[serial]
-    fn aleo_file_path_is_rejected_by_build_test_clean_and_upgrade() {
+    fn aleo_file_path_is_rejected_by_build_test_and_clean() {
         let test_directory = tempfile::tempdir().expect("test directory should be creatable");
         let aleo_file = test_directory.path().join("standalone.aleo");
         std::fs::write(&aleo_file, "program standalone.aleo;\n").expect("Aleo fixture should be writable");
@@ -728,7 +739,6 @@ mod tests {
             ("build", "failed to load Leo project"),
             ("test", "failed to load Leo project"),
             ("clean", "doesn't appear to be a Leo package"),
-            ("upgrade", "failed to load Leo project"),
         ] {
             let cli = CLI::try_parse_from(["leo", "-q", "--disable-update-check", "--path", aleo_path, command])
                 .unwrap_or_else(|error| panic!("`leo {command}` arguments should parse: {error}"));
@@ -736,6 +746,33 @@ mod tests {
             create_session_if_not_set_then(|_| {
                 let error = run_with_args(cli).expect_err("project-only command should reject an Aleo bytecode path");
                 assert!(error.to_string().contains(expected_error), "unexpected `leo {command}` error: {error}");
+            });
+        }
+    }
+
+    #[test]
+    #[serial]
+    fn aleo_upgrade_rejects_invalid_path_option_combinations() {
+        let test_directory = tempfile::tempdir().expect("test directory should be creatable");
+        let aleo_file = test_directory.path().join("standalone.aleo");
+        std::fs::write(&aleo_file, "program standalone.aleo;\n").expect("Aleo fixture should be writable");
+        let project_path = test_directory.path().to_str().expect("test directory path should be UTF-8");
+        let aleo_path = aleo_file.to_str().expect("Aleo fixture path should be UTF-8");
+
+        for (arguments, expected_error) in [
+            (
+                ["leo", "-q", "--disable-update-check", "--path", aleo_path, "--package", "member", "upgrade"],
+                "`--package` cannot be used with an Aleo bytecode file",
+            ),
+            (
+                ["leo", "-q", "--disable-update-check", "--path", project_path, "upgrade", "--imports-dir", "imports"],
+                "`--imports-dir` requires `--path` to point to an Aleo bytecode file",
+            ),
+        ] {
+            let cli = CLI::try_parse_from(arguments).expect("upgrade arguments should parse");
+            create_session_if_not_set_then(|_| {
+                let error = run_with_args(cli).expect_err("invalid upgrade option combination should fail");
+                assert!(error.to_string().contains(expected_error), "unexpected upgrade error: {error}");
             });
         }
     }

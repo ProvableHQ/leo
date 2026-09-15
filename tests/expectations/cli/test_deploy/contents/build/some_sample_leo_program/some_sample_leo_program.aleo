@@ -24,4 +24,4 @@ function dynamic_transfer:
     output r3 as dynamic.record;
 
 constructor:
-    assert.eq edition 0u16;
+    assert.eq program_owner aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
