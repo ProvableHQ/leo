@@ -23,9 +23,9 @@ trap cleanup EXIT
 wait_for_devnode() {
   local deadline=$((SECONDS + 120))
   while [ $SECONDS -lt $deadline ]; do
-    local height
-    height=$(curl -sf "http://127.0.0.1:${PORT}/testnet/block/height/latest" 2>/dev/null || echo "")
-    if [ -n "$height" ] && [ "$height" -ge 17 ] 2>/dev/null; then
+    local version
+    version=$(curl -sf "http://127.0.0.1:${PORT}/testnet/consensus_version" 2>/dev/null || echo "")
+    if [ "$version" = "21" ]; then
       return 0
     fi
     sleep 1
