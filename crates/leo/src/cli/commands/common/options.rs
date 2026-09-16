@@ -233,6 +233,8 @@ pub fn get_consensus_version(
         Some(17) => Ok(ConsensusVersion::V17),
         Some(18) => Ok(ConsensusVersion::V18),
         Some(19) => Ok(ConsensusVersion::V19),
+        Some(20) => Ok(ConsensusVersion::V20),
+        Some(21) => Ok(ConsensusVersion::V21),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -322,6 +324,8 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         17 => Ok(ConsensusVersion::V17),
         18 => Ok(ConsensusVersion::V18),
         19 => Ok(ConsensusVersion::V19),
+        20 => Ok(ConsensusVersion::V20),
+        21 => Ok(ConsensusVersion::V21),
         _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
@@ -371,10 +375,10 @@ pub fn validate_consensus_heights(heights: &[u32]) -> anyhow::Result<()> {
     );
     // Assert that the genesis height is 0.
     ensure!(heights[0] == 0, "Genesis height must be 0.");
-    // Assert that the consensus heights are strictly increasing.
+    // Activation heights must increase. Inactive versions can share `u32::MAX`.
     for window in heights.windows(2) {
-        if window[0] >= window[1] {
-            bail!("Heights must be strictly increasing, but found: {window:?}");
+        if window[0] > window[1] || (window[0] == window[1] && window[0] != u32::MAX) {
+            bail!("Heights must increase, except for inactive versions at u32::MAX, but found: {window:?}");
         }
     }
     Ok(())
@@ -450,8 +454,36 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V19); // If this fails, update the test and any code that matches on `ConsensusVersion`.
-        assert_eq!(super::number_to_consensus_version(19).unwrap(), ConsensusVersion::V19);
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V21); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        let context = super::Context::new(None, None, false, None).expect("Test context must be valid");
+        for version in [ConsensusVersion::V19, ConsensusVersion::V20, ConsensusVersion::V21] {
+            assert_eq!(super::number_to_consensus_version(version as usize).expect("Valid version"), version);
+            assert_eq!(
+                super::get_consensus_version(
+                    &Some(version as u8),
+                    "",
+                    leo_ast::NetworkName::TestnetV0,
+                    &[],
+                    &context,
+                    0,
+                )
+                .expect("Explicit consensus versions do not require an endpoint"),
+                version
+            );
+        }
+        assert!(super::number_to_consensus_version(22).is_err());
+    }
+
+    #[test]
+    fn test_consensus_activation_heights() {
+        let heights = super::TEST_CONSENSUS_VERSION_HEIGHTS.map(|(_, height)| height);
+        for (version, height) in super::TEST_CONSENSUS_VERSION_HEIGHTS.into_iter().skip(19) {
+            assert_eq!(super::get_consensus_version_from_height(height, &heights).expect("Activation height"), version);
+            assert_eq!(
+                super::get_consensus_version_from_height(height - 1, &heights).expect("Previous height") as u8,
+                version as u8 - 1
+            );
+        }
     }
 
     #[test]
@@ -464,5 +496,18 @@ mod test {
         assert!(super::validate_consensus_heights(&(0..n - 1).collect::<Vec<_>>()).is_err());
         // Empty input is a graceful error, not an index-out-of-bounds panic.
         assert!(super::validate_consensus_heights(&[]).is_err());
+        for schedule in [
+            super::MAINNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            super::TESTNET_V0_CONSENSUS_VERSION_HEIGHTS,
+            super::CANARY_V0_CONSENSUS_VERSION_HEIGHTS,
+        ] {
+            assert!(super::validate_consensus_heights(&schedule.map(|(_, height)| height)).is_ok());
+        }
+        let mut duplicate = valid.clone();
+        duplicate[1] = duplicate[0];
+        assert!(super::validate_consensus_heights(&duplicate).is_err());
+        let mut decreasing = valid;
+        decreasing[1] = u32::MAX;
+        assert!(super::validate_consensus_heights(&decreasing).is_err());
     }
 }

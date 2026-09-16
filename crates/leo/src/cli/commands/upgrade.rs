@@ -35,14 +35,14 @@ use snarkvm::{
 
 use crate::cli::{
     check_transaction::TransactionStatus,
-    commands::deploy::{deploy_with_placeholder_certificate, validate_deployment_limits},
+    commands::deploy::{consensus_limit, deploy_with_placeholder_certificate, validate_deployment_limits},
 };
 use aleo_std::StorageMode;
 use colored::*;
 use itertools::Itertools;
 use leo_span::Symbol;
 use snarkvm::{
-    prelude::{ConsensusVersion, ProgramID, Stack, store::helpers::memory::BlockMemory},
+    prelude::{ConsensusVersion, ProgramID, Stack, check_program_plaintext_sizes, store::helpers::memory::BlockMemory},
     synthesizer::program::StackTrait,
 };
 use std::path::PathBuf;
@@ -364,6 +364,16 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     for Task { id, program, priority_fee, record, bytecode_size, .. } in local {
         // If the program is a local dependency that is not skipped, generate a deployment transaction.
         if !skipped.contains(&id) {
+            // Check plaintext declarations before deployment synthesis.
+            if validation_consensus_version >= ConsensusVersion::V20 {
+                let max_bits = consensus_limit(
+                    &N::MAX_PLAINTEXT_TYPE_SIZE_IN_BITS,
+                    validation_consensus_version,
+                    N::LATEST_MAX_PLAINTEXT_TYPE_SIZE_IN_BITS(),
+                );
+                let stack = Stack::new(vm.process(), &program)?;
+                check_program_plaintext_sizes(&program, &stack, max_bits)?;
+            }
             let (transaction, stats) = if command.skip_deploy_certificate {
                 println!("⚠️  Skipping deployment certificate generation as per user request.\n");
                 // Increment the edition from the existing on-chain program.

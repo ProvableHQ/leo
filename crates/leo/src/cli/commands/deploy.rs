@@ -39,11 +39,13 @@ use snarkvm::{
         ProgramID,
         ProgramOwner,
         Rng,
+        Stack,
         TestnetV0,
         ToBytes,
         Transaction,
         VM,
         VerifyingKey,
+        check_program_plaintext_sizes,
         deployment_cost,
         execution_cost_for_authorization,
         minimum_cost_in_microcredits_v1,
@@ -409,6 +411,16 @@ fn generate_deploy_transactions<N: Network, A: Aleo<Network = N>>(
     for Task { id, program, edition, priority_fee, record, bytecode_size, .. } in local {
         // Deploy if not user-skipped and not already deployed by an earlier workspace member.
         if !skipped.contains(&id) && !already_deployed.contains(&id) {
+            // Check plaintext declarations before deployment synthesis.
+            if setup.consensus_version >= ConsensusVersion::V20 {
+                let max_bits = consensus_limit(
+                    &N::MAX_PLAINTEXT_TYPE_SIZE_IN_BITS,
+                    setup.consensus_version,
+                    N::LATEST_MAX_PLAINTEXT_TYPE_SIZE_IN_BITS(),
+                );
+                let stack = Stack::new(setup.vm.process(), &program)?;
+                check_program_plaintext_sizes(&program, &stack, max_bits)?;
+            }
             // If the program has a constructor, confirm with the user.
             if let Some(constructor) = program.constructor() {
                 println!(
@@ -928,7 +940,11 @@ fn print_workspace_deployment_plan<N: Network>(
 ///
 /// Older networks (e.g. mainnet before V16) enforce smaller limits than the latest, so deploys must
 /// check against the version-specific value rather than `LATEST_*`.
-fn consensus_limit(table: &[(ConsensusVersion, usize)], consensus_version: ConsensusVersion, latest: usize) -> usize {
+pub(crate) fn consensus_limit(
+    table: &[(ConsensusVersion, usize)],
+    consensus_version: ConsensusVersion,
+    latest: usize,
+) -> usize {
     table
         .iter()
         .take_while(|(version, _)| *version <= consensus_version)
@@ -1445,6 +1461,60 @@ mod tests {
         ));
 
         enforce_local_deploy_constructor_requirements(&[task], &HashSet::new(), ConsensusVersion::V8).unwrap();
+    }
+
+    #[test]
+    fn plaintext_size_limit_tracks_deployment_consensus_version() -> Result<()> {
+        let command = LeoDeploy::try_parse_from(["deploy", "--yes", "--skip-deploy-certificate"])
+            .expect("Valid deployment options");
+        for (consensus_version, array_length, skip, rejected) in [
+            (ConsensusVersion::V19, 512, false, false),
+            (ConsensusVersion::V20, 512, false, true),
+            (ConsensusVersion::V21, 512, false, true),
+            (ConsensusVersion::V20, 511, false, false),
+            (ConsensusVersion::V20, 512, true, false),
+        ] {
+            // Length 512 exceeds the raw data limit by four bits; length 511 is within it.
+            let task = task_from_source(&format!(
+                "program plaintext_limit.aleo;\n\
+                 mapping values:\n\
+                     key as u8.public;\n\
+                     value as [[boolean; 2048u32]; {array_length}u32].public;\n\
+                 function main:\n\
+                     input r0 as u8.public;\n\
+                     output r0 as u8.public;\n\
+                 constructor:\n\
+                     assert.eq true true;\n",
+            ));
+            let skipped = if skip { HashSet::from([task.id]) } else { HashSet::new() };
+            let private_key = PrivateKey::<TestnetV0>::new(&mut rand::rng())?;
+            let vm = VM::from(ConsensusStore::<TestnetV0, ConsensusMemory<TestnetV0>>::open(StorageMode::Production)?)?;
+            let setup = DeploySetup {
+                address: Address::try_from(&private_key)?,
+                private_key,
+                endpoint: String::new(),
+                consensus_version,
+                network: NetworkName::TestnetV0,
+                query: SnarkVMQuery::from(vm.block_store()),
+                vm,
+            };
+            let result = generate_deploy_transactions::<TestnetV0, AleoTestnetV0>(
+                &command,
+                &setup,
+                vec![task],
+                &skipped,
+                &mut HashSet::new(),
+            );
+
+            if rejected {
+                let error = result.err().expect("V20 and later must reject oversized plaintext declarations");
+                assert!(error.to_string().contains("exceeds the maximum allowed size in bits"), "{error}");
+            } else {
+                let (transactions, _) = result?.expect("The deployment plan is confirmed by --yes");
+                assert_eq!(transactions.len(), usize::from(!skip));
+            }
+        }
+        Ok(())
     }
 
     #[test]
