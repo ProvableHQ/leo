@@ -17,6 +17,7 @@ constructor:
     assert.neq entry/checksum peek/checksum;
     assert.eq checksum checksum;
     assert.eq edition 0u16;
+    assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
 program parent.aleo;

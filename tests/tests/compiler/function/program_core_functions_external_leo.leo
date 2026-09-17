@@ -21,6 +21,10 @@ program child.aleo {
         );
         assert_eq(std::prog::checksum::[child.aleo](), std::ctx::checksum());
         check_edition::[0u16]();
+        // The computed bound delays this call until the next loop unrolling pass.
+        for i in 0u16..(1u16 + 0u16) {
+            check_edition::[i]();
+        }
     }
 }
 
