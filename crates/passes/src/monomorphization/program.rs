@@ -43,8 +43,74 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
     }
 
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
-        let top_level_program = input.program_id.as_symbol();
-        self.program = top_level_program;
+        self.program = input.program_id.as_symbol();
+
+        let mappings =
+            input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
+        let storage_variables = input
+            .storage_variables
+            .into_iter()
+            .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
+            .collect();
+
+        let consts = input
+            .consts
+            .into_iter()
+            .map(|(i, c)| match self.reconstruct_const(c) {
+                (Statement::Const(declaration), _) => (i, declaration),
+                _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
+            })
+            .collect();
+
+        // Collect only current-program top-level functions for this scope, then reorder so
+        // entry points precede finalize functions — the type checker expects that order.
+        let (entry_points, non_entry_points): (Vec<_>, Vec<_>) =
+            items_at_path(&self.reconstructed_functions, self.program, &[]).partition(|(_, f)| f.variant.is_entry());
+        let functions: Vec<_> = entry_points.into_iter().chain(non_entry_points).collect();
+
+        ProgramScope {
+            program_id: input.program_id,
+            parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),
+            // Exclude generic composites that have been monomorphized — only their concrete
+            // specializations should appear in the output.
+            composites: items_at_path(&self.reconstructed_composites, self.program, &[])
+                .filter(|(_, c)| c.const_parameters.is_empty())
+                .collect(),
+            mappings,
+            storage_variables,
+            functions,
+            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
+            constructor: input.constructor,
+            consts,
+            span: input.span,
+        }
+    }
+
+    fn reconstruct_program(&mut self, mut input: Program) -> Program {
+        // Seed `function_map` and `composite_map` with every definition reachable from this
+        // program (stubs, libraries, current program). A single DFS from the current program's
+        // entry points then monomorphizes all of them in one pass; cross-program edges in the
+        // call graph make recursive per-stub passes unnecessary. Current-program inserts come
+        // last so they override any stub placeholders for overlapping keys.
+        self.program =
+            *input.program_scopes.first().expect("a program must have a single program scope at this stage").0;
+
+        for (_, stub) in &input.stubs {
+            for (loc, f) in stub_functions(stub) {
+                self.function_map.entry(loc).or_insert_with(|| f.clone());
+            }
+            for (loc, c) in stub_composites(stub) {
+                self.composite_map.entry(loc).or_insert_with(|| c.clone());
+            }
+        }
+        for (loc, f) in program_functions(&input) {
+            self.function_map.insert(loc, f.clone());
+        }
+        for (loc, c) in program_composites(&input) {
+            self.composite_map.insert(loc, c.clone());
+        }
+
+        let top_level_program = self.program;
 
         // Composites first: a composite field may instantiate another generic composite, so
         // post-order makes sure dependencies are monomorphized before their users.
@@ -116,25 +182,21 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
             }
         }
 
-        let mappings =
-            input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect();
-        let storage_variables = input
-            .storage_variables
-            .into_iter()
-            .map(|(id, storage_variable)| (id, self.reconstruct_storage_variable(storage_variable)))
-            .collect();
-
-        let consts = input
-            .consts
-            .into_iter()
-            .map(|(i, c)| match self.reconstruct_const(c) {
-                (Statement::Const(declaration), _) => (i, declaration),
-                _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
-            })
-            .collect();
-
-        // The constructor is reconstructed last because nothing can call it.
-        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
+        // Reconstruct all constructors before removing generic functions or collecting scope items.
+        for (program_name, scope) in input.program_scopes.iter_mut().chain(
+            input
+                .stubs
+                .values_mut()
+                .filter_map(|stub| match stub {
+                    Stub::FromLeo { program, .. } => Some(program),
+                    _ => None,
+                })
+                .flat_map(|program| program.program_scopes.iter_mut()),
+        ) {
+            self.program = *program_name;
+            scope.constructor = scope.constructor.take().map(|c| self.reconstruct_constructor(c));
+        }
+        self.program = top_level_program;
 
         // Drop original generic functions whose monomorphized instances have replaced them,
         // unless they are still referenced by unresolved calls that later passes will retry.
@@ -143,54 +205,6 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
             let is_still_called = self.unresolved_calls.iter().any(|c| c.function.expect_global_location() == l);
             !is_monomorphized || is_still_called
         });
-
-        // Collect only current-program top-level functions for this scope, then reorder so
-        // entry points precede finalize functions — the type checker expects that order.
-        let (entry_points, non_entry_points): (Vec<_>, Vec<_>) =
-            items_at_path(&self.reconstructed_functions, self.program, &[]).partition(|(_, f)| f.variant.is_entry());
-        let functions: Vec<_> = entry_points.into_iter().chain(non_entry_points).collect();
-
-        ProgramScope {
-            program_id: input.program_id,
-            parents: input.parents.into_iter().map(|(s, t)| (s, self.reconstruct_type(t).0)).collect(),
-            // Exclude generic composites that have been monomorphized — only their concrete
-            // specializations should appear in the output.
-            composites: items_at_path(&self.reconstructed_composites, self.program, &[])
-                .filter(|(_, c)| c.const_parameters.is_empty())
-                .collect(),
-            mappings,
-            storage_variables,
-            functions,
-            interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
-            constructor,
-            consts,
-            span: input.span,
-        }
-    }
-
-    fn reconstruct_program(&mut self, input: Program) -> Program {
-        // Seed `function_map` and `composite_map` with every definition reachable from this
-        // program (stubs, libraries, current program). A single DFS from the current program's
-        // entry points then monomorphizes all of them in one pass; cross-program edges in the
-        // call graph make recursive per-stub passes unnecessary. Current-program inserts come
-        // last so they override any stub placeholders for overlapping keys.
-        self.program =
-            *input.program_scopes.first().expect("a program must have a single program scope at this stage").0;
-
-        for (_, stub) in &input.stubs {
-            for (loc, f) in stub_functions(stub) {
-                self.function_map.entry(loc).or_insert_with(|| f.clone());
-            }
-            for (loc, c) in stub_composites(stub) {
-                self.composite_map.entry(loc).or_insert_with(|| c.clone());
-            }
-        }
-        for (loc, f) in program_functions(&input) {
-            self.function_map.insert(loc, f.clone());
-        }
-        for (loc, c) in program_composites(&input) {
-            self.composite_map.insert(loc, c.clone());
-        }
 
         // Type checking depends on stubs coming out in the original insertion order, so
         // snapshot the keys before partitioning.

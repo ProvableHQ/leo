@@ -14,6 +14,8 @@ view peek:
     output r1 as u32.public;
 
 constructor:
+    assert.neq entry/checksum peek/checksum;
+    assert.eq checksum checksum;
     assert.eq edition 0u16;
 // --- Next Program --- //
 import child.aleo;
@@ -27,4 +29,5 @@ finalize bar:
     assert.neq child.aleo/entry/checksum child.aleo/peek/checksum;
 
 constructor:
-    assert.eq edition 0u16;
+    assert.neq child.aleo/entry/checksum bar/checksum;
+    assert.eq checksum checksum;

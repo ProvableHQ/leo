@@ -57,13 +57,12 @@
 //!    cross-program edges are interpreted from the callee's perspective.
 //! 4. **Carry through** external definitions the DFS did not reach (they are still needed for
 //!    stub assembly); drop current-program leftovers as dead code.
-//! 5. **Assemble stubs** from the now-populated `reconstructed_*` maps. `FromLeo` stubs are
-//!    rebuilt directly; `FromLibrary` stubs are reconstructed so their items pick up any
-//!    monomorphized composite references.
+//! 5. **Reconstruct constructors** in the current program and every `FromLeo` stub. Keep generic
+//!    functions available until all constructors have their specializations.
 //! 6. **Prune originals**: an original generic is removed once every call to it has been
 //!    rewritten to a specialization. If unresolved calls remain, the original is kept so
 //!    subsequent runs of this pass (inside the `ConstPropUnrollAndMorphing` fixed-point loop)
-//!    can finish the job.
+//!    can finish the job. Then assemble all scopes, modules, and stubs from the reconstructed maps.
 
 use crate::Pass;
 
