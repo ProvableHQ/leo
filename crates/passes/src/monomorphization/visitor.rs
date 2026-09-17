@@ -209,7 +209,6 @@ impl MonomorphizationVisitor<'_> {
                 _ => panic!("`reconstruct_const` can only return `Statement::Const`"),
             })
             .collect();
-        let constructor = input.constructor.map(|c| self.reconstruct_constructor(c));
 
         ProgramScope {
             program_id: input.program_id,
@@ -219,7 +218,7 @@ impl MonomorphizationVisitor<'_> {
             storage_variables,
             functions,
             interfaces: input.interfaces.into_iter().map(|(i, int)| (i, self.reconstruct_interface(int))).collect(),
-            constructor,
+            constructor: input.constructor,
             consts,
             span: input.span,
         }

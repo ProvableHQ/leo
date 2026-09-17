@@ -9,3 +9,33 @@ function food:
 constructor:
     get foo[0u8] into r0;
     assert.eq r0 0u8;
+    assert.neq edition 1u16;
+// --- Next Program --- //
+import test.aleo;
+program child.aleo;
+
+function main:
+
+constructor:
+    assert.neq edition 2u16;
+// --- Next Program --- //
+import child.aleo;
+import test.aleo;
+program parent.aleo;
+
+function main:
+
+constructor:
+    assert.eq edition 0u16;
+
+
+---
+Note: Treating dependencies as Aleo produces different results:
+
+[ETYC0372005] Error: unknown function `test.aleo::checks::check_edition`
+    ╭─[ compiler-test:10:9 ]
+    │
+ 10 │         test.aleo::checks::check_edition::[2u16]();
+    │ 
+    │ Help: Check `test.aleo::checks::check_edition` for typos and confirm it is declared in this scope. If it lives in another program, import it with the program-qualified name (e.g. `credits.aleo::credits`).
+────╯
