@@ -16,12 +16,10 @@
 
 use super::*;
 
-use leo_ast::{NetworkName, TEST_PRIVATE_KEY};
+use leo_ast::NetworkName;
 use leo_compiler::run;
 use leo_package::{Package, ProgramData};
 use leo_span::{Symbol, sym};
-
-use snarkvm::prelude::TestnetV0;
 
 use colored::Colorize as _;
 use std::fs;
@@ -204,9 +202,6 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
         return Err(crate::errors::custom("`leo test` is not supported for library packages.").into());
     }
 
-    // Get the private key.
-    let _private_key = PrivateKey::<TestnetV0>::from_str(TEST_PRIVATE_KEY)?;
-
     let network = command.env_override.network.unwrap_or(NetworkName::TestnetV0);
     let test_functions = discover_test_functions(&package, &command.test_name, network)?;
 
@@ -273,7 +268,8 @@ fn handle_test(command: LeoTest, package: Package) -> Result<TestOutput> {
     let mut failures: Vec<(usize, String)> = Vec::new();
 
     // Debug logs make an in-place `RUNNING` status unreliable, so print each result after completion.
-    run::run_with_ledger(
+    run::run_with_ledger_for_network(
+        network,
         &run::Config { seed: 0, start_height: None, programs, skip_proving: !command.prove },
         &cases,
         |index, outcomes| {
