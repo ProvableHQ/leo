@@ -1,0 +1,94 @@
+program test.aleo;
+
+struct OptionalLookalike:
+    is_some as boolean;
+    val as u8;
+
+struct Optional__3aph2JMPtnA:
+    is_some as boolean;
+    val as u8;
+
+mapping result:
+    key as u32.public;
+    value as u8.public;
+
+mapping data__:
+    key as u32.public;
+    value as u8.public;
+
+mapping data__len__:
+    key as boolean.public;
+    value as u32.public;
+
+function zero_fallback:
+    input r0 as u32.private;
+    async zero_fallback r0 into r1;
+    output r1 as test.aleo/zero_fallback.future;
+
+finalize zero_fallback:
+    input r0 as u32.public;
+    get.or_use data__len__[false] 0u32 into r1;
+    lt r0 r1 into r2;
+    get.or_use data__[r0] 0u8 into r3;
+    ternary r2 r3 0u8 into r4;
+    set r4 into result[0u32];
+
+function nonzero_fallback:
+    input r0 as u32.private;
+    async nonzero_fallback r0 into r1;
+    output r1 as test.aleo/nonzero_fallback.future;
+
+finalize nonzero_fallback:
+    input r0 as u32.public;
+    get.or_use data__len__[false] 0u32 into r1;
+    lt r0 r1 into r2;
+    get.or_use data__[r0] 0u8 into r3;
+    ternary r2 r3 7u8 into r4;
+    set r4 into result[1u32];
+
+function input_fallback:
+    input r0 as u32.private;
+    input r1 as u8.private;
+    async input_fallback r0 r1 into r2;
+    output r2 as test.aleo/input_fallback.future;
+
+finalize input_fallback:
+    input r0 as u32.public;
+    input r1 as u8.public;
+    get.or_use data__len__[false] 0u32 into r2;
+    lt r0 r2 into r3;
+    get.or_use data__[r0] 0u8 into r4;
+    ternary r3 r4 r1 into r5;
+    set r5 into result[2u32];
+
+function dynamic_output_key:
+    input r0 as u32.private;
+    input r1 as u32.private;
+    async dynamic_output_key r0 r1 into r2;
+    output r2 as test.aleo/dynamic_output_key.future;
+
+finalize dynamic_output_key:
+    input r0 as u32.public;
+    input r1 as u32.public;
+    get.or_use data__len__[false] 0u32 into r2;
+    lt r0 r2 into r3;
+    get.or_use data__[r0] 0u8 into r4;
+    ternary r3 r4 0u8 into r5;
+    set r5 into result[r1];
+
+function structural_lookalike:
+    input r0 as boolean.private;
+    input r1 as u8.private;
+    async structural_lookalike r0 r1 into r2;
+    output r2 as test.aleo/structural_lookalike.future;
+
+finalize structural_lookalike:
+    input r0 as boolean.public;
+    input r1 as u8.public;
+    ternary r0 r1 0u8 into r2;
+    cast r0 r2 into r3 as OptionalLookalike;
+    ternary r3.is_some r3.val 0u8 into r4;
+    set r4 into result[3u32];
+
+constructor:
+    assert.eq edition 0u16;

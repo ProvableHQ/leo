@@ -36,6 +36,7 @@ use leo_span::{Symbol, sym};
 
 use indexmap::IndexMap;
 use snarkvm::prelude::{CanaryV0, MainnetV0, TestnetV0};
+use std::collections::HashSet;
 
 impl<'a> CodeGeneratingVisitor<'a> {
     pub fn visit_program(&mut self, input: &'a Program) -> AleoProgram {
@@ -76,10 +77,23 @@ impl<'a> CodeGeneratingVisitor<'a> {
             }
         };
 
-        // Add each `struct` or `record` in the post-ordering and produce an Aleo struct or record.
+        // Preserve generated Optional identity before its reserved raw name is legalized for Aleo.
+        let mut generated_optional_structs = HashSet::new();
         let data_types = order
             .into_iter()
-            .filter_map(|loc| lookup(&loc).map(|composite| self.visit_struct_or_record(composite, &loc)))
+            .filter_map(|loc| {
+                lookup(&loc).map(|composite| {
+                    let generated_optional = crate::is_generated_optional_struct(composite);
+                    let data_type = self.visit_struct_or_record(composite, &loc);
+                    if generated_optional {
+                        let AleoDatatype::Struct(struct_) = &data_type else {
+                            unreachable!("generated Optional wrappers must be structs");
+                        };
+                        generated_optional_structs.insert(struct_.name.clone());
+                    }
+                    data_type
+                })
+            })
             .collect();
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
@@ -137,7 +151,7 @@ impl<'a> CodeGeneratingVisitor<'a> {
         // If the constructor exists, visit it and produce an Aleo constructor.
         let constructor = program_scope.constructor.as_ref().map(|c| self.visit_constructor(c));
 
-        AleoProgram { imports, program_id, data_types, mappings, functions, constructor }
+        AleoProgram { imports, program_id, data_types, mappings, functions, constructor, generated_optional_structs }
     }
 
     fn visit_struct_or_record(&mut self, composite: &'a Composite, loc: &Location) -> AleoDatatype {

@@ -48,11 +48,9 @@ finalize do_work:
     contains counter__[false] into r2;
     get.or_use counter__[false] 0u32 into r3;
     ternary r2 r3 0u32 into r4;
-    cast r2 r4 into r5 as Optional__JzunLORyB8U;
-    ternary r5.is_some r5.val 0u32 into r6;
     await r0;
-    add r6 r1 into r7;
-    set r7 into counter__[false];
+    add r4 r1 into r5;
+    set r5 into counter__[false];
 
 constructor:
     assert.eq edition 0u16;
