@@ -5,12 +5,30 @@
    │ 
    │ Help: Remove the `@no_inline` annotation to silence this warning.
 ───╯
-program test.aleo;
+program child.aleo;
 
 function main:
     input r0 as u32.private;
-    add r0 1u32 into r1;
+    add r0 2u32 into r1;
     output r1 as u32.private;
+
+constructor:
+    assert.eq edition 0u16;
+// --- Next Program --- //
+import child.aleo;
+program test.aleo;
+
+closure inner:
+    input r0 as u32;
+    add r0 1u32 into r1;
+    output r1 as u32;
+
+function main:
+    input r0 as u32.private;
+    call inner r0 into r1;
+    call child.aleo/main r0 into r2;
+    output r1 as u32.private;
+    output r2 as u32.private;
 
 constructor:
     assert.eq edition 0u16;
