@@ -43,6 +43,59 @@ use crate::{
 
 use leo_span::Symbol;
 
+#[test]
+fn dependency_alias_cannot_replace_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (primary, alias) in [("victim.aleo", "victim"), ("victim", "victim.aleo")] {
+            let root = unique_dir("primary_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let bridge = root.join("bridge");
+            write_program(&app, primary, r#"[{"name":"bridge","location":"local","path":"../bridge"}]"#);
+            write_library(
+                &bridge,
+                "bridge",
+                &serde_json::json!([{"name": alias, "location": "local", "path": "../victim.aleo"}]).to_string(),
+            );
+            write_file(
+                &root.join("victim.aleo"),
+                "program victim.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share the primary artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            assert!(!app.join("build").exists());
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
+#[test]
+fn dependency_alias_collisions_are_rejected_in_either_order() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for names in [["helper", "helper.aleo"], ["helper.aleo", "helper"]] {
+            let root = unique_dir("dependency_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let dependencies =
+                names.map(|name| serde_json::json!({"name": name, "location": "local", "path": "../helper.aleo"}));
+            write_program(&app, "consumer.aleo", &serde_json::to_string(&dependencies).expect("JSON must serialize."));
+            write_file(
+                &root.join("helper.aleo"),
+                "program helper.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share an artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
 // Reference resolution (`crate::git::resolve`).
 
 #[test]

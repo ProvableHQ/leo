@@ -654,6 +654,12 @@ impl Package {
 
         let name_symbol = symbol(&new.name)?;
 
+        if let Some((existing_dep, _)) = map.values().find(|(dependency, _)| {
+            dependency.name != new.name && bare_unit_name(&dependency.name) == bare_unit_name(&new.name)
+        }) {
+            return Err(crate::errors::conflicting_dependency(existing_dep, new).into());
+        }
+
         let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
                 // We've already visited this dependency. Just make sure it's compatible with
