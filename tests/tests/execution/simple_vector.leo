@@ -7,6 +7,24 @@ program = "test.aleo"
 function = "test_vector_ops"
 input = []
 private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
+
+[case]
+program = "test.aleo"
+function = "test_else_if_storage"
+input = ["true"]
+private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
+
+[case]
+program = "test.aleo"
+function = "test_else_if_storage"
+input = ["false"]
+private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
+
+[case]
+program = "test.aleo"
+function = "test_skipped_empty_swap_remove"
+input = ["true"]
+private_key = "APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE"
 */
 
 program test.aleo {
@@ -64,6 +82,70 @@ program test.aleo {
             let removed_single = vec.swap_remove(0);
             assert(removed_single == 99);
             assert(vec.len() == 0);
+        };
+    }
+
+    fn test_else_if_storage(skip: bool) -> Final {
+        return final {
+            vec.clear();
+            vec.push(10u32);
+            vec.push(20u32);
+
+            if skip {
+                assert_eq(vec.len(), 2u32);
+            } else if vec.pop().unwrap() == 20u32 {
+                assert_eq(vec.len(), 1u32);
+            } else {
+                assert(false);
+            }
+            assert_eq(vec.len(), skip ? 2u32 : 1u32);
+            assert_eq(vec.get(0u32).unwrap(), 10u32);
+
+            vec.clear();
+            vec.push(10u32);
+            vec.push(20u32);
+            vec.push(30u32);
+
+            if skip {
+                assert_eq(vec.len(), 3u32);
+            } else if vec.swap_remove(0u32) == 10u32 {
+                assert_eq(vec.len(), 2u32);
+                assert_eq(vec.get(0u32).unwrap(), 30u32);
+            } else {
+                assert(false);
+            }
+            assert_eq(vec.len(), skip ? 3u32 : 2u32);
+            assert_eq(vec.get(1u32).unwrap(), 20u32);
+
+            vec.clear();
+            vec.push(10u32);
+            vec.push(20u32);
+            vec.push(30u32);
+
+            if skip {
+                assert_eq(vec.len(), 3u32);
+            } else if vec.pop().unwrap() == 30u32 {
+                assert_eq(vec.len(), 2u32);
+            } else if vec.swap_remove(0u32) == 10u32 {
+                assert(false);
+            } else {
+                assert(false);
+            }
+            assert_eq(vec.len(), skip ? 3u32 : 2u32);
+            assert_eq(vec.get(0u32).unwrap(), 10u32);
+            assert_eq(vec.get(1u32).unwrap(), 20u32);
+        };
+    }
+
+    fn test_skipped_empty_swap_remove(skip: bool) -> Final {
+        return final {
+            vec.clear();
+            if skip {
+                assert_eq(vec.len(), 0u32);
+            } else if vec.swap_remove(0u32) == 10u32 {
+                assert(false);
+            }
+            assert_eq(vec.len(), 0u32);
         };
     }
 
