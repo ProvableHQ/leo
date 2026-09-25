@@ -1,56 +1,112 @@
 [ETYC0372164] Error: the input `x` has type `u8?`, which is or contains an optional
-    ╭─[ compiler-test:10:12 ]
+    ╭─[ compiler-test:11:12 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `y` has type `[u8?; 3]`, which is or contains an optional
-    ╭─[ compiler-test:10:20 ]
+    ╭─[ compiler-test:11:20 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `f` has type `test.aleo::Foo`, which is or contains an optional
-    ╭─[ compiler-test:10:33 ]
+    ╭─[ compiler-test:11:33 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `u8?`, which is or contains an optional
-    ╭─[ compiler-test:10:45 ]
+    ╭─[ compiler-test:11:45 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `u8?`, which is or contains an optional
-    ╭─[ compiler-test:10:50 ]
+    ╭─[ compiler-test:11:50 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `test.aleo::Foo`, which is or contains an optional
-    ╭─[ compiler-test:10:55 ]
+    ╭─[ compiler-test:11:55 ]
     │
- 10 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
+ 11 │     fn foo(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, u8?, Foo) {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `x` has type `u8?`, which is or contains an optional
-    ╭─[ compiler-test:14:12 ]
+    ╭─[ compiler-test:15:12 ]
     │
- 14 │     fn bar(x: u8?, f: Foo) {
+ 15 │     fn bar(x: u8?, f: Foo) {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `f` has type `test.aleo::Foo`, which is or contains an optional
-    ╭─[ compiler-test:14:20 ]
+    ╭─[ compiler-test:15:20 ]
     │
- 14 │     fn bar(x: u8?, f: Foo) {
+ 15 │     fn bar(x: u8?, f: Foo) {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372164] Error: the input `x` has type `u8?`, which is or contains an optional
+    ╭─[ compiler-test:19:27 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372164] Error: the input `y` has type `[u8?; 3]`, which is or contains an optional
+    ╭─[ compiler-test:19:35 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372164] Error: the input `f` has type `test.aleo::Foo`, which is or contains an optional
+    ╭─[ compiler-test:19:48 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372165] Error: this function has output type `u8?`, which is or contains an optional
+    ╭─[ compiler-test:19:60 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372165] Error: this function has output type `[u8?; 3]`, which is or contains an optional
+    ╭─[ compiler-test:19:65 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372165] Error: this function has output type `test.aleo::Foo`, which is or contains an optional
+    ╭─[ compiler-test:19:75 ]
+    │
+ 19 │     view fn view_optional(x: u8?, y: [u8?; 3], f: Foo) -> (u8?, [u8?; 3], Foo) {
+    │ 
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372164] Error: the input `x` has type `test.aleo::Wrapper`, which is or contains an optional
+    ╭─[ compiler-test:23:30 ]
+    │
+ 23 │     view fn library_optional(x: Wrapper) -> Wrapper {
+    │ 
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
+────╯
+[ETYC0372165] Error: this function has output type `test.aleo::Wrapper`, which is or contains an optional
+    ╭─[ compiler-test:23:45 ]
+    │
+ 23 │     view fn library_optional(x: Wrapper) -> Wrapper {
+    │ 
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯

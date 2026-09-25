@@ -2231,33 +2231,32 @@ impl TypeCheckingVisitor<'_> {
     }
 
     pub fn contains_optional_type(&mut self, ty: &TypeKind) -> bool {
-        let mut visited_paths = IndexSet::<Vec<Symbol>>::new();
-        self.contains_optional_type_inner(ty, &mut visited_paths)
+        let mut visited_locations = IndexSet::<Location>::new();
+        self.contains_optional_type_inner(ty, &mut visited_locations)
     }
 
-    fn contains_optional_type_inner(&mut self, ty: &TypeKind, visited_paths: &mut IndexSet<Vec<Symbol>>) -> bool {
+    fn contains_optional_type_inner(&mut self, ty: &TypeKind, visited_locations: &mut IndexSet<Location>) -> bool {
         match ty {
             TypeKind::Optional(_) => true,
 
             TypeKind::Tuple(tuple) => {
-                tuple.elements.iter().any(|e| self.contains_optional_type_inner(e, visited_paths))
+                tuple.elements.iter().any(|e| self.contains_optional_type_inner(e, visited_locations))
             }
 
-            TypeKind::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_paths),
+            TypeKind::Array(array) => self.contains_optional_type_inner(&array.element_type, visited_locations),
 
             TypeKind::Composite(composite_type) => {
                 let composite_location = composite_type.path.expect_global_location();
 
-                // Prevent revisiting the same type
-                // TODO: store locations here not just paths. Pending external structs.
-                if !visited_paths.insert(composite_location.path.clone()) {
+                // Prevent revisiting the same type.
+                if !visited_locations.insert(composite_location.clone()) {
                     return false;
                 }
 
                 if let Some(comp) = self.lookup_composite(composite_location) {
                     comp.members
                         .iter()
-                        .any(|Member { type_, .. }| self.contains_optional_type_inner(type_.kind(), visited_paths))
+                        .any(|Member { type_, .. }| self.contains_optional_type_inner(type_.kind(), visited_locations))
                 } else {
                     false
                 }
@@ -2403,7 +2402,7 @@ impl TypeCheckingVisitor<'_> {
             }
 
             // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(table_type) && matches!(function.variant, Variant::EntryPoint) {
+            if self.contains_optional_type(table_type) && function.variant.is_externally_callable() {
                 self.emit_err(crate::errors::type_checker::function_cannot_take_option_as_input(
                     input.identifier,
                     table_type,
@@ -2525,10 +2524,8 @@ impl TypeCheckingVisitor<'_> {
                 self.emit_err(crate::errors::type_checker::nested_tuple_type(function_output.span))
             }
 
-            // Check that the type of the input parameter does not contain an optional.
-            if self.contains_optional_type(function_output.type_.kind())
-                && matches!(function.variant, Variant::EntryPoint)
-            {
+            // Check that the output type does not contain an optional.
+            if self.contains_optional_type(function_output.type_.kind()) && function.variant.is_externally_callable() {
                 self.emit_err(crate::errors::type_checker::function_cannot_return_option_as_output(
                     function_output.type_.kind(),
                     function_output.span(),

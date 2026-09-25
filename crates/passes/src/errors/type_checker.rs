@@ -855,7 +855,7 @@ pub(crate) fn function_cannot_take_option_as_input(name: impl Display, ty: impl 
         format!("the input `{name}` has type `{ty}`, which is or contains an optional"),
         span,
     )
-    .with_help("Inputs to entry point fns cannot be optional. Move the optionality outside the call site.")
+    .with_help("Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.")
 }
 
 pub(crate) fn function_cannot_return_option_as_output(ty: impl Display, span: Span) -> Formatted {
@@ -865,7 +865,9 @@ pub(crate) fn function_cannot_return_option_as_output(ty: impl Display, span: Sp
         format!("this function has output type `{ty}`, which is or contains an optional"),
         span,
     )
-    .with_help("Outputs of entry point fns cannot be optional. Move the optionality outside the call site.")
+    .with_help(
+        "Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.",
+    )
 }
 
 pub(crate) fn invalid_storage_type(type_: impl Display, span: Span) -> Formatted {
