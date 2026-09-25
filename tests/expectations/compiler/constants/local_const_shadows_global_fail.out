@@ -15,3 +15,156 @@
    │ 
    │ Help: Rename or remove all but one of the `VALUE` definitions so the name is unique within its scope.
 ───╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:36:23 ]
+    │
+ 36 │ export struct Sized::[admin: u32] {
+    │
+    ├─[ config.leo:36:23 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 36 │ export struct Sized::[admin: u32] {
+    │                       ──┬──  
+    │                         ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+   ╭─[ config.leo:4:21 ]
+   │
+ 4 │ export fn parameter(admin: u32) -> u32 {
+   │
+   ├─[ config.leo:4:21 ]
+   │
+ 2 │ export const admin: u32 = 7u32;
+   │              ──┬──  
+   │                ╰──── previous definition of `admin` here
+   │ 
+ 4 │ export fn parameter(admin: u32) -> u32 {
+   │                     ──┬──  
+   │                       ╰──── `admin` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+───╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+   ╭─[ config.leo:8:28 ]
+   │
+ 8 │ export fn unused_parameter(admin: u32) -> u32 {
+   │
+   ├─[ config.leo:8:28 ]
+   │
+ 2 │ export const admin: u32 = 7u32;
+   │              ──┬──  
+   │                ╰──── previous definition of `admin` here
+   │ 
+ 8 │ export fn unused_parameter(admin: u32) -> u32 {
+   │                            ──┬──  
+   │                              ╰──── `admin` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+───╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:13:9 ]
+    │
+ 13 │     let admin = 9u32;
+    │
+    ├─[ config.leo:13:9 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 13 │     let admin = 9u32;
+    │         ──┬──  
+    │           ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:18:10 ]
+    │
+ 18 │     let (admin, other): (u32, u32) = (9u32, 1u32);
+    │
+    ├─[ config.leo:18:10 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 18 │     let (admin, other): (u32, u32) = (9u32, 1u32);
+    │          ──┬──  
+    │            ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:23:11 ]
+    │
+ 23 │     const admin: u32 = 9u32;
+    │
+    ├─[ config.leo:23:11 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 23 │     const admin: u32 = 9u32;
+    │           ──┬──  
+    │             ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:28:9 ]
+    │
+ 28 │     for admin: u32 in 0u32..1u32 {}
+    │
+    ├─[ config.leo:28:9 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 28 │     for admin: u32 in 0u32..1u32 {}
+    │         ──┬──  
+    │           ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+    ╭─[ config.leo:32:21 ]
+    │
+ 32 │ export fn generic::[admin: u32]() -> u32 {
+    │
+    ├─[ config.leo:32:21 ]
+    │
+  2 │ export const admin: u32 = 7u32;
+    │              ──┬──  
+    │                ╰──── previous definition of `admin` here
+    │ 
+ 32 │ export fn generic::[admin: u32]() -> u32 {
+    │                     ──┬──  
+    │                       ╰──── `admin` redefined here
+    │ 
+    │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+────╯
+[EAST0372017] Error: the name `admin` is defined multiple times
+   ╭─[ config/nested.leo:4:28 ]
+   │
+ 4 │ export fn unused_parameter(admin: u32) -> u32 {
+   │
+   ├─[ config/nested.leo:4:28 ]
+   │
+ 2 │ export const admin: u32 = 11u32;
+   │              ──┬──  
+   │                ╰──── previous definition of `admin` here
+   │ 
+ 4 │ export fn unused_parameter(admin: u32) -> u32 {
+   │                            ──┬──  
+   │                              ╰──── `admin` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+───╯
