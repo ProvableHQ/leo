@@ -18,6 +18,8 @@ use crate::*;
 
 use leo_errors::Backtraced;
 
+use snarkvm::prelude::{ProgramID, TestnetV0};
+
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -119,6 +121,12 @@ impl Dependency {
             return invalid(format!("`{location}` dependencies cannot specify `git`"));
         }
 
+        if self.location == Location::Network
+            && crate::canonicalize_program_name(&self.name).parse::<ProgramID<TestnetV0>>().is_err()
+        {
+            return invalid("a network dependency name must be a valid Aleo program name".to_string());
+        }
+
         if self.location == Location::Git {
             let Some(git) = &self.git else {
                 return invalid("`git` dependencies must specify `git`".to_string());
@@ -181,5 +189,35 @@ mod tests {
         .unwrap();
 
         assert_eq!(manifest.dependencies.unwrap().len(), 3);
+    }
+
+    #[test]
+    fn manifest_rejects_unsafe_network_dependency_names() {
+        for name in [
+            "../escape.aleo",
+            "/tmp/escape.aleo",
+            r"..\escape.aleo",
+            "foo/bar",
+            "foo?bar.aleo",
+            "foo#bar.aleo",
+            "%2e%2e.aleo",
+            "foo.aleo.aleo",
+            "",
+            ".aleo",
+        ] {
+            let dependencies = serde_json::json!([{ "name": name, "location": "network" }]).to_string();
+            for (normal, dev) in [(dependencies.as_str(), "null"), ("null", dependencies.as_str())] {
+                let err = read_manifest(&manifest_json(normal, dev)).expect_err("unsafe names must be rejected");
+                assert!(err.to_string().contains("invalid dependency"), "{name}: {err}");
+            }
+        }
+    }
+
+    #[test]
+    fn manifest_accepts_network_program_names() {
+        for name in ["credits", "credits.aleo", "token_2.aleo", "final.aleo", "interface.aleo"] {
+            let dependencies = serde_json::json!([{ "name": name, "location": "network" }]).to_string();
+            read_manifest(&manifest_json(&dependencies, "null")).expect("valid network names must be accepted");
+        }
     }
 }

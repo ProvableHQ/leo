@@ -960,6 +960,70 @@ function main:
     output r1 as u32.private;
 ";
 
+    #[test]
+    fn network_fetch_rejects_unsafe_names_before_cache_access() {
+        create_session_if_not_set_then(|_| {
+            let base = crate::test_util::unique_dir("unsafe-network-name");
+            let home = base.join("home");
+            for name in [
+                "../escape.aleo",
+                "/tmp/escape.aleo",
+                r"..\escape.aleo",
+                "foo/bar",
+                "foo?bar.aleo",
+                "foo#bar.aleo",
+                "%2e%2e.aleo",
+                "foo.aleo.aleo",
+                "",
+                ".aleo",
+            ] {
+                for edition in [Some(0), None] {
+                    for no_cache in [false, true] {
+                        let err = CompilationUnit::fetch(
+                            Symbol::intern(name),
+                            edition,
+                            &home,
+                            NetworkName::TestnetV0,
+                            "http://127.0.0.1:1",
+                            no_cache,
+                            0,
+                        )
+                        .expect_err("unsafe names must be rejected");
+                        assert!(err.to_string().contains("invalid program name"), "{name}: {err}");
+                        assert!(!home.exists(), "invalid names must not create cache directories");
+                    }
+                }
+            }
+            std::fs::remove_dir_all(base).expect("test directory must be removed");
+        });
+    }
+
+    #[test]
+    fn network_fetch_accepts_bare_and_suffixed_program_names() {
+        create_session_if_not_set_then(|_| {
+            let home = crate::test_util::unique_dir("valid-network-name");
+            for bare in ["leaf", "final", "interface"] {
+                let bytecode = LEAF_PROGRAM.replace("leaf.aleo", &format!("{bare}.aleo"));
+                crate::test_util::write_file(&home.join(format!("registry/testnet/{bare}/0/{bare}.aleo")), &bytecode);
+                for name in [bare.to_string(), format!("{bare}.aleo")] {
+                    let unit = CompilationUnit::fetch(
+                        Symbol::intern(&name),
+                        Some(0),
+                        &home,
+                        NetworkName::TestnetV0,
+                        "http://127.0.0.1:1",
+                        false,
+                        0,
+                    )
+                    .expect("valid cached programs must remain available");
+                    assert_eq!(unit.name.to_string(), format!("{bare}.aleo"));
+                    assert!(matches!(unit.data, ProgramData::Bytecode(contents) if contents == bytecode));
+                }
+            }
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
+        });
+    }
+
     fn dummy_package(base: &str) -> Package {
         dummy_package_with(base, None)
     }

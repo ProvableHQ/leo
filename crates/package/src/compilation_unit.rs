@@ -19,7 +19,7 @@ use crate::{MAX_PROGRAM_SIZE, *};
 use leo_errors::Result;
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Program as SvmProgram, TestnetV0};
+use snarkvm::prelude::{Program as SvmProgram, ProgramID, TestnetV0};
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::Path;
@@ -248,9 +248,11 @@ impl CompilationUnit {
         no_cache: bool,
         network_retries: u32,
     ) -> Result<Self> {
-        // Callers may pass the name with or without the ".aleo" suffix; normalise to bare name
-        // here so cache paths and network URLs are constructed consistently.
-        let name = Symbol::intern(name.to_string().strip_suffix(".aleo").unwrap_or(&name.to_string()));
+        // Validate the name before using it in cache paths or network URLs.
+        let program_id = canonicalize_program_name(&name.to_string())
+            .parse::<ProgramID<TestnetV0>>()
+            .map_err(|_| crate::errors::cli_invalid_package_name("program", name))?;
+        let name = Symbol::intern(&program_id.name().to_string());
 
         // It's not a local program; let's check the cache.
         let cache_directory = home_path.join(format!("registry/{network}"));
