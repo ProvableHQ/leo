@@ -2651,14 +2651,23 @@ impl TypeCheckingVisitor<'_> {
     }
 
     /// Replaces interface record types with `TypeKind::DynRecord`. Only recurses into tuples — records cannot be nested inside structs or arrays.
-    pub fn replace_records_with_dyn_record(&mut self, ty: &TypeKind, interface: &Interface) -> TypeKind {
+    pub fn replace_records_with_dyn_record(
+        &mut self,
+        ty: &TypeKind,
+        interface_location: &Location,
+        interface: &Interface,
+    ) -> TypeKind {
         match ty {
             TypeKind::DynRecord => TypeKind::DynRecord,
             TypeKind::Tuple(tuple) => TypeKind::Tuple(TupleType::new(
-                tuple.elements().iter().map(|t| self.replace_records_with_dyn_record(t, interface)).collect(),
+                tuple
+                    .elements()
+                    .iter()
+                    .map(|element| self.replace_records_with_dyn_record(element, interface_location, interface))
+                    .collect(),
             )),
             other => {
-                if interface.is_record_type(other) {
+                if interface.is_record_type(other, interface_location) {
                     TypeKind::DynRecord
                 } else {
                     other.clone()
@@ -3009,6 +3018,7 @@ impl TypeCheckingVisitor<'_> {
     pub fn check_dynamic_function_call(
         &mut self,
         input: &DynamicOpExpression,
+        interface_location: &Location,
         interface: &Interface,
         expected: &Option<TypeKind>,
     ) -> TypeKind {
@@ -3043,7 +3053,7 @@ impl TypeCheckingVisitor<'_> {
         // Check argument types. Record-typed parameters require `dyn record` at the call site.
         for (expected_input, argument) in func_proto.input.iter().zip(arguments.iter()) {
             let proto_type = expected_input.type_().kind().clone();
-            if interface.is_record_type(&proto_type) {
+            if interface.is_record_type(&proto_type, interface_location) {
                 // Visit without an expected type so only the explicit error below fires.
                 let actual_type = self.visit_expression(argument, &None);
                 if !matches!(actual_type, TypeKind::DynRecord | TypeKind::Err) {
@@ -3058,7 +3068,7 @@ impl TypeCheckingVisitor<'_> {
         }
 
         // Replace interface record types in the output with `dyn record`, then check for futures.
-        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type, interface);
+        let output_type = self.replace_records_with_dyn_record(&func_proto.output_type, interface_location, interface);
         let contains_future = match &output_type {
             TypeKind::Future(..) => true,
             TypeKind::Tuple(tuple) => tuple.elements().iter().any(|t| matches!(t, TypeKind::Future(..))),
