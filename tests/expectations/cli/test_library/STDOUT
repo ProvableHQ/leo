@@ -1,6 +1,6 @@
 --- leo add --local (should succeed) ---
        Leo ✅ Added local dependency `base_lib` at path `../base_lib`.
---- leo add --network on a library (should fail) ---
+--- leo add --onchain on a library (should fail) ---
 add network to library exit code: 213
 --- leo build (should succeed) ---
 ⚠️ No network specified, defaulting to 'testnet'.

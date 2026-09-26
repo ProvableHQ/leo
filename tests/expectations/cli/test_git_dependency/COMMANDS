@@ -94,8 +94,8 @@ echo "--- 6. multiple git references (should fail) ---" | tee /dev/stderr
 leo_redacted add gitlib --git "${URL}" --branch main --tag v1
 echo "exit: $?"
 
-echo "--- 7. --git combined with --network (should fail) ---" | tee /dev/stderr
-leo_redacted add gitlib --git "${URL}" --network
+echo "--- 7. --git combined with --onchain (should fail) ---" | tee /dev/stderr
+leo_redacted add gitlib --git "${URL}" --onchain
 echo "exit: $?"
 
 echo "--- 8. add a library under a name ending in .aleo (should fail) ---" | tee /dev/stderr

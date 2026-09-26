@@ -1,3 +1,4 @@
+add: --network-retries OK
 build: --network-retries OK
 run: --network-retries OK
 execute: --network-retries OK
