@@ -2,6 +2,10 @@ import credits.aleo;
 
 program extra_prog.aleo;
 
+record secret:
+    owner as address.private;
+    amount as u64.private;
+
 function dbl:
     input r0 as u64.private;
     add r0 r0 into r1;
@@ -29,6 +33,14 @@ function approval_text:
 finalize approval_text:
     input r0 as string.public;
     assert.eq r0 r0;
+
+function approval_record:
+    input r0 as secret.record;
+    assert.eq r0.amount 998714u64;
+
+function approval_dynamic_record:
+    input r0 as dynamic.record;
+    assert.eq true true;
 
 constructor:
     assert.eq edition 0u16;
