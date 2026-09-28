@@ -511,7 +511,6 @@ fn execution_approval_refusal_and_private_records() {
         os::fd::{AsRawFd, FromRawFd},
         sync::{
             Arc,
-            Mutex,
             atomic::{AtomicBool, Ordering},
         },
         time::{Duration, Instant},
@@ -537,12 +536,13 @@ fn execution_approval_refusal_and_private_records() {
     let listener = TcpListener::bind("127.0.0.1:0").expect("The endpoint must bind");
     listener.set_nonblocking(true).expect("The listener must support a timeout");
     let endpoint = format!("http://{}", listener.local_addr().expect("The endpoint address must exist"));
-    let requests = Arc::new(Mutex::new(Vec::with_capacity(32)));
     let stop = Arc::new(AtomicBool::new(false));
-    let server_requests = Arc::clone(&requests);
     let server_stop = Arc::clone(&stop);
     let server = std::thread::spawn(move || {
-        let credits = Program::<TestnetV0>::credits().expect("Bundled credits must load").to_string();
+        let credits =
+            serde_json::to_string(&Program::<TestnetV0>::credits().expect("Bundled credits must load").to_string())
+                .expect("Credits must serialize");
+        let mut requests = Vec::with_capacity(32);
         let malformed = "program extra_prog.aleo;\nfunction main:\n    assert.eq true true;\n\x1b[2J\rwarning sentinel";
         while !server_stop.load(Ordering::Relaxed) {
             let (mut stream, _) = match listener.accept() {
@@ -564,26 +564,22 @@ fn execution_approval_refusal_and_private_records() {
             }
             let request = String::from_utf8(request).expect("HTTP headers must be UTF-8");
             let line = request.lines().next().expect("The request line must exist");
-            {
-                let mut requests = server_requests.lock().expect("The requests must lock");
-                assert!(requests.len() < 64, "The command must not make unbounded requests");
-                requests.push(line.to_string());
-            }
+            assert!(requests.len() < 64, "The command must not make unbounded requests");
+            requests.push(line.to_string());
             let mut words = line.split_whitespace();
             let (status, body) = match (words.next(), words.next()) {
-                (Some("GET"), Some("/testnet/program/credits.aleo/latest_edition")) => ("200 OK", "0".to_string()),
+                (Some("GET"), Some("/testnet/program/credits.aleo/latest_edition")) => ("200 OK", "0"),
                 (Some("GET"), Some("/testnet/program/credits.aleo"))
-                | (Some("GET"), Some("/testnet/program/credits.aleo/0")) => {
-                    ("200 OK", serde_json::to_string(&credits).expect("Credits must serialize"))
-                }
-                (Some("GET"), Some("/testnet/program/extra_prog.aleo")) => ("200 OK", malformed.to_string()),
-                (Some("GET"), Some("/testnet/block/height/latest")) => ("200 OK", "20".to_string()),
-                (Some("GET"), Some("/testnet/consensus_version")) => ("200 OK", "14".to_string()),
-                _ => ("400 Bad Request", "Unexpected request after approval was denied".to_string()),
+                | (Some("GET"), Some("/testnet/program/credits.aleo/0")) => ("200 OK", credits.as_str()),
+                (Some("GET"), Some("/testnet/program/extra_prog.aleo")) => ("200 OK", malformed),
+                (Some("GET"), Some("/testnet/block/height/latest")) => ("200 OK", "20"),
+                (Some("GET"), Some("/testnet/consensus_version")) => ("200 OK", "14"),
+                _ => ("400 Bad Request", "Unexpected request after approval was denied"),
             };
             write!(stream, "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len())
                 .expect("The fixture response must be written");
         }
+        requests
     });
 
     // Always stop the endpoint, including when a test assertion fails.
@@ -798,26 +794,25 @@ fn execution_approval_refusal_and_private_records() {
                 assert!(!output.contains("Printing execution for transaction"), "{output}");
             }
         }
-        let requests = requests.lock().expect("The requests must lock");
-        assert!(requests.iter().any(|request| request == "GET /testnet/program/extra_prog.aleo HTTP/1.1"));
-        assert!(
-            requests.iter().all(|request| [
-                "GET /testnet/program/credits.aleo/latest_edition HTTP/1.1",
-                "GET /testnet/program/credits.aleo/0 HTTP/1.1",
-                "GET /testnet/program/credits.aleo HTTP/1.1",
-                "GET /testnet/program/extra_prog.aleo HTTP/1.1",
-                "GET /testnet/block/height/latest HTTP/1.1",
-                "GET /testnet/consensus_version HTTP/1.1",
-            ]
-            .contains(&request.as_str())),
-            "Approval denial must not broadcast or query transaction state: {requests:?}"
-        );
     });
     stop.store(true, Ordering::Relaxed);
-    server.join().expect("The endpoint must stop");
+    let requests = server.join().expect("The endpoint must stop");
     if let Err(error) = result {
         std::panic::resume_unwind(error);
     }
+    assert!(requests.iter().any(|request| request == "GET /testnet/program/extra_prog.aleo HTTP/1.1"));
+    assert!(
+        requests.iter().all(|request| [
+            "GET /testnet/program/credits.aleo/latest_edition HTTP/1.1",
+            "GET /testnet/program/credits.aleo/0 HTTP/1.1",
+            "GET /testnet/program/credits.aleo HTTP/1.1",
+            "GET /testnet/program/extra_prog.aleo HTTP/1.1",
+            "GET /testnet/block/height/latest HTTP/1.1",
+            "GET /testnet/consensus_version HTTP/1.1",
+        ]
+        .contains(&request.as_str())),
+        "Approval denial must not broadcast or query transaction state: {requests:?}"
+    );
 }
 
 #[cfg(test)]
