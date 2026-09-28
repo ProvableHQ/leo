@@ -120,6 +120,28 @@ program singleton_storage.aleo {
             let $discard$26 = $removed$25;
         };
     }
+    fn else_if_vector_ops(public skip: bool) -> Final<Fn()> {
+        return async {
+            if skip {
+                _mapping_set(singleton_storage.aleo::counter__, false, 1u8);
+            } else {
+                let $len_var$27 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+                _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$27 > 0u32 ? $len_var$27.sub_wrapped(1u32) : $len_var$27);
+                if ($len_var$27 > 0u32 ? _mapping_get_or_use(singleton_storage.aleo::nums__, $len_var$27.sub_wrapped(1u32), 0u32) : none) != none {
+                    _mapping_set(singleton_storage.aleo::counter__, false, 2u8);
+                } else {
+                    let $len_var$28 = _mapping_get_or_use(singleton_storage.aleo::nums__len__, false, 0u32);
+                    assert(0u32 < $len_var$28);
+                    let $removed$29 = _mapping_get(singleton_storage.aleo::nums__, 0u32);
+                    _mapping_set(singleton_storage.aleo::nums__, 0u32, _mapping_get(singleton_storage.aleo::nums__, $len_var$28 - 1u32));
+                    _mapping_set(singleton_storage.aleo::nums__len__, false, $len_var$28 - 1u32);
+                    if $removed$29 == 42u32 {
+                        _mapping_set(singleton_storage.aleo::counter__, false, 3u8);
+                    }
+                }
+            }
+        };
+    }
 }
     final fn next_index() -> u32 {
         let count: u32 = _mapping_get_or_use(singleton_storage.aleo::calls, 0u32, 0u32);
