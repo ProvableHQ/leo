@@ -3,3 +3,21 @@
 LEO_BIN=${1}
 
 ${LEO_BIN} --disable-update-check build
+
+probe=$(mktemp -d)
+cp program.json "$probe/program.json"
+cp build/complex/complex.aleo "$probe/complex.aleo"
+trap 'cp "$probe/program.json" program.json; cp "$probe/complex.aleo" build/complex/complex.aleo; rm -rf "$probe"' EXIT
+mkdir -p "$probe/bridge/src"
+printf '// library\n' > "$probe/bridge/src/lib.leo"
+sed 's/program simple.aleo;/program complex.aleo;/' simple.aleo > "$probe/complex-dependency.aleo"
+printf '{"program":"bridge","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"complex","location":"local","path":"../complex-dependency.aleo"}]}\n' > "$probe/bridge/program.json"
+printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"simple.aleo","location":"local","path":"simple.aleo"},{"name":"bridge","location":"local","path":"%s/bridge"}]}\n' "$probe" > program.json
+printf 'primary artifact sentinel\n' > build/complex/complex.aleo
+if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+    echo "Build accepted a transitive primary alias"
+    exit 1
+fi
+[[ "$output" == *"conflicting dependency"* ]] || { echo "$output"; exit 1; }
+[[ "$(cat build/complex/complex.aleo)" == "primary artifact sentinel" ]] || exit 1
+echo "Rejected transitive alias; primary artifact is unchanged."

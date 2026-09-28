@@ -96,6 +96,22 @@ fn dependency_alias_collisions_are_rejected_in_either_order() {
     });
 }
 
+#[test]
+fn discovered_test_cannot_alias_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let root = unique_dir("test_primary_alias");
+        let home = root.join("home");
+        std::fs::create_dir_all(&home).expect("The test home must exist.");
+        let app = root.join("app");
+        write_program(&app, "test_victim", "null");
+        write_file(&app.join("tests/test_victim.leo"), "// Test source is not parsed during package loading.\n");
+        let error = Package::from_directory_with_tests(&app, &home, false, false, false, None, None, 0)
+            .expect_err("A discovered test must not share the primary artifact path.");
+        assert!(error.to_string().contains("conflicting dependency"), "{error}");
+        std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+    });
+}
+
 // Reference resolution (`crate::git::resolve`).
 
 #[test]
