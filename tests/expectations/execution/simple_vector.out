@@ -302,6 +302,79 @@ finalize test_else_if_storage:
     assert.eq r80.is_some true;
     assert.eq r80.val 20u32;
 
+function test_false_else_if_storage:
+    async test_false_else_if_storage into r0;
+    output r0 as test.aleo/test_false_else_if_storage.future;
+
+finalize test_false_else_if_storage:
+    set 0u32 into vec__len__[false];
+    get.or_use vec__len__[false] 0u32 into r0;
+    add r0 1u32 into r1;
+    set r1 into vec__len__[false];
+    set 10u32 into vec__[r0];
+    get.or_use vec__len__[false] 0u32 into r2;
+    add r2 1u32 into r3;
+    set r3 into vec__len__[false];
+    set 20u32 into vec__[r2];
+    get.or_use vec__len__[false] 0u32 into r4;
+    add r4 1u32 into r5;
+    set r5 into vec__len__[false];
+    set 30u32 into vec__[r4];
+    get.or_use vec__len__[false] 0u32 into r6;
+    is.neq r6 3u32 into r7;
+    branch.eq r7 false to end_then_0_0;
+    assert.eq false true;
+    branch.eq true true to end_otherwise_0_1;
+    position end_then_0_0;
+    get.or_use vec__len__[false] 0u32 into r8;
+    gt r8 0u32 into r9;
+    sub.w r8 1u32 into r10;
+    ternary r9 r10 r8 into r11;
+    set r11 into vec__len__[false];
+    get.or_use vec__[r10] 0u32 into r12;
+    ternary r9 r12 0u32 into r13;
+    cast r9 r13 into r14 as Optional__JzunLORyB8U;
+    assert.eq r14.is_some true;
+    is.eq r14.val 99u32 into r15;
+    branch.eq r15 false to end_then_1_2;
+    assert.eq false true;
+    branch.eq true true to end_otherwise_1_3;
+    position end_then_1_2;
+    get.or_use vec__len__[false] 0u32 into r16;
+    lt 0u32 r16 into r17;
+    assert.eq r17 true;
+    get vec__[0u32] into r18;
+    sub r16 1u32 into r19;
+    get vec__[r19] into r20;
+    set r20 into vec__[0u32];
+    set r19 into vec__len__[false];
+    is.eq r18 10u32 into r21;
+    branch.eq r21 false to end_then_2_4;
+    get.or_use vec__len__[false] 0u32 into r22;
+    assert.eq r22 1u32;
+    get.or_use vec__len__[false] 0u32 into r23;
+    lt 0u32 r23 into r24;
+    get.or_use vec__[0u32] 0u32 into r25;
+    ternary r24 r25 0u32 into r26;
+    cast r24 r26 into r27 as Optional__JzunLORyB8U;
+    assert.eq r27.is_some true;
+    assert.eq r27.val 20u32;
+    branch.eq true true to end_otherwise_2_5;
+    position end_then_2_4;
+    assert.eq false true;
+    position end_otherwise_2_5;
+    position end_otherwise_1_3;
+    position end_otherwise_0_1;
+    get.or_use vec__len__[false] 0u32 into r28;
+    assert.eq r28 1u32;
+    get.or_use vec__len__[false] 0u32 into r29;
+    lt 0u32 r29 into r30;
+    get.or_use vec__[0u32] 0u32 into r31;
+    ternary r30 r31 0u32 into r32;
+    cast r30 r32 into r33 as Optional__JzunLORyB8U;
+    assert.eq r33.is_some true;
+    assert.eq r33.val 20u32;
+
 function test_skipped_empty_swap_remove:
     input r0 as boolean.private;
     async test_skipped_empty_swap_remove r0 into r1;
@@ -340,20 +413,20 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1sgyxmg7z8qc62gg6463qt3fpx4ee65q7g3tdlax0khvn8k5hpcpsx8c9t5",
+      "id": "au1xw3fgfmcnxc4gzhkvzcm5mlk3kt8tr6xm8snps6e5le5fuefgsxs4crg8q",
       "program": "test.aleo",
       "function": "test_vector_ops",
       "inputs": [],
       "outputs": [
         {
           "type": "future",
-          "id": "5380119944827177114426827569985409091546772696992635323719744495956690485957field",
+          "id": "2454793303829305838438355669103477971165911824880501474182492099781348452349field",
           "value": "{\n  program_id: test.aleo,\n  function_name: test_vector_ops,\n  arguments: []\n}"
         }
       ],
-      "tpk": "7981053085130755109220824660426976121870810379074439786669633034831685925643group",
-      "tcm": "1972026825822913850151771635861552529053822353702925036266432391854296038009field",
-      "scm": "3373506719843842770296842989572420037715515309258645814277395836922481852951field"
+      "tpk": "1509225826729936932828767879642746779497914845352855436181487808881808057322group",
+      "tcm": "3952037093851161949992703784946751621361410486356701920880615778256607319154field",
+      "scm": "352113379757933237541724858351300214875164773547803828905676443067646316111field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -364,51 +437,21 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au19phh8yu9357lng2zp730pz5p3ycmsqw2zp6zcsphsl8je8gsmugqnf6epf",
+      "id": "au1c4z0x274cfhuz06vmlm7t7athx7whf6j8raypljfsac987lwqgrqu6gnj2",
       "program": "test.aleo",
       "function": "test_else_if_storage",
       "inputs": [
         {
           "type": "private",
-          "id": "3381144388671794797426513608351142703078965558456708060657637176060319283375field",
-          "value": "ciphertext1qyqpdwy2pg4vp557spf5etn9v00q4nuad8fpssd03tsmrquznnwewzgykhgty"
+          "id": "6860261426381668028240878904493908280634124748354017130412862990780565604197field",
+          "value": "ciphertext1qyqp9cnztkgzcvynf533udj7zge9ksw30ac4t7erndwmyklm7ec8zrqukpapy"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "6535702672695817117727958758098534330987780918244842703917880828830919772726field",
+          "id": "5158017375363551846671919269686117827371306796270126606479368028801550277155field",
           "value": "{\n  program_id: test.aleo,\n  function_name: test_else_if_storage,\n  arguments: [\n    true\n  ]\n}"
-        }
-      ],
-      "tpk": "7741601844666539001666024039402982534715897374550023665154670192555943804086group",
-      "tcm": "405747649736229202346826322966091607601216682721644481144965061125189530182field",
-      "scm": "6982835114081532470077471525610831940910246848097491998718665714984771333178field"
-    }
-  ],
-  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
-}
-
-verified: true
-status: accepted
-{
-  "transitions": [
-    {
-      "id": "au1d54ldc8etsjakgj6r85ud44p6atzwugv6tlq50z46fek6mwexsgq8st94x",
-      "program": "test.aleo",
-      "function": "test_else_if_storage",
-      "inputs": [
-        {
-          "type": "private",
-          "id": "5390670537095946902898671066840427570577539185356843603000057650635126359179field",
-          "value": "ciphertext1qyqp9cnztxgzcvynf533udj7zge9ksw30ac4t7erndwmyklm7ec8zrquvntpc"
-        }
-      ],
-      "outputs": [
-        {
-          "type": "future",
-          "id": "6038678416588232896059490176960599600518609360812355361411810465872360070458field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: test_else_if_storage,\n  arguments: [\n    false\n  ]\n}"
         }
       ],
       "tpk": "933855681493918551985687470197036272426346898098942205119692144951957333790group",
@@ -424,26 +467,80 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au17msky65ssws7686ul27kufd65d67eqn6jqqn6d47kxa8u82t8uqqet90s6",
+      "id": "au1yctxjfurgk9uxgvv6ylzxl6xawfnj0hdpnwe73qfqd97p07wpgrs2yct6v",
       "program": "test.aleo",
-      "function": "test_skipped_empty_swap_remove",
+      "function": "test_else_if_storage",
       "inputs": [
         {
           "type": "private",
-          "id": "6082943205485071917908787856465933175096453648746353718638364702459569215461field",
-          "value": "ciphertext1qyq0hpuu9um3ygsgnjcffm6q9wt0etncgk842x7ktk0g8vrlz2trkqgkljw0m"
+          "id": "6868883924559513022270884742071986748554985619166555028115330087810768827391field",
+          "value": "ciphertext1qyqzgx2x6cnz2kd579x8k26vkcq53s5ak5zuakurkle8094d4k74kqsdnz0yy"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "3715119693873006992024900303995028544174930401765326440885825522321481761118field",
-          "value": "{\n  program_id: test.aleo,\n  function_name: test_skipped_empty_swap_remove,\n  arguments: [\n    true\n  ]\n}"
+          "id": "3437389532916520841906686599660310230814235162597677325381973390524432626104field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_else_if_storage,\n  arguments: [\n    false\n  ]\n}"
         }
       ],
       "tpk": "2372600191360310466730899984372770159985559128975091816341615605713596468995group",
       "tcm": "5853235491636016644972123751172913318557685922285260959087640681402195176895field",
       "scm": "6376148113780901017011935352072049648711686986869714373089075707018072104747field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au13kn79vewv8y3ed6pm2sawaqwem4daac93t7w78t3lk0ny7wp2cxqytf0x5",
+      "program": "test.aleo",
+      "function": "test_skipped_empty_swap_remove",
+      "inputs": [
+        {
+          "type": "private",
+          "id": "5866807086461399978532143562149871678936774513964239701867560186692118267965field",
+          "value": "ciphertext1qyqg8t2c0llygatkympyyutcuy3apmyjwk0jxjvw4quux455jjtmvps3y9te7"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "4561891122024078340005753878835722197765566261000411789236347507299816199707field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_skipped_empty_swap_remove,\n  arguments: [\n    true\n  ]\n}"
+        }
+      ],
+      "tpk": "7519367406712661091265810033560010467750099554570243402063243590776075067862group",
+      "tcm": "7470301684228622630833315644936290798019430522515944686397507995270822590223field",
+      "scm": "3512923019782068683609519208373428502115058467933896558938883041710360245745field"
+    }
+  ],
+  "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
+}
+
+verified: true
+status: accepted
+{
+  "transitions": [
+    {
+      "id": "au1jn429kp4weqmnpwpln3hzn865cjqlpxfmmxlfpe5n8mcz003rqyql8uq9f",
+      "program": "test.aleo",
+      "function": "test_false_else_if_storage",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "future",
+          "id": "8359735522649823214367572558833723152755430952476009975736189374747998683792field",
+          "value": "{\n  program_id: test.aleo,\n  function_name: test_false_else_if_storage,\n  arguments: []\n}"
+        }
+      ],
+      "tpk": "3867998409334484009727813282319856285398275470243790591832547425793789982623group",
+      "tcm": "1030026032288221794024792418215965556734793958236685729787063657648907245851field",
+      "scm": "3708010339820271063935636638467213475123068213591474614965419485152760596868field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
