@@ -71,12 +71,18 @@ pub fn resolve(
     locked_commit: Option<&str>,
     offline: bool,
 ) -> Result<(PathBuf, String)> {
+    if locked_commit.is_some_and(|commit| !crate::dependency::is_commit_hash(commit)) {
+        return Err(crate::errors::git_error(name, url, "invalid locked commit hash").into());
+    }
     // Fast path: reuse a cached locked commit, but only for an immutable reference (or when
     // offline) — a mutable branch tip must be re-resolved online.
     if let Some(commit) = locked_commit
         && (offline || !reference.is_mutable())
     {
         let dir = checkout_dir(home, url, commit);
+        if dir.is_symlink() {
+            return Err(crate::errors::git_error(name, url, "the cached checkout is a symlink").into());
+        }
         if dir.is_dir() {
             return Ok((dir, commit.to_string()));
         }
@@ -138,6 +144,9 @@ fn clone_resolve_checkout(
     let commit = id.detach().to_string();
 
     let dir = checkout_dir(home, url, &commit);
+    if dir.is_symlink() {
+        return Err(crate::errors::git_error(name, url, "the cached checkout is a symlink").into());
+    }
     if !dir.is_dir() {
         // Atomic rename-in so a concurrent/interrupted resolution never sees a partial checkout.
         let staging = staging_dir(&dir);
@@ -183,7 +192,7 @@ fn checkout_tree(
 }
 
 /// A unique directory under `parent` for transient work (`<prefix>-<pid>-<seq>`).
-fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
+pub(crate) fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
     static COUNTER: AtomicU64 = AtomicU64::new(0);
     let seq = COUNTER.fetch_add(1, Ordering::Relaxed);
     parent.join(format!("{prefix}-{}-{seq}", std::process::id()))

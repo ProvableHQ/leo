@@ -506,7 +506,7 @@ impl Package {
             // The lock lives at the workspace root, else beside this package's `program.json`.
             let lock_dir = workspace_root.as_deref().unwrap_or(&path).to_path_buf();
             // New lock records only this build's resolutions; others are carried over from the old lock after.
-            let old_lock = Lock::read(&lock_dir);
+            let old_lock = Lock::read(&lock_dir)?;
             let mut new_lock = Lock::default();
 
             let first_dependency = Dependency {
@@ -519,6 +519,18 @@ impl Package {
 
             let test_dependencies: Vec<Dependency> = if with_tests {
                 let tests_directory = path.join(TESTS_DIRECTORY);
+                match std::fs::symlink_metadata(&tests_directory) {
+                    Ok(metadata) if metadata.is_dir() => {}
+                    Ok(_) => {
+                        return Err(crate::errors::failed_path(
+                            tests_directory.display(),
+                            "expected a test directory, not a symlink",
+                        )
+                        .into());
+                    }
+                    Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(err) => return Err(crate::errors::failed_path(tests_directory.display(), err).into()),
+                }
                 let mut test_dependencies: Vec<Dependency> = Self::files_with_extension(&tests_directory, "leo")
                     .map(|path| Dependency {
                         // We just made sure it has a ".leo" extension.

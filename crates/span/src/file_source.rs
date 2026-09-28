@@ -55,6 +55,9 @@ pub struct DiskFileSource;
 
 impl FileSource for DiskFileSource {
     fn read_file(&self, path: &Path) -> io::Result<String> {
+        if !fs::symlink_metadata(path)?.is_file() {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "expected a regular file, not a symlink"));
+        }
         fs::read_to_string(path)
     }
 
@@ -68,13 +71,22 @@ impl FileSource for DiskFileSource {
 
 /// Recursively walks `dir`, collecting `.leo` files and propagating I/O errors.
 fn walk_dir_recursive(dir: &Path, exclude: &Path, files: &mut Vec<PathBuf>) -> io::Result<()> {
+    if !fs::symlink_metadata(dir)?.is_dir() {
+        return Err(io::Error::new(io::ErrorKind::InvalidInput, "expected a source directory, not a symlink"));
+    }
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
+        let file_type = entry.file_type()?;
 
-        if path.is_dir() {
+        if file_type.is_symlink() {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "source directories cannot contain symlinks"));
+        } else if file_type.is_dir() {
             walk_dir_recursive(&path, exclude, files)?;
         } else if path != exclude && path.extension() == Some(OsStr::new("leo")) {
+            if !file_type.is_file() {
+                return Err(io::Error::new(io::ErrorKind::InvalidInput, "expected a regular source file"));
+            }
             files.push(path);
         }
     }
@@ -214,6 +226,35 @@ mod tests {
     fn disk_read_file_not_found() {
         let err = DiskFileSource.read_file(Path::new("/nonexistent_path_12345.leo")).unwrap_err();
         assert_eq!(err.kind(), io::ErrorKind::NotFound);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn disk_rejects_source_symlinks() {
+        let tmp = unique_temp_dir();
+        fs::create_dir_all(&tmp).expect("create fixture");
+        let target = tmp.join("sentinel");
+        fs::write(&target, "private sentinel").expect("write sentinel");
+        let link = tmp.join("module.leo");
+        std::os::unix::fs::symlink(&target, &link).expect("create source symlink");
+        assert!(DiskFileSource.read_file(&link).is_err());
+        assert!(DiskFileSource.list_leo_files(&tmp, Path::new("")).is_err());
+        fs::remove_file(&link).expect("remove source symlink");
+
+        let outside = tmp.join("outside");
+        fs::create_dir_all(&outside).expect("create source directory");
+        fs::write(outside.join("module.leo"), "private sentinel").expect("write module");
+        let root = tmp.join("src");
+        std::os::unix::fs::symlink(&outside, &root).expect("create directory symlink");
+        assert!(DiskFileSource.list_leo_files(&root, Path::new("")).is_err());
+        assert!(DiskFileSource.list_leo_files(&tmp, Path::new("")).is_err());
+        fs::remove_dir_all(tmp).expect("remove fixture");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn disk_rejects_nonregular_source_files() {
+        assert!(DiskFileSource.read_file(Path::new("/dev/null")).is_err());
     }
 
     #[test]

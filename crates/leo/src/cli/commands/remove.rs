@@ -123,7 +123,7 @@ impl Command for LeoRemove {
         // Prune the removed git dependencies' pins so the lock doesn't accumulate dead entries.
         if !removed_git_names.is_empty() {
             let lock_dir = Workspace::discover_root(&path)?.unwrap_or_else(|| path.clone());
-            let mut lock = Lock::read(&lock_dir);
+            let mut lock = Lock::read(&lock_dir)?;
             for name in &removed_git_names {
                 lock.remove_name(name);
             }
