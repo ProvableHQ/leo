@@ -207,39 +207,23 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         let reconstructed_type = input.type_.map(|ty| self.reconstruct_type_node(ty).0);
         let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
 
-        match &input.place {
-            DefinitionPlace::Single(identifier) => {
-                if let Err(err) = self.state.symbol_table.insert_variable(
-                    self.program,
-                    &self.module,
-                    &[identifier.name],
-                    VariableSymbol {
-                        type_: None,
-                        span: identifier.span,
-                        declaration: VariableType::Mut,
-                        is_exported: None,
-                    },
-                ) {
-                    self.state.handler.emit_err(err);
-                }
-            }
-            DefinitionPlace::Multiple(identifiers) => {
-                // Now just insert each tuple element as a separate variable
-                for identifier in identifiers.iter() {
-                    if let Err(err) = self.state.symbol_table.insert_variable(
-                        self.program,
-                        &self.module,
-                        &[identifier.name],
-                        VariableSymbol {
-                            type_: None,
-                            span: identifier.span,
-                            declaration: VariableType::Mut,
-                            is_exported: None,
-                        },
-                    ) {
-                        self.state.handler.emit_err(err);
-                    }
-                }
+        let identifiers = match &input.place {
+            DefinitionPlace::Single(identifier) => std::slice::from_ref(identifier),
+            DefinitionPlace::Multiple(identifiers) => identifiers.as_slice(),
+        };
+        for identifier in identifiers {
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.program,
+                &self.module,
+                &[identifier.name],
+                VariableSymbol {
+                    type_: None,
+                    span: identifier.span,
+                    declaration: VariableType::Mut,
+                    is_exported: None,
+                },
+            ) {
+                self.state.handler.emit_err(err);
             }
         }
 
