@@ -82,6 +82,7 @@ use leo_ast::NetworkName;
 use leo_errors::{Backtraced, Result};
 use leo_span::Symbol;
 
+use snarkvm::prelude::{ProgramID, TestnetV0};
 use std::path::Path;
 
 mod dependency;
@@ -153,12 +154,12 @@ pub fn canonicalize_program_name(name: &str) -> String {
 
 /// Converts a valid program or library name into a `Symbol`.
 ///
-/// Names must either end with `.aleo` or contain no periods; otherwise an error is returned.
+/// Names must be valid Aleo program identifiers or Leo library names.
 fn symbol(name: &str) -> Result<Symbol> {
-    if name.ends_with(".aleo") || !name.contains('.') {
+    if canonicalize_program_name(name).parse::<ProgramID<TestnetV0>>().is_ok() || is_valid_library_name(name) {
         Ok(Symbol::intern(name))
     } else {
-        Err(crate::errors::invalid_network_name(name).into())
+        Err(crate::errors::cli_invalid_package_name("program or library", name).into())
     }
 }
 

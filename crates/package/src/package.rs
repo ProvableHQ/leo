@@ -1047,6 +1047,43 @@ function main:
     }
 
     #[test]
+    fn unit_symbols_reject_paths() {
+        create_session_if_not_set_then(|_| {
+            for name in ["../escape.aleo", "/tmp/escape.aleo", r"..\escape.aleo", "foo/bar", "", ".aleo"] {
+                crate::symbol(name).expect_err("Unit names must not contain paths.");
+            }
+            for name in ["token", "token.aleo", "my_library", "MathLib", "final.aleo", "interface.aleo"] {
+                assert_eq!(crate::symbol(name).expect("Valid names must be accepted.").to_string(), name);
+            }
+        });
+    }
+
+    #[test]
+    fn local_bytecode_must_match_dependency_identity() {
+        create_session_if_not_set_then(|_| {
+            let root = crate::test_util::unique_dir("local-bytecode-identity");
+            let path = root.join("dependency.aleo");
+            crate::test_util::write_file(&path, LEAF_PROGRAM);
+            for name in ["dependency", "dependency.aleo", "../leaf.aleo", "/tmp/leaf.aleo"] {
+                CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect_err("A local bytecode dependency must have the requested identity.");
+            }
+            for name in ["leaf", "leaf.aleo"] {
+                let unit = CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect("The filename does not need to match the declared program ID.");
+                assert_eq!(unit.name.to_string(), name);
+            }
+            for name in ["final", "interface"] {
+                let bytecode = LEAF_PROGRAM.replace("leaf.aleo", &format!("{name}.aleo"));
+                crate::test_util::write_file(&path, &bytecode);
+                CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect("Valid Aleo names remain valid even when Leo reserves the name.");
+            }
+            std::fs::remove_dir_all(root).expect("The fixture should be removed.");
+        });
+    }
+
+    #[test]
     fn aleo_file_uses_sibling_imports_directory() {
         create_session_if_not_set_then(|_| {
             let root = crate::test_util::unique_dir("aleo-file-flat-imports");

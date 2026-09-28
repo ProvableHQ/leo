@@ -85,11 +85,6 @@ pub(crate) fn conflicting_manifest(expected_name: impl Display, manifest_name: i
     ))
 }
 
-pub(crate) fn invalid_network_name(name: impl Display) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 56, format!("invalid network name `{name}` in `program.json`"))
-        .with_help("Valid network names are `testnet`, `mainnet`, and `canary`.")
-}
-
 pub(crate) fn invalid_manifest_dependency(dep_name: impl Display, reason: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,

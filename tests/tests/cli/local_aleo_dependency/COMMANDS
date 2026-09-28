@@ -3,3 +3,26 @@
 LEO_BIN=${1}
 
 ${LEO_BIN} --disable-update-check build
+
+outside=$(mktemp -d)
+mv build build.saved
+trap 'rm -rf build "$outside"; mv build.saved build' EXIT
+
+for target in root directory file dangling; do
+    mkdir -p "$outside/simple"
+    printf 'sentinel\n' > "$outside/simple/simple.aleo"
+    case "$target" in
+        root) ln -s "$outside" build ;;
+        directory) mkdir build; ln -s "$outside/simple" build/simple ;;
+        file) mkdir -p build/simple; ln -s "$outside/simple/simple.aleo" build/simple/simple.aleo ;;
+        dangling) mkdir -p build/simple; ln -s "$outside/missing.aleo" build/simple/simple.aleo ;;
+    esac
+    if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+        echo "Build accepted a $target symlink"
+        exit 1
+    fi
+    [[ "$output" == *"Build output must not contain symlinks"* ]] || { echo "$output"; exit 1; }
+    [[ "$(cat "$outside/simple/simple.aleo")" == "sentinel" && ! -e "$outside/missing.aleo" ]] || exit 1
+    echo "Rejected $target symlink; outside files are unchanged."
+    rm -rf build
+done
