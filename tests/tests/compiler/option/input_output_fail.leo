@@ -30,6 +30,10 @@ program test.aleo {
         return x;
     }
 
+    fn entry_library_optional(x: Wrapper) -> Wrapper {
+        return x;
+    }
+
     @noupgrade
     constructor() {}
 }
