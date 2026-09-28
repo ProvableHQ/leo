@@ -405,7 +405,7 @@ impl CompilationUnit {
             .commit_for_source(url, &reference_str)
             .filter(|commit| crate::dependency::is_commit_hash(commit))
             .map(|commit| (crate::git::checkout_dir(home_path, url, commit), commit.to_string()))
-            .filter(|(dir, _)| dir.is_dir() && !dir.is_symlink());
+            .filter(|(dir, _)| std::fs::symlink_metadata(dir).is_ok_and(|metadata| metadata.is_dir()));
         let (checkout, commit) = match memoized {
             Some(hit) => hit,
             None => {
