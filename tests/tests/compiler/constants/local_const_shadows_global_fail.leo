@@ -1,3 +1,15 @@
+// --- library: scope_lib --- //
+
+// --- Next Module: config.leo --- //
+
+export const admin: u32 = 13u32;
+
+export fn parameter(admin: u32) -> u32 {
+    return admin;
+}
+
+// --- Next Program --- //
+
 export const VALUE: u32 = 10;
 
 program test.aleo {

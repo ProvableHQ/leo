@@ -1,15 +1,32 @@
+[EAST0372017] Error: the name `admin` is defined multiple times
+   ╭─[ config.leo:4:21 ]
+   │
+ 4 │ export fn parameter(admin: u32) -> u32 {
+   │
+   ├─[ config.leo:4:21 ]
+   │
+ 2 │ export const admin: u32 = 13u32;
+   │              ──┬──  
+   │                ╰──── previous definition of `admin` here
+   │ 
+ 4 │ export fn parameter(admin: u32) -> u32 {
+   │                     ──┬──  
+   │                       ╰──── `admin` redefined here
+   │ 
+   │ Help: Rename or remove all but one of the `admin` definitions so the name is unique within its scope.
+───╯
 [EAST0372017] Error: the name `VALUE` is defined multiple times
-   ╭─[ compiler-test:5:15 ]
+   ╭─[ compiler-test:7:15 ]
    │
- 5 │         const VALUE: u32 = 20;
+ 7 │         const VALUE: u32 = 20;
    │
-   ├─[ compiler-test:5:15 ]
+   ├─[ compiler-test:7:15 ]
    │
- 1 │ export const VALUE: u32 = 10;
+ 3 │ export const VALUE: u32 = 10;
    │              ──┬──  
    │                ╰──── previous definition of `VALUE` here
    │ 
- 5 │         const VALUE: u32 = 20;
+ 7 │         const VALUE: u32 = 20;
    │               ──┬──  
    │                 ╰──── `VALUE` redefined here
    │ 
