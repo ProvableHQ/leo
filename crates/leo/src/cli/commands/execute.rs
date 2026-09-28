@@ -371,35 +371,6 @@ fn handle_execute<A: Aleo>(
         consensus_version: Some(consensus_version as u8),
     });
 
-    // Print the execution plan.
-    print_execution_plan::<A::Network>(
-        &private_key,
-        &address,
-        &endpoint,
-        &network,
-        &program_name,
-        &function_name,
-        is_local,
-        priority_fee.unwrap_or(0),
-        record.is_some(),
-        &command.action,
-        consensus_version,
-        &check_task_for_warnings(
-            &endpoint,
-            network,
-            &programs,
-            consensus_version,
-            command.env_override.network_retries,
-        ),
-        command.skip_execute_proof,
-    );
-
-    // Prompt the user to confirm the plan.
-    if !confirm("Do you want to proceed with execution?", command.extra.yes)? {
-        println!("❌ Execution aborted.");
-        return Ok(ExecuteOutput::default());
-    }
-
     // Initialize an RNG.
     let rng = &mut rand::rng();
 
@@ -426,6 +397,9 @@ fn handle_execute<A: Aleo>(
         )?;
     };
 
+    let warnings =
+        check_task_for_warnings(&endpoint, network, &programs, consensus_version, command.env_override.network_retries);
+
     // Add the programs to the VM.
     println!("\n➕Adding programs to the VM in the following order:");
     let programs_and_editions = programs
@@ -450,22 +424,43 @@ fn handle_execute<A: Aleo>(
         )?;
     }
 
+    println!("\n⚙️ Preparing calls for review: {program_name}/{function_name}...");
     // Generate the authorization (the method differs based on skip_execute_proof).
     let authorization = if command.skip_execute_proof {
-        println!("\n⚙️ Generating transaction WITHOUT a proof for {program_name}/{function_name}...");
         vm.process()
             .authorize::<A, _>(&private_key, &program_name, &function_name, inputs.iter(), rng)
             .map_err(|e| anyhow::anyhow!("{e}"))?
     } else {
-        println!("\n⚙️ Executing {program_name}/{function_name}...");
         vm.authorize(&private_key, &program_name, &function_name, inputs.iter(), rng)
             .map_err(|e| anyhow::anyhow!("{e}"))?
     };
+
+    print_execution_plan::<A::Network>(
+        &address,
+        &endpoint,
+        &network,
+        &program_name,
+        &function_name,
+        is_local,
+        priority_fee.unwrap_or(0),
+        record.is_some(),
+        &command.action,
+        consensus_version,
+        &warnings,
+        command.skip_execute_proof,
+        &authorization,
+    )?;
 
     // Estimate and display execution cost.
     let (estimated_cost, (est_storage, est_exec)) =
         execution_cost_for_authorization(vm.process(), &authorization, consensus_version)?;
     let stats = print_execution_cost_summary(&program_name, est_storage, est_exec, priority_fee);
+
+    // Keep this authorization local until the user approves its calls and cost.
+    if !confirm("Approve all calls and fees shown above?", command.extra.yes)? {
+        println!("❌ Execution aborted.");
+        return Ok(ExecuteOutput::default());
+    }
 
     // Generate the transaction (the method differs based on skip_execute_proof).
     let (output_name, output, response) = if command.skip_execute_proof {
@@ -695,7 +690,6 @@ fn check_task_for_warnings<N: Network>(
 /// Pretty-print the execution plan in a readable format.
 #[allow(clippy::too_many_arguments)]
 fn print_execution_plan<N: Network>(
-    private_key: &PrivateKey<N>,
     address: &Address<N>,
     endpoint: &str,
     network: &NetworkName,
@@ -708,14 +702,14 @@ fn print_execution_plan<N: Network>(
     consensus_version: ConsensusVersion,
     warnings: &[String],
     skip_execute_proof: bool,
-) {
+    authorization: &Authorization<N>,
+) -> Result<()> {
     println!("\n{}", "🚀 Execution Plan Summary".bold().underline());
     println!("{}", "──────────────────────────────────────────────".dimmed());
 
     println!("{}", "🔧 Configuration:".bold());
-    println!("  {:20}{}", "Private Key:".cyan(), format!("{}...", &private_key.to_string()[..24]).yellow());
-    println!("  {:20}{}", "Address:".cyan(), format!("{}...", &address.to_string()[..24]).yellow());
-    println!("  {:20}{}", "Endpoint:", endpoint.yellow());
+    println!("  {:20}{}", "Address:".cyan(), address.to_string().yellow());
+    println!("  {:20}{}", "Endpoint:", endpoint.escape_debug().to_string().yellow());
     println!("  {:20}{}", "Network:", network.to_string().yellow());
     println!("  {:20}{}", "Consensus Version:", (consensus_version as u8).to_string().yellow());
 
@@ -724,13 +718,55 @@ fn print_execution_plan<N: Network>(
     println!("  {:16}{}", "Function:", function_name.cyan());
     println!("  {:16}{}", "Source:", if is_local { "local" } else { "remote" });
 
+    println!("\n{}", "Calls to approve:".bold());
+    let transitions = authorization.transitions();
+    for (index, request) in authorization.to_vec_deque().iter().enumerate() {
+        println!("  Call {}: {}/{}", index + 1, request.program_id(), request.function_name());
+        println!("    Signer: {}", request.signer());
+        for (index, (input_id, value)) in request.input_ids().iter().zip(request.inputs()).enumerate() {
+            match value {
+                snarkvm::prelude::Value::Record(_) | snarkvm::prelude::Value::DynamicRecord(_) => {
+                    println!("    Input {}: <private record>", index + 1)
+                }
+                _ if matches!(input_id, snarkvm::prelude::InputID::Private(_)) => {
+                    println!("    Input {}: <private input>", index + 1)
+                }
+                _ => println!("    Input {}: {}", index + 1, value.to_string().escape_debug()),
+            }
+        }
+        // Requests and transitions have different traversal orders.
+        let transition = transitions
+            .values()
+            .find(|transition| transition.tcm() == request.tcm())
+            .ok_or_else(|| crate::errors::custom("Cannot review an execution with a missing transition."))?;
+        for future in transition.outputs().iter().filter_map(|output| output.future()) {
+            if future.program_id().to_string() == "credits.aleo"
+                && matches!(
+                    future.function_name().to_string().as_str(),
+                    "transfer_public" | "transfer_public_as_signer"
+                )
+                && let [
+                    snarkvm::prelude::Argument::Plaintext(debit),
+                    snarkvm::prelude::Argument::Plaintext(recipient),
+                    snarkvm::prelude::Argument::Plaintext(amount),
+                ] = future.arguments()
+            {
+                println!("    Debit: {}", debit.to_string().escape_debug());
+                println!("    Recipient: {}", recipient.to_string().escape_debug());
+                println!("    Amount: {} microcredits", amount.to_string().escape_debug());
+            }
+            println!("    Finalize: {}", future.to_string().escape_debug());
+        }
+    }
+    println!("  Final balances depend on on-chain state.");
+
     println!("\n{}", "💸 Fee Info:".bold());
     println!("  {:16}{}", "Priority Fee:", format!("{priority_fee} μcredits").green());
     println!("  {:16}{}", "Fee Record:", if fee_record { "yes" } else { "no (public fee)" });
 
     println!("\n{}", "⚙️ Actions:".bold());
     if !is_local {
-        println!("  - Program and its dependencies will be downloaded from the network.");
+        println!("  - Program and its dependencies were loaded from network bytecode.");
     }
     if skip_execute_proof {
         println!("  - A transaction will be generated, WITHOUT a proof.");
@@ -741,12 +777,12 @@ fn print_execution_plan<N: Network>(
         println!("  - Transaction will NOT be printed to the console.");
     }
     if let Some(path) = &action.save {
-        println!("  - Transaction will be saved to {}", path.bold());
+        println!("  - Transaction will be saved to {}", path.escape_debug().to_string().bold());
     } else {
         println!("  - Transaction will NOT be saved to a file.");
     }
     if action.broadcast {
-        println!("  - Transaction will be broadcast to {}", endpoint.bold());
+        println!("  - Transaction will be broadcast to {}", endpoint.escape_debug().to_string().bold());
     } else {
         println!("  - Transaction will NOT be broadcast to the network.");
     }
@@ -755,11 +791,12 @@ fn print_execution_plan<N: Network>(
     if !warnings.is_empty() {
         println!("\n{}", "⚠️ Warnings:".bold().red());
         for warning in warnings {
-            println!("  • {}", warning.dimmed());
+            println!("  • {}", warning.escape_debug().to_string().dimmed());
         }
     }
 
     println!("{}", "──────────────────────────────────────────────\n".dimmed());
+    Ok(())
 }
 
 /// Print execution cost summary and return stats for JSON output.

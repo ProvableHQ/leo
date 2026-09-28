@@ -17,11 +17,16 @@
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
 
+➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
+  - some_sample_leo_program.aleo (local)
+
+⚙️ Preparing calls for review: some_sample_leo_program.aleo/main...
+
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
 🔧 Configuration:
-  Private Key:        APrivateKey1zkp8CZNn3yeC...
-  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Address:            aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
   Endpoint:           http://localhost:3030
   Network:            testnet
   Consensus Version:  21
@@ -30,6 +35,13 @@ Attempting to determine the consensus version from the latest block height at ht
   Program:        some_sample_leo_program.aleo
   Function:       main
   Source:         local
+
+Calls to approve:
+  Call 1: some_sample_leo_program.aleo/main
+    Signer: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
+    Input 1: 1u32
+    Input 2: <private input>
+  Final balances depend on on-chain state.
 
 💸 Fee Info:
   Priority Fee:   0 μcredits
@@ -41,14 +53,9 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be broadcast to the network.
 
 ⚠️ Warnings:
+  • The program \'some_sample_leo_program.aleo\' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.
 ──────────────────────────────────────────────
 
-
-➕Adding programs to the VM in the following order:
-  - credits.aleo (already included)
-  - some_sample_leo_program.aleo (local)
-
-⚙️ Executing some_sample_leo_program.aleo/main...
 
 📊 Execution Cost Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
@@ -74,11 +81,16 @@ Attempting to determine the consensus version from the latest block height at ht
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
 
+➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
+  - some_sample_leo_program.aleo (local)
+
+⚙️ Preparing calls for review: some_sample_leo_program.aleo/main...
+
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
 🔧 Configuration:
-  Private Key:        APrivateKey1zkp8CZNn3yeC...
-  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Address:            aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
   Endpoint:           http://localhost:3030
   Network:            testnet
   Consensus Version:  21
@@ -87,6 +99,13 @@ Attempting to determine the consensus version from the latest block height at ht
   Program:        some_sample_leo_program.aleo
   Function:       main
   Source:         local
+
+Calls to approve:
+  Call 1: some_sample_leo_program.aleo/main
+    Signer: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
+    Input 1: 1u32
+    Input 2: <private input>
+  Final balances depend on on-chain state.
 
 💸 Fee Info:
   Priority Fee:   0 μcredits
@@ -98,14 +117,9 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will NOT be broadcast to the network.
 
 ⚠️ Warnings:
+  • The program \'some_sample_leo_program.aleo\' does not exist on the network. You may use `leo deploy --broadcast` to deploy it.
 ──────────────────────────────────────────────
 
-
-➕Adding programs to the VM in the following order:
-  - credits.aleo (already included)
-  - some_sample_leo_program.aleo (local)
-
-⚙️ Executing some_sample_leo_program.aleo/main...
 
 📊 Execution Cost Summary for some_sample_leo_program.aleo
 ──────────────────────────────────────────────
