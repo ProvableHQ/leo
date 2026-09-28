@@ -437,6 +437,44 @@ fn lock_write_preserves_existing_permissions() {
 
 #[cfg(unix)]
 #[test]
+fn lock_write_failure_preserves_existing_lock() {
+    const CHILD: &str = "LEO_TEST_LOCK_WRITE_LIMIT";
+    if std::env::var_os(CHILD).is_none() {
+        let output = std::process::Command::new("bash")
+            .args([
+                "-c",
+                "trap '' XFSZ; ulimit -f 1; exec \"$1\" --exact tests::lock_write_failure_preserves_existing_lock --nocapture",
+                "bash",
+            ])
+            .arg(std::env::current_exe().expect("The test executable must exist."))
+            .env(CHILD, "1")
+            .output()
+            .expect("The limited child process must start.");
+        assert!(
+            output.status.success(),
+            "The limited child test failed: {}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return;
+    }
+    let dir = unique_dir("lock-write-failure");
+    let path = dir.join(LOCK_FILENAME);
+    let original = r#"{"version":1,"git":[]}"#;
+    write_file(&path, original);
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "x".repeat(16 * 1024), "default".into(), "abc123".into());
+    let error = lock.write(&dir).expect_err("The file-size limit must reject the temporary write.");
+    assert!(error.to_string().contains("failed to write lock file"), "{error}");
+    assert_eq!(std::fs::read_to_string(&path).expect("The previous lock must remain readable."), original);
+    let mut entries = std::fs::read_dir(&dir).expect("The lock directory must remain readable.");
+    assert_eq!(entries.next().expect("The lock must remain.").expect("The entry must be readable.").path(), path);
+    assert!(entries.next().is_none(), "The failed write must remove its temporary file.");
+    std::fs::remove_dir_all(dir).expect("The test directory must be removed.");
+}
+
+#[cfg(unix)]
+#[test]
 fn lock_rejects_symlinks_without_changing_targets() {
     let dir = unique_dir("lock-symlink");
     let target = dir.join("target");

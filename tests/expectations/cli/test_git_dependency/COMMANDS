@@ -112,6 +112,29 @@ echo "--- 10. a path-traversal dependency name is rejected before fetching ---" 
 leo_redacted add "../escape" --git "${URL}"
 echo "exit: $?"
 
+# Git additions and removals must reject a linked lock before changing its target.
+cp program.json "${GEN}/consumer.json"
+for command in add remove; do
+    cp "${GEN}/consumer.json" program.json
+    mv leo.lock "${OUT}"
+    cp "${OUT}" "${ERR}"
+    ln -s "${OUT}" leo.lock
+    args=("$command" gitlib)
+    if [[ "$command" == add ]]; then
+        args+=(--git "${URL}")
+    fi
+    if output=$(${LEO_BIN} --disable-update-check --home "${HOMEDIR}" "${args[@]}" 2>&1); then
+        echo "Git $command accepted a linked lock file"
+        exit 1
+    fi
+    [[ "$output" == *"expected a regular file, not a symlink"* ]] || { echo "$output"; exit 1; }
+    [[ -L leo.lock ]] || exit 1
+    cmp "${OUT}" "${ERR}" || exit 1
+    rm leo.lock
+    mv "${OUT}" leo.lock
+    echo "Rejected linked lock during Git $command; target is unchanged."
+done
+
 # Restore the manifest and remove generated artifacts so the compared contents are deterministic.
 mv program.json.bak program.json
 rm -rf build leo.lock "${REPO}" "${GEN}" "${HOMEDIR}" "${OUT}" "${ERR}"
