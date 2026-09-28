@@ -4,6 +4,36 @@ LEO_BIN=${1}
 
 ${LEO_BIN} --disable-update-check build
 
+probe=$(mktemp -d)
+cp program.json "$probe/program.json"
+cp -R build "$probe/build"
+trap 'cp "$probe/program.json" program.json; rm -f escaped.aleo; rm -rf escaped "$probe"' EXIT
+printf 'outside sentinel\n' > "$probe/escaped.aleo"
+printf 'outside sentinel\n' > escaped.aleo
+for name in "$probe/escaped.aleo" ../escaped.aleo; do
+    printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"%s","location":"local","path":"simple.aleo"}]}\n' "$name" > program.json
+    if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+        echo "Build accepted a dependency path as its name"
+        exit 1
+    fi
+    [[ "$output" == *"invalid dependency"* ]] || { echo "$output"; exit 1; }
+    [[ "$(cat "$probe/escaped.aleo")" == "outside sentinel" && "$(cat escaped.aleo)" == "outside sentinel" ]] || exit 1
+    diff -r "$probe/build" build || exit 1
+    echo "Rejected dependency path; outside files and build artifacts are unchanged."
+done
+printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"different.aleo","location":"local","path":"simple.aleo"}]}\n' > program.json
+if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+    echo "Build accepted bytecode with a different program ID"
+    exit 1
+fi
+[[ "$output" == *'Expected program `different.aleo`, but the bytecode declares `simple.aleo`.'* ]] || { echo "$output"; exit 1; }
+diff -r "$probe/build" build || exit 1
+echo "Rejected mismatched bytecode; build artifacts are unchanged."
+cp "$probe/program.json" program.json
+rm -f escaped.aleo
+rm -rf "$probe"
+trap - EXIT
+
 outside=$(mktemp -d)
 mv build build.saved
 trap 'rm -rf build "$outside"; mv build.saved build' EXIT
