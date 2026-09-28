@@ -516,7 +516,7 @@ fn network_names_are_rejected_before_requests() {
     let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/tests/cli/local_aleo_dependency/contents");
     copy_recursively(&source, &project_directory).expect("The existing CLI fixture must be copied.");
     let manifest_path = project_directory.join("program.json");
-    let manifest: serde_json::Value =
+    let mut manifest: serde_json::Value =
         serde_json::from_slice(&fs::read(&manifest_path).expect("The manifest must load."))
             .expect("The existing manifest must be valid JSON.");
     let home = fixture.path().join("home");
@@ -527,9 +527,8 @@ fn network_names_are_rejected_before_requests() {
     std::fs::write(&cached, "cache sentinel").expect("The cache sentinel must be written.");
     std::fs::write(&outside, "outside sentinel").expect("The outside sentinel must be written.");
     for name in ["../outside.aleo".to_owned(), outside.display().to_string()] {
-        let mut invalid = serde_json::to_value(&manifest).expect("The manifest must serialize.");
-        invalid["dependencies"] = serde_json::json!([{ "name": name, "location": "network" }]);
-        let contents = serde_json::to_vec_pretty(&invalid).expect("The manifest must serialize.");
+        manifest["dependencies"] = serde_json::json!([{ "name": name, "location": "network" }]);
+        let contents = serde_json::to_vec_pretty(&manifest).expect("The manifest must serialize.");
         std::fs::write(&manifest_path, &contents).expect("The malformed manifest must be written.");
         let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("The local endpoint must bind.");
         let endpoint = format!("http://{}", listener.local_addr().expect("The endpoint must have an address."));
