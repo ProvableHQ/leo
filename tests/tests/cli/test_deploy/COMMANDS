@@ -3,8 +3,26 @@
 set -e
 
 LEO_BIN=${1}
+
+# This checksum comes from the reviewed, locally compiled bytecode in this fixture's expectations.
+NETWORK_LOCK=$(mktemp)
+trap 'rm -f "$NETWORK_LOCK"' EXIT
+cat > "$NETWORK_LOCK" <<'JSON'
+{"version": 2, "git": [], "network": [
+    {
+      "name": "some_sample_leo_program.aleo",
+      "network": "testnet",
+      "edition": 0,
+      "checksum": [
+        218, 29, 76, 10, 129, 17, 226, 52, 243, 166, 142, 129, 90, 12, 147, 224,
+        200, 219, 166, 88, 40, 193, 250, 177, 40, 42, 100, 97, 232, 64, 198, 156
+      ]
+    }
+]}
+JSON
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
 COMMON_OPTS="--disable-update-check --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+COMMON_OPTS="--network-lock $NETWORK_LOCK $COMMON_OPTS"
 ALEO_FILE="./build/some_sample_leo_program/some_sample_leo_program.aleo"
 
 $LEO_BIN build --disable-update-check --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}

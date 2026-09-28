@@ -148,7 +148,7 @@ impl Command for LeoDeploy {
             let home_path = context.home()?;
             let network = get_network(&self.env_override.network)?;
             let endpoint = get_endpoint(&self.env_override.endpoint)?;
-            return Package::from_aleo_file(
+            return Package::from_aleo_file_with_network_lock(
                 path,
                 home_path,
                 self.imports_dir.as_deref(),
@@ -157,6 +157,7 @@ impl Command for LeoDeploy {
                 Some(network),
                 Some(&endpoint),
                 self.env_override.network_retries,
+                context.network_lock.as_deref(),
             );
         }
         if self.imports_dir.is_some() {

@@ -18,7 +18,7 @@ use super::*;
 use std::{collections::HashSet, fs};
 
 use leo_ast::NetworkName;
-use leo_package::{Package, ProgramData, fetch_program_from_network};
+use leo_package::{Package, ProgramData};
 
 #[cfg(not(feature = "only_testnet"))]
 use snarkvm::prelude::{CanaryV0, MainnetV0};
@@ -40,7 +40,6 @@ use crate::cli::{
 use aleo_std::StorageMode;
 use colored::*;
 use itertools::Itertools;
-use leo_span::Symbol;
 use snarkvm::{
     prelude::{ConsensusVersion, ProgramID, Stack, check_program_plaintext_sizes, store::helpers::memory::BlockMemory},
     synthesizer::program::StackTrait,
@@ -93,7 +92,7 @@ impl Command for LeoUpgrade {
             let home_path = context.home()?;
             let network = get_network(&self.env_override.network)?;
             let endpoint = get_endpoint(&self.env_override.endpoint)?;
-            return Package::from_aleo_file(
+            return Package::from_aleo_file_with_network_lock(
                 path,
                 home_path,
                 self.imports_dir.as_deref(),
@@ -102,6 +101,7 @@ impl Command for LeoUpgrade {
                 Some(network),
                 Some(&endpoint),
                 self.env_override.network_retries,
+                context.network_lock.as_deref(),
             );
         }
         if self.imports_dir.is_some() {
@@ -265,12 +265,25 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         command.env_override.network_retries,
     )?;
 
-    // Fail closed for proven-invalid upgrades by using the stricter active endpoint rules; fetch uncertainty remains a warning below.
+    // Load trusted old programs and their imports before checking or authorizing the upgrade.
+    let mut programs_and_editions = Vec::with_capacity(program_ids.len());
+    let mut loaded = HashSet::new();
+    for id in &program_ids {
+        for (program, edition) in
+            load_pinned_programs_from_network(&context, *id, network, &endpoint, command.env_override.network_retries)?
+        {
+            if loaded.insert(*program.id()) {
+                programs_and_editions.push((program, edition.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION)));
+            }
+        }
+    }
+
+    // Use the stricter active endpoint rules to check the upgrade.
     let validation_consensus_version =
         get_endpoint_consensus_version(&endpoint, network, command.env_override.network_retries)
             .map_or(consensus_version, |network_version| consensus_version.max(network_version));
     let remote_programs =
-        validate_upgrade_tasks(&endpoint, network, &local, &skipped, validation_consensus_version, command)?;
+        validate_upgrade_tasks(&programs_and_editions, &local, &skipped, validation_consensus_version)?;
 
     // Build the config for JSON output.
     let config = Some(Config {
@@ -305,33 +318,6 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 
     // Initialize a new VM.
     let vm = VM::from(ConsensusStore::<N, ConsensusMemory<N>>::open(StorageMode::Production)?)?;
-
-    // Load all the programs from the network into the VM.
-    let mut programs_and_editions = Vec::with_capacity(program_ids.len());
-    for id in &program_ids {
-        // Load the program from the network.
-        let Ok(program) = leo_package::CompilationUnit::fetch(
-            Symbol::intern(&id.name().to_string()),
-            None,
-            context.home()?,
-            network,
-            &endpoint,
-            true,
-            command.env_override.network_retries,
-        ) else {
-            warn_and_confirm(&format!("Failed to fetch program {id} from the network."), command.extra.yes)?;
-            continue;
-        };
-        let ProgramData::Bytecode(bytecode) = program.data else {
-            panic!("Expected bytecode when fetching a remote program");
-        };
-        // Parse the program bytecode.
-        let bytecode = Program::<N>::from_str(&bytecode)
-            .map_err(|e| crate::errors::custom(format!("Failed to parse program: {e}")))?;
-        // Program::fetch should always set the edition after a successful fetch.
-        let edition = program.edition.expect("Edition should be set after successful fetch");
-        programs_and_editions.push((bytecode, edition));
-    }
 
     // Check for programs that violate edition/constructor requirements.
     check_edition_constructor_requirements(&programs_and_editions, consensus_version, "upgrade")?;
@@ -526,12 +512,10 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
 }
 
 fn validate_upgrade_tasks<N: Network>(
-    endpoint: &str,
-    network: NetworkName,
+    verified_programs: &[(Program<N>, u16)],
     tasks: &[Task<N>],
     skipped: &HashSet<ProgramID<N>>,
     consensus_version: ConsensusVersion,
-    command: &LeoUpgrade,
 ) -> Result<Vec<(ProgramID<N>, Program<N>)>> {
     let mut remote_programs = Vec::with_capacity(tasks.len());
 
@@ -541,17 +525,14 @@ fn validate_upgrade_tasks<N: Network>(
             continue;
         }
 
-        let Ok(remote_program) =
-            fetch_program_from_network(&id.to_string(), endpoint, network, command.env_override.network_retries)
-        else {
-            // Fetch uncertainty remains in `check_tasks_for_warnings` so transient network state does not block planning.
-            continue;
-        };
-        let Ok(remote_program) = Program::<N>::from_str(&remote_program) else {
-            continue;
-        };
-        reject_invalid_upgrade(id, &remote_program, program, consensus_version)?;
-        remote_programs.push((*id, remote_program));
+        let remote_program =
+            verified_programs
+                .iter()
+                .find(|(remote, _)| remote.id() == id)
+                .map(|(remote, _)| remote)
+                .ok_or_else(|| crate::errors::custom(format!("Missing verified program for upgrade: {id}")))?;
+        reject_invalid_upgrade(id, remote_program, program, consensus_version)?;
+        remote_programs.push((*id, remote_program.clone()));
     }
 
     Ok(remote_programs)
@@ -621,20 +602,6 @@ fn check_tasks_for_warnings<N: Network>(
         // Check if the program exists on the network.
         if let Some((_, remote_program)) = remote_programs.iter().find(|(remote_id, _)| remote_id == id) {
             push_remote_upgrade_warnings(id, remote_program, program, consensus_version, &mut warnings);
-        } else if let Ok(remote_program) =
-            fetch_program_from_network(&id.to_string(), endpoint, network, command.env_override.network_retries)
-        {
-            // Parse the program.
-            let remote_program = match Program::<N>::from_str(&remote_program) {
-                Ok(program) => program,
-                Err(e) => {
-                    warnings.push(format!("Could not parse '{id}' from the network. Error: {e}",));
-                    continue;
-                }
-            };
-            push_remote_upgrade_warnings(id, &remote_program, program, consensus_version, &mut warnings);
-        } else {
-            warnings.push(format!("The program '{id}' does not exist on the network. The upgrade will likely fail.",));
         }
         // Check if the program has a valid naming scheme.
         if consensus_version >= ConsensusVersion::V7

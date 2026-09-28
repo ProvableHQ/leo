@@ -24,6 +24,16 @@ use std::{
 const CODE_PREFIX: &str = "PAK";
 const CODE_MASK: i32 = 5000;
 
+pub(crate) fn invalid_lock_file(path: impl Display, reason: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 84, format!("invalid lock file at `{path}`: {reason}"))
+        .with_help("Restore a valid lock file. Do not replace trusted pins with values from an untrusted endpoint.")
+}
+
+pub(crate) fn untrusted_network_program(name: impl Display, reason: impl Display) -> Backtraced {
+    Backtraced::error(CODE_PREFIX, CODE_MASK + 85, format!("cannot trust network program `{name}`: {reason}"))
+        .with_help("Add the program's network, edition, and checksum from reviewed bytecode or an independent trusted source to `leo.lock`. Use `--network-lock <FILE>` to select a trusted lock file.")
+}
+
 pub(crate) fn io_error_gitignore_file(error: impl ErrorArg) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 16, format!("failed to write `.gitignore`: {error}"))
         .with_help("Verify the package directory is writable.")

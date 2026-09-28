@@ -133,7 +133,7 @@ pub fn load_extra_programs_into_vm<N: Network>(
             println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
             let program_id = ProgramID::<N>::from_str(&name)
                 .map_err(|e| crate::errors::custom(format!("Failed to parse program ID '{name}': {e}")))?;
-            let fetched = super::query::load_latest_programs_from_network(
+            let fetched = super::query::load_pinned_programs_from_network(
                 context,
                 program_id,
                 network,
@@ -154,6 +154,37 @@ mod tests {
     use super::*;
     use snarkvm::prelude::TestnetV0;
     use std::str::FromStr;
+
+    #[test]
+    fn extra_remote_program_requires_a_trusted_pin() {
+        use crate::cli::context::Context;
+        use snarkvm::prelude::{
+            VM,
+            store::{ConsensusStore, helpers::memory::ConsensusMemory},
+        };
+
+        let root = std::env::temp_dir().join(format!("leo_extra_pin_{}", std::process::id()));
+        std::fs::create_dir_all(&root).expect("The temporary directory must be created");
+        let context =
+            Context::new(Some(root.clone()), Some(root.join("cache")), false, None).expect("The context must be valid");
+        let store = ConsensusStore::<TestnetV0, ConsensusMemory<TestnetV0>>::open(aleo_std::StorageMode::Production)
+            .expect("The memory store must open");
+        let vm = VM::from(store).expect("The VM must initialize");
+        leo_span::create_session_if_not_set_then(|_| {
+            let error = load_extra_programs_into_vm(
+                &["unpinned.aleo".to_string()],
+                &vm,
+                &context,
+                leo_ast::NetworkName::TestnetV0,
+                Some("http://localhost:1"),
+                0,
+            )
+            .expect_err("An unpinned extra program must fail");
+            assert!(error.to_string().contains("trusted checksum pin"), "{error}");
+        });
+        assert!(!root.join("cache").exists());
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
 
     #[test]
     fn test_edition_constructor_error_message() {

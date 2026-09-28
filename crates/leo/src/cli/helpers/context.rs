@@ -16,7 +16,7 @@
 
 use aleo_std;
 use leo_errors::Result;
-use leo_package::{Manifest, Workspace};
+use leo_package::{Lock, Manifest, Workspace};
 
 use aleo_std::aleo_dir;
 use std::{env::current_dir, path::PathBuf};
@@ -30,6 +30,8 @@ pub struct Context {
     pub path: Option<PathBuf>,
     /// Path to use for the Aleo registry, None when default
     pub home: Option<PathBuf>,
+    /// Optional file with trusted network program pins.
+    pub network_lock: Option<PathBuf>,
     /// Recursive flag.
     // TODO: Shift from callee to caller by including display method
     pub recursive: bool,
@@ -44,7 +46,7 @@ impl Context {
         recursive: bool,
         package_filter: Option<String>,
     ) -> Result<Context> {
-        Ok(Context { path, home, recursive, package_filter })
+        Ok(Context { path, home, network_lock: None, recursive, package_filter })
     }
 
     /// Returns the path of the parent directory to the Leo package.
@@ -73,6 +75,20 @@ impl Context {
             Some(path) => Ok(path.clone()),
             None => Ok(aleo_dir()),
         }
+    }
+
+    /// Read trusted pins from the explicit file or the package lock.
+    pub fn network_pins(&self) -> Result<Lock> {
+        if let Some(path) = &self.network_lock {
+            return Lock::read_file(path);
+        }
+        let path = self.dir()?;
+        if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            let path = path.canonicalize().map_err(crate::errors::cli_io_error)?;
+            return Lock::read(path.parent().unwrap_or_else(|| std::path::Path::new(".")));
+        }
+        let root = Workspace::discover_root(&path)?.unwrap_or(path);
+        Lock::read(&root)
     }
 
     /// Opens the manifest file `program.json`.
@@ -131,6 +147,12 @@ impl Context {
 
     /// Create a new `Context` pointing at a specific directory.
     pub fn with_path(&self, path: PathBuf) -> Self {
-        Context { path: Some(path), home: self.home.clone(), recursive: self.recursive, package_filter: None }
+        Context {
+            path: Some(path),
+            home: self.home.clone(),
+            network_lock: self.network_lock.clone(),
+            recursive: self.recursive,
+            package_filter: None,
+        }
     }
 }

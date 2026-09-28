@@ -123,7 +123,7 @@ impl Command for LeoExecute {
             if context.package_filter.is_some() {
                 return Err(crate::errors::custom("`--package` cannot be used with an Aleo bytecode file.").into());
             }
-            return Package::from_aleo_file(
+            return Package::from_aleo_file_with_network_lock(
                 path,
                 home_path,
                 self.imports_dir.as_deref(),
@@ -132,6 +132,7 @@ impl Command for LeoExecute {
                 Some(network),
                 Some(&endpoint),
                 self.env_override.network_retries,
+                context.network_lock.as_deref(),
             )
             .map(Some);
         }
@@ -417,7 +418,7 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_latest_programs_from_network(
+        programs = load_pinned_programs_from_network(
             &context,
             program_id,
             network,

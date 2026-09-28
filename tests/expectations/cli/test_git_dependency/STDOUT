@@ -97,7 +97,7 @@ exit: 0
 build exit: 0
 leo.lock:
 {
-  "version": 1,
+  "version": 2,
   "git": [
     {
       "name": "gitbytes.aleo",
@@ -133,7 +133,7 @@ exit: 213
 exit: 0
 leo.lock after remove:
 {
-  "version": 1,
+  "version": 2,
   "git": [
     {
       "name": "gitbytes.aleo",

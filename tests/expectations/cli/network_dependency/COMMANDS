@@ -1,8 +1,35 @@
 #!/usr/bin/env bash
 
 LEO_BIN=${1}
+
+# These checksums come from the reviewed, locally compiled bytecode in this fixture's expectations.
+NETWORK_LOCK=$(mktemp)
+trap 'rm -f "$NETWORK_LOCK"' EXIT
+cat > "$NETWORK_LOCK" <<'JSON'
+{"version": 2, "git": [], "network": [
+    {
+      "name": "test_program1.aleo",
+      "network": "testnet",
+      "edition": 0,
+      "checksum": [
+        192, 225, 38, 151, 139, 155, 148, 209, 105, 110, 246, 83, 90, 243, 78, 35,
+        155, 186, 242, 17, 196, 169, 179, 144, 71, 227, 34, 207, 121, 158, 34, 25
+      ]
+    },
+    {
+      "name": "test_program2.aleo",
+      "network": "testnet",
+      "edition": 0,
+      "checksum": [
+        206, 255, 111, 48, 59, 85, 122, 166, 182, 205, 10, 141, 58, 23, 70, 232,
+        105, 221, 83, 216, 186, 14, 207, 24, 13, 221, 236, 0, 143, 199, 151, 2
+      ]
+    }
+]}
+JSON
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
 COMMON_OPTS="-y --disable-update-check --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+COMMON_OPTS="--network-lock $NETWORK_LOCK $COMMON_OPTS"
 
 cd test_program1 || exit 1
 echo "DEPLOYMENT 1"

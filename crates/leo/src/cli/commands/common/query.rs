@@ -46,7 +46,7 @@ pub fn get_public_balance<N: Network>(
             },
         },
     }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true, None)?)?;
+    .execute(Context { recursive: true, package_filter: None, ..context.clone() })?;
     // Remove the last 3 characters since they represent the `u64` suffix.
     public_balance.truncate(public_balance.len() - 3);
     // Make sure the balance is valid.
@@ -76,7 +76,7 @@ pub fn get_latest_block_height(
             },
         },
     }
-    .execute(Context::new(context.path.clone(), context.home.clone(), true, None)?)?;
+    .execute(Context { recursive: true, package_filter: None, ..context.clone() })?;
     // Parse the height.
     let height = height.parse::<u32>().map_err(crate::errors::string_parse_error)?;
     Ok(height)
@@ -137,8 +137,8 @@ pub fn handle_broadcast<N: Network>(
     }
 }
 
-/// Loads the latest edition of a program and all its imports from the network, using an iterative DFS.
-pub fn load_latest_programs_from_network<N: Network>(
+/// Load the trusted editions of a program and its imports with an iterative DFS.
+pub fn load_pinned_programs_from_network<N: Network>(
     context: &Context,
     program_id: ProgramID<N>,
     network: NetworkName,
@@ -147,6 +147,8 @@ pub fn load_latest_programs_from_network<N: Network>(
 ) -> Result<Vec<(Program<N>, Option<u16>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
+
+    let network_pins = context.network_pins()?;
 
     // A cache for loaded programs, mapping a program ID to its bytecode and edition.
     let mut programs = HashMap::new();
@@ -177,8 +179,8 @@ pub fn load_latest_programs_from_network<N: Network>(
                 endpoint,
                 true,
                 network_retries,
-            )
-            .map_err(|_| crate::errors::custom(format!("Failed to fetch program source for ID: {current_id}")))?;
+                &network_pins,
+            )?;
             let ProgramData::Bytecode(program_src) = program.data else {
                 panic!("Expected bytecode when fetching a remote program");
             };

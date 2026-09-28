@@ -49,6 +49,9 @@ pub struct CLI {
     #[clap(long, global = true, help = "Path to aleo program registry")]
     pub home: Option<PathBuf>,
 
+    #[clap(long, global = true, help = "Read trusted network program pins from this lock file")]
+    network_lock: Option<PathBuf>,
+
     #[clap(short = 'p', long = "package", global = true, help = "Target a specific workspace member by name")]
     pub package: Option<String>,
 }
@@ -236,7 +239,9 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
+    let mut context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
+    context.network_lock =
+        cli.network_lock.map(std::path::absolute).transpose().map_err(crate::errors::cli_io_error)?;
 
     let command_name = cli.command.name();
     let mut command_output: Option<Output> = None;
@@ -335,10 +340,276 @@ mod tests {
     use serial_test::serial;
     use std::{env::temp_dir, path::PathBuf};
 
-    // An unreachable endpoint with no retries stands in for a program that isn't on the network.
+    #[test]
+    fn network_lock_is_global_and_survives_member_context() {
+        use crate::cli::context::Context;
+
+        for args in [vec!["leo", "--network-lock", "trusted.lock", "run", "example.aleo/main"], vec![
+            "leo",
+            "run",
+            "example.aleo/main",
+            "--network-lock",
+            "trusted.lock",
+        ]] {
+            let cli = CLI::try_parse_from(args).expect("The global lock option must parse");
+            assert_eq!(cli.network_lock, Some(PathBuf::from("trusted.lock")));
+            let mut context = Context::new(None, None, false, None).expect("The context must be valid");
+            context.network_lock =
+                cli.network_lock.map(std::path::absolute).transpose().expect("The lock path must resolve");
+            assert_eq!(context.with_path(PathBuf::from("member")).network_lock, context.network_lock);
+        }
+    }
+
+    #[test]
+    fn remote_program_requires_a_trusted_pin_before_fetch() {
+        use crate::cli::{context::Context, load_pinned_programs_from_network};
+        use snarkvm::prelude::{ProgramID, TestnetV0};
+
+        let root = temp_dir().join(format!("leo_remote_pin_{}", std::process::id()));
+        std::fs::create_dir_all(&root).expect("The temporary directory must be created");
+        let context =
+            Context::new(Some(root.clone()), Some(root.join("cache")), false, None).expect("The context must be valid");
+        create_session_if_not_set_then(|_| {
+            let program = "unpinned.aleo".parse::<ProgramID<TestnetV0>>().expect("The program ID must parse");
+            let error =
+                load_pinned_programs_from_network(&context, program, NetworkName::TestnetV0, "http://localhost:1", 0)
+                    .expect_err("An unpinned remote program must fail");
+            assert!(error.to_string().contains("trusted checksum pin"), "{error}");
+        });
+        assert!(!root.join("cache").exists(), "A missing pin must not create the cache");
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
+
+    #[test]
+    fn network_lock_missing_override_does_not_use_project_pins() {
+        use crate::cli::context::Context;
+
+        let root = temp_dir().join(format!("leo_pin_override_{}", std::process::id()));
+        std::fs::create_dir_all(&root).expect("The temporary directory must be created");
+        std::fs::write(root.join("leo.lock"), r#"{"version":1,"git":[]}"#).expect("The project lock must be written");
+        let mut context = Context::new(Some(root.clone()), None, false, None).expect("The context must be valid");
+        context.network_lock = Some(root.join("absent.lock"));
+        assert!(context.network_pins().is_err(), "An explicit missing lock must fail");
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
+
+    #[test]
+    fn upgrade_yes_and_no_cache_do_not_allow_unpinned_bytecode_imports() {
+        use crate::cli::{Command, context::Context};
+
+        let root = temp_dir().join(format!("leo_upgrade_pin_{}", std::process::id()));
+        std::fs::create_dir_all(root.join("cache")).expect("The temporary directory must be created");
+        let source = root.join("local.aleo");
+        std::fs::write(
+            &source,
+            r"import unpinned.aleo;
+program local.aleo;
+function main:
+    input r0 as u32.public;
+    output r0 as u32.public;
+",
+        )
+        .expect("The local program must be written");
+        let cli = CLI::try_parse_from([
+            "leo",
+            "upgrade",
+            "--yes",
+            "--no-cache",
+            "--network",
+            "testnet",
+            "--endpoint",
+            "http://localhost:1",
+            "--network-retries",
+            "0",
+        ])
+        .expect("The upgrade options must parse");
+        let Commands::Upgrade { command } = cli.command else { panic!("Expected upgrade command") };
+        let context =
+            Context::new(Some(source), Some(root.join("cache")), false, None).expect("The context must be valid");
+        create_session_if_not_set_then(|_| {
+            let error = command.prelude(context).expect_err("The remote import must require a pin");
+            assert!(error.to_string().contains("trusted checksum pin"), "{error}");
+        });
+        assert!(!root.join("cache/registry").exists());
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
+
+    #[test]
+    fn network_pins_use_the_workspace_root() {
+        use crate::cli::context::Context;
+
+        let root = temp_dir().join(format!("leo_workspace_pins_{}", std::process::id()));
+        std::fs::create_dir_all(root.join("member")).expect("The member directory must be created");
+        std::fs::write(root.join("workspace.json"), r#"{"members":["member"]}"#)
+            .expect("The workspace file must be written");
+        let lock = serde_json::json!({"version":2,"network":[{
+            "name":"trusted.aleo","network":"testnet","edition":7,"checksum":vec![0;32]
+        }]});
+        std::fs::write(root.join("leo.lock"), lock.to_string()).expect("The root lock must be written");
+        std::fs::write(root.join("member/leo.lock"), "invalid member lock").expect("The member lock must be written");
+        let context = Context::new(Some(root.join("member")), None, false, None).expect("The context must be valid");
+        let pins = context.network_pins().expect("The workspace lock must load");
+        assert_eq!(
+            pins.network_pin("trusted.aleo", NetworkName::TestnetV0, None)
+                .expect("The workspace pin must exist")
+                .edition,
+            7
+        );
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
+
+    #[test]
+    fn network_lock_override_verifies_import_without_changing_project_pins() {
+        use leo_package::Package;
+        use snarkvm::prelude::{Program, TestnetV0};
+
+        let root = temp_dir().join(format!("leo_override_import_{}", std::process::id()));
+        test_helpers::scaffold_minimal_member(&root, "consumer");
+        let project = root.join("consumer");
+        let manifest_path = project.join("program.json");
+        let mut manifest = leo_package::Manifest::read_from_file(&manifest_path).expect("The manifest must load");
+        manifest.dependencies = Some(vec![leo_package::Dependency {
+            name: "trusted.aleo".into(),
+            location: leo_package::Location::Network,
+            ..Default::default()
+        }]);
+        manifest.write_to_file(&manifest_path).expect("The manifest must be written");
+        let source =
+            "program trusted.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n";
+        let program: Program<TestnetV0> = source.parse().expect("The program must parse");
+        let checksum = program.to_checksum().map(|byte| *byte);
+        let old_lock = serde_json::json!({"version":2,"network":[{
+            "name":"trusted.aleo","network":"testnet","edition":2,"checksum":vec![0;32]
+        }]});
+        std::fs::write(project.join("leo.lock"), old_lock.to_string()).expect("The project lock must be written");
+        let override_lock = serde_json::json!({"version":2,"network":[{
+            "name":"trusted.aleo","network":"testnet","edition":4,"checksum":checksum
+        }]})
+        .to_string();
+        let lock_path = root.join("trusted.lock");
+        std::fs::write(&lock_path, &override_lock).expect("The override lock must be written");
+        let home = root.join("cache");
+        let cache = home.join("registry/testnet/trusted/4");
+        std::fs::create_dir_all(&cache).expect("The cache directory must be created");
+        std::fs::write(cache.join("trusted.aleo"), source).expect("The verified cache fixture must be written");
+        create_session_if_not_set_then(|_| {
+            let package = Package::from_directory_with_network_lock(
+                &project,
+                &home,
+                false,
+                false,
+                false,
+                Some(NetworkName::TestnetV0),
+                Some("http://localhost:1"),
+                0,
+                Some(&lock_path),
+            )
+            .expect("The trusted override must resolve the cached import");
+            assert!(package.compilation_units.iter().any(|unit| unit.edition == Some(4)));
+        });
+        let pins = leo_package::Lock::read(&project).expect("The project lock must remain valid");
+        assert_eq!(
+            pins.network_pin("trusted.aleo", NetworkName::TestnetV0, None)
+                .expect("The original project pin must remain")
+                .edition,
+            2
+        );
+        assert_eq!(std::fs::read_to_string(lock_path).expect("The override must remain readable"), override_lock);
+        std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+    }
+
+    #[test]
+    fn remote_loader_requires_pins_for_transitive_imports() {
+        use crate::cli::{context::Context, load_pinned_programs_from_network};
+        use snarkvm::prelude::{Program, ProgramID, TestnetV0};
+        use std::{
+            io::{Read, Write},
+            net::TcpListener,
+            time::{Duration, Instant},
+        };
+
+        let root_source = r"import imported.aleo;
+program trusted.aleo;
+function main:
+    input r0 as u32.public;
+    output r0 as u32.public;
+";
+        let import_source =
+            "program imported.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n";
+        for pin_import in [false, true] {
+            let root = temp_dir().join(format!("leo_remote_import_pins_{}_{pin_import}", std::process::id()));
+            std::fs::create_dir_all(&root).expect("The temporary directory must be created");
+            let mut pins = Vec::new();
+            for source in [root_source, import_source].into_iter().take(if pin_import { 2 } else { 1 }) {
+                let program: Program<TestnetV0> = source.parse().expect("The fixture must parse");
+                pins.push(serde_json::json!({"name":program.id().to_string(), "network":"testnet", "edition":3,
+                    "checksum":program.to_checksum().map(|byte| *byte)}));
+            }
+            let lock_path = root.join("trusted.lock");
+            std::fs::write(&lock_path, serde_json::json!({"version":2,"network":pins}).to_string())
+                .expect("The trusted pins must be written");
+            let listener = TcpListener::bind("127.0.0.1:0").expect("The local server must bind");
+            listener.set_nonblocking(true).expect("The listener must support a timeout");
+            let endpoint = format!("http://{}", listener.local_addr().expect("The local address must exist"));
+            let server = std::thread::spawn(move || {
+                for (name, source) in [("trusted", root_source), ("imported", import_source)]
+                    .into_iter()
+                    .take(if pin_import { 2 } else { 1 })
+                {
+                    let start = Instant::now();
+                    let mut stream = loop {
+                        match listener.accept() {
+                            Ok((stream, _)) => break stream,
+                            Err(error)
+                                if error.kind() == std::io::ErrorKind::WouldBlock
+                                    && start.elapsed() < Duration::from_secs(10) =>
+                            {
+                                std::thread::sleep(Duration::from_millis(5));
+                            }
+                            Err(error) => panic!("Expected a program request: {error}"),
+                        }
+                    };
+                    stream.set_nonblocking(false).expect("The accepted stream must block");
+                    stream.set_read_timeout(Some(Duration::from_secs(10))).expect("The read timeout must be set");
+                    let mut request = [0; 4096];
+                    let count = stream.read(&mut request).expect("The request must arrive");
+                    assert!(
+                        String::from_utf8_lossy(&request[..count]).contains(&format!("/testnet/program/{name}.aleo/3"))
+                    );
+                    let body = serde_json::to_string(source).expect("The program must serialize");
+                    write!(
+                        stream,
+                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                        body.len()
+                    )
+                    .expect("The response must be written");
+                }
+            });
+            let mut context = Context::new(Some(root.clone()), Some(root.join("cache")), false, None)
+                .expect("The context must be valid");
+            context.network_lock = Some(lock_path);
+            create_session_if_not_set_then(|_| {
+                let id: ProgramID<TestnetV0> = "trusted.aleo".parse().expect("The ID must parse");
+                let result = load_pinned_programs_from_network(&context, id, NetworkName::TestnetV0, &endpoint, 0);
+                if pin_import {
+                    let programs = result.expect("Both trusted programs must load");
+                    assert_eq!(programs.len(), 2);
+                    assert_eq!(programs[0].0.id().to_string(), "imported.aleo");
+                    assert!(programs.iter().all(|(_, edition)| *edition == Some(3)));
+                } else {
+                    let error = result.expect_err("An unpinned transitive import must fail");
+                    assert!(error.to_string().contains("trusted checksum pin"), "{error}");
+                    assert!(!root.join("cache/registry/testnet/imported").exists());
+                }
+            });
+            server.join().expect("The server must finish");
+            std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
+        }
+    }
+
     #[test]
     #[serial]
-    fn add_network_dependency_rejects_missing_program() {
+    fn add_network_dependency_rejects_missing_pin() {
         let temp_dir = temp_dir();
         let project_directory = temp_dir.join("add_missing_network_dep");
         if project_directory.exists() {
@@ -356,6 +627,7 @@ mod tests {
             path: Some(project_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let add = CLI {
@@ -376,12 +648,14 @@ mod tests {
             path: Some(project_directory.clone()),
             home: Some(temp_dir.join(".aleo_add_missing")),
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
             run_with_args(new).expect("Failed to execute `leo new`");
 
-            assert!(run_with_args(add).is_err(), "`leo add` should reject an unverifiable network dependency");
+            let error = run_with_args(add).expect_err("An unpinned network dependency must fail");
+            assert!(error.to_string().contains("trusted checksum pin"), "{error}");
 
             let manifest_path = project_directory.join(leo_package::MANIFEST_FILENAME);
             let manifest = leo_package::Manifest::read_from_file(&manifest_path).unwrap();
@@ -429,6 +703,7 @@ mod tests {
             path: Some(project_directory.clone()),
             home: Some(temp_dir.join(".aleo")),
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -480,6 +755,7 @@ mod tests {
             path: Some(project_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -526,6 +802,7 @@ mod tests {
             path: Some(project_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -569,6 +846,7 @@ mod tests {
             path: Some(project_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -600,6 +878,7 @@ mod tests {
             path: Some(lib_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -646,6 +925,7 @@ mod tests {
             path: Some(ws_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -805,6 +1085,7 @@ mod tests {
             path: Some(pkg_dir.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -847,6 +1128,7 @@ mod tests {
             path: Some(pkg_dir.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -886,6 +1168,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -922,6 +1205,7 @@ mod tests {
             path: Some(ws_root.join("token")),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -958,6 +1242,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: Some("token".to_string()),
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -991,6 +1276,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: Some("nonexistent".to_string()),
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1026,6 +1312,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1045,6 +1332,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1080,6 +1368,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1117,6 +1406,7 @@ mod tests {
             path: Some(ws_root.join("swap")),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1153,6 +1443,7 @@ mod tests {
             path: Some(ws_root.join("swap")),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1205,6 +1496,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1286,6 +1578,7 @@ mod tests {
             home: None,
             // Filter to just token.
             package: Some("token".to_string()),
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1339,6 +1632,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1394,6 +1688,7 @@ mod tests {
             path: Some(ws_root.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1431,6 +1726,7 @@ mod tests {
             path: Some(pkg_dir.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1455,6 +1751,7 @@ mod tests {
             path: Some(pkg_dir.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -1945,6 +2242,7 @@ program app.aleo {
             path: Some(project_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -2022,6 +2320,23 @@ function external_nested_function:
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
 
+        // Trust the fixture programs independently of the cache.
+        let pins = [nested_example_layer_0, nested_example_layer_1, nested_example_layer_2].map(|source| {
+            let program: snarkvm::prelude::Program<snarkvm::prelude::TestnetV0> =
+                source.parse().expect("The fixture program must parse");
+            serde_json::json!({
+                "name": program.id().to_string(),
+                "network": "testnet",
+                "edition": 0,
+                "checksum": program.to_checksum().map(|byte| *byte),
+            })
+        });
+        std::fs::write(
+            project_directory.join("leo.lock"),
+            serde_json::json!({"version": 2, "network": pins}).to_string(),
+        )
+        .expect("The fixture pins must be written");
+
         // Add dependencies
         let add = CLI {
             debug: false,
@@ -2047,6 +2362,7 @@ function external_nested_function:
             path: Some(project_directory.clone()),
             home: Some(temp_dir.join(".aleo")),
             package: None,
+            network_lock: None,
         };
 
         create_session_if_not_set_then(|_| {
@@ -2075,6 +2391,7 @@ function external_nested_function:
             path: Some(grandparent_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_parent_project = CLI {
@@ -2086,6 +2403,7 @@ function external_nested_function:
             path: Some(parent_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_child_project = CLI {
@@ -2097,6 +2415,7 @@ function external_nested_function:
             path: Some(child_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Add source files `grandparent/src/main.leo`, `grandparent/parent/src/main.leo`, and `grandparent/parent/child/src/main.leo`
@@ -2165,6 +2484,7 @@ program child.aleo {
             path: Some(grandparent_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let add_grandparent_dependency_2 = CLI {
@@ -2191,6 +2511,7 @@ program child.aleo {
             path: Some(grandparent_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let add_parent_dependency = CLI {
@@ -2217,6 +2538,7 @@ program child.aleo {
             path: Some(parent_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Execute all commands
@@ -2257,6 +2579,7 @@ program child.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_inner_1_project = CLI {
@@ -2270,6 +2593,7 @@ program child.aleo {
             path: Some(inner_1_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_inner_2_project = CLI {
@@ -2283,6 +2607,7 @@ program child.aleo {
             path: Some(inner_2_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
@@ -2374,6 +2699,7 @@ program inner_2.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -2400,6 +2726,7 @@ program inner_2.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Execute all commands
@@ -2441,6 +2768,7 @@ program inner_2.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_inner_1_project = CLI {
@@ -2454,6 +2782,7 @@ program inner_2.aleo {
             path: Some(inner_1_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let create_inner_2_project = CLI {
@@ -2467,6 +2796,7 @@ program inner_2.aleo {
             path: Some(inner_2_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Add source files `outer_2/src/main.leo` and `outer_2/inner/src/main.leo`
@@ -2592,6 +2922,7 @@ program inner_2.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         let add_outer_dependency_2 = CLI {
@@ -2618,6 +2949,7 @@ program inner_2.aleo {
             path: Some(outer_directory.clone()),
             home: None,
             package: None,
+            network_lock: None,
         };
 
         // Execute all commands

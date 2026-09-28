@@ -222,7 +222,7 @@ impl Command for LeoAdd {
 
             // Pin the resolved commit so the next build reuses this checkout instead of re-fetching.
             let lock_dir = Workspace::discover_root(&path)?.unwrap_or_else(|| path.clone());
-            let mut lock = Lock::read(&lock_dir);
+            let mut lock = Lock::read(&lock_dir)?;
             lock.record(name.clone(), url.clone(), reference.lock_string(), commit);
             lock.write(&lock_dir)?;
 
@@ -257,6 +257,7 @@ impl Command for LeoAdd {
                 &endpoint,
                 false,
                 self.network_retries,
+                &context.network_pins()?,
             )
             .map_err(|err| {
                 crate::errors::custom(format!(

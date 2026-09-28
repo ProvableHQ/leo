@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Tests for git-dependency support: reference resolution, the `leo.lock` lock file,
-//! manifest validation, end-to-end resolution, and workspace lock sharing.
+//! Tests for dependency resolution, trusted network bytecode, lock files, manifests, and workspaces.
 
 use crate::{
     GitReference,
@@ -42,6 +41,514 @@ use crate::{
 };
 
 use leo_span::Symbol;
+
+use snarkvm::prelude::{Program, TestnetV0};
+use std::{
+    io::{Read, Write},
+    net::TcpListener,
+    path::Path,
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
+};
+
+const TRUSTED_TOKEN: &str =
+    "program token.aleo;\nfunction reveal:\n    input r0 as u32.private;\n    output r0 as u32.private;\n";
+
+fn network_pin(bytecode: &str, edition: u16) -> serde_json::Value {
+    let program: Program<TestnetV0> = bytecode.parse().expect("fixture bytecode must parse");
+    serde_json::json!({
+        "name": program.id().to_string(),
+        "network": "testnet",
+        "edition": edition,
+        "checksum": program.to_checksum().map(|byte| *byte),
+    })
+}
+
+fn write_network_lock(directory: &Path, pins: &[serde_json::Value]) -> Lock {
+    let contents = serde_json::json!({"version": 2, "git": [], "network": pins});
+    write_file(&directory.join(LOCK_FILENAME), &contents.to_string());
+    Lock::read(directory).expect("fixture lock must be valid")
+}
+
+fn network_response(status: &str, body: &str) -> (String, JoinHandle<Vec<String>>) {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("fixture listener must bind");
+    listener.set_nonblocking(true).expect("fixture listener must be nonblocking");
+    let endpoint = format!("http://{}", listener.local_addr().expect("fixture address must exist"));
+    let response = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+        body.len()
+    );
+    let handle = thread::spawn(move || {
+        let mut requests = Vec::new();
+        let mut deadline = Instant::now() + Duration::from_secs(2);
+        while Instant::now() < deadline {
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    stream.set_nonblocking(false).expect("fixture stream must use blocking I/O");
+                    stream.set_read_timeout(Some(Duration::from_secs(1))).expect("read timeout must be set");
+                    stream.set_write_timeout(Some(Duration::from_secs(1))).expect("write timeout must be set");
+                    let mut request = Vec::new();
+                    let mut buffer = [0; 1024];
+                    while !request.windows(4).any(|bytes| bytes == b"\r\n\r\n") {
+                        let count = stream.read(&mut buffer).expect("fixture request must arrive");
+                        assert!(count > 0 && request.len() < 8192, "fixture request must contain bounded headers");
+                        request.extend_from_slice(&buffer[..count]);
+                    }
+                    requests.push(String::from_utf8(request).expect("fixture request must be UTF-8"));
+                    stream.write_all(response.as_bytes()).expect("fixture response must be sent");
+                    deadline = Instant::now() + Duration::from_millis(200);
+                    assert!(requests.len() < 10, "fetch must not make unbounded requests");
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("fixture accept failed: {error}"),
+            }
+        }
+        requests
+    });
+    (endpoint, handle)
+}
+
+#[test]
+fn cached_network_program_requires_trusted_pin() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-pin-required");
+        write_file(
+            &home.join("registry/testnet/token/0/token.aleo"),
+            "program token.aleo;\nfunction reveal:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+        );
+        let result = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &Lock::default(),
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+        assert!(result.is_err(), "cached bytecode must not be trusted without an independent pin");
+    });
+}
+
+#[test]
+fn cached_network_program_checks_canonical_bytes_on_every_read() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-cache-verification");
+        let lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let cache = home.join("registry/testnet/token/0/token.aleo");
+        let formatted = format!("// Independent formatting does not change canonical bytes.\n{TRUSTED_TOKEN}\n");
+        write_file(&cache, &formatted);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &lock,
+        )
+        .expect("approved canonical bytecode must load from cache");
+        assert_eq!(unit.edition, Some(0));
+        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &formatted));
+
+        for modified in [
+            TRUSTED_TOKEN.replace("u32.private", "u32.public"),
+            TRUSTED_TOKEN.replace("output r0", "add r0 1u32 into r1;\n    output r1"),
+        ] {
+            write_file(&cache, &modified);
+            let error = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                Some(0),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                false,
+                0,
+                &lock,
+            )
+            .expect_err("changed same-ID bytecode must fail on the next read");
+            assert!(error.to_string().contains("checksum"), "{error}");
+            assert_eq!(std::fs::read_to_string(&cache).expect("cache must remain readable"), modified);
+        }
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn inferred_network_edition_comes_from_pin_not_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-pinned-edition");
+        let lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2)]);
+        write_file(&home.join("registry/testnet/token/2/token.aleo"), TRUSTED_TOKEN);
+        write_file(&home.join("registry/testnet/token/99/token.aleo"), &TRUSTED_TOKEN.replace("private", "public"));
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            None,
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &lock,
+        )
+        .expect("the trusted edition must load without a latest-edition request");
+        assert_eq!(unit.edition, Some(2));
+        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == TRUSTED_TOKEN));
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn network_pin_mismatch_fails_before_io() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-pin-mismatch");
+        let lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2)]);
+        let (endpoint, server) = network_response("200 OK", TRUSTED_TOKEN);
+        for (name, network, edition) in [
+            ("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2)),
+            ("token.aleo", leo_ast::NetworkName::TestnetV0, Some(3)),
+            ("missing.aleo", leo_ast::NetworkName::TestnetV0, None),
+        ] {
+            let error = crate::CompilationUnit::fetch(
+                Symbol::intern(name),
+                edition,
+                &home,
+                network,
+                &endpoint,
+                false,
+                0,
+                &lock,
+            )
+            .expect_err("missing or mismatched pins must fail before fetching");
+            assert!(error.to_string().contains("pin"), "{error}");
+        }
+        assert!(
+            server.join().expect("fixture must finish").is_empty(),
+            "untrusted requests must not reach the endpoint"
+        );
+        assert!(!home.join("registry").exists());
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn network_fetch_uses_exact_pinned_edition() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-exact-edition");
+        let lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 7)]);
+        let body = serde_json::to_string(TRUSTED_TOKEN).expect("fixture body must serialize");
+        let (endpoint, server) = network_response("200 OK", &body);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            None,
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &lock,
+        )
+        .expect("approved response must load");
+        let requests = server.join().expect("fixture must finish");
+        assert_eq!(requests.len(), 1);
+        assert!(requests[0].starts_with("GET /testnet/program/token.aleo/7 HTTP/1.1\r\n"), "{:?}", requests);
+        assert_eq!(unit.edition, Some(7));
+        assert_eq!(
+            std::fs::read_to_string(home.join("registry/testnet/token/7/token.aleo"))
+                .expect("approved cache must exist"),
+            TRUSTED_TOKEN
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn rejected_network_responses_do_not_replace_cache_or_fall_back() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (status, bytecode, checksum_source, reason) in [
+            ("200 OK", TRUSTED_TOKEN.replace("private", "public"), TRUSTED_TOKEN.to_owned(), "checksum"),
+            (
+                "200 OK",
+                TRUSTED_TOKEN.replace("output r0", "add r0 1u32 into r1;\n    output r1"),
+                TRUSTED_TOKEN.to_owned(),
+                "checksum",
+            ),
+            (
+                "200 OK",
+                TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+                TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+                "program ID",
+            ),
+            ("404 Not Found", "missing edition".to_owned(), TRUSTED_TOKEN.to_owned(), ""),
+        ] {
+            let home = unique_dir("network-rejected-response");
+            let mut pin = network_pin(&checksum_source, 7);
+            pin["name"] = serde_json::json!("token.aleo");
+            let lock = write_network_lock(&home, &[pin]);
+            let cache = home.join("registry/testnet/token/7/token.aleo");
+            write_file(&cache, TRUSTED_TOKEN);
+            let (endpoint, server) = network_response(status, &bytecode);
+            let error = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                Some(7),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                true,
+                0,
+                &lock,
+            )
+            .expect_err("an unapproved response must fail");
+            assert!(error.to_string().contains(reason), "{error}");
+            let requests = server.join().expect("fixture must finish");
+            assert_eq!(requests.len(), 1, "no latest-edition request or unversioned fallback is permitted");
+            assert!(requests[0].starts_with("GET /testnet/program/token.aleo/7 HTTP/1.1\r\n"));
+            assert_eq!(std::fs::read_to_string(cache).expect("old cache must exist"), TRUSTED_TOKEN);
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
+        }
+    });
+}
+
+#[test]
+fn rejected_network_response_does_not_create_a_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-rejected-new-cache");
+        let lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let (endpoint, server) = network_response("200 OK", &TRUSTED_TOKEN.replace("private", "public"));
+        let error = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &lock,
+        )
+        .expect_err("an unapproved response must not enter a new cache");
+        assert!(error.to_string().contains("checksum"), "{error}");
+        assert_eq!(server.join().expect("fixture must finish").len(), 1);
+        assert!(!home.join("registry").exists());
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn bundled_credits_ignores_hostile_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-bundled-credits");
+        let cache = home.join("registry/testnet/credits/0/credits.aleo");
+        let hostile = TRUSTED_TOKEN.replace("token.aleo", "credits.aleo");
+        write_file(&cache, &hostile);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("credits.aleo"),
+            None,
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &Lock::default(),
+        )
+        .expect("bundled credits must work without a pin or endpoint");
+        let expected = Program::<TestnetV0>::credits().expect("bundled credits must exist").to_string();
+        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &expected));
+        assert_eq!(unit.edition, Some(0));
+        assert_eq!(std::fs::read_to_string(cache).expect("hostile cache must remain unchanged"), hostile);
+        assert!(
+            crate::CompilationUnit::fetch(
+                Symbol::intern("credits.aleo"),
+                Some(1),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                false,
+                0,
+                &Lock::default(),
+            )
+            .is_err()
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn network_lock_rejects_malformed_and_ambiguous_trust() {
+    let directory = unique_dir("network-lock-invalid");
+    let pin = network_pin(TRUSTED_TOKEN, 0);
+    let mut other_edition = pin.clone();
+    other_edition["edition"] = serde_json::json!(1);
+    let mut short_checksum = pin.clone();
+    short_checksum["checksum"] = serde_json::json!([1, 2, 3]);
+    for contents in [
+        "{".to_owned(),
+        serde_json::json!({"version": 99, "git": []}).to_string(),
+        serde_json::json!({"version": 2, "network": [pin.clone(), pin.clone()]}).to_string(),
+        serde_json::json!({"version": 2, "network": [pin, other_edition]}).to_string(),
+        serde_json::json!({"version": 2, "network": [short_checksum]}).to_string(),
+        serde_json::json!({"version": 2, "netwrok": []}).to_string(),
+    ] {
+        write_file(&directory.join(LOCK_FILENAME), &contents);
+        assert!(Lock::read(&directory).is_err(), "invalid trust file accepted: {contents}");
+        assert!(Lock::read_file(&directory.join(LOCK_FILENAME)).is_err());
+        assert_eq!(std::fs::read_to_string(directory.join(LOCK_FILENAME)).expect("invalid file must remain"), contents);
+    }
+    std::fs::remove_file(directory.join(LOCK_FILENAME)).expect("invalid fixture must be removed");
+    assert!(Lock::read(&directory).expect("missing implicit lock is empty").is_empty());
+    assert!(Lock::read_file(&directory.join(LOCK_FILENAME)).is_err(), "an explicit trust file must exist");
+    std::fs::remove_dir_all(directory).expect("test directory must be removed");
+}
+
+#[test]
+fn legacy_git_lock_is_readable_and_network_pins_survive_git_updates() {
+    let directory = unique_dir("network-lock-preservation");
+    write_file(
+        &directory.join(LOCK_FILENAME),
+        r#"{"version":1,"git":[{"name":"legacy","git":"url","reference":"default","commit":"abc"}]}"#,
+    );
+    let legacy = Lock::read(&directory).expect("version one Git lock must load");
+    assert_eq!(legacy.commit_for("legacy", "url", "default"), Some("abc"));
+    let mut old = write_network_lock(&directory, &[network_pin(TRUSTED_TOKEN, 2)]);
+    old.record("token.aleo".into(), "url".into(), "default".into(), "old".into());
+    let mut updated = Lock::default();
+    updated.record("other".into(), "url2".into(), "default".into(), "new".into());
+    updated.carry_over(&old, |_| false);
+    updated.remove_name("token.aleo");
+    updated.write(&directory).expect("updated lock must write");
+    let reloaded = Lock::read(&directory).expect("updated lock must load");
+    let pin = reloaded
+        .network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2))
+        .expect("network pin must survive Git changes");
+    pin.verify(TRUSTED_TOKEN).expect("network checksum must remain unchanged");
+    assert!(reloaded.commit_for("token.aleo", "url", "default").is_none());
+    assert_eq!(reloaded.commit_for("other", "url2", "default"), Some("new"));
+    updated.remove_name("other");
+    updated.write(&directory).expect("a lock with only network pins must write");
+    assert!(!Lock::read(&directory).expect("network-only lock must remain").is_empty());
+    std::fs::remove_dir_all(directory).expect("test directory must be removed");
+}
+
+#[test]
+fn package_requires_a_pin_for_each_transitive_network_import() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("network-transitive-pins");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network","edition":0}"#);
+        write_file(&home.join("registry/testnet/parent/0/parent.aleo"), &parent);
+        write_file(&home.join("registry/testnet/token/0/token.aleo"), TRUSTED_TOKEN);
+        write_network_lock(&consumer, &[network_pin(&parent, 0)]);
+        let error = Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect_err("a pinned parent must not confer trust on its imports");
+        assert!(error.to_string().contains("token.aleo"), "{error}");
+        assert!(error.to_string().contains("pin"), "{error}");
+        write_network_lock(&consumer, &[network_pin(&parent, 0), network_pin(TRUSTED_TOKEN, 0)]);
+        let package = Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("each pinned transitive dependency must load offline from cache");
+        assert_eq!(package.compilation_units.len(), 3);
+        let names: Vec<_> = package.compilation_units.iter().map(|unit| unit.name.to_string()).collect();
+        assert_eq!(names, ["token.aleo", "parent.aleo", "consumer.aleo"]);
+        let local = base.join("local");
+        write_program(&local, "local.aleo", "null");
+        let package = Package::from_directory(&local, &home, false, false, false, None, None, 0)
+            .expect("a local-only package must not require network pins");
+        assert_eq!(package.compilation_units.len(), 1);
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn package_uses_workspace_pins_and_keeps_explicit_override_read_only() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("network-workspace-override");
+        let home = base.join("home");
+        let workspace = base.join("workspace");
+        let consumer = workspace.join("consumer");
+        write_file(&workspace.join(WORKSPACE_MANIFEST_FILENAME), r#"{"members":["consumer"]}"#);
+        write_consumer(&consumer, r#"{"name":"token.aleo","location":"network","edition":0}"#);
+        write_file(&home.join("registry/testnet/token/0/token.aleo"), TRUSTED_TOKEN);
+        write_network_lock(&workspace, &[network_pin(TRUSTED_TOKEN, 0)]);
+        write_file(&consumer.join(LOCK_FILENAME), "ignored member lock");
+        Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("workspace root must supply network trust");
+        assert_eq!(
+            std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("member file must remain"),
+            "ignored member lock"
+        );
+        let approved = base.join("approved");
+        write_network_lock(&approved, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let override_path = approved.join(LOCK_FILENAME);
+        let override_contents = std::fs::read(&override_path).expect("approved file must exist");
+        let conflicting = TRUSTED_TOKEN.replace("private", "public");
+        write_network_lock(&workspace, &[network_pin(&conflicting, 0)]);
+        assert!(
+            Package::from_directory(
+                &consumer,
+                &home,
+                false,
+                false,
+                false,
+                Some(leo_ast::NetworkName::TestnetV0),
+                Some("http://127.0.0.1:1"),
+                0,
+            )
+            .is_err(),
+            "the workspace pin must reject a different checksum"
+        );
+        Package::from_directory_with_network_lock(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+            Some(&override_path),
+        )
+        .expect("the explicit trust file must select the approved checksum");
+        assert_eq!(std::fs::read(&override_path).expect("approved file must remain"), override_contents);
+        Lock::read(&workspace)
+            .expect("workspace lock must remain valid")
+            .network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0))
+            .expect("workspace pin must remain")
+            .verify(&conflicting)
+            .expect("the override must not replace the workspace pin");
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
 
 // Reference resolution (`crate::git::resolve`).
 
@@ -402,13 +909,13 @@ fn find_in_checkout_does_not_follow_symlinks() {
 #[test]
 fn round_trip_and_lookup() {
     let dir = unique_dir("lock");
-    let mut lock = Lock::read(&dir);
+    let mut lock = Lock::read(&dir).expect("lock must be valid");
     assert!(lock.is_empty());
 
     lock.record("foo.aleo".into(), "https://example.com/foo".into(), "tag=v1".into(), "abc123".into());
     lock.write(&dir).unwrap();
 
-    let reloaded = Lock::read(&dir);
+    let reloaded = Lock::read(&dir).expect("lock must be valid");
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v1"), Some("abc123"));
     // Reference mismatch forces re-resolution.
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v2"), None);
@@ -606,7 +1113,7 @@ fn git_dependency_resolves_and_locks() {
         assert!(lib_unit.kind.is_library());
 
         // The lock file was written and pins the library to a commit.
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         let commit = lock.commit_for("mylib", &url, "default").expect("lock pins mylib");
         assert_eq!(commit.len(), 40);
 
@@ -652,7 +1159,10 @@ fn git_dev_dependency_resolves_with_tests() {
             package.compilation_units.iter().any(|u| u.name == Symbol::intern("mylib")),
             "git dev-dependency resolved",
         );
-        assert!(Lock::read(&consumer).commit_for("mylib", &url, "default").is_some(), "dev-dependency locked");
+        assert!(
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default").is_some(),
+            "dev-dependency locked"
+        );
     });
 
     let _ = std::fs::remove_dir_all(&root);
@@ -681,14 +1191,21 @@ fn offline_build_uses_locked_commit_and_cache() {
     leo_span::create_session_if_not_set_then(|_| {
         // Build online once to populate the lock and the checkout cache.
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let commit = Lock::read(&consumer).commit_for("mylib", &url, "default").expect("locked").to_string();
+        let commit = Lock::read(&consumer)
+            .expect("lock must be valid")
+            .commit_for("mylib", &url, "default")
+            .expect("locked")
+            .to_string();
 
         // Make the source repository unreachable; any fetch would now fail.
         std::fs::remove_dir_all(&lib).unwrap();
 
         // The offline build reuses the locked commit from the cache.
         Package::from_directory(&consumer, &home, false, false, true, None, None, 3).unwrap();
-        assert_eq!(Lock::read(&consumer).commit_for("mylib", &url, "default"), Some(commit.as_str()));
+        assert_eq!(
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default"),
+            Some(commit.as_str())
+        );
     });
 
     let _ = std::fs::remove_dir_all(&root);
@@ -773,9 +1290,16 @@ fn plain_build_keeps_dev_dependency_pin() {
     leo_span::create_session_if_not_set_then(|_| {
         // A test build records the dev pin; a subsequent plain build must carry it over.
         Package::from_directory_with_tests(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let commit = Lock::read(&consumer).commit_for("mylib", &url, "default").expect("locked").to_string();
+        let commit = Lock::read(&consumer)
+            .expect("lock must be valid")
+            .commit_for("mylib", &url, "default")
+            .expect("locked")
+            .to_string();
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        assert_eq!(Lock::read(&consumer).commit_for("mylib", &url, "default"), Some(commit.as_str()));
+        assert_eq!(
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default"),
+            Some(commit.as_str())
+        );
 
         // Once the dev dependency is gone from the manifest, the plain build prunes its pin.
         write_file(
@@ -810,7 +1334,7 @@ fn git_dependency_ref_change_updates_lock() {
         // Track the default branch first.
         write_consumer(&consumer, &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}"}}}}"#));
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        assert!(Lock::read(&consumer).commit_for("mylib", &url, "default").is_some());
+        assert!(Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default").is_some());
 
         // Re-pin to the tag: the lock gains the tag entry and drops the stale default one.
         write_consumer(
@@ -818,7 +1342,7 @@ fn git_dependency_ref_change_updates_lock() {
             &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}","tag":"v1"}}}}"#),
         );
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("mylib", &url, "tag=v1").is_some(), "tag entry recorded");
         assert!(lock.commit_for("mylib", &url, "default").is_none(), "stale default entry pruned");
     });
@@ -857,7 +1381,7 @@ fn transitive_git_dependency() {
         assert!(names.iter().any(|n| n == "liba"), "liba resolved: {names:?}");
         assert!(names.iter().any(|n| n == "libb"), "transitive libb resolved: {names:?}");
 
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("liba", &url_a, "default").is_some());
         assert!(lock.commit_for("libb", &url_b, "default").is_some());
     });
@@ -912,7 +1436,7 @@ fn transitive_git_program_depends_on_library() {
             .expect("transitive git library resolved");
         assert!(lib.kind.is_library());
 
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("midprog.aleo", &url_prog, "default").is_some());
         assert!(lock.commit_for("deeplib", &url_lib, "default").is_some());
     });
@@ -954,7 +1478,7 @@ fn git_dependency_into_workspace_repo_resolves_member_and_sibling() {
 
         // The sibling is rewritten to a git dependency on the same source, so both are locked
         // (to the same commit, since the repository is resolved once per build).
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         let libb_commit = lock.commit_for("libb", &url, "default").expect("libb locked");
         assert_eq!(lock.commit_for("liba", &url, "default"), Some(libb_commit));
     });
@@ -1117,7 +1641,7 @@ fn workspace_members_share_lock_without_clobbering() {
         Package::from_directory(&memb, &home, false, false, false, None, None, 3).unwrap();
 
         // The shared lock at the workspace root retains both members' entries.
-        let lock = Lock::read(&ws);
+        let lock = Lock::read(&ws).expect("lock must be valid");
         assert!(lock.commit_for("liba", &url_a, "default").is_some(), "first member's entry retained");
         assert!(lock.commit_for("libb", &url_b, "default").is_some(), "second member's entry recorded");
     });
@@ -1166,7 +1690,7 @@ fn workspace_members_keep_different_references_to_same_repo() {
         for member in [&mema, &memb, &mema, &memb] {
             Package::from_directory(member, &home, false, false, false, None, None, 3).unwrap();
         }
-        let lock = Lock::read(&ws);
+        let lock = Lock::read(&ws).expect("lock must be valid");
         assert!(lock.commit_for("shared", &url, "tag=v1").is_some(), "tag entry retained");
         assert!(lock.commit_for("shared", &url, "default").is_some(), "default entry retained");
     });
