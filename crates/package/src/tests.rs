@@ -42,7 +42,7 @@ use crate::{
 
 use leo_span::Symbol;
 
-use snarkvm::prelude::{Program, TestnetV0};
+use snarkvm::prelude::{CanaryV0, MainnetV0, Program, TestnetV0};
 use std::{
     io::{Read, Write},
     net::TcpListener,
@@ -341,37 +341,55 @@ fn rejected_network_response_does_not_create_a_cache() {
 fn bundled_credits_ignores_hostile_cache() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-bundled-credits");
-        let cache = home.join("registry/testnet/credits/0/credits.aleo");
         let hostile = TRUSTED_TOKEN.replace("token.aleo", "credits.aleo");
-        write_file(&cache, &hostile);
-        let unit = crate::CompilationUnit::fetch(
-            Symbol::intern("credits.aleo"),
-            None,
-            &home,
-            leo_ast::NetworkName::TestnetV0,
-            "http://127.0.0.1:1",
-            false,
-            0,
-            &Lock::default(),
-        )
-        .expect("bundled credits must work without a pin or endpoint");
-        let expected = Program::<TestnetV0>::credits().expect("bundled credits must exist").to_string();
-        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &expected));
-        assert_eq!(unit.edition, Some(0));
-        assert_eq!(std::fs::read_to_string(cache).expect("hostile cache must remain unchanged"), hostile);
-        assert!(
-            crate::CompilationUnit::fetch(
-                Symbol::intern("credits.aleo"),
-                Some(1),
-                &home,
-                leo_ast::NetworkName::TestnetV0,
-                "http://127.0.0.1:1",
-                false,
-                0,
-                &Lock::default(),
-            )
-            .is_err()
-        );
+        for network in
+            [leo_ast::NetworkName::MainnetV0, leo_ast::NetworkName::TestnetV0, leo_ast::NetworkName::CanaryV0]
+        {
+            let expected = match network {
+                leo_ast::NetworkName::MainnetV0 => {
+                    Program::<MainnetV0>::credits().expect("bundled credits must exist").to_string()
+                }
+                leo_ast::NetworkName::TestnetV0 => {
+                    Program::<TestnetV0>::credits().expect("bundled credits must exist").to_string()
+                }
+                leo_ast::NetworkName::CanaryV0 => {
+                    Program::<CanaryV0>::credits().expect("bundled credits must exist").to_string()
+                }
+            };
+            let cache = home.join(format!("registry/{network}/credits/0/credits.aleo"));
+            write_file(&cache, &hostile);
+            for no_cache in [false, true] {
+                for edition in [None, Some(0)] {
+                    let unit = crate::CompilationUnit::fetch(
+                        Symbol::intern("credits.aleo"),
+                        edition,
+                        &home,
+                        network,
+                        "http://127.0.0.1:1",
+                        no_cache,
+                        0,
+                        &Lock::default(),
+                    )
+                    .expect("bundled credits must work without a pin or endpoint");
+                    assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &expected));
+                    assert_eq!(unit.edition, Some(0));
+                    assert_eq!(std::fs::read_to_string(&cache).expect("hostile cache must remain unchanged"), hostile);
+                }
+                let error = crate::CompilationUnit::fetch(
+                    Symbol::intern("credits.aleo"),
+                    Some(1),
+                    &home,
+                    network,
+                    "http://127.0.0.1:1",
+                    no_cache,
+                    0,
+                    &Lock::default(),
+                )
+                .expect_err("Bundled credits must reject nonzero editions before contacting the endpoint");
+                assert!(error.to_string().contains("credits must use edition zero"), "{error}");
+                assert_eq!(std::fs::read_to_string(&cache).expect("hostile cache must remain unchanged"), hostile);
+            }
+        }
         std::fs::remove_dir_all(home).expect("test directory must be removed");
     });
 }
