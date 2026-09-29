@@ -511,12 +511,12 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
     Ok(build_deploy_output(config, &transactions, &all_stats, &all_broadcasts))
 }
 
-fn validate_upgrade_tasks<N: Network>(
-    verified_programs: &[(Program<N>, u16)],
+fn validate_upgrade_tasks<'a, N: Network>(
+    verified_programs: &'a [(Program<N>, u16)],
     tasks: &[Task<N>],
     skipped: &HashSet<ProgramID<N>>,
     consensus_version: ConsensusVersion,
-) -> Result<Vec<(ProgramID<N>, Program<N>)>> {
+) -> Result<Vec<&'a Program<N>>> {
     let mut remote_programs = Vec::with_capacity(tasks.len());
 
     for Task { id, program, is_local, .. } in tasks {
@@ -525,14 +525,12 @@ fn validate_upgrade_tasks<N: Network>(
             continue;
         }
 
-        let remote_program =
-            verified_programs
-                .iter()
-                .find(|(remote, _)| remote.id() == id)
-                .map(|(remote, _)| remote)
-                .ok_or_else(|| crate::errors::custom(format!("Missing verified program for upgrade: {id}")))?;
+        let (remote_program, _) = verified_programs
+            .iter()
+            .find(|(remote, _)| remote.id() == id)
+            .ok_or_else(|| crate::errors::custom(format!("Missing verified program for upgrade: {id}")))?;
         reject_invalid_upgrade(id, remote_program, program, consensus_version)?;
-        remote_programs.push((*id, remote_program.clone()));
+        remote_programs.push(remote_program);
     }
 
     Ok(remote_programs)
@@ -589,7 +587,7 @@ fn check_tasks_for_warnings<N: Network>(
     endpoint: &str,
     network: NetworkName,
     tasks: &[Task<N>],
-    remote_programs: &[(ProgramID<N>, Program<N>)],
+    remote_programs: &[&Program<N>],
     consensus_version: ConsensusVersion,
     command: &LeoUpgrade,
 ) -> Vec<String> {
@@ -600,7 +598,7 @@ fn check_tasks_for_warnings<N: Network>(
         }
 
         // Check if the program exists on the network.
-        if let Some((_, remote_program)) = remote_programs.iter().find(|(remote_id, _)| remote_id == id) {
+        if let Some(remote_program) = remote_programs.iter().find(|remote| remote.id() == id) {
             push_remote_upgrade_warnings(id, remote_program, program, consensus_version, &mut warnings);
         }
         // Check if the program has a valid naming scheme.

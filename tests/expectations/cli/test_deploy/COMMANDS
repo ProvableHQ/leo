@@ -5,9 +5,9 @@ set -e
 LEO_BIN=${1}
 
 # This checksum comes from the reviewed, locally compiled bytecode in this fixture's expectations.
-NETWORK_LOCK=$(mktemp)
 REJECTED=$(mktemp -d)
-trap 'rm -f "$NETWORK_LOCK"; rm -rf "$REJECTED"' EXIT
+NETWORK_LOCK="$REJECTED/trusted.lock"
+trap 'rm -rf "$REJECTED"' EXIT
 cat > "$NETWORK_LOCK" <<'JSON'
 {"version": 2, "git": [], "network": [
     {
