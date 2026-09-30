@@ -19,9 +19,8 @@ use crate::*;
 use leo_errors::Backtraced;
 use leo_span::file_source::{DiskFileSource, FileSource};
 
-use snarkvm::prelude::{ProgramID, TestnetV0};
-
 use serde::{Deserialize, Serialize};
+use snarkvm::prelude::{ProgramID, TestnetV0};
 use std::path::Path;
 
 pub const MANIFEST_FILENAME: &str = "program.json";
@@ -64,6 +63,11 @@ impl Manifest {
         // Deserialize the manifest.
         let manifest: Self = serde_json::from_str(&contents)
             .map_err(|err| crate::errors::failed_to_deserialize_manifest_file(path.as_ref().display(), err))?;
+        if crate::canonicalize_program_name(&manifest.program).parse::<ProgramID<TestnetV0>>().is_err()
+            && !crate::is_valid_library_name(&manifest.program)
+        {
+            return Err(crate::errors::cli_invalid_package_name("program or library", &manifest.program));
+        }
         manifest.validate_dependencies()?;
         manifest.validate_reserved_names()?;
         Ok(manifest)
@@ -123,10 +127,15 @@ impl Dependency {
             return invalid(format!("`{location}` dependencies cannot specify `git`"));
         }
 
-        if self.location == Location::Network
-            && crate::canonicalize_program_name(&self.name).parse::<ProgramID<TestnetV0>>().is_err()
+        if crate::canonicalize_program_name(&self.name).parse::<ProgramID<TestnetV0>>().is_err()
+            && (self.location == Location::Network || !crate::is_valid_library_name(&self.name))
         {
-            return invalid("a network dependency name must be a valid Aleo program name".to_string());
+            let reason = if self.location == Location::Network {
+                "a network dependency name must be a valid Aleo program name"
+            } else {
+                "a dependency name must be a valid program or library name"
+            };
+            return invalid(reason.to_string());
         }
 
         if self.location == Location::Git {
@@ -220,6 +229,51 @@ mod tests {
         for name in ["credits", "credits.aleo", "token_2.aleo", "final.aleo", "interface.aleo"] {
             let dependencies = serde_json::json!([{ "name": name, "location": "network" }]).to_string();
             read_manifest(&manifest_json(&dependencies, "null")).expect("valid network names must be accepted");
+        }
+    }
+
+    #[test]
+    fn manifest_rejects_unsafe_local_names() {
+        for name in ["../escape.aleo", "/tmp/escape.aleo", r"..\escape.aleo", "foo/bar", "", ".aleo"] {
+            for location in ["local", "workspace", "test"] {
+                let mut dependency = serde_json::json!({ "name": name, "location": location });
+                if location != "workspace" {
+                    dependency["path"] = "../dependency".into();
+                }
+                let dependencies = serde_json::json!([dependency]).to_string();
+                for (normal, dev) in [(dependencies.as_str(), "null"), ("null", dependencies.as_str())] {
+                    read_manifest(&manifest_json(normal, dev)).expect_err("Unsafe dependency names must be rejected.");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn manifest_accepts_uppercase_library_names() {
+        let mut manifest: serde_json::Value =
+            serde_json::from_str(&manifest_json("null", "null")).expect("The fixture is valid JSON.");
+        manifest["program"] = "MathLib".into();
+        read_manifest(&manifest.to_string()).expect("Existing library names must remain valid.");
+        for location in ["local", "workspace", "test", "git"] {
+            let mut dependency = serde_json::json!({ "name": "MathLib", "location": location });
+            match location {
+                "local" | "test" => dependency["path"] = "../MathLib".into(),
+                "git" => dependency["git"] = serde_json::json!({ "url": "https://example.com/library.git" }),
+                _ => (),
+            }
+            let dependencies = serde_json::json!([dependency]).to_string();
+            read_manifest(&manifest_json(&dependencies, "null"))
+                .expect("Library dependencies must accept existing names.");
+        }
+    }
+
+    #[test]
+    fn manifest_rejects_unsafe_primary_names() {
+        for name in ["../escape.aleo", "/tmp/escape.aleo", r"..\escape.aleo", "foo/bar", "", ".aleo"] {
+            let mut manifest: serde_json::Value =
+                serde_json::from_str(&manifest_json("null", "null")).expect("The fixture is valid JSON.");
+            manifest["program"] = name.into();
+            read_manifest(&manifest.to_string()).expect_err("Unsafe primary names must be rejected.");
         }
     }
 }

@@ -567,6 +567,11 @@ fn parse_dependencies_from_aleo(
     // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> =
         bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+    if svm_program.id().to_string() != crate::canonicalize_program_name(&name.to_string()) {
+        return Err(crate::errors::snarkvm_parsing_error(name)
+            .with_help(format!("Expected program `{name}`, but the bytecode declares `{}`.", svm_program.id()))
+            .into());
+    }
     let dependencies = svm_program
         .imports()
         .keys()

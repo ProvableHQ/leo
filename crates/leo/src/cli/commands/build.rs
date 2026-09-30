@@ -170,6 +170,33 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     // `leo deploy --rename`: recompile the primary program under a different on-chain name.
     let rename_target = apply_rename(command, &mut package, primary_name)?;
 
+    let mut pending = vec![build_directory.clone()];
+    while let Some(path) = pending.pop() {
+        let metadata = match std::fs::symlink_metadata(&path) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound && path == build_directory => continue,
+            Err(error) => {
+                return Err(crate::errors::util_file_io_error(
+                    format_args!("Couldn't inspect build output {}", path.display()),
+                    error,
+                )
+                .into());
+            }
+        };
+        if metadata.file_type().is_symlink() {
+            return Err(
+                crate::errors::custom(format!("Build output must not contain symlinks: {}", path.display())).into()
+            );
+        }
+        if metadata.is_dir() {
+            for entry in std::fs::read_dir(&path).map_err(crate::errors::failed_to_load_instructions)? {
+                pending.push(entry.map_err(crate::errors::failed_to_load_instructions)?.path());
+            }
+        } else if !metadata.is_file() {
+            return Err(crate::errors::custom(format!("Expected a regular build output: {}", path.display())).into());
+        }
+    }
+
     std::fs::create_dir_all(&build_directory).map_err(|err| {
         crate::errors::util_file_io_error(format_args!("Couldn't create directory {}", build_directory.display()), err)
     })?;

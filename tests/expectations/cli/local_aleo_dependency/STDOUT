@@ -8,3 +8,10 @@
 Rejected linked tests directory; build artifacts are unchanged.
 Rejected linked lock during build; target and build artifacts are unchanged.
 Rejected transitive alias; primary artifact is unchanged.
+Rejected dependency path; outside files and build artifacts are unchanged.
+Rejected dependency path; outside files and build artifacts are unchanged.
+Rejected mismatched bytecode; build artifacts are unchanged.
+Rejected root symlink; outside files are unchanged.
+Rejected directory symlink; outside files are unchanged.
+Rejected file symlink; outside files are unchanged.
+Rejected dangling symlink; outside files are unchanged.
