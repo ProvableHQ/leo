@@ -29,7 +29,7 @@ printf 'program gitprog.aleo {\n    @noupgrade\n    constructor() {}\n    fn run
 # An Aleo bytecode file at the root: compile a throwaway program so the bytecode is valid for the
 # current compiler, then place its `.aleo` at the repository root.
 GEN=$(mktemp -d)
-( cd "${GEN}" && ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" new gitbytes > /dev/null 2>&1 && cd gitbytes && ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" build > /dev/null 2>&1 )
+( cd "${GEN}" && ${LEO_BIN} --home "${HOMEDIR}" new gitbytes > /dev/null 2>&1 && cd gitbytes && ${LEO_BIN} --home "${HOMEDIR}" build > /dev/null 2>&1 )
 cp "$(find "${GEN}/gitbytes/build" -name 'gitbytes.aleo' | head -1)" "${REPO}/gitbytes.aleo"
 
 ${GIT} -C "${REPO}" init -q
@@ -51,7 +51,7 @@ OUT=$(mktemp)
 ERR=$(mktemp)
 # Run `leo`, redacting the git URL/commits from both its stdout and stderr while preserving order.
 leo_redacted() {
-    ${LEO_BIN} --disable-update-check --home "${HOMEDIR}" "$@" >"${OUT}" 2>"${ERR}"
+    ${LEO_BIN} --home "${HOMEDIR}" "$@" >"${OUT}" 2>"${ERR}"
     local rc=$?
     redact <"${OUT}"
     redact <"${ERR}" >&2

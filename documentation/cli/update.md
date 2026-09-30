@@ -34,7 +34,7 @@ Leo fetches and validates the selected dependencies before it writes the lock. N
 
 The first checksum comes from the configured endpoint. It detects later changes to that edition, but it does not prove that the first response was correct.
 
-Normal builds use the locked versions. `leo build --no-cache` downloads those versions again and checks their checksums; it does not update them.
+Normal builds use the locked versions. `leo build --no-cache` downloads locked network editions again and checks their checksums; it does not update them.
 
 ## Arguments and flags
 
@@ -56,4 +56,4 @@ Select the endpoint used to resolve and download network dependencies.
 
 ## Update the Leo installation
 
-`leo update` updates dependency locks. Leo does not check for new releases or show release notices. To install the latest Leo release and plugins, follow the [installation instructions](https://github.com/ProvableHQ/leo#-build-guide).
+`leo update` updates dependency locks. Leo does not check for new releases or show release notices. The `--disable-update-check` flag was removed; remove it from existing scripts. To install the latest Leo release and plugins, follow the [installation instructions](https://github.com/ProvableHQ/leo#-build-guide).

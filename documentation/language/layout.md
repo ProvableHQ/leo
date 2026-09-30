@@ -19,7 +19,7 @@ The program ID in `program` is the official name that other developers will be a
     "program": "hello.aleo",
 ```
 
-Dependencies will be added to the field of the same name, as they are added. The dependencies are also pegged in the **leo.lock** file.
+The `dependencies` field records dependency requirements. `leo.lock` records resolved Git commits and network editions with checksums. Builds reuse those versions. Use [`leo update`](../cli/update.md) to refresh them within the manifest requirements.
 
 The `src/` directory is where all of your Leo code will live. The main entry point of your project is a file in this directory appropriately named `main.leo`. Calls to many of the Leo CLI commands will require you to have this file within your project in order to succeed properly.
 

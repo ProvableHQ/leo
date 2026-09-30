@@ -33,10 +33,6 @@ pub struct CLI {
     #[clap(long, global = true, help = "Write command results as JSON. Pass `--json-output=<FILE>` for a custom path; with no value it defaults to build/json-outputs/<command>.json.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
     json_output: Option<String>,
 
-    // Accept the old flag so existing scripts continue to work.
-    #[clap(long, global = true, hide = true)]
-    disable_update_check: bool,
-
     #[clap(subcommand)]
     command: Commands,
 
@@ -342,7 +338,12 @@ mod tests {
         ]] {
             CLI::try_parse_from(arguments).expect("Dependency update arguments must parse");
         }
-        for arguments in [vec!["leo", "update", "--list"], vec!["leo", "update", "--name", "v4.4.4"]] {
+        for arguments in [
+            vec!["leo", "update", "--list"],
+            vec!["leo", "update", "--name", "v4.4.4"],
+            vec!["leo", "--disable-update-check", "build"],
+            vec!["leo", "update", "--disable-update-check"],
+        ] {
             assert!(CLI::try_parse_from(arguments).is_err(), "Self-update flags must be removed");
         }
     }
@@ -593,7 +594,6 @@ mod tests {
             let cli = CLI::try_parse_from([
                 "leo",
                 "-q",
-                "--disable-update-check",
                 "--path",
                 project.to_str().expect("The project path must be UTF-8"),
                 "--home",
@@ -639,7 +639,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "add_missing_network_dep".to_string(), library: false, workspace: false },
             },
@@ -652,7 +651,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nonexistent_program".to_string(),
@@ -705,7 +703,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "example".to_string(),
@@ -753,7 +750,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "double_wrapper_mint".to_string(),
@@ -802,7 +798,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "inner_1_main".to_string(),
@@ -845,7 +840,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "main".to_string(),
@@ -884,7 +878,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: lib_name.to_string(), library: true, workspace: false },
             },
@@ -930,7 +923,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: ws_name.to_string(), library: false, workspace: true },
             },
@@ -1031,7 +1023,7 @@ mod tests {
             ("test", "failed to load Leo project"),
             ("clean", "doesn't appear to be a Leo package"),
         ] {
-            let cli = CLI::try_parse_from(["leo", "-q", "--disable-update-check", "--path", aleo_path, command])
+            let cli = CLI::try_parse_from(["leo", "-q", "--path", aleo_path, command])
                 .unwrap_or_else(|error| panic!("`leo {command}` arguments should parse: {error}"));
 
             create_session_if_not_set_then(|_| {
@@ -1052,11 +1044,11 @@ mod tests {
 
         for (arguments, expected_error) in [
             (
-                ["leo", "-q", "--disable-update-check", "--path", aleo_path, "--package", "member", "upgrade"],
+                ["leo", "-q", "--path", aleo_path, "--package", "member", "upgrade"],
                 "`--package` cannot be used with an Aleo bytecode file",
             ),
             (
-                ["leo", "-q", "--disable-update-check", "--path", project_path, "upgrade", "--imports-dir", "imports"],
+                ["leo", "-q", "--path", project_path, "upgrade", "--imports-dir", "imports"],
                 "`--imports-dir` requires `--path` to point to an Aleo bytecode file",
             ),
         ] {
@@ -1089,7 +1081,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
             },
@@ -1131,7 +1122,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
             },
@@ -1163,7 +1153,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1199,7 +1188,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1235,7 +1223,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1271,7 +1258,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1303,7 +1289,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1331,7 +1316,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Clean { command: crate::cli::commands::LeoClean {} },
             path: Some(ws_root.clone()),
             home: None,
@@ -1357,7 +1341,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1394,7 +1377,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1430,7 +1412,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1468,7 +1449,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1519,7 +1499,6 @@ mod tests {
         let imports = ws_root.join("imports");
         let deploy = CLI::try_parse_from([
             "leo",
-            "--disable-update-check",
             "--path",
             ws_root.to_str().expect("workspace path should be UTF-8"),
             "deploy",
@@ -1548,7 +1527,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1602,7 +1580,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1657,7 +1634,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1715,7 +1691,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false, workspace: false },
             },
@@ -1732,7 +1707,6 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -2231,7 +2205,6 @@ program app.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New { command: LeoNew { name: name.to_string(), library: false, workspace: false } },
             path: Some(project_directory.clone()),
             home: None,
@@ -2355,7 +2328,6 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "grandparent".to_string(), library: false, workspace: false },
             },
@@ -2368,7 +2340,6 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false, workspace: false } },
             path: Some(parent_directory.clone()),
             home: None,
@@ -2379,7 +2350,6 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New { command: LeoNew { name: "child".to_string(), library: false, workspace: false } },
             path: Some(child_directory.clone()),
             home: None,
@@ -2432,7 +2402,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
@@ -2458,7 +2427,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -2484,7 +2452,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -2539,7 +2506,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false, workspace: false } },
             path: Some(outer_directory.clone()),
             home: None,
@@ -2550,7 +2516,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
             },
@@ -2563,7 +2528,6 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
             },
@@ -2641,7 +2605,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -2667,7 +2630,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
@@ -2721,7 +2683,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "outer_2".to_string(), library: false, workspace: false },
             },
@@ -2734,7 +2695,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
             },
@@ -2747,7 +2707,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
             },
@@ -2859,7 +2818,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -2885,7 +2843,6 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
-            disable_update_check: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
