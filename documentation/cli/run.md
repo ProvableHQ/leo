@@ -56,7 +56,7 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache
-    Don't use the dependency cache.
+    Download network dependencies again and verify locked checksums. Keep locked editions.
 --no-local
     Don't use the local source code.
 --private-key <PRIVATE_KEY>

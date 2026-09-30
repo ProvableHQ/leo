@@ -6,5 +6,5 @@ cd ambiguous_pkg || exit 1
 
 echo "--- leo build (should fail: both main.leo and lib.leo exist) ---" | tee /dev/stderr
 
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} build
 echo "build exit code: $?"

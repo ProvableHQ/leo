@@ -93,6 +93,10 @@ my_project/
 
 Build artifacts are in one `build/` directory at the workspace root. The compilation unit name identifies each artifact. After Leo builds a unit as a member or dependency, other members reuse it. Run `leo clean` from any workspace directory to remove the shared `build/` directory.
 
+## Dependency Locks
+
+Members share `leo.lock` at the workspace root. Run `leo update` from the root or a member to update eligible dependencies across all members, including development dependencies. Use `leo update NAME` to select one dependency, or `--dry-run` to preview changes. Exact manifest editions remain fixed. This command does not accept `--package`.
+
 ## Member Dependencies
 
 Members can depend on each other using [workspace dependencies](./dependencies.md#workspace-dependencies). For example, if `swap` depends on `token`, add the dependency with:

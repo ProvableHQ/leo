@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+set -e
+
 LEO_BIN=${1}
+
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
-COMMON_OPTS="-y --disable-update-check --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+COMMON_OPTS="-y --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
 
 cd test_program1 || exit 1
 echo "DEPLOYMENT 1"
@@ -12,5 +15,18 @@ cd ../test_program2 || exit 1
 echo "DEPLOYMENT 2"
 $LEO_BIN deploy $COMMON_OPTS
 
+# The first dependency resolution writes the checksum without a supplied lock.
+grep -Fq '"name": "test_program1.aleo"' leo.lock
+grep -Fq '"network": "testnet"' leo.lock
+grep -Fq '"edition": 0' leo.lock
+grep -Fq '"checksum": [' leo.lock
+LOCK_COPY=$(mktemp)
+trap 'rm -f "$LOCK_COPY"' EXIT
+cp leo.lock "$LOCK_COPY"
+
 echo "EXECUTION"
 $LEO_BIN execute test_program2.aleo/main $COMMON_OPTS
+
+# Resolving the same dependency preserves the lock.
+cmp leo.lock "$LOCK_COPY"
+rm leo.lock

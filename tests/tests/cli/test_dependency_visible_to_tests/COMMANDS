@@ -8,4 +8,4 @@ LEO_BIN=${1}
 cd my_app || exit 1
 
 echo "--- leo test with a dependencies-only library named from a test ---"
-${LEO_BIN} --disable-update-check test
+${LEO_BIN} test

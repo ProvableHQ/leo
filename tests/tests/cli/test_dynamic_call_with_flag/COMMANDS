@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 LEO_BIN=${1}
-COMMON_OPTS="--disable-update-check"
 
 PROG="'extra_prog'"
 NET="'aleo'"
@@ -9,16 +8,16 @@ FUNC="'dbl'"
 INPUT="7u64"
 
 echo "--- run WITHOUT --with should fail ---"
-${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
+${LEO_BIN} run main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
 
 echo "--- run WITH --with should succeed ---"
-${LEO_BIN} ${COMMON_OPTS} run main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
+${LEO_BIN} run main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
 
 echo "--- run a standalone Aleo file ---"
-${LEO_BIN} ${COMMON_OPTS} --path ./extra_prog.aleo run dbl ${INPUT}
+${LEO_BIN} --path ./extra_prog.aleo run dbl ${INPUT}
 
 echo "--- write standalone Aleo run JSON output ---"
-${LEO_BIN} ${COMMON_OPTS} --path ./extra_prog.aleo --json-output run dbl ${INPUT}
+${LEO_BIN} --path ./extra_prog.aleo --json-output run dbl ${INPUT}
 cat ./build/json-outputs/run.json
 rm ./build/json-outputs/run.json
 

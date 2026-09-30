@@ -8,5 +8,5 @@ LEO_BIN=${1}
 cd my_lib || exit 1
 
 echo "--- leo build (should fail: cyclic interfaces) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} build
 echo "build exit code: $?"

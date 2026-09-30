@@ -26,7 +26,7 @@ To add a program already deployed onchain as a dependency to your project, run t
 leo add <NAME> --network
 ```
 
-`<NAME>` is the name of the imported program. Leo makes sure that the program exists before it changes `program.json`.
+`<NAME>` is the name of the imported program. Leo makes sure that the program exists before it changes `program.json`. It records the resolved edition and checksum in `leo.lock`. Later builds reuse the locked edition. Use [`leo update`](./update.md) to refresh dependencies without changing the manifest. The built-in `credits.aleo` program needs no network lock entry.
 
 To add another member of the enclosing workspace as a dependency:
 
@@ -90,11 +90,7 @@ Pin a git dependency to a specific branch, tag, or revision. These require `--gi
 
 ### `-e <EDITION>`
 
-Specifies the expected edition of the program being imported. Only passing this flag will assume that the program is being imported from the network.
-
-:::warning
-Do not use this feature unless you know what you are doing!
-:::
+Set an exact network edition in `program.json`. This flag selects a network dependency without `--network`. Builds and `leo update` keep this edition fixed. If you omit the edition, Leo records the current edition in `leo.lock`; a later `leo update` can select a newer edition.
 
 ### `--dev`
 
