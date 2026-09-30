@@ -151,3 +151,5 @@ leo.lock after remove:
 }
 --- 10. a path-traversal dependency name is rejected before fetching ---
 exit: 213
+Rejected linked lock during Git add; target is unchanged.
+Rejected linked lock during Git remove; target is unchanged.

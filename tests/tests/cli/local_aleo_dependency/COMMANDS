@@ -6,8 +6,33 @@ ${LEO_BIN} --disable-update-check build
 
 probe=$(mktemp -d)
 cp program.json "$probe/program.json"
-cp build/complex/complex.aleo "$probe/complex.aleo"
-trap 'cp "$probe/program.json" program.json; cp "$probe/complex.aleo" build/complex/complex.aleo; rm -rf "$probe"' EXIT
+cp -R build "$probe/build"
+trap 'cp "$probe/program.json" program.json; cp "$probe/build/complex/complex.aleo" build/complex/complex.aleo; rm -f tests leo.lock; rm -rf "$probe"' EXIT
+mkdir "$probe/tests"
+printf 'program test_external.aleo {}\n' > "$probe/tests/test_external.leo"
+ln -s "$probe/tests" tests
+if output=$(${LEO_BIN} --disable-update-check build --build-tests 2>&1); then
+    echo "Build accepted a linked tests directory"
+    exit 1
+fi
+[[ "$output" == *"expected a test directory, not a symlink"* ]] || { echo "$output"; exit 1; }
+diff -r "$probe/build" build || exit 1
+rm tests
+echo "Rejected linked tests directory; build artifacts are unchanged."
+printf '{"version":1,"git":[]}\n' > "$probe/lock-target"
+cp "$probe/lock-target" "$probe/lock-original"
+ln -s "$probe/lock-target" leo.lock
+if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+    echo "Build accepted a linked lock file"
+    exit 1
+fi
+[[ "$output" == *"expected a regular file, not a symlink"* ]] || { echo "$output"; exit 1; }
+[[ -L leo.lock ]] || exit 1
+cmp "$probe/lock-original" "$probe/lock-target" || exit 1
+diff -r "$probe/build" build || exit 1
+rm leo.lock
+echo "Rejected linked lock during build; target and build artifacts are unchanged."
+
 mkdir -p "$probe/bridge/src"
 printf '// library\n' > "$probe/bridge/src/lib.leo"
 sed 's/program simple.aleo;/program complex.aleo;/' simple.aleo > "$probe/complex-dependency.aleo"
@@ -21,3 +46,5 @@ fi
 [[ "$output" == *"conflicting dependency"* ]] || { echo "$output"; exit 1; }
 [[ "$(cat build/complex/complex.aleo)" == "primary artifact sentinel" ]] || exit 1
 echo "Rejected transitive alias; primary artifact is unchanged."
+cp "$probe/program.json" program.json
+cp "$probe/build/complex/complex.aleo" build/complex/complex.aleo

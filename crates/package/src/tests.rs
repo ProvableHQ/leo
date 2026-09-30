@@ -468,21 +468,207 @@ fn find_in_checkout_does_not_follow_symlinks() {
 
 // The `leo.lock` lock file (`crate::Lock`).
 
+#[cfg(unix)]
+#[test]
+fn manifests_reject_symlinks() {
+    let dir = unique_dir("manifest-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let manifest = dir.join("program.json");
+    std::os::unix::fs::symlink(package.join("program.json"), &manifest).expect("create manifest symlink");
+    assert!(crate::Manifest::read_from_file(&manifest).is_err());
+
+    let target = dir.join("workspace-target");
+    std::fs::write(&target, r#"{"members":[]}"#).expect("write workspace fixture");
+    let workspace = dir.join(WORKSPACE_MANIFEST_FILENAME);
+    std::os::unix::fs::symlink(&target, &workspace).expect("create workspace manifest symlink");
+    assert!(crate::WorkspaceManifest::read_from_file(&workspace).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_write_preserves_existing_permissions() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = unique_dir("lock-permissions");
+    let path = dir.join(LOCK_FILENAME);
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
+    lock.write(&dir).expect("write initial lock");
+    for mode in [0o600, 0o640] {
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(mode)).expect("set lock permissions");
+        lock.write(&dir).expect("replace lock");
+        assert_eq!(std::fs::metadata(&path).expect("read lock metadata").permissions().mode() & 0o777, mode);
+    }
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_write_failure_preserves_existing_lock() {
+    const CHILD: &str = "LEO_TEST_LOCK_WRITE_LIMIT";
+    if std::env::var_os(CHILD).is_none() {
+        let output = std::process::Command::new("bash")
+            .args([
+                "-c",
+                "trap '' XFSZ; ulimit -f 1; exec \"$1\" --exact tests::lock_write_failure_preserves_existing_lock --nocapture",
+                "bash",
+            ])
+            .arg(std::env::current_exe().expect("The test executable must exist."))
+            .env(CHILD, "1")
+            .output()
+            .expect("The limited child process must start.");
+        assert!(
+            output.status.success(),
+            "The limited child test failed: {}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return;
+    }
+    let dir = unique_dir("lock-write-failure");
+    let path = dir.join(LOCK_FILENAME);
+    let original = r#"{"version":1,"git":[]}"#;
+    write_file(&path, original);
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "x".repeat(16 * 1024), "default".into(), "abc123".into());
+    let error = lock.write(&dir).expect_err("The file-size limit must reject the temporary write.");
+    assert!(error.to_string().contains("failed to write lock file"), "{error}");
+    assert_eq!(std::fs::read_to_string(&path).expect("The previous lock must remain readable."), original);
+    let mut entries = std::fs::read_dir(&dir).expect("The lock directory must remain readable.");
+    assert_eq!(entries.next().expect("The lock must remain.").expect("The entry must be readable.").path(), path);
+    assert!(entries.next().is_none(), "The failed write must remove its temporary file.");
+    std::fs::remove_dir_all(dir).expect("The test directory must be removed.");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_rejects_symlinks_without_changing_targets() {
+    let dir = unique_dir("lock-symlink");
+    let target = dir.join("target");
+    let path = dir.join(LOCK_FILENAME);
+    let contents = r#"{"version":1,"git":[]}"#;
+    std::fs::write(&target, contents).expect("write sentinel");
+    std::os::unix::fs::symlink(&target, &path).expect("create lock symlink");
+
+    assert!(Lock::read(&dir).is_err());
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert_eq!(std::fs::read_to_string(&target).expect("read sentinel"), contents);
+
+    std::fs::remove_file(&target).expect("remove sentinel");
+    assert!(Lock::read(&dir).is_err());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert!(!target.exists());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[test]
+fn locked_commit_cannot_select_an_outside_directory() {
+    let dir = unique_dir("lock-commit-path");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let outside = outside.to_str().expect("fixture path is UTF-8");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(outside), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn cached_git_checkout_cannot_be_a_symlink() {
+    let dir = unique_dir("checkout-symlink");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let commit = "0123456789012345678901234567890123456789";
+    let checkout = crate::git::checkout_dir(&home, "url", commit);
+    std::fs::create_dir_all(checkout.parent().expect("checkout has parent")).expect("create cache");
+    std::os::unix::fs::symlink(&outside, &checkout).expect("create checkout symlink");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(commit), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn git_bytecode_fallback_cannot_be_a_symlink() {
+    let dir = unique_dir("bytecode-symlink");
+    let checkout = dir.join("checkout");
+    std::fs::create_dir_all(&checkout).expect("create checkout");
+    let outside = dir.join("outside.aleo");
+    std::fs::write(&outside, "program secret.aleo;").expect("write outside bytecode");
+    std::os::unix::fs::symlink(&outside, checkout.join("secret.aleo")).expect("create bytecode symlink");
+    assert!(crate::find_in_checkout(&checkout, "secret").is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn package_rejects_source_symlinks() {
+    let dir = unique_dir("package-source-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let selected = dir.join("selected-package");
+    std::os::unix::fs::symlink(&package, &selected).expect("create explicit local package link");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &selected).is_ok());
+    });
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    std::fs::write(outside.join("lib.leo"), "secret sentinel").expect("write sentinel");
+    let home = dir.join("home");
+    std::fs::create_dir_all(&home).expect("create home directory");
+    std::fs::write(outside.join("test_external.leo"), "secret sentinel").expect("write test sentinel");
+    let tests = package.join("tests");
+    std::os::unix::fs::symlink(&outside, &tests).expect("create test root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        let error = Package::from_directory_with_tests(&package, &home, false, false, false, None, None, 0)
+            .expect_err("Test discovery must reject a directory symlink.");
+        assert!(error.to_string().contains("expected a test directory, not a symlink"), "{error}");
+    });
+    std::fs::remove_file(&tests).expect("remove test root symlink");
+    let source = package.join("src/lib.leo");
+    std::fs::remove_file(&source).expect("remove entry file");
+    std::os::unix::fs::symlink(outside.join("lib.leo"), &source).expect("create entry symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(package.join("src")).expect("remove sources");
+    std::os::unix::fs::symlink(&outside, package.join("src")).expect("create source root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
 #[test]
 fn round_trip_and_lookup() {
     let dir = unique_dir("lock");
-    let mut lock = Lock::read(&dir);
+    let mut lock = Lock::read(&dir).expect("The fixture lock must be readable.");
     assert!(lock.is_empty());
 
     lock.record("foo.aleo".into(), "https://example.com/foo".into(), "tag=v1".into(), "abc123".into());
     lock.write(&dir).unwrap();
 
-    let reloaded = Lock::read(&dir);
+    let reloaded = Lock::read(&dir).expect("The fixture lock must be readable.");
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v1"), Some("abc123"));
     // Reference mismatch forces re-resolution.
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v2"), None);
     // URL mismatch forces re-resolution.
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/other", "tag=v1"), None);
+
+    for contents in ["{", r#"{"version":99,"git":[]}"#] {
+        write_file(&dir.join(LOCK_FILENAME), contents);
+        assert!(
+            Lock::read(&dir).expect("Malformed or unsupported locks must retain the fallback behavior.").is_empty()
+        );
+    }
 
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -675,7 +861,7 @@ fn git_dependency_resolves_and_locks() {
         assert!(lib_unit.kind.is_library());
 
         // The lock file was written and pins the library to a commit.
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
         let commit = lock.commit_for("mylib", &url, "default").expect("lock pins mylib");
         assert_eq!(commit.len(), 40);
 
@@ -721,7 +907,13 @@ fn git_dev_dependency_resolves_with_tests() {
             package.compilation_units.iter().any(|u| u.name == Symbol::intern("mylib")),
             "git dev-dependency resolved",
         );
-        assert!(Lock::read(&consumer).commit_for("mylib", &url, "default").is_some(), "dev-dependency locked");
+        assert!(
+            Lock::read(&consumer)
+                .expect("The fixture lock must be readable.")
+                .commit_for("mylib", &url, "default")
+                .is_some(),
+            "dev-dependency locked"
+        );
     });
 
     let _ = std::fs::remove_dir_all(&root);
@@ -750,14 +942,21 @@ fn offline_build_uses_locked_commit_and_cache() {
     leo_span::create_session_if_not_set_then(|_| {
         // Build online once to populate the lock and the checkout cache.
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let commit = Lock::read(&consumer).commit_for("mylib", &url, "default").expect("locked").to_string();
+        let commit = Lock::read(&consumer)
+            .expect("The fixture lock must be readable.")
+            .commit_for("mylib", &url, "default")
+            .expect("locked")
+            .to_string();
 
         // Make the source repository unreachable; any fetch would now fail.
         std::fs::remove_dir_all(&lib).unwrap();
 
         // The offline build reuses the locked commit from the cache.
         Package::from_directory(&consumer, &home, false, false, true, None, None, 3).unwrap();
-        assert_eq!(Lock::read(&consumer).commit_for("mylib", &url, "default"), Some(commit.as_str()));
+        assert_eq!(
+            Lock::read(&consumer).expect("The fixture lock must be readable.").commit_for("mylib", &url, "default"),
+            Some(commit.as_str())
+        );
     });
 
     let _ = std::fs::remove_dir_all(&root);
@@ -842,9 +1041,16 @@ fn plain_build_keeps_dev_dependency_pin() {
     leo_span::create_session_if_not_set_then(|_| {
         // A test build records the dev pin; a subsequent plain build must carry it over.
         Package::from_directory_with_tests(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let commit = Lock::read(&consumer).commit_for("mylib", &url, "default").expect("locked").to_string();
+        let commit = Lock::read(&consumer)
+            .expect("The fixture lock must be readable.")
+            .commit_for("mylib", &url, "default")
+            .expect("locked")
+            .to_string();
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        assert_eq!(Lock::read(&consumer).commit_for("mylib", &url, "default"), Some(commit.as_str()));
+        assert_eq!(
+            Lock::read(&consumer).expect("The fixture lock must be readable.").commit_for("mylib", &url, "default"),
+            Some(commit.as_str())
+        );
 
         // Once the dev dependency is gone from the manifest, the plain build prunes its pin.
         write_file(
@@ -879,7 +1085,12 @@ fn git_dependency_ref_change_updates_lock() {
         // Track the default branch first.
         write_consumer(&consumer, &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}"}}}}"#));
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        assert!(Lock::read(&consumer).commit_for("mylib", &url, "default").is_some());
+        assert!(
+            Lock::read(&consumer)
+                .expect("The fixture lock must be readable.")
+                .commit_for("mylib", &url, "default")
+                .is_some()
+        );
 
         // Re-pin to the tag: the lock gains the tag entry and drops the stale default one.
         write_consumer(
@@ -887,7 +1098,7 @@ fn git_dependency_ref_change_updates_lock() {
             &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}","tag":"v1"}}}}"#),
         );
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
         assert!(lock.commit_for("mylib", &url, "tag=v1").is_some(), "tag entry recorded");
         assert!(lock.commit_for("mylib", &url, "default").is_none(), "stale default entry pruned");
     });
@@ -926,7 +1137,7 @@ fn transitive_git_dependency() {
         assert!(names.iter().any(|n| n == "liba"), "liba resolved: {names:?}");
         assert!(names.iter().any(|n| n == "libb"), "transitive libb resolved: {names:?}");
 
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
         assert!(lock.commit_for("liba", &url_a, "default").is_some());
         assert!(lock.commit_for("libb", &url_b, "default").is_some());
     });
@@ -981,7 +1192,7 @@ fn transitive_git_program_depends_on_library() {
             .expect("transitive git library resolved");
         assert!(lib.kind.is_library());
 
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
         assert!(lock.commit_for("midprog.aleo", &url_prog, "default").is_some());
         assert!(lock.commit_for("deeplib", &url_lib, "default").is_some());
     });
@@ -1023,7 +1234,7 @@ fn git_dependency_into_workspace_repo_resolves_member_and_sibling() {
 
         // The sibling is rewritten to a git dependency on the same source, so both are locked
         // (to the same commit, since the repository is resolved once per build).
-        let lock = Lock::read(&consumer);
+        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
         let libb_commit = lock.commit_for("libb", &url, "default").expect("libb locked");
         assert_eq!(lock.commit_for("liba", &url, "default"), Some(libb_commit));
     });
@@ -1186,7 +1397,7 @@ fn workspace_members_share_lock_without_clobbering() {
         Package::from_directory(&memb, &home, false, false, false, None, None, 3).unwrap();
 
         // The shared lock at the workspace root retains both members' entries.
-        let lock = Lock::read(&ws);
+        let lock = Lock::read(&ws).expect("The fixture lock must be readable.");
         assert!(lock.commit_for("liba", &url_a, "default").is_some(), "first member's entry retained");
         assert!(lock.commit_for("libb", &url_b, "default").is_some(), "second member's entry recorded");
     });
@@ -1235,7 +1446,7 @@ fn workspace_members_keep_different_references_to_same_repo() {
         for member in [&mema, &memb, &mema, &memb] {
             Package::from_directory(member, &home, false, false, false, None, None, 3).unwrap();
         }
-        let lock = Lock::read(&ws);
+        let lock = Lock::read(&ws).expect("The fixture lock must be readable.");
         assert!(lock.commit_for("shared", &url, "tag=v1").is_some(), "tag entry retained");
         assert!(lock.commit_for("shared", &url, "default").is_some(), "default entry retained");
     });

@@ -18,6 +18,7 @@ use crate::{Dependency, Location, MANIFEST_FILENAME, Manifest, errors};
 
 use leo_ast::DiGraph;
 use leo_errors::{Backtraced, Result};
+use leo_span::file_source::{DiskFileSource, FileSource};
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -32,8 +33,9 @@ pub struct WorkspaceManifest {
 
 impl WorkspaceManifest {
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> std::result::Result<Self, Backtraced> {
-        let contents =
-            std::fs::read_to_string(&path).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
+        let contents = DiskFileSource
+            .read_file(path.as_ref())
+            .map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))?;
         serde_json::from_str(&contents).map_err(|e| errors::workspace_manifest_error(path.as_ref().display(), e))
     }
 

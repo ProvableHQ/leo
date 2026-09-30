@@ -5,4 +5,6 @@
        Leo     Program size: 0.22 KB / 2000.00 KB
        Leo ✅ Compiled 'complex.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'complex.aleo'.
+Rejected linked tests directory; build artifacts are unchanged.
+Rejected linked lock during build; target and build artifacts are unchanged.
 Rejected transitive alias; primary artifact is unchanged.

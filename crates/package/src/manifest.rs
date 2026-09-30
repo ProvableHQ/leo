@@ -17,6 +17,7 @@
 use crate::*;
 
 use leo_errors::Backtraced;
+use leo_span::file_source::{DiskFileSource, FileSource};
 
 use snarkvm::prelude::{ProgramID, TestnetV0};
 
@@ -57,7 +58,8 @@ impl Manifest {
     /// Read and validate a Manifest from the given JSON file.
     pub fn read_from_file<P: AsRef<Path>>(path: P) -> Result<Self, Backtraced> {
         // Read the manifest file.
-        let contents = std::fs::read_to_string(&path)
+        let contents = DiskFileSource
+            .read_file(path.as_ref())
             .map_err(|_| crate::errors::failed_to_load_package(path.as_ref().display()))?;
         // Deserialize the manifest.
         let manifest: Self = serde_json::from_str(&contents)
