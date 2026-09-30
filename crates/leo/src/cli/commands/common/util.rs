@@ -133,12 +133,13 @@ pub fn load_extra_programs_into_vm<N: Network>(
             println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
             let program_id = ProgramID::<N>::from_str(&name)
                 .map_err(|e| crate::errors::custom(format!("Failed to parse program ID '{name}': {e}")))?;
-            let fetched = super::query::load_pinned_programs_from_network(
+            let fetched = super::query::load_programs_from_network(
                 context,
                 program_id,
                 network,
                 endpoint,
                 network_retries,
+                None,
             )?;
             extras.extend(fetched.into_iter().map(|(p, ed)| (p, ed.unwrap_or(LOCAL_PROGRAM_DEFAULT_EDITION))));
         }
@@ -156,7 +157,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn extra_remote_program_requires_a_trusted_pin() {
+    fn extra_remote_program_reports_unreachable_endpoint() {
         use crate::cli::context::Context;
         use snarkvm::prelude::{
             VM,
@@ -179,8 +180,8 @@ mod tests {
                 Some("http://localhost:1"),
                 0,
             )
-            .expect_err("An unpinned extra program must fail");
-            assert!(error.to_string().contains("trusted checksum pin"), "{error}");
+            .expect_err("An unreachable extra program must fail");
+            assert!(error.to_string().contains("failed to retrieve"), "{error}");
         });
         assert!(!root.join("cache").exists());
         std::fs::remove_dir_all(root).expect("The temporary directory must be removed");

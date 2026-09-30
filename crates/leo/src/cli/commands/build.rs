@@ -127,7 +127,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
     };
 
     let mut package = if command.options.build_tests {
-        Package::from_directory_with_tests_and_network_lock(
+        Package::from_directory_with_tests(
             &package_path,
             &home_path,
             command.options.no_cache,
@@ -136,10 +136,9 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             Some(network),
             Some(&endpoint),
             command.env_override.network_retries,
-            context.network_lock.as_deref(),
         )?
     } else {
-        Package::from_directory_with_network_lock(
+        Package::from_directory(
             &package_path,
             &home_path,
             command.options.no_cache,
@@ -148,7 +147,6 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             Some(network),
             Some(&endpoint),
             command.env_override.network_retries,
-            context.network_lock.as_deref(),
         )?
     };
 

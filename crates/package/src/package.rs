@@ -254,7 +254,6 @@ impl Package {
             network,
             endpoint,
             network_retries,
-            None,
         )
     }
 
@@ -283,33 +282,6 @@ impl Package {
             network,
             endpoint,
             network_retries,
-            None,
-        )
-    }
-
-    /// Load the package with an optional trusted network lock file.
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_aleo_file_with_network_lock<P: AsRef<Path>, Q: AsRef<Path>>(
-        path: P,
-        home_path: Q,
-        imports_directory: Option<&Path>,
-        no_cache: bool,
-        no_local: bool,
-        network: Option<NetworkName>,
-        endpoint: Option<&str>,
-        network_retries: u32,
-        network_lock: Option<&Path>,
-    ) -> Result<Self> {
-        Self::from_aleo_file_impl(
-            path.as_ref(),
-            home_path.as_ref(),
-            imports_directory,
-            no_cache,
-            no_local,
-            network,
-            endpoint,
-            network_retries,
-            network_lock,
         )
     }
 
@@ -337,35 +309,6 @@ impl Package {
             network,
             endpoint,
             network_retries,
-            None,
-        )
-    }
-
-    /// Load the package with an optional trusted network lock file.
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_directory_with_network_lock<P: AsRef<Path>, Q: AsRef<Path>>(
-        path: P,
-        home_path: Q,
-        no_cache: bool,
-        no_local: bool,
-        offline: bool,
-        network: Option<NetworkName>,
-        endpoint: Option<&str>,
-        network_retries: u32,
-        network_lock: Option<&Path>,
-    ) -> Result<Self> {
-        Self::from_directory_impl(
-            path.as_ref(),
-            home_path.as_ref(),
-            /* build_graph */ true,
-            /* with_tests */ false,
-            no_cache,
-            no_local,
-            offline,
-            network,
-            endpoint,
-            network_retries,
-            network_lock,
         )
     }
 
@@ -393,35 +336,6 @@ impl Package {
             network,
             endpoint,
             network_retries,
-            None,
-        )
-    }
-
-    /// Load the package with an optional trusted network lock file.
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_directory_with_tests_and_network_lock<P: AsRef<Path>, Q: AsRef<Path>>(
-        path: P,
-        home_path: Q,
-        no_cache: bool,
-        no_local: bool,
-        offline: bool,
-        network: Option<NetworkName>,
-        endpoint: Option<&str>,
-        network_retries: u32,
-        network_lock: Option<&Path>,
-    ) -> Result<Self> {
-        Self::from_directory_impl(
-            path.as_ref(),
-            home_path.as_ref(),
-            /* build_graph */ true,
-            /* with_tests */ true,
-            no_cache,
-            no_local,
-            offline,
-            network,
-            endpoint,
-            network_retries,
-            network_lock,
         )
     }
 
@@ -456,7 +370,6 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
-        network_lock: Option<&Path>,
     ) -> Result<Self> {
         if path.extension().and_then(|extension| extension.to_str()) != Some("aleo") {
             return Err(anyhow!("Expected an Aleo bytecode file with the `.aleo` extension: {}", path.display()).into());
@@ -510,11 +423,13 @@ impl Package {
         let mut map: IndexMap<Symbol, (Dependency, CompilationUnit)> = IndexMap::new();
         let mut digraph = DiGraph::new(Default::default());
         let old_lock = Lock::default();
-        let network_pins = match network_lock {
-            Some(path) => Lock::read_file(path)?,
-            None => Lock::read(&base_directory)?,
-        };
-        let mut new_lock = Lock::default();
+        let lock_directory = Workspace::discover_root(&base_directory)?.or_else(|| {
+            base_directory
+                .ancestors()
+                .find(|directory| directory.join(MANIFEST_FILENAME).is_file())
+                .map(Path::to_path_buf)
+        });
+        let mut new_lock = lock_directory.as_deref().map(Lock::read).transpose()?.unwrap_or_default();
         Self::graph_build(
             &home_path,
             network,
@@ -529,7 +444,6 @@ impl Package {
             network_retries,
             &declared_deps,
             &old_lock,
-            &network_pins,
             &mut new_lock,
             false,
         )?;
@@ -570,7 +484,6 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
-        network_lock: Option<&Path>,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             crate::errors::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -598,11 +511,10 @@ impl Package {
 
             // The lock lives at the workspace root, else beside this package's `program.json`.
             let lock_dir = workspace_root.as_deref().unwrap_or(&path).to_path_buf();
-            // New lock records only this build's resolutions; others are carried over from the old lock after.
+            // Reuse network pins and record Git resolutions for this build.
             let old_lock = Lock::read(&lock_dir)?;
-            let override_lock = network_lock.map(Lock::read_file).transpose()?;
-            let network_pins = override_lock.as_ref().unwrap_or(&old_lock);
             let mut new_lock = Lock::default();
+            new_lock.carry_over(&old_lock, |_| false);
 
             let first_dependency = Dependency {
                 name: manifest.program.clone(),
@@ -657,7 +569,6 @@ impl Package {
                     network_retries,
                     &declared_deps,
                     &old_lock,
-                    network_pins,
                     &mut new_lock,
                     offline,
                 )?;
@@ -681,11 +592,11 @@ impl Package {
                 };
                 new_lock.carry_over(&old_lock, |entry| dev_git_names.contains(&entry.name.as_str()));
             }
-            // Persist the lock (and drop a stale one when no git deps remain).
-            new_lock.write(&lock_dir)?;
-
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
+
+            // Commit the complete lock only after the dependency graph is valid.
+            new_lock.write(&lock_dir)?;
 
             (
                 ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
@@ -713,7 +624,6 @@ impl Package {
         network_retries: u32,
         declared_deps: &IndexMap<Symbol, Dependency>,
         old_lock: &Lock,
-        network_pins: &Lock,
         new_lock: &mut Lock,
         offline: bool,
     ) -> Result<()> {
@@ -797,7 +707,7 @@ impl Package {
                             endpoint,
                             no_cache,
                             network_retries,
-                            network_pins,
+                            new_lock,
                         )?
                     }
                     (_, Location::Git) => CompilationUnit::from_git(
@@ -872,7 +782,6 @@ impl Package {
                 network_retries,
                 declared_deps,
                 old_lock,
-                network_pins,
                 new_lock,
                 offline,
             )?;
@@ -1218,6 +1127,7 @@ function main:
             let imports = root.join("imports");
             let home = root.join("home");
             crate::test_util::write_file(&program_path, MAIN_PROGRAM);
+            crate::test_util::write_file(&root.join(MANIFEST_FILENAME), r#"{"program":"standalone.aleo"}"#);
             crate::test_util::write_file(&imports.join("leaf.aleo"), LEAF_PROGRAM);
             crate::test_util::write_file(
                 &home.join("registry/testnet/dependency/0/dependency.aleo"),

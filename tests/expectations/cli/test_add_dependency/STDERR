@@ -22,9 +22,9 @@ Error [ECLI0377045]: Could not read `../credits/program.json` — is `../credits
 
 --- 7. leo add --dev for a program not on the network (should fail) ---
        Leo ⚠️ No network specified, defaulting to 'testnet'.
-Error [ECLI0377045]: Could not find program `dev_dep.aleo` on network `testnet` at `http://localhost:3030`: Error [EPAK0375085]: cannot trust network program `dev_dep.aleo`: no trusted checksum pin for this network
+Error [ECLI0377045]: Could not find program `dev_dep.aleo` on network `testnet` at `http://localhost:3030`: Error [EPAK0375067]: network request to `http://localhost:3030/testnet/program/dev_dep.aleo/latest_edition` failed with status `500 Internal Server Error`
      |
-     = Add the program's network, edition, and checksum from reviewed bytecode or an independent trusted source to `leo.lock`. Use `--network-lock <FILE>` to select a trusted lock file.
+     = Verify that `--network` and `--endpoint` point to a running node and that you have connectivity.
 
 --- 8. leo add --dev for a program on the network (should succeed) ---
        Leo ⚠️ No network specified, defaulting to 'testnet'.

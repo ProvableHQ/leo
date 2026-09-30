@@ -104,7 +104,7 @@ impl Command for LeoRun {
                     DEFAULT_ENDPOINT.to_string()
                 }
             };
-            return Package::from_aleo_file_with_network_lock(
+            return Package::from_aleo_file(
                 path,
                 home_path,
                 self.imports_dir.as_deref(),
@@ -113,7 +113,6 @@ impl Command for LeoRun {
                 Some(network),
                 Some(&endpoint),
                 self.env_override.network_retries,
-                context.network_lock.as_deref(),
             )
             .map(Some);
         }
@@ -315,12 +314,13 @@ fn handle_run<A: Aleo>(
         let endpoint = get_endpoint(&command.env_override.endpoint)?;
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
         // Load the programs from the network.
-        programs = load_pinned_programs_from_network(
+        programs = load_programs_from_network(
             &context,
             program_id,
             network,
             &endpoint,
             command.env_override.network_retries,
+            None,
         )?;
     };
 

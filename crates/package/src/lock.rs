@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The `leo.lock` file pins git commits and trusted network program checksums.
+//! The `leo.lock` file pins Git commits and network program checksums.
 
 use leo_ast::NetworkName;
 use leo_errors::Result;
@@ -22,7 +22,7 @@ use snarkvm::prelude::{Program, ProgramID, TestnetV0};
 
 use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::{io::Write, path::Path};
 
 /// File name of the lock file, stored alongside `program.json`.
 pub const LOCK_FILENAME: &str = "leo.lock";
@@ -39,7 +39,7 @@ pub struct GitLockEntry {
     pub commit: String,
 }
 
-/// A program identity obtained from reviewed bytecode or an independent trusted source.
+/// A program identity and checksum recorded when its edition was first fetched.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct NetworkLockEntry {
@@ -73,7 +73,7 @@ impl NetworkLockEntry {
         if program.to_checksum().map(|byte| *byte) != self.checksum {
             return Err(crate::errors::untrusted_network_program(
                 &self.name,
-                "the bytecode does not match the trusted checksum",
+                "the bytecode does not match the locked checksum",
             )
             .into());
         }
@@ -110,13 +110,6 @@ impl Lock {
         Self::parse(&path, &contents)
     }
 
-    /// Read an explicitly selected trust file. Missing files are errors.
-    pub fn read_file(path: &Path) -> Result<Self> {
-        let contents =
-            std::fs::read_to_string(path).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
-        Self::parse(path, &contents)
-    }
-
     fn parse(path: &Path, contents: &str) -> Result<Self> {
         let mut lock: Self =
             serde_json::from_str(contents).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
@@ -139,21 +132,19 @@ impl Lock {
         Ok(lock)
     }
 
-    /// Select the trusted edition. Network responses and cache contents cannot select a pin.
-    pub fn network_pin(&self, name: &str, network: NetworkName, edition: Option<u16>) -> Result<&NetworkLockEntry> {
+    /// Find a network pin that matches the requested program and optional edition.
+    pub fn network_pin(&self, name: &str, network: NetworkName, edition: Option<u16>) -> Option<&NetworkLockEntry> {
         let name = crate::canonicalize_program_name(name);
         let network = network.to_string();
-        let pin = self.network.iter().find(|pin| pin.name == name && pin.network == network).ok_or_else(|| {
-            crate::errors::untrusted_network_program(&name, "no trusted checksum pin for this network")
-        })?;
-        if edition.is_some_and(|edition| edition != pin.edition) {
-            return Err(crate::errors::untrusted_network_program(
-                &name,
-                "the requested edition does not match the trusted pin",
-            )
-            .into());
-        }
-        Ok(pin)
+        self.network.iter().find(|pin| {
+            pin.name == name && pin.network == network && edition.is_none_or(|edition| edition == pin.edition)
+        })
+    }
+
+    /// Record a network edition, preserving entries for other programs and networks.
+    pub fn record_network(&mut self, entry: NetworkLockEntry) {
+        self.network.retain(|pin| pin.name != entry.name || pin.network != entry.network);
+        self.network.push(entry);
     }
 
     /// The pinned commit for `(name, git, reference)`, or `None` (forcing re-resolution) on any mismatch.
@@ -177,8 +168,11 @@ impl Lock {
 
     /// Carry over entries from `old` that were not re-recorded in this lock and that `keep` accepts.
     pub fn carry_over(&mut self, old: &Lock, mut keep: impl FnMut(&GitLockEntry) -> bool) {
-        // Network pins are user-managed, including pins not used by this build.
-        self.network.clone_from(&old.network);
+        for entry in &old.network {
+            if !self.network.iter().any(|pin| pin.name == entry.name && pin.network == entry.network) {
+                self.network.push(entry.clone());
+            }
+        }
         for entry in &old.git {
             if self.commit_for(&entry.name, &entry.git, &entry.reference).is_none() && keep(entry) {
                 self.git.push(entry.clone());
@@ -194,8 +188,20 @@ impl Lock {
     /// Write the lock to `dir`, with entries sorted for deterministic output.
     pub fn write(&mut self, dir: &Path) -> Result<()> {
         let path = dir.join(LOCK_FILENAME);
+        let permissions = match std::fs::symlink_metadata(&path) {
+            Ok(metadata) if metadata.is_file() => Some(metadata.permissions()),
+            Ok(_) => {
+                return Err(crate::errors::failed_to_write_lock(
+                    path.display(),
+                    "expected a regular file, not a symlink",
+                )
+                .into());
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+            Err(err) => return Err(crate::errors::failed_to_write_lock(path.display(), err).into()),
+        };
         if self.is_empty() {
-            if path.exists() {
+            if permissions.is_some() {
                 std::fs::remove_file(&path).map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
             }
             return Ok(());
@@ -206,7 +212,25 @@ impl Lock {
         let mut contents = serde_json::to_string_pretty(self)
             .map_err(|err| crate::errors::failed_to_serialize_lock(path.display(), err))?;
         contents.push('\n');
-        std::fs::write(&path, contents).map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
+        // Replace the complete lock only after its temporary file is written.
+        let temporary = crate::git::unique_dir(dir, ".leo.lock");
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
+        let result = (|| {
+            if let Some(permissions) = permissions {
+                file.set_permissions(permissions)?;
+            }
+            file.write_all(contents.as_bytes())?;
+            drop(file);
+            std::fs::rename(&temporary, &path)
+        })();
+        if let Err(err) = result {
+            let _ = std::fs::remove_file(&temporary);
+            return Err(crate::errors::failed_to_write_lock(path.display(), err).into());
+        }
         Ok(())
     }
 

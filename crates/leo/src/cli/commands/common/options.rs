@@ -35,7 +35,7 @@ pub const DEFAULT_ENDPOINT: &str = "https://api.explorer.provable.com/v1";
 pub struct BuildOptions {
     #[clap(long, help = "Build tests along with the main program and dependencies.")]
     pub build_tests: bool,
-    #[clap(long, help = "Don't use the dependency cache.")]
+    #[clap(long, help = "Download dependencies again without changing their locked editions or checksums.")]
     pub no_cache: bool,
     #[clap(long, help = "Don't use the local source code.")]
     pub no_local: bool,

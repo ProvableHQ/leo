@@ -177,6 +177,7 @@ impl Command for LeoAdd {
         let mut manifest = Manifest::read_from_file(&manifest_path)?;
 
         let current_is_library = !manifest.program.ends_with(".aleo");
+        let mut network_lock = None;
 
         // Determine dependency name, location, and path.
         let (name, location, dep_path) = if let Some(local_path) = &self.source.local {
@@ -249,22 +250,36 @@ impl Command for LeoAdd {
                 DEFAULT_ENDPOINT.to_string()
             });
             let home = context.home()?;
-            CompilationUnit::fetch(
-                Symbol::intern(&name),
-                self.source.edition,
-                &home,
-                network,
-                &endpoint,
-                false,
-                self.network_retries,
-                &context.network_pins()?,
-            )
+            let lock_dir = Workspace::discover_root(&path)?.unwrap_or_else(|| path.clone());
+            let old_lock = Lock::read(&lock_dir)?;
+            let mut lock = old_lock.clone();
+            (|| {
+                let edition = if name == "credits.aleo" {
+                    self.source.edition.or(Some(0))
+                } else {
+                    Some(match self.source.edition {
+                        Some(edition) => edition,
+                        None => leo_package::fetch_latest_edition(&name, &endpoint, network, self.network_retries)?,
+                    })
+                };
+                CompilationUnit::fetch(
+                    Symbol::intern(&name),
+                    edition,
+                    &home,
+                    network,
+                    &endpoint,
+                    true,
+                    self.network_retries,
+                    &mut lock,
+                )
+            })()
             .map_err(|err| {
                 crate::errors::custom(format!(
                     "Could not find program `{name}` on network `{network}` at `{endpoint}`: {err}",
                 ))
             })?;
 
+            network_lock = Some((lock_dir, lock, old_lock));
             (name, Location::Network, None)
         };
 
@@ -313,7 +328,17 @@ impl Command for LeoAdd {
             }
         }
 
-        manifest.write_to_file(manifest_path)?;
+        if let Some((lock_dir, lock, _)) = &mut network_lock {
+            lock.write(lock_dir)?;
+        }
+        if let Err(error) = manifest.write_to_file(manifest_path) {
+            if let Some((lock_dir, _, mut old_lock)) = network_lock {
+                old_lock.write(&lock_dir).map_err(|restore_error| {
+                    crate::errors::custom(format!("{error}; could not restore the dependency lock: {restore_error}"))
+                })?;
+            }
+            return Err(error.into());
+        }
 
         Ok(())
     }

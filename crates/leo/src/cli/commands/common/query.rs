@@ -137,18 +137,19 @@ pub fn handle_broadcast<N: Network>(
     }
 }
 
-/// Load the trusted editions of a program and its imports with an iterative DFS.
-pub fn load_pinned_programs_from_network<N: Network>(
+/// Load a remote program and its imports, checking existing project dependency pins.
+pub fn load_programs_from_network<N: Network>(
     context: &Context,
     program_id: ProgramID<N>,
     network: NetworkName,
     endpoint: &str,
     network_retries: u32,
+    edition: Option<u16>,
 ) -> Result<Vec<(Program<N>, Option<u16>)>> {
     use snarkvm::prelude::Program;
     use std::collections::HashSet;
 
-    let network_pins = context.network_pins()?;
+    let mut network_pins = context.network_pins()?;
 
     // A cache for loaded programs, mapping a program ID to its bytecode and edition.
     let mut programs = HashMap::new();
@@ -173,13 +174,13 @@ pub fn load_pinned_programs_from_network<N: Network>(
             // Fetch the program source from the network.
             let program = leo_package::CompilationUnit::fetch(
                 Symbol::intern(&current_id.name().to_string()),
-                None,
+                if current_id == program_id { edition } else { None },
                 &context.home()?,
                 network,
                 endpoint,
                 true,
                 network_retries,
-                &network_pins,
+                &mut network_pins,
             )?;
             let ProgramData::Bytecode(program_src) = program.data else {
                 panic!("Expected bytecode when fetching a remote program");

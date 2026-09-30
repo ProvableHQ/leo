@@ -205,7 +205,7 @@ impl CompilationUnit {
         })
     }
 
-    /// Fetch a program at its trusted pinned edition and verify its bytecode.
+    /// Fetch a locked edition, or record the first valid response from the configured endpoint.
     #[allow(clippy::too_many_arguments)]
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
@@ -215,7 +215,7 @@ impl CompilationUnit {
         endpoint: &str,
         no_cache: bool,
         network_retries: u32,
-        pins: &Lock,
+        pins: &mut Lock,
     ) -> Result<Self> {
         Self::fetch_impl(name, edition, home_path.as_ref(), network, endpoint, no_cache, network_retries, pins)
     }
@@ -229,7 +229,7 @@ impl CompilationUnit {
         endpoint: &str,
         no_cache: bool,
         network_retries: u32,
-        pins: &Lock,
+        pins: &mut Lock,
     ) -> Result<Self> {
         // Validate the name before using it in cache paths or network URLs.
         let program_id = canonicalize_program_name(&name.to_string())
@@ -260,11 +260,14 @@ impl CompilationUnit {
             });
         }
 
-        let pin = pins.network_pin(&full_name, network, edition)?;
-        let edition = pin.edition;
+        let pin = pins.network_pin(&full_name, network, edition);
+        let edition = match pin.map(|pin| pin.edition).or(edition) {
+            Some(edition) => edition,
+            None => crate::fetch_latest_edition(&full_name, endpoint, network, network_retries)?,
+        };
         let cache_directory = home_path.join(format!("registry/{network}/{name}/{edition}"));
         let full_cache_path = cache_directory.join(&full_name);
-        let use_cache = !no_cache && full_cache_path.exists();
+        let use_cache = pin.is_some() && !no_cache && full_cache_path.exists();
         let bytecode = if use_cache {
             std::fs::read_to_string(&full_cache_path).map_err(|err| {
                 crate::errors::util_file_io_error(
@@ -277,7 +280,31 @@ impl CompilationUnit {
             let url = format!("{endpoint}/{network}/program/{full_name}/{edition}");
             fetch_from_network(&url, network_retries)?
         };
-        pin.verify(&bytecode)?;
+        let new_pin = if let Some(pin) = pin {
+            pin.verify(&bytecode)?;
+            None
+        } else {
+            if bytecode.len() > MAX_PROGRAM_SIZE {
+                return Err(
+                    crate::errors::program_size_limit_exceeded(&full_name, bytecode.len(), MAX_PROGRAM_SIZE).into()
+                );
+            }
+            let program: SvmProgram<TestnetV0> =
+                bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+            if program.id().to_string() != full_name {
+                return Err(crate::errors::untrusted_network_program(
+                    &full_name,
+                    "the bytecode declares a different program ID",
+                )
+                .into());
+            }
+            Some(NetworkLockEntry {
+                name: full_name.clone(),
+                network: network.to_string(),
+                edition,
+                checksum: program.to_checksum().map(|byte| *byte),
+            })
+        };
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
 
         if !use_cache {
@@ -293,6 +320,10 @@ impl CompilationUnit {
                     err,
                 )
             })?;
+        }
+
+        if let Some(pin) = new_pin {
+            pins.record_network(pin);
         }
 
         Ok(Self {

@@ -183,7 +183,7 @@ fn checkout_tree(
 }
 
 /// A unique directory under `parent` for transient work (`<prefix>-<pid>-<seq>`).
-fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
+pub(crate) fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
     static COUNTER: AtomicU64 = AtomicU64::new(0);
     let seq = COUNTER.fetch_add(1, Ordering::Relaxed);
     parent.join(format!("{prefix}-{}-{seq}", std::process::id()))

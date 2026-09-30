@@ -4,92 +4,85 @@ set -e
 
 LEO_BIN=${1}
 
-# This checksum comes from the reviewed, locally compiled bytecode in this fixture's expectations.
-REJECTED=$(mktemp -d)
-NETWORK_LOCK="$REJECTED/trusted.lock"
-trap 'rm -rf "$REJECTED"' EXIT
-cat > "$NETWORK_LOCK" <<'JSON'
-{"version": 2, "git": [], "network": [
-    {
-      "name": "some_sample_leo_program.aleo",
-      "network": "testnet",
-      "edition": 0,
-      "checksum": [
-        218, 29, 76, 10, 129, 17, 226, 52, 243, 166, 142, 129, 90, 12, 147, 224,
-        200, 219, 166, 88, 40, 193, 250, 177, 40, 42, 100, 97, 232, 64, 198, 156
-      ]
-    }
-]}
-JSON
+REMOTE=$(mktemp -d)
+trap 'rm -rf "$REMOTE"' EXIT
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
 COMMON_OPTS="--disable-update-check --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
-COMMON_OPTS="--network-lock $NETWORK_LOCK $COMMON_OPTS"
 ALEO_FILE="./build/some_sample_leo_program/some_sample_leo_program.aleo"
 
 $LEO_BIN build --disable-update-check --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 $LEO_BIN --path $ALEO_FILE deploy -y $COMMON_OPTS
-# An explicit untrusted lock must override an otherwise trusted implicit lock.
-mkdir "$REJECTED/remote" "$REJECTED/home"
-cp "$NETWORK_LOCK" "$REJECTED/remote/leo.lock"
-printf '{"version":2,"git":[],"network":[]}' > "$REJECTED/missing.lock"
-sed 's/218, 29/0, 29/' "$NETWORK_LOCK" > "$REJECTED/mismatch.lock"
-cp "$ALEO_FILE" "$REJECTED/original.aleo"
-for trust in missing mismatch; do
-    if [ "$trust" = missing ]; then
-        diagnostic="no trusted checksum pin"
-    else
-        diagnostic="bytecode does not match the trusted checksum"
+# Remote commands work from an empty directory without a supplied lock.
+mkdir "$REMOTE/empty" "$REMOTE/home"
+for command in run execute synthesize; do
+    case "$command" in
+        run)
+            args=(run some_sample_leo_program.aleo::main 1u32 2u32 --no-cache --private-key "$PRIVATE_KEY")
+            ;;
+        execute)
+            args=(execute some_sample_leo_program.aleo::main 1u32 2u32 --no-cache --yes --skip-execute-proof --private-key "$PRIVATE_KEY" --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+            ;;
+        synthesize)
+            args=(synthesize some_sample_leo_program.aleo --skip mint --skip dynamic_transfer)
+            ;;
+    esac
+    if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/empty" --home "$REMOTE/home" "${args[@]}" \
+        --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" > "$REMOTE/output" 2>&1; then
+        cat "$REMOTE/output"
+        exit 1
     fi
-    for command in upgrade run execute synthesize; do
-        case "$command" in
-            upgrade)
-                args=(--path "$ALEO_FILE" upgrade --no-local --no-cache --yes --broadcast --print --save "$REJECTED/released")
-                ;;
-            run)
-                args=(--path "$REJECTED/remote" run some_sample_leo_program.aleo::main 1u32 2u32 --no-cache)
-                ;;
-            execute)
-                args=(--path "$REJECTED/remote" execute some_sample_leo_program.aleo::main 1u32 2u32 --no-cache --yes --broadcast --print --save "$REJECTED/released")
-                ;;
-            synthesize)
-                args=(--path "$REJECTED/remote" synthesize some_sample_leo_program.aleo --save "$REJECTED/released")
-                ;;
-        esac
-        if [ "$command" != synthesize ]; then
-            args+=(--private-key "$PRIVATE_KEY")
-        fi
-        if "$LEO_BIN" --disable-update-check --home "$REJECTED/home" --network-lock "$REJECTED/$trust.lock" "${args[@]}" \
-            --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
-            > "$REJECTED/output" 2>&1; then
-            cat "$REJECTED/output"
-            echo "$command accepted $trust trust" >&2
-            exit 1
-        fi
-        if ! grep -Fq "$diagnostic" "$REJECTED/output"; then
-            cat "$REJECTED/output"
-            exit 1
-        fi
-        test ! -e "$REJECTED/released"
-        test ! -e "$REJECTED/home/registry"
-        if grep -Eq 'at1[[:alnum:]]+|Broadcasting|transaction_id|Proving' "$REJECTED/output"; then
-            cat "$REJECTED/output"
-            exit 1
-        fi
-        cmp "$ALEO_FILE" "$REJECTED/original.aleo"
-        cmp "$NETWORK_LOCK" "$REJECTED/remote/leo.lock"
-    done
+    if [ "$command" != synthesize ]; then
+        grep -Fq '3u32' "$REMOTE/output"
+    else
+        grep -Fq 'main' "$REMOTE/output"
+    fi
+    test ! -e "$REMOTE/empty/leo.lock"
 done
-# The rejected upgrade must leave the deployed edition unchanged.
-test "$(curl -fsS "http://localhost:${LEO_DEVNODE_PORT:-3030}/testnet/program/some_sample_leo_program.aleo/latest_edition")" = 0
-# The same remote dispatch succeeds with the reviewed pin.
-if ! "$LEO_BIN" --disable-update-check --path "$REJECTED/remote" --home "$REJECTED/home" --network-lock "$NETWORK_LOCK" \
-    run some_sample_leo_program.aleo::main 1u32 2u32 --no-cache --network testnet \
-    --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" --private-key "$PRIVATE_KEY" > "$REJECTED/output" 2>&1; then
-    cat "$REJECTED/output"
+
+# An extra remote program also needs no hand-written pin.
+sed 's/some_sample_leo_program/local_probe/g' "$ALEO_FILE" > "$REMOTE/empty/local_probe.aleo"
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/empty/local_probe.aleo" --home "$REMOTE/home" \
+    run main 1u32 2u32 --with some_sample_leo_program.aleo --network testnet \
+    --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" --private-key "$PRIVATE_KEY" > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
     exit 1
 fi
-grep -Fq '3u32' "$REJECTED/output"
-echo "Rejected missing and mismatched pins for upgrade, run, execute, and synthesize."
+grep -Fq 'Fetching remote program some_sample_leo_program.aleo' "$REMOTE/output"
+grep -Fq '3u32' "$REMOTE/output"
+test ! -e "$REMOTE/empty/leo.lock"
+echo "Remote run, execute, synthesize, and --with work without a supplied lock."
+
+# Keep an automatically generated dependency lock at edition zero for the upgrade check.
+"$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" new lock_consumer > "$REMOTE/output" 2>&1
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+    add some_sample_leo_program --edition 0 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq '"edition": 0' "$REMOTE/lock_consumer/leo.lock"
+cp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
+cp "$ALEO_FILE" "$REMOTE/lock_consumer/upgrade.aleo"
 
 $LEO_BIN --path $ALEO_FILE upgrade --no-local -y $COMMON_OPTS
+# A stale dependency pin must not make an upgrade validate against an old root edition.
+if ! "$LEO_BIN" --path "$REMOTE/lock_consumer/upgrade.aleo" --home "$REMOTE/home" \
+    upgrade --no-local -y $COMMON_OPTS > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq 'Upgrade confirmed!' "$REMOTE/output"
+test "$(curl -fsS "http://localhost:${LEO_DEVNODE_PORT:-3030}/testnet/program/some_sample_leo_program.aleo/latest_edition")" = 2
+cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
+
+# An explicit edition change updates the generated dependency lock.
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+    add some_sample_leo_program --edition 2 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq '"edition": 2' "$REMOTE/lock_consumer/leo.lock"
+echo "Upgrade uses the current root edition, and an explicit dependency update replaces the lock."
+
 $LEO_BIN --path $ALEO_FILE execute -y main 1u32 2u32 $COMMON_OPTS
