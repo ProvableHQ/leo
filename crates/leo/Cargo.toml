@@ -85,7 +85,6 @@ rayon              = { workspace = true }
 regex              = { workspace = true }
 reqwest            = { workspace = true }
 rpassword          = { workspace = true }
-self_update        = { workspace = true }
 serde              = { workspace = true }
 serde_json         = { workspace = true }
 serial_test        = { workspace = true }

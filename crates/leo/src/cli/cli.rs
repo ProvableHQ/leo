@@ -33,7 +33,8 @@ pub struct CLI {
     #[clap(long, global = true, help = "Write command results as JSON. Pass `--json-output=<FILE>` for a custom path; with no value it defaults to build/json-outputs/<command>.json.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
     json_output: Option<String>,
 
-    #[clap(long, global = true, help = "Disable Leo's daily check for version updates")]
+    // Accept the old flag so existing scripts continue to work.
+    #[clap(long, global = true, hide = true)]
     disable_update_check: bool,
 
     #[clap(subcommand)]
@@ -224,14 +225,6 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             false => 1,
             true => 2,
         })?;
-    }
-
-    // Check for updates. If not forced, it checks once per day.
-    if !quiet
-        && !cli.disable_update_check
-        && let Ok(true) = updater::Updater::check_for_updates(false)
-    {
-        let _ = updater::Updater::print_cli();
     }
 
     // Get custom root folder and create context for it.

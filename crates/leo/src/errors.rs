@@ -35,20 +35,6 @@ pub(crate) fn cli_runtime_error(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 2, format!("CLI runtime error: {error}"))
 }
 
-pub(crate) fn self_update_error(error: impl ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 5, format!("Leo release check failed: {error}"))
-        .with_help("Check the available releases at https://github.com/ProvableHQ/leo/releases.")
-}
-
-pub(crate) fn old_release_version(current: impl Display, latest: impl Display) -> Backtraced {
-    Backtraced::error(
-        CODE_PREFIX,
-        CODE_MASK + 7,
-        format!("No newer Leo release is available (installed: `{current}`, latest: `{latest}`)"),
-    )
-    .with_help("For installation instructions, see https://github.com/ProvableHQ/leo#-build-guide.")
-}
-
 pub(crate) fn failed_to_load_instructions(error: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,

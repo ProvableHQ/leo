@@ -56,4 +56,4 @@ Select the endpoint used to resolve and download network dependencies.
 
 ## Update the Leo installation
 
-`leo update` updates dependency locks. To install the latest Leo release and plugins, follow the [installation instructions](https://github.com/ProvableHQ/leo#-build-guide).
+`leo update` updates dependency locks. Leo does not check for new releases or show release notices. To install the latest Leo release and plugins, follow the [installation instructions](https://github.com/ProvableHQ/leo#-build-guide).

@@ -69,10 +69,6 @@ Suppresses the CLI output.
 
 Prints out additional information for debugging if possible.
 
-### `--disable-update-check`
-
-Disables Leo's daily check for CLI version updates.
-
 ### `--path <PATH>`
 
 Specifies the path to Leo program root folder. Defaults to `./`.

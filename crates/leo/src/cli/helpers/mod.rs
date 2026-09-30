@@ -17,4 +17,3 @@
 pub mod check_transaction;
 pub mod context;
 pub mod logger;
-pub mod updater;
