@@ -606,7 +606,7 @@ mod tests {
             if existing_lock {
                 let pin = lock.network_pin("target.aleo", network, None).expect("The original pin must remain");
                 assert_eq!(pin.edition, 0);
-                pin.verify(source).expect("The original checksum must remain");
+                assert_eq!(pin.checksum, program.to_checksum().map(|byte| *byte));
             } else {
                 assert!(lock.is_empty());
                 assert!(!project.join("leo.lock").exists());

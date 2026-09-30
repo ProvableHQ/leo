@@ -18,7 +18,7 @@
 
 use leo_ast::NetworkName;
 use leo_errors::Result;
-use snarkvm::prelude::{Program, ProgramID, TestnetV0};
+use snarkvm::prelude::{ProgramID, TestnetV0};
 
 use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
@@ -50,37 +50,6 @@ pub struct NetworkLockEntry {
     pub checksum: [u8; 32],
 }
 
-impl NetworkLockEntry {
-    /// Verify bytecode before it can enter the cache or dependency graph.
-    pub fn verify(&self, bytecode: &str) -> Result<()> {
-        if bytecode.len() > crate::MAX_PROGRAM_SIZE {
-            return Err(crate::errors::program_size_limit_exceeded(
-                &self.name,
-                bytecode.len(),
-                crate::MAX_PROGRAM_SIZE,
-            )
-            .into());
-        }
-        let program: Program<TestnetV0> =
-            bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(crate::bare_unit_name(&self.name)))?;
-        if program.id().to_string() != self.name {
-            return Err(crate::errors::untrusted_network_program(
-                &self.name,
-                "the bytecode declares a different program ID",
-            )
-            .into());
-        }
-        if program.to_checksum().map(|byte| *byte) != self.checksum {
-            return Err(crate::errors::untrusted_network_program(
-                &self.name,
-                "the bytecode does not match the locked checksum",
-            )
-            .into());
-        }
-        Ok(())
-    }
-}
-
 /// The contents of `leo.lock`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -107,12 +76,8 @@ impl Lock {
             Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Self::default()),
             Err(err) => return Err(crate::errors::invalid_lock_file(path.display(), err).into()),
         };
-        Self::parse(&path, &contents)
-    }
-
-    fn parse(path: &Path, contents: &str) -> Result<Self> {
         let mut lock: Self =
-            serde_json::from_str(contents).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
+            serde_json::from_str(&contents).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
         if !matches!(lock.version, 1 | LOCK_VERSION) {
             return Err(crate::errors::invalid_lock_file(path.display(), "unsupported lock version").into());
         }

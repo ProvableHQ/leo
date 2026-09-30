@@ -254,17 +254,14 @@ impl Command for LeoAdd {
             let old_lock = Lock::read(&lock_dir)?;
             let mut lock = old_lock.clone();
             (|| {
-                let edition = if name == "credits.aleo" {
-                    self.source.edition.or(Some(0))
-                } else {
-                    Some(match self.source.edition {
-                        Some(edition) => edition,
-                        None => leo_package::fetch_latest_edition(&name, &endpoint, network, self.network_retries)?,
-                    })
+                let edition = match self.source.edition {
+                    Some(edition) => edition,
+                    None if name == "credits.aleo" => 0,
+                    None => leo_package::fetch_latest_edition(&name, &endpoint, network, self.network_retries)?,
                 };
                 CompilationUnit::fetch(
                     Symbol::intern(&name),
-                    edition,
+                    Some(edition),
                     &home,
                     network,
                     &endpoint,

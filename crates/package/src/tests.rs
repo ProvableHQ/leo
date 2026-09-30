@@ -139,10 +139,10 @@ fn first_network_fetch_ignores_unverified_cache_and_records_checksum() {
         assert_eq!(unit.edition, Some(0));
         assert_eq!(server.join().expect("fixture must finish").len(), 1);
         assert_eq!(std::fs::read_to_string(cache).expect("cache must exist"), TRUSTED_TOKEN);
-        lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0))
-            .expect("the first download must record a checksum")
-            .verify(TRUSTED_TOKEN)
-            .expect("the downloaded bytecode must match the new checksum");
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0))),
+            network_pin(TRUSTED_TOKEN, 0),
+        );
         std::fs::remove_dir_all(home).expect("test directory must be removed");
     });
 }
@@ -243,15 +243,15 @@ fn explicit_edition_change_records_fresh_checksum_and_preserves_other_networks()
         lock.carry_over(&old, |_| true);
         lock.write(&home).expect("updated lock must write");
         let lock = Lock::read(&home).expect("updated lock must read");
-        lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(3))
-            .expect("new edition must survive carry-over")
-            .verify(&updated)
-            .expect("new checksum must match");
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(3))),
+            network_pin(&updated, 3),
+        );
         assert!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2)).is_none());
-        lock.network_pin("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2))
-            .expect("other network must remain")
-            .verify(TRUSTED_TOKEN)
-            .expect("other checksum must remain");
+        assert_eq!(
+            lock.network_pin("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2)),
+            old.network_pin("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2)),
+        );
         std::fs::remove_dir_all(home).expect("test directory must be removed");
     });
 }
@@ -460,7 +460,7 @@ fn legacy_git_lock_is_readable_and_network_pins_survive_git_updates() {
     let pin = reloaded
         .network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2))
         .expect("network pin must survive Git changes");
-    pin.verify(TRUSTED_TOKEN).expect("network checksum must remain unchanged");
+    assert_eq!(serde_json::json!(pin), network_pin(TRUSTED_TOKEN, 2));
     assert!(reloaded.commit_for("token.aleo", "url", "default").is_none());
     assert_eq!(reloaded.commit_for("other", "url2", "default"), Some("new"));
     updated.remove_name("other");
@@ -500,14 +500,14 @@ fn package_automatically_locks_transitive_network_imports() {
         let names: Vec<_> = package.compilation_units.iter().map(|unit| unit.name.to_string()).collect();
         assert_eq!(names, ["token.aleo", "parent.aleo", "consumer.aleo"]);
         let lock = Lock::read(&consumer).expect("automatic lock must exist");
-        lock.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(2))
-            .expect("parent pin must exist")
-            .verify(&parent)
-            .expect("parent checksum must match");
-        lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(1))
-            .expect("transitive pin must exist")
-            .verify(TRUSTED_TOKEN)
-            .expect("transitive checksum must match");
+        assert_eq!(
+            serde_json::json!(lock.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(2))),
+            network_pin(&parent, 2),
+        );
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(1))),
+            network_pin(TRUSTED_TOKEN, 1),
+        );
         let original_lock = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
         Package::from_directory(
             &consumer,

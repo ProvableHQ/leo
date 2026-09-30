@@ -280,31 +280,26 @@ impl CompilationUnit {
             let url = format!("{endpoint}/{network}/program/{full_name}/{edition}");
             fetch_from_network(&url, network_retries)?
         };
-        let new_pin = if let Some(pin) = pin {
-            pin.verify(&bytecode)?;
-            None
-        } else {
-            if bytecode.len() > MAX_PROGRAM_SIZE {
-                return Err(
-                    crate::errors::program_size_limit_exceeded(&full_name, bytecode.len(), MAX_PROGRAM_SIZE).into()
-                );
-            }
-            let program: SvmProgram<TestnetV0> =
-                bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
-            if program.id().to_string() != full_name {
-                return Err(crate::errors::untrusted_network_program(
-                    &full_name,
-                    "the bytecode declares a different program ID",
-                )
-                .into());
-            }
-            Some(NetworkLockEntry {
-                name: full_name.clone(),
-                network: network.to_string(),
-                edition,
-                checksum: program.to_checksum().map(|byte| *byte),
-            })
-        };
+        if bytecode.len() > MAX_PROGRAM_SIZE {
+            return Err(crate::errors::program_size_limit_exceeded(&full_name, bytecode.len(), MAX_PROGRAM_SIZE).into());
+        }
+        let program: SvmProgram<TestnetV0> =
+            bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+        if program.id().to_string() != full_name {
+            return Err(crate::errors::untrusted_network_program(
+                &full_name,
+                "the bytecode declares a different program ID",
+            )
+            .into());
+        }
+        let checksum = program.to_checksum().map(|byte| *byte);
+        if pin.is_some_and(|pin| pin.checksum != checksum) {
+            return Err(crate::errors::untrusted_network_program(
+                &full_name,
+                "the bytecode does not match the locked checksum",
+            )
+            .into());
+        }
         let dependencies = parse_dependencies_from_aleo(name, &bytecode, &IndexMap::new())?;
 
         if !use_cache {
@@ -322,8 +317,13 @@ impl CompilationUnit {
             })?;
         }
 
-        if let Some(pin) = new_pin {
-            pins.record_network(pin);
+        if pin.is_none() {
+            pins.record_network(NetworkLockEntry {
+                name: full_name.clone(),
+                network: network.to_string(),
+                edition,
+                checksum,
+            });
         }
 
         Ok(Self {
