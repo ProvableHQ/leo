@@ -133,7 +133,7 @@ enum Commands {
     },
     #[clap(about = "List installed leo plugins")]
     Plugins,
-    #[clap(about = "Update the Leo CLI")]
+    #[clap(about = "Update dependencies in leo.lock within the manifest constraints")]
     Update {
         #[clap(flatten)]
         command: LeoUpdate,
@@ -334,6 +334,25 @@ mod tests {
     use leo_span::create_session_if_not_set_then;
     use serial_test::serial;
     use std::{env::temp_dir, path::PathBuf};
+
+    #[test]
+    fn update_accepts_dependency_options_and_rejects_self_update_flags() {
+        for arguments in [vec!["leo", "update"], vec![
+            "leo",
+            "update",
+            "token.aleo",
+            "--dry-run",
+            "--network",
+            "testnet",
+            "--endpoint",
+            "http://localhost:3030",
+        ]] {
+            CLI::try_parse_from(arguments).expect("Dependency update arguments must parse");
+        }
+        for arguments in [vec!["leo", "update", "--list"], vec!["leo", "update", "--name", "v4.4.4"]] {
+            assert!(CLI::try_parse_from(arguments).is_err(), "Self-update flags must be removed");
+        }
+    }
 
     #[test]
     fn network_pins_use_the_workspace_root() {

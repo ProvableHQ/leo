@@ -71,7 +71,7 @@ Pre-built binaries are also available from [Leo releases](https://github.com/Pro
 
 For details on release artifacts, target platforms, and packaging guidelines, see the [Binary Distribution Reference](../guides/binary_distribution.md).
 
-Running `leo update` will also attempt to update bundled plugins like `leo-fmt` on a best-effort basis.
+To update installed plugins, run the installation command again. `leo update` changes project dependency locks; it does not install plugins.
 
 ### Writing Custom Plugins
 

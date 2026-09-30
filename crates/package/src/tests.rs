@@ -779,6 +779,268 @@ fn lock_write_failure_preserves_existing_lock() {
     std::fs::remove_dir_all(dir).expect("The test directory must be removed.");
 }
 
+#[test]
+fn dependency_update_creates_lock_and_dry_run_preserves_project_files() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-first-lock");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        write_consumer(&consumer, r#"{"name":"token.aleo","location":"network","edition":0}"#);
+        let manifest = std::fs::read(consumer.join(MANIFEST_FILENAME)).expect("manifest must exist");
+        for dry_run in [true, false] {
+            let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN)]);
+            let (old, new) = Package::update_dependencies(
+                &consumer,
+                &home,
+                None,
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                0,
+            )
+            .expect("an update must resolve a missing lock");
+            assert!(old.is_empty());
+            assert!(new.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0)).is_some());
+            assert_eq!(consumer.join(LOCK_FILENAME).exists(), !dry_run);
+            assert_eq!(server.join().expect("fixture must finish").len(), 1);
+            assert_eq!(std::fs::read(consumer.join(MANIFEST_FILENAME)).expect("manifest must remain"), manifest);
+            assert!(!consumer.join("build").exists());
+        }
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_is_selective_and_keeps_transitive_pins() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-selected");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        let other = TRUSTED_TOKEN.replace("token.aleo", "other.aleo");
+        write_consumer(
+            &consumer,
+            r#"{"name":"parent.aleo","location":"network"},{"name":"other.aleo","location":"network"}"#,
+        );
+        write_network_lock(&consumer, &[
+            network_pin(&parent, 0),
+            network_pin(TRUSTED_TOKEN, 0),
+            network_pin(&other, 0),
+        ]);
+        write_file(&home.join("registry/testnet/token/0/token.aleo"), TRUSTED_TOKEN);
+        write_file(&home.join("registry/testnet/other/0/other.aleo"), &other);
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        for dry_run in [true, false] {
+            let (endpoint, server) = network_response(&[
+                ("/testnet/program/parent.aleo/latest_edition", "200 OK", "1"),
+                ("/testnet/program/parent.aleo/1", "200 OK", &parent),
+            ]);
+            let (_, updated) = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some("parent"),
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                0,
+            )
+            .expect("selected update must leave unrelated dependencies locked");
+            assert_eq!(server.join().expect("fixture must finish").len(), 2);
+            assert!(updated.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(1)).is_some());
+            for name in ["token.aleo", "other.aleo"] {
+                assert!(updated.network_pin(name, leo_ast::NetworkName::TestnetV0, Some(0)).is_some());
+            }
+            if dry_run {
+                assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+            }
+        }
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        let changed = parent.replace("private", "public");
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/latest_edition", "200 OK", "1"),
+            ("/testnet/program/parent.aleo/1", "200 OK", &changed),
+        ]);
+        let error = Package::update_dependencies(
+            &consumer,
+            &home,
+            Some("parent.aleo"),
+            false,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            0,
+        )
+        .expect_err("same-edition updates must not replace the locked checksum");
+        assert!(error.to_string().contains("checksum"), "{error}");
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_respects_workspace_development_edition_constraints() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-workspace-constraints");
+        let home = base.join("home");
+        let workspace = base.join("workspace");
+        let flexible = workspace.join("flexible");
+        let fixed = workspace.join("fixed");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        write_file(&workspace.join(WORKSPACE_MANIFEST_FILENAME), r#"{"members":["flexible","fixed"]}"#);
+        write_program(&flexible, "flexible.aleo", r#"[{"name":"token.aleo","location":"network"}]"#);
+        write_program(&fixed, "fixed.aleo", "null");
+        let mut manifest: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(fixed.join(MANIFEST_FILENAME)).expect("manifest must exist"))
+                .expect("manifest must parse");
+        manifest["dev_dependencies"] = serde_json::json!([{"name":"token.aleo","location":"network","edition":2}]);
+        write_file(&fixed.join(MANIFEST_FILENAME), &manifest.to_string());
+        let mut flexible_manifest: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(flexible.join(MANIFEST_FILENAME)).expect("manifest must exist"),
+        )
+        .expect("manifest must parse");
+        flexible_manifest["dev_dependencies"] = manifest["dev_dependencies"].clone();
+        write_file(&flexible.join(MANIFEST_FILENAME), &flexible_manifest.to_string());
+        write_network_lock(&workspace, &[network_pin(TRUSTED_TOKEN, 2)]);
+        let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/2", "200 OK", TRUSTED_TOKEN)]);
+        let (_, updated) =
+            Package::update_dependencies(&flexible, &home, None, false, leo_ast::NetworkName::TestnetV0, &endpoint, 0)
+                .expect("workspace constraints must apply before flexible dependencies select latest editions");
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert!(updated.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2)).is_some());
+        Package::from_directory_with_tests(
+            &flexible,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("a normal test build must reuse compatible fixed and flexible declarations");
+        assert!(!flexible.join(LOCK_FILENAME).exists());
+        assert!(!fixed.join(LOCK_FILENAME).exists());
+        assert!(!workspace.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_rejects_unknown_local_and_failed_graph_without_writing() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-failure");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let local = base.join("local");
+        write_library(&local, "local", "null");
+        write_consumer(&consumer, r#"{"name":"local","location":"local","path":"../local"}"#);
+        let original = r#"{"version":1,"git":[]}"#;
+        write_file(&consumer.join(LOCK_FILENAME), original);
+        for name in ["unknown", "local"] {
+            let error = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some(name),
+                false,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                0,
+            )
+            .expect_err("only a present network or Git dependency can be selected");
+            assert!(error.to_string().contains("No network or Git dependency"), "{error}");
+            assert_eq!(std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        }
+        write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network","edition":0}"#);
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/0", "200 OK", &parent),
+            ("/testnet/program/token.aleo/latest_edition", "404 Not Found", "missing dependency"),
+        ]);
+        assert!(
+            Package::update_dependencies(&consumer, &home, None, false, leo_ast::NetworkName::TestnetV0, &endpoint, 0,)
+                .is_err()
+        );
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert_eq!(std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        assert!(!consumer.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_refreshes_git_branches_but_keeps_tags_and_revisions() {
+    if !git_available() {
+        return;
+    }
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-git");
+        let home = base.join("home");
+        let source = base.join("source");
+        let consumer = base.join("consumer");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        for name in ["floating", "tagged", "pinned", "other"] {
+            write_library(&source.join(name), name, "null");
+        }
+        init_repo(&source, None);
+        let first = run_git(&source, &["rev-parse", "HEAD"]);
+        run_git(&source, &["tag", "stable"]);
+        run_git(&source, &["branch", "other"]);
+        let url = file_url(&source);
+        write_consumer(
+            &consumer,
+            &format!(
+                r#"{{"name":"floating","location":"git","git":{{"url":"{url}"}}}},{{"name":"tagged","location":"git","git":{{"url":"{url}","tag":"stable"}}}},{{"name":"pinned","location":"git","git":{{"url":"{url}","rev":"{first}"}}}},{{"name":"other","location":"git","git":{{"url":"{url}","branch":"other"}}}}"#
+            ),
+        );
+        Package::from_directory(&consumer, &home, false, false, false, None, None, 0)
+            .expect("initial graph must resolve");
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        write_file(&source.join("floating/src/lib.leo"), "// updated\n");
+        run_git(&source, &["commit", "-qam", "second"]);
+        let second = run_git(&source, &["rev-parse", "HEAD"]);
+        run_git(&source, &["tag", "-f", "stable"]);
+        run_git(&source, &["branch", "-f", "other"]);
+        Package::from_directory(&consumer, &home, false, false, false, None, None, 0)
+            .expect("normal build must retain pins");
+        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        for dry_run in [true, false] {
+            let (_, updated) = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some("floating"),
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                0,
+            )
+            .expect("explicit update must advance only the selected branch");
+            assert_eq!(updated.commit_for("floating", &url, "default"), Some(second.as_str()));
+            assert_eq!(updated.commit_for("tagged", &url, "tag=stable"), Some(first.as_str()));
+            assert_eq!(updated.commit_for("pinned", &url, &format!("rev={first}")), Some(first.as_str()));
+            assert_eq!(updated.commit_for("other", &url, "branch=other"), Some(first.as_str()));
+            if dry_run {
+                assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+            }
+        }
+        let (_, updated) = Package::update_dependencies(
+            &consumer,
+            &home,
+            None,
+            false,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            0,
+        )
+        .expect("update all must refresh other mutable branches");
+        assert_eq!(updated.commit_for("other", &url, "branch=other"), Some(second.as_str()));
+        assert_eq!(updated.commit_for("tagged", &url, "tag=stable"), Some(first.as_str()));
+        assert_eq!(updated.commit_for("pinned", &url, &format!("rev={first}")), Some(first.as_str()));
+        assert!(!consumer.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
 // Reference resolution (`crate::git::resolve`).
 
 #[test]
@@ -842,7 +1104,7 @@ fn locked_commit_is_reused_without_network() {
 }
 
 #[test]
-fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
+fn mutable_reference_reuses_lock_until_explicit_update() {
     if !git_available() {
         eprintln!("skipping: `git` CLI not available");
         return;
@@ -862,10 +1124,16 @@ fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
     let c3 = run_git(&src, &["rev-parse", "HEAD"]);
     assert_ne!(c3, c2);
 
-    // Online, the locked commit is ignored for a mutable reference: it re-resolves to the tip.
-    let (dir, refreshed) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    // Online builds keep the locked commit even after the branch advances.
+    let (dir, reused) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    assert_eq!(reused, c2);
+    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "two");
+    std::fs::remove_dir_all(home.join("git")).unwrap();
+    let (dir, restored) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    assert_eq!(restored, c2, "a missing checkout must not move the locked revision");
+    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "two");
+    let (_, refreshed) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, None, false).unwrap();
     assert_eq!(refreshed, c3);
-    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "three");
 
     // Offline, the locked commit is reused even for a mutable reference (no network access).
     let (dir, offline) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), true).unwrap();
@@ -876,7 +1144,7 @@ fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
 }
 
 #[test]
-fn branch_reference_re_resolves_to_new_tip_online() {
+fn branch_reference_refreshes_only_without_a_lock() {
     if !git_available() {
         eprintln!("skipping: `git` CLI not available");
         return;
@@ -896,9 +1164,10 @@ fn branch_reference_re_resolves_to_new_tip_online() {
     let advanced = run_git(&src, &["rev-parse", "HEAD"]);
     assert_ne!(advanced, first);
 
-    // Online, a mutable branch reference ignores the lock and re-resolves to the new tip.
-    let (dir, refreshed) =
+    let (_, pinned) =
         resolve(&home, "dep", &url, &GitReference::Branch("feature".into()), Some(&first), false).unwrap();
+    assert_eq!(pinned, first);
+    let (dir, refreshed) = resolve(&home, "dep", &url, &GitReference::Branch("feature".into()), None, false).unwrap();
     assert_eq!(refreshed, advanced);
     assert_eq!(std::fs::read_to_string(dir.join("b.txt")).unwrap(), "feat2");
 

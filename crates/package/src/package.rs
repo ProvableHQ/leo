@@ -254,6 +254,8 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            None,
+            None,
         )
     }
 
@@ -309,6 +311,8 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            None,
+            None,
         )
     }
 
@@ -336,7 +340,100 @@ impl Package {
             network,
             endpoint,
             network_retries,
+            None,
+            None,
         )
+    }
+
+    /// Update project or workspace dependencies without changing manifests or build artifacts.
+    #[allow(clippy::too_many_arguments)]
+    pub fn update_dependencies(
+        path: &Path,
+        home_path: &Path,
+        name: Option<&str>,
+        dry_run: bool,
+        network: NetworkName,
+        endpoint: &str,
+        network_retries: u32,
+    ) -> Result<(Lock, Lock)> {
+        let workspace = Workspace::discover(path)?;
+        let root = workspace.as_ref().map_or(path, |workspace| workspace.root_directory.as_path());
+        let paths =
+            workspace.as_ref().map_or_else(|| vec![path.to_path_buf()], |workspace| workspace.member_paths.clone());
+        let mut constraints = IndexMap::new();
+        for path in &paths {
+            let manifest = Manifest::read_from_file(path.join(MANIFEST_FILENAME))?;
+            for dependency in collect_declared_deps(path, &manifest, true)?.values() {
+                if dependency.location == Location::Network
+                    && let Some(edition) = dependency.edition
+                {
+                    let program = canonicalize_program_name(&dependency.name);
+                    if let Some(previous) = constraints.insert(program.clone(), edition)
+                        && previous != edition
+                    {
+                        return Err(anyhow!(
+                            "Conflicting editions for network dependency `{program}`: {previous} and {edition}."
+                        )
+                        .into());
+                    }
+                }
+            }
+        }
+        std::fs::create_dir_all(home_path).map_err(|error| crate::errors::failed_path(home_path.display(), error))?;
+        let old_lock = Lock::read(root)?;
+        let mut resolution_lock = old_lock.clone();
+        resolution_lock.unlock_git(name);
+        let mut new_lock = Lock::default();
+        new_lock.carry_over(&old_lock, |_| false);
+        let mut resolved = IndexMap::new();
+        let mut found = name.is_none();
+        for path in paths {
+            let package = Self::from_directory_impl(
+                &path,
+                home_path,
+                true,
+                true,
+                false,
+                false,
+                false,
+                Some(network),
+                Some(endpoint),
+                network_retries,
+                Some((&resolution_lock, &mut new_lock)),
+                Some((name, &constraints)),
+            )?;
+            for unit in &package.compilation_units {
+                if let Some(name) = name {
+                    found |= unit.dependencies.iter().any(|dependency| {
+                        matches!(dependency.location, Location::Network | Location::Git)
+                            && bare_unit_name(&dependency.name) == bare_unit_name(name)
+                    });
+                }
+                if !unit.is_local
+                    && let Some(edition) = unit.edition
+                    && let Some(previous) = resolved.insert(unit.name, edition)
+                    && previous != edition
+                {
+                    return Err(anyhow!(
+                        "Conflicting editions for network dependency `{}`: {previous} and {edition}.",
+                        unit.name
+                    )
+                    .into());
+                }
+            }
+        }
+        if !found {
+            return Err(anyhow!(
+                "No network or Git dependency named `{}` exists in this project or workspace.",
+                name.unwrap_or_default()
+            )
+            .into());
+        }
+        new_lock.carry_over(&old_lock, |_| true);
+        if !dry_run {
+            new_lock.write(root)?;
+        }
+        Ok((old_lock, new_lock))
     }
 
     pub fn test_files(&self) -> impl Iterator<Item = PathBuf> {
@@ -446,6 +543,7 @@ impl Package {
             &old_lock,
             &mut new_lock,
             false,
+            None,
         )?;
 
         let compilation_units = digraph
@@ -484,6 +582,8 @@ impl Package {
         network: Option<NetworkName>,
         endpoint: Option<&str>,
         network_retries: u32,
+        resolution: Option<(&Lock, &mut Lock)>,
+        update: Option<(Option<&str>, &IndexMap<String, u16>)>,
     ) -> Result<Self> {
         let map_err = |path: &Path, err| {
             crate::errors::util_file_io_error(format_args!("Trying to find path at {}", path.display()), err)
@@ -512,9 +612,11 @@ impl Package {
             // The lock lives at the workspace root, else beside this package's `program.json`.
             let lock_dir = workspace_root.as_deref().unwrap_or(&path).to_path_buf();
             // Reuse network pins and record Git resolutions for this build.
-            let old_lock = Lock::read(&lock_dir)?;
-            let mut new_lock = Lock::default();
-            new_lock.carry_over(&old_lock, |_| false);
+            let persist = resolution.is_none();
+            let file_lock = if persist { Lock::read(&lock_dir)? } else { Lock::default() };
+            let mut file_resolution = Lock::default();
+            file_resolution.carry_over(&file_lock, |_| false);
+            let (old_lock, new_lock) = resolution.unwrap_or((&file_lock, &mut file_resolution));
 
             let first_dependency = Dependency {
                 name: manifest.program.clone(),
@@ -568,17 +670,18 @@ impl Package {
                     None,
                     network_retries,
                     &declared_deps,
-                    &old_lock,
-                    &mut new_lock,
+                    old_lock,
+                    new_lock,
                     offline,
+                    update,
                 )?;
             }
 
             // Workspace: carry all entries since the lock is shared. Standalone: carry only dev-git
             // names (a plain build skips dev deps, so their pins may legitimately be unresolved).
-            if workspace_root.is_some() {
-                new_lock.carry_over(&old_lock, |_| true);
-            } else {
+            if persist && workspace_root.is_some() {
+                new_lock.carry_over(old_lock, |_| true);
+            } else if persist {
                 let dev_git_names: Vec<&str> = if with_tests {
                     Vec::new()
                 } else {
@@ -590,13 +693,15 @@ impl Package {
                         .map(|dep| dep.name.as_str())
                         .collect()
                 };
-                new_lock.carry_over(&old_lock, |entry| dev_git_names.contains(&entry.name.as_str()));
+                new_lock.carry_over(old_lock, |entry| dev_git_names.contains(&entry.name.as_str()));
             }
             let ordered_dependency_symbols =
                 digraph.post_order().map_err(|_| crate::errors::circular_dependency_error())?;
 
             // Commit the complete lock only after the dependency graph is valid.
-            new_lock.write(&lock_dir)?;
+            if persist {
+                new_lock.write(&lock_dir)?;
+            }
 
             (
                 ordered_dependency_symbols.into_iter().map(|symbol| map.swap_remove(&symbol).unwrap().1).collect(),
@@ -626,6 +731,7 @@ impl Package {
         old_lock: &Lock,
         new_lock: &mut Lock,
         offline: bool,
+        update: Option<(Option<&str>, &IndexMap<String, u16>)>,
     ) -> Result<()> {
         let mut new = new;
         if new.location == Location::Network
@@ -669,7 +775,9 @@ impl Package {
                 assert_eq!(new.name, existing_dep.name);
                 if new.location != existing_dep.location
                     || new.path != existing_dep.path
-                    || new.edition != existing_dep.edition
+                    || (new.edition != existing_dep.edition
+                        && !(new.location == Location::Network
+                            && new.edition.is_none_or(|edition| occupied.get().1.edition == Some(edition))))
                     || new.git != existing_dep.git
                 {
                     return Err(crate::errors::conflicting_dependency(existing_dep, new).into());
@@ -699,13 +807,29 @@ impl Package {
                         let Some(network) = network else {
                             return Err(anyhow!("A network must be provided to fetch network dependencies.").into());
                         };
+                        let selected = update.is_some_and(|(name, _)| {
+                            name.is_none_or(|name| bare_unit_name(&new.name) == bare_unit_name(name))
+                        });
+                        let edition = new
+                            .edition
+                            .or_else(|| declared_deps.get(&name_symbol).and_then(|dependency| dependency.edition))
+                            .or_else(|| {
+                                update.and_then(|(_, constraints)| {
+                                    constraints.get(&canonicalize_program_name(&new.name)).copied()
+                                })
+                            });
+                        let edition = if selected && edition.is_none() && bare_unit_name(&new.name) != "credits" {
+                            Some(crate::fetch_latest_edition(&new.name, endpoint, network, network_retries)?)
+                        } else {
+                            edition
+                        };
                         CompilationUnit::fetch(
                             name_symbol,
-                            new.edition,
+                            edition,
                             home_path,
                             network,
                             endpoint,
-                            no_cache,
+                            no_cache || selected,
                             network_retries,
                             new_lock,
                         )?
@@ -784,6 +908,7 @@ impl Package {
                 old_lock,
                 new_lock,
                 offline,
+                update,
             )?;
         }
 
@@ -914,10 +1039,23 @@ fn collect_declared_deps_recursive(
         // Only recurse into newly discovered dependencies to avoid infinite
         // recursion on circular manifests (cycles are caught later by
         // `DiGraph::post_order`).
-        let Entry::Vacant(e) = declared.entry(sym) else {
-            continue;
-        };
-        e.insert(dep.clone());
+        match declared.entry(sym) {
+            Entry::Occupied(mut entry) => {
+                let existing = entry.get_mut();
+                if existing.location == Location::Network && dep.location == Location::Network {
+                    if let (Some(previous), Some(edition)) = (existing.edition, dep.edition)
+                        && previous != edition
+                    {
+                        return Err(crate::errors::conflicting_dependency(existing, dep).into());
+                    }
+                    existing.edition = existing.edition.or(dep.edition);
+                }
+                continue;
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(dep.clone());
+            }
+        }
         if dep.location == Location::Local
             && let Some(path) = &dep.path
         {

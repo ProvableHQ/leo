@@ -12,7 +12,11 @@ The first download trusts the configured endpoint. Leo checks the program ID and
 
 Later builds use the locked edition. Leo checks cached and downloaded bytecode against its checksum. A checksum mismatch stops the operation without replacing the lock or cache. `--no-cache` downloads the locked edition again; it does not select a new edition or replace its checksum.
 
-To update a dependency, use `leo add` with the required `--edition`. A different edition is fetched from the endpoint and gets a new checksum. Re-adding a dependency without an edition selects the latest edition. If the edition is unchanged, the existing checksum still applies.
+Use `leo update` to refresh dependencies, or `leo update NAME` to refresh one dependency. Omitted network editions can advance to the latest edition. Explicit manifest editions, Git tags, and Git revisions stay fixed. A named update preserves unrelated pins and existing transitive pins where possible. Dependencies from the same Git repository and branch update together.
+
+Use `leo update --dry-run` to show proposed changes without writing the lock, manifests, or build output. It can download data to the cache. In a workspace, updates include every member and development dependency, even when the command runs from one member. A fixed edition in any member constrains the update. If the selected network edition is unchanged, its existing checksum still applies.
+
+Normal builds reuse locked network editions and Git commits. A missing Git checkout is restored at the locked commit. To change an explicit edition, use `leo add` with the required `--edition`. Dependency updates do not change manifest constraints, and `leo update` does not update the Leo executable.
 
 Leo reads and writes the lock at the workspace root, or beside `program.json` for a standalone project. It preserves network entries for other workspace members, development dependencies, and networks. A build writes the lock only after all dependencies are resolved and the dependency graph is valid. The file replacement is atomic.
 

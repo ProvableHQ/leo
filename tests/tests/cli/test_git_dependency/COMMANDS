@@ -86,6 +86,54 @@ echo "--- 4b. build --offline reuses the lock and cache ---" | tee /dev/stderr
 leo_redacted build --offline > /dev/null 2>&1
 echo "offline build exit: $?"
 
+# An ordinary build keeps the locked commit after the branch advances.
+set -e
+OLD_COMMIT=$(${GIT} -C "${REPO}" rev-parse HEAD)
+cp leo.lock "${HOMEDIR}/before.lock"
+cp program.json "${HOMEDIR}/before.json"
+cp build/gitbytes/gitbytes.aleo "${HOMEDIR}/before.aleo"
+sed 's/    add /    sub /' "${REPO}/gitbytes.aleo" > "${OUT}"
+if cmp -s "${REPO}/gitbytes.aleo" "${OUT}"; then
+    echo "The Git fixture must change its bytecode." >&2
+    exit 1
+fi
+cp "${OUT}" "${REPO}/gitbytes.aleo"
+${GIT} -C "${REPO}" add gitbytes.aleo
+${GIT} -C "${REPO}" commit -q -m "change bytecode"
+NEW_COMMIT=$(${GIT} -C "${REPO}" rev-parse HEAD)
+if ! leo_redacted build > /dev/null 2>&1; then
+    cat "${OUT}" "${ERR}"
+    exit 1
+fi
+cmp leo.lock "${HOMEDIR}/before.lock"
+cmp build/gitbytes/gitbytes.aleo "${HOMEDIR}/before.aleo"
+
+# Updating one package updates its shared Git source, but preserves the fixed tag.
+if ! leo_redacted update gitlib --dry-run --network testnet > /dev/null 2>&1; then
+    cat "${OUT}" "${ERR}"
+    exit 1
+fi
+grep -Fq 'Would update gitlib (default)' "${OUT}"
+cmp leo.lock "${HOMEDIR}/before.lock"
+cmp program.json "${HOMEDIR}/before.json"
+if ! leo_redacted update gitlib --network testnet > /dev/null 2>&1; then
+    cat "${OUT}" "${ERR}"
+    exit 1
+fi
+grep -Fq 'Updated gitlib (default)' "${OUT}"
+test "$(grep -Fc "\"commit\": \"${NEW_COMMIT}\"" leo.lock)" = 2
+test "$(grep -Fc "\"commit\": \"${OLD_COMMIT}\"" leo.lock)" = 1
+cmp program.json "${HOMEDIR}/before.json"
+cp leo.lock "${HOMEDIR}/updated.lock"
+if ! leo_redacted build --offline > /dev/null 2>&1; then
+    cat "${OUT}" "${ERR}"
+    exit 1
+fi
+cmp leo.lock "${HOMEDIR}/updated.lock"
+cmp build/gitbytes/gitbytes.aleo "${REPO}/gitbytes.aleo"
+echo "Git updates preserve dry runs, shared sources, fixed tags, and subsequent builds."
+set +e
+
 echo "--- 5. --branch without --git (should fail) ---" | tee /dev/stderr
 leo_redacted add gitlib --branch main
 echo "exit: $?"

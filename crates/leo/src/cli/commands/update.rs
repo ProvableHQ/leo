@@ -15,20 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::cli::helpers::updater::Updater;
+use leo_ast::NetworkName;
+use leo_package::Package;
 
-/// Update Leo to the latest version
+/// Update dependencies within the manifest constraints.
 #[derive(Debug, Parser)]
 pub struct LeoUpdate {
-    /// Lists all available versions of Leo
-    #[clap(short = 'l', long, help = "List all available releases.")]
-    list: bool,
-    /// Update to a specific named release
-    #[clap(short = 'n', long, help = "An optional release name.")]
+    #[clap(value_name = "NAME", help = "Update only this dependency; otherwise update all dependencies.")]
     name: Option<String>,
-    /// Suppress outputs to terminal
-    #[clap(short = 'q', long, help = "Suppress download logs.")]
-    quiet: bool,
+    #[clap(long, help = "Show dependency updates without changing leo.lock.")]
+    dry_run: bool,
+    #[clap(flatten)]
+    env_override: EnvOptions,
 }
 
 impl Command for LeoUpdate {
@@ -43,34 +41,58 @@ impl Command for LeoUpdate {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output>
-    where
-        Self: Sized,
-    {
-        match self.list {
-            true => match Updater::show_available_releases() {
-                Ok(output) => tracing::info!("{output}"),
-                Err(error) => tracing::info!("Failed to list the available versions of Leo\n{error}\n"),
-            },
-            false => {
-                let show_output = !self.quiet;
-                let result = Updater::update(show_output, self.name.clone());
-                if show_output {
-                    match &result {
-                        Ok(status) => {
-                            if status.uptodate() {
-                                tracing::info!("\nLeo is already on the latest version")
-                            } else if status.updated() {
-                                tracing::info!("\nLeo has updated to version {}", status.version())
-                            }
-                        }
-                        Err(e) => tracing::info!("\nFailed to update Leo to the latest version\n{e}\n"),
-                    }
-                }
-                if result.is_ok() {
-                    Updater::update_bundled_plugins(show_output, self.name.as_deref());
-                }
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        if context.package_filter.is_some() {
+            return Err(crate::errors::custom(
+                "Dependency updates use the shared workspace lock. Use `leo update NAME` to select a dependency.",
+            )
+            .into());
+        }
+        let network = get_network(&self.env_override.network).unwrap_or_else(|_| {
+            tracing::warn!("No network specified, defaulting to 'testnet'.");
+            NetworkName::TestnetV0
+        });
+        let endpoint = get_endpoint(&self.env_override.endpoint).unwrap_or_else(|_| DEFAULT_ENDPOINT.to_string());
+        let (old, updated) = Package::update_dependencies(
+            &context.dir()?,
+            &context.home()?,
+            self.name.as_deref(),
+            self.dry_run,
+            network,
+            &endpoint,
+            self.env_override.network_retries,
+        )?;
+
+        let action = if self.dry_run { "Would update" } else { "Updated" };
+        let mut changed = false;
+        for pin in updated.network_entries() {
+            let previous = old.network_entries().iter().find(|old| old.name == pin.name && old.network == pin.network);
+            if previous == Some(pin) {
+                continue;
             }
+            changed = true;
+            let previous = previous.map(|pin| pin.edition.to_string()).unwrap_or_else(|| "unlocked".to_string());
+            tracing::info!("{action} {} ({}) edition {previous} -> {}", pin.name, pin.network, pin.edition);
+        }
+        for pin in updated.git_entries() {
+            let previous = old.commit_for(&pin.name, &pin.git, &pin.reference);
+            if previous == Some(pin.commit.as_str()) {
+                continue;
+            }
+            changed = true;
+            tracing::info!(
+                "{action} {} ({}) {:.12} -> {:.12}",
+                pin.name,
+                pin.reference,
+                previous.unwrap_or("unlocked"),
+                pin.commit
+            );
+        }
+        if !changed {
+            tracing::info!("No dependency updates.");
+        }
+        if self.dry_run {
+            tracing::info!("Dry run: leo.lock was not changed.");
         }
         Ok(())
     }

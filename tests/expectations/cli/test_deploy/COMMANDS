@@ -55,13 +55,14 @@ echo "Remote run, execute, synthesize, and --with work without a supplied lock."
 # Keep an automatically generated dependency lock at edition zero for the upgrade check.
 "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" new lock_consumer > "$REMOTE/output" 2>&1
 if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
-    add some_sample_leo_program --edition 0 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    add some_sample_leo_program --network --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
     exit 1
 fi
 grep -Fq '"edition": 0' "$REMOTE/lock_consumer/leo.lock"
 cp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
+cp "$REMOTE/lock_consumer/program.json" "$REMOTE/original.json"
 cp "$ALEO_FILE" "$REMOTE/lock_consumer/upgrade.aleo"
 
 $LEO_BIN --path $ALEO_FILE upgrade --no-local -y $COMMON_OPTS
@@ -75,14 +76,46 @@ grep -Fq 'Upgrade confirmed!' "$REMOTE/output"
 test "$(curl -fsS "http://localhost:${LEO_DEVNODE_PORT:-3030}/testnet/program/some_sample_leo_program.aleo/latest_edition")" = 2
 cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
 
-# An explicit edition change updates the generated dependency lock.
+# A dry run reports the new edition without changing the lock or manifest.
 if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
-    add some_sample_leo_program --edition 2 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    update some_sample_leo_program --dry-run --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    --network-retries 0 > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq 'Would update some_sample_leo_program.aleo (testnet) edition 0 -> 2' "$REMOTE/output"
+cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
+cmp "$REMOTE/lock_consumer/program.json" "$REMOTE/original.json"
+
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+    update some_sample_leo_program --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    --network-retries 0 > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq 'Updated some_sample_leo_program.aleo (testnet) edition 0 -> 2' "$REMOTE/output"
+grep -Fq '"edition": 2' "$REMOTE/lock_consumer/leo.lock"
+cmp "$REMOTE/lock_consumer/program.json" "$REMOTE/original.json"
+
+# A manifest constraint keeps an exact edition fixed during a full update.
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+    add some_sample_leo_program --edition 0 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
     exit 1
 fi
-grep -Fq '"edition": 2' "$REMOTE/lock_consumer/leo.lock"
-echo "Upgrade uses the current root edition, and an explicit dependency update replaces the lock."
+grep -Fq '"edition": 0' "$REMOTE/lock_consumer/leo.lock"
+cp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/exact.lock"
+cp "$REMOTE/lock_consumer/program.json" "$REMOTE/exact.json"
+if ! "$LEO_BIN" --disable-update-check --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+    update --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
+    --network-retries 0 > "$REMOTE/output" 2>&1; then
+    cat "$REMOTE/output"
+    exit 1
+fi
+grep -Fq 'No dependency updates.' "$REMOTE/output"
+cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/exact.lock"
+cmp "$REMOTE/lock_consumer/program.json" "$REMOTE/exact.json"
+echo "Upgrade uses the current root edition; dependency updates preserve dry runs and exact constraints."
 
 $LEO_BIN --path $ALEO_FILE execute -y main 1u32 2u32 $COMMON_OPTS

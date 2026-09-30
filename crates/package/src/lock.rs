@@ -112,6 +112,31 @@ impl Lock {
         self.network.push(entry);
     }
 
+    /// Read the recorded Git dependencies.
+    pub fn git_entries(&self) -> &[GitLockEntry] {
+        &self.git
+    }
+
+    /// Read the recorded network dependencies.
+    pub fn network_entries(&self) -> &[NetworkLockEntry] {
+        &self.network
+    }
+
+    /// Release selected branch pins, including other dependencies from the same source.
+    pub(crate) fn unlock_git(&mut self, name: Option<&str>) {
+        let sources: IndexSet<_> = self
+            .git
+            .iter()
+            .filter(|entry| {
+                (entry.reference == "default" || entry.reference.starts_with("branch="))
+                    && name.is_none_or(|name| crate::bare_unit_name(&entry.name) == crate::bare_unit_name(name))
+            })
+            .map(|entry| (entry.git.clone(), entry.reference.clone()))
+            .collect();
+        self.git
+            .retain(|entry| !sources.iter().any(|(git, reference)| &entry.git == git && &entry.reference == reference));
+    }
+
     /// The pinned commit for `(name, git, reference)`, or `None` (forcing re-resolution) on any mismatch.
     pub fn commit_for(&self, name: &str, git: &str, reference: &str) -> Option<&str> {
         self.git.iter().find(|e| e.name == name && e.git == git && e.reference == reference).map(|e| e.commit.as_str())

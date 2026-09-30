@@ -19,9 +19,8 @@ use leo_errors::{Backtraced, Result};
 use aleo_std;
 
 use colored::Colorize;
-use self_update::{Status, backends::github, get_target, version::bump_is_greater};
+use self_update::{backends::github, version::bump_is_greater};
 use std::{
-    fmt::Write as _,
     fs,
     path::{Path, PathBuf},
     time::{Duration, SystemTime, UNIX_EPOCH},
@@ -29,7 +28,6 @@ use std::{
 
 pub struct Updater;
 
-// TODO Add logic for users to easily select release versions.
 impl Updater {
     const LEO_BIN_NAME: &'static str = "leo";
     const LEO_CACHE_LAST_CHECK_FILE: &'static str = "leo_cache_last_update_check";
@@ -38,100 +36,6 @@ impl Updater {
     const LEO_REPO_OWNER: &'static str = "ProvableHQ";
     // 24 hours
     const LEO_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
-
-    /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<String> {
-        let releases = github::ReleaseList::configure()
-            .repo_owner(Self::LEO_REPO_OWNER)
-            .repo_name(Self::LEO_REPO_NAME)
-            .with_target(get_target())
-            .build()
-            .map_err(crate::errors::self_update_error)?
-            .fetch()
-            .map_err(crate::errors::could_not_fetch_versions)?;
-
-        let mut output = format!(
-            "\nList of available versions for: {}.\nUse the quoted name to select specific releases.\n\n",
-            get_target()
-        );
-        for release in releases {
-            let _ = writeln!(output, "  * {} | '{}'", release.version, release.name);
-        }
-
-        Ok(output)
-    }
-
-    /// Update `leo`. If a version is provided, then `leo` is updated to the specific version
-    /// otherwise the update defaults to the latest version.
-    pub fn update(show_output: bool, version: Option<String>) -> Result<Status> {
-        let mut update = github::Update::configure();
-        // Set the defaults.
-        update
-            .repo_owner(Self::LEO_REPO_OWNER)
-            .repo_name(Self::LEO_REPO_NAME)
-            .bin_name(Self::LEO_BIN_NAME)
-            .current_version(env!("CARGO_PKG_VERSION"))
-            .show_download_progress(show_output)
-            .no_confirm(true)
-            .show_output(show_output);
-        // Add the version if provided.
-        if let Some(version) = version {
-            update.target_version_tag(&version);
-        }
-        let status = update
-            .build()
-            .map_err(crate::errors::self_update_build_error)?
-            .update()
-            .map_err(crate::errors::self_update_error)?;
-
-        Ok(status)
-    }
-
-    /// Best-effort update of bundled plugin binaries (currently just `leo-fmt`).
-    ///
-    /// Downloads the release archive a second time and extracts the plugin binary
-    /// into the same directory as the current `leo` executable. Prints a warning
-    /// on failure rather than aborting.
-    pub fn update_bundled_plugins(show_output: bool, version: Option<&str>) {
-        const BUNDLED_PLUGINS: &[&str] = &["leo-fmt"];
-
-        let install_dir = match std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf)) {
-            Some(dir) => dir,
-            None => {
-                tracing::warn!("Could not determine leo install directory; skipping plugin update");
-                return;
-            }
-        };
-
-        for plugin in BUNDLED_PLUGINS {
-            if show_output {
-                tracing::info!("Updating bundled plugin '{plugin}'...");
-            }
-            let mut update = github::Update::configure();
-            update
-                .repo_owner(Self::LEO_REPO_OWNER)
-                .repo_name(Self::LEO_REPO_NAME)
-                .bin_name(plugin)
-                .bin_install_path(&install_dir)
-                .current_version(env!("CARGO_PKG_VERSION"))
-                .show_download_progress(show_output)
-                .no_confirm(true)
-                .show_output(show_output);
-            if let Some(ver) = version {
-                update.target_version_tag(ver);
-            }
-            match update.build().and_then(|u| u.update()) {
-                Ok(_) => {
-                    if show_output {
-                        tracing::info!("Successfully updated '{plugin}'");
-                    }
-                }
-                Err(e) => {
-                    tracing::warn!("Failed to update bundled plugin '{plugin}': {e}");
-                }
-            }
-        }
-    }
 
     /// Check if there is an available update for `leo` and return the newest release.
     pub fn update_available() -> Result<String> {
@@ -167,9 +71,9 @@ impl Updater {
         if let Some(latest_version) = Self::read_latest_version()? {
             let colorized_message = format!(
                 "\n🟢 {} {} {}",
-                "A new version is available! Run".bold().green(),
-                "`leo update`".bold().white(),
-                format!("to update to v{latest_version}.").bold().green()
+                format!("Leo v{latest_version} is available.").bold().green(),
+                "For installation instructions, see".bold().green(),
+                "https://github.com/ProvableHQ/leo#-build-guide".bold().white()
             );
             Ok(Some(colorized_message))
         } else {
