@@ -349,6 +349,43 @@ mod tests {
     }
 
     #[test]
+    #[serial]
+    fn build_initializes_missing_registry_directory() {
+        let root = tempfile::tempdir().expect("Create the fixture directory");
+        test_helpers::scaffold_minimal_member(root.path(), "fresh_registry");
+        let project = root.path().join("fresh_registry");
+        std::fs::write(
+            project.join("src/main.leo"),
+            "program fresh_registry.aleo { fn main(public a: u32) -> u32 { return a; } @noupgrade constructor() {} }",
+        )
+        .expect("Write a program with an entry point");
+        let home = root.path().join("missing/home");
+        assert!(!home.exists());
+        let command = CLI::try_parse_from([
+            "leo",
+            "-q",
+            "--path",
+            project.to_str().expect("The project path must be UTF-8"),
+            "--home",
+            home.to_str().expect("The registry path must be UTF-8"),
+            "build",
+            "--network",
+            "testnet",
+        ])
+        .expect("The build arguments must parse");
+        create_session_if_not_set_then(|_| {
+            run_with_args(command).expect("The first build must create its registry directory");
+        });
+        assert!(home.is_dir());
+        assert!(project.join("build/fresh_registry/fresh_registry.aleo").is_file());
+
+        let file = root.path().join("not_a_directory");
+        std::fs::write(&file, "file").expect("Create the invalid registry path");
+        let context = crate::cli::context::Context::new(None, Some(file), false, None).expect("Create context");
+        assert!(context.home().is_err(), "A registry path must be a directory");
+    }
+
+    #[test]
     fn network_pins_use_the_workspace_root() {
         use crate::cli::context::Context;
 

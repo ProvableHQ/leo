@@ -67,12 +67,11 @@ impl Context {
         }
     }
 
-    /// Returns the path to the Aleo registry directory.
+    /// Returns the path to the Aleo registry directory, creating it if needed.
     pub fn home(&self) -> Result<PathBuf> {
-        match &self.home {
-            Some(path) => Ok(path.clone()),
-            None => Ok(aleo_dir()),
-        }
+        let path = self.home.clone().unwrap_or_else(aleo_dir);
+        std::fs::create_dir_all(&path).map_err(crate::errors::cli_io_error)?;
+        Ok(path)
     }
 
     /// Read dependency pins from the enclosing project or workspace.

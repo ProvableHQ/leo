@@ -183,7 +183,7 @@ mod tests {
             .expect_err("An unreachable extra program must fail");
             assert!(error.to_string().contains("failed to retrieve"), "{error}");
         });
-        assert!(!root.join("cache").exists());
+        assert!(std::fs::read_dir(root.join("cache")).expect("The registry directory must exist").next().is_none());
         std::fs::remove_dir_all(root).expect("The temporary directory must be removed");
     }
 
