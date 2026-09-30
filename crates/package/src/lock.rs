@@ -22,7 +22,7 @@
 use leo_errors::Result;
 
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::{io::Write, path::Path};
 
 /// File name of the lock file, stored alongside `program.json`.
 pub const LOCK_FILENAME: &str = "leo.lock";
@@ -56,12 +56,18 @@ impl Default for Lock {
 impl Lock {
     /// Read the lock from `dir`, or an empty lock if it is missing. A malformed or unsupported-version
     /// lock is regenerated rather than erroring, but warns (unlike a missing file) so lost pins are visible.
-    pub fn read(dir: &Path) -> Self {
+    pub fn read(dir: &Path) -> Result<Self> {
         let path = dir.join(LOCK_FILENAME);
-        let Ok(contents) = std::fs::read_to_string(&path) else {
-            return Lock::default();
-        };
-        match serde_json::from_str::<Lock>(&contents) {
+        match std::fs::symlink_metadata(&path) {
+            Ok(metadata) if metadata.is_file() => {}
+            Ok(_) => {
+                return Err(crate::errors::failed_path(path.display(), "expected a regular file, not a symlink").into());
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Lock::default()),
+            Err(err) => return Err(crate::errors::failed_path(path.display(), err).into()),
+        }
+        let contents = std::fs::read_to_string(&path).map_err(|err| crate::errors::failed_path(path.display(), err))?;
+        Ok(match serde_json::from_str::<Lock>(&contents) {
             Ok(lock) if lock.version == LOCK_VERSION => lock,
             Ok(lock) => {
                 tracing::warn!(
@@ -75,7 +81,7 @@ impl Lock {
                 tracing::warn!("⚠️ Ignoring malformed `{}` ({err}). It will be regenerated.", path.display());
                 Lock::default()
             }
-        }
+        })
     }
 
     /// The pinned commit for `(name, git, reference)`, or `None` (forcing re-resolution) on any mismatch.
@@ -115,8 +121,20 @@ impl Lock {
     /// written and a stale one is removed.
     pub fn write(&mut self, dir: &Path) -> Result<()> {
         let path = dir.join(LOCK_FILENAME);
+        let permissions = match std::fs::symlink_metadata(&path) {
+            Ok(metadata) if metadata.is_file() => Some(metadata.permissions()),
+            Ok(_) => {
+                return Err(crate::errors::failed_to_write_lock(
+                    path.display(),
+                    "expected a regular file, not a symlink",
+                )
+                .into());
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+            Err(err) => return Err(crate::errors::failed_to_write_lock(path.display(), err).into()),
+        };
         if self.is_empty() {
-            if path.exists() {
+            if permissions.is_some() {
                 std::fs::remove_file(&path).map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
             }
             return Ok(());
@@ -126,7 +144,25 @@ impl Lock {
         let mut contents = serde_json::to_string_pretty(self)
             .map_err(|err| crate::errors::failed_to_serialize_lock(path.display(), err))?;
         contents.push('\n');
-        std::fs::write(&path, contents).map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
+        // Replace the lock without opening its destination for writing.
+        let temporary = crate::git::unique_dir(dir, ".leo.lock");
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|err| crate::errors::failed_to_write_lock(path.display(), err))?;
+        let result = (|| {
+            if let Some(permissions) = permissions {
+                file.set_permissions(permissions)?;
+            }
+            file.write_all(contents.as_bytes())?;
+            drop(file);
+            std::fs::rename(&temporary, &path)
+        })();
+        if let Err(err) = result {
+            let _ = std::fs::remove_file(&temporary);
+            return Err(crate::errors::failed_to_write_lock(path.display(), err).into());
+        }
         Ok(())
     }
 

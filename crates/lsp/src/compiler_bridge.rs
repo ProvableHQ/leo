@@ -2091,17 +2091,29 @@ fn hash_leo_directory_listing(dir: &StdPath, hasher: &mut DefaultHasher) {
 
 /// Collect `.leo` files recursively and report whether the walk succeeded.
 fn collect_leo_files(dir: &StdPath, files: &mut Vec<PathBuf>) -> bool {
+    if !std::fs::symlink_metadata(dir).is_ok_and(|metadata| metadata.is_dir()) {
+        return false;
+    }
     let Ok(entries) = std::fs::read_dir(dir) else {
         return false;
     };
 
     for entry in entries.flatten() {
         let path = entry.path();
-        if path.is_dir() {
+        let Ok(file_type) = entry.file_type() else {
+            return false;
+        };
+        if file_type.is_symlink() {
+            return false;
+        }
+        if file_type.is_dir() {
             if !collect_leo_files(&path, files) {
                 return false;
             }
         } else if path.extension().is_some_and(|extension| extension == "leo") {
+            if !file_type.is_file() {
+                return false;
+            }
             files.push(path);
         }
     }
@@ -2143,6 +2155,19 @@ mod tests {
         time::Duration,
     };
     use tempfile::tempdir;
+
+    #[cfg(unix)]
+    #[test]
+    fn source_discovery_rejects_symlinks() {
+        let tmp = tempdir().expect("create fixture");
+        let outside = tmp.path().join("outside");
+        fs::create_dir(&outside).expect("create outside directory");
+        fs::write(outside.join("module.leo"), "private sentinel").expect("write module");
+        let source = tmp.path().join("src");
+        std::os::unix::fs::symlink(&outside, &source).expect("create directory symlink");
+        assert!(!super::collect_leo_files(&source, &mut Vec::new()));
+        assert!(!super::collect_leo_files(tmp.path(), &mut Vec::new()));
+    }
 
     /// Build a test `file:` URI from a native path.
     fn file_uri(path: &Path) -> Uri {

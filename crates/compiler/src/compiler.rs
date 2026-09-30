@@ -597,14 +597,14 @@ impl Compiler {
         let entry_file_path = entry_file_path.as_ref();
         let source_directory = source_directory.as_ref();
 
-        // Read the contents of the main source file.
-        let source = file_source
-            .read_file(entry_file_path)
-            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
-
         let files = file_source
             .list_leo_files(source_directory, entry_file_path)
             .map_err(|e| crate::errors::file_read_error(source_directory.display().to_string(), e))?;
+
+        // Read the entry file after the source directory check.
+        let source = file_source
+            .read_file(entry_file_path)
+            .map_err(|e| crate::errors::file_read_error(entry_file_path.display().to_string(), e))?;
 
         let mut modules = Vec::with_capacity(files.len());
         for path in files {
@@ -1189,10 +1189,26 @@ fn unit_watch_paths(unit: &CompilationUnit, file_source: &impl FileSource) -> Re
 
 /// Collect source directories whose mtimes signal nested module creation/removal.
 fn collect_source_directories(dir: &Path, watch_paths: &mut Vec<PathBuf>) -> Result<()> {
+    if !fs::symlink_metadata(dir).map_err(|error| errors::file_read_error(dir.display().to_string(), error))?.is_dir() {
+        return Err(errors::file_read_error(
+            dir.display().to_string(),
+            std::io::Error::new(std::io::ErrorKind::InvalidInput, "expected a source directory, not a symlink"),
+        )
+        .into());
+    }
     for entry in fs::read_dir(dir).map_err(|error| errors::file_read_error(dir.display().to_string(), error))? {
         let entry = entry.map_err(|error| errors::file_read_error(dir.display().to_string(), error))?;
         let path = entry.path();
-        if path.is_dir() {
+        let file_type =
+            entry.file_type().map_err(|error| errors::file_read_error(path.display().to_string(), error))?;
+        if file_type.is_symlink() {
+            return Err(errors::file_read_error(
+                path.display().to_string(),
+                std::io::Error::new(std::io::ErrorKind::InvalidInput, "source directories cannot contain symlinks"),
+            )
+            .into());
+        }
+        if file_type.is_dir() {
             // Watching only existing `.leo` files misses the first file added to
             // an already-existing nested module directory. Include directories
             // so LSP-side cache revisions notice those create/remove events.
@@ -1330,6 +1346,24 @@ mod tests {
     use std::{path::PathBuf, rc::Rc};
 
     use indexmap::IndexMap;
+
+    #[cfg(unix)]
+    #[test]
+    fn source_reads_reject_directory_symlinks() {
+        let timestamp =
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).expect("clock follows epoch").as_nanos();
+        let root = std::env::temp_dir().join(format!("leo-compiler-symlink-{}-{timestamp}", std::process::id()));
+        let outside = root.join("outside");
+        std::fs::create_dir_all(&outside).expect("create source fixture");
+        std::fs::write(outside.join("main.leo"), "private sentinel").expect("write sentinel");
+        let source = root.join("src");
+        std::os::unix::fs::symlink(&outside, &source).expect("create source symlink");
+
+        assert!(Compiler::read_sources_and_modules(&super::DiskFileSource, source.join("main.leo"), &source).is_err());
+        assert!(super::collect_source_directories(&source, &mut Vec::new()).is_err());
+        assert!(super::collect_source_directories(&root, &mut Vec::new()).is_err());
+        std::fs::remove_dir_all(root).expect("remove fixture");
+    }
 
     /// Verifies library parsing can read every source file from an in-memory source.
     #[test]
