@@ -96,12 +96,17 @@ constructor:
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
+⬇️ Downloading renamed_prog.aleo and its dependencies from http://localhost:3030...
+
+➕Adding programs to the VM in the following order:
+  - renamed_prog.aleo (edition: 0)
+
+⚙️ Preparing calls for review: renamed_prog.aleo/main...
 
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
 🔧 Configuration:
-  Private Key:        APrivateKey1zkp8CZNn3yeC...
-  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Address:            aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
   Endpoint:           http://localhost:3030
   Network:            testnet
   Consensus Version:  21
@@ -111,25 +116,24 @@ Attempting to determine the consensus version from the latest block height at ht
   Function:       main
   Source:         remote
 
+Calls to approve:
+  Call 1: renamed_prog.aleo/main
+    Signer: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
+    Input 1: 1u32
+    Input 2: <private input>
+  Final balances depend on on-chain state.
+
 💸 Fee Info:
   Priority Fee:   0 μcredits
   Fee Record:     no (public fee)
 
 ⚙️ Actions:
-  - Program and its dependencies will be downloaded from the network.
+  - Program and its dependencies were loaded from network bytecode.
   - Transaction will NOT be printed to the console.
   - Transaction will NOT be saved to a file.
   - Transaction will be broadcast to http://localhost:3030
-
-⚠️ Warnings:
 ──────────────────────────────────────────────
 
-⬇️ Downloading renamed_prog.aleo and its dependencies from http://localhost:3030...
-
-➕Adding programs to the VM in the following order:
-  - renamed_prog.aleo (edition: 0)
-
-⚙️ Executing renamed_prog.aleo/main...
 
 📊 Execution Cost Summary for renamed_prog.aleo
 ──────────────────────────────────────────────
