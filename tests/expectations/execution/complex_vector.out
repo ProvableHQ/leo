@@ -287,31 +287,31 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1vk3pr2th8auds2laweexqzpuht52sj38sprrlwgrsrxcvvw9yg9s5eu9ns",
+      "id": "au1x9us0jw5whkyq9put06jgxs4uys730dsxg8ayp4nkp26lf0h0uyqavzz47",
       "program": "vector_structs.aleo",
       "function": "test_vector_primitives_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "7444333481355873533476862616212946237476553619910594448069401026214321789954field",
-          "value": "ciphertext1qyq0z0nlz4qmcf9pfxup77deesf9ah0urw84kpayrw7pkxl5g62kzzc6dw9cs"
+          "id": "6936024522058822638390149283488685811301149498601623800204535349401768234461field",
+          "value": "ciphertext1qyq0sucvma4ppq5xhu726ktd8ndcuwd0c562l3jm0drr92ggr9fwkqqlq6023"
         },
         {
           "type": "private",
-          "id": "2660820893407343843063846611828163450310029417764749556692312008816321192715field",
-          "value": "ciphertext1qyq2q7sz89w4yxg9ad3zemn0kc284re2aqhzlfvz60hsxt80thun6rs7p3fn2"
+          "id": "6796931261611797296708813950772415957169068606299010198911786377294269614391field",
+          "value": "ciphertext1qyqznhaxccf5s7d7pfqac775hhqvhqg0njp7dufg8u9xxmj5xuj9xrce3n8ln"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "1544384594115760228109065133417701811760027827644579040304661147587559240581field",
+          "id": "5668883904554579153051650095924241242713034410717438222326603648196354215692field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_primitives_behavior,\n  arguments: [\n    1u32,\n    25u32\n  ]\n}"
         }
       ],
-      "tpk": "7747722515422243506059153069468666715339355945326615490034627027098613710693group",
-      "tcm": "4320989900765142248152315637546944078692386542139193945186111358119527414333field",
-      "scm": "8090817709916593810469651056820468813034819359664460216750346452450654914904field"
+      "tpk": "4582239028590017655853794972532176651693223808061757316578516663690736206223group",
+      "tcm": "4166679716256497232560488316214128981472980140405912411812118959526518692335field",
+      "scm": "5904372100600045206203154986524616126737594948344167401018298429061884824781field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
@@ -322,26 +322,26 @@ status: accepted
 {
   "transitions": [
     {
-      "id": "au1t3fuw9x7tr47ljewcntlynxhwkmc2pzmevuaym3e9xm3puhxycxq3kfxw4",
+      "id": "au155snsev0kxd6nmyc9e3sqwpfxpycw6uwdvql53xapy3rqkntp5qqp5vjxm",
       "program": "vector_structs.aleo",
       "function": "test_vector_structs_behavior",
       "inputs": [
         {
           "type": "private",
-          "id": "3574960054902624784883219414832372747397794719992098188881528863462875619944field",
-          "value": "ciphertext1qyq9zlfs73v7devk9d26y25lfxun0v36k2r0nrf88fvffz66ahwxzqqqule0p"
+          "id": "6769849586015981099853988986983402589368609647664051818094980035393066198208field",
+          "value": "ciphertext1qyqqadqr8ahzacnnc7cp2jgg2mn3mxy45w6j87v793sa7al53pvdcqg668mev"
         }
       ],
       "outputs": [
         {
           "type": "future",
-          "id": "3721272937969730141725614849005259756002191996060970648146401753518568073042field",
+          "id": "6814178832110178826228337188771348098471463544040397635628705742981142982571field",
           "value": "{\n  program_id: vector_structs.aleo,\n  function_name: test_vector_structs_behavior,\n  arguments: [\n    0u32\n  ]\n}"
         }
       ],
-      "tpk": "1102495157533485914869838232254069427214306674186989231788327536533507112738group",
-      "tcm": "8283660670530320962998423899383680368452006326396567185415866110795378674789field",
-      "scm": "5657314263511797673663169854975053609448766806246381375866164152446699781607field"
+      "tpk": "1909685944737806705735845209995721601780563681998431368456962792763472801568group",
+      "tcm": "7360176584419135050360014296688519009304392094187400711005293095553479763817field",
+      "scm": "3706085757689515449363191143075264539752860843355981764805579714349606134739field"
     }
   ],
   "global_state_root": "sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu"
