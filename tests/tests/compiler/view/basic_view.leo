@@ -6,7 +6,8 @@ program test.aleo {
     }
 
     view fn balance_of(addr: address) -> u64 {
-        return balances.get_or_use(addr, 0u64);
+        let balance: u64? = balances.get_or_use(addr, 0u64);
+        return balance.unwrap_or(0u64);
     }
 
     @noupgrade
