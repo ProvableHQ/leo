@@ -5,7 +5,8 @@ export struct Merge {
 
 program flat_module_corner.aleo {
     fn main() -> u32 {
-        let val1 = util::X;
+        let X = util::X;
+        let val1 = X;
         let val2 = config::X;
         let d1 = util::Data::[3] { values: [10, 20, 30] };
         let d2 = config::Data { values: [100; config::X] };
@@ -48,7 +49,7 @@ export fn helper() -> u32 {
 
 // --- Next Module: shared.leo --- //
 
-export fn boost(n: u32) -> u32 {
+export fn boost(X: u32) -> u32 {
     // Only uses values accessible within this module or passed in
-    return n * 2;
+    return X * 2;
 }

@@ -131,6 +131,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
 
                     if let Err(err) = slf.state.symbol_table.insert_variable(
                         slf.program,
+                        &slf.module,
                         &[const_param.identifier.name],
                         VariableSymbol {
                             type_: Some(ty.kind().clone()),
@@ -152,12 +153,14 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                     let (ty, _) = slf.reconstruct_type_node(inp.type_.clone());
                     let name = inp.identifier().name;
 
-                    if let Err(err) = slf.state.symbol_table.insert_variable(slf.program, &[name], VariableSymbol {
-                        type_: Some(ty.kind().clone()),
-                        span: inp.identifier.span,
-                        declaration: VariableType::Input(inp.mode()),
-                        is_exported: None,
-                    }) {
+                    if let Err(err) =
+                        slf.state.symbol_table.insert_variable(slf.program, &slf.module, &[name], VariableSymbol {
+                            type_: Some(ty.kind().clone()),
+                            span: inp.identifier.span,
+                            declaration: VariableType::Input(inp.mode()),
+                            is_exported: None,
+                        })
+                    {
                         slf.state.handler.emit_err(err);
                     }
 
@@ -210,6 +213,7 @@ impl UnitReconstructor for PathResolutionVisitor<'_> {
                         // Insert with reconstructed type
                         if let Err(err) = slf.state.symbol_table.insert_variable(
                             slf.program,
+                            &slf.module,
                             &[const_param.identifier.name],
                             VariableSymbol {
                                 type_: Some(ty.kind().clone()),
