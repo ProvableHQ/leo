@@ -86,11 +86,15 @@ Transaction accepted.
 
 Attempting to determine the consensus version from the latest block height at http://localhost:3030...
 
+➕Adding programs to the VM in the following order:
+  - persistent_counter.aleo (local)
+
+⚙️ Preparing calls for review: persistent_counter.aleo/increment...
+
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
 🔧 Configuration:
-  Private Key:        APrivateKey1zkp8CZNn3yeC...
-  Address:            aleo1rhgdu77hgyqd3xjj8uc...
+  Address:            aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
   Endpoint:           http://localhost:3030
   Network:            testnet
   Consensus Version:  21
@@ -99,6 +103,12 @@ Attempting to determine the consensus version from the latest block height at ht
   Program:        persistent_counter.aleo
   Function:       increment
   Source:         local
+
+Calls to approve:
+  Call 1: persistent_counter.aleo/increment
+    Signer: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px
+    Finalize: {\n  program_id: persistent_counter.aleo,\n  function_name: increment,\n  arguments: [\n    aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\n  ]\n}
+  Final balances depend on on-chain state.
 
 💸 Fee Info:
   Priority Fee:   0 μcredits
@@ -110,11 +120,6 @@ Attempting to determine the consensus version from the latest block height at ht
   - Transaction will be broadcast to http://localhost:3030
 ──────────────────────────────────────────────
 
-
-➕Adding programs to the VM in the following order:
-  - persistent_counter.aleo (local)
-
-⚙️ Executing persistent_counter.aleo/increment...
 
 📊 Execution Cost Summary for persistent_counter.aleo
 ──────────────────────────────────────────────
