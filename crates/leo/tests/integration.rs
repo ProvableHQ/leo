@@ -501,6 +501,320 @@ fn current_height(port: u16) -> Result<usize, anyhow::Error> {
     height_str.parse().map_err(|e| anyhow!("error parsing height: {e}"))
 }
 
+#[cfg(unix)]
+#[test]
+fn execution_approval_refusal_and_private_records() {
+    use snarkvm::prelude::{Address, PrivateKey, Program, ProgramID, TestnetV0};
+    use std::{
+        io::{Read, Write},
+        net::TcpListener,
+        os::fd::{AsRawFd, FromRawFd},
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering},
+        },
+        time::{Duration, Instant},
+    };
+
+    let directory = tempfile::TempDir::new().expect("The fixture directory must exist");
+    let fixture =
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/tests/cli/test_dynamic_call_with_flag/contents");
+    copy_recursively(&fixture, directory.path()).expect("The existing fixture must copy");
+    fs::create_dir(directory.path().join("home")).expect("The isolated cache directory must exist");
+    let private_key = "APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh";
+    let key: PrivateKey<TestnetV0> = private_key.parse().expect("The fixture key must parse");
+    let signer = Address::try_from(&key).expect("The signer address must derive").to_string();
+    let program_address = "extra_prog.aleo"
+        .parse::<ProgramID<TestnetV0>>()
+        .expect("The program ID must parse")
+        .to_address()
+        .expect("The program address must derive")
+        .to_string();
+    let recipient = "aleo1qr2ha4pfs5l28aze88yn6fhleeythklkczrule2v838uwj65n5gqxt9djx";
+    assert_ne!(signer, program_address);
+
+    let listener = TcpListener::bind("127.0.0.1:0").expect("The endpoint must bind");
+    listener.set_nonblocking(true).expect("The listener must support a timeout");
+    let endpoint = format!("http://{}", listener.local_addr().expect("The endpoint address must exist"));
+    let stop = Arc::new(AtomicBool::new(false));
+    let server_stop = Arc::clone(&stop);
+    let server = std::thread::spawn(move || {
+        let credits =
+            serde_json::to_string(&Program::<TestnetV0>::credits().expect("Bundled credits must load").to_string())
+                .expect("Credits must serialize");
+        let mut requests = Vec::with_capacity(32);
+        let malformed = "program extra_prog.aleo;\nfunction main:\n    assert.eq true true;\n\x1b[2J\rwarning sentinel";
+        while !server_stop.load(Ordering::Relaxed) {
+            let (mut stream, _) = match listener.accept() {
+                Ok(connection) => connection,
+                Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(5));
+                    continue;
+                }
+                Err(error) => panic!("The fixture request must arrive: {error}"),
+            };
+            stream.set_nonblocking(false).expect("The accepted stream must block");
+            stream.set_read_timeout(Some(Duration::from_secs(5))).expect("The request timeout must be set");
+            let mut request = Vec::new();
+            let mut buffer = [0; 1024];
+            while !request.windows(4).any(|part| part == b"\r\n\r\n") {
+                let count = stream.read(&mut buffer).expect("The request must be readable");
+                assert!(count > 0 && request.len() < 8192, "Request headers must be bounded");
+                request.extend_from_slice(&buffer[..count]);
+            }
+            let request = String::from_utf8(request).expect("HTTP headers must be UTF-8");
+            let line = request.lines().next().expect("The request line must exist");
+            assert!(requests.len() < 64, "The command must not make unbounded requests");
+            requests.push(line.to_string());
+            let mut words = line.split_whitespace();
+            let (status, body) = match (words.next(), words.next()) {
+                (Some("GET"), Some("/testnet/program/credits.aleo/latest_edition")) => ("200 OK", "0"),
+                (Some("GET"), Some("/testnet/program/credits.aleo"))
+                | (Some("GET"), Some("/testnet/program/credits.aleo/0")) => ("200 OK", credits.as_str()),
+                (Some("GET"), Some("/testnet/program/extra_prog.aleo")) => ("200 OK", malformed),
+                (Some("GET"), Some("/testnet/block/height/latest")) => ("200 OK", "20"),
+                (Some("GET"), Some("/testnet/consensus_version")) => ("200 OK", "14"),
+                _ => ("400 Bad Request", "Unexpected request after approval was denied"),
+            };
+            write!(stream, "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len())
+                .expect("The fixture response must be written");
+        }
+        requests
+    });
+
+    // Always stop the endpoint, including when a test assertion fails.
+    let result = std::panic::catch_unwind(|| {
+        for skip_proof in [false, true] {
+            let transaction_directory = directory.path().join("unapproved");
+            let json_output = directory.path().join("declined.json");
+            let command = |function: &str| {
+                let mut command = Command::new(BINARY_PATH);
+                command
+                    .current_dir(directory.path())
+                    .env("NO_COLOR", "1")
+                    .env("TERM", "dumb")
+                    .env("RAYON_NUM_THREADS", "1")
+                    .arg("--home")
+                    .arg(directory.path().join("home"))
+                    .args([
+                        "--disable-update-check",
+                        "--path",
+                        "./extra_prog.aleo",
+                        "execute",
+                        function,
+                        "--network",
+                        "testnet",
+                        "--endpoint",
+                        &endpoint,
+                        "--network-retries",
+                        "0",
+                        "--private-key",
+                        private_key,
+                        "--consensus-version",
+                        "14",
+                        "--print",
+                        "--broadcast",
+                        "--save",
+                    ])
+                    .arg(&transaction_directory)
+                    .arg(format!("--json-output={}", json_output.display()));
+                if skip_proof {
+                    command.arg("--skip-execute-proof");
+                }
+                command
+            };
+            let mut master = -1;
+            let mut slave = -1;
+            // SAFETY: Both output pointers are valid; null optional arguments request the default terminal settings.
+            assert_eq!(
+                unsafe {
+                    libc::openpty(
+                        &mut master,
+                        &mut slave,
+                        std::ptr::null_mut(),
+                        std::ptr::null_mut(),
+                        std::ptr::null_mut(),
+                    )
+                },
+                0,
+                "The test terminal must open"
+            );
+            // SAFETY: openpty returned two new descriptors, transferred to these files exactly once.
+            let (mut master, slave) = unsafe { (fs::File::from_raw_fd(master), fs::File::from_raw_fd(slave)) };
+            // SAFETY: The descriptor belongs to the live master file; O_NONBLOCK only changes read behavior.
+            assert_ne!(unsafe { libc::fcntl(master.as_raw_fd(), libc::F_SETFL, libc::O_NONBLOCK) }, -1);
+            let mut invocation = command("hidden_transfer");
+            invocation
+                .stdin(slave.try_clone().expect("The terminal must clone"))
+                .stdout(slave.try_clone().expect("The terminal must clone"))
+                .stderr(slave);
+            // SAFETY: The child only creates its session and selects its inherited terminal before exec.
+            unsafe {
+                invocation.pre_exec(|| {
+                    if libc::setsid() == -1 || libc::ioctl(0, libc::TIOCSCTTY as _, 0) == -1 {
+                        return Err(io::Error::last_os_error());
+                    }
+                    Ok(())
+                });
+            }
+            let mut child = invocation.spawn().expect("The CLI must start with a terminal");
+            let mut output = Vec::new();
+            let mut refused = false;
+            // Keep child cleanup outside assertions that can unwind.
+            let terminal_result = (|| -> io::Result<_> {
+                let deadline = Instant::now() + Duration::from_secs(60);
+                let mut buffer = [0; 8192];
+                loop {
+                    match master.read(&mut buffer) {
+                        Ok(count) => output.extend_from_slice(&buffer[..count]),
+                        Err(error)
+                            if error.kind() == io::ErrorKind::WouldBlock || error.raw_os_error() == Some(libc::EIO) => {
+                        }
+                        Err(error) => return Err(error),
+                    }
+                    if !refused && String::from_utf8_lossy(&output).contains("Approve all calls and fees shown above?")
+                    {
+                        master.write_all(b"n\n")?;
+                        refused = true;
+                    }
+                    if let Some(status) = child.try_wait()? {
+                        while let Ok(count) = master.read(&mut buffer) {
+                            if count == 0 {
+                                break;
+                            }
+                            output.extend_from_slice(&buffer[..count]);
+                        }
+                        return Ok(status);
+                    }
+                    if Instant::now() >= deadline {
+                        return Err(io::Error::new(io::ErrorKind::TimedOut, "The approval prompt did not finish"));
+                    }
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+            })();
+            if terminal_result.is_err() {
+                let _ = child.kill();
+                let _ = child.wait();
+            }
+            let status = terminal_result.expect("The terminal execution must finish");
+            let output = String::from_utf8(output).expect("The CLI output must be UTF-8").replace("\r\n", "\n");
+            assert!(refused && status.success(), "{output}");
+            assert!(output.contains("Execution aborted.") && !output.contains("Failed to prompt user"), "{output}");
+            let review = output.split("Approve all calls and fees shown above?").next().expect("The review must exist");
+            assert!(review.contains("Execution Cost Summary"), "{review}");
+            for (function, debit, amount, other_amount) in
+                [("transfer_public_as_signer", &signer, 123, 456), ("transfer_public", &program_address, 456, 123)]
+            {
+                let marker = format!(": credits.aleo/{function}\n");
+                let block = review
+                    .split_once(&marker)
+                    .expect("The expected call must appear")
+                    .1
+                    .split("\n  Call ")
+                    .next()
+                    .expect("The call block must exist")
+                    .split("\n  Final balances")
+                    .next()
+                    .expect("The call body must exist");
+                for expected in [
+                    format!("Signer: {signer}\n"),
+                    format!("Debit: {debit}\n"),
+                    format!("Recipient: {recipient}\n"),
+                    format!("Amount: {amount}u64 microcredits\n"),
+                    format!("function_name: {function},"),
+                ] {
+                    assert!(block.contains(&expected), "Missing {expected:?}: {block}");
+                }
+                assert!(!block.contains(&format!("{other_amount}u64")), "{block}");
+            }
+            assert!(review.contains(r"\u{1b}[2J\rwarning sentinel") && !review.contains('\x1b'), "{review}");
+            assert!(!transaction_directory.exists(), "Refusal must not write a transaction");
+            assert!(
+                !output.contains("Printing execution for transaction") && !output.contains("Broadcasting execution"),
+                "{output}"
+            );
+            let json: serde_json::Value =
+                serde_json::from_str(&fs::read_to_string(&json_output).expect("The command result must exist"))
+                    .expect("The command result must parse");
+            assert_eq!(
+                json,
+                serde_json::json!({"program":"", "function":"", "outputs":[], "transaction_id":""}),
+                "Refusal may write an empty command result, but must not release a transaction"
+            );
+            fs::remove_file(&json_output).expect("The empty command result must be removed");
+
+            for (function, input, sentinel) in [
+                (
+                    "approval_record",
+                    format!("{{ owner: {signer}.private, amount: 998714u64.private, _nonce: 0group.public }}"),
+                    "998714",
+                ),
+                (
+                    "approval_dynamic_record",
+                    format!("{{ owner: {signer}, _root: 998715field, _nonce: 0group, _version: 0u8 }}"),
+                    "998715",
+                ),
+            ] {
+                let output_path = directory.path().join("record-output.txt");
+                let file = fs::File::create(&output_path).expect("The record output file must open");
+                let mut child = command(function)
+                    .arg(input)
+                    .stdin(Stdio::null())
+                    .stdout(file.try_clone().expect("The record output file must clone"))
+                    .stderr(file)
+                    .spawn()
+                    .expect("The record CLI must run");
+                let deadline = Instant::now() + Duration::from_secs(60);
+                let status = loop {
+                    match child.try_wait() {
+                        Ok(Some(status)) => break status,
+                        Ok(None) if Instant::now() < deadline => std::thread::sleep(Duration::from_millis(5)),
+                        result => {
+                            let _ = child.kill();
+                            let _ = child.wait();
+                            panic!("The record CLI did not finish: {result:?}");
+                        }
+                    }
+                };
+                let output = fs::read_to_string(output_path).expect("The record output must be readable");
+                assert!(!status.success() && output.contains("Failed to prompt user"), "{output}");
+                assert!(
+                    output.contains(&format!("Call 1: extra_prog.aleo/{function}"))
+                        && output.contains("Input 1: <private record>"),
+                    "{output}"
+                );
+                assert!(
+                    !output.contains(sentinel) && !output.contains("_nonce:") && !output.contains("_root:"),
+                    "{output}"
+                );
+                assert!(
+                    !transaction_directory.exists() && !json_output.exists(),
+                    "No transaction or result may be released on prompt failure"
+                );
+                assert!(!output.contains("Printing execution for transaction"), "{output}");
+            }
+        }
+    });
+    stop.store(true, Ordering::Relaxed);
+    let requests = server.join().expect("The endpoint must stop");
+    if let Err(error) = result {
+        std::panic::resume_unwind(error);
+    }
+    assert!(requests.iter().any(|request| request == "GET /testnet/program/extra_prog.aleo HTTP/1.1"));
+    assert!(
+        requests.iter().all(|request| [
+            "GET /testnet/program/credits.aleo/latest_edition HTTP/1.1",
+            "GET /testnet/program/credits.aleo/0 HTTP/1.1",
+            "GET /testnet/program/credits.aleo HTTP/1.1",
+            "GET /testnet/program/extra_prog.aleo HTTP/1.1",
+            "GET /testnet/block/height/latest HTTP/1.1",
+            "GET /testnet/consensus_version HTTP/1.1",
+        ]
+        .contains(&request.as_str())),
+        "Approval denial must not broadcast or query transaction state: {requests:?}"
+    );
+}
+
 #[cfg(test)]
 mod cli_tests {
     include!(concat!(env!("OUT_DIR"), "/cli_tests.rs"));
