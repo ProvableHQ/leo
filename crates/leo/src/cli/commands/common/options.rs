@@ -235,6 +235,7 @@ pub fn get_consensus_version(
         Some(19) => Ok(ConsensusVersion::V19),
         Some(20) => Ok(ConsensusVersion::V20),
         Some(21) => Ok(ConsensusVersion::V21),
+        Some(22) => Ok(ConsensusVersion::V22),
         // If none is provided, then attempt to query the current block height and use it to determine the version.
         None => {
             println!("Attempting to determine the consensus version from the latest block height at {endpoint}...");
@@ -326,6 +327,7 @@ pub fn number_to_consensus_version(index: usize) -> Result<ConsensusVersion> {
         19 => Ok(ConsensusVersion::V19),
         20 => Ok(ConsensusVersion::V20),
         21 => Ok(ConsensusVersion::V21),
+        22 => Ok(ConsensusVersion::V22),
         _ => Err(crate::errors::custom(format!(
             "Invalid consensus version: {index}. You may need to update Leo to support this version."
         ))
@@ -454,9 +456,9 @@ mod test {
 
     #[test]
     fn test_latest_consensus_version() {
-        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V21); // If this fails, update the test and any code that matches on `ConsensusVersion`.
+        assert_eq!(ConsensusVersion::latest(), ConsensusVersion::V22); // If this fails, update the test and any code that matches on `ConsensusVersion`.
         let context = super::Context::new(None, None, false, None).expect("Test context must be valid");
-        for version in [ConsensusVersion::V19, ConsensusVersion::V20, ConsensusVersion::V21] {
+        for version in [ConsensusVersion::V19, ConsensusVersion::V20, ConsensusVersion::V21, ConsensusVersion::V22] {
             assert_eq!(super::number_to_consensus_version(version as usize).expect("Valid version"), version);
             assert_eq!(
                 super::get_consensus_version(
@@ -471,7 +473,7 @@ mod test {
                 version
             );
         }
-        assert!(super::number_to_consensus_version(22).is_err());
+        assert!(super::number_to_consensus_version(23).is_err());
     }
 
     #[test]
