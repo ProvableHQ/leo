@@ -119,7 +119,7 @@ async fn start_devnode(command: Start, private_key: Option<String>) -> Result<()
                 println!("Cleaned ledger directory: {}", path.display());
             }
             println!("Using persistent ledger at: {}", path.display());
-            let storage_mode = StorageMode::Custom(path);
+            let storage_mode = StorageMode::from(path);
             let ledger: Ledger<TestnetV0, ConsensusDB<TestnetV0>> =
                 tokio::task::spawn_blocking(move || Ledger::load(genesis_block, storage_mode))
                     .await

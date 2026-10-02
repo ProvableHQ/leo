@@ -1,5 +1,13 @@
 program test.aleo;
 
+struct Optional__6wU7KHJhSvv:
+    is_some as boolean;
+    val as address;
+
+struct Optional__DmN5CQ9hzeK:
+    is_some as boolean;
+    val as u64;
+
 mapping balances:
     key as address.public;
     value as u64.public;
@@ -15,14 +23,20 @@ view get_balance:
 
 function cache_total:
     input r0 as address.private;
-    async cache_total r0 into r1;
-    output r1 as test.aleo/cache_total.future;
+    cast true r0 into r1 as Optional__6wU7KHJhSvv;
+    async cache_total r1 into r2;
+    output r2 as test.aleo/cache_total.future;
 
 finalize cache_total:
-    input r0 as address.public;
-    call get_balance r0 into r1;
+    input r0 as Optional__6wU7KHJhSvv.public;
+    assert.eq r0.is_some true;
+    call get_balance r0.val into r1;
     add r1 100u64 into r2;
-    set r2 into totals[r0];
+    set r2 into totals[r0.val];
+    cast true r1 into r3 as Optional__DmN5CQ9hzeK;
+    cast false 0u64 into r4 as Optional__DmN5CQ9hzeK;
+    is.neq r3 r4 into r5;
+    assert.eq r5 true;
 
 constructor:
     assert.eq edition 0u16;

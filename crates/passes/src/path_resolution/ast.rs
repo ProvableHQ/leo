@@ -185,13 +185,17 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         // Are we in a global scope? If not, then this is a local `const`. Insert it as a local in
         // the symbol table.
         if !self.state.symbol_table.global_scope()
-            && let Err(err) =
-                self.state.symbol_table.insert_variable(self.program, &[input.place.name], VariableSymbol {
+            && let Err(err) = self.state.symbol_table.insert_variable(
+                self.program,
+                &self.module,
+                &[input.place.name],
+                VariableSymbol {
                     type_: None,
                     span: input.place.span,
                     declaration: VariableType::Const,
                     is_exported: None,
-                })
+                },
+            )
         {
             self.state.handler.emit_err(err);
         }
@@ -203,33 +207,23 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
         let reconstructed_type = input.type_.map(|ty| self.reconstruct_type_node(ty).0);
         let reconstructed_value = self.reconstruct_expression(input.value, &Default::default()).0;
 
-        match &input.place {
-            DefinitionPlace::Single(identifier) => {
-                if let Err(err) =
-                    self.state.symbol_table.insert_variable(self.program, &[identifier.name], VariableSymbol {
-                        type_: None,
-                        span: identifier.span,
-                        declaration: VariableType::Mut,
-                        is_exported: None,
-                    })
-                {
-                    self.state.handler.emit_err(err);
-                }
-            }
-            DefinitionPlace::Multiple(identifiers) => {
-                // Now just insert each tuple element as a separate variable
-                for identifier in identifiers.iter() {
-                    if let Err(err) =
-                        self.state.symbol_table.insert_variable(self.program, &[identifier.name], VariableSymbol {
-                            type_: None,
-                            span: identifier.span,
-                            declaration: VariableType::Mut,
-                            is_exported: None,
-                        })
-                    {
-                        self.state.handler.emit_err(err);
-                    }
-                }
+        let identifiers = match &input.place {
+            DefinitionPlace::Single(identifier) => std::slice::from_ref(identifier),
+            DefinitionPlace::Multiple(identifiers) => identifiers.as_slice(),
+        };
+        for identifier in identifiers {
+            if let Err(err) = self.state.symbol_table.insert_variable(
+                self.program,
+                &self.module,
+                &[identifier.name],
+                VariableSymbol {
+                    type_: None,
+                    span: identifier.span,
+                    declaration: VariableType::Mut,
+                    is_exported: None,
+                },
+            ) {
+                self.state.handler.emit_err(err);
             }
         }
 
@@ -259,14 +253,17 @@ impl AstReconstructor for PathResolutionVisitor<'_> {
 
         self.in_scope(input.id, |slf| {
             // Insert the iterator into the symbol table.
-            if let Err(err) =
-                slf.state.symbol_table.insert_variable(slf.program, &[input.variable.name], VariableSymbol {
+            if let Err(err) = slf.state.symbol_table.insert_variable(
+                slf.program,
+                &slf.module,
+                &[input.variable.name],
+                VariableSymbol {
                     type_: None,
                     span: input.variable.span,
                     declaration: VariableType::Const,
                     is_exported: None,
-                })
-            {
+                },
+            ) {
                 slf.state.handler.emit_err(err);
             }
 

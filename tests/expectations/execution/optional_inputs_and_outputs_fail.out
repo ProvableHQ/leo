@@ -7,68 +7,68 @@ Errors:
     │
  77 │     fn u64_in_out(x: u64?) -> u64? {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `u64?`, which is or contains an optional
     ╭─[ compiler-test:77:31 ]
     │
  77 │     fn u64_in_out(x: u64?) -> u64? {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `x` has type `u8?`, which is or contains an optional
     ╭─[ compiler-test:84:18 ]
     │
  84 │     fn u8_in_out(x: u8?) -> u8? {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `u8?`, which is or contains an optional
     ╭─[ compiler-test:84:29 ]
     │
  84 │     fn u8_in_out(x: u8?) -> u8? {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `x` has type `bool?`, which is or contains an optional
     ╭─[ compiler-test:91:20 ]
     │
  91 │     fn bool_in_out(x: bool?) -> bool? {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `bool?`, which is or contains an optional
     ╭─[ compiler-test:91:33 ]
     │
  91 │     fn bool_in_out(x: bool?) -> bool? {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `f` has type `test.aleo::Foo?`, which is or contains an optional
     ╭─[ compiler-test:98:24 ]
     │
  98 │     fn struct_optional(f: Foo?) -> Foo? {
     │ 
-    │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372165] Error: this function has output type `test.aleo::Foo?`, which is or contains an optional
     ╭─[ compiler-test:98:36 ]
     │
  98 │     fn struct_optional(f: Foo?) -> Foo? {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372164] Error: the input `arr` has type `[u8?; 2]?`, which is or contains an optional
      ╭─[ compiler-test:109:23 ]
      │
  109 │     fn array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
      │ 
-     │ Help: Inputs to entry point fns cannot be optional. Move the optionality outside the call site.
+     │ Help: Inputs to entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ─────╯
 [ETYC0372165] Error: this function has output type `[u8?; 2]?`, which is or contains an optional
      ╭─[ compiler-test:109:42 ]
      │
  109 │     fn array_optional(arr: [u8?; 2]?) -> [u8?; 2]? {
      │ 
-     │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+     │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ─────╯
