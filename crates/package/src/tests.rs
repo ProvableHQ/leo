@@ -18,10 +18,12 @@
 //! manifest validation, end-to-end resolution, and workspace lock sharing.
 
 use crate::{
+    CompilationUnit,
     GitReference,
     LOCK_FILENAME,
     Lock,
     MANIFEST_FILENAME,
+    NetworkName,
     Package,
     WORKSPACE_MANIFEST_FILENAME,
     git::resolve,
@@ -42,6 +44,91 @@ use crate::{
 };
 
 use leo_span::Symbol;
+
+#[test]
+fn explicit_network_edition_does_not_fallback_to_unversioned_endpoint() {
+    use std::{
+        io::{BufRead, BufReader, Write},
+        net::TcpListener,
+        sync::mpsc,
+        thread,
+        time::Duration,
+    };
+
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    listener.set_nonblocking(true).unwrap();
+    let endpoint = format!("http://{}", listener.local_addr().unwrap());
+    let (stop_tx, stop_rx) = mpsc::channel();
+
+    let server = thread::spawn(move || {
+        let mut requests = Vec::new();
+        loop {
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    stream.set_nonblocking(false).unwrap();
+                    stream.set_read_timeout(Some(Duration::from_secs(1))).unwrap();
+
+                    let mut request_line = String::new();
+                    {
+                        let mut reader = BufReader::new(&mut stream);
+                        reader.read_line(&mut request_line).unwrap();
+                        loop {
+                            let mut header = String::new();
+                            reader.read_line(&mut header).unwrap();
+                            if header == "\r\n" || header.is_empty() {
+                                break;
+                            }
+                        }
+                    }
+
+                    let path = request_line.split_whitespace().nth(1).unwrap().to_owned();
+                    requests.push(path.clone());
+                    let (status, body) = if path == "/testnet/program/pinned.aleo/17" {
+                        ("404 Not Found", "")
+                    } else if path == "/testnet/program/pinned.aleo" {
+                        ("200 OK", "program pinned.aleo;\n")
+                    } else {
+                        ("500 Internal Server Error", "")
+                    };
+                    write!(
+                        stream,
+                        "HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                        body.len()
+                    )
+                    .unwrap();
+                }
+                Err(err) if err.kind() == std::io::ErrorKind::WouldBlock => {
+                    if stop_rx.try_recv().is_ok() {
+                        break;
+                    }
+                    thread::sleep(Duration::from_millis(5));
+                }
+                Err(err) => panic!("test server failed to accept a connection: {err}"),
+            }
+        }
+        requests
+    });
+
+    let home = crate::test_util::unique_dir("explicit-network-edition");
+    let result = leo_span::create_session_if_not_set_then(|_| {
+        CompilationUnit::fetch(
+            Symbol::intern("pinned.aleo"),
+            Some(17),
+            &home,
+            NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+        )
+    });
+
+    stop_tx.send(()).unwrap();
+    let requests = server.join().unwrap();
+    let _ = std::fs::remove_dir_all(home);
+
+    assert!(result.is_err(), "an explicit edition must fail when its endpoint fails");
+    assert_eq!(requests, ["/testnet/program/pinned.aleo/17"]);
+}
 
 // Reference resolution (`crate::git::resolve`).
 
