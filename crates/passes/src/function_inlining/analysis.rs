@@ -16,9 +16,9 @@
 
 //! Analysis phase of the ForceInlineConversion pass.
 
+use leo_ast::{AstVisitor, AsyncExpression, CallExpression, ErrExpression, Function, Location, UnitVisitor, Variant};
+
 use indexmap::IndexSet;
-use leo_ast::{AstVisitor, AsyncExpression, CallExpression, ErrExpression, Function, UnitVisitor, Variant};
-use leo_span::Symbol;
 
 #[derive(Debug)]
 pub struct AnalysisVisitor {
@@ -27,7 +27,7 @@ pub struct AnalysisVisitor {
     /// Whether we're currently inside a constructor
     in_constructor: bool,
     /// Functions called from functions, inline, constructors or async blocks.
-    pub functions_to_inline: IndexSet<Vec<Symbol>>,
+    pub functions_to_inline: IndexSet<Location>,
 }
 
 impl AnalysisVisitor {
@@ -41,13 +41,10 @@ impl AstVisitor for AnalysisVisitor {
     type Output = ();
 
     fn visit_call(&mut self, input: &CallExpression, _additional: &Self::AdditionalInput) -> Self::Output {
-        // Extract the function path segments
-        let callee_path = input.function.segments();
-
         if matches!(self.current_variant, Some(Variant::Finalize | Variant::FinalFn | Variant::Fn | Variant::View))
             || self.in_constructor
         {
-            self.functions_to_inline.insert(callee_path.clone());
+            self.functions_to_inline.insert(input.function.expect_global_location().clone());
         }
 
         input.const_arguments.iter().for_each(|expr| {
