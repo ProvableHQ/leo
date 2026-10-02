@@ -1039,9 +1039,15 @@ impl leo_ast::AstReconstructor for StorageLoweringVisitor<'_> {
         let (then, statements2) = self.reconstruct_block(input.then);
         statements.extend(statements2);
         let otherwise = input.otherwise.map(|oth| {
-            let (expr, statements3) = self.reconstruct_statement(*oth);
-            statements.extend(statements3);
-            Box::new(expr)
+            let (stmt, mut statements3) = self.reconstruct_statement(*oth);
+            if statements3.is_empty() {
+                Box::new(stmt)
+            } else {
+                // Else-if condition statements must stay inside the outer else branch.
+                let span = statements3[0].span() + stmt.span();
+                statements3.push(stmt);
+                Box::new(Block { statements: statements3, span, id: self.state.node_builder.next_id() }.into())
+            }
         });
         (ConditionalStatement { condition, then, otherwise, ..input }.into(), statements)
     }
