@@ -1,0 +1,21 @@
+{
+  "program": "foo.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "interface_dep.aleo",
+      "location": "local",
+      "path": "interface_dep",
+      "edition": null
+    },
+    {
+      "name": "record_dep.aleo",
+      "location": "local",
+      "path": "record_dep",
+      "edition": null
+    }
+  ],
+  "dev_dependencies": null
+}

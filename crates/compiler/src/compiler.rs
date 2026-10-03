@@ -507,7 +507,7 @@ impl Compiler {
             .filter(|(_, stub)| !matches!(stub, Stub::FromLibrary { .. }))
             .map(|(name, stub)| {
                 let abi = match stub {
-                    Stub::FromLeo { program, .. } => leo_abi::generate(program),
+                    Stub::FromLeo { program: imported, .. } => leo_abi::generate_with_stubs(imported, &program.stubs),
                     Stub::FromAleo { program, .. } => leo_abi::aleo::generate(program),
                     Stub::FromLibrary { .. } => unreachable!("filtered out"),
                 };

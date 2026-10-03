@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+LEO_BIN=${1}
+
+"${LEO_BIN}" --disable-update-check build >/dev/null
+
+check_kind() {
+    local file=$1
+    local function=$2
+    local expected=$3
+    local unexpected=$4
+    local block
+
+    block=$(awk -v name="${function}" '
+        index($0, "\"name\": \"" name "\"") { active = 1 }
+        active { print }
+        active && /^    },?$/ { exit }
+    ' "${file}")
+
+    grep -q "\"${expected}\"" <<<"${block}"
+    ! grep -q "\"${unexpected}\"" <<<"${block}"
+}
+
+for file in build/foo/abi.json build/foo/interfaces/CompositeKinds.json; do
+    check_kind "${file}" echo_record Record Struct
+    check_kind "${file}" echo_struct Struct Record
+done
+
+check_kind build/foo/interfaces/PrototypeOnly.json echo_prototype Record Struct
+
+for file in build/foo/abi.json build/interface_dep/abi.json build/foo/interfaces/interface_dep.aleo/ExternalRecords.json; do
+    check_kind "${file}" echo_external Record Struct
+done
+
+echo "ABI record lookup uses resolved locations"
+
+rm -rf build
