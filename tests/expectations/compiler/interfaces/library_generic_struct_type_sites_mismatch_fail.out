@@ -1,0 +1,54 @@
+[ECHI03712004] Error: function `store` does not match the signature required by interface `generic_shapes/Storer`
+Expected:
+fn store(input: Slot::[8u32]) -> Slot::[8u32]
+Found:
+fn store(input: generic_shapes::Slot::[16u32]) -> generic_shapes::Slot::[16u32]
+    ╭─[ compiler-test:12:5 ]
+    │
+ 12 │ ╭─▶     fn store(input: generic_shapes::Slot::[16u32]) -> generic_shapes::Slot::[16u32] {
+    ┆ ┆   
+ 14 │ ├─▶     }
+    │ │           
+    │ ╰─────────── here
+    │     
+    │     Help: Function signatures must match exactly: same parameter types, modes, order, and return type.
+────╯
+[ECHI03712013] Error: field `slot` in record `Token` does not match the type required by interface `generic_shapes/Storer`
+Expected:  Slot::[8u32]
+Found:  generic_shapes::Slot::[16u32]
+   ╭─[ compiler-test:6:9 ]
+   │
+ 6 │         slot: generic_shapes::Slot::[16u32],
+   │
+   ├─[ compiler-test:8:9 ]
+   │
+ 8 │         slot: Slot::[8u32],
+   │         ─────────┬────────  
+   │                  ╰────────── expected by interface here
+   │
+   ├─[ compiler-test:6:9 ]
+   │
+ 6 │         slot: generic_shapes::Slot::[16u32],
+   │         ─────────────────┬─────────────────  
+   │                          ╰─────────────────── type mismatch here
+   │ 
+   │ Help: Field types and modes must match exactly.
+───╯
+[ECHI03712008] Error: mapping `slots` does not match the type required by interface `generic_shapes/Storer`
+Expected: address => Slot::[8u32]
+Found: address => generic_shapes::Slot::[16u32]
+   ╭─[ compiler-test:9:5 ]
+   │
+ 9 │     mapping slots: address => generic_shapes::Slot::[16u32];
+   │ 
+   │ Help: Mapping key and value types must match exactly.
+───╯
+[ECHI03712009] Error: storage variable `current` does not match the type required by interface `generic_shapes/Storer`
+Expected: Slot::[8u32]
+Found: generic_shapes::Slot::[16u32]
+    ╭─[ compiler-test:10:5 ]
+    │
+ 10 │     storage current: generic_shapes::Slot::[16u32];
+    │ 
+    │ Help: Storage variable types must match exactly.
+────╯
