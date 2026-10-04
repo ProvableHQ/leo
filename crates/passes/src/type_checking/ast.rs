@@ -1147,7 +1147,9 @@ impl AstVisitor for TypeCheckingVisitor<'_> {
 
         // Dispatch to the appropriate checker based on the kind of dynamic op.
         match &input.kind {
-            DynamicOpKind::Call { .. } => self.check_dynamic_function_call(input, &interface, expected),
+            DynamicOpKind::Call { .. } => {
+                self.check_dynamic_function_call(input, interface_location, &interface, expected)
+            }
             DynamicOpKind::Read { .. } => self.check_dynamic_read(input, &interface, expected),
             DynamicOpKind::Op { .. } => self.check_dynamic_mapping_op(input, &interface, expected),
         }
