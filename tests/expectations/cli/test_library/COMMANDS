@@ -7,8 +7,8 @@ cd top_lib || exit 1
 echo "--- leo add --local (should succeed) ---" | tee /dev/stderr
 ${LEO_BIN} --disable-update-check add base_lib --local ../base_lib
 
-echo "--- leo add --network on a library (should fail) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add credits --network
+echo "--- leo add --onchain on a library (should fail) ---" | tee /dev/stderr
+${LEO_BIN} --disable-update-check add credits --onchain
 echo "add network to library exit code: $?"
 
 echo "--- leo build (should succeed) ---" | tee /dev/stderr

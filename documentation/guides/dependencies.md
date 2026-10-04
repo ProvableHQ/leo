@@ -28,22 +28,22 @@ See [Leo Libraries](../language/libraries.md) for details on how to write and us
 To add a program already deployed on the Aleo network as a dependency:
 
 ```bash
-leo add credits.aleo --network
+leo add credits.aleo --onchain
 ```
 
 or
 
 ```bash
-leo add credits --network
+leo add credits --onchain
 ```
 
-For mainnet dependencies:
+To verify against mainnet instead of the environment or the default `testnet` network:
 
 ```bash
-NETWORK=mainnet leo add credits --network
+leo add credits --onchain --network mainnet
 ```
 
-You can also set `NETWORK=mainnet` in `.env`. If you do not use `--endpoint`, Leo uses `ENDPOINT` from the environment. Leo makes sure that the program exists on the selected network before it changes `program.json`. Use `--network-retries` to set the number of retries.
+An explicit `--network` value overrides the `NETWORK` environment variable. If neither is set, Leo uses `testnet`. Leo uses this network for verification, cache lookup, and fetching before it changes `program.json`. The selected network is not stored in the manifest. Later commands resolve their network independently. The `--endpoint` option overrides `ENDPOINT`, and `--network-retries` controls retries for network requests.
 
 This adds an entry to your `program.json`:
 
@@ -57,8 +57,8 @@ This adds an entry to your `program.json`:
     {
       "name": "credits.aleo",
       "location": "network",
-      "network": "testnet",
-      "path": null
+      "path": null,
+      "edition": null
     }
   ]
 }
@@ -80,8 +80,8 @@ This records the path in `program.json`:
     {
       "name": "my_library.aleo",
       "location": "local",
-      "network": null,
-      "path": "./path/to/my_library"
+      "path": "./path/to/my_library",
+      "edition": null
     }
   ]
 }
@@ -171,12 +171,12 @@ Tests can already use `dependencies`. Thus, put a library that `src` and tests u
 
 This reference applies to each dependency kind, not only workspace members. `leo add` completes these fields. If you edit `program.json` manually, Leo validates each dependency when it loads the manifest. Leo rejects incompatible field combinations. Each entry has a `location`, and the other fields depend on it:
 
-| `location`  | `path`      | `edition`   | `network`            |
-| ----------- | ----------- | ----------- | -------------------- |
-| `network`   | not allowed | optional    | target network       |
-| `local`     | required    | not allowed | —                    |
-| `workspace` | not allowed | not allowed | —                    |
-| `git`       | not allowed | not allowed | —                    |
+| `location`  | `path`      | `edition`   |
+| ----------- | ----------- | ----------- |
+| `network`   | not allowed | optional    |
+| `local`     | required    | not allowed |
+| `workspace` | not allowed | not allowed |
+| `git`       | not allowed | not allowed |
 
 The same rules apply to entries in `dev_dependencies`. `workspace` entries are looked up in `workspace.json` and resolved to a local path automatically. `git` entries additionally take a `git` object with a `url` and at most one of `branch`/`tag`/`rev`.
 
@@ -252,7 +252,6 @@ This records the pinned edition in the manifest:
 {
   "name": "some_program.aleo",
   "location": "network",
-  "network": "testnet",
   "path": null,
   "edition": 3
 }

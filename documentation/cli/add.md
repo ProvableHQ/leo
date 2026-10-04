@@ -20,13 +20,13 @@ leo add --local <LOCAL> <NAME>
 
 where `<NAME>` is the name of the imported program or library, and `<LOCAL>` is the path to the local project or library.
 
-To add a program already deployed onchain as a dependency to your project, run the following command:
+To add a program already deployed on-chain as a dependency to your project, run the following command:
 
 ```bash
-leo add <NAME> --network
+leo add <NAME> --onchain
 ```
 
-`<NAME>` is the name of the imported program. Leo makes sure that the program exists before it changes `program.json`.
+where `<NAME>` is the name of the imported program. To select the verification network explicitly, use `leo add <NAME> --onchain --network <NETWORK>`. If neither `--network` nor `NETWORK` is set, Leo uses `testnet`.
 
 To add another member of the enclosing workspace as a dependency:
 
@@ -56,11 +56,15 @@ Libraries can only be added as local or git dependencies. Use `--local` or `--gi
 
 Specifies a local program or library dependency at `<LOCAL>`. The path can be a Leo project root, a Leo library root, or a compiled `.aleo` file.
 
-### `--network`
+### `--onchain`
 
 ### `-n`
 
-Specifies that the dependency to be added is a remote program currently deployed onchain. The network that it will be pulled from will be the same as the one specified in by the `NETWORK` variable in `.env`
+Specifies that the dependency is a program deployed on-chain. Leo verifies that the program exists before it changes `program.json`.
+
+### `--network <NETWORK>`
+
+Specifies the network that Leo uses to verify and fetch an on-chain dependency. This option overrides the `NETWORK` environment variable. If neither is set, Leo uses `testnet`. Leo also uses the selected network for cache lookup and does not store it in `program.json`.
 
 ### `--endpoint <ENDPOINT>`
 
@@ -90,7 +94,7 @@ Pin a git dependency to a specific branch, tag, or revision. These require `--gi
 
 ### `-e <EDITION>`
 
-Specifies the expected edition of the program being imported. Only passing this flag will assume that the program is being imported from the network.
+Specifies the expected edition of an on-chain program. This option selects the on-chain source by itself, so do not combine it with `--onchain`. You can combine it with `--network <NETWORK>`.
 
 :::warning
 Do not use this feature unless you know what you are doing!

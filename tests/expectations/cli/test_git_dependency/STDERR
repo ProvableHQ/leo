@@ -5,21 +5,21 @@
 --- 4b. build --offline reuses the lock and cache ---
 --- 5. --branch without --git (should fail) ---
 error: the following required arguments were not provided:
-  <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>>
+  <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>>
 
-Usage: leo add --branch <BRANCH> <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+Usage: leo add --branch <BRANCH> <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
 
 For more information, try '--help'.
 --- 6. multiple git references (should fail) ---
 error: the argument '--branch <BRANCH>' cannot be used with '--tag <TAG>'
 
-Usage: leo add --branch <BRANCH> <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+Usage: leo add --branch <BRANCH> <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
 
 For more information, try '--help'.
---- 7. --git combined with --network (should fail) ---
-error: the argument '--git <GIT>' cannot be used with '--network'
+--- 7. --git combined with --onchain (should fail) ---
+error: the argument '--git <GIT>' cannot be used with '--onchain'
 
-Usage: leo add <--local <LOCAL>|--network|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
+Usage: leo add <--local <LOCAL>|--onchain|--edition <EDITION>|--workspace|--git <GIT>> <NAME>
 
 For more information, try '--help'.
 --- 8. add a library under a name ending in .aleo (should fail) ---

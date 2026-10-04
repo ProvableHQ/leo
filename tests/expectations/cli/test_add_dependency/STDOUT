@@ -18,7 +18,7 @@ multiple flags exit code: 2
   "dependencies": null,
   "dev_dependencies": null
 }
---- 3. leo add --network (should succeed) ---
+--- 3. leo add --onchain --network testnet (should succeed) ---
        Leo ✅ Added network dependency `credits.aleo`.
 {
   "program": "my_program.aleo",

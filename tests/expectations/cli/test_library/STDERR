@@ -1,5 +1,5 @@
 --- leo add --local (should succeed) ---
---- leo add --network on a library (should fail) ---
+--- leo add --onchain on a library (should fail) ---
 Error [ECLI0377045]: A library package can only depend on other libraries. Use `--local <path>` to add a library dependency.
 
 --- leo build (should succeed) ---
