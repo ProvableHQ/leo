@@ -41,10 +41,9 @@ finalize init:
     contains base.aleo/val_u32__[false] into r0;
     get.or_use base.aleo/val_u32__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    is.eq r3.val 99u32 into r4;
-    assert.eq r4 true;
+    assert.eq r0 true;
+    is.eq r2 99u32 into r3;
+    assert.eq r3 true;
 
 function wipe:
     async wipe into r0;
@@ -88,17 +87,15 @@ finalize init:
     contains base.aleo/val_u32__[false] into r0;
     get.or_use base.aleo/val_u32__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    is.eq r3.val 99u32 into r4;
+    assert.eq r0 true;
+    is.eq r2 99u32 into r3;
+    assert.eq r3 true;
+    contains mid1.aleo/flag__[false] into r4;
+    get.or_use mid1.aleo/flag__[false] false into r5;
+    ternary r4 r5 false into r6;
     assert.eq r4 true;
-    contains mid1.aleo/flag__[false] into r5;
-    get.or_use mid1.aleo/flag__[false] false into r6;
-    ternary r5 r6 false into r7;
-    cast r5 r7 into r8 as Optional__ATAkdHctJwx;
-    assert.eq r8.is_some true;
-    is.eq r8.val true into r9;
-    assert.eq r9 true;
+    is.eq r6 true into r7;
+    assert.eq r7 true;
 
 function wipe:
     async wipe into r0;
@@ -142,24 +139,21 @@ finalize test_initialized:
     contains base.aleo/val_u32__[false] into r0;
     get.or_use base.aleo/val_u32__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    assert.eq r3.is_some true;
-    is.eq r3.val 99u32 into r4;
+    assert.eq r0 true;
+    is.eq r2 99u32 into r3;
+    assert.eq r3 true;
+    contains mid1.aleo/flag__[false] into r4;
+    get.or_use mid1.aleo/flag__[false] false into r5;
+    ternary r4 r5 false into r6;
     assert.eq r4 true;
-    contains mid1.aleo/flag__[false] into r5;
-    get.or_use mid1.aleo/flag__[false] false into r6;
-    ternary r5 r6 false into r7;
-    cast r5 r7 into r8 as Optional__ATAkdHctJwx;
-    assert.eq r8.is_some true;
-    is.eq r8.val true into r9;
-    assert.eq r9 true;
-    contains mid2.aleo/counter__[false] into r10;
-    get.or_use mid2.aleo/counter__[false] 0u8 into r11;
-    ternary r10 r11 0u8 into r12;
-    cast r10 r12 into r13 as Optional__3aph2JMPtnA;
-    assert.eq r13.is_some true;
-    is.eq r13.val 7u8 into r14;
-    assert.eq r14 true;
+    is.eq r6 true into r7;
+    assert.eq r7 true;
+    contains mid2.aleo/counter__[false] into r8;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r9;
+    ternary r8 r9 0u8 into r10;
+    assert.eq r8 true;
+    is.eq r10 7u8 into r11;
+    assert.eq r11 true;
 
 function test_fallback:
     async test_fallback into r0;
@@ -169,24 +163,18 @@ finalize test_fallback:
     contains base.aleo/val_u32__[false] into r0;
     get.or_use base.aleo/val_u32__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    ternary r3.is_some r3.val 0u32 into r4;
-    is.eq r4 0u32 into r5;
-    assert.eq r5 true;
-    contains mid1.aleo/flag__[false] into r6;
-    get.or_use mid1.aleo/flag__[false] false into r7;
-    ternary r6 r7 false into r8;
-    cast r6 r8 into r9 as Optional__ATAkdHctJwx;
-    ternary r9.is_some r9.val false into r10;
-    is.eq r10 false into r11;
+    is.eq r2 0u32 into r3;
+    assert.eq r3 true;
+    contains mid1.aleo/flag__[false] into r4;
+    get.or_use mid1.aleo/flag__[false] false into r5;
+    ternary r4 r5 false into r6;
+    is.eq r6 false into r7;
+    assert.eq r7 true;
+    contains mid2.aleo/counter__[false] into r8;
+    get.or_use mid2.aleo/counter__[false] 0u8 into r9;
+    ternary r8 r9 11u8 into r10;
+    is.eq r10 11u8 into r11;
     assert.eq r11 true;
-    contains mid2.aleo/counter__[false] into r12;
-    get.or_use mid2.aleo/counter__[false] 0u8 into r13;
-    ternary r12 r13 0u8 into r14;
-    cast r12 r14 into r15 as Optional__3aph2JMPtnA;
-    ternary r15.is_some r15.val 11u8 into r16;
-    is.eq r16 11u8 into r17;
-    assert.eq r17 true;
 
 function test_none:
     async test_none into r0;
