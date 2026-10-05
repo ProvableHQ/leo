@@ -45,7 +45,7 @@ NETWORK=mainnet leo add credits --network
 
 You can also set `NETWORK=mainnet` in `.env`. If you do not use `--endpoint`, Leo uses `ENDPOINT` from the environment. Leo makes sure that the program exists on the selected network before it changes `program.json`. Use `--network-retries` to set the number of retries.
 
-Leo records the resolved network edition and checksum in `leo.lock`. Later builds reuse that edition. The built-in `credits.aleo` program comes from snarkVM and needs no network lock entry.
+Leo records the resolved network edition and checksum in `leo.lock`. Later builds reuse that edition. The built-in `credits.aleo` program comes from snarkVM and needs no network lock entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
 
 This adds an entry to your `program.json`:
 

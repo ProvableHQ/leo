@@ -240,11 +240,6 @@ impl CompilationUnit {
 
         // The native program is trusted through snarkVM, not the endpoint or cache.
         if full_name == "credits.aleo" {
-            if edition.is_some_and(|edition| edition != 0) {
-                return Err(
-                    crate::errors::untrusted_network_program(&full_name, "credits must use edition zero").into()
-                );
-            }
             let bytecode = match network {
                 NetworkName::MainnetV0 => SvmProgram::<MainnetV0>::credits()?.to_string(),
                 NetworkName::TestnetV0 => SvmProgram::<TestnetV0>::credits()?.to_string(),

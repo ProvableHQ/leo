@@ -31,6 +31,6 @@ The lock format is JSON. Version 2 adds a `network` array to the existing `git` 
 | `edition` | The resolved edition number, from 0 to 65535. |
 | `checksum` | An array of 32 integers, each from 0 to 255. |
 
-The checksum is the SHA3-256 hash from snarkVM `Program::to_checksum()`. Comments and spacing do not change it. Duplicate entries and invalid lock files stop resolution. The built-in `credits.aleo` program comes from snarkVM at edition zero and needs no network entry.
+The checksum is the SHA3-256 hash from snarkVM `Program::to_checksum()`. Comments and spacing do not change it. Duplicate entries and invalid lock files stop resolution. The built-in `credits.aleo` program comes from snarkVM at edition zero and needs no network entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
 
 Checksums protect the recorded program content. They do not authenticate other node responses, such as balances or block heights. Keep `leo.lock` under version control with the project.

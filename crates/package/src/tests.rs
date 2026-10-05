@@ -380,7 +380,7 @@ fn bundled_credits_ignores_hostile_cache() {
             let cache = home.join(format!("registry/{network}/credits/0/credits.aleo"));
             write_file(&cache, &hostile);
             for no_cache in [false, true] {
-                for edition in [None, Some(0)] {
+                for edition in [None, Some(0), Some(1), Some(u16::MAX)] {
                     let unit = crate::CompilationUnit::fetch(
                         Symbol::intern("credits.aleo"),
                         edition,
@@ -396,19 +396,6 @@ fn bundled_credits_ignores_hostile_cache() {
                     assert_eq!(unit.edition, Some(0));
                     assert_eq!(std::fs::read_to_string(&cache).expect("hostile cache must remain unchanged"), hostile);
                 }
-                let error = crate::CompilationUnit::fetch(
-                    Symbol::intern("credits.aleo"),
-                    Some(1),
-                    &home,
-                    network,
-                    "http://127.0.0.1:1",
-                    no_cache,
-                    0,
-                    &mut Lock::default(),
-                )
-                .expect_err("Bundled credits must reject nonzero editions before contacting the endpoint");
-                assert!(error.to_string().contains("credits must use edition zero"), "{error}");
-                assert_eq!(std::fs::read_to_string(&cache).expect("hostile cache must remain unchanged"), hostile);
             }
         }
         std::fs::remove_dir_all(home).expect("test directory must be removed");

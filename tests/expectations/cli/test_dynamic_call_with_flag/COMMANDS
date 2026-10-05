@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 LEO_BIN=${1}
+CONN_OPTS="--network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}"
 
 PROG="'extra_prog'"
 NET="'aleo'"
@@ -8,17 +9,49 @@ FUNC="'dbl'"
 INPUT="7u64"
 
 echo "--- run WITHOUT --with should fail ---"
-${LEO_BIN} run main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
+${LEO_BIN} run ${CONN_OPTS} main ${PROG} ${NET} ${FUNC} ${INPUT} 2>&1 || true
 
 echo "--- run WITH --with should succeed ---"
-${LEO_BIN} run main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
+${LEO_BIN} run ${CONN_OPTS} main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo
 
 echo "--- run a standalone Aleo file ---"
-${LEO_BIN} --path ./extra_prog.aleo run dbl ${INPUT}
+${LEO_BIN} --path ./extra_prog.aleo run ${CONN_OPTS} dbl ${INPUT}
 
 echo "--- write standalone Aleo run JSON output ---"
-${LEO_BIN} --path ./extra_prog.aleo --json-output run dbl ${INPUT}
+${LEO_BIN} --path ./extra_prog.aleo --json-output run ${CONN_OPTS} dbl ${INPUT}
 cat ./build/json-outputs/run.json
 rm ./build/json-outputs/run.json
+
+EXEC_OPTS="${CONN_OPTS} --network-retries 0 --private-key APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh --consensus-version 14 --save ./unapproved --print --json-output"
+
+for proof_option in "" "--skip-execute-proof"; do
+    echo "--- execution review includes dynamic calls ($proof_option) ---"
+    if review=$(${LEO_BIN} execute main ${PROG} ${NET} ${FUNC} ${INPUT} --with ./extra_prog.aleo $proof_option ${EXEC_OPTS} < /dev/null 2>&1); then
+        echo "Execution succeeded without approval"
+        exit 1
+    fi
+    [[ "$review" == *"Call 2: extra_prog.aleo/dbl"* && "$review" == *"Input 1: <private input>"* && "$review" == *"Failed to prompt user"* ]] || { echo "$review"; exit 1; }
+    [[ ! -e unapproved && "$review" != *"Printing execution for transaction"* && "$review" != *"7u64"* ]] || exit 1
+    echo "Dynamic target is visible and private inputs are hidden before approval."
+
+    echo "--- execution review includes nested credit transfers ($proof_option) ---"
+    if review=$(${LEO_BIN} --path ./extra_prog.aleo execute hidden_transfer $proof_option ${EXEC_OPTS} < /dev/null 2>&1); then
+        echo "Execution succeeded without approval"
+        exit 1
+    fi
+    [[ "$review" == *"Call 2: credits.aleo/transfer_public_as_signer"* && "$review" == *"Recipient: aleo1qr2ha4pfs5l28aze88yn6fhleeythklkczrule2v838uwj65n5gqxt9djx"* && "$review" == *"Call 3: credits.aleo/transfer_public"* && "$review" == *"Amount: 123u64 microcredits"* && "$review" == *"Amount: 456u64 microcredits"* && "$review" == *"Debit:"* && "$review" == *"Failed to prompt user"* ]] || { echo "$review"; exit 1; }
+    [[ ! -e unapproved && "$review" != *"Printing execution for transaction"* && "$review" != *"APrivateKey"* && "$review" != *"sign1"* && "$review" != *"sk_tag"* ]] || exit 1
+    echo "Nested transfer, debit address, recipient, and amount are visible before approval."
+
+    echo "--- execution review escapes terminal controls ($proof_option) ---"
+    DISPLAY_INPUT='"\u{1b}[2J\r\nspoofed approval"'
+    if review=$(NO_COLOR=1 ${LEO_BIN} --path ./extra_prog.aleo execute approval_text "$DISPLAY_INPUT" 998712u64 $proof_option ${EXEC_OPTS} < /dev/null 2>&1); then
+        echo "Execution succeeded without approval"
+        exit 1
+    fi
+    [[ "$review" == *"Input 1:"*'\u{1b}[2J\r\nspoofed approval'* && "$review" == *"Finalize:"*'\u{1b}[2J\r\nspoofed approval'* && "$review" == *"Input 2: <private input>"* && "$review" == *"Failed to prompt user"* ]] || { echo "$review"; exit 1; }
+    [[ "$review" != *$'\e'* && "$review" != *"998712"* && ! -e unapproved && "$review" != *"Printing execution for transaction"* ]] || exit 1
+    echo "Input and future controls are escaped, and private plaintext is hidden."
+done
 
 exit 0

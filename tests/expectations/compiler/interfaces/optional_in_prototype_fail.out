@@ -3,7 +3,7 @@
     │
  11 │     fn find(key: u32) -> u32? {
     │ 
-    │ Help: Outputs of entry point fns cannot be optional. Move the optionality outside the call site.
+    │ Help: Outputs of entry point fns and view fns cannot be optional. Move the optionality outside the call site.
 ────╯
 [ETYC0372043] Error: cannot call a local entry point fn from an entry point fn
     ╭─[ compiler-test:17:16 ]

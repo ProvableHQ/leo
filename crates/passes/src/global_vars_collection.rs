@@ -119,7 +119,7 @@ impl AstVisitor for GlobalVarsCollectionVisitor<'_> {
         // Just add the const to the symbol table without validating it; that will happen later
         // in type checking.
         let const_path: Vec<Symbol> = self.module.iter().cloned().chain(std::iter::once(input.place.name)).collect();
-        if let Err(err) = self.state.symbol_table.insert_variable(self.unit_name, &const_path, VariableSymbol {
+        if let Err(err) = self.state.symbol_table.insert_variable(self.unit_name, &[], &const_path, VariableSymbol {
             type_: None,
             span: input.place.span,
             declaration: VariableType::Const,

@@ -577,7 +577,7 @@ impl SymbolTable {
             .map_or_else(|| Ok(()), |prev_span| Err(Self::emit_shadow_error(*name, span, prev_span)))
     }
 
-    fn check_shadow_variable(&self, program: Symbol, path: &[Symbol], span: Span) -> Result<()> {
+    fn check_shadow_variable(&self, program: Symbol, module: &[Symbol], path: &[Symbol], span: Span) -> Result<()> {
         let mut current = self.local.as_ref();
 
         while let Some(table) = current {
@@ -591,12 +591,25 @@ impl SymbolTable {
 
         self.check_shadow_global(&Location::new(program, path.to_vec()), span)?;
 
+        if self.local.is_some() && !module.is_empty() {
+            let mut global_path = Vec::with_capacity(module.len() + path.len());
+            global_path.extend_from_slice(module);
+            global_path.extend_from_slice(path);
+            self.check_shadow_global(&Location::new(program, global_path), span)?;
+        }
+
         Ok(())
     }
 
     /// Insert a variable into the current scope.
-    pub fn insert_variable(&mut self, program: Symbol, path: &[Symbol], var: VariableSymbol) -> Result<()> {
-        self.check_shadow_variable(program, path, var.span)?;
+    pub fn insert_variable(
+        &mut self,
+        program: Symbol,
+        module: &[Symbol],
+        path: &[Symbol],
+        var: VariableSymbol,
+    ) -> Result<()> {
+        self.check_shadow_variable(program, module, path, var.span)?;
 
         if let Some(table) = self.local.as_mut() {
             let [name] = &path else { panic!("Local variables cannot have paths with more than 1 segment.") };
