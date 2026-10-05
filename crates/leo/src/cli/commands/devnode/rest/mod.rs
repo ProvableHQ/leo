@@ -135,7 +135,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
         let routes = axum::Router::new()
             // Get ../consensus_version
             .route("/consensus_version", get(Self::get_consensus_version))
-
             // GET ../block/..
             .route("/block/height/latest", get(Self::get_block_height_latest))
             .route("/block/hash/latest", get(Self::get_block_hash_latest))
@@ -146,21 +145,21 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/block/{height_or_hash}/header", get(Self::get_block_header))
             .route("/block/{height_or_hash}/transactions", get(Self::get_block_transactions))
             .route("/block/create", post(Self::create_block))
-
             // GET and POST ../transaction/..
             .route("/transaction/broadcast", post(Self::transaction_broadcast))
             .route("/transaction/confirmed/{id}", get(Self::get_confirmed_transaction))
             .route("/transaction/unconfirmed/{id}", get(Self::get_unconfirmed_transaction))
             .route("/transaction/{id}", get(Self::get_transaction))
-
             // GET ../find/..
             .route("/find/blockHash/{tx_id}", get(Self::find_block_hash))
             .route("/find/blockHeight/{state_root}", get(Self::find_block_height_from_state_root))
             .route("/find/transactionID/deployment/{program_id}", get(Self::find_latest_transaction_id_from_program_id))
-            .route("/find/transactionID/deployment/{program_id}/{edition}", get(Self::find_transaction_id_from_program_id_and_edition))
+            .route(
+                "/find/transactionID/deployment/{program_id}/{edition}",
+                get(Self::find_transaction_id_from_program_id_and_edition),
+            )
             .route("/find/transactionID/{transition_id}", get(Self::find_transaction_id_from_transition_id))
             .route("/find/transitionID/{input_or_output_id}", get(Self::find_transition_id))
-
             // GET ../program/..
             .route("/program/{id}", get(Self::get_program))
             .route("/program/{id}/latest_edition", get(Self::get_latest_program_edition))
@@ -170,7 +169,6 @@ impl<N: Network, C: ConsensusStorage<N>> Rest<N, C> {
             .route("/program/{id}/mapping/{name}", get(Self::get_mapping_values))
             .route("/program/{id}/view/{function}", post(Self::evaluate_view_latest))
             .route("/program/{id}/view/{function}/{height}", post(Self::evaluate_view))
-
             // GET misc endpoints.
             .route("/blocks", get(Self::get_blocks))
             .route("/height/{hash}", get(Self::get_height))
