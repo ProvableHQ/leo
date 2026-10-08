@@ -177,7 +177,7 @@ pub fn load_programs_from_network<N: Network>(
                 if current_id == program_id { edition } else { None },
                 &context.home()?,
                 network,
-                endpoint,
+                context.program_endpoint(endpoint),
                 true,
                 network_retries,
                 &mut network_pins,

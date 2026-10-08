@@ -67,7 +67,7 @@ pub struct LeoRun {
         long = "with",
         help = "Additional programs to load into the VM (comma-separated). \
             If a path exists locally, it is read as an .aleo bytecode file; \
-            otherwise it is fetched from the network endpoint.",
+            otherwise it is fetched from the selected trusted program source.",
         value_delimiter = ','
     )]
     pub(crate) with: Vec<String>,
@@ -111,7 +111,7 @@ impl Command for LeoRun {
                 self.build_options.no_cache,
                 self.build_options.no_local,
                 Some(network),
-                Some(&endpoint),
+                Some(context.program_endpoint(&endpoint)),
                 self.env_override.network_retries,
             )
             .map(Some);
@@ -312,7 +312,7 @@ fn handle_run<A: Aleo>(
     if !is_local {
         // Get the endpoint, accounting for overrides.
         let endpoint = get_endpoint(&command.env_override.endpoint)?;
-        println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
+        println!("⬇️ Downloading {program_name} and its dependencies from {}...", context.program_endpoint(&endpoint));
         // Load the programs from the network.
         programs = load_programs_from_network(
             &context,

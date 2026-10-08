@@ -64,7 +64,7 @@ Specifies that the dependency to be added is a remote program currently deployed
 
 ### `--endpoint <ENDPOINT>`
 
-Use this option to specify the endpoint that Leo uses to verify a network dependency. This option overrides the `ENDPOINT` environment variable.
+Select a configured endpoint. Program verification uses the official API unless you also pass `--trust-endpoint`. Use both options for a trusted local development network or custom program source. This option overrides `ENDPOINT`. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
 
 ### `--network-retries <N>`
 

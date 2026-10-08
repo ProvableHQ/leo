@@ -43,9 +43,9 @@ For mainnet dependencies:
 NETWORK=mainnet leo add credits --network
 ```
 
-You can also set `NETWORK=mainnet` in `.env`. If you do not use `--endpoint`, Leo uses `ENDPOINT` from the environment. Leo makes sure that the program exists on the selected network before it changes `program.json`. Use `--network-retries` to set the number of retries.
+You can also set `NETWORK=mainnet` in `.env`. Leo downloads network programs from the official API by default. To use a local development network or a custom program source, pass `--trust-endpoint` with `--endpoint`, or set `ENDPOINT` and pass `--trust-endpoint`. Leo checks the program before it changes `program.json`. Use `--network-retries` to set the number of retries.
 
-Leo records the resolved network edition and checksum in `leo.lock`. Later builds reuse that edition. The built-in `credits.aleo` program comes from snarkVM and needs no network lock entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
+Leo records the resolved network edition, checksum, and source fingerprint in `leo.lock`. Later builds reuse that edition. The built-in `credits.aleo` program comes from snarkVM and needs no network lock entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
 
 This adds an entry to your `program.json`:
 
@@ -65,6 +65,25 @@ This adds an entry to your `program.json`:
   ]
 }
 ```
+
+### Network Dependency Verification
+
+By default, Leo trusts the official HTTPS API at `https://api.explorer.provable.com/v1` to supply program editions and bytecode. A custom `--endpoint` or `ENDPOINT` value does not change the program source. Your configured endpoint still supplies ledger queries and receives broadcasts. Leo does not independently verify chain consensus.
+
+For a local development network or a custom endpoint that you trust, select that endpoint explicitly:
+
+```bash
+leo add token.aleo --network --trust-endpoint --endpoint http://localhost:3030
+leo build --trust-endpoint --endpoint http://localhost:3030 --network testnet
+```
+
+`--trust-endpoint` applies to all program downloads for the command, including transitive imports and workspace members. `--devnet` and `DEVNET` do not enable it. You do not need to supply or edit a checksum.
+
+Each network lock entry records the program ID, network, edition, canonical bytecode checksum, and a SHA-256 fingerprint of the selected endpoint. The fingerprint identifies the exact endpoint string without storing endpoint credentials. A cached program can be used only when its checksum matches and its pin records the same source fingerprint.
+
+An older lock has no source fingerprint. Leo downloads that pinned edition from the selected source and compares its checksum before it uses the cache. A change of source requires the same check. A mismatch or unavailable source stops the command and preserves the existing pin. Leo does not replace the checksum to accept a different body for the same edition.
+
+After this verification, `build` and local `run` can reuse matching cached bytecode without a network request. A missing cache, `--no-cache`, an older lock, or a source change requires network access. The `--offline` flag controls Git dependencies only.
 
 ### Local Dependencies
 
@@ -205,7 +224,7 @@ When you run a Leo command, dependencies are resolved as follows:
 2. **For each dependency:**
    - **Workspace**: Look up the member in `workspace.json` and resolve to a local path
    - **Local**: Read the Leo source from the specified path and compile it, or use Aleo Instructions file
-   - **Network**: Use the locked edition and check its checksum against cached or downloaded bytecode. If no lock entry exists, resolve the manifest edition or the latest edition and record its checksum.
+   - **Network**: Use the locked edition and verify its checksum and source fingerprint before cache reuse. If no pin exists, download the selected edition from the trusted source and record its checksum and source fingerprint.
    - **Git**: Reuse the commit pinned in `leo.lock` if present. Otherwise clone the repository, resolve the reference to a commit, and check it out. The checked-out package is then treated exactly like a local one.
 3. **Resolve transitive dependencies** - if your dependency imports other programs, those are fetched too
 4. **Topologically sort** all programs so dependencies are processed before dependents
@@ -235,7 +254,7 @@ To force a fresh fetch during `build` or `run`:
 leo build --no-cache
 ```
 
-This downloads locked network editions again and verifies their checksums. Use `leo update` to select newer editions. The first download trusts the configured endpoint; a checksum detects later changes but does not authenticate the first response.
+This downloads locked network editions from the selected trusted source again and verifies their checksums. Use `leo update` to select newer editions. See [network dependency verification](#network-dependency-verification) for source selection and older locks.
 
 ## Program Editions
 

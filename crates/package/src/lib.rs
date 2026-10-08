@@ -73,6 +73,7 @@
 //! `CompilationUnit` generally doesn't need to be created directly, as `Package` will create `CompilationUnit`s
 //! for the main program and all dependencies. However, if you'd like to fetch bytecode for
 //! a program, you can use `CompilationUnit::fetch`.
+//! Program endpoints passed to package resolution must be trusted bytecode sources.
 
 #![forbid(unsafe_code)]
 

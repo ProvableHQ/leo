@@ -30,9 +30,9 @@ leo update token.aleo --dry-run --network testnet --endpoint https://api.explore
 
 Network dependencies without an exact edition in `program.json` can move to the latest edition. Git dependencies that use a branch can move to its current commit. An exact network edition, Git revision, or locked Git tag stays fixed. Change the manifest requirement to select a different exact version.
 
-Leo fetches and validates the selected dependencies before it writes the lock. Network entries record the program identity, network, edition, and checksum. If the bytecode changes for an edition that is already locked, the command fails. It does not replace that edition's checksum.
+Leo fetches and validates the selected dependencies before it writes the lock. Network entries record the program identity, network, edition, checksum, and source fingerprint. If the bytecode changes for an edition that is already locked, the command fails. It does not replace that edition's checksum.
 
-The first checksum comes from the configured endpoint. It detects later changes to that edition, but it does not prove that the first response was correct.
+Program editions and bytecode come from the official API by default. To use a trusted local development network or custom program source, pass `--trust-endpoint`. Older locks and changed sources require online verification against the existing checksum. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
 
 Normal builds use the locked versions. `leo build --no-cache` downloads locked network editions again and checks their checksums; it does not update them.
 
@@ -52,7 +52,7 @@ Select the network for network dependencies, such as `testnet` or `mainnet`.
 
 ### `--endpoint`
 
-Select the endpoint used to resolve and download network dependencies.
+Select the configured endpoint. Dependency resolution uses it only with `--trust-endpoint`; otherwise it uses the official API.
 
 ## Update the Leo installation
 

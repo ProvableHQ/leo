@@ -23,7 +23,7 @@ If snarkOS is not installed, pass `--install`. This option installs the binary a
 <!-- markdown-link-check-disable -->
 
 :::info
-The default ENDPOINT for a local devnet is `http://localhost:3030`
+The default ENDPOINT for a local devnet is `http://localhost:3030`. Pass `--trust-endpoint` when you use this network as a program source. `--devnet` and `DEVNET` do not enable this trust. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
 :::
 
 <!-- markdown-link-check-enable -->

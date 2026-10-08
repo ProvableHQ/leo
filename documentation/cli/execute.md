@@ -78,6 +78,8 @@ Attempting to determine the consensus version from the latest block height at {E
 
 See the **[Executing](./../guides/executing.md)** guide for more details.
 
+Program downloads use the official API by default. To download from a trusted local development network or custom endpoint, pass `--trust-endpoint`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change the program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 ## Flags
 
 ### `--private-key <PRIVATE_KEY>`
@@ -157,7 +159,7 @@ Specifies the record(s) to pay for fees privately, delimited by `|` and used in 
 Specifies one or more additional programs to load into the VM at runtime. Each entry can be:
 
 - A path to a local `.aleo` bytecode file (for example `./extra_prog.aleo`)
-- The name of a remote program to fetch from the network endpoint (along with its transitive dependencies)
+- The name of a remote program to fetch from the selected trusted source, along with its transitive dependencies
 
 Multiple programs can be provided as a comma-separated list. When specifying local `.aleo` files, they must be listed in topological order — that is a dependency must appear before any program that depends on it.
 

@@ -99,7 +99,7 @@ impl Command for LeoUpgrade {
                 true,
                 self.build_options.no_local,
                 Some(network),
-                Some(&endpoint),
+                Some(context.program_endpoint(&endpoint)),
                 self.env_override.network_retries,
             );
         }
@@ -271,7 +271,7 @@ fn handle_upgrade<N: Network, A: Aleo<Network = N>>(
         let edition = if local.iter().any(|task| task.id == *id) {
             Some(leo_package::fetch_latest_edition(
                 &id.to_string(),
-                &endpoint,
+                context.program_endpoint(&endpoint),
                 network,
                 command.env_override.network_retries,
             )?)

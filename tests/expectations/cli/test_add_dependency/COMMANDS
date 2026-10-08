@@ -15,7 +15,7 @@ echo "multiple flags exit code: $?"
 cat program.json
 
 echo "--- 3. leo add --network (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} add --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+${LEO_BIN} add --network credits --trust-endpoint --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 cat program.json
 
 echo "--- 4. leo add --local (should succeed) ---" | tee /dev/stderr
@@ -31,12 +31,12 @@ ${LEO_BIN} add credits --local ../credits
 cat program.json
 
 echo "--- 7. leo add --dev for a program not on the network (should fail) ---" | tee /dev/stderr
-${LEO_BIN} add --dev --network dev_dep --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+${LEO_BIN} add --dev --network dev_dep --trust-endpoint --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 echo "missing network dep exit code: $?"
 cat program.json
 
 echo "--- 8. leo add --dev for a program on the network (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} add --dev --network credits --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
+${LEO_BIN} add --dev --network credits --trust-endpoint --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
 echo "network dev dep exit code: $?"
 cat program.json
 

@@ -32,7 +32,9 @@ The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` desc
 
 ## Dependency Locks
 
-The first build records resolved network editions and checksums in `leo.lock`. Builds reuse locked network editions and Git commits. Keep this file under version control. Use [`leo update`](./update.md) to refresh dependencies within the manifest requirements.
+The first build downloads network programs from the official API and records their editions, checksums, and source fingerprints in `leo.lock`. Builds reuse locked network editions and Git commits. Keep this file under version control. Use [`leo update`](./update.md) to refresh dependencies within the manifest requirements.
+
+A local development network or custom program source requires `--trust-endpoint`. An older lock or a source change requires a fresh download that matches the existing checksum before cache reuse. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
 
 ## Checksums
 
@@ -65,7 +67,8 @@ Each checksum is the 32-byte SHA3-256 hash of the component's Aleo source. The [
 --network <NETWORK>
     The network to build for. Overrides the `NETWORK` environment variable.
 --endpoint <ENDPOINT>
-    The endpoint to resolve network dependencies from. Overrides the `ENDPOINT` environment variable.
+    The configured network endpoint. Program downloads use it only with --trust-endpoint.
+    Overrides the `ENDPOINT` environment variable.
 --network-retries <N>
     Number of times to retry a network request on transient transport failure, with
     exponential backoff (1 s, 2 s, 4 s, … capped at 64 s). Overrides the

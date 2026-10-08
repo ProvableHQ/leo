@@ -35,7 +35,7 @@ pub struct LeoAdd {
 
     #[clap(
         long,
-        help = "Endpoint used to verify a network dependency exists. Overrides the `ENDPOINT` environment variable."
+        help = "Endpoint used for program verification with --trust-endpoint. Overrides the ENDPOINT environment variable."
     )]
     pub(crate) endpoint: Option<String>,
 
@@ -249,6 +249,7 @@ impl Command for LeoAdd {
                 tracing::warn!("⚠️ No endpoint specified, defaulting to '{DEFAULT_ENDPOINT}'.");
                 DEFAULT_ENDPOINT.to_string()
             });
+            let endpoint = context.program_endpoint(&endpoint);
             let home = context.home()?;
             let lock_dir = Workspace::discover_root(&path)?.unwrap_or_else(|| path.clone());
             let old_lock = Lock::read(&lock_dir)?;
@@ -257,14 +258,14 @@ impl Command for LeoAdd {
                 let edition = match self.source.edition {
                     Some(edition) => edition,
                     None if name == "credits.aleo" => 0,
-                    None => leo_package::fetch_latest_edition(&name, &endpoint, network, self.network_retries)?,
+                    None => leo_package::fetch_latest_edition(&name, endpoint, network, self.network_retries)?,
                 };
                 CompilationUnit::fetch(
                     Symbol::intern(&name),
                     Some(edition),
                     &home,
                     network,
-                    &endpoint,
+                    endpoint,
                     true,
                     self.network_retries,
                     &mut lock,

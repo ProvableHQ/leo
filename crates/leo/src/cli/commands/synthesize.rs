@@ -172,7 +172,7 @@ fn handle_synthesize<A: Aleo>(
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
-        println!("⬇️ Downloading {program_id} and its dependencies from {endpoint}...");
+        println!("⬇️ Downloading {program_id} and its dependencies from {}...", context.program_endpoint(&endpoint));
         programs = load_programs_from_network(
             &context,
             program_id,

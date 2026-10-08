@@ -33,6 +33,13 @@ pub struct CLI {
     #[clap(long, global = true, help = "Write command results as JSON. Pass `--json-output=<FILE>` for a custom path; with no value it defaults to build/json-outputs/<command>.json.", num_args = 0..=1, require_equals = true, default_missing_value = "")]
     json_output: Option<String>,
 
+    #[clap(
+        long,
+        global = true,
+        help = "Trust the configured endpoint for program downloads instead of the official API. Use this only for a trusted local or custom network."
+    )]
+    trust_endpoint: bool,
+
     #[clap(subcommand)]
     command: Commands,
 
@@ -225,7 +232,8 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
+    let mut context = handle_error(Context::new(cli.path.clone(), cli.home, false, cli.package.clone()));
+    context.trust_endpoint = cli.trust_endpoint;
 
     let command_name = cli.command.name();
     let mut command_output: Option<Output> = None;
@@ -386,6 +394,39 @@ mod tests {
     }
 
     #[test]
+    fn program_downloads_use_the_official_api_unless_explicitly_trusted() {
+        use crate::cli::{DEFAULT_ENDPOINT, context::Context};
+
+        let context = Context::new(None, None, false, None).expect("Create context");
+        for endpoint in [
+            "http://localhost:3030",
+            "https://attacker.invalid",
+            "https://api.explorer.provable.com.attacker.invalid/v1",
+        ] {
+            assert_eq!(context.program_endpoint(endpoint), DEFAULT_ENDPOINT);
+            assert_eq!(context.clone().program_endpoint(endpoint), DEFAULT_ENDPOINT);
+            let mut trusted = context.clone();
+            trusted.trust_endpoint = true;
+            assert_eq!(trusted.program_endpoint(endpoint), endpoint);
+            assert_eq!(trusted.with_path(std::env::temp_dir()).program_endpoint(endpoint), endpoint);
+        }
+        for command in ["build", "update", "run", "execute", "deploy", "upgrade"] {
+            for arguments in [vec!["leo", "--trust-endpoint", command], vec!["leo", command, "--trust-endpoint"]] {
+                let cli = CLI::try_parse_from(arguments).expect("The global trust flag must parse for each command");
+                assert!(cli.trust_endpoint);
+            }
+        }
+        let cli = CLI::try_parse_from(["leo", "synthesize", "token.aleo", "--trust-endpoint"])
+            .expect("The global trust flag must parse for synthesize");
+        assert!(cli.trust_endpoint);
+        let cli = CLI::try_parse_from(["leo", "add", "token.aleo", "--network", "--trust-endpoint"])
+            .expect("The global trust flag must parse for add");
+        assert!(cli.trust_endpoint);
+        let cli = CLI::try_parse_from(["leo", "build"]).expect("Default build must parse");
+        assert!(!cli.trust_endpoint);
+    }
+
+    #[test]
     fn network_pins_use_the_workspace_root() {
         use crate::cli::context::Context;
 
@@ -526,7 +567,8 @@ mod tests {
                     .expect("Write response");
                 }
             });
-            let context = Context::new(Some(project), Some(home), false, None).expect("Create context");
+            let mut context = Context::new(Some(project), Some(home), false, None).expect("Create context");
+            context.trust_endpoint = true;
             create_session_if_not_set_then(|_| {
                 let id = "target.aleo".parse::<ProgramID<TestnetV0>>().expect("Parse ID");
                 let result = load_programs_from_network(
@@ -635,6 +677,7 @@ mod tests {
                 project.to_str().expect("The project path must be UTF-8"),
                 "--home",
                 root.path().to_str().expect("The home path must be UTF-8"),
+                "--trust-endpoint",
                 "add",
                 "target.aleo",
                 "--edition",
@@ -676,6 +719,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: true,
             command: Commands::New {
                 command: LeoNew { name: "add_missing_network_dep".to_string(), library: false, workspace: false },
             },
@@ -688,6 +732,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: true,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "nonexistent_program".to_string(),
@@ -740,6 +785,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "example".to_string(),
@@ -787,6 +833,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "double_wrapper_mint".to_string(),
@@ -835,6 +882,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "inner_1_main".to_string(),
@@ -877,6 +925,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Run {
                 command: crate::cli::commands::LeoRun {
                     name: "main".to_string(),
@@ -915,6 +964,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: lib_name.to_string(), library: true, workspace: false },
             },
@@ -960,6 +1010,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: ws_name.to_string(), library: false, workspace: true },
             },
@@ -1118,6 +1169,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
             },
@@ -1159,6 +1211,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: new_pkg.to_string(), library: false, workspace: false },
             },
@@ -1190,6 +1243,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1225,6 +1279,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1260,6 +1315,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1295,6 +1351,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1326,6 +1383,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1353,6 +1411,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Clean { command: crate::cli::commands::LeoClean {} },
             path: Some(ws_root.clone()),
             home: None,
@@ -1378,6 +1437,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1414,6 +1474,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1449,6 +1510,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -1486,6 +1548,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1564,6 +1627,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1617,6 +1681,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1671,6 +1736,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Deploy {
                 command: crate::cli::commands::LeoDeploy {
                     fee_options: Default::default(),
@@ -1728,6 +1794,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: crate::cli::commands::LeoNew { name: pkg_name.to_string(), library: false, workspace: false },
             },
@@ -1744,6 +1811,7 @@ mod tests {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Build {
                 command: crate::cli::commands::LeoBuild {
                     options: Default::default(),
@@ -2242,6 +2310,7 @@ program app.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New { command: LeoNew { name: name.to_string(), library: false, workspace: false } },
             path: Some(project_directory.clone()),
             home: None,
@@ -2331,6 +2400,7 @@ function external_nested_function:
                 "network": "testnet",
                 "edition": 0,
                 "checksum": program.to_checksum().map(|byte| *byte),
+                "source": snarkvm::algorithms::crypto_hash::sha256(crate::cli::DEFAULT_ENDPOINT.as_bytes()),
             })
         });
         std::fs::write(
@@ -2365,6 +2435,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "grandparent".to_string(), library: false, workspace: false },
             },
@@ -2377,6 +2448,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New { command: LeoNew { name: "parent".to_string(), library: false, workspace: false } },
             path: Some(parent_directory.clone()),
             home: None,
@@ -2387,6 +2459,7 @@ function external_nested_function:
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New { command: LeoNew { name: "child".to_string(), library: false, workspace: false } },
             path: Some(child_directory.clone()),
             home: None,
@@ -2439,6 +2512,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "parent".to_string(),
@@ -2464,6 +2538,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -2489,6 +2564,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "child".to_string(),
@@ -2543,6 +2619,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New { command: LeoNew { name: "outer".to_string(), library: false, workspace: false } },
             path: Some(outer_directory.clone()),
             home: None,
@@ -2553,6 +2630,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
             },
@@ -2565,6 +2643,7 @@ program child.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
             },
@@ -2642,6 +2721,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -2667,6 +2747,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),
@@ -2720,6 +2801,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "outer_2".to_string(), library: false, workspace: false },
             },
@@ -2732,6 +2814,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_1".to_string(), library: false, workspace: false },
             },
@@ -2744,6 +2827,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::New {
                 command: LeoNew { name: "inner_2".to_string(), library: false, workspace: false },
             },
@@ -2855,6 +2939,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_1".to_string(),
@@ -2880,6 +2965,7 @@ program inner_2.aleo {
             debug: false,
             quiet: false,
             json_output: None,
+            trust_endpoint: false,
             command: Commands::Add {
                 command: LeoAdd {
                     name: "inner_2".to_string(),

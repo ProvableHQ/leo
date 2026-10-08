@@ -101,7 +101,7 @@ When targeting a devnode, two proof-generation steps can be skipped for faster i
 ### **Deploying a Program**
 
 ```bash
-leo deploy --skip-deploy-certificate --endpoint http://localhost:3030
+leo deploy --skip-deploy-certificate --trust-endpoint --endpoint http://localhost:3030
 ```
 
 `--skip-deploy-certificate` skips generating the deployment proof. Without it, deployment will still work but will be significantly slower.
@@ -109,7 +109,7 @@ leo deploy --skip-deploy-certificate --endpoint http://localhost:3030
 ### **Executing a Transition**
 
 ```bash
-leo execute <TRANSITION> <INPUTS> --skip-execute-proof --endpoint http://localhost:3030
+leo execute <TRANSITION> <INPUTS> --skip-execute-proof --trust-endpoint --endpoint http://localhost:3030
 ```
 
 `--skip-execute-proof` skips generating the execution proof. Without it, execution will still work but will be significantly slower.
@@ -117,7 +117,7 @@ leo execute <TRANSITION> <INPUTS> --skip-execute-proof --endpoint http://localho
 ### **Upgrading a Program**
 
 ```bash
-leo upgrade --skip-deploy-certificate --endpoint http://localhost:3030
+leo upgrade --skip-deploy-certificate --trust-endpoint --endpoint http://localhost:3030
 ```
 
 ## Evaluating View Functions
@@ -163,10 +163,10 @@ Under the `v2` prefix, malformed inputs return `422 Unprocessable Entity`. An un
 leo devnode start --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH -s
 
 # 2. Deploy your program (in another terminal, from your Leo project directory)
-leo deploy --skip-deploy-certificate --endpoint http://localhost:3030
+leo deploy --skip-deploy-certificate --trust-endpoint --endpoint http://localhost:3030
 
 # 3. Execute a transition
-leo execute <TRANSITION> <INPUTS> --skip-execute-proof --endpoint http://localhost:3030
+leo execute <TRANSITION> <INPUTS> --skip-execute-proof --trust-endpoint --endpoint http://localhost:3030
 
 # 4. Reset and start fresh when needed
 leo devnode start --private-key APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH -s -c

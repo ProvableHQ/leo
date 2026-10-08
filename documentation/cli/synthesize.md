@@ -27,6 +27,8 @@ Each output of this command includes:
 
 This enables better understanding of program size and key management.
 
+Program downloads use the official API by default. To download from a trusted local development network or custom endpoint, pass `--trust-endpoint`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change the program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 ## Flags
 
 ### `--network <NETWORK>`

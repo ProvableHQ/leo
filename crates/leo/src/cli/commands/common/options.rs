@@ -62,7 +62,7 @@ pub struct EnvOptions {
     pub(crate) network: Option<NetworkName>,
     #[clap(
         long,
-        help = "The endpoint to deploy to. Overrides the `ENDPOINT` environment variable. We recommend using `https://api.explorer.provable.com/v1` for live networks and `http://localhost:3030` for local devnets.",
+        help = "The endpoint for network queries and broadcasts. Program downloads use it only with --trust-endpoint. Overrides the ENDPOINT environment variable.",
         global = true
     )]
     pub(crate) endpoint: Option<String>,
