@@ -26,7 +26,11 @@ This command requires having a funded account.
 
 Under the hood, this command synthesizes the program circuit and generates proving and verifying keys.
 
-```bash title="sample output:"
+Review the calls and estimated execution cost before you approve. The review shows the recipient and amount for standard `credits.aleo` transfers, including `transfer_private` and `transfer_public_to_private`. Amounts are in microcredits. Records and other private inputs stay hidden in the review.
+
+Confirm the calls and fees to continue. If you decline, the command does not print, save, or broadcast a transaction. The `--yes` flag skips this confirmation.
+
+```text title="sample output:"
        Leo     ... statements before dead code elimination.
        Leo     ... statements after dead code elimination.
        Leo ✅ Compiled '{PROGRAM_NAME}.aleo' into Aleo instructions.
@@ -39,7 +43,6 @@ Attempting to determine the consensus version from the latest block height at {E
 🚀 Execution Plan Summary
 ──────────────────────────────────────────────
 🔧 Configuration:
-  Private Key:        {PRIVATE_KEY}
   Address:            {ADDRESS}
   Endpoint:           {ENDPOINT}
   Network:            {NETWORK}
@@ -50,24 +53,39 @@ Attempting to determine the consensus version from the latest block height at {E
   Function:       {FUNCTION_NAME}
   Source:         remote
 
+Calls to approve:
+  Call 1: {PROGRAM_NAME}.aleo/{FUNCTION_NAME}
+    Signer: {ADDRESS}
+    Input 1: <private record>
+  Call 2: credits.aleo/transfer_private
+    Signer: {ADDRESS}
+    Input 1: <private record>
+    Input 2: <private input>
+    Input 3: <private input>
+    Recipient: {RECIPIENT_ADDRESS}
+    Amount: {AMOUNT}u64 microcredits
+  Final balances depend on on-chain state.
+
 💸 Fee Info:
   Priority Fee:   {PRIORITY_FEE} μcredits
-  Fee Record:     no (public fee) | {FEE RECORD}
+  Fee Record:     no (public fee)
 
 ⚙️ Actions:
-  - Program and its dependencies will be downloaded from the network.
+  - Program and its dependencies were loaded from network bytecode.
   - Transaction will NOT be printed to the console.
   - Transaction will NOT be saved to a file.
   - Transaction will NOT be broadcast to the network.
 
-📊 Execution Summary for {PROGRAM_NAME}.aleo
+📊 Execution Cost Summary for {PROGRAM_NAME}.aleo
 ──────────────────────────────────────────────
 💰 Cost Breakdown (credits)
   Transaction Storage:  ...
-  On‑chain Execution:   ...
+  On-chain Execution:   ...
   Priority Fee:         ...
   Total Fee:            ...
 ──────────────────────────────────────────────
+
+Approve all calls and fees shown above?
 
 ➡️  Outputs
 

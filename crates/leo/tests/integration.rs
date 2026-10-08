@@ -532,6 +532,48 @@ fn execution_approval_refusal_and_private_records() {
         .to_string();
     let recipient = "aleo1qr2ha4pfs5l28aze88yn6fhleeythklkczrule2v838uwj65n5gqxt9djx";
     assert_ne!(signer, program_address);
+    let bytecode_path = directory.path().join("extra_prog.aleo");
+    fs::OpenOptions::new()
+        .append(true)
+        .open(&bytecode_path)
+        .expect("The copied bytecode must open")
+        .write_all(
+            format!(
+                "\nfunction approval_transfers:
+    input r0 as credits.aleo/credits.record;
+    input r1 as u64.private;
+    assert.eq r1 998712u64;
+    call credits.aleo/transfer_public_as_signer {recipient} 123u64 into r2;
+    call credits.aleo/transfer_public {recipient} 456u64 into r3;
+    call credits.aleo/transfer_private r0 {recipient} 789u64 into r4 r5;
+    call credits.aleo/transfer_private_to_public r5 {recipient} 234u64 into r6 r7;
+    call credits.aleo/transfer_public_to_private {signer} 567u64 into r8 r9;
+    async approval_transfers r2 r3 r7 r9 into r10;
+    output r4 as credits.aleo/credits.record;
+    output r6 as credits.aleo/credits.record;
+    output r8 as credits.aleo/credits.record;
+    output r10 as extra_prog.aleo/approval_transfers.future;
+
+finalize approval_transfers:
+    input r0 as credits.aleo/transfer_public_as_signer.future;
+    input r1 as credits.aleo/transfer_public.future;
+    input r2 as credits.aleo/transfer_private_to_public.future;
+    input r3 as credits.aleo/transfer_public_to_private.future;
+    await r0;
+    await r1;
+    await r2;
+    await r3;
+
+function transfer_private:
+    input r0 as address.private;
+    input r1 as u64.private;
+    assert.eq r0 r0;
+    assert.eq r1 998712u64;
+"
+            )
+            .as_bytes(),
+        )
+        .expect("The transfer fixture must be written");
 
     let listener = TcpListener::bind("127.0.0.1:0").expect("The endpoint must bind");
     listener.set_nonblocking(true).expect("The listener must support a timeout");
@@ -642,8 +684,15 @@ fn execution_approval_refusal_and_private_records() {
             let (mut master, slave) = unsafe { (fs::File::from_raw_fd(master), fs::File::from_raw_fd(slave)) };
             // SAFETY: The descriptor belongs to the live master file; O_NONBLOCK only changes read behavior.
             assert_ne!(unsafe { libc::fcntl(master.as_raw_fd(), libc::F_SETFL, libc::O_NONBLOCK) }, -1);
-            let mut invocation = command("hidden_transfer");
+            let mut invocation = command("approval_transfers");
             invocation
+                .args([
+                    format!(
+                        "{{ owner: {signer}.private, microcredits: 998713u64.private, \
+                        _nonce: 0group.public, _version: 1u8.public }}"
+                    ),
+                    "998712u64".to_string(),
+                ])
                 .stdin(slave.try_clone().expect("The terminal must clone"))
                 .stdout(slave.try_clone().expect("The terminal must clone"))
                 .stderr(slave);
@@ -726,6 +775,34 @@ fn execution_approval_refusal_and_private_records() {
                 }
                 assert!(!block.contains(&format!("{other_amount}u64")), "{block}");
             }
+            for (function, transfer_recipient, amount, other_amount) in [
+                ("transfer_private", recipient, 789, 567),
+                ("transfer_private_to_public", recipient, 234, 789),
+                ("transfer_public_to_private", signer.as_str(), 567, 234),
+            ] {
+                let marker = format!(": credits.aleo/{function}\n");
+                let block = review
+                    .split_once(&marker)
+                    .expect("The expected transfer must appear")
+                    .1
+                    .split("\n  Call ")
+                    .next()
+                    .expect("The transfer block must exist")
+                    .split("\n  Final balances")
+                    .next()
+                    .expect("The transfer body must exist");
+                for expected in
+                    [format!("Recipient: {transfer_recipient}"), format!("Amount: {amount}u64 microcredits")]
+                {
+                    assert!(block.lines().any(|line| line.trim() == expected), "Missing {expected:?}: {block}");
+                }
+                assert!(!block.contains(&format!("{other_amount}u64")), "{block}");
+            }
+            assert!(review.contains("Input 1: <private record>"), "{review}");
+            assert!(review.contains("Input 2: <private input>"), "{review}");
+            for secret in ["998712", "998713", "_nonce:", "_root:", "APrivateKey", "sk_tag", "sign1"] {
+                assert!(!review.contains(secret), "The review must redact {secret}: {review}");
+            }
             assert!(review.contains(r"\u{1b}[2J\rwarning sentinel") && !review.contains('\x1b'), "{review}");
             assert!(!transaction_directory.exists(), "Refusal must not write a transaction");
             assert!(
@@ -742,22 +819,28 @@ fn execution_approval_refusal_and_private_records() {
             );
             fs::remove_file(&json_output).expect("The empty command result must be removed");
 
-            for (function, input, sentinel) in [
+            for (function, input, second_input, sentinel, redaction) in [
                 (
                     "approval_record",
                     format!("{{ owner: {signer}.private, amount: 998714u64.private, _nonce: 0group.public }}"),
+                    None,
                     "998714",
+                    "<private record>",
                 ),
                 (
                     "approval_dynamic_record",
                     format!("{{ owner: {signer}, _root: 998715field, _nonce: 0group, _version: 0u8 }}"),
+                    None,
                     "998715",
+                    "<private record>",
                 ),
+                ("transfer_private", recipient.to_string(), Some("998712u64"), "998712", "<private input>"),
             ] {
                 let output_path = directory.path().join("record-output.txt");
                 let file = fs::File::create(&output_path).expect("The record output file must open");
                 let mut child = command(function)
                     .arg(input)
+                    .args(second_input)
                     .stdin(Stdio::null())
                     .stdout(file.try_clone().expect("The record output file must clone"))
                     .stderr(file)
@@ -779,13 +862,19 @@ fn execution_approval_refusal_and_private_records() {
                 assert!(!status.success() && output.contains("Failed to prompt user"), "{output}");
                 assert!(
                     output.contains(&format!("Call 1: extra_prog.aleo/{function}"))
-                        && output.contains("Input 1: <private record>"),
+                        && output.contains(&format!("Input 1: {redaction}")),
                     "{output}"
                 );
                 assert!(
                     !output.contains(sentinel) && !output.contains("_nonce:") && !output.contains("_root:"),
                     "{output}"
                 );
+                if function == "transfer_private" {
+                    assert!(
+                        !output.contains(recipient) && !output.contains("Recipient:") && !output.contains("Amount:"),
+                        "Only the standard credits program may disclose transfer inputs: {output}"
+                    );
+                }
                 assert!(
                     !transaction_directory.exists() && !json_output.exists(),
                     "No transaction or result may be released on prompt failure"

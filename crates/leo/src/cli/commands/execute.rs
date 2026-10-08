@@ -29,8 +29,10 @@ use snarkvm::prelude::{
     Fee,
     Field,
     Itertools,
+    Literal,
     Network,
     Program,
+    Value,
     execution_cost,
     execution_cost_for_authorization,
 };
@@ -726,13 +728,39 @@ fn print_execution_plan<N: Network>(
         println!("    Signer: {}", request.signer());
         for (index, (input_id, value)) in request.input_ids().iter().zip(request.inputs()).enumerate() {
             match value {
-                snarkvm::prelude::Value::Record(_) | snarkvm::prelude::Value::DynamicRecord(_) => {
+                Value::Record(_) | Value::DynamicRecord(_) => {
                     println!("    Input {}: <private record>", index + 1)
                 }
                 _ if matches!(input_id, snarkvm::prelude::InputID::Private(_)) => {
                     println!("    Input {}: <private input>", index + 1)
                 }
                 _ => println!("    Input {}: {}", index + 1, value.to_string().escape_debug()),
+            }
+        }
+        if request.program_id() == &ProgramID::credits() {
+            match (request.function_name().to_string().as_str(), request.inputs()) {
+                (
+                    "transfer_private" | "transfer_private_to_public",
+                    [
+                        Value::Record(_),
+                        Value::Plaintext(Plaintext::Literal(Literal::Address(recipient), _)),
+                        Value::Plaintext(Plaintext::Literal(Literal::U64(amount), _)),
+                    ],
+                )
+                | (
+                    "transfer_public_to_private",
+                    [
+                        Value::Plaintext(Plaintext::Literal(Literal::Address(recipient), _)),
+                        Value::Plaintext(Plaintext::Literal(Literal::U64(amount), _)),
+                    ],
+                ) => {
+                    println!("    Recipient: {}", recipient.to_string().escape_debug());
+                    println!("    Amount: {} microcredits", amount.to_string().escape_debug());
+                }
+                ("transfer_private" | "transfer_private_to_public" | "transfer_public_to_private", _) => {
+                    return Err(crate::errors::custom("Cannot review a credit transfer with invalid inputs.").into());
+                }
+                _ => {}
             }
         }
         // Requests and transitions have different traversal orders.
