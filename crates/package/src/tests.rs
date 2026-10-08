@@ -2182,3 +2182,204 @@ fn workspace_members_keep_different_references_to_same_repo() {
 
     let _ = std::fs::remove_dir_all(&root);
 }
+
+#[test]
+fn dependency_alias_cannot_replace_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (primary, alias) in [("victim.aleo", "victim"), ("victim", "victim.aleo")] {
+            let root = unique_dir("primary_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let bridge = root.join("bridge");
+            write_program(&app, primary, r#"[{"name":"bridge","location":"local","path":"../bridge"}]"#);
+            write_library(
+                &bridge,
+                "bridge",
+                &serde_json::json!([{"name": alias, "location": "local", "path": "../victim.aleo"}]).to_string(),
+            );
+            write_file(
+                &root.join("victim.aleo"),
+                "program victim.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share the primary artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            assert!(!app.join("build").exists());
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
+#[test]
+fn dependency_alias_collisions_are_rejected_in_either_order() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for names in
+            [["helper", "helper.aleo"], ["helper.aleo", "helper"], ["Helper", "helper.aleo"], ["helper.aleo", "Helper"]]
+        {
+            let root = unique_dir("dependency_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let dependencies = names.map(|name| {
+                let path = if name.ends_with(".aleo") {
+                    "../helper.aleo"
+                } else {
+                    write_library(&root.join("library"), name, "null");
+                    "../library"
+                };
+                serde_json::json!({"name": name, "location": "local", "path": path})
+            });
+            write_program(&app, "consumer.aleo", &serde_json::to_string(&dependencies).expect("JSON must serialize."));
+            write_file(
+                &root.join("helper.aleo"),
+                "program helper.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share an artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
+#[test]
+fn discovered_test_cannot_alias_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let root = unique_dir("test_primary_alias");
+        let home = root.join("home");
+        std::fs::create_dir_all(&home).expect("The test home must exist.");
+        let app = root.join("app");
+        write_program(&app, "test_victim", "null");
+        write_file(&app.join("tests/test_victim.leo"), "// Test source is not parsed during package loading.\n");
+        let error = Package::from_directory_with_tests(&app, &home, false, false, false, None, None, 0)
+            .expect_err("A discovered test must not share the primary artifact path.");
+        assert!(error.to_string().contains("conflicting dependency"), "{error}");
+        std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+    });
+}
+
+#[cfg(unix)]
+#[test]
+fn manifests_reject_symlinks() {
+    let dir = unique_dir("manifest-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let manifest = dir.join("program.json");
+    std::os::unix::fs::symlink(package.join("program.json"), &manifest).expect("create manifest symlink");
+    assert!(crate::Manifest::read_from_file(&manifest).is_err());
+
+    let target = dir.join("workspace-target");
+    std::fs::write(&target, r#"{"members":[]}"#).expect("write workspace fixture");
+    let workspace = dir.join(WORKSPACE_MANIFEST_FILENAME);
+    std::os::unix::fs::symlink(&target, &workspace).expect("create workspace manifest symlink");
+    assert!(crate::WorkspaceManifest::read_from_file(&workspace).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_rejects_symlinks_without_changing_targets() {
+    let dir = unique_dir("lock-symlink");
+    let target = dir.join("target");
+    let path = dir.join(LOCK_FILENAME);
+    let contents = r#"{"version":1,"git":[]}"#;
+    std::fs::write(&target, contents).expect("write sentinel");
+    std::os::unix::fs::symlink(&target, &path).expect("create lock symlink");
+
+    assert!(Lock::read(&dir).is_err());
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert_eq!(std::fs::read_to_string(&target).expect("read sentinel"), contents);
+
+    std::fs::remove_file(&target).expect("remove sentinel");
+    assert!(Lock::read(&dir).is_err());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert!(!target.exists());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[test]
+fn locked_commit_cannot_select_an_outside_directory() {
+    let dir = unique_dir("lock-commit-path");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let outside = outside.to_str().expect("fixture path is UTF-8");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(outside), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn cached_git_checkout_cannot_be_a_symlink() {
+    let dir = unique_dir("checkout-symlink");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let commit = "0123456789012345678901234567890123456789";
+    let checkout = crate::git::checkout_dir(&home, "url", commit);
+    std::fs::create_dir_all(checkout.parent().expect("checkout has parent")).expect("create cache");
+    std::os::unix::fs::symlink(&outside, &checkout).expect("create checkout symlink");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(commit), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn git_bytecode_fallback_cannot_be_a_symlink() {
+    let dir = unique_dir("bytecode-symlink");
+    let checkout = dir.join("checkout");
+    std::fs::create_dir_all(&checkout).expect("create checkout");
+    let outside = dir.join("outside.aleo");
+    std::fs::write(&outside, "program secret.aleo;").expect("write outside bytecode");
+    std::os::unix::fs::symlink(&outside, checkout.join("secret.aleo")).expect("create bytecode symlink");
+    assert!(crate::find_in_checkout(&checkout, "secret").is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn package_rejects_source_symlinks() {
+    let dir = unique_dir("package-source-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let selected = dir.join("selected-package");
+    std::os::unix::fs::symlink(&package, &selected).expect("create explicit local package link");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &selected).is_ok());
+    });
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    std::fs::write(outside.join("lib.leo"), "secret sentinel").expect("write sentinel");
+    let home = dir.join("home");
+    std::fs::create_dir_all(&home).expect("create home directory");
+    std::fs::write(outside.join("test_external.leo"), "secret sentinel").expect("write test sentinel");
+    let tests = package.join("tests");
+    std::os::unix::fs::symlink(&outside, &tests).expect("create test root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        let error = Package::from_directory_with_tests(&package, &home, false, false, false, None, None, 0)
+            .expect_err("Test discovery must reject a directory symlink.");
+        assert!(error.to_string().contains("expected a test directory, not a symlink"), "{error}");
+    });
+    std::fs::remove_file(&tests).expect("remove test root symlink");
+    let source = package.join("src/lib.leo");
+    std::fs::remove_file(&source).expect("remove entry file");
+    std::os::unix::fs::symlink(outside.join("lib.leo"), &source).expect("create entry symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(package.join("src")).expect("remove sources");
+    std::os::unix::fs::symlink(&outside, package.join("src")).expect("create source root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}

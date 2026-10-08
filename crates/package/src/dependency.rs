@@ -108,7 +108,7 @@ impl GitReference {
 }
 
 /// Whether `s` looks like a commit hash (hex, 4–64 chars) rather than a symbolic revspec.
-fn is_commit_hash(s: &str) -> bool {
+pub(crate) fn is_commit_hash(s: &str) -> bool {
     (4..=64).contains(&s.len()) && s.bytes().all(|b| b.is_ascii_hexdigit())
 }
 

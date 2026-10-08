@@ -17,7 +17,10 @@
 use crate::{MAX_PROGRAM_SIZE, *};
 
 use leo_errors::Result;
-use leo_span::Symbol;
+use leo_span::{
+    Symbol,
+    file_source::{DiskFileSource, FileSource},
+};
 
 use snarkvm::prelude::{CanaryV0, MainnetV0, Program as SvmProgram, ProgramID, TestnetV0};
 
@@ -71,7 +74,7 @@ impl CompilationUnit {
     }
 
     fn from_aleo_path_impl(name: Symbol, path: &Path, map: &IndexMap<Symbol, Dependency>) -> Result<Self> {
-        let bytecode = std::fs::read_to_string(path).map_err(|e| {
+        let bytecode = DiskFileSource.read_file(path).map_err(|e| {
             crate::errors::util_file_io_error(format_args!("Trying to read aleo file at {}", path.display()), e)
         })?;
 
@@ -102,6 +105,13 @@ impl CompilationUnit {
             );
         }
         let source_directory = path.join(SOURCE_DIRECTORY);
+        let metadata = std::fs::symlink_metadata(&source_directory)
+            .map_err(|err| crate::errors::failed_path(source_directory.display(), err))?;
+        if !metadata.is_dir() {
+            return Err(
+                crate::errors::failed_path(source_directory.display(), "expected a directory, not a symlink").into()
+            );
+        }
         source_directory.read_dir().map_err(|e| {
             crate::errors::util_file_io_error(
                 format_args!("Failed to read directory {}", source_directory.display()),
@@ -111,6 +121,21 @@ impl CompilationUnit {
 
         let main_path = source_directory.join(MAIN_FILENAME);
         let lib_path = source_directory.join(LIB_FILENAME);
+
+        for entry in [&main_path, &lib_path] {
+            match std::fs::symlink_metadata(entry) {
+                Ok(metadata) if metadata.is_file() => {}
+                Ok(_) => {
+                    return Err(crate::errors::failed_path(
+                        entry.display(),
+                        "expected a regular source file, not a symlink",
+                    )
+                    .into());
+                }
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                Err(err) => return Err(crate::errors::failed_path(entry.display(), err).into()),
+            }
+        }
 
         let (source_path, kind) = match (main_path.exists(), lib_path.exists()) {
             (true, true) => {
@@ -354,8 +379,9 @@ impl CompilationUnit {
         // all dependencies into one repository see the same commit and it is cloned only once.
         let memoized = new_lock
             .commit_for_source(url, &reference_str)
+            .filter(|commit| crate::dependency::is_commit_hash(commit))
             .map(|commit| (crate::git::checkout_dir(home_path, url, commit), commit.to_string()))
-            .filter(|(dir, _)| dir.is_dir());
+            .filter(|(dir, _)| std::fs::symlink_metadata(dir).is_ok_and(|metadata| metadata.is_dir()));
         let (checkout, commit) = match memoized {
             Some(hit) => hit,
             None => {
@@ -400,6 +426,9 @@ impl CompilationUnit {
 /// the root. A directory declaring exactly the requested form wins over the alternate (`.aleo`)
 /// form; multiple candidates for the chosen form are an error.
 pub fn find_in_checkout(checkout: &Path, dep_name: &str) -> Result<std::path::PathBuf> {
+    if checkout.is_symlink() {
+        return Err(crate::errors::git_package_not_found(dep_name, checkout.display()).into());
+    }
     // Match both name forms so callers may pass a library (`foo`) or program (`foo.aleo`) name.
     let bare = crate::bare_unit_name(dep_name);
     let with_aleo = format!("{bare}.aleo");
@@ -422,7 +451,7 @@ pub fn find_in_checkout(checkout: &Path, dep_name: &str) -> Result<std::path::Pa
         return Ok(dir);
     }
     let aleo = checkout.join(&with_aleo);
-    if aleo.is_file() {
+    if std::fs::symlink_metadata(&aleo).is_ok_and(|metadata| metadata.is_file()) {
         return Ok(aleo);
     }
     Err(crate::errors::git_package_not_found(dep_name, checkout.display()).into())
@@ -512,6 +541,11 @@ fn parse_dependencies_from_aleo(
     // Parse the bytecode into an SVM program.
     let svm_program: SvmProgram<TestnetV0> =
         bytecode.parse().map_err(|_| crate::errors::snarkvm_parsing_error(name))?;
+    if svm_program.id().to_string() != crate::canonicalize_program_name(&name.to_string()) {
+        return Err(crate::errors::snarkvm_parsing_error(name)
+            .with_help(format!("Expected program `{name}`, but the bytecode declares `{}`.", svm_program.id()))
+            .into());
+    }
     let dependencies = svm_program
         .imports()
         .keys()

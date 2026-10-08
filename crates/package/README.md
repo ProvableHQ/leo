@@ -34,3 +34,9 @@ The lock format is JSON. Version 2 adds a `network` array to the existing `git` 
 The checksum is the SHA3-256 hash from snarkVM `Program::to_checksum()`. Comments and spacing do not change it. Duplicate entries and invalid lock files stop resolution. The built-in `credits.aleo` program comes from snarkVM at edition zero and needs no network entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
 
 Checksums protect the recorded program content. They do not authenticate other node responses, such as balances or block heights. Keep `leo.lock` under version control with the project.
+
+## Package files and names
+
+Use valid Aleo program names or Leo library names in the manifest. A local Aleo file must declare the requested program ID. Names such as `foo` and `foo.aleo` cannot identify different dependencies in the same build, because they use the same output path. In both package graphs and workspaces, Leo also rejects names that differ only in ASCII case, such as library `Helper` and program `helper.aleo`, to keep output paths distinct on every supported filesystem.
+
+Leo rejects symlinks and nonregular entries in manifests, lock files, source and test directories, cached Git checkouts, and build output. Replace these entries with regular files or directories. Explicit local dependency paths remain supported, including a path that selects a package through a directory symlink. These checks inspect existing entries; they do not prevent another process from changing the filesystem during a build.

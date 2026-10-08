@@ -628,6 +628,18 @@ impl Package {
 
             let test_dependencies: Vec<Dependency> = if with_tests {
                 let tests_directory = path.join(TESTS_DIRECTORY);
+                match std::fs::symlink_metadata(&tests_directory) {
+                    Ok(metadata) if metadata.is_dir() => {}
+                    Ok(_) => {
+                        return Err(crate::errors::failed_path(
+                            tests_directory.display(),
+                            "expected a test directory, not a symlink",
+                        )
+                        .into());
+                    }
+                    Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(err) => return Err(crate::errors::failed_path(tests_directory.display(), err).into()),
+                }
                 let mut test_dependencies: Vec<Dependency> = Self::files_with_extension(&tests_directory, "leo")
                     .map(|path| Dependency {
                         // We just made sure it has a ".leo" extension.
@@ -766,6 +778,13 @@ impl Package {
         }
 
         let name_symbol = symbol(&new.name)?;
+
+        if let Some((existing_dep, _)) = map.values().find(|(dependency, _)| {
+            dependency.name != new.name
+                && bare_unit_name(&dependency.name).eq_ignore_ascii_case(bare_unit_name(&new.name))
+        }) {
+            return Err(crate::errors::conflicting_dependency(existing_dep, new).into());
+        }
 
         let unit = match map.entry(name_symbol) {
             Entry::Occupied(occupied) => {
@@ -1106,6 +1125,81 @@ function main:
     output r1 as u32.private;
 ";
 
+    #[test]
+    fn network_fetch_rejects_unsafe_names_before_cache_access() {
+        create_session_if_not_set_then(|_| {
+            let base = crate::test_util::unique_dir("unsafe-network-name");
+            let home = base.join("home");
+            for name in [
+                "../escape.aleo",
+                "/tmp/escape.aleo",
+                r"..\escape.aleo",
+                "foo/bar",
+                "foo?bar.aleo",
+                "foo#bar.aleo",
+                "%2e%2e.aleo",
+                "foo.aleo.aleo",
+                "",
+                ".aleo",
+            ] {
+                for edition in [Some(0), None] {
+                    for no_cache in [false, true] {
+                        let err = CompilationUnit::fetch(
+                            Symbol::intern(name),
+                            edition,
+                            &home,
+                            NetworkName::TestnetV0,
+                            "http://127.0.0.1:1",
+                            no_cache,
+                            0,
+                            &mut Lock::default(),
+                        )
+                        .expect_err("unsafe names must be rejected");
+                        assert!(err.to_string().contains("invalid program name"), "{name}: {err}");
+                        assert!(!home.exists(), "invalid names must not create cache directories");
+                    }
+                }
+            }
+            std::fs::remove_dir_all(base).expect("test directory must be removed");
+        });
+    }
+
+    #[test]
+    fn network_fetch_accepts_bare_and_suffixed_program_names() {
+        create_session_if_not_set_then(|_| {
+            let home = crate::test_util::unique_dir("valid-network-name");
+            for bare in ["leaf", "final", "interface"] {
+                let bytecode = LEAF_PROGRAM.replace("leaf.aleo", &format!("{bare}.aleo"));
+                crate::test_util::write_file(&home.join(format!("registry/testnet/{bare}/0/{bare}.aleo")), &bytecode);
+                let program: snarkvm::prelude::Program<snarkvm::prelude::TestnetV0> =
+                    bytecode.parse().expect("The fixture program must parse.");
+                let mut lock = Lock::default();
+                lock.record_network(crate::NetworkLockEntry {
+                    name: format!("{bare}.aleo"),
+                    network: "testnet".into(),
+                    edition: 0,
+                    checksum: program.to_checksum().map(|byte| *byte),
+                });
+                for name in [bare.to_string(), format!("{bare}.aleo")] {
+                    let unit = CompilationUnit::fetch(
+                        Symbol::intern(&name),
+                        Some(0),
+                        &home,
+                        NetworkName::TestnetV0,
+                        "http://127.0.0.1:1",
+                        false,
+                        0,
+                        &mut lock,
+                    )
+                    .expect("valid cached programs must remain available");
+                    assert_eq!(unit.name.to_string(), format!("{bare}.aleo"));
+                    assert!(matches!(unit.data, ProgramData::Bytecode(contents) if contents == bytecode));
+                }
+            }
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
+        });
+    }
+
     fn dummy_package(base: &str) -> Package {
         dummy_package_with(base, None)
     }
@@ -1190,6 +1284,43 @@ function main:
         let pkg = dummy_package_with("/tmp/standalone", None);
         assert_eq!(pkg.build_directory(), PathBuf::from("/tmp/standalone/build"));
         assert_eq!(pkg.unit_build_directory("demo"), PathBuf::from("/tmp/standalone/build/demo"));
+    }
+
+    #[test]
+    fn unit_symbols_reject_paths() {
+        create_session_if_not_set_then(|_| {
+            for name in ["../escape.aleo", "/tmp/escape.aleo", r"..\escape.aleo", "foo/bar", "", ".aleo"] {
+                crate::symbol(name).expect_err("Unit names must not contain paths.");
+            }
+            for name in ["token", "token.aleo", "my_library", "MathLib", "final.aleo", "interface.aleo"] {
+                assert_eq!(crate::symbol(name).expect("Valid names must be accepted.").to_string(), name);
+            }
+        });
+    }
+
+    #[test]
+    fn local_bytecode_must_match_dependency_identity() {
+        create_session_if_not_set_then(|_| {
+            let root = crate::test_util::unique_dir("local-bytecode-identity");
+            let path = root.join("dependency.aleo");
+            crate::test_util::write_file(&path, LEAF_PROGRAM);
+            for name in ["dependency", "dependency.aleo", "../leaf.aleo", "/tmp/leaf.aleo"] {
+                CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect_err("A local bytecode dependency must have the requested identity.");
+            }
+            for name in ["leaf", "leaf.aleo"] {
+                let unit = CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect("The filename does not need to match the declared program ID.");
+                assert_eq!(unit.name.to_string(), name);
+            }
+            for name in ["final", "interface"] {
+                let bytecode = LEAF_PROGRAM.replace("leaf.aleo", &format!("{name}.aleo"));
+                crate::test_util::write_file(&path, &bytecode);
+                CompilationUnit::from_aleo_path(Symbol::intern(name), &path, &IndexMap::new())
+                    .expect("Valid Aleo names remain valid even when Leo reserves the name.");
+            }
+            std::fs::remove_dir_all(root).expect("The fixture should be removed.");
+        });
     }
 
     #[test]

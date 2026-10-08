@@ -814,6 +814,84 @@ fn execution_approval_refusal_and_private_records() {
     );
 }
 
+#[test]
+fn network_names_are_rejected_before_requests() {
+    use std::{
+        io::{Read, Write},
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering},
+        },
+    };
+
+    let fixture = tempfile::tempdir().expect("The CLI fixture must exist.");
+    let project_directory = fixture.path().join("project");
+    let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/tests/cli/local_aleo_dependency/contents");
+    copy_recursively(&source, &project_directory).expect("The existing CLI fixture must be copied.");
+    let manifest_path = project_directory.join("program.json");
+    let mut manifest: serde_json::Value =
+        serde_json::from_slice(&fs::read(&manifest_path).expect("The manifest must load."))
+            .expect("The existing manifest must be valid JSON.");
+    let home = fixture.path().join("home");
+    let cache = home.join("registry/testnet");
+    std::fs::create_dir_all(&cache).expect("The cache fixture must exist.");
+    let cached = cache.join("sentinel");
+    let outside = fixture.path().join("outside.aleo");
+    std::fs::write(&cached, "cache sentinel").expect("The cache sentinel must be written.");
+    std::fs::write(&outside, "outside sentinel").expect("The outside sentinel must be written.");
+    for name in ["../outside.aleo".to_owned(), outside.display().to_string()] {
+        manifest["dependencies"] = serde_json::json!([{ "name": name, "location": "network" }]);
+        let contents = serde_json::to_vec_pretty(&manifest).expect("The manifest must serialize.");
+        std::fs::write(&manifest_path, &contents).expect("The malformed manifest must be written.");
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("The local endpoint must bind.");
+        let endpoint = format!("http://{}", listener.local_addr().expect("The endpoint must have an address."));
+        listener.set_nonblocking(true).expect("The listener must support nonblocking mode.");
+        let stop = Arc::new(AtomicBool::new(false));
+        let server_stop = Arc::clone(&stop);
+        let server = std::thread::spawn(move || {
+            let mut requests = 0;
+            while !server_stop.load(Ordering::SeqCst) {
+                match listener.accept() {
+                    Ok((mut stream, _)) => {
+                        requests += 1;
+                        stream
+                            .set_read_timeout(Some(std::time::Duration::from_secs(1)))
+                            .expect("The request must have a bounded read.");
+                        let mut request = [0; 4096];
+                        let _ = stream.read(&mut request);
+                        let _ = stream
+                            .write_all(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+                    }
+                    Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                        std::thread::sleep(std::time::Duration::from_millis(1));
+                    }
+                    Err(error) => panic!("The endpoint failed: {error}"),
+                }
+            }
+            requests
+        });
+        let result = Command::new(BINARY_PATH)
+            .args(["--path"])
+            .arg(&project_directory)
+            .arg("--home")
+            .arg(&home)
+            .args(["build", "--network", "testnet", "--endpoint", &endpoint, "--network-retries", "0"])
+            .output();
+        stop.store(true, Ordering::SeqCst);
+        let requests = server.join().expect("The endpoint thread must finish.");
+        let output = result.expect("The CLI process must start.");
+        assert!(!output.status.success(), "The CLI accepted an unsafe network dependency name.");
+        let error = String::from_utf8_lossy(&output.stderr);
+        assert!(error.contains("invalid dependency"), "{error}");
+        assert_eq!(requests, 0, "An invalid manifest must not issue network requests.");
+        assert_eq!(std::fs::read(&manifest_path).expect("The manifest must remain readable."), contents);
+        assert_eq!(std::fs::read_to_string(&cached).expect("The cache sentinel must remain."), "cache sentinel");
+        assert_eq!(std::fs::read_dir(&cache).expect("The cache must remain readable.").count(), 1);
+        assert_eq!(std::fs::read_to_string(&outside).expect("The outside sentinel must remain."), "outside sentinel");
+        assert!(!project_directory.join("build").exists());
+    }
+}
+
 #[cfg(test)]
 mod cli_tests {
     include!(concat!(env!("OUT_DIR"), "/cli_tests.rs"));

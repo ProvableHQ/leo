@@ -71,8 +71,14 @@ pub fn resolve(
     locked_commit: Option<&str>,
     offline: bool,
 ) -> Result<(PathBuf, String)> {
+    if locked_commit.is_some_and(|commit| !crate::dependency::is_commit_hash(commit)) {
+        return Err(crate::errors::git_error(name, url, "invalid locked commit hash").into());
+    }
     if let Some(commit) = locked_commit {
         let dir = checkout_dir(home, url, commit);
+        if dir.is_symlink() {
+            return Err(crate::errors::git_error(name, url, "the cached checkout is a symlink").into());
+        }
         if dir.is_dir() {
             return Ok((dir, commit.to_string()));
         }
@@ -134,6 +140,9 @@ fn clone_resolve_checkout(
     let commit = id.detach().to_string();
 
     let dir = checkout_dir(home, url, &commit);
+    if dir.is_symlink() {
+        return Err(crate::errors::git_error(name, url, "the cached checkout is a symlink").into());
+    }
     if !dir.is_dir() {
         // Atomic rename-in so a concurrent/interrupted resolution never sees a partial checkout.
         let staging = staging_dir(&dir);

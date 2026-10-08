@@ -2,6 +2,12 @@
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "30s",
+  "httpHeaders": [
+    {
+      "urls": ["https://marketplace.visualstudio.com/"],
+      "headers": { "User-Agent": "Mozilla/5.0" }
+    }
+  ],
   "ignorePatterns": [
     { "pattern": "^https://api\\.explorer\\.provable\\.com" },
     { "pattern": "^https://faucet\\.aleo\\.org" },

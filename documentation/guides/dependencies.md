@@ -21,6 +21,12 @@ A Leo **library** is a source-only package with structs, constants, and helper f
 
 See [Leo Libraries](../language/libraries.md) for details on how to write and use libraries.
 
+## Package Files and Names
+
+Use valid Aleo program names or Leo library names in `program.json`. A local Aleo file must declare the requested program ID. Distinct dependencies cannot use names such as `foo` and `foo.aleo` in the same build, because these names use the same output path. In both package graphs and workspaces, this restriction also applies to names that differ only in ASCII case, such as library `Helper` and program `helper.aleo`.
+
+Leo rejects symlinks and nonregular entries in manifests, lock files, source and test directories, cached Git checkouts, and build output. Replace these entries with regular files or directories. You can still use an explicit local path to select a dependency package, including a path through a directory symlink.
+
 ## Adding Dependencies
 
 ### Network Dependencies

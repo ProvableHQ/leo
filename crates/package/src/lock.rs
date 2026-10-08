@@ -71,6 +71,14 @@ impl Lock {
     /// Read the lock from `dir`, or an empty lock if it is missing.
     pub fn read(dir: &Path) -> Result<Self> {
         let path = dir.join(LOCK_FILENAME);
+        match std::fs::symlink_metadata(&path) {
+            Ok(metadata) if metadata.is_file() => {}
+            Ok(_) => {
+                return Err(crate::errors::failed_path(path.display(), "expected a regular file, not a symlink").into());
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Self::default()),
+            Err(err) => return Err(crate::errors::invalid_lock_file(path.display(), err).into()),
+        }
         let contents = match std::fs::read_to_string(&path) {
             Ok(contents) => contents,
             Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Self::default()),
