@@ -876,7 +876,7 @@ impl<'a> ConversionContext<'a> {
 
         // Collect arguments (remaining expression children)
         let arguments = children(node)
-            .skip(1)  // Skip the callee
+            .skip(1) // Skip the callee
             .filter(|n| n.kind().is_expression())
             .map(|n| self.to_expression(&n))
             .collect::<Result<Vec<_>>>()?;

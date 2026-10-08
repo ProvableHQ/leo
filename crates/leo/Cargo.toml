@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "4.4.4"
+version = "4.4.5"
 authors = [ "The Leo Team <leo@provable.com>" ]
 description = "The Leo programming language"
 homepage = "https://leo-lang.org"
@@ -85,7 +85,6 @@ rayon              = { workspace = true }
 regex              = { workspace = true }
 reqwest            = { workspace = true }
 rpassword          = { workspace = true }
-self_update        = { workspace = true }
 serde              = { workspace = true }
 serde_json         = { workspace = true }
 serial_test        = { workspace = true }

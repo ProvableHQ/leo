@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Tests for git-dependency support: reference resolution, the `leo.lock` lock file,
-//! manifest validation, end-to-end resolution, and workspace lock sharing.
+//! Tests for dependency resolution, trusted network bytecode, lock files, manifests, and workspaces.
 
 use crate::{
     GitReference,
@@ -43,72 +42,989 @@ use crate::{
 
 use leo_span::Symbol;
 
-#[test]
-fn dependency_alias_cannot_replace_the_primary_unit() {
-    leo_span::create_session_if_not_set_then(|_| {
-        for (primary, alias) in [("victim.aleo", "victim"), ("victim", "victim.aleo")] {
-            let root = unique_dir("primary_alias");
-            let home = root.join("home");
-            std::fs::create_dir_all(&home).expect("The test home must exist.");
-            let app = root.join("app");
-            let bridge = root.join("bridge");
-            write_program(&app, primary, r#"[{"name":"bridge","location":"local","path":"../bridge"}]"#);
-            write_library(
-                &bridge,
-                "bridge",
-                &serde_json::json!([{"name": alias, "location": "local", "path": "../victim.aleo"}]).to_string(),
-            );
-            write_file(
-                &root.join("victim.aleo"),
-                "program victim.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
-            );
+use snarkvm::prelude::{CanaryV0, MainnetV0, Program, TestnetV0};
+use std::{
+    io::{Read, Write},
+    net::TcpListener,
+    path::Path,
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
+};
 
-            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
-                .expect_err("Distinct graph names must not share the primary artifact path.");
-            assert!(error.to_string().contains("conflicting dependency"), "{error}");
-            assert!(!app.join("build").exists());
-            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+const TRUSTED_TOKEN: &str =
+    "program token.aleo;\nfunction reveal:\n    input r0 as u32.private;\n    output r0 as u32.private;\n";
+
+fn network_pin(bytecode: &str, edition: u16) -> serde_json::Value {
+    let program: Program<TestnetV0> = bytecode.parse().expect("fixture bytecode must parse");
+    serde_json::json!({
+        "name": program.id().to_string(),
+        "network": "testnet",
+        "edition": edition,
+        "checksum": program.to_checksum().map(|byte| *byte),
+    })
+}
+
+fn write_network_lock(directory: &Path, pins: &[serde_json::Value]) -> Lock {
+    let contents = serde_json::json!({"version": 2, "git": [], "network": pins});
+    write_file(&directory.join(LOCK_FILENAME), &contents.to_string());
+    Lock::read(directory).expect("fixture lock must be valid")
+}
+
+fn network_response(responses: &[(&str, &str, &str)]) -> (String, JoinHandle<Vec<String>>) {
+    let listener = TcpListener::bind("127.0.0.1:0").expect("fixture listener must bind");
+    listener.set_nonblocking(true).expect("fixture listener must be nonblocking");
+    let endpoint = format!("http://{}", listener.local_addr().expect("fixture address must exist"));
+    let responses: Vec<_> = responses.iter().map(|(path, status, body)| {
+        (format!("GET {path} HTTP/1.1\r\n"), format!(
+            "HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+            body.len()
+        ))
+    }).collect();
+    let handle = thread::spawn(move || {
+        let mut requests = Vec::new();
+        let mut deadline = Instant::now() + Duration::from_secs(2);
+        while Instant::now() < deadline {
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    stream.set_nonblocking(false).expect("fixture stream must use blocking I/O");
+                    stream.set_read_timeout(Some(Duration::from_secs(1))).expect("read timeout must be set");
+                    stream.set_write_timeout(Some(Duration::from_secs(1))).expect("write timeout must be set");
+                    let mut request = Vec::new();
+                    let mut buffer = [0; 1024];
+                    while !request.windows(4).any(|bytes| bytes == b"\r\n\r\n") {
+                        let count = stream.read(&mut buffer).expect("fixture request must arrive");
+                        assert!(count > 0 && request.len() < 8192, "fixture request must contain bounded headers");
+                        request.extend_from_slice(&buffer[..count]);
+                    }
+                    let request = String::from_utf8(request).expect("fixture request must be UTF-8");
+                    let (_, response) = responses
+                        .iter()
+                        .find(|(prefix, _)| prefix == "GET  HTTP/1.1\r\n" || request.starts_with(prefix))
+                        .unwrap_or_else(|| panic!("unexpected request: {request}"));
+                    requests.push(request);
+                    stream.write_all(response.as_bytes()).expect("fixture response must be sent");
+                    deadline = Instant::now() + Duration::from_millis(200);
+                    assert!(requests.len() < 10, "fetch must not make unbounded requests");
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                    thread::sleep(Duration::from_millis(10));
+                }
+                Err(error) => panic!("fixture accept failed: {error}"),
+            }
+        }
+        requests
+    });
+    (endpoint, handle)
+}
+
+#[test]
+fn first_network_fetch_ignores_unverified_cache_and_records_checksum() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-first-fetch");
+        let cache = home.join("registry/testnet/token/0/token.aleo");
+        write_file(&cache, &TRUSTED_TOKEN.replace("private", "public"));
+        let (endpoint, server) = network_response(&[("", "200 OK", TRUSTED_TOKEN)]);
+        let mut lock = Lock::default();
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &mut lock,
+        )
+        .expect("the first download must create its checksum automatically");
+        assert_eq!(unit.edition, Some(0));
+        assert_eq!(server.join().expect("fixture must finish").len(), 1);
+        assert_eq!(std::fs::read_to_string(cache).expect("cache must exist"), TRUSTED_TOKEN);
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0))),
+            network_pin(TRUSTED_TOKEN, 0),
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn cached_network_program_checks_canonical_bytes_on_every_read() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-cache-verification");
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let cache = home.join("registry/testnet/token/0/token.aleo");
+        let formatted = format!("// Independent formatting does not change canonical bytes.\n{TRUSTED_TOKEN}\n");
+        write_file(&cache, &formatted);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &mut lock,
+        )
+        .expect("approved canonical bytecode must load from cache");
+        assert_eq!(unit.edition, Some(0));
+        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &formatted));
+
+        for modified in [
+            TRUSTED_TOKEN.replace("u32.private", "u32.public"),
+            TRUSTED_TOKEN.replace("output r0", "add r0 1u32 into r1;\n    output r1"),
+        ] {
+            write_file(&cache, &modified);
+            let error = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                Some(0),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                false,
+                0,
+                &mut lock,
+            )
+            .expect_err("changed same-ID bytecode must fail on the next read");
+            assert!(error.to_string().contains("checksum"), "{error}");
+            assert_eq!(std::fs::read_to_string(&cache).expect("cache must remain readable"), modified);
+        }
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn inferred_network_edition_comes_from_pin_not_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-pinned-edition");
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2)]);
+        write_file(&home.join("registry/testnet/token/2/token.aleo"), TRUSTED_TOKEN);
+        write_file(&home.join("registry/testnet/token/99/token.aleo"), &TRUSTED_TOKEN.replace("private", "public"));
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            None,
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            false,
+            0,
+            &mut lock,
+        )
+        .expect("the trusted edition must load without a latest-edition request");
+        assert_eq!(unit.edition, Some(2));
+        assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == TRUSTED_TOKEN));
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn explicit_edition_change_records_fresh_checksum_and_preserves_other_networks() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-edition-change");
+        let mut mainnet = network_pin(TRUSTED_TOKEN, 2);
+        mainnet["network"] = serde_json::json!("mainnet");
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2), mainnet]);
+        let old = lock.clone();
+        let updated = TRUSTED_TOKEN.replace("private", "public");
+        write_file(&home.join("registry/testnet/token/3/token.aleo"), TRUSTED_TOKEN);
+        let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/3", "200 OK", &updated)]);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(3),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &mut lock,
+        )
+        .expect("an explicit edition change must fetch and record the new edition");
+        assert_eq!(unit.edition, Some(3));
+        assert_eq!(server.join().expect("fixture must finish").len(), 1);
+        lock.carry_over(&old, |_| true);
+        lock.write(&home).expect("updated lock must write");
+        let lock = Lock::read(&home).expect("updated lock must read");
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(3))),
+            network_pin(&updated, 3),
+        );
+        assert!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2)).is_none());
+        assert_eq!(
+            lock.network_pin("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2)),
+            old.network_pin("token.aleo", leo_ast::NetworkName::MainnetV0, Some(2)),
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn network_fetch_uses_exact_pinned_edition() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-exact-edition");
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 7)]);
+        let body = serde_json::to_string(TRUSTED_TOKEN).expect("fixture body must serialize");
+        let (endpoint, server) = network_response(&[("", "200 OK", &body)]);
+        let unit = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            None,
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &mut lock,
+        )
+        .expect("approved response must load");
+        let requests = server.join().expect("fixture must finish");
+        assert_eq!(requests.len(), 1);
+        assert!(requests[0].starts_with("GET /testnet/program/token.aleo/7 HTTP/1.1\r\n"), "{:?}", requests);
+        assert_eq!(unit.edition, Some(7));
+        assert_eq!(
+            std::fs::read_to_string(home.join("registry/testnet/token/7/token.aleo"))
+                .expect("approved cache must exist"),
+            TRUSTED_TOKEN
+        );
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn rejected_network_responses_do_not_replace_cache_or_fall_back() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (status, bytecode, checksum_source, reason) in [
+            ("200 OK", TRUSTED_TOKEN.replace("private", "public"), TRUSTED_TOKEN.to_owned(), "checksum"),
+            (
+                "200 OK",
+                TRUSTED_TOKEN.replace("output r0", "add r0 1u32 into r1;\n    output r1"),
+                TRUSTED_TOKEN.to_owned(),
+                "checksum",
+            ),
+            (
+                "200 OK",
+                TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+                TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+                "program ID",
+            ),
+            ("404 Not Found", "missing edition".to_owned(), TRUSTED_TOKEN.to_owned(), ""),
+        ] {
+            let home = unique_dir("network-rejected-response");
+            let mut pin = network_pin(&checksum_source, 7);
+            pin["name"] = serde_json::json!("token.aleo");
+            let mut lock = write_network_lock(&home, &[pin]);
+            let cache = home.join("registry/testnet/token/7/token.aleo");
+            write_file(&cache, TRUSTED_TOKEN);
+            let (endpoint, server) = network_response(&[("", status, &bytecode)]);
+            let error = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                Some(7),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                true,
+                0,
+                &mut lock,
+            )
+            .expect_err("an unapproved response must fail");
+            assert!(error.to_string().contains(reason), "{error}");
+            let requests = server.join().expect("fixture must finish");
+            assert_eq!(requests.len(), 1, "no latest-edition request or unversioned fallback is permitted");
+            assert!(requests[0].starts_with("GET /testnet/program/token.aleo/7 HTTP/1.1\r\n"));
+            assert_eq!(std::fs::read_to_string(cache).expect("old cache must exist"), TRUSTED_TOKEN);
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
         }
     });
 }
 
 #[test]
-fn dependency_alias_collisions_are_rejected_in_either_order() {
+fn rejected_network_response_does_not_create_a_cache() {
     leo_span::create_session_if_not_set_then(|_| {
-        for names in [["helper", "helper.aleo"], ["helper.aleo", "helper"]] {
-            let root = unique_dir("dependency_alias");
-            let home = root.join("home");
-            std::fs::create_dir_all(&home).expect("The test home must exist.");
-            let app = root.join("app");
-            let dependencies =
-                names.map(|name| serde_json::json!({"name": name, "location": "local", "path": "../helper.aleo"}));
-            write_program(&app, "consumer.aleo", &serde_json::to_string(&dependencies).expect("JSON must serialize."));
-            write_file(
-                &root.join("helper.aleo"),
-                "program helper.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
-            );
+        let home = unique_dir("network-rejected-new-cache");
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let (endpoint, server) = network_response(&[("", "200 OK", &TRUSTED_TOKEN.replace("private", "public"))]);
+        let error = crate::CompilationUnit::fetch(
+            Symbol::intern("token.aleo"),
+            Some(0),
+            &home,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            false,
+            0,
+            &mut lock,
+        )
+        .expect_err("an unapproved response must not enter a new cache");
+        assert!(error.to_string().contains("checksum"), "{error}");
+        assert_eq!(server.join().expect("fixture must finish").len(), 1);
+        assert!(!home.join("registry").exists());
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
 
-            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
-                .expect_err("Distinct graph names must not share an artifact path.");
-            assert!(error.to_string().contains("conflicting dependency"), "{error}");
-            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+#[test]
+fn bundled_credits_ignores_hostile_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let home = unique_dir("network-bundled-credits");
+        let hostile = TRUSTED_TOKEN.replace("token.aleo", "credits.aleo");
+        for network in
+            [leo_ast::NetworkName::MainnetV0, leo_ast::NetworkName::TestnetV0, leo_ast::NetworkName::CanaryV0]
+        {
+            let expected = match network {
+                leo_ast::NetworkName::MainnetV0 => {
+                    Program::<MainnetV0>::credits().expect("bundled credits must exist").to_string()
+                }
+                leo_ast::NetworkName::TestnetV0 => {
+                    Program::<TestnetV0>::credits().expect("bundled credits must exist").to_string()
+                }
+                leo_ast::NetworkName::CanaryV0 => {
+                    Program::<CanaryV0>::credits().expect("bundled credits must exist").to_string()
+                }
+            };
+            let cache = home.join(format!("registry/{network}/credits/0/credits.aleo"));
+            write_file(&cache, &hostile);
+            for no_cache in [false, true] {
+                for edition in [None, Some(0), Some(1), Some(u16::MAX)] {
+                    let unit = crate::CompilationUnit::fetch(
+                        Symbol::intern("credits.aleo"),
+                        edition,
+                        &home,
+                        network,
+                        "http://127.0.0.1:1",
+                        no_cache,
+                        0,
+                        &mut Lock::default(),
+                    )
+                    .expect("bundled credits must work without a pin or endpoint");
+                    assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == &expected));
+                    assert_eq!(unit.edition, Some(0));
+                    assert_eq!(std::fs::read_to_string(&cache).expect("hostile cache must remain unchanged"), hostile);
+                }
+            }
+        }
+        std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn network_lock_rejects_malformed_and_ambiguous_trust() {
+    let directory = unique_dir("network-lock-invalid");
+    let pin = network_pin(TRUSTED_TOKEN, 0);
+    let mut other_edition = pin.clone();
+    other_edition["edition"] = serde_json::json!(1);
+    let mut short_checksum = pin.clone();
+    short_checksum["checksum"] = serde_json::json!([1, 2, 3]);
+    for contents in [
+        "{".to_owned(),
+        serde_json::json!({"version": 99, "git": []}).to_string(),
+        serde_json::json!({"version": 2, "network": [pin.clone(), pin.clone()]}).to_string(),
+        serde_json::json!({"version": 2, "network": [pin, other_edition]}).to_string(),
+        serde_json::json!({"version": 2, "network": [short_checksum]}).to_string(),
+        serde_json::json!({"version": 2, "netwrok": []}).to_string(),
+    ] {
+        write_file(&directory.join(LOCK_FILENAME), &contents);
+        assert!(Lock::read(&directory).is_err(), "invalid trust file accepted: {contents}");
+        assert_eq!(std::fs::read_to_string(directory.join(LOCK_FILENAME)).expect("invalid file must remain"), contents);
+    }
+    std::fs::remove_file(directory.join(LOCK_FILENAME)).expect("invalid fixture must be removed");
+    assert!(Lock::read(&directory).expect("missing implicit lock is empty").is_empty());
+    std::fs::remove_dir_all(directory).expect("test directory must be removed");
+}
+
+#[test]
+fn legacy_git_lock_is_readable_and_network_pins_survive_git_updates() {
+    let directory = unique_dir("network-lock-preservation");
+    write_file(
+        &directory.join(LOCK_FILENAME),
+        r#"{"version":1,"git":[{"name":"legacy","git":"url","reference":"default","commit":"abc"}]}"#,
+    );
+    let legacy = Lock::read(&directory).expect("version one Git lock must load");
+    assert_eq!(legacy.commit_for("legacy", "url", "default"), Some("abc"));
+    let mut old = write_network_lock(&directory, &[network_pin(TRUSTED_TOKEN, 2)]);
+    old.record("token.aleo".into(), "url".into(), "default".into(), "old".into());
+    let mut updated = Lock::default();
+    updated.record("other".into(), "url2".into(), "default".into(), "new".into());
+    updated.carry_over(&old, |_| false);
+    updated.remove_name("token.aleo");
+    updated.write(&directory).expect("updated lock must write");
+    let reloaded = Lock::read(&directory).expect("updated lock must load");
+    let pin = reloaded
+        .network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2))
+        .expect("network pin must survive Git changes");
+    assert_eq!(serde_json::json!(pin), network_pin(TRUSTED_TOKEN, 2));
+    assert!(reloaded.commit_for("token.aleo", "url", "default").is_none());
+    assert_eq!(reloaded.commit_for("other", "url2", "default"), Some("new"));
+    updated.remove_name("other");
+    updated.write(&directory).expect("a lock with only network pins must write");
+    assert!(!Lock::read(&directory).expect("network-only lock must remain").is_empty());
+    std::fs::remove_dir_all(directory).expect("test directory must be removed");
+}
+
+#[test]
+fn package_automatically_locks_transitive_network_imports() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("network-transitive-pins");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network"}"#);
+        write_file(&home.join("registry/testnet/parent/99/parent.aleo"), &parent);
+        write_file(&home.join("registry/testnet/token/99/token.aleo"), TRUSTED_TOKEN);
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/latest_edition", "200 OK", "2"),
+            ("/testnet/program/parent.aleo/2", "200 OK", &parent),
+            ("/testnet/program/token.aleo/latest_edition", "200 OK", "1"),
+            ("/testnet/program/token.aleo/1", "200 OK", TRUSTED_TOKEN),
+        ]);
+        let package = Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some(&endpoint),
+            0,
+        )
+        .expect("first build must fetch and lock every transitive dependency");
+        assert_eq!(server.join().expect("fixture must finish").len(), 4);
+        let names: Vec<_> = package.compilation_units.iter().map(|unit| unit.name.to_string()).collect();
+        assert_eq!(names, ["token.aleo", "parent.aleo", "consumer.aleo"]);
+        let lock = Lock::read(&consumer).expect("automatic lock must exist");
+        assert_eq!(
+            serde_json::json!(lock.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(2))),
+            network_pin(&parent, 2),
+        );
+        assert_eq!(
+            serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(1))),
+            network_pin(TRUSTED_TOKEN, 1),
+        );
+        let original_lock = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("repeat build must use locked editions without consulting the endpoint");
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/2", "200 OK", &parent),
+            ("/testnet/program/token.aleo/1", "200 OK", TRUSTED_TOKEN),
+        ]);
+        Package::from_directory(
+            &consumer,
+            &home,
+            true,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some(&endpoint),
+            0,
+        )
+        .expect("no-cache must fetch locked editions and retain their checksums");
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original_lock);
+        let local = base.join("local");
+        write_program(&local, "local.aleo", "null");
+        let package = Package::from_directory(&local, &home, false, false, false, None, None, 0)
+            .expect("a local-only package must not require network pins");
+        assert_eq!(package.compilation_units.len(), 1);
+        assert!(!local.join(LOCK_FILENAME).exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn package_keeps_workspace_and_development_network_pins() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("network-workspace-pins");
+        let home = base.join("home");
+        let workspace = base.join("workspace");
+        let consumer = workspace.join("consumer");
+        write_file(&workspace.join(WORKSPACE_MANIFEST_FILENAME), r#"{"members":["consumer"]}"#);
+        write_consumer(&consumer, r#"{"name":"token.aleo","location":"network","edition":0}"#);
+        std::fs::create_dir_all(&home).expect("home must exist");
+        let sibling = TRUSTED_TOKEN.replace("token.aleo", "sibling.aleo");
+        let dev = TRUSTED_TOKEN.replace("token.aleo", "dev.aleo");
+        write_network_lock(&workspace, &[network_pin(&sibling, 1), network_pin(&dev, 2)]);
+        write_file(&consumer.join(LOCK_FILENAME), "ignored member lock");
+        let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN)]);
+        Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some(&endpoint),
+            0,
+        )
+        .expect("workspace root must receive newly resolved network dependencies");
+        assert_eq!(server.join().expect("fixture must finish").len(), 1);
+        let lock = Lock::read(&workspace).expect("workspace lock must exist");
+        for (name, edition) in [("token.aleo", 0), ("sibling.aleo", 1), ("dev.aleo", 2)] {
+            assert!(lock.network_pin(name, leo_ast::NetworkName::TestnetV0, Some(edition)).is_some());
+        }
+        assert_eq!(
+            std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("member file must remain"),
+            "ignored member lock"
+        );
+        let original = std::fs::read(workspace.join(LOCK_FILENAME)).expect("workspace lock must exist");
+        write_file(&home.join("registry/testnet/token/0/token.aleo"), &TRUSTED_TOKEN.replace("private", "public"));
+        let error = Package::from_directory(
+            &consumer,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect_err("a changed cached dependency must stop the build");
+        assert!(error.to_string().contains("checksum"), "{error}");
+        assert_eq!(std::fs::read(workspace.join(LOCK_FILENAME)).expect("workspace lock must remain"), original);
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn invalid_first_response_does_not_create_a_pin_or_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for bytecode in [
+            TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+            "invalid Aleo".to_owned(),
+            " ".repeat(crate::MAX_PROGRAM_SIZE + 1),
+        ] {
+            let home = unique_dir("network-invalid-first-response");
+            let mut lock = Lock::default();
+            let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", &bytecode)]);
+            assert!(
+                crate::CompilationUnit::fetch(
+                    Symbol::intern("token.aleo"),
+                    Some(0),
+                    &home,
+                    leo_ast::NetworkName::TestnetV0,
+                    &endpoint,
+                    false,
+                    0,
+                    &mut lock,
+                )
+                .is_err()
+            );
+            assert_eq!(server.join().expect("fixture must finish").len(), 1);
+            assert!(lock.is_empty(), "invalid first response must not establish a checksum");
+            assert!(!home.join("registry").exists());
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
         }
     });
 }
 
 #[test]
-fn discovered_test_cannot_alias_the_primary_unit() {
+fn failed_network_graph_does_not_commit_new_pins() {
     leo_span::create_session_if_not_set_then(|_| {
-        let root = unique_dir("test_primary_alias");
-        let home = root.join("home");
-        std::fs::create_dir_all(&home).expect("The test home must exist.");
-        let app = root.join("app");
-        write_program(&app, "test_victim", "null");
-        write_file(&app.join("tests/test_victim.leo"), "// Test source is not parsed during package loading.\n");
-        let error = Package::from_directory_with_tests(&app, &home, false, false, false, None, None, 0)
-            .expect_err("A discovered test must not share the primary artifact path.");
-        assert!(error.to_string().contains("conflicting dependency"), "{error}");
-        std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        for existing_lock in [false, true] {
+            let base = unique_dir("network-failed-graph");
+            let home = base.join("home");
+            let consumer = base.join("consumer");
+            std::fs::create_dir_all(&home).expect("home must exist");
+            write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network"}"#);
+            let original = if existing_lock {
+                write_network_lock(&consumer, &[network_pin(&TRUSTED_TOKEN.replace("token.aleo", "other.aleo"), 1)]);
+                Some(std::fs::read(consumer.join(LOCK_FILENAME)).expect("old lock must exist"))
+            } else {
+                None
+            };
+            let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+            let token = format!("import parent.aleo;\n{TRUSTED_TOKEN}");
+            let (endpoint, server) = network_response(&[
+                ("/testnet/program/parent.aleo/latest_edition", "200 OK", "0"),
+                ("/testnet/program/parent.aleo/0", "200 OK", &parent),
+                ("/testnet/program/token.aleo/latest_edition", "200 OK", "0"),
+                ("/testnet/program/token.aleo/0", "200 OK", &token),
+            ]);
+            let error = Package::from_directory(
+                &consumer,
+                &home,
+                false,
+                false,
+                false,
+                Some(leo_ast::NetworkName::TestnetV0),
+                Some(&endpoint),
+                0,
+            )
+            .expect_err("a circular dependency graph must fail after resolution");
+            assert!(error.to_string().contains("circular"), "{error}");
+            assert_eq!(server.join().expect("fixture must finish").len(), 4);
+            assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).ok(), original);
+            std::fs::remove_dir_all(base).expect("test directory must be removed");
+        }
+    });
+}
+
+#[test]
+fn standalone_bytecode_resolves_imports_without_creating_a_lock_file() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("network-standalone");
+        let home = base.join("home");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        let path = base.join("parent.aleo");
+        write_file(&path, &format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo")));
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/token.aleo/latest_edition", "200 OK", "0"),
+            ("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN),
+        ]);
+        let package = Package::from_aleo_file(
+            &path,
+            &home,
+            None,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some(&endpoint),
+            0,
+        )
+        .expect("standalone bytecode imports must resolve without manual pins");
+        assert_eq!(package.compilation_units.len(), 2);
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert!(!base.join(LOCK_FILENAME).exists(), "standalone loading must not create a project lock");
+        write_program(&base, "parent.aleo", "null");
+        write_network_lock(&base, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let original = std::fs::read(base.join(LOCK_FILENAME)).expect("project lock must exist");
+        let nested_path = base.join("build/parent/parent.aleo");
+        write_file(&nested_path, &std::fs::read_to_string(&path).expect("bytecode fixture must exist"));
+        Package::from_aleo_file(
+            &nested_path,
+            &home,
+            None,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("standalone imports must use the enclosing project lock");
+        assert_eq!(std::fs::read(base.join(LOCK_FILENAME)).expect("project lock must remain"), original);
+        assert!(!base.join("build/parent/leo.lock").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_write_preserves_existing_permissions() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = unique_dir("lock-permissions");
+    let path = dir.join(LOCK_FILENAME);
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
+    lock.write(&dir).expect("write initial lock");
+    for mode in [0o600, 0o640] {
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(mode)).expect("set lock permissions");
+        lock.write(&dir).expect("replace lock");
+        assert_eq!(std::fs::metadata(&path).expect("read lock metadata").permissions().mode() & 0o777, mode);
+    }
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_write_failure_preserves_existing_lock() {
+    const CHILD: &str = "LEO_TEST_LOCK_WRITE_LIMIT";
+    if std::env::var_os(CHILD).is_none() {
+        let output = std::process::Command::new("bash")
+            .args([
+                "-c",
+                "trap '' XFSZ; ulimit -f 1; exec \"$1\" --exact tests::lock_write_failure_preserves_existing_lock --nocapture",
+                "bash",
+            ])
+            .arg(std::env::current_exe().expect("The test executable must exist."))
+            .env(CHILD, "1")
+            .output()
+            .expect("The limited child process must start.");
+        assert!(
+            output.status.success(),
+            "The limited child test failed: {}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        return;
+    }
+    let dir = unique_dir("lock-write-failure");
+    let path = dir.join(LOCK_FILENAME);
+    let original = r#"{"version":1,"git":[]}"#;
+    write_file(&path, original);
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "x".repeat(16 * 1024), "default".into(), "abc123".into());
+    let error = lock.write(&dir).expect_err("The file-size limit must reject the temporary write.");
+    assert!(error.to_string().contains("failed to write lock file"), "{error}");
+    assert_eq!(std::fs::read_to_string(&path).expect("The previous lock must remain readable."), original);
+    let mut entries = std::fs::read_dir(&dir).expect("The lock directory must remain readable.");
+    assert_eq!(entries.next().expect("The lock must remain.").expect("The entry must be readable.").path(), path);
+    assert!(entries.next().is_none(), "The failed write must remove its temporary file.");
+    std::fs::remove_dir_all(dir).expect("The test directory must be removed.");
+}
+
+#[test]
+fn dependency_update_creates_lock_and_dry_run_preserves_project_files() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-first-lock");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        write_consumer(&consumer, r#"{"name":"token.aleo","location":"network","edition":0}"#);
+        let manifest = std::fs::read(consumer.join(MANIFEST_FILENAME)).expect("manifest must exist");
+        for dry_run in [true, false] {
+            let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN)]);
+            let (old, new) = Package::update_dependencies(
+                &consumer,
+                &home,
+                None,
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                0,
+            )
+            .expect("an update must resolve a missing lock");
+            assert!(old.is_empty());
+            assert!(new.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0)).is_some());
+            assert_eq!(consumer.join(LOCK_FILENAME).exists(), !dry_run);
+            assert_eq!(server.join().expect("fixture must finish").len(), 1);
+            assert_eq!(std::fs::read(consumer.join(MANIFEST_FILENAME)).expect("manifest must remain"), manifest);
+            assert!(!consumer.join("build").exists());
+        }
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_is_selective_and_keeps_transitive_pins() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-selected");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        let other = TRUSTED_TOKEN.replace("token.aleo", "other.aleo");
+        write_consumer(
+            &consumer,
+            r#"{"name":"parent.aleo","location":"network"},{"name":"other.aleo","location":"network"}"#,
+        );
+        write_network_lock(&consumer, &[
+            network_pin(&parent, 0),
+            network_pin(TRUSTED_TOKEN, 0),
+            network_pin(&other, 0),
+        ]);
+        write_file(&home.join("registry/testnet/token/0/token.aleo"), TRUSTED_TOKEN);
+        write_file(&home.join("registry/testnet/other/0/other.aleo"), &other);
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        for dry_run in [true, false] {
+            let (endpoint, server) = network_response(&[
+                ("/testnet/program/parent.aleo/latest_edition", "200 OK", "1"),
+                ("/testnet/program/parent.aleo/1", "200 OK", &parent),
+            ]);
+            let (_, updated) = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some("parent"),
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                0,
+            )
+            .expect("selected update must leave unrelated dependencies locked");
+            assert_eq!(server.join().expect("fixture must finish").len(), 2);
+            assert!(updated.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(1)).is_some());
+            for name in ["token.aleo", "other.aleo"] {
+                assert!(updated.network_pin(name, leo_ast::NetworkName::TestnetV0, Some(0)).is_some());
+            }
+            if dry_run {
+                assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+            }
+        }
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        let changed = parent.replace("private", "public");
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/latest_edition", "200 OK", "1"),
+            ("/testnet/program/parent.aleo/1", "200 OK", &changed),
+        ]);
+        let error = Package::update_dependencies(
+            &consumer,
+            &home,
+            Some("parent.aleo"),
+            false,
+            leo_ast::NetworkName::TestnetV0,
+            &endpoint,
+            0,
+        )
+        .expect_err("same-edition updates must not replace the locked checksum");
+        assert!(error.to_string().contains("checksum"), "{error}");
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_respects_workspace_development_edition_constraints() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-workspace-constraints");
+        let home = base.join("home");
+        let workspace = base.join("workspace");
+        let flexible = workspace.join("flexible");
+        let fixed = workspace.join("fixed");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        write_file(&workspace.join(WORKSPACE_MANIFEST_FILENAME), r#"{"members":["flexible","fixed"]}"#);
+        write_program(&flexible, "flexible.aleo", r#"[{"name":"token.aleo","location":"network"}]"#);
+        write_program(&fixed, "fixed.aleo", "null");
+        let mut manifest: serde_json::Value =
+            serde_json::from_str(&std::fs::read_to_string(fixed.join(MANIFEST_FILENAME)).expect("manifest must exist"))
+                .expect("manifest must parse");
+        manifest["dev_dependencies"] = serde_json::json!([{"name":"token.aleo","location":"network","edition":2}]);
+        write_file(&fixed.join(MANIFEST_FILENAME), &manifest.to_string());
+        let mut flexible_manifest: serde_json::Value = serde_json::from_str(
+            &std::fs::read_to_string(flexible.join(MANIFEST_FILENAME)).expect("manifest must exist"),
+        )
+        .expect("manifest must parse");
+        flexible_manifest["dev_dependencies"] = manifest["dev_dependencies"].clone();
+        write_file(&flexible.join(MANIFEST_FILENAME), &flexible_manifest.to_string());
+        write_network_lock(&workspace, &[network_pin(TRUSTED_TOKEN, 2)]);
+        let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/2", "200 OK", TRUSTED_TOKEN)]);
+        let (_, updated) =
+            Package::update_dependencies(&flexible, &home, None, false, leo_ast::NetworkName::TestnetV0, &endpoint, 0)
+                .expect("workspace constraints must apply before flexible dependencies select latest editions");
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert!(updated.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2)).is_some());
+        Package::from_directory_with_tests(
+            &flexible,
+            &home,
+            false,
+            false,
+            false,
+            Some(leo_ast::NetworkName::TestnetV0),
+            Some("http://127.0.0.1:1"),
+            0,
+        )
+        .expect("a normal test build must reuse compatible fixed and flexible declarations");
+        assert!(!flexible.join(LOCK_FILENAME).exists());
+        assert!(!fixed.join(LOCK_FILENAME).exists());
+        assert!(!workspace.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_rejects_unknown_local_and_failed_graph_without_writing() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-failure");
+        let home = base.join("home");
+        let consumer = base.join("consumer");
+        let local = base.join("local");
+        write_library(&local, "local", "null");
+        write_consumer(&consumer, r#"{"name":"local","location":"local","path":"../local"}"#);
+        let original = r#"{"version":1,"git":[]}"#;
+        write_file(&consumer.join(LOCK_FILENAME), original);
+        for name in ["unknown", "local"] {
+            let error = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some(name),
+                false,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                0,
+            )
+            .expect_err("only a present network or Git dependency can be selected");
+            assert!(error.to_string().contains("No network or Git dependency"), "{error}");
+            assert_eq!(std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        }
+        write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network","edition":0}"#);
+        let parent = format!("import token.aleo;\n{}", TRUSTED_TOKEN.replace("token.aleo", "parent.aleo"));
+        let (endpoint, server) = network_response(&[
+            ("/testnet/program/parent.aleo/0", "200 OK", &parent),
+            ("/testnet/program/token.aleo/latest_edition", "404 Not Found", "missing dependency"),
+        ]);
+        assert!(
+            Package::update_dependencies(&consumer, &home, None, false, leo_ast::NetworkName::TestnetV0, &endpoint, 0,)
+                .is_err()
+        );
+        assert_eq!(server.join().expect("fixture must finish").len(), 2);
+        assert_eq!(std::fs::read_to_string(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        assert!(!consumer.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn dependency_update_refreshes_git_branches_but_keeps_tags_and_revisions() {
+    if !git_available() {
+        return;
+    }
+    leo_span::create_session_if_not_set_then(|_| {
+        let base = unique_dir("update-git");
+        let home = base.join("home");
+        let source = base.join("source");
+        let consumer = base.join("consumer");
+        std::fs::create_dir_all(&home).expect("home must exist");
+        for name in ["floating", "tagged", "pinned", "other"] {
+            write_library(&source.join(name), name, "null");
+        }
+        init_repo(&source, None);
+        let first = run_git(&source, &["rev-parse", "HEAD"]);
+        run_git(&source, &["tag", "stable"]);
+        run_git(&source, &["branch", "other"]);
+        let url = file_url(&source);
+        write_consumer(
+            &consumer,
+            &format!(
+                r#"{{"name":"floating","location":"git","git":{{"url":"{url}"}}}},{{"name":"tagged","location":"git","git":{{"url":"{url}","tag":"stable"}}}},{{"name":"pinned","location":"git","git":{{"url":"{url}","rev":"{first}"}}}},{{"name":"other","location":"git","git":{{"url":"{url}","branch":"other"}}}}"#
+            ),
+        );
+        Package::from_directory(&consumer, &home, false, false, false, None, None, 0)
+            .expect("initial graph must resolve");
+        let original = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
+        write_file(&source.join("floating/src/lib.leo"), "// updated\n");
+        run_git(&source, &["commit", "-qam", "second"]);
+        let second = run_git(&source, &["rev-parse", "HEAD"]);
+        run_git(&source, &["tag", "-f", "stable"]);
+        run_git(&source, &["branch", "-f", "other"]);
+        Package::from_directory(&consumer, &home, false, false, false, None, None, 0)
+            .expect("normal build must retain pins");
+        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+        for dry_run in [true, false] {
+            let (_, updated) = Package::update_dependencies(
+                &consumer,
+                &home,
+                Some("floating"),
+                dry_run,
+                leo_ast::NetworkName::TestnetV0,
+                "http://127.0.0.1:1",
+                0,
+            )
+            .expect("explicit update must advance only the selected branch");
+            assert_eq!(updated.commit_for("floating", &url, "default"), Some(second.as_str()));
+            assert_eq!(updated.commit_for("tagged", &url, "tag=stable"), Some(first.as_str()));
+            assert_eq!(updated.commit_for("pinned", &url, &format!("rev={first}")), Some(first.as_str()));
+            assert_eq!(updated.commit_for("other", &url, "branch=other"), Some(first.as_str()));
+            if dry_run {
+                assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original);
+            }
+        }
+        let (_, updated) = Package::update_dependencies(
+            &consumer,
+            &home,
+            None,
+            false,
+            leo_ast::NetworkName::TestnetV0,
+            "http://127.0.0.1:1",
+            0,
+        )
+        .expect("update all must refresh other mutable branches");
+        assert_eq!(updated.commit_for("other", &url, "branch=other"), Some(second.as_str()));
+        assert_eq!(updated.commit_for("tagged", &url, "tag=stable"), Some(first.as_str()));
+        assert_eq!(updated.commit_for("pinned", &url, &format!("rev={first}")), Some(first.as_str()));
+        assert!(!consumer.join("build").exists());
+        std::fs::remove_dir_all(base).expect("test directory must be removed");
     });
 }
 
@@ -175,7 +1091,7 @@ fn locked_commit_is_reused_without_network() {
 }
 
 #[test]
-fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
+fn mutable_reference_reuses_lock_until_explicit_update() {
     if !git_available() {
         eprintln!("skipping: `git` CLI not available");
         return;
@@ -195,10 +1111,16 @@ fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
     let c3 = run_git(&src, &["rev-parse", "HEAD"]);
     assert_ne!(c3, c2);
 
-    // Online, the locked commit is ignored for a mutable reference: it re-resolves to the tip.
-    let (dir, refreshed) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    // Online builds keep the locked commit even after the branch advances.
+    let (dir, reused) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    assert_eq!(reused, c2);
+    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "two");
+    std::fs::remove_dir_all(home.join("git")).unwrap();
+    let (dir, restored) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), false).unwrap();
+    assert_eq!(restored, c2, "a missing checkout must not move the locked revision");
+    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "two");
+    let (_, refreshed) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, None, false).unwrap();
     assert_eq!(refreshed, c3);
-    assert_eq!(std::fs::read_to_string(dir.join("a.txt")).unwrap(), "three");
 
     // Offline, the locked commit is reused even for a mutable reference (no network access).
     let (dir, offline) = resolve(&home, "dep", &url, &GitReference::DefaultBranch, Some(&c2), true).unwrap();
@@ -209,7 +1131,7 @@ fn mutable_reference_re_resolves_online_but_reuses_locked_offline() {
 }
 
 #[test]
-fn branch_reference_re_resolves_to_new_tip_online() {
+fn branch_reference_refreshes_only_without_a_lock() {
     if !git_available() {
         eprintln!("skipping: `git` CLI not available");
         return;
@@ -229,9 +1151,10 @@ fn branch_reference_re_resolves_to_new_tip_online() {
     let advanced = run_git(&src, &["rev-parse", "HEAD"]);
     assert_ne!(advanced, first);
 
-    // Online, a mutable branch reference ignores the lock and re-resolves to the new tip.
-    let (dir, refreshed) =
+    let (_, pinned) =
         resolve(&home, "dep", &url, &GitReference::Branch("feature".into()), Some(&first), false).unwrap();
+    assert_eq!(pinned, first);
+    let (dir, refreshed) = resolve(&home, "dep", &url, &GitReference::Branch("feature".into()), None, false).unwrap();
     assert_eq!(refreshed, advanced);
     assert_eq!(std::fs::read_to_string(dir.join("b.txt")).unwrap(), "feat2");
 
@@ -468,207 +1391,21 @@ fn find_in_checkout_does_not_follow_symlinks() {
 
 // The `leo.lock` lock file (`crate::Lock`).
 
-#[cfg(unix)]
-#[test]
-fn manifests_reject_symlinks() {
-    let dir = unique_dir("manifest-symlink");
-    let package = dir.join("package");
-    write_library(&package, "mylib", "null");
-    let manifest = dir.join("program.json");
-    std::os::unix::fs::symlink(package.join("program.json"), &manifest).expect("create manifest symlink");
-    assert!(crate::Manifest::read_from_file(&manifest).is_err());
-
-    let target = dir.join("workspace-target");
-    std::fs::write(&target, r#"{"members":[]}"#).expect("write workspace fixture");
-    let workspace = dir.join(WORKSPACE_MANIFEST_FILENAME);
-    std::os::unix::fs::symlink(&target, &workspace).expect("create workspace manifest symlink");
-    assert!(crate::WorkspaceManifest::read_from_file(&workspace).is_err());
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[cfg(unix)]
-#[test]
-fn lock_write_preserves_existing_permissions() {
-    use std::os::unix::fs::PermissionsExt;
-
-    let dir = unique_dir("lock-permissions");
-    let path = dir.join(LOCK_FILENAME);
-    let mut lock = Lock::default();
-    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
-    lock.write(&dir).expect("write initial lock");
-    for mode in [0o600, 0o640] {
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(mode)).expect("set lock permissions");
-        lock.write(&dir).expect("replace lock");
-        assert_eq!(std::fs::metadata(&path).expect("read lock metadata").permissions().mode() & 0o777, mode);
-    }
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[cfg(unix)]
-#[test]
-fn lock_write_failure_preserves_existing_lock() {
-    const CHILD: &str = "LEO_TEST_LOCK_WRITE_LIMIT";
-    if std::env::var_os(CHILD).is_none() {
-        let output = std::process::Command::new("bash")
-            .args([
-                "-c",
-                "trap '' XFSZ; ulimit -f 1; exec \"$1\" --exact tests::lock_write_failure_preserves_existing_lock --nocapture",
-                "bash",
-            ])
-            .arg(std::env::current_exe().expect("The test executable must exist."))
-            .env(CHILD, "1")
-            .output()
-            .expect("The limited child process must start.");
-        assert!(
-            output.status.success(),
-            "The limited child test failed: {}\n{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        return;
-    }
-    let dir = unique_dir("lock-write-failure");
-    let path = dir.join(LOCK_FILENAME);
-    let original = r#"{"version":1,"git":[]}"#;
-    write_file(&path, original);
-    let mut lock = Lock::default();
-    lock.record("foo".into(), "x".repeat(16 * 1024), "default".into(), "abc123".into());
-    let error = lock.write(&dir).expect_err("The file-size limit must reject the temporary write.");
-    assert!(error.to_string().contains("failed to write lock file"), "{error}");
-    assert_eq!(std::fs::read_to_string(&path).expect("The previous lock must remain readable."), original);
-    let mut entries = std::fs::read_dir(&dir).expect("The lock directory must remain readable.");
-    assert_eq!(entries.next().expect("The lock must remain.").expect("The entry must be readable.").path(), path);
-    assert!(entries.next().is_none(), "The failed write must remove its temporary file.");
-    std::fs::remove_dir_all(dir).expect("The test directory must be removed.");
-}
-
-#[cfg(unix)]
-#[test]
-fn lock_rejects_symlinks_without_changing_targets() {
-    let dir = unique_dir("lock-symlink");
-    let target = dir.join("target");
-    let path = dir.join(LOCK_FILENAME);
-    let contents = r#"{"version":1,"git":[]}"#;
-    std::fs::write(&target, contents).expect("write sentinel");
-    std::os::unix::fs::symlink(&target, &path).expect("create lock symlink");
-
-    assert!(Lock::read(&dir).is_err());
-    let mut lock = Lock::default();
-    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
-    assert!(lock.write(&dir).is_err());
-    assert!(Lock::default().write(&dir).is_err());
-    assert!(path.is_symlink());
-    assert_eq!(std::fs::read_to_string(&target).expect("read sentinel"), contents);
-
-    std::fs::remove_file(&target).expect("remove sentinel");
-    assert!(Lock::read(&dir).is_err());
-    assert!(lock.write(&dir).is_err());
-    assert!(Lock::default().write(&dir).is_err());
-    assert!(path.is_symlink());
-    assert!(!target.exists());
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[test]
-fn locked_commit_cannot_select_an_outside_directory() {
-    let dir = unique_dir("lock-commit-path");
-    let home = dir.join("home");
-    let outside = dir.join("outside");
-    std::fs::create_dir_all(&outside).expect("create outside directory");
-    let outside = outside.to_str().expect("fixture path is UTF-8");
-    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(outside), true).is_err());
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[cfg(unix)]
-#[test]
-fn cached_git_checkout_cannot_be_a_symlink() {
-    let dir = unique_dir("checkout-symlink");
-    let home = dir.join("home");
-    let outside = dir.join("outside");
-    std::fs::create_dir_all(&outside).expect("create outside directory");
-    let commit = "0123456789012345678901234567890123456789";
-    let checkout = crate::git::checkout_dir(&home, "url", commit);
-    std::fs::create_dir_all(checkout.parent().expect("checkout has parent")).expect("create cache");
-    std::os::unix::fs::symlink(&outside, &checkout).expect("create checkout symlink");
-    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(commit), true).is_err());
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[cfg(unix)]
-#[test]
-fn git_bytecode_fallback_cannot_be_a_symlink() {
-    let dir = unique_dir("bytecode-symlink");
-    let checkout = dir.join("checkout");
-    std::fs::create_dir_all(&checkout).expect("create checkout");
-    let outside = dir.join("outside.aleo");
-    std::fs::write(&outside, "program secret.aleo;").expect("write outside bytecode");
-    std::os::unix::fs::symlink(&outside, checkout.join("secret.aleo")).expect("create bytecode symlink");
-    assert!(crate::find_in_checkout(&checkout, "secret").is_err());
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
-#[cfg(unix)]
-#[test]
-fn package_rejects_source_symlinks() {
-    let dir = unique_dir("package-source-symlink");
-    let package = dir.join("package");
-    write_library(&package, "mylib", "null");
-    let selected = dir.join("selected-package");
-    std::os::unix::fs::symlink(&package, &selected).expect("create explicit local package link");
-    leo_span::create_session_if_not_set_then(|_| {
-        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &selected).is_ok());
-    });
-    let outside = dir.join("outside");
-    std::fs::create_dir_all(&outside).expect("create outside directory");
-    std::fs::write(outside.join("lib.leo"), "secret sentinel").expect("write sentinel");
-    let home = dir.join("home");
-    std::fs::create_dir_all(&home).expect("create home directory");
-    std::fs::write(outside.join("test_external.leo"), "secret sentinel").expect("write test sentinel");
-    let tests = package.join("tests");
-    std::os::unix::fs::symlink(&outside, &tests).expect("create test root symlink");
-    leo_span::create_session_if_not_set_then(|_| {
-        let error = Package::from_directory_with_tests(&package, &home, false, false, false, None, None, 0)
-            .expect_err("Test discovery must reject a directory symlink.");
-        assert!(error.to_string().contains("expected a test directory, not a symlink"), "{error}");
-    });
-    std::fs::remove_file(&tests).expect("remove test root symlink");
-    let source = package.join("src/lib.leo");
-    std::fs::remove_file(&source).expect("remove entry file");
-    std::os::unix::fs::symlink(outside.join("lib.leo"), &source).expect("create entry symlink");
-    leo_span::create_session_if_not_set_then(|_| {
-        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
-    });
-    std::fs::remove_dir_all(package.join("src")).expect("remove sources");
-    std::os::unix::fs::symlink(&outside, package.join("src")).expect("create source root symlink");
-    leo_span::create_session_if_not_set_then(|_| {
-        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
-    });
-    std::fs::remove_dir_all(dir).expect("remove fixture");
-}
-
 #[test]
 fn round_trip_and_lookup() {
     let dir = unique_dir("lock");
-    let mut lock = Lock::read(&dir).expect("The fixture lock must be readable.");
+    let mut lock = Lock::read(&dir).expect("lock must be valid");
     assert!(lock.is_empty());
 
     lock.record("foo.aleo".into(), "https://example.com/foo".into(), "tag=v1".into(), "abc123".into());
     lock.write(&dir).unwrap();
 
-    let reloaded = Lock::read(&dir).expect("The fixture lock must be readable.");
+    let reloaded = Lock::read(&dir).expect("lock must be valid");
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v1"), Some("abc123"));
     // Reference mismatch forces re-resolution.
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/foo", "tag=v2"), None);
     // URL mismatch forces re-resolution.
     assert_eq!(reloaded.commit_for("foo.aleo", "https://example.com/other", "tag=v1"), None);
-
-    for contents in ["{", r#"{"version":99,"git":[]}"#] {
-        write_file(&dir.join(LOCK_FILENAME), contents);
-        assert!(
-            Lock::read(&dir).expect("Malformed or unsupported locks must retain the fallback behavior.").is_empty()
-        );
-    }
 
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -861,7 +1598,7 @@ fn git_dependency_resolves_and_locks() {
         assert!(lib_unit.kind.is_library());
 
         // The lock file was written and pins the library to a commit.
-        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         let commit = lock.commit_for("mylib", &url, "default").expect("lock pins mylib");
         assert_eq!(commit.len(), 40);
 
@@ -908,10 +1645,7 @@ fn git_dev_dependency_resolves_with_tests() {
             "git dev-dependency resolved",
         );
         assert!(
-            Lock::read(&consumer)
-                .expect("The fixture lock must be readable.")
-                .commit_for("mylib", &url, "default")
-                .is_some(),
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default").is_some(),
             "dev-dependency locked"
         );
     });
@@ -943,7 +1677,7 @@ fn offline_build_uses_locked_commit_and_cache() {
         // Build online once to populate the lock and the checkout cache.
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
         let commit = Lock::read(&consumer)
-            .expect("The fixture lock must be readable.")
+            .expect("lock must be valid")
             .commit_for("mylib", &url, "default")
             .expect("locked")
             .to_string();
@@ -954,7 +1688,7 @@ fn offline_build_uses_locked_commit_and_cache() {
         // The offline build reuses the locked commit from the cache.
         Package::from_directory(&consumer, &home, false, false, true, None, None, 3).unwrap();
         assert_eq!(
-            Lock::read(&consumer).expect("The fixture lock must be readable.").commit_for("mylib", &url, "default"),
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default"),
             Some(commit.as_str())
         );
     });
@@ -1042,13 +1776,13 @@ fn plain_build_keeps_dev_dependency_pin() {
         // A test build records the dev pin; a subsequent plain build must carry it over.
         Package::from_directory_with_tests(&consumer, &home, false, false, false, None, None, 3).unwrap();
         let commit = Lock::read(&consumer)
-            .expect("The fixture lock must be readable.")
+            .expect("lock must be valid")
             .commit_for("mylib", &url, "default")
             .expect("locked")
             .to_string();
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
         assert_eq!(
-            Lock::read(&consumer).expect("The fixture lock must be readable.").commit_for("mylib", &url, "default"),
+            Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default"),
             Some(commit.as_str())
         );
 
@@ -1085,12 +1819,7 @@ fn git_dependency_ref_change_updates_lock() {
         // Track the default branch first.
         write_consumer(&consumer, &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}"}}}}"#));
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        assert!(
-            Lock::read(&consumer)
-                .expect("The fixture lock must be readable.")
-                .commit_for("mylib", &url, "default")
-                .is_some()
-        );
+        assert!(Lock::read(&consumer).expect("lock must be valid").commit_for("mylib", &url, "default").is_some());
 
         // Re-pin to the tag: the lock gains the tag entry and drops the stale default one.
         write_consumer(
@@ -1098,7 +1827,7 @@ fn git_dependency_ref_change_updates_lock() {
             &format!(r#"{{"name":"mylib","location":"git","git":{{"url":"{url}","tag":"v1"}}}}"#),
         );
         Package::from_directory(&consumer, &home, false, false, false, None, None, 3).unwrap();
-        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("mylib", &url, "tag=v1").is_some(), "tag entry recorded");
         assert!(lock.commit_for("mylib", &url, "default").is_none(), "stale default entry pruned");
     });
@@ -1137,7 +1866,7 @@ fn transitive_git_dependency() {
         assert!(names.iter().any(|n| n == "liba"), "liba resolved: {names:?}");
         assert!(names.iter().any(|n| n == "libb"), "transitive libb resolved: {names:?}");
 
-        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("liba", &url_a, "default").is_some());
         assert!(lock.commit_for("libb", &url_b, "default").is_some());
     });
@@ -1192,7 +1921,7 @@ fn transitive_git_program_depends_on_library() {
             .expect("transitive git library resolved");
         assert!(lib.kind.is_library());
 
-        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         assert!(lock.commit_for("midprog.aleo", &url_prog, "default").is_some());
         assert!(lock.commit_for("deeplib", &url_lib, "default").is_some());
     });
@@ -1234,7 +1963,7 @@ fn git_dependency_into_workspace_repo_resolves_member_and_sibling() {
 
         // The sibling is rewritten to a git dependency on the same source, so both are locked
         // (to the same commit, since the repository is resolved once per build).
-        let lock = Lock::read(&consumer).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&consumer).expect("lock must be valid");
         let libb_commit = lock.commit_for("libb", &url, "default").expect("libb locked");
         assert_eq!(lock.commit_for("liba", &url, "default"), Some(libb_commit));
     });
@@ -1397,7 +2126,7 @@ fn workspace_members_share_lock_without_clobbering() {
         Package::from_directory(&memb, &home, false, false, false, None, None, 3).unwrap();
 
         // The shared lock at the workspace root retains both members' entries.
-        let lock = Lock::read(&ws).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&ws).expect("lock must be valid");
         assert!(lock.commit_for("liba", &url_a, "default").is_some(), "first member's entry retained");
         assert!(lock.commit_for("libb", &url_b, "default").is_some(), "second member's entry recorded");
     });
@@ -1446,10 +2175,211 @@ fn workspace_members_keep_different_references_to_same_repo() {
         for member in [&mema, &memb, &mema, &memb] {
             Package::from_directory(member, &home, false, false, false, None, None, 3).unwrap();
         }
-        let lock = Lock::read(&ws).expect("The fixture lock must be readable.");
+        let lock = Lock::read(&ws).expect("lock must be valid");
         assert!(lock.commit_for("shared", &url, "tag=v1").is_some(), "tag entry retained");
         assert!(lock.commit_for("shared", &url, "default").is_some(), "default entry retained");
     });
 
     let _ = std::fs::remove_dir_all(&root);
+}
+
+#[test]
+fn dependency_alias_cannot_replace_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (primary, alias) in [("victim.aleo", "victim"), ("victim", "victim.aleo")] {
+            let root = unique_dir("primary_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let bridge = root.join("bridge");
+            write_program(&app, primary, r#"[{"name":"bridge","location":"local","path":"../bridge"}]"#);
+            write_library(
+                &bridge,
+                "bridge",
+                &serde_json::json!([{"name": alias, "location": "local", "path": "../victim.aleo"}]).to_string(),
+            );
+            write_file(
+                &root.join("victim.aleo"),
+                "program victim.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share the primary artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            assert!(!app.join("build").exists());
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
+#[test]
+fn dependency_alias_collisions_are_rejected_in_either_order() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for names in
+            [["helper", "helper.aleo"], ["helper.aleo", "helper"], ["Helper", "helper.aleo"], ["helper.aleo", "Helper"]]
+        {
+            let root = unique_dir("dependency_alias");
+            let home = root.join("home");
+            std::fs::create_dir_all(&home).expect("The test home must exist.");
+            let app = root.join("app");
+            let dependencies = names.map(|name| {
+                let path = if name.ends_with(".aleo") {
+                    "../helper.aleo"
+                } else {
+                    write_library(&root.join("library"), name, "null");
+                    "../library"
+                };
+                serde_json::json!({"name": name, "location": "local", "path": path})
+            });
+            write_program(&app, "consumer.aleo", &serde_json::to_string(&dependencies).expect("JSON must serialize."));
+            write_file(
+                &root.join("helper.aleo"),
+                "program helper.aleo;\nfunction main:\n    input r0 as u32.public;\n    output r0 as u32.public;\n",
+            );
+
+            let error = Package::from_directory(&app, &home, false, false, false, None, None, 0)
+                .expect_err("Distinct graph names must not share an artifact path.");
+            assert!(error.to_string().contains("conflicting dependency"), "{error}");
+            std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+        }
+    });
+}
+
+#[test]
+fn discovered_test_cannot_alias_the_primary_unit() {
+    leo_span::create_session_if_not_set_then(|_| {
+        let root = unique_dir("test_primary_alias");
+        let home = root.join("home");
+        std::fs::create_dir_all(&home).expect("The test home must exist.");
+        let app = root.join("app");
+        write_program(&app, "test_victim", "null");
+        write_file(&app.join("tests/test_victim.leo"), "// Test source is not parsed during package loading.\n");
+        let error = Package::from_directory_with_tests(&app, &home, false, false, false, None, None, 0)
+            .expect_err("A discovered test must not share the primary artifact path.");
+        assert!(error.to_string().contains("conflicting dependency"), "{error}");
+        std::fs::remove_dir_all(root).expect("The test directory must be removed.");
+    });
+}
+
+#[cfg(unix)]
+#[test]
+fn manifests_reject_symlinks() {
+    let dir = unique_dir("manifest-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let manifest = dir.join("program.json");
+    std::os::unix::fs::symlink(package.join("program.json"), &manifest).expect("create manifest symlink");
+    assert!(crate::Manifest::read_from_file(&manifest).is_err());
+
+    let target = dir.join("workspace-target");
+    std::fs::write(&target, r#"{"members":[]}"#).expect("write workspace fixture");
+    let workspace = dir.join(WORKSPACE_MANIFEST_FILENAME);
+    std::os::unix::fs::symlink(&target, &workspace).expect("create workspace manifest symlink");
+    assert!(crate::WorkspaceManifest::read_from_file(&workspace).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn lock_rejects_symlinks_without_changing_targets() {
+    let dir = unique_dir("lock-symlink");
+    let target = dir.join("target");
+    let path = dir.join(LOCK_FILENAME);
+    let contents = r#"{"version":1,"git":[]}"#;
+    std::fs::write(&target, contents).expect("write sentinel");
+    std::os::unix::fs::symlink(&target, &path).expect("create lock symlink");
+
+    assert!(Lock::read(&dir).is_err());
+    let mut lock = Lock::default();
+    lock.record("foo".into(), "url".into(), "default".into(), "abc123".into());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert_eq!(std::fs::read_to_string(&target).expect("read sentinel"), contents);
+
+    std::fs::remove_file(&target).expect("remove sentinel");
+    assert!(Lock::read(&dir).is_err());
+    assert!(lock.write(&dir).is_err());
+    assert!(Lock::default().write(&dir).is_err());
+    assert!(path.is_symlink());
+    assert!(!target.exists());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[test]
+fn locked_commit_cannot_select_an_outside_directory() {
+    let dir = unique_dir("lock-commit-path");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let outside = outside.to_str().expect("fixture path is UTF-8");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(outside), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn cached_git_checkout_cannot_be_a_symlink() {
+    let dir = unique_dir("checkout-symlink");
+    let home = dir.join("home");
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    let commit = "0123456789012345678901234567890123456789";
+    let checkout = crate::git::checkout_dir(&home, "url", commit);
+    std::fs::create_dir_all(checkout.parent().expect("checkout has parent")).expect("create cache");
+    std::os::unix::fs::symlink(&outside, &checkout).expect("create checkout symlink");
+    assert!(resolve(&home, "foo", "url", &GitReference::Tag("v1".into()), Some(commit), true).is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn git_bytecode_fallback_cannot_be_a_symlink() {
+    let dir = unique_dir("bytecode-symlink");
+    let checkout = dir.join("checkout");
+    std::fs::create_dir_all(&checkout).expect("create checkout");
+    let outside = dir.join("outside.aleo");
+    std::fs::write(&outside, "program secret.aleo;").expect("write outside bytecode");
+    std::os::unix::fs::symlink(&outside, checkout.join("secret.aleo")).expect("create bytecode symlink");
+    assert!(crate::find_in_checkout(&checkout, "secret").is_err());
+    std::fs::remove_dir_all(dir).expect("remove fixture");
+}
+
+#[cfg(unix)]
+#[test]
+fn package_rejects_source_symlinks() {
+    let dir = unique_dir("package-source-symlink");
+    let package = dir.join("package");
+    write_library(&package, "mylib", "null");
+    let selected = dir.join("selected-package");
+    std::os::unix::fs::symlink(&package, &selected).expect("create explicit local package link");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &selected).is_ok());
+    });
+    let outside = dir.join("outside");
+    std::fs::create_dir_all(&outside).expect("create outside directory");
+    std::fs::write(outside.join("lib.leo"), "secret sentinel").expect("write sentinel");
+    let home = dir.join("home");
+    std::fs::create_dir_all(&home).expect("create home directory");
+    std::fs::write(outside.join("test_external.leo"), "secret sentinel").expect("write test sentinel");
+    let tests = package.join("tests");
+    std::os::unix::fs::symlink(&outside, &tests).expect("create test root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        let error = Package::from_directory_with_tests(&package, &home, false, false, false, None, None, 0)
+            .expect_err("Test discovery must reject a directory symlink.");
+        assert!(error.to_string().contains("expected a test directory, not a symlink"), "{error}");
+    });
+    std::fs::remove_file(&tests).expect("remove test root symlink");
+    let source = package.join("src/lib.leo");
+    std::fs::remove_file(&source).expect("remove entry file");
+    std::os::unix::fs::symlink(outside.join("lib.leo"), &source).expect("create entry symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(package.join("src")).expect("remove sources");
+    std::os::unix::fs::symlink(&outside, package.join("src")).expect("create source root symlink");
+    leo_span::create_session_if_not_set_then(|_| {
+        assert!(crate::CompilationUnit::from_package_path(Symbol::intern("mylib"), &package).is_err());
+    });
+    std::fs::remove_dir_all(dir).expect("remove fixture");
 }

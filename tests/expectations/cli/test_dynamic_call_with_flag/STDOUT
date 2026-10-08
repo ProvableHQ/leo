@@ -1,12 +1,9 @@
 --- run WITHOUT --with should fail ---
-⚠️ No network specified, defaulting to 'testnet'.
-⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
        Leo     Program size: 0.42 KB / 2000.00 KB
        Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_dynamic_call_with_flag.aleo'.
-⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
 ➕Adding programs to the VM in the following order:
@@ -14,14 +11,11 @@
 Error [ECLI0377045]: Failed to authorize execution: Process authorization failed: Stack authorization failed: Stack execution failed: Instruction (call.dynamic r4 r5 r6 with r3 (as u64.private) into r7 (as u64.private);) at index 3 failed: Failed to execute: Call failed: Failed to retrieve the external stack in a dynamic call: External stack for 'extra_prog.aleo' does not exist
 
 --- run WITH --with should succeed ---
-⚠️ No network specified, defaulting to 'testnet'.
-⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
 
        Leo 🔨 Compiling 'test_dynamic_call_with_flag.aleo'
        Leo     Program size: 0.42 KB / 2000.00 KB
        Leo ✅ Compiled 'test_dynamic_call_with_flag.aleo' into Aleo instructions.
        Leo ✅ Generated ABI for program 'test_dynamic_call_with_flag.aleo'.
-⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
 ➕Adding programs to the VM in the following order:
@@ -32,24 +26,20 @@ Error [ECLI0377045]: Failed to authorize execution: Process authorization failed
 
  • 14u64
 --- run a standalone Aleo file ---
-⚠️ No network specified, defaulting to 'testnet'.
-⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
-⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
 ➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
   - extra_prog.aleo (local)
 
 ➡️  Output
 
  • 14u64
 --- write standalone Aleo run JSON output ---
-⚠️ No network specified, defaulting to 'testnet'.
-⚠️ No endpoint specified, defaulting to 'https://api.explorer.provable.com/v1'.
-⚠️ No network specified, defaulting to 'testnet'.
 ⚠️ No valid private key specified, defaulting to 'APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH'.
 
 ➕Adding programs to the VM in the following order:
+  - credits.aleo (already included)
   - extra_prog.aleo (local)
 
 ➡️  Output
@@ -61,4 +51,15 @@ Error [ECLI0377045]: Failed to authorize execution: Process authorization failed
   "outputs": [
     "14u64"
   ]
-}
+}--- execution review includes dynamic calls () ---
+Dynamic target is visible and private inputs are hidden before approval.
+--- execution review includes nested credit transfers () ---
+Nested transfer, debit address, recipient, and amount are visible before approval.
+--- execution review escapes terminal controls () ---
+Input and future controls are escaped, and private plaintext is hidden.
+--- execution review includes dynamic calls (--skip-execute-proof) ---
+Dynamic target is visible and private inputs are hidden before approval.
+--- execution review includes nested credit transfers (--skip-execute-proof) ---
+Nested transfer, debit address, recipient, and amount are visible before approval.
+--- execution review escapes terminal controls (--skip-execute-proof) ---
+Input and future controls are escaped, and private plaintext is hidden.

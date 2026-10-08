@@ -37,7 +37,7 @@ Check out the [**Testing**](./../guides/testing.md) guide for more information.
 --prove
     Generate a full ZK proof for each executed transaction. Proof generation is disabled by default to keep test runs fast.
 --no-cache
-    Don't use the dependency cache.
+    Download network dependencies again and verify locked checksums. Keep locked editions.
 --no-local
     Don't use the local source code.
 --offline

@@ -5,15 +5,15 @@ LEO_BIN=${1}
 cd swap || exit 1
 
 echo "--- 1. leo add --workspace token (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --workspace token
+${LEO_BIN} add --workspace token
 cat program.json
 
 echo "--- 2. leo add --workspace --dev token (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --workspace --dev token
+${LEO_BIN} add --workspace --dev token
 cat program.json
 
 echo "--- 3. leo add --workspace nonexistent (should fail) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add --workspace nonexistent || true
+${LEO_BIN} add --workspace nonexistent || true
 echo "exit code: $?"
 
 echo "--- 4. leo add --workspace outside workspace (should fail) ---" | tee /dev/stderr
@@ -37,6 +37,6 @@ program standalone.aleo {
 }
 SRC
 cd "${STANDALONE_DIR}" || exit 1
-${LEO_BIN} --disable-update-check add --workspace token || true
+${LEO_BIN} add --workspace token || true
 echo "exit code: $?"
 rm -rf "${STANDALONE_DIR}"

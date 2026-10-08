@@ -97,7 +97,7 @@ exit: 0
 build exit: 0
 leo.lock:
 {
-  "version": 1,
+  "version": 2,
   "git": [
     {
       "name": "gitbytes.aleo",
@@ -121,6 +121,7 @@ leo.lock:
 }
 --- 4b. build --offline reuses the lock and cache ---
 offline build exit: 0
+Git updates preserve dry runs, shared sources, fixed tags, and subsequent builds.
 --- 5. --branch without --git (should fail) ---
 exit: 2
 --- 6. multiple git references (should fail) ---
@@ -133,7 +134,7 @@ exit: 213
 exit: 0
 leo.lock after remove:
 {
-  "version": 1,
+  "version": 2,
   "git": [
     {
       "name": "gitbytes.aleo",

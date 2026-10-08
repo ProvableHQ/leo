@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The `leo.lock` lock file, which pins git dependencies to exact commits.
-//!
-//! Only git dependencies need locking (network deps are pinned by edition, path deps by location).
-//! Entries are keyed by `(name, git, reference)`, so changing the requested reference re-resolves.
+//! The `leo.lock` file pins Git commits and network program checksums.
 
+use leo_ast::NetworkName;
 use leo_errors::Result;
+use snarkvm::prelude::{ProgramID, TestnetV0};
 
+use indexmap::IndexSet;
 use serde::{Deserialize, Serialize};
 use std::{io::Write, path::Path};
 
 /// File name of the lock file, stored alongside `program.json`.
 pub const LOCK_FILENAME: &str = "leo.lock";
 
-const LOCK_VERSION: u32 = 1;
+const LOCK_VERSION: u32 = 2;
 
 /// A single pinned git dependency.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -39,23 +39,36 @@ pub struct GitLockEntry {
     pub commit: String,
 }
 
+/// A program identity and checksum recorded when its edition was first fetched.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NetworkLockEntry {
+    pub name: String,
+    pub network: String,
+    pub edition: u16,
+    /// The SHA3-256 checksum of the canonical Aleo program, as 32 bytes.
+    pub checksum: [u8; 32],
+}
+
 /// The contents of `leo.lock`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct Lock {
     version: u32,
     #[serde(default)]
     git: Vec<GitLockEntry>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    network: Vec<NetworkLockEntry>,
 }
 
 impl Default for Lock {
     fn default() -> Self {
-        Lock { version: LOCK_VERSION, git: Vec::new() }
+        Lock { version: LOCK_VERSION, git: Vec::new(), network: Vec::new() }
     }
 }
 
 impl Lock {
-    /// Read the lock from `dir`, or an empty lock if it is missing. A malformed or unsupported-version
-    /// lock is regenerated rather than erroring, but warns (unlike a missing file) so lost pins are visible.
+    /// Read the lock from `dir`, or an empty lock if it is missing.
     pub fn read(dir: &Path) -> Result<Self> {
         let path = dir.join(LOCK_FILENAME);
         match std::fs::symlink_metadata(&path) {
@@ -63,25 +76,73 @@ impl Lock {
             Ok(_) => {
                 return Err(crate::errors::failed_path(path.display(), "expected a regular file, not a symlink").into());
             }
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Lock::default()),
-            Err(err) => return Err(crate::errors::failed_path(path.display(), err).into()),
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Self::default()),
+            Err(err) => return Err(crate::errors::invalid_lock_file(path.display(), err).into()),
         }
-        let contents = std::fs::read_to_string(&path).map_err(|err| crate::errors::failed_path(path.display(), err))?;
-        Ok(match serde_json::from_str::<Lock>(&contents) {
-            Ok(lock) if lock.version == LOCK_VERSION => lock,
-            Ok(lock) => {
-                tracing::warn!(
-                    "⚠️ Ignoring `{}`: unsupported lock version {} (expected {LOCK_VERSION}). It will be regenerated.",
-                    path.display(),
-                    lock.version,
-                );
-                Lock::default()
+        let contents = match std::fs::read_to_string(&path) {
+            Ok(contents) => contents,
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Self::default()),
+            Err(err) => return Err(crate::errors::invalid_lock_file(path.display(), err).into()),
+        };
+        let mut lock: Self =
+            serde_json::from_str(&contents).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
+        if !matches!(lock.version, 1 | LOCK_VERSION) {
+            return Err(crate::errors::invalid_lock_file(path.display(), "unsupported lock version").into());
+        }
+        let mut seen = IndexSet::with_capacity(lock.network.len());
+        for pin in &lock.network {
+            if pin.name.parse::<ProgramID<TestnetV0>>().is_err()
+                || pin.network.parse::<NetworkName>().is_err()
+                || (pin.name == "credits.aleo" && pin.edition != 0)
+            {
+                return Err(crate::errors::invalid_lock_file(path.display(), "invalid network program identity").into());
             }
-            Err(err) => {
-                tracing::warn!("⚠️ Ignoring malformed `{}` ({err}). It will be regenerated.", path.display());
-                Lock::default()
+            if !seen.insert((&pin.network, &pin.name)) {
+                return Err(crate::errors::invalid_lock_file(path.display(), "duplicate network program pin").into());
             }
+        }
+        lock.version = LOCK_VERSION;
+        Ok(lock)
+    }
+
+    /// Find a network pin that matches the requested program and optional edition.
+    pub fn network_pin(&self, name: &str, network: NetworkName, edition: Option<u16>) -> Option<&NetworkLockEntry> {
+        let name = crate::canonicalize_program_name(name);
+        let network = network.to_string();
+        self.network.iter().find(|pin| {
+            pin.name == name && pin.network == network && edition.is_none_or(|edition| edition == pin.edition)
         })
+    }
+
+    /// Record a network edition, preserving entries for other programs and networks.
+    pub fn record_network(&mut self, entry: NetworkLockEntry) {
+        self.network.retain(|pin| pin.name != entry.name || pin.network != entry.network);
+        self.network.push(entry);
+    }
+
+    /// Read the recorded Git dependencies.
+    pub fn git_entries(&self) -> &[GitLockEntry] {
+        &self.git
+    }
+
+    /// Read the recorded network dependencies.
+    pub fn network_entries(&self) -> &[NetworkLockEntry] {
+        &self.network
+    }
+
+    /// Release selected branch pins, including other dependencies from the same source.
+    pub(crate) fn unlock_git(&mut self, name: Option<&str>) {
+        let sources: IndexSet<_> = self
+            .git
+            .iter()
+            .filter(|entry| {
+                (entry.reference == "default" || entry.reference.starts_with("branch="))
+                    && name.is_none_or(|name| crate::bare_unit_name(&entry.name) == crate::bare_unit_name(name))
+            })
+            .map(|entry| (entry.git.clone(), entry.reference.clone()))
+            .collect();
+        self.git
+            .retain(|entry| !sources.iter().any(|(git, reference)| &entry.git == git && &entry.reference == reference));
     }
 
     /// The pinned commit for `(name, git, reference)`, or `None` (forcing re-resolution) on any mismatch.
@@ -105,6 +166,11 @@ impl Lock {
 
     /// Carry over entries from `old` that were not re-recorded in this lock and that `keep` accepts.
     pub fn carry_over(&mut self, old: &Lock, mut keep: impl FnMut(&GitLockEntry) -> bool) {
+        for entry in &old.network {
+            if !self.network.iter().any(|pin| pin.name == entry.name && pin.network == entry.network) {
+                self.network.push(entry.clone());
+            }
+        }
         for entry in &old.git {
             if self.commit_for(&entry.name, &entry.git, &entry.reference).is_none() && keep(entry) {
                 self.git.push(entry.clone());
@@ -112,13 +178,12 @@ impl Lock {
         }
     }
 
-    /// Remove all entries pinning the dependency `name`.
+    /// Remove Git entries for the dependency `name`, preserving network pins.
     pub fn remove_name(&mut self, name: &str) {
         self.git.retain(|e| e.name != name);
     }
 
-    /// Write the lock to `dir`, entries sorted for determinism. With no git dependencies, no file is
-    /// written and a stale one is removed.
+    /// Write the lock to `dir`, with entries sorted for deterministic output.
     pub fn write(&mut self, dir: &Path) -> Result<()> {
         let path = dir.join(LOCK_FILENAME);
         let permissions = match std::fs::symlink_metadata(&path) {
@@ -140,11 +205,12 @@ impl Lock {
             return Ok(());
         }
         self.git.sort_by(|a, b| (&a.name, &a.git, &a.reference).cmp(&(&b.name, &b.git, &b.reference)));
+        self.network.sort_by(|a, b| (&a.network, &a.name).cmp(&(&b.network, &b.name)));
 
         let mut contents = serde_json::to_string_pretty(self)
             .map_err(|err| crate::errors::failed_to_serialize_lock(path.display(), err))?;
         contents.push('\n');
-        // Replace the lock without opening its destination for writing.
+        // Replace the complete lock only after its temporary file is written.
         let temporary = crate::git::unique_dir(dir, ".leo.lock");
         let mut file = std::fs::OpenOptions::new()
             .write(true)
@@ -166,8 +232,8 @@ impl Lock {
         Ok(())
     }
 
-    /// Whether any git dependency is recorded.
+    /// Whether the lock has no git entries or network pins.
     pub fn is_empty(&self) -> bool {
-        self.git.is_empty()
+        self.git.is_empty() && self.network.is_empty()
     }
 }

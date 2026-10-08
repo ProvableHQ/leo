@@ -28,7 +28,7 @@ Leo is an imperative, statically-typed programming language built for writing pr
     * [🦀 Install Rust](#-install-rust)
     * [📦 Download using Cargo](#-download-using-cargo)
     * [🐙 Build from Source Code](#-build-from-source-code)
-    * [🦁 Update from Leo](#-update-from-leo)
+    * [🦁 Update Leo](#-update-leo)
 * [🚀 Quick Start](#-quick-start)
 * [🧰 Troubleshooting](#-troubleshooting)
 * [📖 Documentation](#-documentation)
@@ -96,22 +96,21 @@ cargo install --path crates/leo
 cargo install --path crates/fmt
 ```
 
-### 🦁 Update from Leo
+### 🦁 Update Leo
 
-You can update Leo and its plugins to the latest released version using the
-following command:
+To install the latest released version of Leo and its plugins, run:
 
 ```bash
-leo update
+cargo install leo-lang leo-fmt leo-lsp
 ```
 
-Note that if you were using a prerelease version of Leo, this will overwrite
-that with the latest released version.
+To check the installed version, run:
 
-Now to check the version of leo, in your terminal, run:
 ```bash
 leo --version
 ```
+
+Use `leo update` to update project dependency locks. This command does not install Leo or its plugins.
 
 ## 🚀 Quick Start
 

@@ -2,7 +2,7 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} build
 
 probe=$(mktemp -d)
 cp program.json "$probe/program.json"
@@ -11,7 +11,7 @@ trap 'cp "$probe/program.json" program.json; cp "$probe/build/complex/complex.al
 mkdir "$probe/tests"
 printf 'program test_external.aleo {}\n' > "$probe/tests/test_external.leo"
 ln -s "$probe/tests" tests
-if output=$(${LEO_BIN} --disable-update-check build --build-tests 2>&1); then
+if output=$(${LEO_BIN} build --build-tests 2>&1); then
     echo "Build accepted a linked tests directory"
     exit 1
 fi
@@ -22,7 +22,7 @@ echo "Rejected linked tests directory; build artifacts are unchanged."
 printf '{"version":1,"git":[]}\n' > "$probe/lock-target"
 cp "$probe/lock-target" "$probe/lock-original"
 ln -s "$probe/lock-target" leo.lock
-if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+if output=$(${LEO_BIN} build 2>&1); then
     echo "Build accepted a linked lock file"
     exit 1
 fi
@@ -39,7 +39,7 @@ sed 's/program simple.aleo;/program complex.aleo;/' simple.aleo > "$probe/comple
 printf '{"program":"bridge","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"complex","location":"local","path":"../complex-dependency.aleo"}]}\n' > "$probe/bridge/program.json"
 printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"simple.aleo","location":"local","path":"simple.aleo"},{"name":"bridge","location":"local","path":"%s/bridge"}]}\n' "$probe" > program.json
 printf 'primary artifact sentinel\n' > build/complex/complex.aleo
-if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+if output=$(${LEO_BIN} build 2>&1); then
     echo "Build accepted a transitive primary alias"
     exit 1
 fi
@@ -53,7 +53,7 @@ printf 'outside sentinel\n' > "$probe/escaped.aleo"
 printf 'outside sentinel\n' > escaped.aleo
 for name in "$probe/escaped.aleo" ../escaped.aleo; do
     printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"%s","location":"local","path":"simple.aleo"}]}\n' "$name" > program.json
-    if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+    if output=$(${LEO_BIN} build 2>&1); then
         echo "Build accepted a dependency path as its name"
         exit 1
     fi
@@ -63,7 +63,7 @@ for name in "$probe/escaped.aleo" ../escaped.aleo; do
     echo "Rejected dependency path; outside files and build artifacts are unchanged."
 done
 printf '{"program":"complex.aleo","version":"0.1.0","description":"","license":"MIT","dependencies":[{"name":"different.aleo","location":"local","path":"simple.aleo"}]}\n' > program.json
-if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+if output=$(${LEO_BIN} build 2>&1); then
     echo "Build accepted bytecode with a different program ID"
     exit 1
 fi
@@ -88,7 +88,7 @@ for target in root directory file dangling; do
         file) mkdir -p build/simple; ln -s "$outside/simple/simple.aleo" build/simple/simple.aleo ;;
         dangling) mkdir -p build/simple; ln -s "$outside/missing.aleo" build/simple/simple.aleo ;;
     esac
-    if output=$(${LEO_BIN} --disable-update-check build 2>&1); then
+    if output=$(${LEO_BIN} build 2>&1); then
         echo "Build accepted a $target symlink"
         exit 1
     fi

@@ -2,6 +2,13 @@ library math_lib {
     export fn square(x: u32) -> u32 {
         return x * x;
     }
+    export fn inner(x: u32) -> u32 {
+        return x + 1u32;
+    }
+    export fn shifted(x: u32) -> u32 {
+        let result = inner(x);
+        return result;
+    }
 }
 
 program test.aleo {
@@ -9,11 +16,20 @@ program test.aleo {
     async constructor() {
     }
     fn main(a: u32, b: u32) -> u32 {
-        let $var$0 = a * a;
-        let sa: u32 = $var$0;
-        let $var$1 = b * b;
-        let sb: u32 = $var$1;
-        return sa + sb;
+        let $var$2 = a * a;
+        let sa: u32 = $var$2;
+        let $var$3 = b * b;
+        let sb: u32 = $var$3;
+        let $var$0$#4 = 1u32;
+        let $var$1$#5 = a + $var$0$#4;
+        let result$#6 = $var$1$#5;
+        let shifted: u32 = result$#6;
+        let local: u32 = test.aleo::inner(b);
+        return sa + sb + shifted + local;
     }
 }
+    @no_inline
+    export fn inner(x: u32) -> u32 {
+        return x + 2u32;
+    }
 

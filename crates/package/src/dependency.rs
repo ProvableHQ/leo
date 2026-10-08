@@ -61,7 +61,7 @@ impl GitSource {
 /// The git reference a dependency tracks, derived from its `branch`/`tag`/`rev` fields.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum GitReference {
-    /// Tip of a named branch. Mutable: re-resolved online each build.
+    /// Tip of a named branch. Mutable: refreshed by `leo update`.
     Branch(String),
     /// A tag. Immutable: reused from cache once fetched.
     Tag(String),
@@ -72,7 +72,7 @@ pub enum GitReference {
 }
 
 impl GitReference {
-    /// Whether the reference tracks a moving target (a branch tip) and must be re-resolved online.
+    /// Whether the reference tracks a branch tip that `leo update` can refresh.
     pub fn is_mutable(&self) -> bool {
         matches!(self, GitReference::Branch(_) | GitReference::DefaultBranch)
     }

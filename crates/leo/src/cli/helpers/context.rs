@@ -16,7 +16,7 @@
 
 use aleo_std;
 use leo_errors::Result;
-use leo_package::{Manifest, Workspace};
+use leo_package::{Lock, Manifest, Workspace};
 
 use aleo_std::aleo_dir;
 use std::{env::current_dir, path::PathBuf};
@@ -67,11 +67,26 @@ impl Context {
         }
     }
 
-    /// Returns the path to the Aleo registry directory.
+    /// Returns the path to the Aleo registry directory, creating it if needed.
     pub fn home(&self) -> Result<PathBuf> {
-        match &self.home {
-            Some(path) => Ok(path.clone()),
-            None => Ok(aleo_dir()),
+        let path = self.home.clone().unwrap_or_else(aleo_dir);
+        std::fs::create_dir_all(&path).map_err(crate::errors::cli_io_error)?;
+        Ok(path)
+    }
+
+    /// Read dependency pins from the enclosing project or workspace.
+    pub fn network_pins(&self) -> Result<Lock> {
+        let mut path = self.dir()?;
+        if path.extension().and_then(|extension| extension.to_str()) == Some("aleo") {
+            path = path.canonicalize().map_err(crate::errors::cli_io_error)?;
+            path.pop();
+        }
+        if let Some(root) = Workspace::discover_root(&path)? {
+            Lock::read(&root)
+        } else if let Some(root) = path.ancestors().find(|dir| dir.join(leo_package::MANIFEST_FILENAME).is_file()) {
+            Lock::read(root)
+        } else {
+            Ok(Lock::default())
         }
     }
 

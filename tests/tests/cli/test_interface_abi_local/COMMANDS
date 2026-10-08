@@ -7,7 +7,7 @@
 LEO_BIN=${1}
 
 echo "--- leo build (program with local interfaces) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} build
 echo "build exit code: $?"
 
 echo "--- program ABI ---" | tee /dev/stderr

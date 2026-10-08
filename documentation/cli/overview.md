@@ -39,7 +39,7 @@ You can print the list of commands by running `leo --help`
 - [`remove`](./remove.md) - Remove a dependency from the current project.
 - [`run`](./run.md) - Run a program without producing a proof.
 - [`test`](./test.md) - Run the test cases for a Leo project.
-- [`update`](./update.md) - Update to the latest version of Leo.
+- [`update`](./update.md) - Update dependencies in `leo.lock` within the manifest requirements.
 - [`upgrade`](./upgrade.md) - Upgrade a deployed program on the Aleo network.
 - [`synthesize`](./synthesize.md) - Generate proving and verifying keys for a program.
 - [`fmt`](./fmt.md) - Format Leo source files. *(plugin)*
@@ -68,10 +68,6 @@ Suppresses the CLI output.
 ### `-d`
 
 Prints out additional information for debugging if possible.
-
-### `--disable-update-check`
-
-Disables Leo's daily check for CLI version updates.
 
 ### `--path <PATH>`
 
@@ -107,4 +103,4 @@ leo build --json-output
 
 ### `-p <NAME>`
 
-Targets a specific [workspace](../guides/workspaces.md) member by name. The name can be the member directory, program name, or program name without the `.aleo` suffix. For example, use `token.aleo`. Use this option only in a workspace. If `workspace.json` does not exist, the command reports an error.
+Targets a specific [workspace](../guides/workspaces.md) member by name. The name can be the member directory, program name, or program name without the `.aleo` suffix. For example, use `token.aleo`. `leo update` does not accept this option; use `leo update NAME` to select a dependency. Use this option only in a workspace. If `workspace.json` does not exist, the command reports an error.

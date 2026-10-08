@@ -20,7 +20,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-$LEO_BIN --disable-update-check devnet \
+$LEO_BIN devnet \
     --snarkos "$SNARKOS" \
     --num-clients 0 \
     --rest-port "$REST_PORT" \
@@ -92,5 +92,5 @@ kill "$PID" 2>/dev/null && wait "$PID" 2>/dev/null
 PID=""
 
 # Clean devnet storage and report.
-$LEO_BIN --disable-update-check devnet --clean-only --snarkos "$SNARKOS" --storage "$STORAGE" --yes >/dev/null 2>&1
+$LEO_BIN devnet --clean-only --snarkos "$SNARKOS" --storage "$STORAGE" --yes >/dev/null 2>&1
 echo "Leo devnet clean succeeded"

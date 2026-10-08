@@ -106,9 +106,9 @@ impl Workspace {
 
         // Reject members that share a bare program name: they would otherwise
         // race on the shared `<workspace_root>/build/<name>/` artifacts.
-        let mut by_bare_name: std::collections::HashMap<&str, &PathBuf> = std::collections::HashMap::new();
+        let mut by_bare_name: std::collections::HashMap<String, &PathBuf> = std::collections::HashMap::new();
         for (path, program) in &ordered {
-            let bare = crate::bare_unit_name(program);
+            let bare = crate::bare_unit_name(program).to_ascii_lowercase();
             if let Some(existing) = by_bare_name.insert(bare, path) {
                 return Err(
                     errors::workspace_duplicate_program_name(program, existing.display(), path.display()).into()
@@ -975,6 +975,16 @@ mod tests {
 
         let err = Workspace::from_directory(&dir).unwrap_err().to_string();
         assert!(err.contains("token.aleo"), "expected error to name the duplicated program: {err}");
+
+        let mut library_manifest = manifest;
+        library_manifest.program = "Token".to_string();
+        library_manifest.write_to_file(other.join(MANIFEST_FILENAME)).expect("The library manifest must be written.");
+        std::fs::remove_file(other.join("src/main.leo")).expect("The program entry must be removed.");
+        std::fs::write(other.join("src/lib.leo"), "// Library source.\n").expect("The library entry must be written.");
+        for members in [["token", "token-v2"], ["token-v2", "token"]] {
+            create_workspace(&dir, &members);
+            Workspace::from_directory(&dir).expect_err("Mixed-case names must not share workspace build output.");
+        }
 
         std::fs::remove_dir_all(&dir).unwrap();
     }

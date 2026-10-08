@@ -31,7 +31,7 @@ use leo_span::{Symbol, sym};
 pub struct TransformVisitor<'a> {
     pub state: &'a mut CompilerState,
     /// Functions that should always be inlined.
-    pub always_inline: IndexSet<Vec<Symbol>>,
+    pub always_inline: IndexSet<Location>,
     /// A map of reconstructed functions, keyed by `Location` for O(1) lookup during inlining.
     pub reconstructed_functions: IndexMap<Location, Function>,
     /// The main program.
@@ -296,7 +296,7 @@ impl AstReconstructor for TransformVisitor<'_> {
                     "this function has an argument naming an optional",
                 ) ||
                 mandatory_cond(
-                    self.always_inline.contains(&vec![callee.identifier.name]),
+                    self.always_inline.contains(function_location),
                     "this function has been called from another function",
                 ) ||
                 // Called only once

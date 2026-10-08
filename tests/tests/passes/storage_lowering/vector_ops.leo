@@ -75,6 +75,18 @@ program singleton_storage.aleo {
         };
     }
 
+    fn else_if_vector_ops(public skip: bool) -> Final {
+        return final {
+            if skip {
+                counter = 1u8;
+            } else if nums.pop() != none {
+                counter = 2u8;
+            } else if nums.swap_remove(0u32) == 42u32 {
+                counter = 3u8;
+            }
+        };
+    }
+
     // This counter write makes repeated index evaluation observable.
     final fn next_index() -> u32 {
         let count: u32 = calls.get_or_use(0u32, 0u32);
