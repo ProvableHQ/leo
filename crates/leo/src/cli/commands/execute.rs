@@ -388,12 +388,13 @@ fn handle_execute<A: Aleo>(
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
         println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
-        programs = load_latest_programs_from_network(
+        programs = load_programs_from_network(
             &context,
             program_id,
             network,
             &endpoint,
             command.env_override.network_retries,
+            None,
         )?;
     };
 

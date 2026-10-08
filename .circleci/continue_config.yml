@@ -663,9 +663,9 @@ jobs:
             while IFS= read -r d; do
               echo "--- $d ---"
               if [ -d "$d/tests" ]; then
-                (cd "$d" && "$LEO" --disable-update-check test) || failed=1
+                (cd "$d" && "$LEO" test) || failed=1
               else
-                (cd "$d" && "$LEO" --disable-update-check build) || failed=1
+                (cd "$d" && "$LEO" build) || failed=1
               fi
             done < <(find documentation/code_snippets -name program.json -not -path '*/build/*' -not -path '*/imports/*' | xargs -n1 dirname | sort)
             exit $failed

@@ -9,8 +9,8 @@ LEO_BIN=${1}
 cd top_lib || exit 1
 
 echo "--- leo add --local base_lib (should succeed) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check add base_lib --local ../base_lib
+${LEO_BIN} add base_lib --local ../base_lib
 
 echo "--- leo build (should succeed: library-to-library reference) ---" | tee /dev/stderr
-${LEO_BIN} --disable-update-check build
+${LEO_BIN} build
 echo "build exit code: $?"

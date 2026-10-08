@@ -35,31 +35,6 @@ pub(crate) fn cli_runtime_error(error: impl Display) -> Backtraced {
     Backtraced::error(CODE_PREFIX, CODE_MASK + 2, format!("CLI runtime error: {error}"))
 }
 
-pub(crate) fn could_not_fetch_versions(error: impl ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 3, format!("could not fetch Leo release versions: {error}"))
-        .with_help("Check your internet connection and retry. If the problem persists, download a release manually from https://github.com/ProvableHQ/leo/releases.")
-}
-
-pub(crate) fn self_update_error(error: impl ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 5, format!("self-update failed: {error}")).with_help(
-        "Retry the update, or download the latest release manually from https://github.com/ProvableHQ/leo/releases.",
-    )
-}
-
-pub(crate) fn self_update_build_error(error: impl ErrorArg) -> Backtraced {
-    Backtraced::error(CODE_PREFIX, CODE_MASK + 6, format!("self-update failed to build the updater: {error}"))
-        .with_help("Retry the update, or download the latest release manually from https://github.com/ProvableHQ/leo/releases.")
-}
-
-pub(crate) fn old_release_version(current: impl Display, latest: impl Display) -> Backtraced {
-    Backtraced::error(
-        CODE_PREFIX,
-        CODE_MASK + 7,
-        format!("Leo `{current}` is older than the latest release `{latest}`"),
-    )
-    .with_help("Run `leo update` to upgrade to the latest version.")
-}
-
 pub(crate) fn failed_to_load_instructions(error: impl Display) -> Backtraced {
     Backtraced::error(
         CODE_PREFIX,

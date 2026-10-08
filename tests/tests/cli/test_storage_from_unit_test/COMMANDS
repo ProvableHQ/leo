@@ -6,4 +6,4 @@
 
 LEO_BIN=${1}
 
-${LEO_BIN} --disable-update-check test
+${LEO_BIN} test

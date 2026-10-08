@@ -150,6 +150,16 @@ leo
 </TabItem>
 </Tabs>
 
+## Updating Leo and Plugins
+
+Update Leo and its plugins with the installation method you used above. For a Cargo installation, run:
+
+```bash
+cargo install leo-lang leo-fmt leo-lsp
+```
+
+Leo does not check for new releases or show release notices. [`leo update`](../cli/update.md) updates project dependencies in `leo.lock`; it does not install Leo or its plugins.
+
 ---
 
 For distribution maintainers and detailed artifact information, see the [Binary Distribution Reference](../guides/binary_distribution.md).

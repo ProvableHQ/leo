@@ -60,8 +60,8 @@ pub(crate) fn checkout_dir(home: &Path, url: &str, commit: &str) -> PathBuf {
 
 /// Resolve a git dependency to a `(checkout_directory, commit_hash)`.
 ///
-/// A `locked_commit` from `leo.lock` is reused when its checkout exists and the reference is
-/// immutable (tag/rev) or `offline`; a mutable reference re-resolves against the remote when online.
+/// A `locked_commit` from `leo.lock` is reused. Without a cached checkout, the repository is
+/// fetched and that same commit is restored. A missing pin resolves the requested reference.
 /// `offline` forbids network access, so it then succeeds only from an existing checkout.
 pub fn resolve(
     home: &Path,
@@ -71,11 +71,7 @@ pub fn resolve(
     locked_commit: Option<&str>,
     offline: bool,
 ) -> Result<(PathBuf, String)> {
-    // Fast path: reuse a cached locked commit, but only for an immutable reference (or when
-    // offline) — a mutable branch tip must be re-resolved online.
-    if let Some(commit) = locked_commit
-        && (offline || !reference.is_mutable())
-    {
+    if let Some(commit) = locked_commit {
         let dir = checkout_dir(home, url, commit);
         if dir.is_dir() {
             return Ok((dir, commit.to_string()));
@@ -125,8 +121,8 @@ fn clone_resolve_checkout(
     let repo = checkout.persist();
 
     let revspec = match (locked_commit, reference) {
-        // Immutable ref + locked commit: use the pin so a moved tag can't change the build.
-        (Some(commit), reference) if !reference.is_mutable() => commit.to_string(),
+        // Restore the locked commit even when its branch or tag has moved.
+        (Some(commit), _) => commit.to_string(),
         (_, GitReference::DefaultBranch) => "HEAD".to_string(),
         (_, GitReference::Branch(branch)) => format!("origin/{branch}"),
         (_, GitReference::Tag(tag)) => format!("refs/tags/{tag}"),
@@ -183,7 +179,7 @@ fn checkout_tree(
 }
 
 /// A unique directory under `parent` for transient work (`<prefix>-<pid>-<seq>`).
-fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
+pub(crate) fn unique_dir(parent: &Path, prefix: &str) -> PathBuf {
     static COUNTER: AtomicU64 = AtomicU64::new(0);
     let seq = COUNTER.fetch_add(1, Ordering::Relaxed);
     parent.join(format!("{prefix}-{}-{seq}", std::process::id()))

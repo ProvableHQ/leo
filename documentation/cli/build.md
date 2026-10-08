@@ -30,6 +30,10 @@ The output has one import line for each imported program. Leo does not show this
 
 The build also generates an **ABI file** at `build/{PROGRAM_NAME}/abi.json` describing your program's public interface (transitions, mappings, and types). See the [ABI Generation guide](../guides/abi.md) for details on the format and type lowering specification.
 
+## Dependency Locks
+
+The first build records resolved network editions and checksums in `leo.lock`. Builds reuse locked network editions and Git commits. Keep this file under version control. Use [`leo update`](./update.md) to refresh dependencies within the manifest requirements.
+
 ## Checksums
 
 The [`std::prog::function_checksum`](../language/standard_library.md#stdprog) function returns program, entry, and view function checksums. Use these checksums in a [constructor](../language/structure.md#constructor) that pins functions across upgrades. To print the checksums, pass `--checksums`:
@@ -55,7 +59,7 @@ Each checksum is the 32-byte SHA3-256 hash of the component's Aleo source. The [
     Print the program checksum and the checksum of each entry and view function
     (the `std::prog::function_checksum` targets).
 --no-cache
-    Don't use the dependency cache.
+    Download network dependencies again and verify locked checksums. Keep locked editions.
 --no-local
     Don't use the local source code.
 --network <NETWORK>

@@ -80,6 +80,7 @@ Once it is deployed, it CANNOT be changed.
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Deployment confirmed!
+Remote run, execute, synthesize, and --with work without a supplied lock.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.
@@ -152,6 +153,7 @@ Loaded the following programs into the VM:
 Explored XXXXXX blocks.
 Transaction accepted.
 ✅ Upgrade confirmed!
+Upgrade uses the current root edition; dependency updates preserve dry runs and exact constraints.
 
 📢 Using the following consensus heights: 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21
   To override, pass in `--consensus-heights` or override the environment variable `CONSENSUS_VERSION_HEIGHTS`.

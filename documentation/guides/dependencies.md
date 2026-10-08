@@ -45,6 +45,8 @@ NETWORK=mainnet leo add credits --network
 
 You can also set `NETWORK=mainnet` in `.env`. If you do not use `--endpoint`, Leo uses `ENDPOINT` from the environment. Leo makes sure that the program exists on the selected network before it changes `program.json`. Use `--network-retries` to set the number of retries.
 
+Leo records the resolved network edition and checksum in `leo.lock`. Later builds reuse that edition. The built-in `credits.aleo` program comes from snarkVM and needs no network lock entry. For this built-in program, Leo ignores the manifest edition and uses the bundled edition zero.
+
 This adds an entry to your `program.json`:
 
 ```json
@@ -57,8 +59,8 @@ This adds an entry to your `program.json`:
     {
       "name": "credits.aleo",
       "location": "network",
-      "network": "testnet",
-      "path": null
+      "path": null,
+      "edition": null
     }
   ]
 }
@@ -80,8 +82,8 @@ This records the path in `program.json`:
     {
       "name": "my_library.aleo",
       "location": "local",
-      "network": null,
-      "path": "./path/to/my_library"
+      "path": "./path/to/my_library",
+      "edition": null
     }
   ]
 }
@@ -152,11 +154,11 @@ When Leo first resolves a git dependency, it writes a `leo.lock` file. This file
 ```json file=../code_snippets/dependencies/git_dep/leo.lock title="leo.lock"
 ```
 
-Subsequent builds reuse the locked commit, so builds are reproducible. Commit `leo.lock` to version control to share exact dependency versions. A change to `branch`, `tag`, or `rev` in `program.json` makes Leo resolve the dependency again and update the lock. The reference kind determines if a rebuild uses the network. A `tag` or `rev` uses the cache without network access. A `branch`, including the default branch, uses the remote during each build that has network access.
+Builds reuse the locked commit for every Git reference, including branches. If the cached checkout is missing, Leo downloads the repository and restores that commit. Commit `leo.lock` to version control to share exact dependency versions.
 
-A `tag` or `rev` is immutable. After the lock operation, Leo reuses it from the cache. A `branch`, including the default branch, is mutable. During each build with network access, Leo resolves the latest branch commit and updates the lock. Thus, builds at different times can use different commits. Pin a `tag` or `rev` when you need a fixed dependency.
+Use `leo update NAME` to update a branch dependency, or `leo update` to update all eligible dependencies. Packages from the same Git repository and reference update together. Locked tags and revisions stay fixed. A change to `branch`, `tag`, or `rev` in `program.json` makes Leo resolve the new reference.
 
-Pass `--offline` to `leo build` to skip all git fetching and build from the locked commits and the local cache, even for branch references. `leo remove` deletes the removed dependency's entries from `leo.lock`.
+Pass `--offline` to `leo build` to use only locked Git commits with cached checkouts. For Git dependencies, `leo remove` also removes the corresponding lock entries.
 
 ## `dependencies` vs. `dev_dependencies`
 
@@ -171,12 +173,14 @@ Tests can already use `dependencies`. Thus, put a library that `src` and tests u
 
 This reference applies to each dependency kind, not only workspace members. `leo add` completes these fields. If you edit `program.json` manually, Leo validates each dependency when it loads the manifest. Leo rejects incompatible field combinations. Each entry has a `location`, and the other fields depend on it:
 
-| `location`  | `path`      | `edition`   | `network`            |
-| ----------- | ----------- | ----------- | -------------------- |
-| `network`   | not allowed | optional    | target network       |
-| `local`     | required    | not allowed | —                    |
-| `workspace` | not allowed | not allowed | —                    |
-| `git`       | not allowed | not allowed | —                    |
+| `location`  | `path`      | `edition`   |
+| ----------- | ----------- | ----------- |
+| `network`   | not allowed | optional    |
+| `local`     | required    | not allowed |
+| `workspace` | not allowed | not allowed |
+| `git`       | not allowed | not allowed |
+
+The manifest does not select a network. Commands use their network option or the `NETWORK` environment variable. `leo add --network` selects the dependency source; use `NETWORK` to select its verification network. Network lock entries are stored separately for each network.
 
 The same rules apply to entries in `dev_dependencies`. `workspace` entries are looked up in `workspace.json` and resolved to a local path automatically. `git` entries additionally take a `git` object with a `url` and at most one of `branch`/`tag`/`rev`.
 
@@ -201,7 +205,7 @@ When you run a Leo command, dependencies are resolved as follows:
 2. **For each dependency:**
    - **Workspace**: Look up the member in `workspace.json` and resolve to a local path
    - **Local**: Read the Leo source from the specified path and compile it, or use Aleo Instructions file
-   - **Network**: Fetch the bytecode from the Aleo network (or cache)
+   - **Network**: Use the locked edition and check its checksum against cached or downloaded bytecode. If no lock entry exists, resolve the manifest edition or the latest edition and record its checksum.
    - **Git**: Reuse the commit pinned in `leo.lock` if present. Otherwise clone the repository, resolve the reference to a commit, and check it out. The checked-out package is then treated exactly like a local one.
 3. **Resolve transitive dependencies** - if your dependency imports other programs, those are fetched too
 4. **Topologically sort** all programs so dependencies are processed before dependents
@@ -223,13 +227,15 @@ Different commands handle caching differently:
 | `leo upgrade`    | Always fetches fresh |
 | `leo synthesize` | Always fetches fresh |
 
-Commands that generate proofs (`execute`, `deploy`, `upgrade`, `synthesize`) always fetch fresh bytecode because proofs include commitments to the exact bytecode of dependencies. Using stale cached bytecode would produce invalid proofs if a dependency has been upgraded on-chain.
+`leo execute`, `leo deploy`, `leo upgrade`, and `leo synthesize` download network dependency bytecode again. Project dependencies still use their locked editions and checksums. A fresh download does not update the lock to a newer edition. Remote commands outside a project can resolve programs without a supplied lock.
 
 To force a fresh fetch during `build` or `run`:
 
 ```bash
 leo build --no-cache
 ```
+
+This downloads locked network editions again and verifies their checksums. Use `leo update` to select newer editions. The first download trusts the configured endpoint; a checksum detects later changes but does not authenticate the first response.
 
 ## Program Editions
 
@@ -240,7 +246,7 @@ An **edition** is the version number of a deployed program on the Aleo network:
 - **Edition 2:** Second upgrade
 - ...and so on
 
-By default, Leo fetches the **latest** edition of a network dependency. To pin to a specific edition:
+When no manifest edition or lock entry exists, Leo fetches the latest edition and records it in `leo.lock`. Later builds keep that edition, even if a newer one is deployed. To require an exact edition in the manifest:
 
 ```bash
 leo add some_program.aleo --edition 3
@@ -252,17 +258,22 @@ This records the pinned edition in the manifest:
 {
   "name": "some_program.aleo",
   "location": "network",
-  "network": "testnet",
   "path": null,
   "edition": 3
 }
 ```
 
-**When to pin editions:**
+The lock provides reproducible dependency resolution without an exact manifest edition. Set an exact edition when you also want `leo update` to keep it fixed. To change an exact requirement, change the manifest or use `leo add NAME --edition EDITION`.
 
-- When you need reproducible builds
-- When a dependency upgrade would break your program
-- When you want to avoid unexpected behavior changes
+To update dependencies whose manifest requirements permit a newer version:
+
+```bash
+leo update --dry-run
+leo update
+leo update some_program.aleo
+```
+
+Updates leave `program.json` unchanged. In a workspace, they resolve all members and development dependencies against the shared lock. A named update preserves unrelated versions where possible. If resolution fails, the existing lock stays unchanged. See [`leo update`](../cli/update.md) for options.
 
 **Note:** Local dependencies do not have editions - they are always compiled from your current source code.
 
@@ -280,4 +291,4 @@ This deploys all local dependencies in topological order, then deploys your main
 
 ### Network Dependencies at Deploy Time
 
-During deployment, Leo gets current bytecode for all network dependencies. This operation makes the deployment transaction reference the current on-chain editions. Since the V8 consensus upgrade, an edition 0 network dependency must have a constructor. If the constructor does not exist, Leo reports that you must first upgrade the dependency on-chain.
+During deployment, Leo downloads the locked network dependency editions and verifies their checksums. Missing lock entries are resolved and recorded. Use `leo update` when you want to select newer editions that the manifest permits. Since the V8 consensus upgrade, an edition 0 network dependency must have a constructor. If the constructor does not exist, Leo reports that you must first upgrade the dependency on-chain.

@@ -10,7 +10,7 @@ toc_max_heading_level: 2
 
 # `leo upgrade`
 
-Upgrades a program that is already deployed on the network.
+Upgrades a program that is already deployed on the network. Leo checks the current deployed edition of the program being upgraded, even if an older dependency lock exists for that program. Other network dependencies use their locked editions and checksums.
 
 See the **[Upgrading Programs](./../guides/program_upgradability.md)** guide for more details.
 
@@ -121,7 +121,7 @@ Options:
 --build-tests
     Build tests along with the main program and dependencies.
 --no-cache
-    Don't use the dependency cache.
+    Download network dependencies again and verify locked checksums. Keep locked editions.
 --no-local
     Don't use the local source code.
 ```

@@ -6,48 +6,54 @@ toc_min_heading_level: 2
 toc_max_heading_level: 2
 ---
 
-[general tags]: # "cli, leo_update, versioning"
+[general tags]: # "cli, leo_update, dependencies"
 
 # `leo update`
 
-To download and install the latest Leo version run:
+Update dependency versions in `leo.lock` without changing `program.json`.
 
 ```bash
 leo update
 ```
 
-```bash title="console output:"
-Checking target-arch... aarch64-apple-darwin
-Checking current version... v3.1.0
-Checking latest released version... v3.1.0
-       Leo
-Leo is already on the latest version
-```
-
-`leo update` also updates bundled plugins (such as `leo-fmt`) on a best-effort basis.
-
-If you'd like to install a specific version of Leo, you can do so by passing the `--name` flag:
+To update one dependency, specify its name:
 
 ```bash
-leo update --name v3.0.0
+leo update token.aleo
 ```
 
-## Flags
+To preview changes without writing the lock file, use `--dry-run`:
 
-### `--list`
+```bash
+leo update token.aleo --dry-run --network testnet --endpoint https://api.explorer.provable.com/v1
+```
 
-### `-l`
+Network dependencies without an exact edition in `program.json` can move to the latest edition. Git dependencies that use a branch can move to its current commit. An exact network edition, Git revision, or locked Git tag stays fixed. Change the manifest requirement to select a different exact version.
 
-Lists all available versions of Leo.
+Leo fetches and validates the selected dependencies before it writes the lock. Network entries record the program identity, network, edition, and checksum. If the bytecode changes for an edition that is already locked, the command fails. It does not replace that edition's checksum.
 
-### `--name`
+The first checksum comes from the configured endpoint. It detects later changes to that edition, but it does not prove that the first response was correct.
 
-### `-n`
+Normal builds use the locked versions. `leo build --no-cache` downloads locked network editions again and checks their checksums; it does not update them.
 
-An optional release name if you wish to install a specific version of Leo. By default, the command will look for the latest release.
+## Arguments and flags
 
-### `--quiet`
+### `NAME`
 
-### `-q`
+Optional dependency name. Omit the name to update dependencies throughout the current project or workspace, including development dependencies. Packages from the same Git source and reference update together. Other locked dependencies stay fixed unless resolution requires a change.
 
-Suppresses download logs while updating.
+### `--dry-run`
+
+Show the proposed changes without writing `leo.lock` or `program.json`.
+
+### `--network`
+
+Select the network for network dependencies, such as `testnet` or `mainnet`.
+
+### `--endpoint`
+
+Select the endpoint used to resolve and download network dependencies.
+
+## Update the Leo installation
+
+`leo update` updates dependency locks. Leo does not check for new releases or show release notices. The `--disable-update-check` flag was removed; remove it from existing scripts. To install the latest Leo release and plugins, follow the [installation instructions](https://github.com/ProvableHQ/leo#-build-guide).

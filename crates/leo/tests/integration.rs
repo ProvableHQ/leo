@@ -597,7 +597,6 @@ fn execution_approval_refusal_and_private_records() {
                     .arg("--home")
                     .arg(directory.path().join("home"))
                     .args([
-                        "--disable-update-check",
                         "--path",
                         "./extra_prog.aleo",
                         "execute",
