@@ -27,7 +27,7 @@ use std::{io::Write, path::Path};
 /// File name of the lock file, stored alongside `program.json`.
 pub const LOCK_FILENAME: &str = "leo.lock";
 
-const LOCK_VERSION: u32 = 2;
+const LOCK_VERSION: u32 = 3;
 
 /// A single pinned git dependency.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -48,6 +48,9 @@ pub struct NetworkLockEntry {
     pub edition: u16,
     /// The SHA3-256 checksum of the canonical Aleo program, as 32 bytes.
     pub checksum: [u8; 32],
+    /// The SHA-256 fingerprint of the trusted endpoint that supplied this edition.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<[u8; 32]>,
 }
 
 /// The contents of `leo.lock`.
@@ -78,7 +81,7 @@ impl Lock {
         };
         let mut lock: Self =
             serde_json::from_str(&contents).map_err(|err| crate::errors::invalid_lock_file(path.display(), err))?;
-        if !matches!(lock.version, 1 | LOCK_VERSION) {
+        if !matches!(lock.version, 1 | 2 | LOCK_VERSION) {
             return Err(crate::errors::invalid_lock_file(path.display(), "unsupported lock version").into());
         }
         let mut seen = IndexSet::with_capacity(lock.network.len());

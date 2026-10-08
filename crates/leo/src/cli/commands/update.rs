@@ -59,7 +59,7 @@ impl Command for LeoUpdate {
             self.name.as_deref(),
             self.dry_run,
             network,
-            &endpoint,
+            context.program_endpoint(&endpoint),
             self.env_override.network_retries,
         )?;
 

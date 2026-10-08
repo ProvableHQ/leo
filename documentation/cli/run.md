@@ -44,6 +44,8 @@ If one or more inputs are negative, separate the inputs with `--`. This separato
 leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
 ```
 
+Program downloads use the official API by default. To download from a trusted local development network or custom endpoint, pass `--trust-endpoint`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change the program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 ## Flags
 
 ```text
@@ -64,7 +66,8 @@ leo run <FUNCTION_NAME> -- <INPUT_0> -- <INPUT_1> ...
 --network <NETWORK>
     The network to run for. Overrides the `NETWORK` environment variable.
 --endpoint <ENDPOINT>
-    The endpoint to resolve network dependencies from. Overrides the `ENDPOINT` environment variable.
+    The configured network endpoint. Program downloads use it only with --trust-endpoint.
+    Overrides the `ENDPOINT` environment variable.
 --network-retries <N>
     Number of times to retry a network request on transient transport failure, with
     exponential backoff (1 s, 2 s, 4 s, … capped at 64 s). Overrides the

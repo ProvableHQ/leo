@@ -7,7 +7,7 @@ LEO_BIN=${1}
 REMOTE=$(mktemp -d)
 trap 'rm -rf "$REMOTE"' EXIT
 PRIVATE_KEY="APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
-COMMON_OPTS="--broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21"
+COMMON_OPTS="--trust-endpoint --broadcast --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030} --private-key $PRIVATE_KEY --consensus-heights 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21"
 ALEO_FILE="./build/some_sample_leo_program/some_sample_leo_program.aleo"
 
 $LEO_BIN build --network testnet --endpoint http://localhost:${LEO_DEVNODE_PORT:-3030}
@@ -26,7 +26,7 @@ for command in run execute synthesize; do
             args=(synthesize some_sample_leo_program.aleo --skip mint --skip dynamic_transfer)
             ;;
     esac
-    if ! "$LEO_BIN" --path "$REMOTE/empty" --home "$REMOTE/home" "${args[@]}" \
+    if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/empty" --home "$REMOTE/home" "${args[@]}" \
         --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" > "$REMOTE/output" 2>&1; then
         cat "$REMOTE/output"
         exit 1
@@ -41,7 +41,7 @@ done
 
 # An extra remote program also needs no hand-written pin.
 sed 's/some_sample_leo_program/local_probe/g' "$ALEO_FILE" > "$REMOTE/empty/local_probe.aleo"
-if ! "$LEO_BIN" --path "$REMOTE/empty/local_probe.aleo" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/empty/local_probe.aleo" --home "$REMOTE/home" \
     run main 1u32 2u32 --with some_sample_leo_program.aleo --network testnet \
     --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" --private-key "$PRIVATE_KEY" > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
@@ -53,8 +53,8 @@ test ! -e "$REMOTE/empty/leo.lock"
 echo "Remote run, execute, synthesize, and --with work without a supplied lock."
 
 # Keep an automatically generated dependency lock at edition zero for the upgrade check.
-"$LEO_BIN" --path "$REMOTE/lock_consumer" new lock_consumer > "$REMOTE/output" 2>&1
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+"$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" new lock_consumer > "$REMOTE/output" 2>&1
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
     add some_sample_leo_program --network --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
@@ -67,7 +67,7 @@ cp "$ALEO_FILE" "$REMOTE/lock_consumer/upgrade.aleo"
 
 $LEO_BIN --path $ALEO_FILE upgrade --no-local -y $COMMON_OPTS
 # A stale dependency pin must not make an upgrade validate against an old root edition.
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer/upgrade.aleo" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer/upgrade.aleo" --home "$REMOTE/home" \
     upgrade --no-local -y $COMMON_OPTS > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
     exit 1
@@ -77,7 +77,7 @@ test "$(curl -fsS "http://localhost:${LEO_DEVNODE_PORT:-3030}/testnet/program/so
 cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
 
 # A dry run reports the new edition without changing the lock or manifest.
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
     update some_sample_leo_program --dry-run --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     --network-retries 0 > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
@@ -87,7 +87,7 @@ grep -Fq 'Would update some_sample_leo_program.aleo (testnet) edition 0 -> 2' "$
 cmp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/original.lock"
 cmp "$REMOTE/lock_consumer/program.json" "$REMOTE/original.json"
 
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
     update some_sample_leo_program --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     --network-retries 0 > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
@@ -98,7 +98,7 @@ grep -Fq '"edition": 2' "$REMOTE/lock_consumer/leo.lock"
 cmp "$REMOTE/lock_consumer/program.json" "$REMOTE/original.json"
 
 # A manifest constraint keeps an exact edition fixed during a full update.
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
     add some_sample_leo_program --edition 0 --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"
@@ -107,7 +107,7 @@ fi
 grep -Fq '"edition": 0' "$REMOTE/lock_consumer/leo.lock"
 cp "$REMOTE/lock_consumer/leo.lock" "$REMOTE/exact.lock"
 cp "$REMOTE/lock_consumer/program.json" "$REMOTE/exact.json"
-if ! "$LEO_BIN" --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
+if ! "$LEO_BIN" --trust-endpoint --path "$REMOTE/lock_consumer" --home "$REMOTE/home" \
     update --network testnet --endpoint "http://localhost:${LEO_DEVNODE_PORT:-3030}" \
     --network-retries 0 > "$REMOTE/output" 2>&1; then
     cat "$REMOTE/output"

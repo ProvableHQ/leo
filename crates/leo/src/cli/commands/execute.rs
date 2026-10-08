@@ -96,7 +96,7 @@ pub struct LeoExecute {
         long = "with",
         help = "Additional programs to load into the VM (comma-separated). \
         If a path exists locally, it is read as an .aleo bytecode file; \
-        otherwise it is fetched from the network endpoint.",
+        otherwise it is fetched from the selected trusted program source.",
         value_delimiter = ','
     )]
     pub(crate) with: Vec<String>,
@@ -130,7 +130,7 @@ impl Command for LeoExecute {
                 true,
                 self.build_options.no_local,
                 Some(network),
-                Some(&endpoint),
+                Some(context.program_endpoint(&endpoint)),
                 self.env_override.network_retries,
             )
             .map(Some);
@@ -387,7 +387,7 @@ fn handle_execute<A: Aleo>(
     // If the program is not local, then download it and its dependencies for the network.
     // Note: The dependencies are downloaded in "post-order" (child before parent).
     if !is_local {
-        println!("⬇️ Downloading {program_name} and its dependencies from {endpoint}...");
+        println!("⬇️ Downloading {program_name} and its dependencies from {}...", context.program_endpoint(&endpoint));
         programs = load_programs_from_network(
             &context,
             program_id,

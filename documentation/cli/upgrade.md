@@ -14,6 +14,8 @@ Upgrades a program that is already deployed on the network. Leo checks the curre
 
 See the **[Upgrading Programs](./../guides/program_upgradability.md)** guide for more details.
 
+Program downloads use the official API by default. To download from a trusted local development network or custom endpoint, pass `--trust-endpoint`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change the program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 ## Flags
 
 ### `--private-key <PRIVATE_KEY>`

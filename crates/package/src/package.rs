@@ -1280,6 +1280,7 @@ function main:
                     "network": "testnet",
                     "edition": 0,
                     "checksum": dependency.to_checksum().map(|byte| *byte),
+                    "source": snarkvm::algorithms::crypto_hash::sha256(b"http://localhost:1"),
                 }]})
                 .to_string(),
             );

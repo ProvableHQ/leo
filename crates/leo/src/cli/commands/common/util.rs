@@ -130,7 +130,10 @@ pub fn load_extra_programs_into_vm<N: Network>(
                 ))
             })?;
             let name = if entry.ends_with(".aleo") { entry.clone() } else { format!("{entry}.aleo") };
-            println!("⬇️  Fetching remote program {name} and its dependencies from {endpoint}...");
+            println!(
+                "⬇️  Fetching remote program {name} and its dependencies from {}...",
+                context.program_endpoint(endpoint)
+            );
             let program_id = ProgramID::<N>::from_str(&name)
                 .map_err(|e| crate::errors::custom(format!("Failed to parse program ID '{name}': {e}")))?;
             let fetched = super::query::load_programs_from_network(
@@ -166,8 +169,9 @@ mod tests {
 
         let root = std::env::temp_dir().join(format!("leo_extra_pin_{}", std::process::id()));
         std::fs::create_dir_all(&root).expect("The temporary directory must be created");
-        let context =
+        let mut context =
             Context::new(Some(root.clone()), Some(root.join("cache")), false, None).expect("The context must be valid");
+        context.trust_endpoint = true;
         let store = ConsensusStore::<TestnetV0, ConsensusMemory<TestnetV0>>::open(aleo_std::StorageMode::Production)
             .expect("The memory store must open");
         let vm = VM::from(store).expect("The VM must initialize");

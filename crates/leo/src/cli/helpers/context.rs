@@ -35,6 +35,8 @@ pub struct Context {
     pub recursive: bool,
     /// If set, target this specific workspace member.
     pub package_filter: Option<String>,
+    /// Trust the configured endpoint to supply program bytecode.
+    pub trust_endpoint: bool,
 }
 
 impl Context {
@@ -44,7 +46,7 @@ impl Context {
         recursive: bool,
         package_filter: Option<String>,
     ) -> Result<Context> {
-        Ok(Context { path, home, recursive, package_filter })
+        Ok(Context { path, home, recursive, package_filter, trust_endpoint: false })
     }
 
     /// Returns the path of the parent directory to the Leo package.
@@ -72,6 +74,11 @@ impl Context {
         let path = self.home.clone().unwrap_or_else(aleo_dir);
         std::fs::create_dir_all(&path).map_err(crate::errors::cli_io_error)?;
         Ok(path)
+    }
+
+    /// Select the trusted source for program bytecode.
+    pub fn program_endpoint<'a>(&self, endpoint: &'a str) -> &'a str {
+        if self.trust_endpoint { endpoint } else { crate::cli::DEFAULT_ENDPOINT }
     }
 
     /// Read dependency pins from the enclosing project or workspace.
@@ -146,6 +153,12 @@ impl Context {
 
     /// Create a new `Context` pointing at a specific directory.
     pub fn with_path(&self, path: PathBuf) -> Self {
-        Context { path: Some(path), home: self.home.clone(), recursive: self.recursive, package_filter: None }
+        Context {
+            path: Some(path),
+            home: self.home.clone(),
+            recursive: self.recursive,
+            package_filter: None,
+            trust_endpoint: self.trust_endpoint,
+        }
     }
 }

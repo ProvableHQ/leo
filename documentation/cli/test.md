@@ -12,6 +12,8 @@ toc_max_heading_level: 2
 
 This command runs all the test cases specified in the Leo file in `tests/`.
 
+Network dependencies use the official API by default. Pass `--trust-endpoint` to use a trusted local development network or custom program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 If you want to run a specific set of tests, run the following command:
 
 ```bash

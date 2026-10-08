@@ -77,6 +77,16 @@ Specifies the path to Leo program root folder. Defaults to `./`.
 
 Specifies the path to the `.aleo` program registry. This is where programs downloaded from the network will be cached. Defaults to `~/.aleo/registry`.
 
+### `--trust-endpoint`
+
+Trust the endpoint selected by `--endpoint` or `ENDPOINT` as the source of program bytecode. Use this flag only for a local development network or a custom endpoint that you trust. The flag applies to the command and its dependencies, including workspace members and remote imports.
+
+Without this flag, Leo downloads programs from the official API at `https://api.explorer.provable.com/v1`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change this trust policy. Leo trusts the selected API response; it does not independently verify chain consensus. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
+```bash
+leo build --trust-endpoint --endpoint http://localhost:3030 --network testnet
+```
+
 ### `--json-output[=<PATH>]`
 
 Saves structured JSON output to disk.

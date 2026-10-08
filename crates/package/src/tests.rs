@@ -54,14 +54,18 @@ use std::{
 const TRUSTED_TOKEN: &str =
     "program token.aleo;\nfunction reveal:\n    input r0 as u32.private;\n    output r0 as u32.private;\n";
 
-fn network_pin(bytecode: &str, edition: u16) -> serde_json::Value {
+fn network_pin(bytecode: &str, edition: u16, source: Option<&str>) -> serde_json::Value {
     let program: Program<TestnetV0> = bytecode.parse().expect("fixture bytecode must parse");
-    serde_json::json!({
+    let mut pin = serde_json::json!({
         "name": program.id().to_string(),
         "network": "testnet",
         "edition": edition,
         "checksum": program.to_checksum().map(|byte| *byte),
-    })
+    });
+    if let Some(source) = source {
+        pin["source"] = serde_json::json!(snarkvm::algorithms::crypto_hash::sha256(source.as_bytes()));
+    }
+    pin
 }
 
 fn write_network_lock(directory: &Path, pins: &[serde_json::Value]) -> Lock {
@@ -124,6 +128,7 @@ fn first_network_fetch_ignores_unverified_cache_and_records_checksum() {
         let cache = home.join("registry/testnet/token/0/token.aleo");
         write_file(&cache, &TRUSTED_TOKEN.replace("private", "public"));
         let (endpoint, server) = network_response(&[("", "200 OK", TRUSTED_TOKEN)]);
+        let endpoint = format!("{endpoint}/trusted?api_key=fixture-secret");
         let mut lock = Lock::default();
         let unit = crate::CompilationUnit::fetch(
             Symbol::intern("token.aleo"),
@@ -141,9 +146,90 @@ fn first_network_fetch_ignores_unverified_cache_and_records_checksum() {
         assert_eq!(std::fs::read_to_string(cache).expect("cache must exist"), TRUSTED_TOKEN);
         assert_eq!(
             serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(0))),
-            network_pin(TRUSTED_TOKEN, 0),
+            network_pin(TRUSTED_TOKEN, 0, Some(&endpoint)),
         );
+        assert!(!serde_json::to_string(&lock).expect("lock must serialize").contains("fixture-secret"));
         std::fs::remove_dir_all(home).expect("test directory must be removed");
+    });
+}
+
+#[test]
+fn legacy_network_pin_is_verified_before_cached_bytecode_is_used() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for matching in [false, true] {
+            let home = unique_dir("legacy-network-authority");
+            let cached = TRUSTED_TOKEN.replace("private", "public");
+            let pinned = if matching { TRUSTED_TOKEN } else { &cached };
+            let mut lock = write_network_lock(&home, &[network_pin(pinned, 0, None)]);
+            let original_lock = serde_json::to_string(&lock).expect("fixture lock must serialize");
+            let cache = home.join("registry/testnet/token/0/token.aleo");
+            write_file(&cache, &cached);
+            let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN)]);
+            let result = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                Some(0),
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                false,
+                0,
+                &mut lock,
+            );
+            if matching {
+                let unit = result.expect("a matching legacy pin must be authenticated automatically");
+                assert!(matches!(unit.data, crate::ProgramData::Bytecode(ref bytecode) if bytecode == TRUSTED_TOKEN));
+                assert_eq!(std::fs::read_to_string(&cache).expect("cache must exist"), TRUSTED_TOKEN);
+            } else {
+                let error = result.expect_err("a poisoned legacy pin must fail before its cache is used");
+                assert!(error.to_string().contains("checksum"), "{error}");
+                assert_eq!(serde_json::to_string(&lock).expect("lock must serialize"), original_lock);
+                assert_eq!(std::fs::read_to_string(&cache).expect("cache must remain"), cached);
+            }
+            assert_eq!(server.join().expect("fixture must finish").len(), 1);
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
+        }
+    });
+}
+
+#[test]
+fn changed_program_authority_revalidates_pins_and_never_uses_stale_cache() {
+    leo_span::create_session_if_not_set_then(|_| {
+        for (status, body, succeeds) in [
+            ("200 OK", TRUSTED_TOKEN.to_string(), true),
+            ("200 OK", TRUSTED_TOKEN.replace("private", "public"), false),
+            ("503 Service Unavailable", "unavailable".to_string(), false),
+        ] {
+            let home = unique_dir("changed-network-authority");
+            let mut lock =
+                write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0, Some("http://previous-authority.invalid"))]);
+            let original_lock = serde_json::to_string(&lock).expect("lock must serialize");
+            let cache = home.join("registry/testnet/token/0/token.aleo");
+            write_file(&cache, TRUSTED_TOKEN);
+            let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", status, &body)]);
+            let result = crate::CompilationUnit::fetch(
+                Symbol::intern("token.aleo"),
+                None,
+                &home,
+                leo_ast::NetworkName::TestnetV0,
+                &endpoint,
+                false,
+                0,
+                &mut lock,
+            );
+            if succeeds {
+                result.expect("matching bytecode must authenticate the selected authority");
+                assert_eq!(
+                    serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, None)),
+                    network_pin(TRUSTED_TOKEN, 0, Some(&endpoint)),
+                );
+            } else {
+                result.expect_err("a mismatch or unavailable authority must prevent cache reuse");
+                assert_eq!(serde_json::to_string(&lock).expect("lock must serialize"), original_lock);
+            }
+            assert_eq!(std::fs::read_to_string(cache).expect("cache must remain"), TRUSTED_TOKEN);
+            assert_eq!(server.join().expect("fixture must finish").len(), 1);
+            std::fs::remove_dir_all(home).expect("test directory must be removed");
+        }
     });
 }
 
@@ -151,7 +237,7 @@ fn first_network_fetch_ignores_unverified_cache_and_records_checksum() {
 fn cached_network_program_checks_canonical_bytes_on_every_read() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-cache-verification");
-        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0, Some("http://127.0.0.1:1"))]);
         let cache = home.join("registry/testnet/token/0/token.aleo");
         let formatted = format!("// Independent formatting does not change canonical bytes.\n{TRUSTED_TOKEN}\n");
         write_file(&cache, &formatted);
@@ -196,7 +282,7 @@ fn cached_network_program_checks_canonical_bytes_on_every_read() {
 fn inferred_network_edition_comes_from_pin_not_cache() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-pinned-edition");
-        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2)]);
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2, Some("http://127.0.0.1:1"))]);
         write_file(&home.join("registry/testnet/token/2/token.aleo"), TRUSTED_TOKEN);
         write_file(&home.join("registry/testnet/token/99/token.aleo"), &TRUSTED_TOKEN.replace("private", "public"));
         let unit = crate::CompilationUnit::fetch(
@@ -220,9 +306,9 @@ fn inferred_network_edition_comes_from_pin_not_cache() {
 fn explicit_edition_change_records_fresh_checksum_and_preserves_other_networks() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-edition-change");
-        let mut mainnet = network_pin(TRUSTED_TOKEN, 2);
+        let mut mainnet = network_pin(TRUSTED_TOKEN, 2, None);
         mainnet["network"] = serde_json::json!("mainnet");
-        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2), mainnet]);
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 2, None), mainnet]);
         let old = lock.clone();
         let updated = TRUSTED_TOKEN.replace("private", "public");
         write_file(&home.join("registry/testnet/token/3/token.aleo"), TRUSTED_TOKEN);
@@ -245,7 +331,7 @@ fn explicit_edition_change_records_fresh_checksum_and_preserves_other_networks()
         let lock = Lock::read(&home).expect("updated lock must read");
         assert_eq!(
             serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(3))),
-            network_pin(&updated, 3),
+            network_pin(&updated, 3, Some(&endpoint)),
         );
         assert!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2)).is_none());
         assert_eq!(
@@ -260,7 +346,7 @@ fn explicit_edition_change_records_fresh_checksum_and_preserves_other_networks()
 fn network_fetch_uses_exact_pinned_edition() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-exact-edition");
-        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 7)]);
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 7, None)]);
         let body = serde_json::to_string(TRUSTED_TOKEN).expect("fixture body must serialize");
         let (endpoint, server) = network_response(&[("", "200 OK", &body)]);
         let unit = crate::CompilationUnit::fetch(
@@ -307,7 +393,7 @@ fn rejected_network_responses_do_not_replace_cache_or_fall_back() {
             ("404 Not Found", "missing edition".to_owned(), TRUSTED_TOKEN.to_owned(), ""),
         ] {
             let home = unique_dir("network-rejected-response");
-            let mut pin = network_pin(&checksum_source, 7);
+            let mut pin = network_pin(&checksum_source, 7, None);
             pin["name"] = serde_json::json!("token.aleo");
             let mut lock = write_network_lock(&home, &[pin]);
             let cache = home.join("registry/testnet/token/7/token.aleo");
@@ -338,7 +424,7 @@ fn rejected_network_responses_do_not_replace_cache_or_fall_back() {
 fn rejected_network_response_does_not_create_a_cache() {
     leo_span::create_session_if_not_set_then(|_| {
         let home = unique_dir("network-rejected-new-cache");
-        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0)]);
+        let mut lock = write_network_lock(&home, &[network_pin(TRUSTED_TOKEN, 0, None)]);
         let (endpoint, server) = network_response(&[("", "200 OK", &TRUSTED_TOKEN.replace("private", "public"))]);
         let error = crate::CompilationUnit::fetch(
             Symbol::intern("token.aleo"),
@@ -405,7 +491,7 @@ fn bundled_credits_ignores_hostile_cache() {
 #[test]
 fn network_lock_rejects_malformed_and_ambiguous_trust() {
     let directory = unique_dir("network-lock-invalid");
-    let pin = network_pin(TRUSTED_TOKEN, 0);
+    let pin = network_pin(TRUSTED_TOKEN, 0, None);
     let mut other_edition = pin.clone();
     other_edition["edition"] = serde_json::json!(1);
     let mut short_checksum = pin.clone();
@@ -436,7 +522,7 @@ fn legacy_git_lock_is_readable_and_network_pins_survive_git_updates() {
     );
     let legacy = Lock::read(&directory).expect("version one Git lock must load");
     assert_eq!(legacy.commit_for("legacy", "url", "default"), Some("abc"));
-    let mut old = write_network_lock(&directory, &[network_pin(TRUSTED_TOKEN, 2)]);
+    let mut old = write_network_lock(&directory, &[network_pin(TRUSTED_TOKEN, 2, None)]);
     old.record("token.aleo".into(), "url".into(), "default".into(), "old".into());
     let mut updated = Lock::default();
     updated.record("other".into(), "url2".into(), "default".into(), "new".into());
@@ -447,7 +533,7 @@ fn legacy_git_lock_is_readable_and_network_pins_survive_git_updates() {
     let pin = reloaded
         .network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(2))
         .expect("network pin must survive Git changes");
-    assert_eq!(serde_json::json!(pin), network_pin(TRUSTED_TOKEN, 2));
+    assert_eq!(serde_json::json!(pin), network_pin(TRUSTED_TOKEN, 2, None));
     assert!(reloaded.commit_for("token.aleo", "url", "default").is_none());
     assert_eq!(reloaded.commit_for("other", "url2", "default"), Some("new"));
     updated.remove_name("other");
@@ -489,11 +575,11 @@ fn package_automatically_locks_transitive_network_imports() {
         let lock = Lock::read(&consumer).expect("automatic lock must exist");
         assert_eq!(
             serde_json::json!(lock.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(2))),
-            network_pin(&parent, 2),
+            network_pin(&parent, 2, Some(&endpoint)),
         );
         assert_eq!(
             serde_json::json!(lock.network_pin("token.aleo", leo_ast::NetworkName::TestnetV0, Some(1))),
-            network_pin(TRUSTED_TOKEN, 1),
+            network_pin(TRUSTED_TOKEN, 1, Some(&endpoint)),
         );
         let original_lock = std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must exist");
         Package::from_directory(
@@ -503,7 +589,7 @@ fn package_automatically_locks_transitive_network_imports() {
             false,
             false,
             Some(leo_ast::NetworkName::TestnetV0),
-            Some("http://127.0.0.1:1"),
+            Some(&endpoint),
             0,
         )
         .expect("repeat build must use locked editions without consulting the endpoint");
@@ -523,7 +609,15 @@ fn package_automatically_locks_transitive_network_imports() {
         )
         .expect("no-cache must fetch locked editions and retain their checksums");
         assert_eq!(server.join().expect("fixture must finish").len(), 2);
-        assert_eq!(std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"), original_lock);
+        let mut expected: serde_json::Value = serde_json::from_slice(&original_lock).expect("lock must parse");
+        expected["version"] = serde_json::json!(3);
+        for pin in expected["network"].as_array_mut().expect("network pins must exist") {
+            pin["source"] = serde_json::json!(snarkvm::algorithms::crypto_hash::sha256(endpoint.as_bytes()));
+        }
+        let updated: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(consumer.join(LOCK_FILENAME)).expect("lock must remain"))
+                .expect("updated lock must parse");
+        assert_eq!(updated, expected);
         let local = base.join("local");
         write_program(&local, "local.aleo", "null");
         let package = Package::from_directory(&local, &home, false, false, false, None, None, 0)
@@ -546,7 +640,7 @@ fn package_keeps_workspace_and_development_network_pins() {
         std::fs::create_dir_all(&home).expect("home must exist");
         let sibling = TRUSTED_TOKEN.replace("token.aleo", "sibling.aleo");
         let dev = TRUSTED_TOKEN.replace("token.aleo", "dev.aleo");
-        write_network_lock(&workspace, &[network_pin(&sibling, 1), network_pin(&dev, 2)]);
+        write_network_lock(&workspace, &[network_pin(&sibling, 1, None), network_pin(&dev, 2, None)]);
         write_file(&consumer.join(LOCK_FILENAME), "ignored member lock");
         let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN)]);
         Package::from_directory(
@@ -578,7 +672,7 @@ fn package_keeps_workspace_and_development_network_pins() {
             false,
             false,
             Some(leo_ast::NetworkName::TestnetV0),
-            Some("http://127.0.0.1:1"),
+            Some(&endpoint),
             0,
         )
         .expect_err("a changed cached dependency must stop the build");
@@ -630,7 +724,11 @@ fn failed_network_graph_does_not_commit_new_pins() {
             std::fs::create_dir_all(&home).expect("home must exist");
             write_consumer(&consumer, r#"{"name":"parent.aleo","location":"network"}"#);
             let original = if existing_lock {
-                write_network_lock(&consumer, &[network_pin(&TRUSTED_TOKEN.replace("token.aleo", "other.aleo"), 1)]);
+                write_network_lock(&consumer, &[network_pin(
+                    &TRUSTED_TOKEN.replace("token.aleo", "other.aleo"),
+                    1,
+                    None,
+                )]);
                 Some(std::fs::read(consumer.join(LOCK_FILENAME)).expect("old lock must exist"))
             } else {
                 None
@@ -689,7 +787,7 @@ fn standalone_bytecode_resolves_imports_without_creating_a_lock_file() {
         assert_eq!(server.join().expect("fixture must finish").len(), 2);
         assert!(!base.join(LOCK_FILENAME).exists(), "standalone loading must not create a project lock");
         write_program(&base, "parent.aleo", "null");
-        write_network_lock(&base, &[network_pin(TRUSTED_TOKEN, 0)]);
+        write_network_lock(&base, &[network_pin(TRUSTED_TOKEN, 0, Some("http://127.0.0.1:1"))]);
         let original = std::fs::read(base.join(LOCK_FILENAME)).expect("project lock must exist");
         let nested_path = base.join("build/parent/parent.aleo");
         write_file(&nested_path, &std::fs::read_to_string(&path).expect("bytecode fixture must exist"));
@@ -811,9 +909,9 @@ fn dependency_update_is_selective_and_keeps_transitive_pins() {
             r#"{"name":"parent.aleo","location":"network"},{"name":"other.aleo","location":"network"}"#,
         );
         write_network_lock(&consumer, &[
-            network_pin(&parent, 0),
-            network_pin(TRUSTED_TOKEN, 0),
-            network_pin(&other, 0),
+            network_pin(&parent, 0, None),
+            network_pin(TRUSTED_TOKEN, 0, None),
+            network_pin(&other, 0, None),
         ]);
         write_file(&home.join("registry/testnet/token/0/token.aleo"), TRUSTED_TOKEN);
         write_file(&home.join("registry/testnet/other/0/other.aleo"), &other);
@@ -822,6 +920,8 @@ fn dependency_update_is_selective_and_keeps_transitive_pins() {
             let (endpoint, server) = network_response(&[
                 ("/testnet/program/parent.aleo/latest_edition", "200 OK", "1"),
                 ("/testnet/program/parent.aleo/1", "200 OK", &parent),
+                ("/testnet/program/token.aleo/0", "200 OK", TRUSTED_TOKEN),
+                ("/testnet/program/other.aleo/0", "200 OK", &other),
             ]);
             let (_, updated) = Package::update_dependencies(
                 &consumer,
@@ -833,7 +933,7 @@ fn dependency_update_is_selective_and_keeps_transitive_pins() {
                 0,
             )
             .expect("selected update must leave unrelated dependencies locked");
-            assert_eq!(server.join().expect("fixture must finish").len(), 2);
+            assert_eq!(server.join().expect("fixture must finish").len(), 4);
             assert!(updated.network_pin("parent.aleo", leo_ast::NetworkName::TestnetV0, Some(1)).is_some());
             for name in ["token.aleo", "other.aleo"] {
                 assert!(updated.network_pin(name, leo_ast::NetworkName::TestnetV0, Some(0)).is_some());
@@ -888,7 +988,7 @@ fn dependency_update_respects_workspace_development_edition_constraints() {
         .expect("manifest must parse");
         flexible_manifest["dev_dependencies"] = manifest["dev_dependencies"].clone();
         write_file(&flexible.join(MANIFEST_FILENAME), &flexible_manifest.to_string());
-        write_network_lock(&workspace, &[network_pin(TRUSTED_TOKEN, 2)]);
+        write_network_lock(&workspace, &[network_pin(TRUSTED_TOKEN, 2, None)]);
         let (endpoint, server) = network_response(&[("/testnet/program/token.aleo/2", "200 OK", TRUSTED_TOKEN)]);
         let (_, updated) =
             Package::update_dependencies(&flexible, &home, None, false, leo_ast::NetworkName::TestnetV0, &endpoint, 0)
@@ -902,7 +1002,7 @@ fn dependency_update_respects_workspace_development_edition_constraints() {
             false,
             false,
             Some(leo_ast::NetworkName::TestnetV0),
-            Some("http://127.0.0.1:1"),
+            Some(&endpoint),
             0,
         )
         .expect("a normal test build must reuse compatible fixed and flexible declarations");

@@ -76,6 +76,8 @@ Once it is deployed, it CANNOT be changed.
 
 See the **[Deploying](./../guides/deploying.md)** guide for more details.
 
+Program downloads use the official API by default. To download from a trusted local development network or custom endpoint, pass `--trust-endpoint`. Your configured endpoint still supplies ledger queries and receives broadcasts. `--devnet` and `DEVNET` do not change the program source. See [network dependency verification](../guides/dependencies.md#network-dependency-verification).
+
 ## JSON Output
 
 Use `--json-output` to save structured JSON results to disk for programmatic use:

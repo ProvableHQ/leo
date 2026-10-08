@@ -19,7 +19,10 @@ use crate::{MAX_PROGRAM_SIZE, *};
 use leo_errors::Result;
 use leo_span::Symbol;
 
-use snarkvm::prelude::{CanaryV0, MainnetV0, Program as SvmProgram, ProgramID, TestnetV0};
+use snarkvm::{
+    algorithms::crypto_hash::sha256,
+    prelude::{CanaryV0, MainnetV0, Program as SvmProgram, ProgramID, TestnetV0},
+};
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::Path;
@@ -205,7 +208,7 @@ impl CompilationUnit {
         })
     }
 
-    /// Fetch a locked edition, or record the first valid response from the configured endpoint.
+    /// Fetch bytecode from a trusted endpoint and check any existing edition checksum.
     #[allow(clippy::too_many_arguments)]
     pub fn fetch<P: AsRef<Path>>(
         name: Symbol,
@@ -262,7 +265,9 @@ impl CompilationUnit {
         };
         let cache_directory = home_path.join(format!("registry/{network}/{name}/{edition}"));
         let full_cache_path = cache_directory.join(&full_name);
-        let use_cache = pin.is_some() && !no_cache && full_cache_path.exists();
+        let source = sha256(endpoint.as_bytes());
+        let verified_source = pin.is_some_and(|pin| pin.source == Some(source));
+        let use_cache = verified_source && !no_cache && full_cache_path.exists();
         let bytecode = if use_cache {
             std::fs::read_to_string(&full_cache_path).map_err(|err| {
                 crate::errors::util_file_io_error(
@@ -312,12 +317,13 @@ impl CompilationUnit {
             })?;
         }
 
-        if pin.is_none() {
+        if !verified_source {
             pins.record_network(NetworkLockEntry {
                 name: full_name.clone(),
                 network: network.to_string(),
                 edition,
                 checksum,
+                source: Some(source),
             });
         }
 

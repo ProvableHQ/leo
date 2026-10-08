@@ -134,7 +134,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_local,
             command.options.offline,
             Some(network),
-            Some(&endpoint),
+            Some(context.program_endpoint(&endpoint)),
             command.env_override.network_retries,
         )?
     } else {
@@ -145,7 +145,7 @@ fn handle_build(command: &LeoBuild, context: Context) -> Result<<LeoBuild as Com
             command.options.no_local,
             command.options.offline,
             Some(network),
-            Some(&endpoint),
+            Some(context.program_endpoint(&endpoint)),
             command.env_override.network_retries,
         )?
     };

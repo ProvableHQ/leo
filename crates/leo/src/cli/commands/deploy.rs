@@ -155,7 +155,7 @@ impl Command for LeoDeploy {
                 true,
                 self.build_options.no_local,
                 Some(network),
-                Some(&endpoint),
+                Some(context.program_endpoint(&endpoint)),
                 self.env_override.network_retries,
             );
         }
@@ -366,7 +366,12 @@ fn prepare_package_tasks<N: Network>(
 }
 
 /// Load remote dependencies into the shared VM.
-fn load_remote_deps<N: Network>(command: &LeoDeploy, setup: &DeploySetup<N>, remote: Vec<Task<N>>) -> Result<()> {
+fn load_remote_deps<N: Network>(
+    command: &LeoDeploy,
+    context: &Context,
+    setup: &DeploySetup<N>,
+    remote: Vec<Task<N>>,
+) -> Result<()> {
     if remote.is_empty() {
         return Ok(());
     }
@@ -379,7 +384,7 @@ fn load_remote_deps<N: Network>(command: &LeoDeploy, setup: &DeploySetup<N>, rem
                 Some(e) => e,
                 None => leo_package::fetch_latest_edition(
                     &task.id.to_string(),
-                    &setup.endpoint,
+                    context.program_endpoint(&setup.endpoint),
                     setup.network,
                     command.env_override.network_retries,
                 )?,
@@ -683,7 +688,7 @@ fn handle_deploy<N: Network, A: Aleo<Network = N>>(
     }
 
     // Load remote dependencies into the VM.
-    load_remote_deps(command, &setup, remote)?;
+    load_remote_deps(command, &context, &setup, remote)?;
 
     // Generate deployment transactions.
     let mut already_deployed = HashSet::new();
@@ -825,7 +830,7 @@ fn handle_workspace_deploy_inner<N: Network, A: Aleo<Network = N>>(
     }
 
     // Load all unique remote deps into the shared VM.
-    load_remote_deps(command, &setup, all_remote)?;
+    load_remote_deps(command, &context, &setup, all_remote)?;
 
     // Deploy each member's programs in dependency order with shared VM.
     // Edition mismatch is not a concern here: `already_deployed` only tracks
