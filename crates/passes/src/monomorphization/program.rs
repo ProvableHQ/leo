@@ -37,7 +37,13 @@ impl UnitReconstructor for MonomorphizationVisitor<'_> {
                 })
                 .collect(),
             functions: items_at_path(&self.reconstructed_functions, input.name, &[]).collect(),
-            interfaces: input.interfaces,
+            // Reconstruct imported interface prototypes before conformance checking can compare
+            // their const-generic composite types with the consuming program's types.
+            interfaces: input
+                .interfaces
+                .into_iter()
+                .map(|(id, interface)| (id, self.reconstruct_interface(interface)))
+                .collect(),
             stubs: input.stubs,
         }
     }
