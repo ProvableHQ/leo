@@ -34,10 +34,8 @@ finalize bump:
     contains dep_counter__[false] into r0;
     get.or_use dep_counter__[false] 0u32 into r1;
     ternary r0 r1 0u32 into r2;
-    cast r0 r2 into r3 as Optional__JzunLORyB8U;
-    ternary r3.is_some r3.val 0u32 into r4;
-    add r4 1u32 into r5;
-    set r5 into dep_counter__[false];
+    add r2 1u32 into r3;
+    set r3 into dep_counter__[false];
 
 constructor:
     assert.eq edition 0u16;
@@ -64,9 +62,7 @@ finalize do_work:
     contains dep.aleo/dep_counter__[false] into r1;
     get.or_use dep.aleo/dep_counter__[false] 0u32 into r2;
     ternary r1 r2 0u32 into r3;
-    cast r1 r3 into r4 as Optional__JzunLORyB8U;
-    ternary r4.is_some r4.val 0u32 into r5;
-    set r5 into my_counter__[false];
+    set r3 into my_counter__[false];
 
 constructor:
     assert.eq edition 0u16;

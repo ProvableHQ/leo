@@ -25,12 +25,11 @@ finalize foo:
     contains some_very_long_sto__3ynimxWUALp[false] into r0;
     get.or_use some_very_long_sto__3ynimxWUALp[false] 0u8 into r1;
     ternary r0 r1 0u8 into r2;
-    cast r0 r2 into r3 as Optional__3aph2JMPtnA;
-    assert.eq r3.is_some true;
-    get.or_use some_verrry_l__len__5biJXePTdHq[false] 0u32 into r4;
-    add r4 1u32 into r5;
-    set r5 into some_verrry_l__len__5biJXePTdHq[false];
-    set r3.val into some_verrry_long_s__F3Lfva7X0lK[r4];
+    assert.eq r0 true;
+    get.or_use some_verrry_l__len__5biJXePTdHq[false] 0u32 into r3;
+    add r3 1u32 into r4;
+    set r4 into some_verrry_l__len__5biJXePTdHq[false];
+    set r2 into some_verrry_long_s__F3Lfva7X0lK[r3];
 
 constructor:
     assert.eq edition 0u16;
