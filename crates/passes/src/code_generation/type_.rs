@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{IntegerType, Interface, Mode, TypeKind};
+use leo_ast::{IntegerType, Interface, Location, Mode, TypeKind};
 
 impl CodeGeneratingVisitor<'_> {
     pub fn visit_type(&self, input: &TypeKind) -> AleoType {
@@ -123,9 +123,11 @@ impl CodeGeneratingVisitor<'_> {
         &self,
         type_: &TypeKind,
         visibility: Option<AleoVisibility>,
-        interface: Option<&Interface>,
+        interface_context: Option<(&Location, &Interface)>,
     ) -> (AleoType, Option<AleoVisibility>) {
-        if matches!(type_, TypeKind::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
+        if matches!(type_, TypeKind::DynRecord)
+            || interface_context.is_some_and(|(location, interface)| interface.is_record_type(type_, location))
+        {
             return (AleoType::DynamicRecord, None);
         }
         (self.visit_type(type_), visibility)
@@ -137,11 +139,13 @@ impl CodeGeneratingVisitor<'_> {
         &self,
         type_: &TypeKind,
         mode: Mode,
-        interface: Option<&Interface>,
+        interface_context: Option<(&Location, &Interface)>,
     ) -> (AleoType, Option<AleoVisibility>) {
         if matches!(type_, TypeKind::Future(..)) {
             (AleoType::DynamicFuture, None)
-        } else if matches!(type_, TypeKind::DynRecord) || interface.is_some_and(|i| i.is_record_type(type_)) {
+        } else if matches!(type_, TypeKind::DynRecord)
+            || interface_context.is_some_and(|(location, interface)| interface.is_record_type(type_, location))
+        {
             (AleoType::DynamicRecord, None)
         } else {
             let viz = AleoVisibility::maybe_from(mode).or(Some(AleoVisibility::Private));

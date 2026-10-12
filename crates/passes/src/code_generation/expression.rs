@@ -37,6 +37,7 @@ use leo_ast::{
     IntrinsicExpression,
     Literal,
     LiteralVariant,
+    Location,
     MemberAccess,
     NetworkName,
     Node,
@@ -606,17 +607,19 @@ impl CodeGeneratingVisitor<'_> {
     ///
     /// Panics if the interface type is not a composite or the symbol table entry is missing (both
     /// are guaranteed by the type checker).
-    fn lookup_dynamic_op_interface(&self, input: &DynamicOpExpression) -> Interface {
+    fn lookup_dynamic_op_interface<'a>(&self, input: &'a DynamicOpExpression) -> (&'a Location, Interface) {
         let caller_program = self.program_id.expect("Dynamic ops only appear within programs.").as_symbol();
         let TypeKind::Composite(CompositeType { path: interface_path, .. }) = &input.interface else {
             panic!("Dynamic ops can only be done over interface types, got `{}`", input.interface);
         };
         let interface_location = interface_path.try_global_location().expect("Should be resolved by now.");
-        self.state
+        let interface = self
+            .state
             .symbol_table
             .lookup_interface(caller_program, interface_location)
             .expect("Type checking guarantees interface exists")
-            .clone()
+            .clone();
+        (interface_location, interface)
     }
 
     /// Emits code for the PROG and NET operands shared by all dynamic instructions.
@@ -655,7 +658,7 @@ impl CodeGeneratingVisitor<'_> {
         };
         let op_name = op.name;
 
-        let interface = self.lookup_dynamic_op_interface(input);
+        let (_, interface) = self.lookup_dynamic_op_interface(input);
         let mapping_proto = interface
             .mappings
             .iter()
@@ -695,7 +698,7 @@ impl CodeGeneratingVisitor<'_> {
             panic!("visit_dynamic_function_call expects a DynamicOpKind::Call");
         };
 
-        let interface = self.lookup_dynamic_op_interface(input);
+        let (interface_location, interface) = self.lookup_dynamic_op_interface(input);
 
         let (_, func_proto) = interface
             .functions
@@ -727,7 +730,7 @@ impl CodeGeneratingVisitor<'_> {
             .iter()
             .map(|inp| {
                 let viz = AleoVisibility::maybe_from(inp.mode()).or(Some(AleoVisibility::Private));
-                self.dynamic_call_input_type(inp.type_.kind(), viz, Some(&interface))
+                self.dynamic_call_input_type(inp.type_.kind(), viz, Some((interface_location, &interface)))
             })
             .collect();
 
@@ -747,7 +750,9 @@ impl CodeGeneratingVisitor<'_> {
         let output_types: Vec<(AleoType, Option<AleoVisibility>)> = func_proto
             .output
             .iter()
-            .map(|out| self.dynamic_call_output_type(out.type_.kind(), out.mode, Some(&interface)))
+            .map(|out| {
+                self.dynamic_call_output_type(out.type_.kind(), out.mode, Some((interface_location, &interface)))
+            })
             .collect();
 
         let dest_exprs: Vec<AleoExpr> = destinations.iter().cloned().map(AleoExpr::Reg).collect();
