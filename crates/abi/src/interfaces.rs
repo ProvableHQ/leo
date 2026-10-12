@@ -32,6 +32,7 @@ use crate::{
     convert_record_field,
     convert_storage_type,
     convert_struct,
+    find_composite_at_location,
     interface_ref_from_type,
     resolve_io_mode,
 };
@@ -145,7 +146,7 @@ pub fn generate_program_interfaces(ast: &ast::Program) -> Vec<CompiledInterface>
         let Some(stub) = ast.stubs.get(&ext_program) else { continue };
         let Some(iface) = find_interface_in_stub(stub, &iface_path) else { continue };
 
-        let ext_cs = composite_source_for_stub(stub);
+        let ext_cs = composite_source_for_stub(stub, &ast.stubs);
         let module_path: Vec<Symbol> = iface_path[..iface_path.len().saturating_sub(1)].to_vec();
         let abi = build_interface(iface, ext_program, &module_path, &ext_cs);
         let key = (Some(owner_str.clone()), abi.path.clone());
@@ -204,44 +205,16 @@ enum CompositeSource<'a> {
 impl<'a> CompositeSource<'a> {
     /// Checks if a composite type refers to a record.
     fn is_record(&self, comp_ty: &ast::CompositeType) -> bool {
-        let name = comp_ty.path.identifier().name;
-
-        // Check local composites.
-        match self {
-            CompositeSource::Program { scope, modules, .. } => {
-                if let Some((_, c)) = scope.composites.iter().find(|(sym, _)| *sym == name) {
-                    return c.is_record;
-                }
-                for module in modules.values() {
-                    if let Some((_, c)) = module.composites.iter().find(|(sym, _)| *sym == name) {
-                        return c.is_record;
-                    }
-                }
+        let Some(location) = comp_ty.path.try_global_location() else { return false };
+        let composite = match self {
+            CompositeSource::Program { scope, modules, stubs } => {
+                find_composite_at_location(location, scope.program_id.as_symbol(), &scope.composites, modules, stubs)
             }
-            CompositeSource::Library { library, .. } => {
-                if let Some((_, c)) = library.structs.iter().find(|(sym, _)| *sym == name) {
-                    return c.is_record;
-                }
-                for module in library.modules.values() {
-                    if let Some((_, c)) = module.composites.iter().find(|(sym, _)| *sym == name) {
-                        return c.is_record;
-                    }
-                }
+            CompositeSource::Library { library, stubs } => {
+                find_composite_at_location(location, library.name, &library.structs, &library.modules, stubs)
             }
-        }
-
-        // Check stubs.
-        let stubs = match self {
-            CompositeSource::Program { stubs, .. } | CompositeSource::Library { stubs, .. } => stubs,
         };
-        if let Some(program) = comp_ty.path.program()
-            && let Some(stub) = stubs.get(&program)
-            && let Some(is_rec) = find_is_record_in_stub(stub, name)
-        {
-            return is_rec;
-        }
-
-        false
+        composite.is_some_and(|composite| composite.is_record)
     }
 
     /// Collects all struct (non-record) composites as ABI structs.
@@ -293,32 +266,20 @@ impl<'a> CompositeSource<'a> {
     }
 }
 
-/// Checks if a name is a record in a stub.
-fn find_is_record_in_stub(stub: &ast::Stub, name: Symbol) -> Option<bool> {
-    match stub {
-        ast::Stub::FromAleo { program, .. } => {
-            program.composites.iter().find(|(sym, _)| *sym == name).map(|(_, c)| c.is_record)
-        }
-        ast::Stub::FromLeo { program, .. } => program
-            .program_scopes
-            .values()
-            .flat_map(|scope| scope.composites.iter())
-            .find(|(sym, _)| *sym == name)
-            .map(|(_, c)| c.is_record),
-        ast::Stub::FromLibrary { library, .. } => {
-            library.structs.iter().find(|(sym, _)| *sym == name).map(|(_, c)| c.is_record)
-        }
-    }
-}
-
 /// Builds a `CompositeSource` for a stub (for looking up composites in an external dependency).
-fn composite_source_for_stub(stub: &ast::Stub) -> CompositeSource<'_> {
+///
+/// Use the compilation unit's reachable stubs because a dependency's nested `Program.stubs`
+/// map does not contain its sibling dependencies.
+fn composite_source_for_stub<'a>(
+    stub: &'a ast::Stub,
+    reachable_stubs: &'a IndexMap<Symbol, ast::Stub>,
+) -> CompositeSource<'a> {
     match stub {
         ast::Stub::FromLeo { program, .. } => {
             let scope = program.program_scopes.values().next().unwrap();
-            CompositeSource::Program { scope, modules: &program.modules, stubs: &program.stubs }
+            CompositeSource::Program { scope, modules: &program.modules, stubs: reachable_stubs }
         }
-        ast::Stub::FromLibrary { library, .. } => CompositeSource::Library { library, stubs: &library.stubs },
+        ast::Stub::FromLibrary { library, .. } => CompositeSource::Library { library, stubs: reachable_stubs },
         ast::Stub::FromAleo { .. } => {
             // Aleo stubs can't define interfaces, so this shouldn't be reached.
             // Use an empty library as a placeholder.
@@ -382,12 +343,22 @@ fn build_interface(
 
     let parents: Vec<abi::InterfaceRef> =
         iface.parents.iter().filter_map(|(_, ty)| interface_ref_from_type(ty, &program)).collect();
+    let prototype_record_locations: HashSet<ast::Location> = iface
+        .records
+        .iter()
+        .map(|(record_name, _)| {
+            let mut path = Vec::with_capacity(module_path.len() + 1);
+            path.extend_from_slice(module_path);
+            path.push(*record_name);
+            ast::Location::new(owning_program, path)
+        })
+        .collect();
 
     // Split prototypes by variant so view fns appear in their own ABI bucket,
     // parallel to how `Program.functions` and `Program.views` are split.
     let (functions, views): (Vec<abi::Function>, Vec<abi::Function>) =
         iface.functions.iter().partition_map(|(_, proto)| {
-            let converted = convert_function_prototype(proto, iface, cs);
+            let converted = convert_function_prototype(proto, &prototype_record_locations, cs);
             if proto.variant.is_view() { Either::Right(converted) } else { Either::Left(converted) }
         });
 
@@ -419,13 +390,21 @@ fn build_interface(
 
 fn convert_function_prototype(
     proto: &ast::FunctionPrototype,
-    iface: &ast::Interface,
+    prototype_record_locations: &HashSet<ast::Location>,
     cs: &CompositeSource<'_>,
 ) -> abi::Function {
     abi::Function {
         name: proto.identifier.name.to_string(),
-        inputs: proto.input.iter().map(|i| convert_input(i, iface, cs, proto.variant.is_view())).collect(),
-        outputs: proto.output.iter().map(|o| convert_output(o, iface, cs, proto.variant.is_view())).collect(),
+        inputs: proto
+            .input
+            .iter()
+            .map(|i| convert_input(i, prototype_record_locations, cs, proto.variant.is_view()))
+            .collect(),
+        outputs: proto
+            .output
+            .iter()
+            .map(|o| convert_output(o, prototype_record_locations, cs, proto.variant.is_view()))
+            .collect(),
     }
 }
 
@@ -450,30 +429,35 @@ fn convert_storage_variable_prototype(proto: &ast::StorageVariablePrototype) -> 
 
 fn convert_input(
     input: &ast::Input,
-    iface: &ast::Interface,
+    prototype_record_locations: &HashSet<ast::Location>,
     cs: &CompositeSource<'_>,
     is_view: bool,
 ) -> abi::FunctionInput {
-    convert_function_input(input.type_.kind(), iface, cs, resolve_io_mode(input.mode, is_view))
+    convert_function_input(input.type_.kind(), prototype_record_locations, cs, resolve_io_mode(input.mode, is_view))
 }
 
 fn convert_output(
     output: &ast::Output,
-    iface: &ast::Interface,
+    prototype_record_locations: &HashSet<ast::Location>,
     cs: &CompositeSource<'_>,
     is_view: bool,
 ) -> abi::FunctionOutput {
-    convert_function_output(output.type_.kind(), iface, cs, resolve_io_mode(output.mode, is_view))
+    convert_function_output(output.type_.kind(), prototype_record_locations, cs, resolve_io_mode(output.mode, is_view))
 }
 
-/// Checks if a composite type is a record in the context of an interface.
+/// Checks if a composite type is a record in the context of an interface ABI.
 ///
-/// Checks the interface's own record prototypes first, then falls back to the
-/// composite source for records from the surrounding scope.
-fn is_record_for_interface(comp_ty: &ast::CompositeType, iface: &ast::Interface, cs: &CompositeSource<'_>) -> bool {
-    // Check the interface's own records.
-    let name = comp_ty.path.identifier().name;
-    if iface.records.iter().any(|(n, _)| *n == name) {
+/// Direct record prototype locations are checked first. Those locations use the interface's
+/// owning program and containing module path; inherited parent prototypes are not added here.
+/// Concrete composites are then resolved from the surrounding source by their complete location.
+fn is_record_for_interface(
+    comp_ty: &ast::CompositeType,
+    prototype_record_locations: &HashSet<ast::Location>,
+    cs: &CompositeSource<'_>,
+) -> bool {
+    if let Some(location) = comp_ty.path.try_global_location()
+        && prototype_record_locations.contains(location)
+    {
         return true;
     }
     cs.is_record(comp_ty)
@@ -481,7 +465,7 @@ fn is_record_for_interface(comp_ty: &ast::CompositeType, iface: &ast::Interface,
 
 fn convert_function_input(
     ty: &ast::TypeKind,
-    iface: &ast::Interface,
+    prototype_record_locations: &HashSet<ast::Location>,
     cs: &CompositeSource<'_>,
     mode: abi::Mode,
 ) -> abi::FunctionInput {
@@ -489,7 +473,7 @@ fn convert_function_input(
         return abi::FunctionInput::DynamicRecord;
     }
     if let ast::TypeKind::Composite(comp_ty) = ty
-        && is_record_for_interface(comp_ty, iface, cs)
+        && is_record_for_interface(comp_ty, prototype_record_locations, cs)
     {
         return abi::FunctionInput::Record(abi::RecordRef {
             path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
@@ -501,14 +485,14 @@ fn convert_function_input(
 
 fn convert_function_output(
     ty: &ast::TypeKind,
-    iface: &ast::Interface,
+    prototype_record_locations: &HashSet<ast::Location>,
     cs: &CompositeSource<'_>,
     mode: abi::Mode,
 ) -> abi::FunctionOutput {
     match ty {
         ast::TypeKind::Future(_) => abi::FunctionOutput::Final,
         ast::TypeKind::DynRecord => abi::FunctionOutput::DynamicRecord,
-        ast::TypeKind::Composite(comp_ty) if is_record_for_interface(comp_ty, iface, cs) => {
+        ast::TypeKind::Composite(comp_ty) if is_record_for_interface(comp_ty, prototype_record_locations, cs) => {
             abi::FunctionOutput::Record(abi::RecordRef {
                 path: comp_ty.path.segments_iter().map(|s| s.to_string()).collect(),
                 program: comp_ty.path.program().map(|s| s.to_string()),
