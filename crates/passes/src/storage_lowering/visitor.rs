@@ -21,14 +21,52 @@ use leo_span::{Span, Symbol, sym};
 
 use indexmap::IndexMap;
 
+pub(super) struct TernaryGuard {
+    pub(super) condition: Expression,
+    pub(super) selects_true: bool,
+    pub(super) used: bool,
+}
+
 pub struct StorageLoweringVisitor<'a> {
     pub state: &'a mut CompilerState,
     // The name of the current program scope
     pub program: Symbol,
     pub new_mappings: IndexMap<Location, Mapping>,
+    /// Source ternary selections surrounding the expression currently being lowered.
+    pub(super) ternary_guards: Vec<TernaryGuard>,
 }
 
 impl StorageLoweringVisitor<'_> {
+    /// Returns the active source-ternary path and records that each condition on
+    /// that path must be shared with the resulting mutation guard.
+    pub(super) fn active_ternary_guard(&mut self) -> Option<Expression> {
+        let mut active = None;
+        for index in 0..self.ternary_guards.len() {
+            let (condition, selects_true) = {
+                let guard = &mut self.ternary_guards[index];
+                guard.used = true;
+                (guard.condition.clone(), guard.selects_true)
+            };
+
+            let selected = if selects_true {
+                condition
+            } else {
+                UnaryExpression {
+                    op: UnaryOperation::Not,
+                    receiver: condition,
+                    span: Span::default(),
+                    id: self.state.node_builder.next_id(),
+                }
+                .into()
+            };
+            active = Some(match active {
+                Some(left) => self.binary_expr(left, BinaryOperation::And, selected),
+                None => selected,
+            });
+        }
+        active
+    }
+
     /// Returns the two mapping expressions that back a vector: `<base>__` (values)
     /// and `<base>__len__` (length).
     ///
